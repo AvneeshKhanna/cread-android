@@ -9,15 +9,43 @@ buildscript {
 
         // NOTE: Do not place your application dependencies here; they belong
         // in the individual module build.gradle files
+        classpath 'com.google.gms:google-services:3.0.0'
     }
 }
 
 allprojects {
     repositories {
         jcenter()
+        //For support library
+        maven {
+            url 'https://maven.google.com'
+        }
     }
 }
 
 task clean(type: Delete) {
     delete rootProject.buildDir
+}
+
+// Define versions in a single place
+ext {
+    // Sdk and tools
+    compileSdkVersion = 26
+    buildToolsVersion = '26.0.1'
+    minSdkVersion = 16
+    targetSdkVersion = 26
+
+    // App dependencies
+    multiDexVersion = '1.0.1'
+    supportLibraryVersion = '26.1.0'
+    playServiceVersion = '11.4.2'
+    gsonVersion = '2.8.2'
+    calligraphyVersion = '2.3.0'
+    butterKnifeVersion = '8.8.1'
+    debugDBVersion = '1.0.0'
+    picassoVersion='2.5.2'
+    rx2FastAndroidNetworking = '1.0.0'
+
+    //Test dependencies
+    junitVersion = '4.12'
 }

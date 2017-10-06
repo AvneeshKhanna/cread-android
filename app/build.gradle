@@ -1,20 +1,30 @@
 apply plugin: 'com.android.application'
 
 android {
-    compileSdkVersion 26
-    buildToolsVersion "26.0.1"
+    compileSdkVersion rootProject.ext.compileSdkVersion
+    buildToolsVersion rootProject.ext.buildToolsVersion
     defaultConfig {
         applicationId "com.thetestament.cread"
-        minSdkVersion 16
-        targetSdkVersion 26
+        minSdkVersion rootProject.ext.minSdkVersion
+        targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1
         versionName "1.0"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+        // Enabling multi-dex support.
+        multiDexEnabled true
     }
     buildTypes {
         release {
+            shrinkResources true
+            minifyEnabled true
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            buildConfigField "String", "URL", '"http://marketrecruitserver-env.ap-northeast-1.elasticbeanstalk.com"'
+        }
+        debug {
+            shrinkResources false
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            buildConfigField "String", "URL", '"http://9dae1310.ngrok.io"'
         }
     }
 }
@@ -24,6 +34,60 @@ dependencies {
     androidTestCompile('com.android.support.test.espresso:espresso-core:2.2.2', {
         exclude group: 'com.android.support', module: 'support-annotations'
     })
-    compile 'com.android.support:appcompat-v7:26.+'
-    testCompile 'junit:junit:4.12'
+
+    //Generate multiple dalvik executable files
+    compile "com.android.support:multidex:$rootProject.multiDexVersion"
+
+    //Android Support library
+    compile "com.android.support:appcompat-v7:$rootProject.supportLibraryVersion"
+    compile "com.android.support:support-v4:$rootProject.supportLibraryVersion"
+    compile "com.android.support:design:$rootProject.supportLibraryVersion"
+    compile "com.android.support:recyclerview-v7:$rootProject.supportLibraryVersion"
+    compile "com.android.support:cardview-v7:$rootProject.supportLibraryVersion"
+    compile "com.android.support:preference-v7:$rootProject.supportLibraryVersion"
+
+    //Firebase
+    compile "com.google.firebase:firebase-core:$rootProject.playServiceVersion"
+    compile "com.google.firebase:firebase-config:$rootProject.playServiceVersion"
+    compile "com.google.firebase:firebase-crash:$rootProject.playServiceVersion"
+    compile "com.google.firebase:firebase-messaging:$rootProject.playServiceVersion"
+
+    //Font
+    compile "uk.co.chrisjenx:calligraphy:$rootProject.calligraphyVersion"
+
+    //Network
+    compile "com.amitshekhar.android:rx2-android-networking:$rootProject.rx2FastAndroidNetworking"
+
+    //Image
+    compile "com.squareup.picasso:picasso:$rootProject.picassoVersion"
+
+    //Json parser
+    compile "com.google.code.gson:gson:$rootProject.gsonVersion"
+
+    // debug database
+    debugCompile "com.amitshekhar.android:debug-db:$rootProject.debugDBVersion"
+
+    // code generator for view
+    compile "com.jakewharton:butterknife:$rootProject.butterKnifeVersion"
+    annotationProcessor "com.jakewharton:butterknife-compiler:$rootProject.butterKnifeVersion"
+
+    //Circular imageView
+    compile 'de.hdodenhof:circleimageview:2.1.0'
+
+    //Sectioned RecyclerView
+    compile 'com.github.zhukic:sectioned-recyclerview:0.2.2'
+
+    //Tooltip
+    compile 'com.github.vihtarb:tooltip:0.1.9'
+
+    //Material Dialog
+    compile 'com.afollestad.material-dialogs:commons:0.9.3.0'
+
+
+    // dependencies for local unit tests
+    testCompile "junit:junit:$rootProject.ext.junitVersion"
+
 }
+
+// Add this line at the bottom of the file for firebase services
+apply plugin: 'com.google.gms.google-services'
