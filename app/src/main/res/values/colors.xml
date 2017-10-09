@@ -1,6 +1,32 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="colorPrimary">#3F51B5</color>
-    <color name="colorPrimaryDark">#303F9F</color>
-    <color name="colorAccent">#FF4081</color>
+    <!--App Color Palette-->
+    <color name="colorPrimary">#F44336</color>
+    <color name="colorPrimaryDark">#E53935</color>
+    <color name="colorAccent">#F44336</color>
+
+    <color name="white">#FFFFFF</color>
+
+    //Grey Variant
+    <color name="grey_dark">#424242</color>
+    <color name="grey_custom">#a8a8a8</color>
+
+    //Black variant
+    <color name="black_overlay">#66000000</color>
+    <color name="black_defined">#FF282828</color>
+
+
+    <!--For MainActivity Pager-->
+    <!--For inactive dots-->
+    <array name="array_dot_inactive_main">
+        <item>@color/black_defined</item>
+        <item>@color/black_defined</item>
+        <item>@color/black_defined</item>
+    </array>
+    <!--For active dots-->
+    <array name="array_dot_active_main">
+        <item>@color/colorPrimary</item>
+        <item>@color/colorPrimary</item>
+        <item>@color/colorPrimary</item>
+    </array>
 </resources>

@@ -1,3 +1,8 @@
 <resources>
     <string name="app_name">Cread</string>
+
+    <string name="facebook_app_id">122579871788202</string>
+    <string name="fb_login_protocol_scheme">fb122579871788202</string>
+
+    <string name="text_terms_of_service">By using this app, you agree with our <u>Terms of Service</u></string>
 </resources>
