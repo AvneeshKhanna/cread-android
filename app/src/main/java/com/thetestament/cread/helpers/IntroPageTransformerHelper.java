@@ -1,4 +1,4 @@
-package com.thetestament.cread.introtour;
+package com.thetestament.cread.helpers;
 
 
 import android.support.v4.view.ViewPager;
@@ -6,7 +6,7 @@ import android.view.View;
 
 import com.thetestament.cread.R;
 
-public class IntroPageTransformer implements ViewPager.PageTransformer {
+public class IntroPageTransformerHelper implements ViewPager.PageTransformer {
     @Override
     public void transformPage(View page, float position) {
         View localView1 = page.findViewById(R.id.title);

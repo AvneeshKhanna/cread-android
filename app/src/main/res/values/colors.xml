@@ -10,6 +10,7 @@
     //Grey Variant
     <color name="grey_dark">#424242</color>
     <color name="grey_custom">#a8a8a8</color>
+    <color name="grey_light">#f0efef</color>
 
     //Black variant
     <color name="black_overlay">#66000000</color>

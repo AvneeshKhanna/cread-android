@@ -1,4 +1,4 @@
-package com.thetestament.cread.introtour;
+package com.thetestament.cread.adapters;
 
 
 import android.content.Context;

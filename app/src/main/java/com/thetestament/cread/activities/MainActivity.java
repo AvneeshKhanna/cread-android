@@ -1,4 +1,4 @@
-package com.thetestament.cread;
+package com.thetestament.cread.activities;
 
 
 import android.content.Intent;
@@ -10,8 +10,9 @@ import android.view.WindowManager;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import com.thetestament.cread.introtour.IntroPageTransformer;
-import com.thetestament.cread.introtour.IntroViewPagerAdapter;
+import com.thetestament.cread.R;
+import com.thetestament.cread.adapters.IntroViewPagerAdapter;
+import com.thetestament.cread.helpers.IntroPageTransformerHelper;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -26,6 +27,22 @@ public class MainActivity extends BaseActivity {
     ViewPager viewPager;
 
     private int[] layouts;
+    //  viewpager change listener
+    ViewPager.OnPageChangeListener viewPagerPageChangeListener = new ViewPager.OnPageChangeListener() {
+
+        @Override
+        public void onPageSelected(int position) {
+            addDots(position);
+        }
+
+        @Override
+        public void onPageScrolled(int arg0, float arg1, int arg2) {
+        }
+
+        @Override
+        public void onPageScrollStateChanged(int arg0) {
+        }
+    };
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -54,7 +71,6 @@ public class MainActivity extends BaseActivity {
         super.onRestoreInstanceState(savedInstanceState);
     }
 
-
     /**
      * Log In button onClick Listener
      */
@@ -64,7 +80,6 @@ public class MainActivity extends BaseActivity {
         finish();*/
     }
 
-
     /**
      * Functionality to launch TermsOfServiceActivity.
      */
@@ -73,7 +88,6 @@ public class MainActivity extends BaseActivity {
         startActivity(new Intent(MainActivity.this
                 , TermsOfServiceActivity.class));
     }
-
 
     /**
      * Method to add dots  and to change the color of dots
@@ -99,23 +113,6 @@ public class MainActivity extends BaseActivity {
             dots[currentPage].setTextColor(colorsActive[currentPage]);
     }
 
-    //  viewpager change listener
-    ViewPager.OnPageChangeListener viewPagerPageChangeListener = new ViewPager.OnPageChangeListener() {
-
-        @Override
-        public void onPageSelected(int position) {
-            addDots(position);
-        }
-
-        @Override
-        public void onPageScrolled(int arg0, float arg1, int arg2) {
-        }
-
-        @Override
-        public void onPageScrollStateChanged(int arg0) {
-        }
-    };
-
     /**
      * Method to initialize sliders for the view pager.
      */
@@ -133,7 +130,7 @@ public class MainActivity extends BaseActivity {
     private void initViewPager() {
         viewPager.setAdapter(new IntroViewPagerAdapter(layouts, getBaseContext()));
         viewPager.addOnPageChangeListener(viewPagerPageChangeListener);
-        viewPager.setPageTransformer(false, new IntroPageTransformer());
+        viewPager.setPageTransformer(false, new IntroPageTransformerHelper());
     }
 
     /**

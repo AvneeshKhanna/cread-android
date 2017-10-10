@@ -6,18 +6,22 @@
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/colorAccent</item>
-    </style>
-
-
-    <!--Cread Normal theme-->
-    <style name="CreadNormalTheme" parent="Theme.AppCompat.Light.DarkActionBar">
-        <item name="colorPrimary">@color/colorPrimary</item>
-        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
-        <item name="colorAccent">@color/colorAccent</item>
         <!--To change the material dialog font-family-->
         <!-- <item name="md_medium_font">@string/app_font_family_bold</item>
          <item name="md_regular_font">@string/app_font_family_normal</item>-->
     </style>
+
+    <!--CreadNavigationActivity Theme-->
+    <style name="BottomNavigationActivityTheme" parent="Theme.AppCompat.Light.NoActionBar">
+        <item name="colorPrimary">@color/colorPrimary</item>
+        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
+        <item name="colorAccent">@color/colorAccent</item>
+        <!--To change the material dialog font-family--><!--
+        <item name="md_medium_font">@string/app_font_family_bold</item>
+        <item name="md_regular_font">@string/app_font_family_normal</item>-->
+
+    </style>
+
 
     <!--RalewayLight font-->
     <style name="RalewayLight" parent="android:TextAppearance">

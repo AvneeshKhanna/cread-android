@@ -1,4 +1,4 @@
-package com.thetestament.cread;
+package com.thetestament.cread.activities;
 
 import android.content.Context;
 import android.support.v7.app.AppCompatActivity;

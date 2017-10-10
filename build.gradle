@@ -21,6 +21,9 @@ allprojects {
         maven {
             url 'https://maven.google.com'
         }
+        maven {
+            url "https://clojars.org/repo/"
+        }
     }
 }
 
@@ -44,7 +47,7 @@ ext {
     calligraphyVersion = '2.3.0'
     butterKnifeVersion = '8.8.1'
     debugDBVersion = '1.0.0'
-    picassoVersion='2.5.2'
+    picassoVersion = '2.5.2'
     rx2FastAndroidNetworking = '1.0.0'
 
     //Test dependencies

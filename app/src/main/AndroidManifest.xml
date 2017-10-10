@@ -14,7 +14,7 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
 
-        //For facebook sdk start
+        <!--For facebook sdk start-->
         <meta-data
             android:name="com.facebook.sdk.ApplicationId"
             android:value="@string/facebook_app_id" />
@@ -36,12 +36,11 @@
                 <data android:scheme="@string/fb_login_protocol_scheme" />
             </intent-filter>
         </activity>
+        <!--For facebook sdk end-->
 
-        //For facebook sdk end
-
-        //SplashActivity
+        <!--SplashActivity-->
         <activity
-            android:name=".SplashActivity"
+            android:name=".activities.SplashActivity"
             android:screenOrientation="portrait"
             android:theme="@style/Theme.AppCompat.NoActionBar">
 
@@ -51,22 +50,47 @@
             </intent-filter>
         </activity>
 
-        //MainActivity
+        <!--MainActivity-->
         <activity
-            android:name=".MainActivity"
+            android:name=".activities.MainActivity"
             android:screenOrientation="portrait"
             android:theme="@style/Theme.AppCompat.NoActionBar" />
 
-
-        <!--For  TermsOfServiceActivity Activity-->
+        <!--TermsOfServiceActivity-->
         <activity
-            android:name=".TermsOfServiceActivity"
+            android:name=".activities.TermsOfServiceActivity"
             android:label="Terms of Service"
-            android:screenOrientation="portrait"
-            android:theme="@style/CreadNormalTheme">
+            android:screenOrientation="portrait">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value=".MainActivity" />
+                android:value=".activities.MainActivity" />
+        </activity>
+
+        <!--BottomNavigationActivity-->
+        <activity
+            android:name=".activities.BottomNavigationActivity"
+            android:launchMode="singleTop"
+            android:screenOrientation="portrait"
+            android:theme="@style/BottomNavigationActivityTheme" />
+
+        <!--UpdatesActivity-->
+        <activity
+            android:name=".activities.UpdatesActivity"
+            android:label="Updates"
+            android:screenOrientation="portrait">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".activities.BottomNavigationActivity" />
+        </activity>
+
+        <!--SettingsActivity-->
+        <activity
+            android:name=".activities.SettingsActivity"
+            android:label="Settings"
+            android:screenOrientation="portrait">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".activities.BottomNavigationActivity" />
         </activity>
 
         <!--Temporarily disable Firebase Analytics-->

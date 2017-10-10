@@ -74,6 +74,10 @@ dependencies {
     compile "com.jakewharton:butterknife:$rootProject.butterKnifeVersion"
     annotationProcessor "com.jakewharton:butterknife-compiler:$rootProject.butterKnifeVersion"
 
+    //To maintain instance state
+    compile 'frankiesardo:icepick:3.2.0'
+    provided 'frankiesardo:icepick-processor:3.2.0'
+
     //Circular imageView
     compile 'de.hdodenhof:circleimageview:2.1.0'
 
@@ -85,7 +89,6 @@ dependencies {
 
     //Material Dialog
     compile 'com.afollestad.material-dialogs:commons:0.9.3.0'
-
 
     // dependencies for local unit tests
     testCompile "junit:junit:$rootProject.ext.junitVersion"
