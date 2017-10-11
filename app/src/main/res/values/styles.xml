@@ -23,6 +23,12 @@
     </style>
 
 
+    <!--HelveticaNeuBold font-->
+    <style name="TextAppearance.FontPath" parent="android:TextAppearance">
+        <!-- Custom Attr-->
+        <item name="fontPath">fonts/HelveticaNeuBold.ttf</item>
+    </style>
+
     <!--RalewayLight font-->
     <style name="RalewayLight" parent="android:TextAppearance">
         <!-- Custom Attr-->

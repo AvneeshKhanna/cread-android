@@ -5,12 +5,14 @@ import android.support.annotation.Nullable;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
+import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
 import com.thetestament.cread.R;
+import com.thetestament.cread.adapters.FeedAdapter;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -38,9 +40,15 @@ public class FeedFragment extends Fragment {
                         , false);
         //ButterKnife view binding
         mUnbinder = ButterKnife.bind(this, view);
-        return super.onCreateView(inflater, container, savedInstanceState);
+        return view;
     }
 
+    @Override
+    public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
+        recyclerView.setAdapter(new FeedAdapter());
+    }
 
     @Override
     public void onDestroyView() {

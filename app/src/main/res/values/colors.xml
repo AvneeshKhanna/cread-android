@@ -5,8 +5,9 @@
     <color name="colorPrimaryDark">#E53935</color>
     <color name="colorAccent">#F44336</color>
 
+    //White variant
     <color name="white">#FFFFFF</color>
-
+    <color name="dark_white">#D5D5D5</color>
     //Grey Variant
     <color name="grey_dark">#424242</color>
     <color name="grey_custom">#a8a8a8</color>
