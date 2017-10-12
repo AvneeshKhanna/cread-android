@@ -26,7 +26,7 @@ public class MainActivity extends BaseActivity {
     @BindView(R.id.viewPager)
     ViewPager viewPager;
 
-    private int[] layouts;
+    private int[] mLayouts;
     //  viewpager change listener
     ViewPager.OnPageChangeListener viewPagerPageChangeListener = new ViewPager.OnPageChangeListener() {
 
@@ -95,7 +95,7 @@ public class MainActivity extends BaseActivity {
      * @param currentPage value of current page i.e 0(zero)
      */
     private void addDots(int currentPage) {
-        TextView[] dots = new TextView[layouts.length];
+        TextView[] dots = new TextView[mLayouts.length];
         int[] colorsActive = getResources().getIntArray(R.array.array_dot_active_main);
         int[] colorsInactive = getResources().getIntArray(R.array.array_dot_inactive_main);
 
@@ -117,7 +117,7 @@ public class MainActivity extends BaseActivity {
      * Method to initialize sliders for the view pager.
      */
     private void initSliders() {
-        layouts = new int[]{
+        mLayouts = new int[]{
                 R.layout.intro_screen_one,
                 R.layout.intro_screen_two,
                 R.layout.intro_screen_three
@@ -128,7 +128,7 @@ public class MainActivity extends BaseActivity {
      * Method to initialize view pager for intro tour.
      */
     private void initViewPager() {
-        viewPager.setAdapter(new IntroViewPagerAdapter(layouts, getBaseContext()));
+        viewPager.setAdapter(new IntroViewPagerAdapter(mLayouts, getBaseContext()));
         viewPager.addOnPageChangeListener(viewPagerPageChangeListener);
         viewPager.setPageTransformer(false, new IntroPageTransformerHelper());
     }

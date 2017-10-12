@@ -6,27 +6,43 @@ import android.support.annotation.Nullable;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.widget.SwipeRefreshLayout;
-import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.view.animation.AnimationUtils;
+import android.view.animation.LayoutAnimationController;
 
+import com.google.firebase.crash.FirebaseCrash;
+import com.thetestament.cread.BuildConfig;
 import com.thetestament.cread.R;
 import com.thetestament.cread.adapters.HatsOffAdapter;
+import com.thetestament.cread.helpers.ViewHelper;
+import com.thetestament.cread.listeners.listener;
 import com.thetestament.cread.models.HatsOffModel;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import icepick.Icepick;
 import icepick.State;
+import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.CompositeDisposable;
+import io.reactivex.observers.DisposableObserver;
+import io.reactivex.schedulers.Schedulers;
+
+import static com.thetestament.cread.helpers.NetworkHelper.getNetConnectionStatus;
+import static com.thetestament.cread.helpers.NetworkHelper.getObservableFromServer;
 
 
 /**
  * Class which show hats off details.
  */
-public class HatsOffActivity extends AppCompatActivity {
+public class HatsOffActivity extends BaseActivity {
 
     @BindView(R.id.rootView)
     CoordinatorLayout rootView;
@@ -37,9 +53,9 @@ public class HatsOffActivity extends AppCompatActivity {
     CompositeDisposable mCompositeDisposable = new CompositeDisposable();
 
     @State
-    String mCampaignID;
+    String mEntityID;
 
-    List<HatsOffModel> hatsOffList = new ArrayList<>();
+    List<HatsOffModel> mHatsOffList = new ArrayList<>();
     HatsOffAdapter mAdapter;
     private int mPageNumber = 0;
     private boolean mRequestMoreData;
@@ -50,44 +66,9 @@ public class HatsOffActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activty_hats_off);
         ButterKnife.bind(this);
-
-
-        //Retrieve data from intent
-        mCampaignID = getIntent().getStringExtra("cmid");
-
-        //Set layout manger for recyclerView
-        recyclerView.setLayoutManager(new LinearLayoutManager(HatsOffActivity.this));
-        //Set adapter
-        mAdapter = new HatsOffAdapter(hatsOffList, HatsOffActivity.this);
-        recyclerView.setAdapter(mAdapter);
-
-        //Load more data listener
-        mAdapter.setOnLoadMoreListener(new HatsOffAdapter.OnLoadMoreListener() {
-            @Override
-            public void onLoadMore() {
-                //if more data is available
-                if (mRequestMoreData) {
-                    new Handler().post(new Runnable() {
-                                           @Override
-                                           public void run() {
-                                               hatsOffList.add(null);
-                                               mAdapter.notifyItemInserted(hatsOffList.size() - 1);
-                                           }
-                                       }
-                    );
-
-                    //Increment page counter
-                    mPageNumber += 1;
-                    //Load new set of data
-                    // loadMoreData();
-                }
-            }
-        });
-        //init screen
-        initScreen();
+        initView();
     }
 
-/*
     @Override
     protected void onDestroy() {
         super.onDestroy();
@@ -106,35 +87,55 @@ public class HatsOffActivity extends AppCompatActivity {
         Icepick.restoreInstanceState(this, savedInstanceState);
     }
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        return super.onCreateOptionsMenu(menu);
-    }
 
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case android.R.id.home:
-                //Navigate away from  this screen
-                finish();
-                return true;
-            default:
-                return super.onOptionsItemSelected(item);
-        }
-    }
+    /**
+     * Method to initialize views and retrieve data from intent.
+     */
+    private void initView() {
 
-    //For calligraphy library
-    @Override
-    protected void attachBaseContext(Context newBase) {
-        super.attachBaseContext(CalligraphyContextWrapper.wrap(newBase));
+        //Retrieve data from intent
+        mEntityID = getIntent().getStringExtra("entityID");
+
+        //Set layout manger for recyclerView
+        recyclerView.setLayoutManager(new LinearLayoutManager(HatsOffActivity.this));
+        //Set adapter
+        mAdapter = new HatsOffAdapter(mHatsOffList, HatsOffActivity.this);
+        recyclerView.setAdapter(mAdapter);
+
+        //initialize  recyclerView
+        initScreen();
+
     }
 
 
-    */
-/**
- * This method loads data from server if user device is connected to internet.
- *//*
+    /**
+     * Method to initialize swipe to refresh view.
+     */
+    private void initScreen() {
+        swipeRefreshLayout.setRefreshing(true);
+        swipeRefreshLayout.setColorSchemeColors(ContextCompat.getColor(this
+                , R.color.colorPrimary));
+        swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                //Clear data
+                mHatsOffList.clear();
+                mAdapter.notifyDataSetChanged();
+                mAdapter.setLoaded();
+                //set page count to zero
+                mPageNumber = 0;
+                loadHatsOffData();
+            }
+        });
+        //Initialize listener
+        initLoadMoreListener(mAdapter);
+        //Load more data
+        loadHatsOffData();
+    }
 
+    /**
+     * This method loads data from server if user device is connected to internet.
+     */
     private void loadHatsOffData() {
         // if user device is connected to net
         if (getNetConnectionStatus(this)) {
@@ -148,16 +149,14 @@ public class HatsOffActivity extends AppCompatActivity {
         }
     }
 
-    */
-/**
- * RxJava2 implementation for retrieving share details data
- *//*
-
+    /**
+     * RxJava2 implementation for retrieving hatsOff data.
+     */
     private void getHatsOffData() {
         final boolean[] tokenError = {false};
         final boolean[] connectionError = {false};
 
-        mCompositeDisposable.add(getObservableFromServer(this, BuildConfig.URL + "/campaign-manage/load-hatsoffs", mCampaignID, mPageNumber)
+        mCompositeDisposable.add(getObservableFromServer(this, BuildConfig.URL + "/load-hatsoffs", mEntityID, mPageNumber)
                 //Run on a background thread
                 .subscribeOn(Schedulers.io())
                 //Be notified on the main thread
@@ -181,7 +180,7 @@ public class HatsOffActivity extends AppCompatActivity {
                                     hatsOffData.setFirstName(dataObj.getString("firstname"));
                                     hatsOffData.setLastName(dataObj.getString("lastname"));
                                     hatsOffData.setProfilePicUrl(dataObj.getString("profilepicurl"));
-                                    hatsOffList.add(hatsOffData);
+                                    mHatsOffList.add(hatsOffData);
                                 }
                             }
                         } catch (JSONException e) {
@@ -193,34 +192,35 @@ public class HatsOffActivity extends AppCompatActivity {
 
                     @Override
                     public void onError(Throwable e) {
+                        //Dismiss progress indicator
                         swipeRefreshLayout.setRefreshing(false);
                         FirebaseCrash.report(e);
                         //Server error Snack bar
-                        SnackBarHelper.getSnackBar(rootView, getString(R.string.error_msg_server));
+                        ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_server));
                     }
 
                     @Override
                     public void onComplete() {
                         // Token status invalid
                         if (tokenError[0]) {
-                            SnackBarHelper.getSnackBar(rootView
+                            ViewHelper.getSnackBar(rootView
                                     , getString(R.string.error_msg_invalid_token));
-                            //Hide progress indicator
+                            //Dismiss progress indicator
                             swipeRefreshLayout.setRefreshing(false);
                         }
                         //Error occurred
                         else if (connectionError[0]) {
-                            SnackBarHelper.getSnackBar(rootView, getString(R.string.error_msg_internal));
-                            //Hide progress indicator
+                            ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_internal));
+                            //Dismiss progress indicator
                             swipeRefreshLayout.setRefreshing(false);
                         } else {
-                            //Hide indicator
+                            //Dismiss indicator
                             swipeRefreshLayout.setRefreshing(false);
                             //Apply 'Slide Up' animation
                             int resId = R.anim.layout_animation_from_bottom;
                             LayoutAnimationController animation = AnimationUtils.loadLayoutAnimation(HatsOffActivity.this, resId);
                             recyclerView.setLayoutAnimation(animation);
-
+                            //Notify changes
                             mAdapter.notifyDataSetChanged();
                         }
                     }
@@ -228,91 +228,112 @@ public class HatsOffActivity extends AppCompatActivity {
         );
     }
 
+    /**
+     * Initialize load more listener.
+     *
+     * @param adapter HatsOffAdapter reference.
+     */
+    private void initLoadMoreListener(HatsOffAdapter adapter) {
+
+        //Load more data listener
+        adapter.setOnLoadMoreListener(new listener.OnHatsOffLoadMoreListener() {
+            @Override
+            public void onLoadMore() {
+                //if more data is available
+                if (mRequestMoreData) {
+                    new Handler().post(new Runnable() {
+                                           @Override
+                                           public void run() {
+                                               mHatsOffList.add(null);
+                                               mAdapter.notifyItemInserted(mHatsOffList.size() - 1);
+                                           }
+                                       }
+                    );
+                    //Increment page counter
+                    mPageNumber += 1;
+                    //Load new set of data
+                    loadMoreData();
+                }
+            }
+        });
+    }
+
+    /**
+     * Method to retrieve next set of data from server.
+     */
     private void loadMoreData() {
 
-        MyApplication myApplication = MyApplication.getSingleTone();
-        JSONObject jsonObject = new JSONObject();
-        try {
-            jsonObject.put("uuid", AccountManagerUtils.getUserID(this));
-            jsonObject.put("authkey", myApplication.getAuthToken());
-            jsonObject.put("cmid", mCampaignID);
-            jsonObject.put("page", mPageNumber);
-        } catch (JSONException e) {
-            e.printStackTrace();
-            FirebaseCrash.report(e);
-            SnackBarHelper.getSnackBar(rootView, getString(R.string.error_msg_internal));
-        }
-        AndroidNetworking.post(BuildConfig.URL + "/campaign-manage/load-hatsoffs")
-                .addJSONObjectBody(jsonObject)
-                .build()
-                .getAsJSONObject(new JSONObjectRequestListener() {
+        final boolean[] tokenError = {false};
+        final boolean[] connectionError = {false};
+
+        mCompositeDisposable.add(getObservableFromServer(this, BuildConfig.URL + "/load-hatsoffs", mEntityID, mPageNumber)
+                //Run on a background thread
+                .subscribeOn(Schedulers.io())
+                //Be notified on the main thread
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribeWith(new DisposableObserver<JSONObject>() {
                     @Override
-                    public void onResponse(JSONObject jsonObject) {
-                        //Remove loading item
-                        hatsOffList.remove(hatsOffList.size() - 1);
-                        mAdapter.notifyItemRemoved(hatsOffList.size());
+                    public void onNext(JSONObject jsonObject) {
                         try {
-                            //Token in not valid
+                            //Token status is invalid
                             if (jsonObject.getString("tokenstatus").equals("invalid")) {
-                                SnackBarHelper.getSnackBar(rootView, getString(R.string.error_msg_server));
+                                tokenError[0] = true;
                             } else {
                                 JSONObject mainData = jsonObject.getJSONObject("data");
                                 mRequestMoreData = mainData.getBoolean("requestmore");
+                                //Hats off details list
                                 JSONArray hatsOffArray = mainData.getJSONArray("hatsoffs");
                                 for (int i = 0; i < hatsOffArray.length(); i++) {
-
                                     JSONObject dataObj = hatsOffArray.getJSONObject(i);
                                     HatsOffModel hatsOffData = new HatsOffModel();
                                     hatsOffData.setUuid(dataObj.getString("uuid"));
                                     hatsOffData.setFirstName(dataObj.getString("firstname"));
                                     hatsOffData.setLastName(dataObj.getString("lastname"));
                                     hatsOffData.setProfilePicUrl(dataObj.getString("profilepicurl"));
-                                    hatsOffList.add(hatsOffData);
-
-                                    //Notify changes
-                                    mAdapter.notifyDataSetChanged();
-                                    mAdapter.setLoaded();
+                                    mHatsOffList.add(hatsOffData);
                                 }
                             }
                         } catch (JSONException e) {
                             e.printStackTrace();
                             FirebaseCrash.report(e);
-                            SnackBarHelper.getSnackBar(rootView, getString(R.string.error_msg_internal));
+                            connectionError[0] = true;
                         }
                     }
 
                     @Override
-                    public void onError(ANError anError) {
+                    public void onError(Throwable e) {
                         //Remove loading item
-                        hatsOffList.remove(hatsOffList.size() - 1);
-                        mAdapter.notifyItemRemoved(hatsOffList.size());
-                        FirebaseCrash.report(anError);
+                        mHatsOffList.remove(mHatsOffList.size() - 1);
+                        mAdapter.notifyItemRemoved(mHatsOffList.size());
+                        FirebaseCrash.report(e);
                         //Server error Snack bar
-                        SnackBarHelper.getSnackBar(rootView, getString(R.string.error_msg_server));
+                        ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_server));
                     }
-                });
-    }
-*/
 
-    /**
-     * Method to initialize swipe to refresh view
-     */
-    private void initScreen() {
-        swipeRefreshLayout.setRefreshing(true);
-        swipeRefreshLayout.setColorSchemeColors(ContextCompat.getColor(this
-                , R.color.colorPrimary));
-        swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
-            @Override
-            public void onRefresh() {
-                //Clear data
-                hatsOffList.clear();
-                mAdapter.notifyDataSetChanged();
-                mAdapter.setLoaded();
-                //set page count to zero
-                mPageNumber = 0;
-                // loadHatsOffData();
-            }
-        });
-        //loadHatsOffData();
+                    @Override
+                    public void onComplete() {
+                        //Remove loading item
+                        mHatsOffList.remove(mHatsOffList.size() - 1);
+                        mAdapter.notifyItemRemoved(mHatsOffList.size());
+                        // Token status invalid
+                        if (tokenError[0]) {
+                            ViewHelper.getSnackBar(rootView
+                                    , getString(R.string.error_msg_invalid_token));
+                        }
+                        //Error occurred
+                        else if (connectionError[0]) {
+                            ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_internal));
+                        } else {
+                            //Apply 'Slide Up' animation
+                            int resId = R.anim.layout_animation_from_bottom;
+                            LayoutAnimationController animation = AnimationUtils.loadLayoutAnimation(HatsOffActivity.this, resId);
+                            recyclerView.setLayoutAnimation(animation);
+                            //Notify changes
+                            mAdapter.notifyDataSetChanged();
+                            mAdapter.setLoaded();
+                        }
+                    }
+                })
+        );
     }
 }

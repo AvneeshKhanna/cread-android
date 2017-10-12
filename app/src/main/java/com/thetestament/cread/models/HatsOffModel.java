@@ -1,7 +1,7 @@
 package com.thetestament.cread.models;
 
 /**
- * Model class for Campaign hats off.
+ * Model class for hats off.
  */
 
 public class HatsOffModel {

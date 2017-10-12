@@ -1,6 +1,7 @@
 package com.thetestament.cread.adapters;
 
 
+import android.content.Intent;
 import android.support.v4.app.FragmentActivity;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -10,6 +11,8 @@ import android.widget.TextView;
 
 import com.squareup.picasso.Picasso;
 import com.thetestament.cread.R;
+import com.thetestament.cread.activities.ProfileActivity;
+import com.thetestament.cread.listeners.listener.OnHatsOffLoadMoreListener;
 import com.thetestament.cread.models.HatsOffModel;
 
 import java.util.List;
@@ -17,6 +20,8 @@ import java.util.List;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import de.hdodenhof.circleimageview.CircleImageView;
+
+import static com.thetestament.cread.utils.Constant.EXTRA_PROFILE_UUID;
 
 public class HatsOffAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
@@ -26,13 +31,13 @@ public class HatsOffAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
     private FragmentActivity mContext;
     private boolean mIsLoading;
 
-    private OnLoadMoreListener mOnLoadMoreListener;
+    private OnHatsOffLoadMoreListener onHatsOffLoadMoreListener;
 
     /**
      * Required constructor.
      *
      * @param mHatsOffList List of hats off data.
-     * @param mContext     Context to be use.
+     * @param mContext     Context to use.
      */
 
     public HatsOffAdapter(List<HatsOffModel> mHatsOffList, FragmentActivity mContext) {
@@ -40,8 +45,11 @@ public class HatsOffAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
         this.mContext = mContext;
     }
 
-    public void setOnLoadMoreListener(OnLoadMoreListener mOnLoadMoreListener) {
-        this.mOnLoadMoreListener = mOnLoadMoreListener;
+    /**
+     * Register a callback to be invoked when user scrolls for more data.
+     */
+    public void setOnLoadMoreListener(OnHatsOffLoadMoreListener onHatsOffLoadMoreListener) {
+        this.onHatsOffLoadMoreListener = onHatsOffLoadMoreListener;
     }
 
     @Override
@@ -71,23 +79,21 @@ public class HatsOffAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
             ItemViewHolder itemViewHolder = (ItemViewHolder) holder;
             //set user name
             itemViewHolder.textUserName.setText(data.getFirstName() + " " + data.getLastName());
-
-            //Load  profile picture
-            Picasso.with(mContext)
-                    .load(data.getProfilePicUrl())
-                    .into(itemViewHolder.imageUser);
+            //Load profile picture
+            loadProfilePicture(data.getProfilePicUrl(), itemViewHolder.imageUser);
+            //Click functionality
+            itemViewOnClick(itemViewHolder.itemView, data.getUuid());
 
         } else if (holder.getItemViewType() == VIEW_TYPE_LOADING) {
             LoadingViewHolder loadingViewHolder = (LoadingViewHolder) holder;
             loadingViewHolder.progressView.setVisibility(View.VISIBLE);
         }
 
-
         //If last item is visible to user and new set of data is to yet to be loaded
         if (position == mHatsOffList.size() - 1 && !mIsLoading) {
-            if (mOnLoadMoreListener != null) {
+            if (onHatsOffLoadMoreListener != null) {
                 //Lode more data here
-                mOnLoadMoreListener.onLoadMore();
+                onHatsOffLoadMoreListener.onLoadMore();
             }
             //toggle
             mIsLoading = true;
@@ -106,8 +112,33 @@ public class HatsOffAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
         mIsLoading = false;
     }
 
-    public interface OnLoadMoreListener {
-        void onLoadMore();
+    /**
+     * Method to load creator profile picture.
+     *
+     * @param picUrl    picture URL.
+     * @param imageView View where image to be loaded.
+     */
+    private void loadProfilePicture(String picUrl, CircleImageView imageView) {
+        Picasso.with(mContext)
+                .load(picUrl)
+                .error(R.drawable.ic_account_circle_48)
+                .into(imageView);
+    }
+
+    /**
+     * ItemView onClick functionality.
+     *
+     * @param uuid unique ID of the person whose profile to be opened.
+     */
+    private void itemViewOnClick(View view, final String uuid) {
+        view.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(mContext, ProfileActivity.class);
+                intent.putExtra(EXTRA_PROFILE_UUID, uuid);
+                mContext.startActivity(intent);
+            }
+        });
     }
 
     //ItemViewHolder class
@@ -133,5 +164,4 @@ public class HatsOffAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
             ButterKnife.bind(this, itemView);
         }
     }
-
 }

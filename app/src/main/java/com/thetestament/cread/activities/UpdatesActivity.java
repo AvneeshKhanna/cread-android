@@ -7,7 +7,7 @@ import com.thetestament.cread.R;
 
 
 /**
- * AppcompatActivity class for Updates system.
+ * AppcompatActivity class for Updates system i.e notification system.
  */
 
 public class UpdatesActivity extends BaseActivity {
