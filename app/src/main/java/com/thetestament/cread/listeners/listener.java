@@ -1,5 +1,6 @@
 package com.thetestament.cread.listeners;
 
+import com.thetestament.cread.models.CommentsModel;
 import com.thetestament.cread.models.ExploreModel;
 import com.thetestament.cread.models.FeedModel;
 
@@ -42,4 +43,36 @@ public class listener {
     public interface OnExploreFollowListener {
         void onFollowClick(ExploreModel exploreData, boolean followStatus);
     }
+
+    /**
+     * Interface definition for a callback to be invoked when user scroll for more data.
+     */
+    public interface OnCommentsLoadMoreListener {
+        void onLoadMore();
+    }
+
+
+    /**
+     * Interface definition for a callback to be invoked when user clicks on delete button.
+     */
+    public interface OnCommentDeleteListener {
+        /**
+         * @param index     index of the comment to be deleted.
+         * @param commentID Unique id for the comment.
+         */
+        void onDelete(int index, String commentID);
+    }
+
+    /**
+     * Interface definition for a callback to be invoked when user clicks on edit button.
+     */
+    public interface OnCommentEditListener {
+        /**
+         * @param index     index of the comment to be edited.
+         * @param commentID Unique id for the comment.
+         * @param comment   comment text.
+         */
+        void onEdit(int index, String commentID, String comment, CommentsModel commentsModel);
+    }
+
 }

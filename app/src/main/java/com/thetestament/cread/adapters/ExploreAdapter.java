@@ -46,7 +46,7 @@ public class ExploreAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
     /**
      * Required constructor.
      *
-     * @param mExploreList List of feed data.
+     * @param mExploreList List of explore data.
      * @param mContext     Context to be use.
      */
     public ExploreAdapter(List<ExploreModel> mExploreList, FragmentActivity mContext) {
@@ -120,7 +120,7 @@ public class ExploreAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
             //ItemView onClick functionality
             itemViewOnClick(itemViewHolder.itemView, data);
             //Follow button click functionality
-            followOnClick(itemViewHolder.buttonFollow, data.getEntityID());
+            followOnClick(itemViewHolder.buttonFollow, data.getEntityID(), data);
 
         } else if (holder.getItemViewType() == VIEW_TYPE_LOADING) {
             FeedAdapter.LoadingViewHolder loadingViewHolder = (FeedAdapter.LoadingViewHolder) holder;
@@ -208,12 +208,12 @@ public class ExploreAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
     /**
      * Follow button onClick functionality
      */
-    private void followOnClick(View view, final String entityID) {
+    private void followOnClick(View view, final String entityID, final ExploreModel data) {
         view.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 // TODO: functionality
-                onExploreFollowListener.onFollowClick();
+                onExploreFollowListener.onFollowClick(data, data.isFollowStatus());
 
             }
         });

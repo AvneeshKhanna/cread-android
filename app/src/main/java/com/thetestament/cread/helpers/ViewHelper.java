@@ -1,7 +1,9 @@
 package com.thetestament.cread.helpers;
 
+import android.content.Context;
 import android.support.design.widget.Snackbar;
 import android.view.View;
+import android.widget.Toast;
 
 /**
  * Helper class to show snack bar.
@@ -19,6 +21,19 @@ public class ViewHelper {
         Snackbar.make(viewParent
                 , message
                 , Snackbar.LENGTH_LONG)
+                .show();
+    }
+
+    /**
+     * Method to show tooltip.
+     *
+     * @param context Context to use.
+     * @param message Message to be displayed.
+     */
+    public static void getToast(Context context, String message) {
+        Toast.makeText(context
+                , message
+                , Toast.LENGTH_LONG)
                 .show();
     }
 }

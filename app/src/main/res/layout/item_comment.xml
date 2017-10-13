@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:padding="10dp">
+
+    <de.hdodenhof.circleimageview.CircleImageView
+        android:id="@+id/imageUser"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:scaleType="centerCrop"
+        tools:src="@color/black_defined" />
+
+    <TextView
+        android:id="@+id/textUserName"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignTop="@+id/imageUser"
+        android:layout_marginLeft="5dp"
+        android:layout_toLeftOf="@+id/textEdited"
+        android:layout_toRightOf="@+id/imageUser"
+        android:paddingRight="10dp"
+        android:textColor="@color/black_defined"
+        android:textSize="16sp"
+        tools:text="The Testament" />
+
+    <TextView
+        android:id="@+id/textEdited"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBottom="@+id/textUserName"
+        android:layout_alignTop="@+id/textUserName"
+        android:layout_marginRight="5dp"
+        android:layout_toLeftOf="@+id/containerButtonMore"
+        android:gravity="center"
+        android:text="edited"
+        android:textSize="11sp"
+        android:visibility="invisible" />
+
+    <FrameLayout
+        android:id="@+id/containerButtonMore"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true">
+
+        <ImageView
+            android:id="@+id/buttonMore"
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:src="@drawable/ic_more_vert_24"
+            android:visibility="gone" />
+    </FrameLayout>
+
+    <TextView
+        android:id="@+id/textComment"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/textUserName"
+        android:layout_marginLeft="5dp"
+        android:layout_toRightOf="@+id/imageUser"
+        android:ellipsize="end"
+        android:maxLines="5"
+        android:paddingRight="10dp"
+        android:paddingTop="2dp"
+        tools:text="Hey my name is Gaurav and i am going to fuck you all." />
+
+</RelativeLayout>
