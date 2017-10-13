@@ -21,7 +21,7 @@
         <ImageView
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
-            android:src="@drawable/icon_edit_pen"
+            android:src="@drawable/ic_edit_24"
             android:tint="@color/grey_custom" />
 
         <TextView
@@ -46,7 +46,7 @@
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:tint="@color/grey_custom"
-            app:srcCompat="@drawable/icon_delete" />
+            app:srcCompat="@drawable/ic_delete_24" />
 
         <TextView
             android:layout_width="wrap_content"

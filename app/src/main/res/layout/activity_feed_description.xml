@@ -7,7 +7,6 @@
     android:layout_height="match_parent"
     android:background="@color/white">
 
-
     <android.support.v4.widget.NestedScrollView
         android:id="@+id/nestedScrollView"
         android:layout_width="match_parent"
@@ -55,13 +54,12 @@
                 android:layout_below="@+id/containerCreator">
 
                 <ImageView
-                    android:id="@+id/imageFeed"
+                    android:id="@+id/image"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:scaleType="centerCrop"
                     android:src="@drawable/img_demo" />
             </com.thetestament.cread.utils.SquareView>
-
 
             <RelativeLayout
                 android:layout_width="match_parent"
@@ -81,14 +79,14 @@
                     tools:text="4 Hats off" />
 
                 <TextView
-                    android:id="@+id/textSharesCount"
+                    android:id="@+id/textCommentsCount"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_alignParentRight="true"
                     android:layout_centerVertical="true"
                     android:paddingLeft="5dp"
                     android:paddingRight="2dp"
-                    android:text="4 Shares"
+                    android:text="4 Comments"
                     android:textAppearance="@style/TextAppearance.FontPath"
                     android:textSize="11sp" />
 
