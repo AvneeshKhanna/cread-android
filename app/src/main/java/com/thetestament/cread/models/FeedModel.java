@@ -3,6 +3,10 @@ package com.thetestament.cread.models;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+/**
+ * Model class for feed.
+ */
+
 public class FeedModel implements Parcelable {
 
     public static final Creator<FeedModel> CREATOR = new Creator<FeedModel>() {
@@ -24,6 +28,7 @@ public class FeedModel implements Parcelable {
     String image;
     String text, textSize, textColor;
     String coordinates;
+
 
     public FeedModel() {
     }
@@ -169,4 +174,5 @@ public class FeedModel implements Parcelable {
         parcel.writeString(textColor);
         parcel.writeString(coordinates);
     }
+
 }

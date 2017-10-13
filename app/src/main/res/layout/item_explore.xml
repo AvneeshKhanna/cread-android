@@ -79,7 +79,7 @@
             android:layout_below="@+id/containerCreator">
 
             <ImageView
-                android:id="@+id/imageFeed"
+                android:id="@+id/imageExplore"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:scaleType="centerCrop"
