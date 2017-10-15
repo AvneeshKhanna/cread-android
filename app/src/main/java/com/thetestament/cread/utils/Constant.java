@@ -4,6 +4,7 @@ package com.thetestament.cread.utils;
 public class Constant {
     //Request codes
     public static final int REQUEST_CODE_UPDATES_ACTIVITY = 6000;
+    public static final int REQUEST_CODE_COMMNETS_ACTIVTY = 6001;
 
 
     //Tag value for fragments
@@ -20,5 +21,5 @@ public class Constant {
     public static final String EXTRA_ENTITY_ID = "entityID";
     public static final String EXTRA_FEED_DATA = "feedData";
     public static final String EXTRA_PROFILE_UUID = "profileUUID";
-
+    public static final String EXTRA_FEED_DESCRIPTION_DATA = "dataFeedDescription";
 }

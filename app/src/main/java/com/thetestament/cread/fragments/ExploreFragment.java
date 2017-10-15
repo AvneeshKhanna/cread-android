@@ -24,7 +24,7 @@ import com.thetestament.cread.R;
 import com.thetestament.cread.adapters.ExploreAdapter;
 import com.thetestament.cread.helpers.ViewHelper;
 import com.thetestament.cread.listeners.listener;
-import com.thetestament.cread.models.ExploreModel;
+import com.thetestament.cread.models.FeedModel;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -56,7 +56,7 @@ public class ExploreFragment extends Fragment {
     RecyclerView recyclerView;
 
     CompositeDisposable mCompositeDisposable = new CompositeDisposable();
-    List<ExploreModel> mExploreDataList = new ArrayList<>();
+    List<FeedModel> mExploreDataList = new ArrayList<>();
     ExploreAdapter mAdapter;
     private Unbinder mUnbinder;
     private int mPageNumber = 0;
@@ -166,7 +166,7 @@ public class ExploreFragment extends Fragment {
                                 JSONArray exploreArray = mainData.getJSONArray("feed");
                                 for (int i = 0; i < exploreArray.length(); i++) {
                                     JSONObject dataObj = exploreArray.getJSONObject(i);
-                                    ExploreModel exploreData = new ExploreModel();
+                                    FeedModel exploreData = new FeedModel();
                                     exploreData.setEntityID(dataObj.getString("entityid"));
                                     exploreData.setUuID(dataObj.getString("uuid"));
                                     exploreData.setCreatorImage(dataObj.getString("creatorimage"));
@@ -286,7 +286,7 @@ public class ExploreFragment extends Fragment {
                                 JSONArray exploreArray = mainData.getJSONArray("feed");
                                 for (int i = 0; i < exploreArray.length(); i++) {
                                     JSONObject dataObj = exploreArray.getJSONObject(i);
-                                    ExploreModel exploreData = new ExploreModel();
+                                    FeedModel exploreData = new FeedModel();
                                     exploreData.setEntityID(dataObj.getString("entityid"));
                                     exploreData.setUuID(dataObj.getString("uuid"));
                                     exploreData.setCreatorImage(dataObj.getString("creatorimage"));
@@ -362,7 +362,7 @@ public class ExploreFragment extends Fragment {
     private void initFollowListener(ExploreAdapter adapter) {
         adapter.setOnExploreFollowListener(new listener.OnExploreFollowListener() {
             @Override
-            public void onFollowClick(ExploreModel exploreData, boolean followStatus) {
+            public void onFollowClick(FeedModel exploreData, boolean followStatus) {
                 updateFollowStatus(exploreData.getUuID(), followStatus);
             }
         });

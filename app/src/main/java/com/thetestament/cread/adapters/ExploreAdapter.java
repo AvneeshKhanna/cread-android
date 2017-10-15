@@ -18,7 +18,7 @@ import com.thetestament.cread.activities.FeedDescriptionActivity;
 import com.thetestament.cread.activities.ProfileActivity;
 import com.thetestament.cread.listeners.listener.OnExploreFollowListener;
 import com.thetestament.cread.listeners.listener.OnExploreLoadMoreListener;
-import com.thetestament.cread.models.ExploreModel;
+import com.thetestament.cread.models.FeedModel;
 
 import java.util.List;
 
@@ -35,7 +35,7 @@ public class ExploreAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
 
     private final int VIEW_TYPE_ITEM = 0;
     private final int VIEW_TYPE_LOADING = 1;
-    private List<ExploreModel> mExploreList;
+    private List<FeedModel> mExploreList;
     private FragmentActivity mContext;
     private boolean mIsLoading;
 
@@ -49,7 +49,7 @@ public class ExploreAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
      * @param mExploreList List of explore data.
      * @param mContext     Context to be use.
      */
-    public ExploreAdapter(List<ExploreModel> mExploreList, FragmentActivity mContext) {
+    public ExploreAdapter(List<FeedModel> mExploreList, FragmentActivity mContext) {
         this.mExploreList = mExploreList;
         this.mContext = mContext;
     }
@@ -89,7 +89,7 @@ public class ExploreAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
 
     @Override
     public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
-        ExploreModel data = mExploreList.get(position);
+        FeedModel data = mExploreList.get(position);
         if (holder.getItemViewType() == VIEW_TYPE_ITEM) {
             final ItemViewHolder itemViewHolder = (ItemViewHolder) holder;
 
@@ -208,7 +208,7 @@ public class ExploreAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
     /**
      * Follow button onClick functionality
      */
-    private void followOnClick(View view, final String entityID, final ExploreModel data) {
+    private void followOnClick(View view, final String entityID, final FeedModel data) {
         view.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -222,7 +222,7 @@ public class ExploreAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
     /**
      * ItemView onClick functionality.
      */
-    private void itemViewOnClick(View view, final ExploreModel feedModel) {
+    private void itemViewOnClick(View view, final FeedModel feedModel) {
         view.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
