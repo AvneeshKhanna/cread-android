@@ -15,9 +15,13 @@
         android:theme="@style/AppTheme">
 
         <!--For facebook sdk start-->
-        <meta-data
-            android:name="com.facebook.sdk.ApplicationId"
-            android:value="@string/facebook_app_id" />
+
+        <meta-data android:name="com.facebook.sdk.ApplicationId"
+            android:value="@string/FACEBOOK_APP_ID"/>
+        <meta-data android:name="com.facebook.accountkit.ApplicationName"
+            android:value="@string/app_name" />
+        <meta-data android:name="com.facebook.accountkit.ClientToken"
+            android:value="@string/ACCOUNT_KIT_CLIENT_TOKEN" />
 
         <activity
             android:name="com.facebook.FacebookActivity"
@@ -36,6 +40,10 @@
                 <data android:scheme="@string/fb_login_protocol_scheme" />
             </intent-filter>
         </activity>
+
+        <activity
+            android:name="com.facebook.accountkit.ui.AccountKitActivity" />
+
         <!--For facebook sdk end-->
 
         <!--SplashActivity-->
@@ -54,7 +62,7 @@
         <activity
             android:name=".activities.MainActivity"
             android:screenOrientation="portrait"
-            android:theme="@style/Theme.AppCompat.NoActionBar" />
+            android:theme="@style/BottomNavigationActivityTheme"/>
 
         <!--TermsOfServiceActivity-->
         <activity

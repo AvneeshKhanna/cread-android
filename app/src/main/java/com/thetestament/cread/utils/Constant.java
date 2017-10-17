@@ -3,7 +3,8 @@ package com.thetestament.cread.utils;
 
 public class Constant {
     //Request codes
-    public static final int REQUEST_CODE_UPDATES_ACTIVITY = 6000;
+    public static final int REQUEST_CODE_UPDATES_ACTIVITY = 1000;
+    public static final int REQUEST_CODE_FB_ACCOUNT_KIT = 1001;
 
 
     //Tag value for fragments

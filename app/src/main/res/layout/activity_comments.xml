@@ -104,5 +104,4 @@
             android:textSize="16sp" />
 
     </LinearLayout>
-
 </android.support.design.widget.CoordinatorLayout>

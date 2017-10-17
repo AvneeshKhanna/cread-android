@@ -50,7 +50,7 @@ public class FeedFragment extends Fragment {
 
     @BindView(R.id.rootView)
     CoordinatorLayout rootView;
-    @BindView(R.id.swipeRefreshLayout)
+    @BindView(R.id.swipeToRefreshLayout)
     SwipeRefreshLayout swipeRefreshLayout;
     @BindView(R.id.recyclerView)
     RecyclerView recyclerView;

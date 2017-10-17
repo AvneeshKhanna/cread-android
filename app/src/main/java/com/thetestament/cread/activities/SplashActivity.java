@@ -3,10 +3,13 @@ package com.thetestament.cread.activities;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
+import android.util.Log;
 import android.view.Window;
 import android.view.WindowManager;
 
+import com.facebook.AccessToken;
 import com.thetestament.cread.R;
+import com.thetestament.cread.helpers.SharedPreferenceHelper;
 
 /**
  * Launcher screen for the app.
@@ -52,8 +55,22 @@ public class SplashActivity extends BaseActivity {
 
 
     private void openNextScreen() {
-        //startActivity(new Intent(this, MainActivity.class));
-        startActivity(new Intent(this, BottomNavigationActivity.class));
+
+        SharedPreferenceHelper spHelper = new SharedPreferenceHelper(SplashActivity.this);
+        String uuid = spHelper.getUUID();
+        String authkey = spHelper.getAuthToken();
+
+        if(uuid!= null && authkey != null)
+        {
+            startActivity(new Intent(this, BottomNavigationActivity.class));
+        }
+        else {
+
+            startActivity(new Intent(this, MainActivity.class));
+        }
+
+        //startActivity(new Intent(this,MainActivity.class));
+        //startActivity(new Intent(this, BottomNavigationActivity.class));
     }
 
     /**
