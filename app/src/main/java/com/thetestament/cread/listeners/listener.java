@@ -1,7 +1,6 @@
 package com.thetestament.cread.listeners;
 
 import com.thetestament.cread.models.CommentsModel;
-import com.thetestament.cread.models.ExploreModel;
 import com.thetestament.cread.models.FeedModel;
 
 public class listener {
@@ -41,7 +40,7 @@ public class listener {
      * Interface definition for a callback to be invoked when user clicks on follow button.
      */
     public interface OnExploreFollowListener {
-        void onFollowClick(ExploreModel exploreData, boolean followStatus);
+        void onFollowClick(FeedModel exploreData, boolean followStatus);
     }
 
     /**

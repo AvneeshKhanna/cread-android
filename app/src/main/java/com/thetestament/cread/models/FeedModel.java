@@ -1,14 +1,14 @@
 package com.thetestament.cread.models;
 
+
 import android.os.Parcel;
 import android.os.Parcelable;
 
 /**
- * Model class for feed.
+ * Model class for explore feed.
  */
 
 public class FeedModel implements Parcelable {
-
     public static final Creator<FeedModel> CREATOR = new Creator<FeedModel>() {
         @Override
         public FeedModel createFromParcel(Parcel in) {
@@ -22,13 +22,12 @@ public class FeedModel implements Parcelable {
     };
     String entityID;
     String uuID, creatorName, creatorImage;
-    boolean hatsOffStatus;
+    boolean hatsOffStatus, followStatus;
     long hatsOffCount, commentCount;
     String contentType;
     String image;
     String text, textSize, textColor;
     String coordinates;
-
 
     public FeedModel() {
     }
@@ -38,7 +37,8 @@ public class FeedModel implements Parcelable {
         uuID = in.readString();
         creatorName = in.readString();
         creatorImage = in.readString();
-        hatsOffStatus = in.readInt() != 0;
+        hatsOffStatus = in.readByte() != 0;
+        followStatus = in.readByte() != 0;
         hatsOffCount = in.readLong();
         commentCount = in.readLong();
         contentType = in.readString();
@@ -81,12 +81,20 @@ public class FeedModel implements Parcelable {
         this.creatorImage = creatorImage;
     }
 
-    public boolean getHatsOffStatus() {
+    public boolean isHatsOffStatus() {
         return hatsOffStatus;
     }
 
     public void setHatsOffStatus(boolean hatsOffStatus) {
         this.hatsOffStatus = hatsOffStatus;
+    }
+
+    public boolean isFollowStatus() {
+        return followStatus;
+    }
+
+    public void setFollowStatus(boolean followStatus) {
+        this.followStatus = followStatus;
     }
 
     public long getHatsOffCount() {
@@ -164,7 +172,8 @@ public class FeedModel implements Parcelable {
         parcel.writeString(uuID);
         parcel.writeString(creatorName);
         parcel.writeString(creatorImage);
-        parcel.writeInt(getHatsOffStatus() ? 1 : 0);
+        parcel.writeByte((byte) (hatsOffStatus ? 1 : 0));
+        parcel.writeByte((byte) (followStatus ? 1 : 0));
         parcel.writeLong(hatsOffCount);
         parcel.writeLong(commentCount);
         parcel.writeString(contentType);
@@ -174,5 +183,4 @@ public class FeedModel implements Parcelable {
         parcel.writeString(textColor);
         parcel.writeString(coordinates);
     }
-
 }

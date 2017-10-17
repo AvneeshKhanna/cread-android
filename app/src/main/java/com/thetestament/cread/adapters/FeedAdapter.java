@@ -131,7 +131,7 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             hatsOffOnClick(itemViewHolder, data);
 
             //Check whether user has given hats off to this campaign or not
-            checkHatsOffStatus(data.getHatsOffStatus(), itemViewHolder);
+            checkHatsOffStatus(data.isHatsOffStatus(), itemViewHolder);
 
 
         } else if (holder.getItemViewType() == VIEW_TYPE_LOADING) {

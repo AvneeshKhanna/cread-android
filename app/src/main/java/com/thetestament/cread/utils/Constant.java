@@ -5,7 +5,7 @@ public class Constant {
     //Request codes
     public static final int REQUEST_CODE_UPDATES_ACTIVITY = 1000;
     public static final int REQUEST_CODE_FB_ACCOUNT_KIT = 1001;
-
+    public static final int REQUEST_CODE_COMMNETS_ACTIVTY = 1002;
 
     //Tag value for fragments
     public static final String TAG_FEED_FRAGMENT = "TagFeedFragment";
