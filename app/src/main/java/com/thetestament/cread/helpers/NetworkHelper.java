@@ -23,7 +23,7 @@ public class NetworkHelper {
      * Method to check internet connection status and return boolean i.e true and  false.
      *
      * @param context Context: The context to use. Usually your Application or Activity object.
-     * @return boolean i.e true if device is connected to internet false otherwise
+     * @return boolean i.e true if device is connected to internet false otherwise.
      */
     public static boolean getNetConnectionStatus(Context context) {
         boolean connectionStatus;
@@ -36,10 +36,35 @@ public class NetworkHelper {
 
 
     /**
-     * Method to return data from the server
+     * Reactive approach to retrieve profile data from server.
      *
-     * @param context    Context where this method will be called
-     * @param serverURL  URL of the server
+     * @param serverURL     URL of the server.
+     * @param uuid          UUID of the user.
+     * @param authKey       AuthKey of user i.e String
+     * @param requestedUUID UUID of user whose profile data to be loaded.
+     */
+    public static Observable<JSONObject> getObservableFromServer(String serverURL, String uuid, String authKey, String requestedUUID) {
+        JSONObject jsonObject = new JSONObject();
+        try {
+            jsonObject.put("uuid", uuid);
+            jsonObject.put("authkey", authKey);
+            jsonObject.put("requesteduuid", requestedUUID);
+        } catch (JSONException e) {
+            e.printStackTrace();
+            FirebaseCrash.report(e);
+        }
+        return Rx2AndroidNetworking.post(serverURL)
+                .addJSONObjectBody(jsonObject)
+                .build()
+                .getJSONObjectObservable();
+    }
+
+
+    /**
+     * Method to return data from the server.
+     *
+     * @param context    Context where this method will be called.
+     * @param serverURL  URL of the server.
      * @param pageNumber Page no to be loaded i.e int
      */
     public static Observable<JSONObject> getObservableFromServer(FragmentActivity context, String serverURL, int pageNumber) {

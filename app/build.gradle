@@ -9,11 +9,11 @@ android {
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1
         versionName "1.0"
-        //testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         // Enabling multi-dex support.
         multiDexEnabled true
-        // for facebook acoount kit to supoort only specific languages
-        resConfigs "en_GB","en_US"
+        // for facebook account kit to support only specific languages
+        resConfigs "en_GB", "en_US"
     }
     buildTypes {
         release {
@@ -33,9 +33,9 @@ android {
 
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
-    /*androidTestCompile('com.android.support.test.espresso:espresso-core:2.2.2', {
+    androidTestCompile('com.android.support.test.espresso:espresso-core:2.2.2', {
         exclude group: 'com.android.support', module: 'support-annotations'
-    })*/
+    })
 
     //Generate multiple dalvik executable files
     compile "com.android.support:multidex:$rootProject.multiDexVersion"
@@ -49,21 +49,11 @@ dependencies {
     compile "com.android.support:preference-v7:$rootProject.supportLibraryVersion"
 
     //Firebase
-    compile ("com.google.firebase:firebase-core:$rootProject.playServiceVersion")
-            {
-                force = true;            }
-    compile ("com.google.firebase:firebase-config:$rootProject.playServiceVersion")
-            {
-                force = true;            }
-    //compile "com.google.firebase:firebase-config:$rootProject.playServiceVersion"
-    compile ("com.google.firebase:firebase-crash:$rootProject.playServiceVersion")
-            {
-                force = true;            }
-    compile ("com.google.firebase:firebase-messaging:$rootProject.playServiceVersion")
-    {
-        force = true;            }
-   // compile "com.google.firebase:firebase-crash:$rootProject.playServiceVersion"
-    //compile "com.google.firebase:firebase-messaging:$rootProject.playServiceVersion"
+    compile "com.google.firebase:firebase-core:$rootProject.playServiceVersion"
+    compile "com.google.firebase:firebase-config:$rootProject.playServiceVersion"
+    compile "com.google.firebase:firebase-crash:$rootProject.playServiceVersion"
+    compile "com.google.firebase:firebase-messaging:$rootProject.playServiceVersion"
+
     //Facebook
     compile 'com.facebook.android:facebook-login:[4,5)'
 
@@ -105,7 +95,7 @@ dependencies {
     compile 'com.afollestad.material-dialogs:commons:0.9.3.0'
 
     // dependencies for local unit tests
-    //testCompile "junit:junit:$rootProject.ext.junitVersion"
+    testCompile "junit:junit:$rootProject.ext.junitVersion"
 }
 
 // Add this line at the bottom of the file for firebase services

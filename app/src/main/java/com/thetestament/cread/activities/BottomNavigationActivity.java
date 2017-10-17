@@ -35,8 +35,7 @@ import static com.thetestament.cread.utils.Constant.TAG_ME_FRAGMENT;
 
 public class BottomNavigationActivity extends BaseActivity {
 
-
-    @BindView(R.id.toolbar)
+    @BindView(R.id.toolBar)
     Toolbar toolbar;
     @BindView(R.id.bottomNavigation)
     BottomNavigationView navigationView;
@@ -64,7 +63,6 @@ public class BottomNavigationActivity extends BaseActivity {
             //To load screen
             loadScreen();
         }
-
         //Initialize navigation view
         initBottomNavigation();
     }
@@ -85,8 +83,7 @@ public class BottomNavigationActivity extends BaseActivity {
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.menu_cread
-                , menu);
+        getMenuInflater().inflate(R.menu.menu_cread, menu);
         return true;
     }
 
@@ -95,7 +92,8 @@ public class BottomNavigationActivity extends BaseActivity {
         switch (item.getItemId()) {
             case R.id.action_updates:
                 //Open updates screen
-                startActivityForResult(new Intent(this, UpdatesActivity.class), REQUEST_CODE_UPDATES_ACTIVITY);
+                startActivityForResult(new Intent(this, UpdatesActivity.class)
+                        , REQUEST_CODE_UPDATES_ACTIVITY);
                 return true;
             case R.id.action_settings:
                 //Launch settings activity
@@ -107,7 +105,6 @@ public class BottomNavigationActivity extends BaseActivity {
 
     }
 
-
     /**
      * Method to load required screen.
      */
@@ -117,40 +114,25 @@ public class BottomNavigationActivity extends BaseActivity {
             if (getIntent().getStringExtra("DATA").equals("startUpdatesFragment")) {
                 //To select feed menu
                 navigationView.setSelectedItemId(R.id.action_feed);
-
                 //To open Feed Screen
                 mCurrentFragment = new FeedFragment();
                 //set fragment title
                 mFragmentTag = TAG_FEED_FRAGMENT;
                 replaceFragment(mCurrentFragment, mFragmentTag);
                 //Launch updates activity
-                startActivityForResult(new Intent(this, UpdatesActivity.class), REQUEST_CODE_UPDATES_ACTIVITY);
+                startActivityForResult(new Intent(this, UpdatesActivity.class)
+                        , REQUEST_CODE_UPDATES_ACTIVITY);
             }
-
         }
         //When app opened normally
         else {
             navigationView.setSelectedItemId(R.id.action_feed);
             //To open Feed Screen
             mCurrentFragment = new FeedFragment();
-            //set fragment title
+            //Set fragment tag
             mFragmentTag = TAG_FEED_FRAGMENT;
             replaceFragment(mCurrentFragment, mFragmentTag);
         }
-    }
-
-    /**
-     * Method to replace current screen with new fragment.
-     *
-     * @param fragment    Fragment to be open.
-     * @param tagFragment Tag for the fragment to be opened.
-     */
-    private void replaceFragment(Fragment fragment, String tagFragment) {
-        getSupportFragmentManager()
-                .beginTransaction()
-                .replace(R.id.navigationView, fragment, tagFragment)
-                .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE)
-                .commit();
     }
 
     /**
@@ -192,7 +174,11 @@ public class BottomNavigationActivity extends BaseActivity {
                     case R.id.action_me:
                         //Set title
                         setTitle("Me");
+
+                        Bundle meBundle = new Bundle();
+                        meBundle.putString("calledFrom", "BottomNavigationActivity");
                         mCurrentFragment = new MeFragment();
+                        mCurrentFragment.setArguments(meBundle);
                         //set fragment tag
                         mFragmentTag = TAG_ME_FRAGMENT;
                         break;
@@ -202,5 +188,20 @@ public class BottomNavigationActivity extends BaseActivity {
             }
         });
     }
+
+    /**
+     * Method to replace current screen with new fragment.
+     *
+     * @param fragment    Fragment to be open.
+     * @param tagFragment Tag for the fragment to be opened.
+     */
+    private void replaceFragment(Fragment fragment, String tagFragment) {
+        getSupportFragmentManager()
+                .beginTransaction()
+                .replace(R.id.navigationView, fragment, tagFragment)
+                .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE)
+                .commit();
+    }
+
 
 }

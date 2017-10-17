@@ -48,7 +48,7 @@ import io.reactivex.schedulers.Schedulers;
 
 import static com.thetestament.cread.helpers.NetworkHelper.getObservableFromServer;
 import static com.thetestament.cread.utils.Constant.EXTRA_FEED_DESCRIPTION_DATA;
-import static com.thetestament.cread.utils.Constant.REQUEST_CODE_COMMNETS_ACTIVTY;
+import static com.thetestament.cread.utils.Constant.REQUEST_CODE_COMMENTS_ACTIVTY;
 
 /**
  * Class to show detailed information of explore/feed item.
@@ -115,7 +115,7 @@ public class FeedDescriptionActivity extends BaseActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         switch (requestCode) {
-            case REQUEST_CODE_COMMNETS_ACTIVTY:
+            case REQUEST_CODE_COMMENTS_ACTIVTY:
                 if (resultCode == RESULT_OK) {
                     //Load comments data
                     getTopComments();
@@ -153,7 +153,7 @@ public class FeedDescriptionActivity extends BaseActivity {
     void onCommentsClicked() {
         Intent intent = new Intent(this, CommentsActivity.class);
         intent.putExtra("entityID", mEntityID);
-        startActivityForResult(intent, REQUEST_CODE_COMMNETS_ACTIVTY);
+        startActivityForResult(intent, REQUEST_CODE_COMMENTS_ACTIVTY);
     }
 
     /**

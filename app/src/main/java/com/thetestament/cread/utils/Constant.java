@@ -5,7 +5,9 @@ public class Constant {
     //Request codes
     public static final int REQUEST_CODE_UPDATES_ACTIVITY = 1000;
     public static final int REQUEST_CODE_FB_ACCOUNT_KIT = 1001;
-    public static final int REQUEST_CODE_COMMNETS_ACTIVTY = 1002;
+    public static final int REQUEST_CODE_COMMENTS_ACTIVTY = 1002;
+    public static final int REQUEST_CODE_WRITE_EXTERNAL_STORAGE = 1003;
+
 
     //Tag value for fragments
     public static final String TAG_FEED_FRAGMENT = "TagFeedFragment";
@@ -21,5 +23,5 @@ public class Constant {
     public static final String EXTRA_ENTITY_ID = "entityID";
     public static final String EXTRA_FEED_DATA = "feedData";
     public static final String EXTRA_PROFILE_UUID = "profileUUID";
-
+    public static final String EXTRA_FEED_DESCRIPTION_DATA = "dataFeedDescription";
 }

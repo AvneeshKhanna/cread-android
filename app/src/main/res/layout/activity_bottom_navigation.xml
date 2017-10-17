@@ -4,31 +4,45 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <android.support.v7.widget.Toolbar
-        android:id="@+id/toolbar"
-        android:layout_width="match_parent"
-        android:layout_height="?attr/actionBarSize"
-        android:background="@color/colorPrimary"
-        android:contentInsetStartWithNavigation="0dp"
-        android:theme="@style/ThemeOverlay.AppCompat.Dark"
-        app:contentInsetStartWithNavigation="0dp"
-        app:logo="@drawable/ic_stat_cread_logo"
-        app:popupTheme="@style/Theme.AppCompat.Light"
-        app:titleMarginStart="20dp" />
-
-    <FrameLayout
-        android:id="@+id/navigationView"
+    <android.support.design.widget.CoordinatorLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_above="@+id/bottomNavigation"
-        android:layout_below="@+id/toolbar"
-        android:background="@color/grey_light" />
+        android:layout_above="@+id/bottomNavigation">
+
+        <android.support.design.widget.AppBarLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <android.support.v7.widget.Toolbar
+                android:id="@+id/toolBar"
+                android:layout_width="match_parent"
+                android:layout_height="?attr/actionBarSize"
+                android:background="@color/colorPrimary"
+                android:contentInsetStartWithNavigation="0dp"
+                android:theme="@style/ThemeOverlay.AppCompat.Dark"
+                app:contentInsetStartWithNavigation="0dp"
+                app:logo="@drawable/ic_stat_cread_logo"
+                app:popupTheme="@style/Theme.AppCompat.Light"
+                app:titleMarginStart="20dp" />
+
+
+        </android.support.design.widget.AppBarLayout>
+
+        <FrameLayout
+            android:id="@+id/navigationView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@color/grey_light"
+            app:layout_behavior="@string/appbar_scrolling_view_behavior" />
+
+    </android.support.design.widget.CoordinatorLayout>
 
     <android.support.design.widget.BottomNavigationView
         android:id="@+id/bottomNavigation"
         android:layout_width="match_parent"
         android:layout_height="56dp"
         android:layout_alignParentBottom="true"
+        android:layout_gravity="bottom"
         app:itemBackground="@color/white"
         app:itemIconTint="@drawable/selector_bottom_nav_view"
         app:itemTextColor="@drawable/selector_bottom_nav_view"
