@@ -36,7 +36,7 @@ public class NetworkHelper {
 
 
     /**
-     * Reactive approach to retrieve profile data from server.
+     * Reactive approach to retrieve user profile data from server.
      *
      * @param serverURL     URL of the server.
      * @param uuid          UUID of the user.
@@ -49,6 +49,31 @@ public class NetworkHelper {
             jsonObject.put("uuid", uuid);
             jsonObject.put("authkey", authKey);
             jsonObject.put("requesteduuid", requestedUUID);
+        } catch (JSONException e) {
+            e.printStackTrace();
+            FirebaseCrash.report(e);
+        }
+        return Rx2AndroidNetworking.post(serverURL)
+                .addJSONObjectBody(jsonObject)
+                .build()
+                .getJSONObjectObservable();
+    }
+
+    /**
+     * Method to return user timeLine data from the server.
+     *
+     * @param serverURL     URL of the server.
+     * @param uuid          UUID of the user.
+     * @param authKey       AuthKey of user i.e String.
+     * @param requestedUUID UUID of user whose profile data to be loaded.
+     * @param pageNumber    Page no to be loaded i.e integer
+     */
+    public static Observable<JSONObject> getObservableFromServer(String serverURL, String uuid, String authKey, String requestedUUID, int pageNumber) {
+        JSONObject jsonObject = new JSONObject();
+        try {
+            jsonObject.put("uuid", uuid);
+            jsonObject.put("authkey", authKey);
+            jsonObject.put("page", pageNumber);
         } catch (JSONException e) {
             e.printStackTrace();
             FirebaseCrash.report(e);
