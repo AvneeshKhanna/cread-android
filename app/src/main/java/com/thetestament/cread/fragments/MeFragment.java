@@ -29,6 +29,7 @@ import com.squareup.picasso.Picasso;
 import com.thetestament.cread.BuildConfig;
 import com.thetestament.cread.Manifest;
 import com.thetestament.cread.R;
+import com.thetestament.cread.activities.UpdateProfileImageActivity;
 import com.thetestament.cread.adapters.FeedAdapter;
 import com.thetestament.cread.helpers.SharedPreferenceHelper;
 import com.thetestament.cread.helpers.ViewHelper;
@@ -55,6 +56,7 @@ import io.reactivex.schedulers.Schedulers;
 
 import static com.thetestament.cread.helpers.NetworkHelper.getNetConnectionStatus;
 import static com.thetestament.cread.helpers.NetworkHelper.getObservableFromServer;
+import static com.thetestament.cread.utils.Constant.REQUEST_CODE_UPDATE_PROFILE_PIC;
 import static com.thetestament.cread.utils.Constant.REQUEST_CODE_WRITE_EXTERNAL_STORAGE;
 
 /**
@@ -166,6 +168,15 @@ public class MeFragment extends Fragment {
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == REQUEST_CODE_WRITE_EXTERNAL_STORAGE) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                startActivityForResult(new Intent(getActivity(), UpdateProfileImageActivity.class)
+                        , REQUEST_CODE_UPDATE_PROFILE_PIC);
+            } else {
+                ViewHelper.getToast(getActivity()
+                        , "The app won't function properly since the permission for storage was denied.");
+            }
+        }
     }
 
     @Override
@@ -178,7 +189,7 @@ public class MeFragment extends Fragment {
      */
     @OnClick(R.id.imageUser)
     public void onUserImageClicked() {
-        //Todo functionality
+        getRuntimePermission();
     }
 
     /**
@@ -616,8 +627,8 @@ public class MeFragment extends Fragment {
         }
         //If permission is granted
         else {
-            // startActivityForResult(new Intent(getActivity(), UpdateProfileImageActivity.class)
-            //       , REQUEST_CODE_UPDATE_PROFILE_PIC);
+            startActivityForResult(new Intent(getActivity(), UpdateProfileImageActivity.class)
+                    , REQUEST_CODE_UPDATE_PROFILE_PIC);
         }
     }
 
