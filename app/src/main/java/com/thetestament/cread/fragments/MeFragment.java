@@ -24,6 +24,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import com.androidnetworking.AndroidNetworking;
+import com.androidnetworking.error.ANError;
+import com.androidnetworking.interfaces.JSONObjectRequestListener;
 import com.google.firebase.crash.FirebaseCrash;
 import com.squareup.picasso.Picasso;
 import com.thetestament.cread.BuildConfig;
@@ -271,7 +274,12 @@ public class MeFragment extends Fragment {
      */
     @OnClick(R.id.buttonFollow)
     public void onFollowButtonClicked() {
-        //// TODO: follow functionality
+        //set status to true if its false and vice versa
+        mFollowStatus = !mFollowStatus;
+        //toggle follow button
+        toggleFollowButton(mFollowStatus, getActivity());
+        //Update status on server
+        updateFollowStatus();
     }
 
     /**
@@ -325,7 +333,6 @@ public class MeFragment extends Fragment {
 
             @Override
             public void onTabReselected(TabLayout.Tab tab) {
-
                 //do nothing
             }
         });
@@ -396,7 +403,7 @@ public class MeFragment extends Fragment {
                                 mFirstName = mainData.getString("firstname");
                                 mLastName = mainData.getString("lastname");
                                 mProfilePicURL = mainData.getString("profilepicurl");
-                                //     mUserBio = mainData.getString("bio");
+                                mUserBio = mainData.getString("bio");
                                 mWaterMarkStatus = mainData.getString("watermarkstatus");
                                 mEmail = mainData.getString("email");
                                 mContactNumber = mainData.getString("phone");
@@ -439,7 +446,6 @@ public class MeFragment extends Fragment {
                             swipeToRefreshLayout.setRefreshing(false);
                             //Load user profile picture
                             loadUserPicture(mProfilePicURL, imageUser, getActivity());
-
                             //if last name is present
                             if (mLastName != null) {
                                 //Set user name
@@ -498,6 +504,8 @@ public class MeFragment extends Fragment {
                             , R.drawable.button_outline));
             buttonFollow.setTextColor(ContextCompat.getColor(context
                     , R.color.grey_dark));
+            //Change text to 'following'
+            buttonFollow.setText("Following");
         } else {
             //Change background
             ViewCompat.setBackground(buttonFollow
@@ -506,8 +514,8 @@ public class MeFragment extends Fragment {
             //Change text color
             buttonFollow.setTextColor(ContextCompat.getColor(context
                     , R.color.white));
-            //Change text
-            buttonFollow.setText("Follwi");
+            //Change text to 'follow'
+            buttonFollow.setText("Follow");
         }
     }
 
@@ -710,5 +718,75 @@ public class MeFragment extends Fragment {
         Intent intent = new Intent(getActivity(), UpdateProfileImageActivity.class);
         intent.putExtra(EXTRA_USER_IMAGE_PATH, mProfilePicURL);
         startActivityForResult(intent, REQUEST_CODE_UPDATE_PROFILE_PIC);
+    }
+
+    /**
+     * Method to update follow status.
+     */
+    private void updateFollowStatus() {
+        final JSONObject jsonObject = new JSONObject();
+        try {
+            jsonObject.put("uuid", mHelper.getUUID());
+            jsonObject.put("authkey", mHelper.getAuthToken());
+            jsonObject.put("follower", mRequestedUUID);
+            jsonObject.put("register", mFollowStatus);
+        } catch (JSONException e) {
+            e.printStackTrace();
+            FirebaseCrash.report(e);
+        }
+        AndroidNetworking.post(BuildConfig.URL + "/follow/on-click")
+                .addJSONObjectBody(jsonObject)
+                .build()
+                .getAsJSONObject(new JSONObjectRequestListener() {
+                    @Override
+                    public void onResponse(JSONObject response) {
+                        try {
+                            //Token status is not valid
+                            if (response.getString("tokenstatus").equals("invalid")) {
+                                //set status to true if its false and vice versa
+                                mFollowStatus = !mFollowStatus;
+                                //toggle follow button
+                                toggleFollowButton(mFollowStatus, getActivity());
+                                ViewHelper.getSnackBar(rootView
+                                        , getString(R.string.error_msg_invalid_token));
+                            }
+                            //Token is valid
+                            else {
+                                JSONObject mainData = response.getJSONObject("data");
+                                if (mainData.getString("status").equals("done")) {
+                                    //Do nothing
+                                } else {
+                                    //set status to true if its false and vice versa
+                                    mFollowStatus = !mFollowStatus;
+                                    //toggle follow button
+                                    toggleFollowButton(mFollowStatus, getActivity());
+                                    ViewHelper.getSnackBar(rootView
+                                            , getString(R.string.error_msg_internal));
+                                }
+                            }
+                        } catch (JSONException e) {
+                            //set status to true if its false and vice versa
+                            mFollowStatus = !mFollowStatus;
+                            //toggle follow button
+                            toggleFollowButton(mFollowStatus, getActivity());
+                            e.printStackTrace();
+                            FirebaseCrash.report(e);
+                            ViewHelper.getSnackBar(rootView
+                                    , getString(R.string.error_msg_internal));
+                        }
+                    }
+
+                    @Override
+                    public void onError(ANError anError) {
+                        //set status to true if its false and vice versa
+                        mFollowStatus = !mFollowStatus;
+                        //toggle follow button
+                        toggleFollowButton(mFollowStatus, getActivity());
+                        anError.printStackTrace();
+                        FirebaseCrash.report(anError);
+                        ViewHelper.getSnackBar(rootView
+                                , getString(R.string.error_msg_server));
+                    }
+                });
     }
 }
