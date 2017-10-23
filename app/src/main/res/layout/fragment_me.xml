@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/rootView"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
@@ -42,7 +43,7 @@
                         android:layout_width="88dp"
                         android:layout_height="88dp"
                         android:layout_gravity="center"
-                        android:src="@drawable/ic_account_circle_48" />
+                        tools:src="@drawable/ic_account_circle_48" />
 
                     <TextView
                         android:id="@+id/textUserName"
@@ -51,18 +52,18 @@
                         android:gravity="center"
                         android:paddingBottom="5dp"
                         android:paddingTop="5dp"
-                        android:text="Gaurav"
                         android:textColor="@color/grey_dark"
-                        android:textSize="24sp" />
+                        android:textSize="24sp"
+                        tools:text="Gaurav" />
 
                     <TextView
                         android:id="@+id/textBio"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:gravity="center"
-                        android:text="Mobile development passionate"
                         android:textColor="@color/grey_dark"
-                        android:textSize="12sp" />
+                        android:textSize="12sp"
+                        tools:text="Mobile development passionate" />
 
                     <TextView
                         android:id="@+id/buttonFollow"
@@ -100,9 +101,9 @@
                                 android:id="@+id/textPostsCount"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:text="1167"
                                 android:textColor="@color/grey_dark"
-                                android:textSize="20sp" />
+                                android:textSize="20sp"
+                                tools:text="1167" />
 
                             <TextView
                                 android:id="@+id/textPosts"
@@ -125,9 +126,9 @@
                                 android:id="@+id/textFollowersCount"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:text="396"
                                 android:textColor="@color/grey_dark"
-                                android:textSize="20sp" />
+                                android:textSize="20sp"
+                                tools:text="396" />
 
                             <TextView
                                 android:id="@+id/textFollowers"
@@ -150,9 +151,9 @@
                                 android:id="@+id/textFollowingCount"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:text="485"
                                 android:textColor="@color/grey_dark"
-                                android:textSize="20sp" />
+                                android:textSize="20sp"
+                                tools:text="485" />
 
                             <TextView
                                 android:id="@+id/textFollowing"

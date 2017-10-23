@@ -29,6 +29,7 @@ import com.squareup.picasso.Picasso;
 import com.thetestament.cread.BuildConfig;
 import com.thetestament.cread.Manifest;
 import com.thetestament.cread.R;
+import com.thetestament.cread.activities.UpdateProfileDetailsActivity;
 import com.thetestament.cread.activities.UpdateProfileImageActivity;
 import com.thetestament.cread.adapters.FeedAdapter;
 import com.thetestament.cread.helpers.SharedPreferenceHelper;
@@ -54,8 +55,16 @@ import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.observers.DisposableObserver;
 import io.reactivex.schedulers.Schedulers;
 
+import static android.app.Activity.RESULT_OK;
 import static com.thetestament.cread.helpers.NetworkHelper.getNetConnectionStatus;
 import static com.thetestament.cread.helpers.NetworkHelper.getObservableFromServer;
+import static com.thetestament.cread.utils.Constant.EXTRA_USER_BIO;
+import static com.thetestament.cread.utils.Constant.EXTRA_USER_CONTACT;
+import static com.thetestament.cread.utils.Constant.EXTRA_USER_EMAIL;
+import static com.thetestament.cread.utils.Constant.EXTRA_USER_FIRST_NAME;
+import static com.thetestament.cread.utils.Constant.EXTRA_USER_LAST_NAME;
+import static com.thetestament.cread.utils.Constant.EXTRA_USER_WATER_MARK_STATUS;
+import static com.thetestament.cread.utils.Constant.REQUEST_CODE_UPDATE_PROFILE_DETAILS;
 import static com.thetestament.cread.utils.Constant.REQUEST_CODE_UPDATE_PROFILE_PIC;
 import static com.thetestament.cread.utils.Constant.REQUEST_CODE_WRITE_EXTERNAL_STORAGE;
 
@@ -95,11 +104,12 @@ public class MeFragment extends Fragment {
     @State
     String mFirstName, mLastName, mProfilePicURL, mUserBio;
     @State
-    String mEmail, mContactNumber, mPostCount, mFollowerCount, mFollowingCount;
+    String mEmail, mContactNumber, mPostCount, mFollowerCount, mFollowingCount, mWaterMarkStatus;
     @State
     boolean mFollowStatus;
     @State
     String mRequestedUUID;
+
     List<FeedModel> mFeedDataList = new ArrayList<>();
     FeedAdapter mAdapter;
     private Unbinder mUnbinder;
@@ -138,6 +148,8 @@ public class MeFragment extends Fragment {
             buttonFollow.setVisibility(View.GONE);
         } else {
             mRequestedUUID = getArguments().getString("requesteduuid");
+            //Show follow button
+            buttonFollow.setVisibility(View.VISIBLE);
         }
 
         //initialize tab layout
@@ -182,6 +194,40 @@ public class MeFragment extends Fragment {
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == REQUEST_CODE_UPDATE_PROFILE_DETAILS && resultCode == RESULT_OK) {
+            //Get user first name
+            mFirstName = data.getExtras().getString(EXTRA_USER_FIRST_NAME);
+            //if last name is present
+            if (data.getExtras().getString(EXTRA_USER_LAST_NAME) != null) {
+                //Get user last name
+                mLastName = data.getExtras().getString(EXTRA_USER_LAST_NAME);
+                //Set user name
+                textUserName.setText(mFirstName + " " + mLastName);
+            } else {
+                //set user name
+                textUserName.setText(mFirstName);
+            }
+
+            //If user bio present
+            if (data.getExtras().getString(EXTRA_USER_BIO) != null) {
+                //Get user bio
+                mUserBio = data.getExtras().getString(EXTRA_USER_BIO);
+
+                textBio.setVisibility(View.VISIBLE);
+                //Set user bio
+                textBio.setText(mUserBio);
+            }
+            //Hide bio view
+            else {
+                textBio.setVisibility(View.GONE);
+            }
+            //Retrieve email and watermark status
+            mEmail = data.getExtras().getString(EXTRA_USER_EMAIL);
+            mWaterMarkStatus = data.getExtras().getString(EXTRA_USER_WATER_MARK_STATUS);
+
+        } else if (requestCode == REQUEST_CODE_UPDATE_PROFILE_PIC && resultCode == RESULT_OK) {
+
+        }
     }
 
     /**
@@ -197,7 +243,14 @@ public class MeFragment extends Fragment {
      */
     @OnClick({R.id.textUserName, R.id.textBio})
     public void onUserNameClicked() {
-        //Todo functionality
+        Intent intent = new Intent(getActivity(), UpdateProfileDetailsActivity.class);
+        intent.putExtra(EXTRA_USER_FIRST_NAME, mFirstName);
+        intent.putExtra(EXTRA_USER_LAST_NAME, mLastName);
+        intent.putExtra(EXTRA_USER_EMAIL, mEmail);
+        intent.putExtra(EXTRA_USER_BIO, mUserBio);
+        intent.putExtra(EXTRA_USER_CONTACT, mContactNumber);
+        intent.putExtra(EXTRA_USER_WATER_MARK_STATUS, mWaterMarkStatus);
+        startActivityForResult(intent, REQUEST_CODE_UPDATE_PROFILE_DETAILS);
     }
 
     /**
@@ -213,6 +266,7 @@ public class MeFragment extends Fragment {
      */
     @OnClick(R.id.containerFollowing)
     public void onFollowingContainerClicked() {
+        //// TODO:
     }
 
     /**
@@ -220,6 +274,7 @@ public class MeFragment extends Fragment {
      */
     @OnClick(R.id.containerFollowers)
     public void onFollowersContainerClicked() {
+        //// TODO:
     }
 
     /**
@@ -227,6 +282,7 @@ public class MeFragment extends Fragment {
      */
     @OnClick(R.id.containerPosts)
     public void onPostsContainerClicked() {
+        //// TODO:
     }
 
     /**
@@ -328,6 +384,7 @@ public class MeFragment extends Fragment {
                                 mLastName = mainData.getString("lastname");
                                 mProfilePicURL = mainData.getString("profilepicurl");
                                 //     mUserBio = mainData.getString("bio");
+                                mWaterMarkStatus = mainData.getString("watermarkstatus");
                                 mEmail = mainData.getString("email");
                                 mContactNumber = mainData.getString("phone");
                                 mFollowStatus = mainData.getBoolean("followstatus");
@@ -386,6 +443,7 @@ public class MeFragment extends Fragment {
 
                             //If user bio present
                             if (mUserBio != null) {
+                                textBio.setVisibility(View.VISIBLE);
                                 //Set user bio
                                 textBio.setText(mUserBio);
                             }

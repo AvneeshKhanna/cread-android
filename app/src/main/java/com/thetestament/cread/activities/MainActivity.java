@@ -367,7 +367,7 @@ public class MainActivity extends BaseActivity {
                                     LoginManager.getInstance().resolveError(MainActivity.this, response);
                                     break;
                                 case TRANSIENT:
-                                    // some temporary error occured so try again
+                                    // some temporary error occurred so try again
                                     //access token is not set to null because graph request is retried
                                     getUserData();
                                     break;
@@ -465,7 +465,7 @@ public class MainActivity extends BaseActivity {
     }
 
     /**
-     * method to get phone nummber from account kit
+     * method to get phone number from account kit
      */
     private void getPhoneNo() {
         AccountKit.getCurrentAccount(new AccountKitCallback<Account>() {

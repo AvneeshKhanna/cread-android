@@ -7,10 +7,9 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.TextInputEditText;
-import android.support.v7.widget.SwitchCompat;
+import android.support.v7.widget.AppCompatSpinner;
 import android.text.TextUtils;
-import android.widget.Button;
-import android.widget.Toast;
+import android.widget.ArrayAdapter;
 
 import com.afollestad.materialdialogs.DialogAction;
 import com.afollestad.materialdialogs.MaterialDialog;
@@ -33,11 +32,12 @@ import icepick.Icepick;
 import icepick.State;
 
 import static com.thetestament.cread.helpers.NetworkHelper.getNetConnectionStatus;
+import static com.thetestament.cread.utils.Constant.EXTRA_USER_BIO;
 import static com.thetestament.cread.utils.Constant.EXTRA_USER_CONTACT;
-import static com.thetestament.cread.utils.Constant.EXTRA_USER_COPY_RIGHT_STATUS;
 import static com.thetestament.cread.utils.Constant.EXTRA_USER_EMAIL;
 import static com.thetestament.cread.utils.Constant.EXTRA_USER_FIRST_NAME;
 import static com.thetestament.cread.utils.Constant.EXTRA_USER_LAST_NAME;
+import static com.thetestament.cread.utils.Constant.EXTRA_USER_WATER_MARK_STATUS;
 
 
 public class UpdateProfileDetailsActivity extends BaseActivity {
@@ -50,22 +50,22 @@ public class UpdateProfileDetailsActivity extends BaseActivity {
     TextInputEditText etLastName;
     @BindView(R.id.etEmail)
     TextInputEditText etEmail;
+    @BindView(R.id.etBio)
+    TextInputEditText etBio;
     @BindView(R.id.etContact)
     TextInputEditText etContact;
-    @BindView(R.id.switchButton)
-    SwitchCompat btnCopyRight;
+    @BindView(R.id.spinnerWaterMark)
+    AppCompatSpinner spinnerWaterMark;
 
     @State
-    String mFirstName, mLastName, mContact, mEmail;
-    @State
-    boolean mCopyRightStatus;
+    String mFirstName, mLastName, mEmail, mBio, mContact, mWaterMarkStatus;
+
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_update_profile_details);
         ButterKnife.bind(this);
-
         initScreen();
     }
 
@@ -91,10 +91,10 @@ public class UpdateProfileDetailsActivity extends BaseActivity {
     }
 
     /**
-     * Save button onClick functionality.
+     * Save button onClick functionality to update user details server.
      */
     @OnClick(R.id.buttonSave)
-    public void onSaveButtonClick(Button button) {
+    public void onSaveButtonClick() {
         if (TextUtils.isEmpty(etFirstName.getText().toString().trim())) {
             etFirstName.requestFocus();
             etFirstName.setError("This field is required");
@@ -106,13 +106,8 @@ public class UpdateProfileDetailsActivity extends BaseActivity {
             mFirstName = etFirstName.getText().toString().trim();
             mLastName = etLastName.getText().toString().trim();
             mEmail = etEmail.getText().toString().trim();
-
-            //Check for copyright switch
-            if (btnCopyRight.isChecked()) {
-                mCopyRightStatus = true;
-            } else {
-                mCopyRightStatus = false;
-            }
+            mBio = etBio.getText().toString().trim();
+            mWaterMarkStatus = spinnerWaterMark.getSelectedItem().toString();
 
             //Check connection status
             if (getNetConnectionStatus(UpdateProfileDetailsActivity.this)) {
@@ -132,8 +127,8 @@ public class UpdateProfileDetailsActivity extends BaseActivity {
     public void onLockIconClick() {
         //To show prompt dialog
         new MaterialDialog.Builder(this)
-                .title("Update mContact number")
-                .content("Changing the mContact number requires validation using verification code. Do you wish to proceed?")
+                .title("Update Contact number")
+                .content("Changing the Contact number requires validation using verification code. Do you wish to proceed?")
                 .positiveText("Yes")
                 .negativeText("No")
                 .onPositive(new MaterialDialog.SingleButtonCallback() {
@@ -151,7 +146,6 @@ public class UpdateProfileDetailsActivity extends BaseActivity {
                 }).build()
                 .show();
     }
-
 
     /**
      * Method to save user profile details on server.
@@ -175,45 +169,54 @@ public class UpdateProfileDetailsActivity extends BaseActivity {
             jsonObject.put("firstname", mFirstName);
             jsonObject.put("lastname", mLastName);
             jsonObject.put("email", mEmail);
-            jsonObject.put("copyrightstatus", mCopyRightStatus);
+            jsonObject.put("bio", mBio);
+            jsonObject.put("watermarkstatus", mWaterMarkStatus);
         } catch (JSONException e) {
             e.printStackTrace();
             FirebaseCrash.report(e);
             dialog.dismiss();
         }
-        //Todo change server url
         AndroidNetworking.post(BuildConfig.URL + "/user-profile/update/")
                 .addJSONObjectBody(jsonObject)
                 .build()
                 .getAsJSONObject(new JSONObjectRequestListener() {
                     @Override
                     public void onResponse(JSONObject response) {
+                        //Dismiss progress indicator
+                        dialog.dismiss();
                         try {
                             if (response.getString("tokenstatus").equals("invalid")) {
-                                dialog.dismiss();
-                                ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_invalid_token));
+                                //Show token invalid status
+                                ViewHelper.getSnackBar(rootView
+                                        , getString(R.string.error_msg_invalid_token));
                             } else {
-                                dialog.dismiss();
                                 JSONObject dataObject = response.getJSONObject("data");
                                 if (dataObject.getString("status").equals("done")) {
+
                                     Intent returnIntent = getIntent();
                                     Bundle returnData = new Bundle();
-                                    //returnData.putString(EXTRA_USER_FIRST_NAME, mFirstName);
-                                    //returnData.putString(EXTRA_USER_LAST_NAME, mLastName);
-
+                                    returnData.putString(EXTRA_USER_FIRST_NAME, mFirstName);
+                                    returnData.putString(EXTRA_USER_LAST_NAME, mLastName);
+                                    returnData.putString(EXTRA_USER_EMAIL, mEmail);
+                                    returnData.putString(EXTRA_USER_BIO, mBio);
+                                    returnData.putString(EXTRA_USER_WATER_MARK_STATUS, mWaterMarkStatus);
                                     returnIntent.putExtras(returnData);
+                                    //Set result ok
                                     setResult(RESULT_OK, returnIntent);
-                                    Toast.makeText(UpdateProfileDetailsActivity.this
-                                            , "Details saved"
-                                            , Toast.LENGTH_SHORT)
-                                            .show();
+                                    //Show toast
+                                    ViewHelper.getToast(UpdateProfileDetailsActivity.this, "Details saved");
+                                    //Finish this activity and navigate back to previous screen
                                     finish();
                                 } else {
-                                    ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_server));
+                                    //Show error snack bar
+                                    ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_internal));
                                 }
                             }
                         } catch (JSONException e) {
                             e.printStackTrace();
+                            FirebaseCrash.report(e);
+                            //Show error snack bar
+                            ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_internal));
                         }
                     }
 
@@ -222,7 +225,9 @@ public class UpdateProfileDetailsActivity extends BaseActivity {
                         //Dismiss progress indicator
                         dialog.dismiss();
                         //Show server error message
-                        ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_server));
+                        ViewHelper.getSnackBar(rootView
+                                , getString(R.string.error_msg_server));
+                        anError.printStackTrace();
                     }
                 });
     }
@@ -231,24 +236,46 @@ public class UpdateProfileDetailsActivity extends BaseActivity {
      * Method to initialize this screen.
      */
     private void initScreen() {
-        //Disable contact view
+        //Disable contact edit text
         etContact.setEnabled(false);
+        //set spinner
+        setSpinnerAdapter(spinnerWaterMark);
         //Get data from intent
         retrieveIntentData();
-        //set view data/text
-        populateViews();
+    }
 
+
+    /**
+     * Method to set adapter for spinner depending upon spinner type
+     *
+     * @param spinner Spinner object
+     */
+    private void setSpinnerAdapter(AppCompatSpinner spinner) {
+
+        ArrayAdapter<CharSequence> adapter = null;
+        // Create an ArrayAdapter using the string array and a default spinner layout for water mark spinner
+        adapter = ArrayAdapter.createFromResource(this,
+                R.array.water_mark_items, android.R.layout.simple_spinner_item);
+
+        // Specify the layout to use when the list of choices appears
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        // Apply the adapter to the spinner
+        spinner.setAdapter(adapter);
     }
 
     /**
-     * To retrieve data from intent.
+     * To retrieve data from intent and set data to respective views.
      */
     private void retrieveIntentData() {
-        //Get data from intent
+
         mFirstName = getIntent().getStringExtra(EXTRA_USER_FIRST_NAME);
-        mEmail = getIntent().getStringExtra(EXTRA_USER_EMAIL);
+        etFirstName.setText(mFirstName);
+
         mContact = getIntent().getStringExtra(EXTRA_USER_CONTACT);
-        mCopyRightStatus = getIntent().getBooleanExtra(EXTRA_USER_COPY_RIGHT_STATUS, false);
+        etContact.setText(mContact);
+
+        mWaterMarkStatus = getIntent().getStringExtra(EXTRA_USER_WATER_MARK_STATUS);
+        spinnerWaterMark.setPrompt(mWaterMarkStatus);
 
         //If last name is not null
         if (!getIntent().getStringExtra(EXTRA_USER_LAST_NAME).equals("null")) {
@@ -256,18 +283,18 @@ public class UpdateProfileDetailsActivity extends BaseActivity {
             //set last name
             etLastName.setText(mLastName);
         }
-    }
-
-    /**
-     * Method to populate views.
-     */
-    private void populateViews() {
-        //Populate TextInputLayoutWith data
-        etFirstName.setText(mFirstName);
-        etLastName.setText(mLastName);
-        etContact.setText(mContact);
-        etEmail.setText(mEmail);
-        btnCopyRight.setChecked(mCopyRightStatus);
+        //If email is not present
+        if (!getIntent().getStringExtra(EXTRA_USER_EMAIL).equals("null")) {
+            mEmail = getIntent().getStringExtra(EXTRA_USER_EMAIL);
+            //set email
+            etEmail.setText(mEmail);
+        }
+        //If user bio is not null
+        if (!getIntent().getStringExtra(EXTRA_USER_BIO).equals("null")) {
+            mBio = getIntent().getStringExtra(EXTRA_USER_BIO);
+            //set user bio
+            etBio.setText(mBio);
+        }
     }
 
 }

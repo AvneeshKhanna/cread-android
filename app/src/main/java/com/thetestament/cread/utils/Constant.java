@@ -8,6 +8,7 @@ public class Constant {
     public static final int REQUEST_CODE_COMMENTS_ACTIVITY = 1002;
     public static final int REQUEST_CODE_WRITE_EXTERNAL_STORAGE = 1003;
     public static final int REQUEST_CODE_UPDATE_PROFILE_PIC = 1004;
+    public static final int REQUEST_CODE_UPDATE_PROFILE_DETAILS = 1005;
 
 
     //Tag value for fragments
@@ -29,6 +30,7 @@ public class Constant {
     public static final String EXTRA_USER_FIRST_NAME = "userFirstName";
     public static final String EXTRA_USER_LAST_NAME = "userLastName";
     public static final String EXTRA_USER_EMAIL = "userEmail";
+    public static final String EXTRA_USER_BIO = "userBio";
     public static final String EXTRA_USER_CONTACT = "userContact";
-    public static final String EXTRA_USER_COPY_RIGHT_STATUS = "copyRightStatus";
+    public static final String EXTRA_USER_WATER_MARK_STATUS = "userWaterMarkStatus";
 }
