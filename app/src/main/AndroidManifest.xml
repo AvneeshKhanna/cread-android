@@ -156,6 +156,10 @@
                 android:value=".activities.BottomNavigationActivity" />
         </activity>
 
+        <activity
+            android:name="com.theartofdev.edmodo.cropper.CropImageActivity"
+            android:screenOrientation="portrait" /> <!-- optional (needed if default theme has no action bar) -->
+
         <!--Temporarily disable Firebase Analytics-->
         <meta-data
             android:name="firebase_analytics_collection_enabled"

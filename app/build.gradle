@@ -98,7 +98,7 @@ dependencies {
     compile 'com.theartofdev.edmodo:android-image-cropper:2.3.1'
 
     /*Image compression library*/
-    compile 'id.zelory:compressor:1.0.2'
+    compile 'id.zelory:compressor:2.1.0'
 
     // dependencies for local unit tests
     testCompile "junit:junit:$rootProject.ext.junitVersion"

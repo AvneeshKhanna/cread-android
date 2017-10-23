@@ -47,11 +47,10 @@ public class ImageHelper {
      * @param sourceUri Uri of the cached image.
      */
     public static Uri copyCroppedImg(Uri sourceUri, Context context) throws IOException {
-
         File sourceFile = new File(sourceUri.getPath());
-
+        //For more information please visit "https://github.com/zetbaitsu/Compressor"
         //To compress the profile pic
-        File compressedFile = Compressor.getDefault(context).compressToFile(sourceFile);
+        File compressedFile = new Compressor(context).compressToFile(sourceFile);
 
         File destFile = new File(ImageHelper.getProfilePicUri().getPath());
 

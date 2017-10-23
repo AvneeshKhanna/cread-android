@@ -62,6 +62,7 @@ import static com.thetestament.cread.utils.Constant.EXTRA_USER_BIO;
 import static com.thetestament.cread.utils.Constant.EXTRA_USER_CONTACT;
 import static com.thetestament.cread.utils.Constant.EXTRA_USER_EMAIL;
 import static com.thetestament.cread.utils.Constant.EXTRA_USER_FIRST_NAME;
+import static com.thetestament.cread.utils.Constant.EXTRA_USER_IMAGE_PATH;
 import static com.thetestament.cread.utils.Constant.EXTRA_USER_LAST_NAME;
 import static com.thetestament.cread.utils.Constant.EXTRA_USER_WATER_MARK_STATUS;
 import static com.thetestament.cread.utils.Constant.REQUEST_CODE_UPDATE_PROFILE_DETAILS;
@@ -106,7 +107,7 @@ public class MeFragment extends Fragment {
     @State
     String mEmail, mContactNumber, mPostCount, mFollowerCount, mFollowingCount, mWaterMarkStatus;
     @State
-    boolean mFollowStatus;
+    boolean mFollowStatus, isProfileEditable;
     @State
     String mRequestedUUID;
 
@@ -144,10 +145,12 @@ public class MeFragment extends Fragment {
         //if this screen is opened from BottomNavigationActivity
         if (calledFrom.equals("BottomNavigationActivity")) {
             mRequestedUUID = mHelper.getUUID();
+            isProfileEditable = true;
             //Hide follow button
             buttonFollow.setVisibility(View.GONE);
         } else {
             mRequestedUUID = getArguments().getString("requesteduuid");
+            isProfileEditable = false;
             //Show follow button
             buttonFollow.setVisibility(View.VISIBLE);
         }
@@ -182,8 +185,7 @@ public class MeFragment extends Fragment {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         if (requestCode == REQUEST_CODE_WRITE_EXTERNAL_STORAGE) {
             if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                startActivityForResult(new Intent(getActivity(), UpdateProfileImageActivity.class)
-                        , REQUEST_CODE_UPDATE_PROFILE_PIC);
+                openUpdateImageScreen();
             } else {
                 ViewHelper.getToast(getActivity()
                         , "The app won't function properly since the permission for storage was denied.");
@@ -226,7 +228,9 @@ public class MeFragment extends Fragment {
             mWaterMarkStatus = data.getExtras().getString(EXTRA_USER_WATER_MARK_STATUS);
 
         } else if (requestCode == REQUEST_CODE_UPDATE_PROFILE_PIC && resultCode == RESULT_OK) {
-
+            mProfilePicURL = data.getExtras().getString(EXTRA_USER_IMAGE_PATH);
+            //load user profile
+            loadUserPicture(mProfilePicURL, imageUser, getActivity());
         }
     }
 
@@ -235,7 +239,11 @@ public class MeFragment extends Fragment {
      */
     @OnClick(R.id.imageUser)
     public void onUserImageClicked() {
-        getRuntimePermission();
+        if (isProfileEditable) {
+            getRuntimePermission();
+        } else {
+            //do nothing
+        }
     }
 
     /**
@@ -243,14 +251,19 @@ public class MeFragment extends Fragment {
      */
     @OnClick({R.id.textUserName, R.id.textBio})
     public void onUserNameClicked() {
-        Intent intent = new Intent(getActivity(), UpdateProfileDetailsActivity.class);
-        intent.putExtra(EXTRA_USER_FIRST_NAME, mFirstName);
-        intent.putExtra(EXTRA_USER_LAST_NAME, mLastName);
-        intent.putExtra(EXTRA_USER_EMAIL, mEmail);
-        intent.putExtra(EXTRA_USER_BIO, mUserBio);
-        intent.putExtra(EXTRA_USER_CONTACT, mContactNumber);
-        intent.putExtra(EXTRA_USER_WATER_MARK_STATUS, mWaterMarkStatus);
-        startActivityForResult(intent, REQUEST_CODE_UPDATE_PROFILE_DETAILS);
+        if (isProfileEditable) {
+            Intent intent = new Intent(getActivity(), UpdateProfileDetailsActivity.class);
+            intent.putExtra(EXTRA_USER_FIRST_NAME, mFirstName);
+            intent.putExtra(EXTRA_USER_LAST_NAME, mLastName);
+            intent.putExtra(EXTRA_USER_EMAIL, mEmail);
+            intent.putExtra(EXTRA_USER_BIO, mUserBio);
+            intent.putExtra(EXTRA_USER_CONTACT, mContactNumber);
+            intent.putExtra(EXTRA_USER_WATER_MARK_STATUS, mWaterMarkStatus);
+            startActivityForResult(intent, REQUEST_CODE_UPDATE_PROFILE_DETAILS);
+        } else {
+            //do nothing
+        }
+
     }
 
     /**
@@ -665,6 +678,7 @@ public class MeFragment extends Fragment {
         });
     }
 
+
     /**
      * Method to get WRITE_EXTERNAL_STORAGE permission and perform specified operation.
      */
@@ -685,9 +699,16 @@ public class MeFragment extends Fragment {
         }
         //If permission is granted
         else {
-            startActivityForResult(new Intent(getActivity(), UpdateProfileImageActivity.class)
-                    , REQUEST_CODE_UPDATE_PROFILE_PIC);
+            openUpdateImageScreen();
         }
     }
 
+    /**
+     * Open UpdateProfileImageActivity screen
+     */
+    private void openUpdateImageScreen() {
+        Intent intent = new Intent(getActivity(), UpdateProfileImageActivity.class);
+        intent.putExtra(EXTRA_USER_IMAGE_PATH, mProfilePicURL);
+        startActivityForResult(intent, REQUEST_CODE_UPDATE_PROFILE_PIC);
+    }
 }

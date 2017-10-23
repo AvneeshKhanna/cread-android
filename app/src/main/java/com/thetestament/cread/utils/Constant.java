@@ -9,7 +9,7 @@ public class Constant {
     public static final int REQUEST_CODE_WRITE_EXTERNAL_STORAGE = 1003;
     public static final int REQUEST_CODE_UPDATE_PROFILE_PIC = 1004;
     public static final int REQUEST_CODE_UPDATE_PROFILE_DETAILS = 1005;
-
+    public static final int REQUEST_CODE_OPEN_GALLERY = 1006;
 
     //Tag value for fragments
     public static final String TAG_FEED_FRAGMENT = "TagFeedFragment";
@@ -33,4 +33,5 @@ public class Constant {
     public static final String EXTRA_USER_BIO = "userBio";
     public static final String EXTRA_USER_CONTACT = "userContact";
     public static final String EXTRA_USER_WATER_MARK_STATUS = "userWaterMarkStatus";
+    public static final String EXTRA_USER_IMAGE_PATH = "userImagePath";
 }
