@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/rootView"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
@@ -11,7 +12,7 @@
         android:layout_height="wrap_content"
         android:background="@android:color/transparent"
         android:fitsSystemWindows="true"
-        android:visibility="visible">
+        android:visibility="invisible">
 
         <android.support.design.widget.CollapsingToolbarLayout
             android:id="@+id/collapsingToolbar"
@@ -29,140 +30,150 @@
                 android:clipChildren="false"
                 android:clipToPadding="false"
                 android:orientation="vertical"
-                android:padding="24dp"
                 app:layout_collapseMode="parallax">
 
-
-                <de.hdodenhof.circleimageview.CircleImageView
-                    android:id="@+id/imageUser"
-                    android:layout_width="88dp"
-                    android:layout_height="88dp"
-                    android:layout_gravity="center"
-                    android:src="@drawable/ic_account_circle_48" />
-
-                <TextView
-                    android:id="@+id/textUserName"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:gravity="center"
-                    android:paddingBottom="5dp"
-                    android:paddingTop="5dp"
-                    android:text="Gaurav"
-                    android:textColor="@color/grey_dark"
-                    android:textSize="24sp" />
-
-                <TextView
-                    android:id="@+id/textBio"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:gravity="center"
-                    android:text="Mobile development passionate"
-                    android:textColor="@color/grey_dark"
-                    android:textSize="12sp" />
-
-
-                <TextView
-                    android:id="@+id/buttonFollow"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:layout_marginTop="16dp"
-                    android:background="@drawable/button_outline"
-                    android:paddingBottom="8dp"
-                    android:paddingLeft="24dp"
-                    android:paddingRight="24dp"
-                    android:paddingTop="8dp"
-                    android:text="Following"
-                    android:textColor="@color/grey_dark"
-                    android:textSize="12sp"
-                    android:visibility="visible" />
-
                 <LinearLayout
-                    android:id="@+id/containerUserStats"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginLeft="8dp"
-                    android:layout_marginRight="8dp"
-                    android:layout_marginTop="16dp">
+                    android:orientation="vertical"
+                    android:padding="24dp">
 
-                    <LinearLayout
-                        android:id="@+id/containerPosts"
+                    <de.hdodenhof.circleimageview.CircleImageView
+                        android:id="@+id/imageUser"
+                        android:layout_width="88dp"
+                        android:layout_height="88dp"
+                        android:layout_gravity="center"
+                        tools:src="@drawable/ic_account_circle_48" />
+
+                    <TextView
+                        android:id="@+id/textUserName"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="center"
+                        android:paddingBottom="5dp"
+                        android:paddingTop="5dp"
+                        android:textColor="@color/grey_dark"
+                        android:textSize="24sp"
+                        tools:text="Gaurav" />
+
+                    <TextView
+                        android:id="@+id/textBio"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="center"
+                        android:textColor="@color/grey_dark"
+                        android:textSize="12sp"
+                        tools:text="Mobile development passionate" />
+
+                    <TextView
+                        android:id="@+id/buttonFollow"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:gravity="center"
-                        android:orientation="vertical">
-
-                        <TextView
-                            android:id="@+id/textPostsCount"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="1167"
-                            android:textColor="@color/grey_dark"
-                            android:textSize="20sp" />
-
-                        <TextView
-                            android:id="@+id/textPosts"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="posts"
-                            android:textColor="@color/grey_dark"
-                            android:textSize="12sp" />
-                    </LinearLayout>
+                        android:layout_gravity="center"
+                        android:layout_marginTop="16dp"
+                        android:background="@drawable/button_outline"
+                        android:paddingBottom="8dp"
+                        android:paddingLeft="24dp"
+                        android:paddingRight="24dp"
+                        android:paddingTop="8dp"
+                        android:text="Following"
+                        android:textColor="@color/grey_dark"
+                        android:textSize="12sp"
+                        android:visibility="visible" />
 
                     <LinearLayout
-                        android:id="@+id/containerFollowers"
-                        android:layout_width="wrap_content"
+                        android:id="@+id/containerUserStats"
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:gravity="center"
-                        android:orientation="vertical">
+                        android:layout_marginLeft="8dp"
+                        android:layout_marginRight="8dp"
+                        android:layout_marginTop="16dp">
 
-                        <TextView
-                            android:id="@+id/textFollowersCount"
+                        <LinearLayout
+                            android:id="@+id/containerPosts"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="396"
-                            android:textColor="@color/grey_dark"
-                            android:textSize="20sp" />
+                            android:layout_weight="1"
+                            android:gravity="center"
+                            android:orientation="vertical">
 
-                        <TextView
-                            android:id="@+id/textFollowers"
+                            <TextView
+                                android:id="@+id/textPostsCount"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:textColor="@color/grey_dark"
+                                android:textSize="20sp"
+                                tools:text="1167" />
+
+                            <TextView
+                                android:id="@+id/textPosts"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="posts"
+                                android:textColor="@color/grey_dark"
+                                android:textSize="12sp" />
+                        </LinearLayout>
+
+                        <LinearLayout
+                            android:id="@+id/containerFollowers"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="followers"
-                            android:textColor="@color/grey_dark"
-                            android:textSize="12sp" />
+                            android:layout_weight="1"
+                            android:gravity="center"
+                            android:orientation="vertical">
+
+                            <TextView
+                                android:id="@+id/textFollowersCount"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:textColor="@color/grey_dark"
+                                android:textSize="20sp"
+                                tools:text="396" />
+
+                            <TextView
+                                android:id="@+id/textFollowers"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="followers"
+                                android:textColor="@color/grey_dark"
+                                android:textSize="12sp" />
+                        </LinearLayout>
+
+                        <LinearLayout
+                            android:id="@+id/containerFollowing"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:gravity="center"
+                            android:orientation="vertical">
+
+                            <TextView
+                                android:id="@+id/textFollowingCount"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:textColor="@color/grey_dark"
+                                android:textSize="20sp"
+                                tools:text="485" />
+
+                            <TextView
+                                android:id="@+id/textFollowing"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="following"
+                                android:textColor="@color/grey_dark"
+                                android:textSize="12sp" />
+                        </LinearLayout>
                     </LinearLayout>
 
-                    <LinearLayout
-                        android:id="@+id/containerFollowing"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:gravity="center"
-                        android:orientation="vertical">
-
-                        <TextView
-                            android:id="@+id/textFollowingCount"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="485"
-                            android:textColor="@color/grey_dark"
-                            android:textSize="20sp" />
-
-                        <TextView
-                            android:id="@+id/textFollowing"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="following"
-                            android:textColor="@color/grey_dark"
-                            android:textSize="12sp" />
-                    </LinearLayout>
                 </LinearLayout>
 
+                <View
+                    android:id="@+id/lineSeparator"
+                    android:layout_width="match_parent"
+                    android:layout_height="0.3dp"
+                    android:alpha="0.4"
+                    android:background="@color/grey_dark" />
             </LinearLayout>
-
 
         </android.support.design.widget.CollapsingToolbarLayout>
 
@@ -189,10 +200,11 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent">
 
-            <FrameLayout
-                android:id="@+id/frameLayoutMe"
+            <android.support.v7.widget.RecyclerView
+                android:id="@+id/recyclerView"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent" />
+                android:layout_height="match_parent"
+                android:layoutAnimation="@anim/layout_animation_from_bottom" />
 
         </android.support.v4.widget.SwipeRefreshLayout>
 

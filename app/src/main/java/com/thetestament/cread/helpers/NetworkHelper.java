@@ -21,7 +21,7 @@ import io.reactivex.Observable;
 public class NetworkHelper {
 
     /**
-     * Method to check internet connection status and return boolean i.e true and  false.
+     * Method to check internet connection status and return boolean i.e true and false.
      *
      * @param context Context: The context to use. Usually your Application or Activity object.
      * @return boolean i.e true if device is connected to internet false otherwise.
@@ -37,7 +37,35 @@ public class NetworkHelper {
 
 
     /**
-     * Reactive approach to retrieve profile data from server.
+     * Method to return requested data from the server.
+     *
+     * @param serverURL     URL of the server
+     * @param uuid          UUID of the user.
+     * @param authKey       Authentication key of the user
+     * @param requestedUUID UUID of user whose profile data to be loaded.
+     * @param pageNumber    Page no to be loaded i.e integer
+     */
+    public static Observable<JSONObject> getObservableFromServer(String serverURL, String uuid, String authKey, String requestedUUID, int pageNumber) {
+
+        JSONObject jsonObject = new JSONObject();
+        try {
+            jsonObject.put("uuid", uuid);
+            jsonObject.put("authkey", authKey);
+            jsonObject.put("requesteduuid", requestedUUID);
+            jsonObject.put("page", pageNumber);
+        } catch (JSONException e) {
+            e.printStackTrace();
+            FirebaseCrash.report(e);
+        }
+        return Rx2AndroidNetworking.post(serverURL)
+                .addJSONObjectBody(jsonObject)
+                .build()
+                .getJSONObjectObservable();
+    }
+
+
+    /**
+     * Reactive approach to retrieve user profile data from server.
      *
      * @param serverURL     URL of the server.
      * @param uuid          UUID of the user.
@@ -50,6 +78,30 @@ public class NetworkHelper {
             jsonObject.put("uuid", uuid);
             jsonObject.put("authkey", authKey);
             jsonObject.put("requesteduuid", requestedUUID);
+        } catch (JSONException e) {
+            e.printStackTrace();
+            FirebaseCrash.report(e);
+        }
+        return Rx2AndroidNetworking.post(serverURL)
+                .addJSONObjectBody(jsonObject)
+                .build()
+                .getJSONObjectObservable();
+    }
+
+    /**
+     * Method to return user timeLine data from the server.
+     *
+     * @param serverURL  URL of the server.
+     * @param uuid       UUID of the user.
+     * @param authKey    AuthKey of user i.e String.
+     * @param pageNumber Page no to be loaded i.e integer
+     */
+    public static Observable<JSONObject> getObservableFromServer(String serverURL, String uuid, String authKey, int pageNumber) {
+        JSONObject jsonObject = new JSONObject();
+        try {
+            jsonObject.put("uuid", uuid);
+            jsonObject.put("authkey", authKey);
+            jsonObject.put("page", pageNumber);
         } catch (JSONException e) {
             e.printStackTrace();
             FirebaseCrash.report(e);

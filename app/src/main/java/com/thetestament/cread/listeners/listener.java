@@ -2,6 +2,7 @@ package com.thetestament.cread.listeners;
 
 import com.thetestament.cread.models.CommentsModel;
 import com.thetestament.cread.models.FeedModel;
+import com.thetestament.cread.models.FollowModel;
 
 public class listener {
 
@@ -79,6 +80,20 @@ public class listener {
          * @param comment   comment text.
          */
         void onEdit(int index, String commentID, String comment, CommentsModel commentsModel);
+    }
+
+    /**
+     * Interface definition for a callback to be invoked when user scroll for more data.
+     */
+    public interface OnFollowLoadMoreListener {
+        void onLoadMore();
+    }
+
+    /**
+     * Interface definition for a callback to be invoked when user clicks on follow button.
+     */
+    public interface OnFollowListener {
+        void onFollowClick(FollowModel data, boolean followStatus);
     }
 
 }

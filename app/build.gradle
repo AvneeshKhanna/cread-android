@@ -55,7 +55,7 @@ dependencies {
     compile "com.google.firebase:firebase-messaging:$rootProject.playServiceVersion"
 
     //Facebook
-    
+
 
     //Font
     compile "uk.co.chrisjenx:calligraphy:$rootProject.calligraphyVersion"
@@ -77,15 +77,22 @@ dependencies {
     annotationProcessor "com.jakewharton:butterknife-compiler:$rootProject.butterKnifeVersion"
 
     //To maintain instance state
-    
+
     //Circular imageView
-    
+
     //Sectioned RecyclerView
-    
+
     //Tooltip
-    
+
     //Material Dialog
-    
+    compile 'com.afollestad.material-dialogs:commons:0.9.3.0'
+
+    /*Image cropping*/
+    compile 'com.theartofdev.edmodo:android-image-cropper:2.3.1'
+
+    /*Image compression library*/
+    compile 'id.zelory:compressor:2.1.0'
+
     // dependencies for local unit tests
     testCompile "junit:junit:$rootProject.ext.junitVersion"
     compile 'com.facebook.android:facebook-login:[4,5)'

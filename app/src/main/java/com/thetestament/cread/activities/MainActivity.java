@@ -1,22 +1,16 @@
 package com.thetestament.cread.activities;
 
 
-import android.app.Fragment;
 import android.content.Intent;
-import android.net.Uri;
 import android.os.Bundle;
-import android.os.Parcel;
 import android.support.annotation.Nullable;
-import android.support.annotation.StyleRes;
 import android.support.v4.view.ViewPager;
 import android.util.Log;
-import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.androidnetworking.AndroidNetworking;
@@ -28,10 +22,8 @@ import com.facebook.FacebookCallback;
 import com.facebook.FacebookException;
 import com.facebook.FacebookRequestError;
 import com.facebook.FacebookRequestError.Category;
-import com.facebook.FacebookSdk;
 import com.facebook.GraphRequest;
 import com.facebook.GraphResponse;
-import com.facebook.Profile;
 import com.facebook.accountkit.Account;
 import com.facebook.accountkit.AccountKit;
 import com.facebook.accountkit.AccountKitCallback;
@@ -40,11 +32,7 @@ import com.facebook.accountkit.AccountKitLoginResult;
 import com.facebook.accountkit.PhoneNumber;
 import com.facebook.accountkit.ui.AccountKitActivity;
 import com.facebook.accountkit.ui.AccountKitConfiguration;
-import com.facebook.accountkit.ui.ButtonType;
-import com.facebook.accountkit.ui.LoginFlowState;
 import com.facebook.accountkit.ui.LoginType;
-import com.facebook.accountkit.ui.TextPosition;
-import com.facebook.accountkit.ui.UIManager;
 import com.facebook.login.LoginManager;
 import com.facebook.login.LoginResult;
 import com.facebook.login.widget.LoginButton;
@@ -69,6 +57,7 @@ import butterknife.OnClick;
 
 public class MainActivity extends BaseActivity {
 
+    private final String TAG = getClass().getSimpleName();
     //Array to store  sliders layout
     @BindView(R.id.dotsLayout)
     LinearLayout dotsLayout;
@@ -78,13 +67,10 @@ public class MainActivity extends BaseActivity {
     LoginButton loginButton;
     @BindView(R.id.loginParent)
     RelativeLayout parentLayout;
-
     CallbackManager mCallbackManager;
     JSONObject graphObject;
     String phoneNo;
     MaterialDialog verifyDialog;
-    private final String TAG = getClass().getSimpleName();
-
     private int[] mLayouts;
     //  viewpager change listener
     ViewPager.OnPageChangeListener viewPagerPageChangeListener = new ViewPager.OnPageChangeListener() {
@@ -120,7 +106,7 @@ public class MainActivity extends BaseActivity {
         initViewPager();
 
         mCallbackManager = CallbackManager.Factory.create();
-        loginButton.setReadPermissions(Arrays.asList("email"));
+        loginButton.setReadPermissions(Arrays.asList("mEmail"));
         loginButton.registerCallback(mCallbackManager, new FacebookCallback<LoginResult>() {
             @Override
             public void onSuccess(LoginResult loginResult) {
@@ -382,7 +368,7 @@ public class MainActivity extends BaseActivity {
                                     LoginManager.getInstance().resolveError(MainActivity.this, response);
                                     break;
                                 case TRANSIENT:
-                                    // some temporary error occured so try again
+                                    // some temporary error occurred so try again
                                     //access token is not set to null because graph request is retried
                                     getUserData();
                                     break;
@@ -397,7 +383,7 @@ public class MainActivity extends BaseActivity {
                     }
                 });
         Bundle parameters = new Bundle();
-        parameters.putString("fields", "id,first_name,last_name,age_range,link,gender,locale,picture,email");
+        parameters.putString("fields", "id,first_name,last_name,age_range,link,gender,locale,picture,mEmail");
         request.setParameters(parameters);
         request.executeAsync();
 
@@ -480,7 +466,7 @@ public class MainActivity extends BaseActivity {
     }
 
     /**
-     * method to get phone nummber from account kit
+     * method to get phone number from account kit
      */
     private void getPhoneNo() {
         AccountKit.getCurrentAccount(new AccountKitCallback<Account>() {
