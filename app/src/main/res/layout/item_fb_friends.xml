@@ -27,9 +27,11 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:textSize="16sp"
-            tools:text="User Name" />
+            tools:text="User Name"
+            android:layout_toLeftOf="@+id/buttonFollow"/>
 
         <TextView
+            android:id="@+id/buttonFollow"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginRight="10dp"
@@ -37,7 +39,10 @@
             android:layout_alignParentRight="true"
             android:background="@drawable/button_filled"
             android:textColor="@color/white"
-            android:padding="7dp"
+            android:paddingBottom="8dp"
+            android:paddingTop="8dp"
+            android:paddingLeft="12dp"
+            android:paddingRight="12dp"
             />
 
     </RelativeLayout>

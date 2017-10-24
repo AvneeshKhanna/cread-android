@@ -11,7 +11,6 @@ import android.widget.TextView;
 import com.squareup.picasso.Picasso;
 import com.thetestament.cread.R;
 import com.thetestament.cread.activities.ProfileActivity;
-import com.thetestament.cread.listeners.listener;
 import com.thetestament.cread.listeners.listener.OnFriendsLoadMoreListener;
 import com.thetestament.cread.models.FBFriendsModel;
 
@@ -31,7 +30,7 @@ public class FBFriendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
     private List<FBFriendsModel> mFriendsList;
     private FragmentActivity mContext;
     private boolean mIsLoading;
-    private int mFriendCount;
+
 
     private OnFriendsLoadMoreListener onFriendsLoadMoreListener;
 
@@ -41,10 +40,9 @@ public class FBFriendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
      * @param mFriendsList list of friends
      * @param mContext     Context
      */
-    public FBFriendsAdapter(List<FBFriendsModel> mFriendsList, FragmentActivity mContext, int mFriendCount) {
+    public FBFriendsAdapter(List<FBFriendsModel> mFriendsList, FragmentActivity mContext) {
         this.mFriendsList = mFriendsList;
         this.mContext = mContext;
-        this.mFriendCount = mFriendCount;
     }
 
     /**
@@ -60,8 +58,8 @@ public class FBFriendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
         if (position < mFriendsList.size() && mFriendsList.get(position) == null)
             return VIEW_TYPE_LOADING;
 
-        else if (isPositionHeader(position))
-            return VIEW_TYPE_HEADER;
+        /*else if (isPositionHeader(position))
+            return VIEW_TYPE_HEADER;*/
 
         else {
             return VIEW_TYPE_ITEM;
@@ -83,11 +81,11 @@ public class FBFriendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
             return new LoadingViewHolder(LayoutInflater
                     .from(parent.getContext())
                     .inflate(R.layout.item_hats_off_loadding, parent, false));
-        } else if (viewType == VIEW_TYPE_HEADER) {
+        } /*else if (viewType == VIEW_TYPE_HEADER) {
             return new HeaderViewHolder(LayoutInflater
                     .from(parent.getContext())
                     .inflate(R.layout.header_find_friends, parent, false));
-        }
+        }*/
 
         return null;
     }
@@ -99,7 +97,7 @@ public class FBFriendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
         if (holder.getItemViewType() == VIEW_TYPE_ITEM) {
 
             // -1 because of header
-            FBFriendsModel data = mFriendsList.get(position - 1);
+            FBFriendsModel data = mFriendsList.get(position);
 
             ItemViewHolder itemViewHolder = (ItemViewHolder) holder;
             //set user name
@@ -110,12 +108,12 @@ public class FBFriendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
         } else if (holder.getItemViewType() == VIEW_TYPE_LOADING) {
             LoadingViewHolder loadingViewHolder = (LoadingViewHolder) holder;
             loadingViewHolder.progressView.setVisibility(View.VISIBLE);
-        } else if (holder.getItemViewType() == VIEW_TYPE_HEADER) {
+        } /*else if (holder.getItemViewType() == VIEW_TYPE_HEADER) {
 
             HeaderViewHolder headerViewHolder = (HeaderViewHolder) holder;
             headerViewHolder.friendCount.setText("You have " + mFriendCount + " friends on Cread");
         }
-
+*/
         // TODO check logic
         //If last item is visible to user and new set of data is to yet to be loaded
         // note -1 is not present because of header
@@ -134,7 +132,7 @@ public class FBFriendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
     @Override
     public int getItemCount() {
         // +1 because header is also there
-        return mFriendsList == null ? 0 : (mFriendsList.size() + 1);
+        return mFriendsList == null ? 0 : mFriendsList.size();
     }
 
 

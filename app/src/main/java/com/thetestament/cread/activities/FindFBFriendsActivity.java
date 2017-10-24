@@ -3,13 +3,17 @@ package com.thetestament.cread.activities;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.constraint.ConstraintLayout;
+import android.support.design.widget.CoordinatorLayout;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.widget.NestedScrollView;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.view.View;
 import android.view.animation.AnimationUtils;
 import android.view.animation.LayoutAnimationController;
+import android.widget.RelativeLayout;
 
 import com.facebook.AccessToken;
 import com.facebook.FacebookException;
@@ -44,18 +48,20 @@ import io.reactivex.schedulers.Schedulers;
 public class FindFBFriendsActivity extends AppCompatActivity {
 
     @BindView(R.id.rootView)
-    ConstraintLayout rootView;
+    CoordinatorLayout rootView;
     @BindView(R.id.recyclerView)
     RecyclerView recyclerView;
     @BindView(R.id.swipeRefreshLayout)
     SwipeRefreshLayout swipeRefreshLayout;
+    @BindView(R.id.header_ff)
+    RelativeLayout header;
 
     //private int mPageNumber = 0;
     private String mNextUrl;
     private boolean mRequestMoreData;
     List<FBFriendsModel> mDataList = new ArrayList<>();
     FBFriendsAdapter mAdapter;
-    private int mFriendCount;
+
 
     CompositeDisposable mCompositeDisposable = new CompositeDisposable();
 
@@ -86,17 +92,8 @@ public class FindFBFriendsActivity extends AppCompatActivity {
         friendsModel2.setProfilePicUrl("https://scontent.xx.fbcdn.net/v/t1.0-1/c41.41.512.512/s50x50/407817_2584380493226_1285693610_n.jpg?oh=18ac083ae4f5906f3576efa1f4f530cf&oe=5A82237B");
         mDataList.add(friendsModel2);*/
 
+        askFBFriendsPermission();
 
-
-        //Set layout manager for recyclerView
-        recyclerView.setLayoutManager(new LinearLayoutManager(FindFBFriendsActivity.this));
-        //Set adapter
-        mAdapter = new FBFriendsAdapter(mDataList, FindFBFriendsActivity.this, mFriendCount);
-
-
-        initScreen();
-
-        recyclerView.setAdapter(mAdapter);
 
     }
 
@@ -106,16 +103,37 @@ public class FindFBFriendsActivity extends AppCompatActivity {
         mCompositeDisposable.dispose();
     }
 
+
+    /**
+     * Method to initialize views
+     */
+    private void initView() {
+
+         //Set layout manger for recyclerView
+        recyclerView.setLayoutManager(new LinearLayoutManager(FindFBFriendsActivity.this));
+        //Set adapter
+        mAdapter = new FBFriendsAdapter(mDataList, FindFBFriendsActivity.this);
+        recyclerView.setAdapter(mAdapter);
+
+        //initialize  recyclerView
+        initScreen();
+
+    }
+
     /**
      * Method to initialize swipe to refresh view.
      */
     private void initScreen() {
+
         swipeRefreshLayout.setRefreshing(true);
         swipeRefreshLayout.setColorSchemeColors(ContextCompat.getColor(this
                 , R.color.colorPrimary));
         swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
+
+                header.setVisibility(View.GONE);
+
                 //Clear data
                 mDataList.clear();
                 mAdapter.notifyDataSetChanged();
@@ -197,6 +215,9 @@ public class FindFBFriendsActivity extends AppCompatActivity {
 
                         @Override
                         public void onComplete() {
+
+                            header.setVisibility(View.VISIBLE);
+
                             // Token status invalid
                             if (tokenError[0]) {
                                 ViewHelper.getSnackBar(rootView
@@ -377,8 +398,22 @@ public class FindFBFriendsActivity extends AppCompatActivity {
         );
     }
 
+    private boolean hasPermission()
+    {
+        return  AccessToken.getCurrentAccessToken().getPermissions().contains("user_friends");
+
+    }
+
     private void askFBFriendsPermission()
     {
-        LoginManager.getInstance().logInWithReadPermissions(this, Arrays.asList("user_friends"));
+        if(hasPermission())
+        {
+            initScreen();
+        }
+
+        else
+        {
+            LoginManager.getInstance().logInWithReadPermissions(FindFBFriendsActivity.this, Arrays.asList("user_friends"));
+        }
     }
 }
