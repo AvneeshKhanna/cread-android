@@ -12,6 +12,8 @@ import com.thetestament.cread.fragments.MeFragment;
 import icepick.Icepick;
 import icepick.State;
 
+import static com.thetestament.cread.utils.Constant.EXTRA_PROFILE_UUID;
+
 /**
  * This class shows the other users profile.
  */
@@ -25,7 +27,7 @@ public class ProfileActivity extends BaseActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activty_profile);
         //Retrieve data from the intent
-        mUUID = getIntent().getStringExtra("uuid");
+        mUUID = getIntent().getStringExtra(EXTRA_PROFILE_UUID);
         initScreen();
     }
 
@@ -47,7 +49,7 @@ public class ProfileActivity extends BaseActivity {
     private void initScreen() {
         Bundle meBundle = new Bundle();
         meBundle.putString("calledFrom", "ProfileActivity");
-        meBundle.putString("UUID", mUUID);
+        meBundle.putString("requesteduuid", mUUID);
         Fragment fragment = new MeFragment();
         fragment.setArguments(meBundle);
         getSupportFragmentManager()

@@ -82,7 +82,7 @@ public class ExploreAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
         } else if (viewType == VIEW_TYPE_LOADING) {
             return new FeedAdapter.LoadingViewHolder(LayoutInflater
                     .from(parent.getContext())
-                    .inflate(R.layout.item_explore_loading, parent, false));
+                    .inflate(R.layout.item_load_more, parent, false));
         }
         return null;
     }

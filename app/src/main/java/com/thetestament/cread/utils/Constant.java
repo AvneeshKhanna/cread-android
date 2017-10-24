@@ -34,4 +34,7 @@ public class Constant {
     public static final String EXTRA_USER_CONTACT = "userContact";
     public static final String EXTRA_USER_WATER_MARK_STATUS = "userWaterMarkStatus";
     public static final String EXTRA_USER_IMAGE_PATH = "userImagePath";
+
+    public static final String EXTRA_FOLLOW_REQUESTED_UUID = "followRequestedUUID";
+    public static final String EXTRA_FOLLOW_TYPE = "followType";
 }

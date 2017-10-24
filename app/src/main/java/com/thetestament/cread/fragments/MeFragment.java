@@ -32,6 +32,7 @@ import com.squareup.picasso.Picasso;
 import com.thetestament.cread.BuildConfig;
 import com.thetestament.cread.Manifest;
 import com.thetestament.cread.R;
+import com.thetestament.cread.activities.FollowActivity;
 import com.thetestament.cread.activities.UpdateProfileDetailsActivity;
 import com.thetestament.cread.activities.UpdateProfileImageActivity;
 import com.thetestament.cread.adapters.FeedAdapter;
@@ -61,6 +62,8 @@ import io.reactivex.schedulers.Schedulers;
 import static android.app.Activity.RESULT_OK;
 import static com.thetestament.cread.helpers.NetworkHelper.getNetConnectionStatus;
 import static com.thetestament.cread.helpers.NetworkHelper.getObservableFromServer;
+import static com.thetestament.cread.utils.Constant.EXTRA_FOLLOW_REQUESTED_UUID;
+import static com.thetestament.cread.utils.Constant.EXTRA_FOLLOW_TYPE;
 import static com.thetestament.cread.utils.Constant.EXTRA_USER_BIO;
 import static com.thetestament.cread.utils.Constant.EXTRA_USER_CONTACT;
 import static com.thetestament.cread.utils.Constant.EXTRA_USER_EMAIL;
@@ -287,7 +290,15 @@ public class MeFragment extends Fragment {
      */
     @OnClick(R.id.containerFollowing)
     public void onFollowingContainerClicked() {
-        //// TODO:
+
+        if (Integer.valueOf(mFollowingCount) > 0) {
+            Intent intent = new Intent(getActivity(), FollowActivity.class);
+            intent.putExtra(EXTRA_FOLLOW_REQUESTED_UUID, mRequestedUUID);
+            intent.putExtra(EXTRA_FOLLOW_TYPE, "following");
+            startActivity(intent);
+        } else {
+            ViewHelper.getSnackBar(rootView, "User is not following anyone");
+        }
     }
 
     /**
@@ -295,7 +306,14 @@ public class MeFragment extends Fragment {
      */
     @OnClick(R.id.containerFollowers)
     public void onFollowersContainerClicked() {
-        //// TODO:
+        if (Integer.valueOf(mFollowerCount) > 0) {
+            Intent intent = new Intent(getActivity(), FollowActivity.class);
+            intent.putExtra(EXTRA_FOLLOW_REQUESTED_UUID, mRequestedUUID);
+            intent.putExtra(EXTRA_FOLLOW_TYPE, "followers");
+            startActivity(intent);
+        } else {
+            ViewHelper.getSnackBar(rootView, "No followers");
+        }
     }
 
     /**

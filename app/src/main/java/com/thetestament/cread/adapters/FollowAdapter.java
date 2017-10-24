@@ -1,6 +1,5 @@
 package com.thetestament.cread.adapters;
 
-
 import android.content.Intent;
 import android.support.v4.app.FragmentActivity;
 import android.support.v7.widget.RecyclerView;
@@ -12,8 +11,8 @@ import android.widget.TextView;
 import com.squareup.picasso.Picasso;
 import com.thetestament.cread.R;
 import com.thetestament.cread.activities.ProfileActivity;
-import com.thetestament.cread.listeners.listener.OnHatsOffLoadMoreListener;
-import com.thetestament.cread.models.HatsOffModel;
+import com.thetestament.cread.listeners.listener.OnFollowLoadMoreListener;
+import com.thetestament.cread.models.FollowModel;
 
 import java.util.List;
 
@@ -23,38 +22,40 @@ import de.hdodenhof.circleimageview.CircleImageView;
 
 import static com.thetestament.cread.utils.Constant.EXTRA_PROFILE_UUID;
 
-public class HatsOffAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
+
+public class FollowAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
     private final int VIEW_TYPE_ITEM = 0;
     private final int VIEW_TYPE_LOADING = 1;
-    private List<HatsOffModel> mHatsOffList;
+    private List<FollowModel> mFollowList;
     private FragmentActivity mContext;
     private boolean mIsLoading;
 
-    private OnHatsOffLoadMoreListener onHatsOffLoadMoreListener;
+    private OnFollowLoadMoreListener onFollowLoadMoreListener;
 
     /**
      * Required constructor.
      *
-     * @param mHatsOffList List of hats off data.
-     * @param mContext     Context to use.
+     * @param mFollowList List of follow  data.
+     * @param mContext    Context to use.
      */
 
-    public HatsOffAdapter(List<HatsOffModel> mHatsOffList, FragmentActivity mContext) {
-        this.mHatsOffList = mHatsOffList;
+    public FollowAdapter(List<FollowModel> mFollowList, FragmentActivity mContext) {
+        this.mFollowList = mFollowList;
         this.mContext = mContext;
     }
 
     /**
      * Register a callback to be invoked when user scrolls for more data.
      */
-    public void setOnLoadMoreListener(OnHatsOffLoadMoreListener onHatsOffLoadMoreListener) {
-        this.onHatsOffLoadMoreListener = onHatsOffLoadMoreListener;
+    public void setOnFollowLoadMoreListener(OnFollowLoadMoreListener onFollowLoadMoreListener) {
+        this.onFollowLoadMoreListener = onFollowLoadMoreListener;
     }
+
 
     @Override
     public int getItemViewType(int position) {
-        return mHatsOffList.get(position) == null ? VIEW_TYPE_LOADING : VIEW_TYPE_ITEM;
+        return mFollowList.get(position) == null ? VIEW_TYPE_LOADING : VIEW_TYPE_ITEM;
     }
 
     @Override
@@ -62,7 +63,7 @@ public class HatsOffAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
         if (viewType == VIEW_TYPE_ITEM) {
             return new ItemViewHolder(LayoutInflater
                     .from(parent.getContext())
-                    .inflate(R.layout.item_hats_off, parent, false));
+                    .inflate(R.layout.item_follow, parent, false));
         } else if (viewType == VIEW_TYPE_LOADING) {
             return new LoadingViewHolder(LayoutInflater
                     .from(parent.getContext())
@@ -73,7 +74,7 @@ public class HatsOffAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
 
     @Override
     public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
-        HatsOffModel data = mHatsOffList.get(position);
+        FollowModel data = mFollowList.get(position);
 
         if (holder.getItemViewType() == VIEW_TYPE_ITEM) {
             ItemViewHolder itemViewHolder = (ItemViewHolder) holder;
@@ -90,10 +91,10 @@ public class HatsOffAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
         }
 
         //If last item is visible to user and new set of data is to yet to be loaded
-        if (position == mHatsOffList.size() - 1 && !mIsLoading) {
-            if (onHatsOffLoadMoreListener != null) {
+        if (position == mFollowList.size() - 1 && !mIsLoading) {
+            if (onFollowLoadMoreListener != null) {
                 //Lode more data here
-                onHatsOffLoadMoreListener.onLoadMore();
+                onFollowLoadMoreListener.onLoadMore();
             }
             //toggle
             mIsLoading = true;
@@ -102,7 +103,7 @@ public class HatsOffAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
 
     @Override
     public int getItemCount() {
-        return mHatsOffList == null ? 0 : mHatsOffList.size();
+        return mFollowList == null ? 0 : mFollowList.size();
     }
 
     /**
@@ -140,6 +141,7 @@ public class HatsOffAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
             }
         });
     }
+
 
     //ItemViewHolder class
     static class ItemViewHolder extends RecyclerView.ViewHolder {
