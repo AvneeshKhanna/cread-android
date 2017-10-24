@@ -1,7 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-
     package="com.thetestament.cread">
-
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
@@ -9,6 +8,7 @@
     <permission
         android:name="android.permission.WRITE_EXTERNAL_STORAGE"
         android:protectionLevel="dangerous" />
+
     <application
         android:name=".CreadApp"
         android:allowBackup="true"
@@ -18,20 +18,22 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
 
-        <!--For facebook sdk start-->
+        <!-- For facebook sdk start -->
 
-        <meta-data android:name="com.facebook.sdk.ApplicationId"
-            android:value="@string/FACEBOOK_APP_ID"/>
-        <meta-data android:name="com.facebook.accountkit.ApplicationName"
+        <meta-data
+            android:name="com.facebook.sdk.ApplicationId"
+            android:value="@string/FACEBOOK_APP_ID" />
+        <meta-data
+            android:name="com.facebook.accountkit.ApplicationName"
             android:value="@string/app_name" />
-        <meta-data android:name="com.facebook.accountkit.ClientToken"
+        <meta-data
+            android:name="com.facebook.accountkit.ClientToken"
             android:value="@string/ACCOUNT_KIT_CLIENT_TOKEN" />
 
         <activity
             android:name="com.facebook.FacebookActivity"
             android:configChanges="keyboard|keyboardHidden|screenLayout|screenSize|orientation"
             android:label="@string/app_name" />
-
         <activity
             android:name="com.facebook.CustomTabActivity"
             android:exported="true">
@@ -44,31 +46,30 @@
                 <data android:scheme="@string/fb_login_protocol_scheme" />
             </intent-filter>
         </activity>
+        <activity android:name="com.facebook.accountkit.ui.AccountKitActivity" />
 
-        <activity
-            android:name="com.facebook.accountkit.ui.AccountKitActivity" />
+        <!-- For facebook sdk end -->
 
-        <!--For facebook sdk end-->
 
-        <!--SplashActivity-->
+        <!-- SplashActivity -->
         <activity
             android:name=".activities.SplashActivity"
             android:screenOrientation="portrait"
             android:theme="@style/Theme.AppCompat.NoActionBar">
-
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
 
-        <!--MainActivity-->
+        <!-- MainActivity -->
         <activity
             android:name=".activities.MainActivity"
             android:screenOrientation="portrait"
-            android:theme="@style/BottomNavigationActivityTheme"/>
+            android:theme="@style/BottomNavigationActivityTheme" />
 
-        <!--TermsOfServiceActivity-->
+        <!-- TermsOfServiceActivity -->
         <activity
             android:name=".activities.TermsOfServiceActivity"
             android:label="Terms of Service"
@@ -78,14 +79,14 @@
                 android:value=".activities.MainActivity" />
         </activity>
 
-        <!--BottomNavigationActivity-->
+        <!-- BottomNavigationActivity -->
         <activity
             android:name=".activities.BottomNavigationActivity"
             android:launchMode="singleTop"
             android:screenOrientation="portrait"
             android:theme="@style/BottomNavigationActivityTheme" />
 
-        <!--UpdatesActivity-->
+        <!-- UpdatesActivity -->
         <activity
             android:name=".activities.UpdatesActivity"
             android:label="Updates"
@@ -95,7 +96,7 @@
                 android:value=".activities.BottomNavigationActivity" />
         </activity>
 
-        <!--SettingsActivity-->
+        <!-- SettingsActivity -->
         <activity
             android:name=".activities.SettingsActivity"
             android:label="Settings"
@@ -105,7 +106,7 @@
                 android:value=".activities.BottomNavigationActivity" />
         </activity>
 
-        <!--FeedDescriptionActivity-->
+        <!-- FeedDescriptionActivity -->
         <activity
             android:name=".activities.FeedDescriptionActivity"
             android:screenOrientation="portrait">
@@ -114,7 +115,7 @@
                 android:value=".activities.BottomNavigationActivity" />
         </activity>
 
-        <!--CommentsActivity-->
+        <!-- CommentsActivity -->
         <activity
             android:name=".activities.CommentsActivity"
             android:label="Comment"
@@ -124,15 +125,17 @@
                 android:value=".activities.BottomNavigationActivity" />
         </activity>
 
-        <!--Temporarily disable Firebase Analytics-->
+        <!-- Temporarily disable Firebase Analytics -->
         <meta-data
             android:name="firebase_analytics_collection_enabled"
             android:value="false" />
 
-        <!--Toggle Firebase crash reporting for development-->
+        <!-- Toggle Firebase crash reporting for development -->
         <meta-data
             android:name="firebase_crash_collection_enabled"
             android:value="false" />
+
+        <activity android:name=".activities.FindFBFriendsActivity"></activity>
     </application>
 
 </manifest>

@@ -305,6 +305,7 @@ public class MainActivity extends BaseActivity {
                         @Override
                         public void onError(ANError anError) {
                             statusDialog.dismiss();
+                            AccessToken.setCurrentAccessToken(null);
                             ViewHelper.getSnackBar(parentLayout, getString(R.string.error_msg_server));
 
                         }

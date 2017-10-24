@@ -5,6 +5,7 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.support.v4.app.FragmentActivity;
 
+import com.facebook.AccessToken;
 import com.google.firebase.crash.FirebaseCrash;
 import com.rx2androidnetworking.Rx2AndroidNetworking;
 
@@ -109,4 +110,5 @@ public class NetworkHelper {
                 .build()
                 .getJSONObjectObservable();
     }
+
 }

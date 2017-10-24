@@ -32,6 +32,13 @@ public class listener {
     /**
      * Interface definition for a callback to be invoked when user scroll for more data.
      */
+    public interface OnFriendsLoadMoreListener {
+        void onLoadMore();
+    }
+
+    /**
+     * Interface definition for a callback to be invoked when user scroll for more data.
+     */
     public interface OnExploreLoadMoreListener {
         void onLoadMore();
     }
