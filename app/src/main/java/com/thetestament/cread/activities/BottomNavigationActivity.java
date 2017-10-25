@@ -5,14 +5,16 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.BottomNavigationView;
+import android.support.design.widget.BottomSheetDialog;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.LinearLayout;
 
 import com.thetestament.cread.R;
-import com.thetestament.cread.fragments.AddFragment;
 import com.thetestament.cread.fragments.ExploreFragment;
 import com.thetestament.cread.fragments.FeedFragment;
 import com.thetestament.cread.fragments.MeFragment;
@@ -24,7 +26,6 @@ import icepick.Icepick;
 import icepick.State;
 
 import static com.thetestament.cread.utils.Constant.REQUEST_CODE_UPDATES_ACTIVITY;
-import static com.thetestament.cread.utils.Constant.TAG_Add_FRAGMENT;
 import static com.thetestament.cread.utils.Constant.TAG_EXPLORE_FRAGMENT;
 import static com.thetestament.cread.utils.Constant.TAG_FEED_FRAGMENT;
 import static com.thetestament.cread.utils.Constant.TAG_ME_FRAGMENT;
@@ -153,6 +154,7 @@ public class BottomNavigationActivity extends BaseActivity {
                         mCurrentFragment = new FeedFragment();
                         //set fragment tag
                         mFragmentTag = TAG_FEED_FRAGMENT;
+                        replaceFragment(mCurrentFragment, mFragmentTag);
                         break;
 
                     case R.id.action_explore:
@@ -161,29 +163,26 @@ public class BottomNavigationActivity extends BaseActivity {
                         mCurrentFragment = new ExploreFragment();
                         //Set fragment tag
                         mFragmentTag = TAG_EXPLORE_FRAGMENT;
+                        replaceFragment(mCurrentFragment, mFragmentTag);
                         break;
 
                     case R.id.action_add:
-                        //Set title
-                        setTitle("Add");
-                        mCurrentFragment = new AddFragment();
-                        //set fragment tag
-                        mFragmentTag = TAG_Add_FRAGMENT;
+                        getAddContentBottomSheetDialog();
                         break;
 
                     case R.id.action_me:
                         //Set title
                         setTitle("Me");
-
                         Bundle meBundle = new Bundle();
                         meBundle.putString("calledFrom", "BottomNavigationActivity");
                         mCurrentFragment = new MeFragment();
                         mCurrentFragment.setArguments(meBundle);
                         //set fragment tag
                         mFragmentTag = TAG_ME_FRAGMENT;
+                        replaceFragment(mCurrentFragment, mFragmentTag);
                         break;
                 }
-                replaceFragment(mCurrentFragment, mFragmentTag);
+
                 return true;
             }
         });
@@ -204,4 +203,33 @@ public class BottomNavigationActivity extends BaseActivity {
     }
 
 
+    /**
+     * Method to show bottomSheet dialog with write and photo option.
+     */
+    private void getAddContentBottomSheetDialog() {
+        final BottomSheetDialog bottomSheetDialog = new BottomSheetDialog(this);
+        View sheetView = this.getLayoutInflater()
+                .inflate(R.layout.bottomsheet_dialog_add_content, null);
+        bottomSheetDialog.setContentView(sheetView);
+        bottomSheetDialog.show();
+
+        LinearLayout buttonWright = sheetView.findViewById(R.id.buttonWrite);
+        LinearLayout buttonPhoto = sheetView.findViewById(R.id.buttonPhoto);
+
+        //Write button functionality
+        buttonWright.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                bottomSheetDialog.dismiss();
+
+            }
+        });
+        //Photo button functionality
+        buttonPhoto.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                bottomSheetDialog.dismiss();
+            }
+        });
+    }
 }

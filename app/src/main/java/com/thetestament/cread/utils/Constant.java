@@ -14,7 +14,6 @@ public class Constant {
     //Tag value for fragments
     public static final String TAG_FEED_FRAGMENT = "TagFeedFragment";
     public static final String TAG_EXPLORE_FRAGMENT = "TagExploreFragment";
-    public static final String TAG_Add_FRAGMENT = "TagAddFragment";
     public static final String TAG_ME_FRAGMENT = "TagMeFragment";
 
     //Content Types

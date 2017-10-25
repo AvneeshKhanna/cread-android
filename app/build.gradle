@@ -26,7 +26,8 @@ android {
             shrinkResources false
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
-            buildConfigField "String", "URL", '"http://e999c59c.ngrok.io"'
+            //buildConfigField "String", "URL", '"http://cread-dev-remote.herokuapp.com"'
+            buildConfigField "String", "URL", '"http://162191f7.ngrok.io"'
         }
     }
 }
@@ -95,7 +96,7 @@ dependencies {
     compile 'com.afollestad.material-dialogs:commons:0.9.3.0'
 
     /*Image cropping*/
-    compile 'com.theartofdev.edmodo:android-image-cropper:2.3.1'
+    compile 'com.github.yalantis:ucrop:2.2.1'
 
     /*Image compression library*/
     compile 'id.zelory:compressor:2.1.0'

@@ -41,6 +41,7 @@ import com.thetestament.cread.helpers.ViewHelper;
 import com.thetestament.cread.listeners.listener;
 import com.thetestament.cread.models.FeedModel;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -111,7 +112,9 @@ public class MeFragment extends Fragment {
     @State
     String mFirstName, mLastName, mProfilePicURL, mUserBio;
     @State
-    String mEmail, mContactNumber, mPostCount, mFollowerCount, mFollowingCount, mWaterMarkStatus;
+    long mPostCount, mFollowerCount, mFollowingCount;
+    @State
+    String mEmail, mContactNumber, mWaterMarkStatus;
     @State
     boolean mFollowStatus, isProfileEditable;
     @State
@@ -152,11 +155,17 @@ public class MeFragment extends Fragment {
         if (calledFrom.equals("BottomNavigationActivity")) {
             mRequestedUUID = mHelper.getUUID();
             isProfileEditable = true;
-            //Hide follow button
-            buttonFollow.setVisibility(View.GONE);
         } else {
             mRequestedUUID = getArguments().getString("requesteduuid");
             isProfileEditable = false;
+
+        }
+
+        //Condition to  toggle visibility of follow button
+        if (mHelper.getUUID().equals(mRequestedUUID)) {
+            //Hide follow button
+            buttonFollow.setVisibility(View.GONE);
+        } else {
             //Show follow button
             buttonFollow.setVisibility(View.VISIBLE);
         }
@@ -291,7 +300,7 @@ public class MeFragment extends Fragment {
     @OnClick(R.id.containerFollowing)
     public void onFollowingContainerClicked() {
 
-        if (Integer.valueOf(mFollowingCount) > 0) {
+        if (mFollowingCount > 0) {
             Intent intent = new Intent(getActivity(), FollowActivity.class);
             intent.putExtra(EXTRA_FOLLOW_REQUESTED_UUID, mRequestedUUID);
             intent.putExtra(EXTRA_FOLLOW_TYPE, "following");
@@ -306,7 +315,7 @@ public class MeFragment extends Fragment {
      */
     @OnClick(R.id.containerFollowers)
     public void onFollowersContainerClicked() {
-        if (Integer.valueOf(mFollowerCount) > 0) {
+        if (mFollowerCount > 0) {
             Intent intent = new Intent(getActivity(), FollowActivity.class);
             intent.putExtra(EXTRA_FOLLOW_REQUESTED_UUID, mRequestedUUID);
             intent.putExtra(EXTRA_FOLLOW_TYPE, "followers");
@@ -422,13 +431,13 @@ public class MeFragment extends Fragment {
                                 mLastName = mainData.getString("lastname");
                                 mProfilePicURL = mainData.getString("profilepicurl");
                                 mUserBio = mainData.getString("bio");
-                                mWaterMarkStatus = mainData.getString("watermarkstatus");
+                                mFollowStatus = mainData.getBoolean("followstatus");
+                                mPostCount = mainData.getLong("postcount");
+                                mFollowerCount = mainData.getLong("followercount");
+                                mFollowingCount = mainData.getLong("followingcount");
                                 mEmail = mainData.getString("email");
                                 mContactNumber = mainData.getString("phone");
-                                mFollowStatus = mainData.getBoolean("followstatus");
-                                mPostCount = mainData.getString("postcount");
-                                mFollowerCount = mainData.getString("followercount");
-                                mFollowingCount = mainData.getString("followingcount");
+                                mWaterMarkStatus = mainData.getString("watermarkstatus");
                             }
                         } catch (JSONException e) {
                             e.printStackTrace();
@@ -474,12 +483,12 @@ public class MeFragment extends Fragment {
                             }
 
                             //Set user stats
-                            textPostsCount.setText(mPostCount);
-                            textFollowersCount.setText(mFollowerCount);
-                            textFollowingCount.setText(mFollowerCount);
+                            textPostsCount.setText(String.valueOf(mPostCount));
+                            textFollowersCount.setText(String.valueOf(mFollowerCount));
+                            textFollowingCount.setText(String.valueOf(mFollowingCount));
 
                             //If user bio present
-                            if (mUserBio != null) {
+                            if (mUserBio != null && !mUserBio.isEmpty() && !mUserBio.equals("null")) {
                                 textBio.setVisibility(View.VISIBLE);
                                 //Set user bio
                                 textBio.setText(mUserBio);
@@ -605,9 +614,9 @@ public class MeFragment extends Fragment {
                                 mEmail = mainData.getString("email");
                                 mContactNumber = mainData.getString("phone");
                                 mFollowStatus = mainData.getBoolean("followstatus");
-                                mPostCount = mainData.getString("postcount");
-                                mFollowerCount = mainData.getString("followercount");
-                                mFollowingCount = mainData.getString("followingcount");
+                                // mPostCount = mainData.getString("postcount");
+                                //mFollowerCount = mainData.getString("followercount");
+                                //mFollowingCount = mainData.getString("followingcount");
                             }
                         } catch (JSONException e) {
                             e.printStackTrace();
@@ -654,9 +663,9 @@ public class MeFragment extends Fragment {
                             }
 
                             //Set user stats
-                            textPostsCount.setText(mPostCount);
-                            textFollowersCount.setText(mFollowerCount);
-                            textFollowingCount.setText(mFollowerCount);
+                            //textPostsCount.setText(mPostCount);
+                            //textFollowersCount.setText(mFollowerCount);
+                            //rtextFollowingCount.setText(mFollowerCount);
 
                             //If user bio present
                             if (mUserBio != null) {
@@ -743,11 +752,15 @@ public class MeFragment extends Fragment {
      */
     private void updateFollowStatus() {
         final JSONObject jsonObject = new JSONObject();
+        JSONArray jsonArray = new JSONArray();
         try {
+            jsonArray.put(mRequestedUUID);
+
             jsonObject.put("uuid", mHelper.getUUID());
             jsonObject.put("authkey", mHelper.getAuthToken());
-            jsonObject.put("follower", mRequestedUUID);
             jsonObject.put("register", mFollowStatus);
+            jsonObject.put("followees", jsonArray);
+
         } catch (JSONException e) {
             e.printStackTrace();
             FirebaseCrash.report(e);

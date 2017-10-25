@@ -63,9 +63,9 @@ public class FollowActivity extends BaseActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_follow);
         ButterKnife.bind(this);
-        initView();
         //initialize preference helper
         mHelper = new SharedPreferenceHelper(this);
+        initView();
     }
 
     @Override
@@ -291,6 +291,9 @@ public class FollowActivity extends BaseActivity {
                 .subscribeWith(new DisposableObserver<JSONObject>() {
                     @Override
                     public void onNext(JSONObject jsonObject) {
+                        //Remove loading item
+                        mFollowList.remove(mFollowList.size() - 1);
+                        mAdapter.notifyItemRemoved(mFollowList.size());
                         try {
                             //Token status is invalid
                             if (jsonObject.getString("tokenstatus").equals("invalid")) {
@@ -329,9 +332,6 @@ public class FollowActivity extends BaseActivity {
 
                     @Override
                     public void onComplete() {
-                        //Remove loading item
-                        mFollowList.remove(mFollowList.size() - 1);
-                        mAdapter.notifyItemRemoved(mFollowList.size());
                         // Token status invalid
                         if (tokenError[0]) {
                             ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_invalid_token));
@@ -340,10 +340,6 @@ public class FollowActivity extends BaseActivity {
                         else if (connectionError[0]) {
                             ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_internal));
                         } else {
-                            //Apply 'Slide Up' animation
-                            int resId = R.anim.layout_animation_from_bottom;
-                            LayoutAnimationController animation = AnimationUtils.loadLayoutAnimation(FollowActivity.this, resId);
-                            recyclerView.setLayoutAnimation(animation);
                             //Notify changes
                             //mAdapter.notifyItemRangeInserted();
                             mAdapter.notifyDataSetChanged();

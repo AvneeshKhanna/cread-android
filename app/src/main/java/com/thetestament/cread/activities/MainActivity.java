@@ -106,7 +106,7 @@ public class MainActivity extends BaseActivity {
         initViewPager();
 
         mCallbackManager = CallbackManager.Factory.create();
-        loginButton.setReadPermissions(Arrays.asList("mEmail"));
+        loginButton.setReadPermissions(Arrays.asList("email"));
         loginButton.registerCallback(mCallbackManager, new FacebookCallback<LoginResult>() {
             @Override
             public void onSuccess(LoginResult loginResult) {

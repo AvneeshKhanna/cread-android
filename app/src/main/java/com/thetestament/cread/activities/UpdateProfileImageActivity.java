@@ -5,6 +5,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.design.widget.CoordinatorLayout;
+import android.support.v4.content.ContextCompat;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.ImageView;
@@ -14,13 +15,14 @@ import com.androidnetworking.AndroidNetworking;
 import com.androidnetworking.error.ANError;
 import com.androidnetworking.interfaces.JSONObjectRequestListener;
 import com.google.firebase.crash.FirebaseCrash;
+import com.squareup.picasso.MemoryPolicy;
+import com.squareup.picasso.NetworkPolicy;
 import com.squareup.picasso.Picasso;
-import com.theartofdev.edmodo.cropper.CropImage;
-import com.theartofdev.edmodo.cropper.CropImageView;
 import com.thetestament.cread.BuildConfig;
 import com.thetestament.cread.R;
 import com.thetestament.cread.helpers.SharedPreferenceHelper;
 import com.thetestament.cread.helpers.ViewHelper;
+import com.yalantis.ucrop.UCrop;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -34,6 +36,7 @@ import icepick.Icepick;
 import icepick.State;
 
 import static com.thetestament.cread.helpers.ImageHelper.copyCroppedImg;
+import static com.thetestament.cread.helpers.ImageHelper.getProfilePicUri;
 import static com.thetestament.cread.utils.Constant.EXTRA_USER_IMAGE_PATH;
 import static com.thetestament.cread.utils.Constant.REQUEST_CODE_OPEN_GALLERY;
 
@@ -82,34 +85,34 @@ public class UpdateProfileImageActivity extends BaseActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == REQUEST_CODE_OPEN_GALLERY) {
-            if (resultCode == RESULT_OK) {
-                //Get uri of selected image
-                mGalleryImgUri = data.getData();
-                // To crop the selected image
-                startImageCropping(mGalleryImgUri);
-            } else {
-                ViewHelper.getSnackBar(rootView, "Image from gallery was not attached");
-            }
-        }
-        //For more information please visit "https://github.com/ArthurHub/Android-Image-Cropper"
-        else if (requestCode == CropImage.CROP_IMAGE_ACTIVITY_REQUEST_CODE) {
-            CropImage.ActivityResult result = CropImage.getActivityResult(data);
-            if (resultCode == RESULT_OK) {
-                //Get cropped image Uri
-                mCroppedImgUri = result.getUri();
-                try {
-                    mCompressedUri = copyCroppedImg(mCroppedImgUri, this);
-                    //save user profile
-                    saveProfilePicture(new File(mCompressedUri.getPath()));
-                } catch (IOException e) {
-                    e.printStackTrace();
+        switch (requestCode) {
+            case REQUEST_CODE_OPEN_GALLERY:
+                if (resultCode == RESULT_OK) {
+                    //Get uri of selected image
+                    mGalleryImgUri = data.getData();
+                    // To crop the selected image
+                    startImageCropping(mGalleryImgUri, getProfilePicUri());
+                } else {
+                    ViewHelper.getSnackBar(rootView, "Image from gallery was not attached");
+                }
+                break;
+            //For more information please visit "https://github.com/Yalantis/uCrop"
+            case UCrop.REQUEST_CROP:
+                if (resultCode == RESULT_OK) {
+                    //Get cropped image Uri
+                    mCroppedImgUri = UCrop.getOutput(data);
+                    try {
+                        mCompressedUri = copyCroppedImg(mCroppedImgUri, this);
+                        //save user profile
+                        saveProfilePicture(new File(mCompressedUri.getPath()));
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                        ViewHelper.getSnackBar(rootView, "Image could not be cropped due to some error");
+                    }
+                } else if (resultCode == UCrop.RESULT_ERROR) {
                     ViewHelper.getSnackBar(rootView, "Image could not be cropped due to some error");
                 }
-
-            } else if (resultCode == CropImage.CROP_IMAGE_ACTIVITY_RESULT_ERROR_CODE) {
-                ViewHelper.getSnackBar(rootView, "Image could not be cropped due to some error");
-            }
+                break;
         }
     }
 
@@ -144,6 +147,8 @@ public class UpdateProfileImageActivity extends BaseActivity {
     private void loadProfileImage(String imageURL) {
         Picasso.with(this)
                 .load(imageURL)
+                .memoryPolicy(MemoryPolicy.NO_CACHE)
+                .networkPolicy(NetworkPolicy.NO_CACHE)
                 .error(R.drawable.ic_account_circle_48)
                 .into(imageProfile);
     }
@@ -151,13 +156,22 @@ public class UpdateProfileImageActivity extends BaseActivity {
     /**
      * Method to open image cropper screen.
      *
-     * @param imageUri Uri of image to be cropped.
+     * @param sourceUri      Uri of image to be cropped.
+     * @param destinationUri Where image will be saved.
      */
-    private void startImageCropping(Uri imageUri) {
-        //For more information please visit "https://github.com/ArthurHub/Android-Image-Cropper"
-        CropImage.activity(imageUri)
-                .setGuidelines(CropImageView.Guidelines.ON)
-                .setAspectRatio(1, 1)
+    private void startImageCropping(Uri sourceUri, Uri destinationUri) {
+        //For more information please visit "https://github.com/Yalantis/uCrop"
+
+        UCrop.Options options = new UCrop.Options();
+        //Change toolbar color
+        options.setToolbarColor(ContextCompat.getColor(this, R.color.colorPrimary));
+        //Change status bar color
+        options.setStatusBarColor(ContextCompat.getColor(this, R.color.colorPrimaryDark));
+
+        //Launch  image cropping activity
+        UCrop.of(sourceUri, destinationUri)
+                .withAspectRatio(1, 1)
+                .withOptions(options)
                 .start(this);
     }
 
@@ -179,18 +193,10 @@ public class UpdateProfileImageActivity extends BaseActivity {
         dialog.show();
 
         SharedPreferenceHelper helper = new SharedPreferenceHelper(this);
-        JSONObject requestData = new JSONObject();
-        try {
-            requestData.put("uuid", helper.getUUID());
-            requestData.put("authkey", helper.getAuthToken());
-        } catch (JSONException e) {
-            e.printStackTrace();
-            dialog.dismiss();
-        }
-
-        AndroidNetworking.post(BuildConfig.URL + "/user-profile/update-image/")
-                .addJSONObjectBody(requestData)
-                .addFileBody(file)
+        AndroidNetworking.upload(BuildConfig.URL + "/user-profile/update-profile-picture")
+                .addMultipartFile("display-pic", file)
+                .addMultipartParameter("uuid", helper.getUUID())
+                .addMultipartParameter("authkey", helper.getAuthToken())
                 .build()
                 .getAsJSONObject(new JSONObjectRequestListener() {
                     @Override
