@@ -20,6 +20,10 @@ public class Constant {
     public static final String CONTENT_TYPE_SHORT = "SHORT";
     public static final String CONTENT_TYPE_CAPTURE = "CAPTURE";
 
+    //Image Types
+    public static final String IMAGE_TYPE_USER_PROFILE_PIC = "userProfilePic";
+    public static final String IMAGE_TYPE_USER_CAPTURE_PIC = "UserCapturePic";
+
     //Extra data
     public static final String EXTRA_ENTITY_ID = "entityID";
     public static final String EXTRA_FEED_DATA = "feedData";

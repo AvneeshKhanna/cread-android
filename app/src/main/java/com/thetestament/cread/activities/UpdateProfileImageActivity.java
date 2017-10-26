@@ -5,7 +5,6 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.design.widget.CoordinatorLayout;
-import android.support.v4.content.ContextCompat;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.ImageView;
@@ -35,9 +34,11 @@ import butterknife.ButterKnife;
 import icepick.Icepick;
 import icepick.State;
 
-import static com.thetestament.cread.helpers.ImageHelper.copyCroppedImg;
-import static com.thetestament.cread.helpers.ImageHelper.getProfilePicUri;
+import static com.thetestament.cread.helpers.ImageHelper.compressCroppedImg;
+import static com.thetestament.cread.helpers.ImageHelper.getImageUri;
+import static com.thetestament.cread.helpers.ImageHelper.startImageCropping;
 import static com.thetestament.cread.utils.Constant.EXTRA_USER_IMAGE_PATH;
+import static com.thetestament.cread.utils.Constant.IMAGE_TYPE_USER_PROFILE_PIC;
 import static com.thetestament.cread.utils.Constant.REQUEST_CODE_OPEN_GALLERY;
 
 
@@ -91,7 +92,7 @@ public class UpdateProfileImageActivity extends BaseActivity {
                     //Get uri of selected image
                     mGalleryImgUri = data.getData();
                     // To crop the selected image
-                    startImageCropping(mGalleryImgUri, getProfilePicUri());
+                    startImageCropping(this, mGalleryImgUri, getImageUri(IMAGE_TYPE_USER_PROFILE_PIC));
                 } else {
                     ViewHelper.getSnackBar(rootView, "Image from gallery was not attached");
                 }
@@ -102,7 +103,7 @@ public class UpdateProfileImageActivity extends BaseActivity {
                     //Get cropped image Uri
                     mCroppedImgUri = UCrop.getOutput(data);
                     try {
-                        mCompressedUri = copyCroppedImg(mCroppedImgUri, this);
+                        mCompressedUri = compressCroppedImg(mCroppedImgUri, this, IMAGE_TYPE_USER_PROFILE_PIC);
                         //save user profile
                         saveProfilePicture(new File(mCompressedUri.getPath()));
                     } catch (IOException e) {
@@ -152,29 +153,6 @@ public class UpdateProfileImageActivity extends BaseActivity {
                 .error(R.drawable.ic_account_circle_48)
                 .into(imageProfile);
     }
-
-    /**
-     * Method to open image cropper screen.
-     *
-     * @param sourceUri      Uri of image to be cropped.
-     * @param destinationUri Where image will be saved.
-     */
-    private void startImageCropping(Uri sourceUri, Uri destinationUri) {
-        //For more information please visit "https://github.com/Yalantis/uCrop"
-
-        UCrop.Options options = new UCrop.Options();
-        //Change toolbar color
-        options.setToolbarColor(ContextCompat.getColor(this, R.color.colorPrimary));
-        //Change status bar color
-        options.setStatusBarColor(ContextCompat.getColor(this, R.color.colorPrimaryDark));
-
-        //Launch  image cropping activity
-        UCrop.of(sourceUri, destinationUri)
-                .withAspectRatio(1, 1)
-                .withOptions(options)
-                .start(this);
-    }
-
 
     /**
      * Save profile picture.

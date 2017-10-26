@@ -28,6 +28,8 @@ import com.androidnetworking.AndroidNetworking;
 import com.androidnetworking.error.ANError;
 import com.androidnetworking.interfaces.JSONObjectRequestListener;
 import com.google.firebase.crash.FirebaseCrash;
+import com.squareup.picasso.MemoryPolicy;
+import com.squareup.picasso.NetworkPolicy;
 import com.squareup.picasso.Picasso;
 import com.thetestament.cread.BuildConfig;
 import com.thetestament.cread.Manifest;
@@ -515,6 +517,8 @@ public class MeFragment extends Fragment {
     private void loadUserPicture(String picUrl, CircleImageView imageView, Context context) {
         Picasso.with(context)
                 .load(picUrl)
+                .memoryPolicy(MemoryPolicy.NO_CACHE)
+                .networkPolicy(NetworkPolicy.NO_CACHE)
                 .error(R.drawable.ic_account_circle_48)
                 .into(imageView);
     }
