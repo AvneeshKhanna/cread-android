@@ -26,7 +26,7 @@ android {
             shrinkResources false
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
-            buildConfigField "String", "URL", '"http://e999c59c.ngrok.io"'
+            buildConfigField "String", "URL", '"http://aac3eb28.ngrok.io"'
         }
     }
 }

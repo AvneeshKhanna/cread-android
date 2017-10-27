@@ -106,16 +106,18 @@ public class MainActivity extends BaseActivity {
         initViewPager();
 
         mCallbackManager = CallbackManager.Factory.create();
-        loginButton.setReadPermissions(Arrays.asList("mEmail"));
+        loginButton.setReadPermissions(Arrays.asList("email", "user_friends"));
         loginButton.registerCallback(mCallbackManager, new FacebookCallback<LoginResult>() {
             @Override
             public void onSuccess(LoginResult loginResult) {
 
                 AccessToken accessToken = loginResult.getAccessToken();
                 Log.d(TAG, "onSuccess: token" + accessToken.getToken());
-                //Log.d(TAG, "onSuccess: Name" + Profile.getCurrentProfile().getFirstName());
-                //Log.d(TAG, "onSuccess: profile id" + Profile.getCurrentProfile());
+
                 Log.d(TAG, "onSuccess: user token id" + accessToken.getUserId());
+
+                Log.d(TAG, "onSuccess: denied " + loginResult.getRecentlyDeniedPermissions());
+
 
                 //phoneLogin();
                 checkUserStatus(accessToken.getUserId());
@@ -244,6 +246,8 @@ public class MainActivity extends BaseActivity {
                     .title(getString(R.string.verif_title))
                     .content(getString(R.string.waiting_msg))
                     .progress(true, 0)
+                    .cancelable(false)
+                    .canceledOnTouchOutside(false)
                     .show();
 
 

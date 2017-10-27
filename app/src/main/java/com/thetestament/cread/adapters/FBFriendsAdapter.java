@@ -1,18 +1,26 @@
 package com.thetestament.cread.adapters;
 
+import android.content.Context;
 import android.content.Intent;
 import android.support.v4.app.FragmentActivity;
+import android.support.v4.content.ContextCompat;
+import android.support.v4.view.ViewCompat;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.TextView;
 
 import com.squareup.picasso.Picasso;
 import com.thetestament.cread.R;
 import com.thetestament.cread.activities.ProfileActivity;
+import com.thetestament.cread.listeners.listener;
+import com.thetestament.cread.listeners.listener.OnFollowFriendsClickedListener;
 import com.thetestament.cread.listeners.listener.OnFriendsLoadMoreListener;
 import com.thetestament.cread.models.FBFriendsModel;
+
+import org.w3c.dom.Text;
 
 import java.util.List;
 
@@ -20,19 +28,20 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import de.hdodenhof.circleimageview.CircleImageView;
 
+import static com.thetestament.cread.R.id.buttonFollow;
 import static com.thetestament.cread.utils.Constant.EXTRA_PROFILE_UUID;
 
 public class FBFriendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
-    private final int VIEW_TYPE_HEADER = 0;
-    private final int VIEW_TYPE_ITEM = 1;
-    private final int VIEW_TYPE_LOADING = 2;
+    private final int VIEW_TYPE_ITEM = 0;
+    private final int VIEW_TYPE_LOADING = 1;
     private List<FBFriendsModel> mFriendsList;
     private FragmentActivity mContext;
     private boolean mIsLoading;
 
 
     private OnFriendsLoadMoreListener onFriendsLoadMoreListener;
+    private OnFollowFriendsClickedListener followFriendsClickedListener;
 
     /**
      * Constructor
@@ -52,6 +61,11 @@ public class FBFriendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
         this.onFriendsLoadMoreListener = onFriendsLoadMoreListener;
     }
 
+    public void setFollowFriendsClickedListener(OnFollowFriendsClickedListener followFriendsClickedListener)
+    {
+        this.followFriendsClickedListener = followFriendsClickedListener;
+    }
+
     @Override
     public int getItemViewType(int position) {
 
@@ -67,9 +81,7 @@ public class FBFriendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
 
     }
 
-    private boolean isPositionHeader(int position) {
-        return position == 0;
-    }
+
 
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
@@ -80,7 +92,7 @@ public class FBFriendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
         } else if (viewType == VIEW_TYPE_LOADING) {
             return new LoadingViewHolder(LayoutInflater
                     .from(parent.getContext())
-                    .inflate(R.layout.item_hats_off_loadding, parent, false));
+                    .inflate(R.layout.item_load_more, parent, false));
         } /*else if (viewType == VIEW_TYPE_HEADER) {
             return new HeaderViewHolder(LayoutInflater
                     .from(parent.getContext())
@@ -104,6 +116,14 @@ public class FBFriendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
             itemViewHolder.textUserName.setText(data.getFirstName() + " " + data.getLastName());
             //Load profile picture
             loadProfilePicture(data.getProfilePicUrl(), itemViewHolder.imageUser);
+
+
+            itemViewHolder.isFollowing = data.isFollowStatus();
+            toggleFollowButton(data.isFollowStatus(), itemViewHolder.buttonFollow);
+
+            followButtonClick(itemViewHolder, data);
+
+            itemViewOnClick(itemViewHolder.itemView, data.getUuid());
 
         } else if (holder.getItemViewType() == VIEW_TYPE_LOADING) {
             LoadingViewHolder loadingViewHolder = (LoadingViewHolder) holder;
@@ -142,6 +162,13 @@ public class FBFriendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
         CircleImageView imageUser;
         @BindView(R.id.textUserName)
         TextView textUserName;
+        @BindView(R.id.buttonFollow)
+        TextView buttonFollow;
+
+        //Variable to maintain follow status
+        private boolean isFollowing = false;
+
+
 
         public ItemViewHolder(View itemView) {
             super(itemView);
@@ -207,6 +234,52 @@ public class FBFriendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
                 mContext.startActivity(intent);
             }
         });
+    }
+
+
+    private void followButtonClick(final ItemViewHolder itemViewHolder,final FBFriendsModel data)
+    {
+        itemViewHolder.buttonFollow.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                itemViewHolder.isFollowing = !itemViewHolder.isFollowing;
+                toggleFollowButton(itemViewHolder.isFollowing,itemViewHolder.buttonFollow);
+                data.setFollowStatus(itemViewHolder.isFollowing);
+
+                followFriendsClickedListener.onFollowClicked(itemViewHolder.getAdapterPosition(),data);
+
+            }
+        });
+
+    }
+
+
+    /**
+     * Method to toggle follow.
+     *
+     * @param followStatus true if following false otherwise.
+     */
+    private void toggleFollowButton(boolean followStatus, TextView followButton) {
+        if (followStatus) {
+            ViewCompat.setBackground(followButton
+                    , ContextCompat.getDrawable(mContext
+                            , R.drawable.button_outline));
+            followButton.setTextColor(ContextCompat.getColor(mContext
+                    , R.color.grey_dark));
+            //Change text to 'following'
+            followButton.setText("Following");
+        } else {
+            //Change background
+            ViewCompat.setBackground(followButton
+                    , ContextCompat.getDrawable(mContext
+                            , R.drawable.button_filled));
+            //Change text color
+            followButton.setTextColor(ContextCompat.getColor(mContext
+                    , R.color.white));
+            //Change text to 'follow'
+            followButton.setText("Follow");
+        }
     }
 
 }

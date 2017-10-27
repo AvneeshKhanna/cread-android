@@ -1,6 +1,7 @@
 package com.thetestament.cread.listeners;
 
 import com.thetestament.cread.models.CommentsModel;
+import com.thetestament.cread.models.FBFriendsModel;
 import com.thetestament.cread.models.FeedModel;
 import com.thetestament.cread.models.FollowModel;
 
@@ -95,5 +96,13 @@ public class listener {
     public interface OnFollowListener {
         void onFollowClick(FollowModel data, boolean followStatus);
     }
+
+    public interface OnFollowFriendsClickedListener{
+
+        void onFollowClicked(int position, FBFriendsModel fbFriendsModel);
+    }
+
+
+
 
 }

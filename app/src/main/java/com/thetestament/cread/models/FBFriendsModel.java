@@ -2,7 +2,8 @@ package com.thetestament.cread.models;
 
 public class FBFriendsModel {
 
-    private String uuid, firstName, LastName, profilePicUrl, followStatus;
+    private String uuid, firstName, LastName, profilePicUrl;
+    private boolean followStatus;
 
 
     public String getUuid() {
@@ -37,11 +38,11 @@ public class FBFriendsModel {
         this.profilePicUrl = profilePicUrl;
     }
 
-    public String getFollowStatus() {
+    public boolean isFollowStatus() {
         return followStatus;
     }
 
-    public void setFollowStatus(String followStatus) {
+    public void setFollowStatus(boolean followStatus) {
         this.followStatus = followStatus;
     }
 }
