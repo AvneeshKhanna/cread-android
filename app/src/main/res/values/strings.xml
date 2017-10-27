@@ -15,10 +15,11 @@
     <string name="error_msg_invalid_token">Session expired. Please login again</string>
     <string name="error_msg_internal">Something went wrong. Please try again</string>
 
-    //shared prefernces key
+    //Shared preferences key
     <string name="cread_preferences">creadPrefs</string>
     <string name="uuid">uuid</string>
     <string name="auth_token">authToken</string>
+    <string name="key_capture_status">captureStatus</string>
 
     // dialog messages
     <string name="verif_title">Verifying</string>

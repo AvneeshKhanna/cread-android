@@ -162,21 +162,25 @@ public class UpdateProfileDetailsActivity extends BaseActivity {
                 .build();
         dialog.show();
         JSONObject jsonObject = new JSONObject();
+        JSONObject userObject = new JSONObject();
 
         try {
+            //User data
+            userObject.put("firstname", mFirstName);
+            userObject.put("lastname", mLastName);
+            userObject.put("email", mEmail);
+            userObject.put("bio", mBio);
+            userObject.put("watermarkstatus", mWaterMarkStatus);
+            //Request data
             jsonObject.put("uuid", helper.getUUID());
-            jsonObject.put("authkey", helper.getUUID());
-            jsonObject.put("firstname", mFirstName);
-            jsonObject.put("lastname", mLastName);
-            jsonObject.put("email", mEmail);
-            jsonObject.put("bio", mBio);
-            jsonObject.put("watermarkstatus", mWaterMarkStatus);
+            jsonObject.put("authkey", helper.getAuthToken());
+            jsonObject.put("userdata", userObject);
         } catch (JSONException e) {
             e.printStackTrace();
             FirebaseCrash.report(e);
             dialog.dismiss();
         }
-        AndroidNetworking.post(BuildConfig.URL + "/user-profile/update/")
+        AndroidNetworking.post(BuildConfig.URL + "/user-profile/update-profile")
                 .addJSONObjectBody(jsonObject)
                 .build()
                 .getAsJSONObject(new JSONObjectRequestListener() {
@@ -243,7 +247,6 @@ public class UpdateProfileDetailsActivity extends BaseActivity {
         //Get data from intent
         retrieveIntentData();
     }
-
 
     /**
      * Method to set adapter for spinner depending upon spinner type

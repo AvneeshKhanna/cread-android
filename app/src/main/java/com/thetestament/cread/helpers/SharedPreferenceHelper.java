@@ -72,5 +72,23 @@ public class SharedPreferenceHelper {
         addPreferences(mContext.getString(R.string.auth_token), token);
     }
 
+    /**
+     * Method to return capture status i.e true  for first time  false otherwise.
+     *
+     * @return Return true by default.
+     */
+    public boolean getCaptureStatus() {
+        return mSharedPreferences.getBoolean(mContext.getString(R.string.key_capture_status), true);
+    }
 
+    /**
+     * Method to update capture status.
+     *
+     * @param captureStatus Status value to be updated.
+     */
+    public void setCaptureStatus(boolean captureStatus) {
+        SharedPreferences.Editor editor = mSharedPreferences.edit();
+        editor.putBoolean(mContext.getString(R.string.key_capture_status), captureStatus);
+        editor.apply();
+    }
 }

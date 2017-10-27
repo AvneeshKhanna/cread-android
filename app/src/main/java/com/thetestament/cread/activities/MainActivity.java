@@ -116,9 +116,6 @@ public class MainActivity extends BaseActivity {
 
                 Log.d(TAG, "onSuccess: user token id" + accessToken.getUserId());
 
-                Log.d(TAG, "onSuccess: denied " + loginResult.getRecentlyDeniedPermissions());
-
-
                 //phoneLogin();
                 checkUserStatus(accessToken.getUserId());
             }
