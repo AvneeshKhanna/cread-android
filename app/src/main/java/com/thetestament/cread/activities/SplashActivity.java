@@ -3,11 +3,9 @@ package com.thetestament.cread.activities;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
-import android.util.Log;
 import android.view.Window;
 import android.view.WindowManager;
 
-import com.facebook.AccessToken;
 import com.thetestament.cread.R;
 import com.thetestament.cread.helpers.SharedPreferenceHelper;
 
@@ -62,8 +60,8 @@ public class SplashActivity extends BaseActivity {
 
         if(uuid!= null && authkey != null)
         {
-            //startActivity(new Intent(this, BottomNavigationActivity.class));
-            startActivity(new Intent(this, FindFBFriendsActivity.class));
+            startActivity(new Intent(this, BottomNavigationActivity.class));
+            //startActivity(new Intent(this, FindFBFriendsActivity.class));
         }
         else {
 

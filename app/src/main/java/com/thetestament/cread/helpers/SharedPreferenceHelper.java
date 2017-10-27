@@ -73,22 +73,22 @@ public class SharedPreferenceHelper {
     }
 
     /**
-     * Method to return capture status i.e true  for first time  false otherwise.
+     * Method to return watermark status i.e true for checked false otherwise.
      *
      * @return Return true by default.
      */
-    public boolean getCaptureStatus() {
-        return mSharedPreferences.getBoolean(mContext.getString(R.string.key_capture_status), true);
+    public boolean getWatermarkStatus() {
+        return mSharedPreferences.getBoolean(mContext.getString(R.string.key_watermark_status), true);
     }
 
     /**
      * Method to update capture status.
      *
-     * @param captureStatus Status value to be updated.
+     * @param status Status value to be updated i.e true or false.
      */
-    public void setCaptureStatus(boolean captureStatus) {
+    public void setWatermarkStatus(boolean status) {
         SharedPreferences.Editor editor = mSharedPreferences.edit();
-        editor.putBoolean(mContext.getString(R.string.key_capture_status), captureStatus);
+        editor.putBoolean(mContext.getString(R.string.key_watermark_status), status);
         editor.apply();
     }
 }

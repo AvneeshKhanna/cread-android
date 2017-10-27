@@ -19,10 +19,12 @@
     <string name="cread_preferences">creadPrefs</string>
     <string name="uuid">uuid</string>
     <string name="auth_token">authToken</string>
-    <string name="key_capture_status">captureStatus</string>
+    <string name="key_watermark_status">watermarkStatus</string>
 
     // dialog messages
     <string name="verif_title">Verifying</string>
     <string name="waiting_msg">Please wait</string>
+    <string name="text_yes">Yes</string>
+    <string name="text_no">No</string>
 
 </resources>
