@@ -1,9 +1,11 @@
 package com.thetestament.cread.adapters;
 
 
+import android.content.Context;
 import android.content.Intent;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.view.ViewCompat;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -28,8 +30,8 @@ import de.hdodenhof.circleimageview.CircleImageView;
 
 import static com.thetestament.cread.utils.Constant.CONTENT_TYPE_CAPTURE;
 import static com.thetestament.cread.utils.Constant.CONTENT_TYPE_SHORT;
-import static com.thetestament.cread.utils.Constant.EXTRA_ENTITY_ID;
 import static com.thetestament.cread.utils.Constant.EXTRA_FEED_DATA;
+import static com.thetestament.cread.utils.Constant.EXTRA_PROFILE_UUID;
 
 public class ExploreAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
@@ -92,12 +94,11 @@ public class ExploreAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
         FeedModel data = mExploreList.get(position);
         if (holder.getItemViewType() == VIEW_TYPE_ITEM) {
             final ItemViewHolder itemViewHolder = (ItemViewHolder) holder;
-
             //Load creator profile picture
             loadCreatorPic(data.getCreatorImage(), itemViewHolder.imageCreator);
             //Set creator name
             itemViewHolder.textCreatorName.setText(data.getCreatorName());
-            //Load image feed
+            //Load feed image
             loadFeedImage(data.getImage(), itemViewHolder.imageExplore);
 
             //Check for content type
@@ -109,18 +110,17 @@ public class ExploreAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
                     itemViewHolder.imageWorkType.setImageDrawable(ContextCompat.getDrawable(mContext, R.drawable.ic_create_24));
                     break;
                 default:
-                    //do nothing
-                    break;
             }
 
             //Click functionality to launch profile of creator
-            openCreatorProfile(itemViewHolder.containerCreator, data.getEntityID());
+            openCreatorProfile(itemViewHolder.containerCreator, data.getUuID());
+            //Follow button click functionality
+            followOnClick(itemViewHolder.buttonFollow, position, data, itemViewHolder.buttonFollow);
             //Compose click functionality
             composeOnClick(itemViewHolder.buttonCompose, data.getEntityID());
             //ItemView onClick functionality
             itemViewOnClick(itemViewHolder.itemView, data);
-            //Follow button click functionality
-            followOnClick(itemViewHolder.buttonFollow, data.getEntityID(), data);
+
 
         } else if (holder.getItemViewType() == VIEW_TYPE_LOADING) {
             FeedAdapter.LoadingViewHolder loadingViewHolder = (FeedAdapter.LoadingViewHolder) holder;
@@ -178,17 +178,36 @@ public class ExploreAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
         //Todo No image placeholder
     }
 
-
     /**
      * Method to open creator profile.
+     *
+     * @param view        View to be clicked.
+     * @param creatorUUID UUID of the creator.
      */
-    private void openCreatorProfile(View view, final String entityID) {
+    private void openCreatorProfile(View view, final String creatorUUID) {
         view.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 Intent intent = new Intent(mContext, ProfileActivity.class);
-                intent.putExtra(EXTRA_ENTITY_ID, entityID);
+                intent.putExtra(EXTRA_PROFILE_UUID, creatorUUID);
                 mContext.startActivity(intent);
+            }
+        });
+    }
+
+    /**
+     * Follow button onClick functionality
+     */
+    private void followOnClick(View view, final int itemPosition, final FeedModel data, final TextView buttonFollow) {
+        view.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                //Toggle follow button
+                toggleFollowButton(mContext, data.getFollowStatus(), buttonFollow);
+                //Toggle status
+                data.setFollowStatus(!data.getFollowStatus());
+                //set listener
+                onExploreFollowListener.onFollowClick(data, itemPosition);
             }
         });
     }
@@ -206,21 +225,7 @@ public class ExploreAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
     }
 
     /**
-     * Follow button onClick functionality
-     */
-    private void followOnClick(View view, final String entityID, final FeedModel data) {
-        view.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                // TODO: functionality
-                onExploreFollowListener.onFollowClick(data, data.isFollowStatus());
-
-            }
-        });
-    }
-
-    /**
-     * ItemView onClick functionality.
+     * ItemView click functionality.
      */
     private void itemViewOnClick(View view, final FeedModel feedModel) {
         view.setOnClickListener(new View.OnClickListener() {
@@ -231,6 +236,34 @@ public class ExploreAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
                 mContext.startActivity(intent);
             }
         });
+    }
+
+
+    /**
+     * Method to toggle follow.
+     *
+     * @param followStatus true if following false otherwise.
+     */
+    private void toggleFollowButton(Context context, boolean followStatus, TextView buttonFollow) {
+        if (followStatus) {
+            ViewCompat.setBackground(buttonFollow
+                    , ContextCompat.getDrawable(context
+                            , R.drawable.button_outline));
+            buttonFollow.setTextColor(ContextCompat.getColor(context
+                    , R.color.grey_dark));
+            //Change text to 'following'
+            buttonFollow.setText("Following");
+        } else {
+            //Change background
+            ViewCompat.setBackground(buttonFollow
+                    , ContextCompat.getDrawable(context
+                            , R.drawable.button_filled));
+            //Change text color
+            buttonFollow.setTextColor(ContextCompat.getColor(context
+                    , R.color.white));
+            //Change text to 'follow'
+            buttonFollow.setText("Follow");
+        }
     }
 
 

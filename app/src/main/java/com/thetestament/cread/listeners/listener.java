@@ -49,7 +49,7 @@ public class listener {
      * Interface definition for a callback to be invoked when user clicks on follow button.
      */
     public interface OnExploreFollowListener {
-        void onFollowClick(FeedModel exploreData, boolean followStatus);
+        void onFollowClick(FeedModel exploreData, int itemPosition);
     }
 
     /**
@@ -97,12 +97,9 @@ public class listener {
         void onFollowClick(FollowModel data, boolean followStatus);
     }
 
-    public interface OnFollowFriendsClickedListener{
-
+    public interface OnFollowFriendsClickedListener {
         void onFollowClicked(int position, FBFriendsModel fbFriendsModel);
     }
-
-
 
 
 }

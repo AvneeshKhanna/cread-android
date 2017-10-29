@@ -22,6 +22,7 @@ import com.google.firebase.crash.FirebaseCrash;
 import com.thetestament.cread.BuildConfig;
 import com.thetestament.cread.R;
 import com.thetestament.cread.adapters.ExploreAdapter;
+import com.thetestament.cread.helpers.SharedPreferenceHelper;
 import com.thetestament.cread.helpers.ViewHelper;
 import com.thetestament.cread.listeners.listener;
 import com.thetestament.cread.models.FeedModel;
@@ -36,6 +37,7 @@ import java.util.List;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.Unbinder;
+import icepick.Icepick;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.observers.DisposableObserver;
@@ -43,7 +45,6 @@ import io.reactivex.schedulers.Schedulers;
 
 import static com.thetestament.cread.helpers.NetworkHelper.getNetConnectionStatus;
 import static com.thetestament.cread.helpers.NetworkHelper.getObservableFromServer;
-import static com.thetestament.cread.utils.Constant.CONTENT_TYPE_SHORT;
 
 
 public class ExploreFragment extends Fragment {
@@ -58,6 +59,7 @@ public class ExploreFragment extends Fragment {
     CompositeDisposable mCompositeDisposable = new CompositeDisposable();
     List<FeedModel> mExploreDataList = new ArrayList<>();
     ExploreAdapter mAdapter;
+    SharedPreferenceHelper mHelper;
     private Unbinder mUnbinder;
     private int mPageNumber = 0;
     private boolean mRequestMoreData;
@@ -65,19 +67,20 @@ public class ExploreFragment extends Fragment {
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        View view = inflater
+        //SharedPreference reference
+        mHelper = new SharedPreferenceHelper(getActivity());
+        //inflate this view
+        return inflater
                 .inflate(R.layout.fragment_explore
                         , container
                         , false);
-        //ButterKnife view binding
-        mUnbinder = ButterKnife.bind(this, view);
-        return view;
     }
 
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-
+        //ButterKnife view binding
+        mUnbinder = ButterKnife.bind(this, view);
         initScreen();
     }
 
@@ -88,8 +91,22 @@ public class ExploreFragment extends Fragment {
         mCompositeDisposable.dispose();
     }
 
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        Icepick.saveInstanceState(this, outState);
+    }
+
+    @Override
+    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+        if (savedInstanceState != null) {
+            Icepick.restoreInstanceState(this, savedInstanceState);
+        }
+    }
+
     /**
-     * Method to initialize swipe to refresh view.
+     * Method to initialize swipe refresh layout.
      */
     private void initScreen() {
         //Set layout manger for recyclerView
@@ -98,14 +115,13 @@ public class ExploreFragment extends Fragment {
         mAdapter = new ExploreAdapter(mExploreDataList, getActivity());
         recyclerView.setAdapter(mAdapter);
 
-
         swipeRefreshLayout.setRefreshing(true);
         swipeRefreshLayout.setColorSchemeColors(ContextCompat.getColor(getActivity()
                 , R.color.colorPrimary));
         swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
-                //Clear data
+                //Clear data list
                 mExploreDataList.clear();
                 //Notify for changes
                 mAdapter.notifyDataSetChanged();
@@ -117,11 +133,40 @@ public class ExploreFragment extends Fragment {
             }
         });
 
-        //Initialize listener
+        //Initialize listeners
         initLoadMoreListener(mAdapter);
         initFollowListener(mAdapter);
         //Load data here
         loadExploreData();
+    }
+
+    /**
+     * Initialize load more listener.
+     *
+     * @param adapter ExploreAdapter reference.
+     */
+    private void initLoadMoreListener(ExploreAdapter adapter) {
+
+        adapter.setOnExploreLoadMoreListener(new listener.OnExploreLoadMoreListener() {
+            @Override
+            public void onLoadMore() {
+                //If next set of data available
+                if (mRequestMoreData) {
+                    new Handler().post(new Runnable() {
+                                           @Override
+                                           public void run() {
+                                               mExploreDataList.add(null);
+                                               mAdapter.notifyItemInserted(mExploreDataList.size() - 1);
+                                           }
+                                       }
+                    );
+                    //Increment page counter
+                    mPageNumber += 1;
+                    //Load new set of data
+                    loadMoreData(mExploreDataList.size());
+                }
+            }
+        });
     }
 
     /**
@@ -130,7 +175,6 @@ public class ExploreFragment extends Fragment {
     private void loadExploreData() {
         // if user device is connected to net
         if (getNetConnectionStatus(getActivity())) {
-            swipeRefreshLayout.setRefreshing(true);
             //Get data from server
             getFeedData();
         } else {
@@ -147,7 +191,10 @@ public class ExploreFragment extends Fragment {
         final boolean[] tokenError = {false};
         final boolean[] connectionError = {false};
 
-        mCompositeDisposable.add(getObservableFromServer(getActivity(), BuildConfig.URL + "/explore/load", mPageNumber)
+        mCompositeDisposable.add(getObservableFromServer(BuildConfig.URL + "/explore/load"
+                , mHelper.getUUID()
+                , mHelper.getAuthToken()
+                , mPageNumber)
                 //Run on a background thread
                 .subscribeOn(Schedulers.io())
                 //Be notified on the main thread
@@ -177,15 +224,6 @@ public class ExploreFragment extends Fragment {
                                     exploreData.setCommentCount(dataObj.getLong("commnetcount"));
                                     exploreData.setContentType(dataObj.getString("contenttype"));
                                     exploreData.setImage(dataObj.getString("image"));
-
-                                    if (dataObj.getString("contentType").equals(CONTENT_TYPE_SHORT)) {
-                                        exploreData.setText(dataObj.getString("text"));
-                                        exploreData.setTextSize(dataObj.getString("textsize"));
-                                        exploreData.setTextColor(dataObj.getString("textcolor"));
-                                        exploreData.setCoordinates(dataObj.getString("coordinates"));
-                                    } else {
-                                        //do nothing
-                                    }
                                     mExploreDataList.add(exploreData);
                                 }
                             }
@@ -233,41 +271,15 @@ public class ExploreFragment extends Fragment {
     }
 
     /**
-     * Initialize load more listener.
-     *
-     * @param adapter ExploreAdapter reference.
-     */
-    private void initLoadMoreListener(ExploreAdapter adapter) {
-
-        adapter.setOnExploreLoadMoreListener(new listener.OnExploreLoadMoreListener() {
-            @Override
-            public void onLoadMore() {
-                if (mRequestMoreData) {
-
-                    new Handler().post(new Runnable() {
-                                           @Override
-                                           public void run() {
-                                               mExploreDataList.add(null);
-                                               mAdapter.notifyItemInserted(mExploreDataList.size() - 1);
-                                           }
-                                       }
-                    );
-                    //Increment page counter
-                    mPageNumber += 1;
-                    //Load new set of data
-                    loadMoreData();
-                }
-            }
-        });
-    }
-
-    /**
      * Method to retrieve to next set of data from server.
      */
-    private void loadMoreData() {
+    private void loadMoreData(final int oldListSize) {
         final boolean[] tokenError = {false};
         final boolean[] connectionError = {false};
-        mCompositeDisposable.add(getObservableFromServer(getActivity(), BuildConfig.URL + "/explore/load", mPageNumber)
+        mCompositeDisposable.add(getObservableFromServer(BuildConfig.URL + "/explore/load"
+                , mHelper.getUUID()
+                , mHelper.getAuthToken()
+                , mPageNumber)
                 //Run on a background thread
                 .subscribeOn(Schedulers.io())
                 //Be notified on the main thread
@@ -275,6 +287,9 @@ public class ExploreFragment extends Fragment {
                 .subscribeWith(new DisposableObserver<JSONObject>() {
                     @Override
                     public void onNext(JSONObject jsonObject) {
+                        //Remove loading item
+                        mExploreDataList.remove(mExploreDataList.size() - 1);
+                        mAdapter.notifyItemRemoved(mExploreDataList.size());
                         try {
                             //Token status is invalid
                             if (jsonObject.getString("tokenstatus").equals("invalid")) {
@@ -298,14 +313,6 @@ public class ExploreFragment extends Fragment {
                                     exploreData.setContentType(dataObj.getString("contenttype"));
                                     exploreData.setImage(dataObj.getString("image"));
 
-                                    if (dataObj.getString("contentType").equals(CONTENT_TYPE_SHORT)) {
-                                        exploreData.setText(dataObj.getString("text"));
-                                        exploreData.setTextSize(dataObj.getString("textsize"));
-                                        exploreData.setTextColor(dataObj.getString("textcolor"));
-                                        exploreData.setCoordinates(dataObj.getString("coordinates"));
-                                    } else {
-                                        //do nothing
-                                    }
                                     mExploreDataList.add(exploreData);
                                 }
                             }
@@ -328,10 +335,6 @@ public class ExploreFragment extends Fragment {
 
                     @Override
                     public void onComplete() {
-                        //Remove loading item
-                        mExploreDataList.remove(mExploreDataList.size() - 1);
-                        mAdapter.notifyItemRemoved(mExploreDataList.size());
-
                         // Token status invalid
                         if (tokenError[0]) {
                             ViewHelper.getSnackBar(rootView
@@ -341,12 +344,8 @@ public class ExploreFragment extends Fragment {
                         else if (connectionError[0]) {
                             ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_internal));
                         } else {
-                            //Apply 'Slide Up' animation
-                            int resId = R.anim.layout_animation_from_bottom;
-                            LayoutAnimationController animation = AnimationUtils.loadLayoutAnimation(getActivity(), resId);
-                            recyclerView.setLayoutAnimation(animation);
                             //Notify changes
-                            mAdapter.notifyDataSetChanged();
+                            mAdapter.notifyItemRangeInserted(oldListSize - 1, mExploreDataList.size() - oldListSize);
                             mAdapter.setLoaded();
                         }
                     }
@@ -362,31 +361,35 @@ public class ExploreFragment extends Fragment {
     private void initFollowListener(ExploreAdapter adapter) {
         adapter.setOnExploreFollowListener(new listener.OnExploreFollowListener() {
             @Override
-            public void onFollowClick(FeedModel exploreData, boolean followStatus) {
-                updateFollowStatus(exploreData.getUuID(), followStatus);
+            public void onFollowClick(FeedModel exploreData, int itemPosition) {
+                updateFollowStatus(exploreData, itemPosition);
             }
         });
     }
 
+
     /**
      * Method to update follow status.
      *
-     * @param entityID   entity ID i.e String
-     * @param isFollowed true if user is following , false otherwise.
+     * @param exploreData  Model of current item
+     * @param itemPosition Position of current item i.e integer
      */
-    private void updateFollowStatus(String entityID, boolean isFollowed) {
+    private void updateFollowStatus(final FeedModel exploreData, final int itemPosition) {
         final JSONObject jsonObject = new JSONObject();
+        JSONArray jsonArray = new JSONArray();
         try {
-            //Todo replace uuid an authkey
-            jsonObject.put("uuid", "");
-            jsonObject.put("authkey", "");
-            jsonObject.put("enityid", entityID);
-            jsonObject.put("register", isFollowed);
+            jsonArray.put(exploreData.getUuID());
+
+            jsonObject.put("uuid", mHelper.getUUID());
+            jsonObject.put("authkey", mHelper.getAuthToken());
+            jsonObject.put("register", exploreData.getFollowStatus());
+            jsonObject.put("followees", jsonArray);
+
         } catch (JSONException e) {
             e.printStackTrace();
             FirebaseCrash.report(e);
         }
-        AndroidNetworking.post(BuildConfig.URL + "/hatsoff/on-click")
+        AndroidNetworking.post(BuildConfig.URL + "/follow/on-click")
                 .addJSONObjectBody(jsonObject)
                 .build()
                 .getAsJSONObject(new JSONObjectRequestListener() {
@@ -395,8 +398,11 @@ public class ExploreFragment extends Fragment {
                         try {
                             //Token status is not valid
                             if (response.getString("tokenstatus").equals("invalid")) {
-                                ViewHelper.getSnackBar(rootView
-                                        , getString(R.string.error_msg_invalid_token));
+                                //set status to true if its false and vice versa
+                                exploreData.setFollowStatus(!exploreData.getFollowStatus());
+                                //notify changes
+                                mAdapter.notifyItemChanged(itemPosition);
+                                ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_invalid_token));
                             }
                             //Token is valid
                             else {
@@ -404,24 +410,34 @@ public class ExploreFragment extends Fragment {
                                 if (mainData.getString("status").equals("done")) {
                                     //Do nothing
                                 } else {
-                                    ViewHelper.getSnackBar(rootView
-                                            , getString(R.string.error_msg_internal));
+                                    //set status to true if its false and vice versa
+                                    exploreData.setFollowStatus(!exploreData.getFollowStatus());
+                                    //notify changes
+                                    mAdapter.notifyItemChanged(itemPosition);
+                                    ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_internal));
                                 }
                             }
                         } catch (JSONException e) {
+                            //set status to true if its false and vice versa
+                            exploreData.setFollowStatus(!exploreData.getFollowStatus());
+                            //notify changes
+                            mAdapter.notifyItemChanged(itemPosition);
                             e.printStackTrace();
                             FirebaseCrash.report(e);
-                            ViewHelper.getSnackBar(rootView
-                                    , getString(R.string.error_msg_internal));
+                            ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_internal));
                         }
                     }
 
                     @Override
                     public void onError(ANError anError) {
-                        ViewHelper.getSnackBar(rootView
-                                , getString(R.string.error_msg_server));
+                        //set status to true if its false and vice versa
+                        exploreData.setFollowStatus(!exploreData.getFollowStatus());
+                        //notify changes
+                        mAdapter.notifyItemChanged(itemPosition);
+                        anError.printStackTrace();
+                        FirebaseCrash.report(anError);
+                        ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_server));
                     }
                 });
     }
-
 }
