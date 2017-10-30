@@ -43,9 +43,9 @@
                 android:gravity="center_vertical"
                 android:paddingLeft="8dp"
                 android:paddingRight="8dp"
-                android:text="The Cread"
                 android:textColor="@color/grey_dark"
-                android:textSize="16sp" />
+                android:textSize="16sp"
+                tools:text="The Cread" />
 
 
             <ImageView

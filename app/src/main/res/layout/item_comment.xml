@@ -63,6 +63,6 @@
         android:maxLines="5"
         android:paddingRight="10dp"
         android:paddingTop="2dp"
-        tools:text="Hey my name is Gaurav and i am going to fuck you all." />
+        tools:text="User comments/ reaction will be shown here. Typing ....................................." />
 
 </RelativeLayout>

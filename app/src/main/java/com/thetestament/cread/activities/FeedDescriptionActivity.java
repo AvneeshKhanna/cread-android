@@ -238,7 +238,7 @@ public class FeedDescriptionActivity extends BaseActivity {
         //Set member variable
         mEntityID = mFeedData.getEntityID();
         mCreatorImageUrl = mFeedData.getCreatorImage();
-        mHatsOffStatus = mFeedData.isHatsOffStatus();
+        mHatsOffStatus = mFeedData.getHatsOffStatus();
 
         //Set views
         textCreatorName.setText(mFeedData.getCreatorName());

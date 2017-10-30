@@ -21,7 +21,7 @@ public class listener {
         /**
          * Called when hats off has been clicked.
          */
-        void onHatsOffClick(FeedModel shareData, boolean hatsOffStatus);
+        void onHatsOffClick(FeedModel shareData, int itemPosition);
     }
 
     /**

@@ -77,7 +77,7 @@ public class FeedModel implements Parcelable {
         this.creatorImage = creatorImage;
     }
 
-    public boolean isHatsOffStatus() {
+    public boolean getHatsOffStatus() {
         return hatsOffStatus;
     }
 
