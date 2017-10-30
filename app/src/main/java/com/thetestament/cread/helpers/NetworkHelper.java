@@ -5,7 +5,6 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.support.v4.app.FragmentActivity;
 
-import com.facebook.AccessToken;
 import com.google.firebase.crash.FirebaseCrash;
 import com.rx2androidnetworking.Rx2AndroidNetworking;
 
@@ -140,17 +139,18 @@ public class NetworkHelper {
     /**
      * Method to return data from the server
      *
-     * @param context   Context where this method will be called
-     * @param serverURL URL of the server
-     * @param entityID  entity id
+     * @param serverURL  URL of the server
+     * @param entityID   entity id
+     * @param uuid       UUID of the user.
+     * @param authKey    AuthKey of user i.e String.
+     * @param pageNumber Page no to be loaded i.e int
      */
-    public static Observable<JSONObject> getObservableFromServer(FragmentActivity context, String serverURL, String entityID, int pageNumber) {
+    public static Observable<JSONObject> getHatsOffObservableFromServer(String serverURL, String entityID, String uuid, String authKey, int pageNumber) {
 
         JSONObject jsonObject = new JSONObject();
         try {
-            //// TODO:
-            jsonObject.put("uuid", "");
-            jsonObject.put("authkey", "");
+            jsonObject.put("uuid", uuid);
+            jsonObject.put("authkey", authKey);
             jsonObject.put("entity", entityID);
             jsonObject.put("page", pageNumber);
         } catch (JSONException e) {

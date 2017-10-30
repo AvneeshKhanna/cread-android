@@ -15,6 +15,7 @@ import com.google.firebase.crash.FirebaseCrash;
 import com.thetestament.cread.BuildConfig;
 import com.thetestament.cread.R;
 import com.thetestament.cread.adapters.HatsOffAdapter;
+import com.thetestament.cread.helpers.SharedPreferenceHelper;
 import com.thetestament.cread.helpers.ViewHelper;
 import com.thetestament.cread.listeners.listener;
 import com.thetestament.cread.models.HatsOffModel;
@@ -35,6 +36,7 @@ import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.observers.DisposableObserver;
 import io.reactivex.schedulers.Schedulers;
 
+import static com.thetestament.cread.helpers.NetworkHelper.getHatsOffObservableFromServer;
 import static com.thetestament.cread.helpers.NetworkHelper.getNetConnectionStatus;
 import static com.thetestament.cread.helpers.NetworkHelper.getObservableFromServer;
 
@@ -51,7 +53,7 @@ public class HatsOffActivity extends BaseActivity {
     @BindView(R.id.recyclerView)
     RecyclerView recyclerView;
     CompositeDisposable mCompositeDisposable = new CompositeDisposable();
-
+    SharedPreferenceHelper mHelper;
     @State
     String mEntityID;
 
@@ -66,6 +68,8 @@ public class HatsOffActivity extends BaseActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activty_hats_off);
         ButterKnife.bind(this);
+        //SharedPreference reference
+        mHelper = new SharedPreferenceHelper(this);
         initView();
     }
 
@@ -92,7 +96,6 @@ public class HatsOffActivity extends BaseActivity {
      * Method to initialize views and retrieve data from intent.
      */
     private void initView() {
-
         //Retrieve data from intent
         mEntityID = getIntent().getStringExtra("entityID");
 
@@ -104,9 +107,7 @@ public class HatsOffActivity extends BaseActivity {
 
         //initialize  recyclerView
         initScreen();
-
     }
-
 
     /**
      * Method to initialize swipe to refresh view.
@@ -156,7 +157,11 @@ public class HatsOffActivity extends BaseActivity {
         final boolean[] tokenError = {false};
         final boolean[] connectionError = {false};
 
-        mCompositeDisposable.add(getObservableFromServer(this, BuildConfig.URL + "/load-hatsoffs", mEntityID, mPageNumber)
+        mCompositeDisposable.add(getHatsOffObservableFromServer(BuildConfig.URL + "/load-hatsoffs"
+                , mEntityID
+                , mHelper.getUUID()
+                , mHelper.getAuthToken()
+                , mPageNumber)
                 //Run on a background thread
                 .subscribeOn(Schedulers.io())
                 //Be notified on the main thread
@@ -203,8 +208,7 @@ public class HatsOffActivity extends BaseActivity {
                     public void onComplete() {
                         // Token status invalid
                         if (tokenError[0]) {
-                            ViewHelper.getSnackBar(rootView
-                                    , getString(R.string.error_msg_invalid_token));
+                            ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_invalid_token));
                             //Dismiss progress indicator
                             swipeRefreshLayout.setRefreshing(false);
                         }
@@ -252,7 +256,7 @@ public class HatsOffActivity extends BaseActivity {
                     //Increment page counter
                     mPageNumber += 1;
                     //Load new set of data
-                    loadMoreData();
+                    loadMoreData(mHatsOffList.size());
                 }
             }
         });
@@ -261,12 +265,15 @@ public class HatsOffActivity extends BaseActivity {
     /**
      * Method to retrieve next set of data from server.
      */
-    private void loadMoreData() {
+    private void loadMoreData(final int oldListSize) {
 
         final boolean[] tokenError = {false};
         final boolean[] connectionError = {false};
 
-        mCompositeDisposable.add(getObservableFromServer(this, BuildConfig.URL + "/load-hatsoffs", mEntityID, mPageNumber)
+        mCompositeDisposable.add(getObservableFromServer(BuildConfig.URL + "/load-hatsoffs", mEntityID
+                , mHelper.getUUID()
+                , mHelper.getAuthToken()
+                , mPageNumber)
                 //Run on a background thread
                 .subscribeOn(Schedulers.io())
                 //Be notified on the main thread
@@ -274,6 +281,9 @@ public class HatsOffActivity extends BaseActivity {
                 .subscribeWith(new DisposableObserver<JSONObject>() {
                     @Override
                     public void onNext(JSONObject jsonObject) {
+                        //Remove loading item
+                        mHatsOffList.remove(mHatsOffList.size() - 1);
+                        mAdapter.notifyItemRemoved(mHatsOffList.size());
                         try {
                             //Token status is invalid
                             if (jsonObject.getString("tokenstatus").equals("invalid")) {
@@ -312,24 +322,16 @@ public class HatsOffActivity extends BaseActivity {
 
                     @Override
                     public void onComplete() {
-                        //Remove loading item
-                        mHatsOffList.remove(mHatsOffList.size() - 1);
-                        mAdapter.notifyItemRemoved(mHatsOffList.size());
                         // Token status invalid
                         if (tokenError[0]) {
-                            ViewHelper.getSnackBar(rootView
-                                    , getString(R.string.error_msg_invalid_token));
+                            ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_invalid_token));
                         }
                         //Error occurred
                         else if (connectionError[0]) {
                             ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_internal));
                         } else {
-                            //Apply 'Slide Up' animation
-                            int resId = R.anim.layout_animation_from_bottom;
-                            LayoutAnimationController animation = AnimationUtils.loadLayoutAnimation(HatsOffActivity.this, resId);
-                            recyclerView.setLayoutAnimation(animation);
                             //Notify changes
-                            mAdapter.notifyDataSetChanged();
+                            mAdapter.notifyItemRangeInserted(oldListSize - 1, mHatsOffList.size() - oldListSize);
                             mAdapter.setLoaded();
                         }
                     }
