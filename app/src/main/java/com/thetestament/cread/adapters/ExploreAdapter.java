@@ -30,7 +30,7 @@ import de.hdodenhof.circleimageview.CircleImageView;
 
 import static com.thetestament.cread.utils.Constant.CONTENT_TYPE_CAPTURE;
 import static com.thetestament.cread.utils.Constant.CONTENT_TYPE_SHORT;
-import static com.thetestament.cread.utils.Constant.EXTRA_FEED_DATA;
+import static com.thetestament.cread.utils.Constant.EXTRA_FEED_DESCRIPTION_DATA;
 import static com.thetestament.cread.utils.Constant.EXTRA_PROFILE_UUID;
 
 public class ExploreAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
@@ -232,7 +232,7 @@ public class ExploreAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
             @Override
             public void onClick(View view) {
                 Intent intent = new Intent(mContext, FeedDescriptionActivity.class);
-                intent.putExtra(EXTRA_FEED_DATA, feedModel);
+                intent.putExtra(EXTRA_FEED_DESCRIPTION_DATA, feedModel);
                 mContext.startActivity(intent);
             }
         });

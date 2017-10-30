@@ -1,11 +1,8 @@
 package com.thetestament.cread.adapters;
 
-import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
-import android.net.Uri;
-import android.os.Environment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.RecyclerView;
@@ -25,22 +22,21 @@ import com.thetestament.cread.activities.CommentsActivity;
 import com.thetestament.cread.activities.FeedDescriptionActivity;
 import com.thetestament.cread.activities.HatsOffActivity;
 import com.thetestament.cread.activities.ProfileActivity;
+import com.thetestament.cread.helpers.ViewHelper;
 import com.thetestament.cread.listeners.listener.OnFeedLoadMoreListener;
 import com.thetestament.cread.listeners.listener.OnHatsOffListener;
 import com.thetestament.cread.models.FeedModel;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
 import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import de.hdodenhof.circleimageview.CircleImageView;
 
+import static com.thetestament.cread.helpers.ImageHelper.getLocalBitmapUri;
 import static com.thetestament.cread.utils.Constant.CONTENT_TYPE_CAPTURE;
 import static com.thetestament.cread.utils.Constant.CONTENT_TYPE_SHORT;
-import static com.thetestament.cread.utils.Constant.EXTRA_FEED_DATA;
+import static com.thetestament.cread.utils.Constant.EXTRA_FEED_DESCRIPTION_DATA;
 import static com.thetestament.cread.utils.Constant.EXTRA_PROFILE_UUID;
 
 
@@ -227,7 +223,7 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             @Override
             public void onClick(View view) {
                 Intent intent = new Intent(mContext, FeedDescriptionActivity.class);
-                intent.putExtra(EXTRA_FEED_DATA, feedModel);
+                intent.putExtra(EXTRA_FEED_DESCRIPTION_DATA, feedModel);
                 mContext.startActivity(intent);
             }
         });
@@ -305,7 +301,7 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
                     @Override
                     public void onBitmapFailed(Drawable errorDrawable) {
-
+                        ViewHelper.getToast(mContext, mContext.getString(R.string.error_msg_internal));
                     }
 
                     @Override
@@ -371,26 +367,6 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         }
     }
 
-    /**
-     * Method to convert bitmap into Uri.
-     *
-     * @param bmp     Bitmap to be converted.
-     * @param context Context to use.
-     * @return Uri of image.
-     */
-    public Uri getLocalBitmapUri(Bitmap bmp, Context context) {
-        Uri bmpUri = null;
-        try {
-            File file = new File(context.getExternalFilesDir(Environment.DIRECTORY_PICTURES), "share_image_" + System.currentTimeMillis() + ".png");
-            FileOutputStream out = new FileOutputStream(file);
-            bmp.compress(Bitmap.CompressFormat.PNG, 90, out);
-            out.close();
-            bmpUri = Uri.fromFile(file);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return bmpUri;
-    }
 
     //ItemViewHolder class
     static class ItemViewHolder extends RecyclerView.ViewHolder {

@@ -154,4 +154,25 @@ public class ImageHelper {
                 .start(context);
     }
 
+    /**
+     * Method to convert bitmap into Uri.
+     *
+     * @param bmp     Bitmap to be converted.
+     * @param context Context to use.
+     * @return Uri of image.
+     */
+    public static Uri getLocalBitmapUri(Bitmap bmp, Context context) {
+        Uri bmpUri = null;
+        try {
+            File file = new File(context.getExternalFilesDir(Environment.DIRECTORY_PICTURES), "share_image_" + System.currentTimeMillis() + ".png");
+            FileOutputStream out = new FileOutputStream(file);
+            bmp.compress(Bitmap.CompressFormat.PNG, 90, out);
+            out.close();
+            bmpUri = Uri.fromFile(file);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return bmpUri;
+    }
+
 }
