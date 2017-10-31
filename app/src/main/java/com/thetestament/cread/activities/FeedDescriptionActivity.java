@@ -1,8 +1,9 @@
 package com.thetestament.cread.activities;
 
 
-import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.design.widget.CoordinatorLayout;
@@ -21,9 +22,11 @@ import com.androidnetworking.error.ANError;
 import com.androidnetworking.interfaces.JSONObjectRequestListener;
 import com.google.firebase.crash.FirebaseCrash;
 import com.squareup.picasso.Picasso;
+import com.squareup.picasso.Target;
 import com.thetestament.cread.BuildConfig;
 import com.thetestament.cread.R;
 import com.thetestament.cread.adapters.CommentsAdapter;
+import com.thetestament.cread.helpers.SharedPreferenceHelper;
 import com.thetestament.cread.helpers.ViewHelper;
 import com.thetestament.cread.models.CommentsModel;
 import com.thetestament.cread.models.FeedModel;
@@ -39,15 +42,16 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import de.hdodenhof.circleimageview.CircleImageView;
-import icepick.Icepick;
-import icepick.State;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.observers.DisposableObserver;
 import io.reactivex.schedulers.Schedulers;
 
+import static com.thetestament.cread.helpers.ImageHelper.getLocalBitmapUri;
 import static com.thetestament.cread.helpers.NetworkHelper.getObservableFromServer;
+import static com.thetestament.cread.utils.Constant.EXTRA_ENTITY_ID;
 import static com.thetestament.cread.utils.Constant.EXTRA_FEED_DESCRIPTION_DATA;
+import static com.thetestament.cread.utils.Constant.EXTRA_PROFILE_UUID;
 import static com.thetestament.cread.utils.Constant.REQUEST_CODE_COMMENTS_ACTIVITY;
 
 /**
@@ -75,20 +79,7 @@ public class FeedDescriptionActivity extends BaseActivity {
     @BindView(R.id.textShowComments)
     TextView showAllComments;
 
-    @State
-    String mEntityID, mCreatorImageUrl;
-    @State
-    boolean mHatsOffStatus;
-    @State
-    long mHatsOffCount, mCommentsCount;
-
-    @State
-    String mContentTitle, mImageURL, mContentURL;
-
-
-    @State
-    boolean mToggleStatus = false;
-
+    SharedPreferenceHelper mHelper;
     CompositeDisposable mCompositeDisposable = new CompositeDisposable();
     FeedModel mFeedData;
 
@@ -98,11 +89,10 @@ public class FeedDescriptionActivity extends BaseActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_feed_description);
         ButterKnife.bind(this);
+        //ShredPreference reference
+        mHelper = new SharedPreferenceHelper(this);
         //initialize views
         initViews();
-
-        //Load campaign image
-        loadCampaignImage();
     }
 
     @Override
@@ -118,7 +108,7 @@ public class FeedDescriptionActivity extends BaseActivity {
             case REQUEST_CODE_COMMENTS_ACTIVITY:
                 if (resultCode == RESULT_OK) {
                     //Load comments data
-                    getTopComments();
+                    getTopComments(mFeedData.getEntityID());
                 }
         }
 
@@ -127,13 +117,21 @@ public class FeedDescriptionActivity extends BaseActivity {
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        Icepick.saveInstanceState(this, outState);
     }
 
     @Override
     protected void onRestoreInstanceState(Bundle savedInstanceState) {
         super.onRestoreInstanceState(savedInstanceState);
-        Icepick.restoreInstanceState(this, savedInstanceState);
+    }
+
+    /**
+     * Click functionality to open creator profile.
+     */
+    @OnClick(R.id.containerCreator)
+    void onProfileContainer() {
+        Intent intent = new Intent(this, ProfileActivity.class);
+        intent.putExtra(EXTRA_PROFILE_UUID, mFeedData.getUuID());
+        startActivity(intent);
     }
 
     /**
@@ -142,7 +140,7 @@ public class FeedDescriptionActivity extends BaseActivity {
     @OnClick(R.id.textHatsOffCount)
     void hatsOffCountOnClick() {
         Intent intent = new Intent(this, HatsOffActivity.class);
-        intent.putExtra("entityID", mEntityID);
+        intent.putExtra(EXTRA_ENTITY_ID, mFeedData.getEntityID());
         startActivity(intent);
     }
 
@@ -152,7 +150,7 @@ public class FeedDescriptionActivity extends BaseActivity {
     @OnClick({R.id.containerComment, R.id.textShowComments, R.id.textCommentsCount})
     void onCommentsClicked() {
         Intent intent = new Intent(this, CommentsActivity.class);
-        intent.putExtra("entityID", mEntityID);
+        intent.putExtra(EXTRA_ENTITY_ID, mFeedData.getEntityID());
         startActivityForResult(intent, REQUEST_CODE_COMMENTS_ACTIVITY);
     }
 
@@ -162,11 +160,14 @@ public class FeedDescriptionActivity extends BaseActivity {
     @OnClick(R.id.containerHatsOff)
     void onContainerHatsOffClicked() {
         //User has already given hats off
-        if (mHatsOffStatus) {
+        if (mFeedData.getHatsOffStatus()) {
             //Animation for hats off
             imageHatsOff.startAnimation(AnimationUtils.loadAnimation(this, R.anim.reverse_rotate_animation_hats_off));
+            //Toggle hatsOff tint
+            imageHatsOff.setColorFilter(ContextCompat.getColor(this, R.color.grey));
             //Toggle hatsOff status
-            mHatsOffStatus = false;
+            mFeedData.setHatsOffStatus(!mFeedData.getHatsOffStatus());
+            //Update hatsOffCount
             mFeedData.setHatsOffCount(mFeedData.getHatsOffCount() - 1);
             //If hats off count is zero
             if (mFeedData.getHatsOffCount() < 1) {
@@ -178,34 +179,22 @@ public class FeedDescriptionActivity extends BaseActivity {
                 textHatsOffCount.setVisibility(View.VISIBLE);
                 textHatsOffCount.setText(mFeedData.getHatsOffCount() + " Hats-off");
             }
-            //Toggle hatsOff tint
-            imageHatsOff.setColorFilter(ContextCompat.getColor(this, R.color.grey));
-            updateHatsOffStatus(this, mEntityID, mHatsOffStatus);
 
         } else {
             //Animation for hats off
             imageHatsOff.startAnimation(AnimationUtils.loadAnimation(this, R.anim.rotate_animation_hats_off));
-            //Toggle hatsOff status
-            mHatsOffStatus = true;
-            //Change hatsOffCount i.e increase by one
-            textHatsOffCount.setVisibility(View.VISIBLE);
-            mFeedData.setHatsOffCount(mFeedData.getHatsOffCount() + 1);
-            textHatsOffCount.setText(mFeedData.getHatsOffCount() + " Hats-off");
             //Toggle hatsOff tint
             imageHatsOff.setColorFilter(ContextCompat.getColor(this, R.color.colorPrimary));
-            updateHatsOffStatus(this, mEntityID, mHatsOffStatus);
+            //Toggle hatsOff status
+            mFeedData.setHatsOffStatus(!mFeedData.getHatsOffStatus());
+            //Update hatsOffCount
+            mFeedData.setHatsOffCount(mFeedData.getHatsOffCount() + 1);
+            //Change hatsOffCount i.e increase by one
+            textHatsOffCount.setVisibility(View.VISIBLE);
+            textHatsOffCount.setText(mFeedData.getHatsOffCount() + " Hats-off");
         }
-    }
-
-
-    /**
-     * Click functionality to open creator profile.
-     */
-    @OnClick(R.id.containerCreator)
-    void onProfileContainer() {
-        // TODO: Profile launching functionality
-        Intent intent = new Intent(this, ProfileActivity.class);
-        startActivity(intent);
+        //update hats off status on server
+        updateHatsOffStatus(mFeedData.getEntityID(), mFeedData.getHatsOffStatus());
     }
 
     /**
@@ -213,20 +202,42 @@ public class FeedDescriptionActivity extends BaseActivity {
      */
     @OnClick(R.id.containerShares)
     void shareOnClick() {
-        //Todo share onClick functionality
+        Picasso.with(this).load(mFeedData.getImage()).into(new Target() {
+            @Override
+            public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
+                Intent intent = new Intent();
+                intent.setAction(Intent.ACTION_SEND);
+                intent.setType("image/*");
+                intent.putExtra(Intent.EXTRA_STREAM, getLocalBitmapUri(bitmap, FeedDescriptionActivity.this));
+                startActivity(Intent.createChooser(intent, "Share"));
+            }
+
+            @Override
+            public void onBitmapFailed(Drawable errorDrawable) {
+                ViewHelper.getToast(FeedDescriptionActivity.this, getString(R.string.error_msg_internal));
+            }
+
+            @Override
+            public void onPrepareLoad(Drawable placeHolderDrawable) {
+
+            }
+        });
     }
 
     /**
-     * Method to initialize Toolbar
+     * Method to initialize Toolbar.
      */
     private void initViews() {
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         //Get data from intent
         retrieveIntentData();
-        //Load client image
-        loadCreatorImage(mImageURL);
+        //Load story image
+        loadStoryImage(mFeedData.getImage(), image);
+        //Load creator image
+        loadCreatorImage(mFeedData.getCreatorImage(), imageCreator);
+        //toggle hats off status
+        toggleHatsOffStatus();
     }
-
 
     /**
      * Method to retrieve data from intent and set it to respective views.
@@ -234,23 +245,8 @@ public class FeedDescriptionActivity extends BaseActivity {
     private void retrieveIntentData() {
 
         mFeedData = getIntent().getParcelableExtra(EXTRA_FEED_DESCRIPTION_DATA);
-
-        //Set member variable
-        mEntityID = mFeedData.getEntityID();
-        mCreatorImageUrl = mFeedData.getCreatorImage();
-        mHatsOffStatus = mFeedData.isHatsOffStatus();
-
-        //Set views
+        //Set creator name
         textCreatorName.setText(mFeedData.getCreatorName());
-
-
-        //If comment is zero than hide the view
-        if (mCommentsCount == 0) {
-            showAllComments.setVisibility(View.GONE);
-        } else {
-            //load comments
-            getTopComments();
-        }
 
         //Check for hats of count
         if (mFeedData.getHatsOffCount() > 0) {
@@ -259,61 +255,67 @@ public class FeedDescriptionActivity extends BaseActivity {
             textHatsOffCount.setVisibility(View.GONE);
         }
 
-        //Check for shares count
+        //Check for comment count
         if (mFeedData.getCommentCount() > 0) {
+            //Set comment count
             textCommentsCount.setText(mFeedData.getCommentCount() + " Comments");
+            //load comments
+            getTopComments(mFeedData.getEntityID());
         } else {
             textCommentsCount.setVisibility(View.GONE);
-        }
-
-        //Check whether user has given hats off or not
-        if (mHatsOffStatus) {
-            imageHatsOff.setColorFilter(ContextCompat.getColor(this, R.color.colorPrimary));
-            //Animation for hats off
-            imageHatsOff.startAnimation(AnimationUtils.loadAnimation(this, R.anim.rotate_animation_hats_off_fast));
-            mHatsOffStatus = true;
-        } else {
-            imageHatsOff.setColorFilter(ContextCompat.getColor(this, R.color.grey));
-            mHatsOffStatus = false;
+            showAllComments.setVisibility(View.GONE);
         }
     }
 
     /**
      * Method to load story image.
      */
-    private void loadCampaignImage() {
-        // TODO: error handling
+    private void loadStoryImage(String imgLink, ImageView image) {
         //Load campaign image
         Picasso.with(this)
-                .load(mImageURL)
+                .load(imgLink)
+                .error(R.drawable.image_placeholder)
                 .into(image);
     }
 
     /**
      * Method to load creator profile picture.
      */
-    private void loadCreatorImage(String imageURL) {
+    private void loadCreatorImage(String imageURL, CircleImageView creatorImage) {
         //Load campaign image
         Picasso.with(this)
                 .load(imageURL)
                 .error(R.drawable.ic_account_circle_48)
-                .into(imageCreator);
+                .into(creatorImage);
     }
 
+    /**
+     * Method to toggle hats off status.
+     */
+    private void toggleHatsOffStatus() {
+        if (mFeedData.getHatsOffStatus()) {
+            imageHatsOff.setColorFilter(ContextCompat.getColor(this, R.color.colorPrimary));
+            //Animation for hats off
+            imageHatsOff.startAnimation(AnimationUtils.loadAnimation(this, R.anim.rotate_animation_hats_off_fast));
+        } else {
+            imageHatsOff.setColorFilter(ContextCompat.getColor(this, R.color.grey));
+            //Animation for hats off
+            imageHatsOff.startAnimation(AnimationUtils.loadAnimation(this, R.anim.reverse_rotate_animation_hats_off));
+        }
+    }
 
     /**
      * Method to update hats off status.
      *
-     * @param context    Context to be use.
      * @param campaignID Campaign ID i.e String
      * @param isHatsOff  boolean true if user has given hats off to campaign, false otherwise.
      */
-    private void updateHatsOffStatus(Context context, String campaignID, boolean isHatsOff) {
+    private void updateHatsOffStatus(String campaignID, boolean isHatsOff) {
         final JSONObject jsonObject = new JSONObject();
 
         try {
-            jsonObject.put("uuid", "");
-            jsonObject.put("authkey", "");
+            jsonObject.put("uuid", mHelper.getUUID());
+            jsonObject.put("authkey", mHelper.getAuthToken());
             jsonObject.put("cmid", campaignID);
             jsonObject.put("register", isHatsOff);
         } catch (JSONException e) {
@@ -329,8 +331,9 @@ public class FeedDescriptionActivity extends BaseActivity {
                         try {
                             //Token status is not valid
                             if (response.getString("tokenstatus").equals("invalid")) {
-                                ViewHelper.getSnackBar(rootView
-                                        , getString(R.string.error_msg_invalid_token));
+                                mFeedData.setHatsOffStatus(!mFeedData.getHatsOffStatus());
+                                toggleHatsOffStatus();
+                                ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_invalid_token));
                             }
                             //Token is valid
                             else {
@@ -338,22 +341,25 @@ public class FeedDescriptionActivity extends BaseActivity {
                                 if (mainData.getString("status").equals("done")) {
                                     //Do nothing
                                 } else {
-                                    ViewHelper.getSnackBar(rootView
-                                            , getString(R.string.error_msg_internal));
+                                    mFeedData.setHatsOffStatus(!mFeedData.getHatsOffStatus());
+                                    toggleHatsOffStatus();
+                                    ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_internal));
                                 }
                             }
                         } catch (JSONException e) {
+                            mFeedData.setHatsOffStatus(!mFeedData.getHatsOffStatus());
+                            toggleHatsOffStatus();
                             e.printStackTrace();
                             FirebaseCrash.report(e);
-                            ViewHelper.getSnackBar(rootView
-                                    , getString(R.string.error_msg_internal));
+                            ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_internal));
                         }
                     }
 
                     @Override
                     public void onError(ANError anError) {
-                        ViewHelper.getSnackBar(rootView
-                                , getString(R.string.error_msg_server));
+                        mFeedData.setHatsOffStatus(!mFeedData.getHatsOffStatus());
+                        toggleHatsOffStatus();
+                        ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_server));
                     }
                 });
 
@@ -361,16 +367,21 @@ public class FeedDescriptionActivity extends BaseActivity {
 
 
     /**
-     * RxJava2 implementation for retrieving comment data from server
+     * RxJava2 implementation for retrieving comment data from server.
+     *
+     * @param entityID ID for current story,
      */
-    private void getTopComments() {
+    private void getTopComments(String entityID) {
         //For smooth scrolling
         ViewCompat.setNestedScrollingEnabled(recyclerView, false);
 
         final boolean[] tokenError = {false};
         final boolean[] connectionError = {false};
         final List<CommentsModel> mCommentsList = new ArrayList<>();
-        mCompositeDisposable.add(getObservableFromServer(this, BuildConfig.URL + "/comment/load", mEntityID, 0)
+        mCompositeDisposable.add(getObservableFromServer(BuildConfig.URL + "/comment/load"
+                , mHelper.getUUID()
+                , mHelper.getAuthToken()
+                , entityID)
                 //Run on a background thread
                 .subscribeOn(Schedulers.io())
                 //Be notified on the main thread
@@ -380,7 +391,7 @@ public class FeedDescriptionActivity extends BaseActivity {
                     public void onNext(JSONObject jsonObject) {
                         try {
                             //Token status is invalid
-                            if (jsonObject.getString("tokenstatus").equals("invalid")) {
+                            if (jsonObject.getString("toke nstatus").equals("invalid")) {
                                 tokenError[0] = true;
                             } else {
                                 JSONObject mainData = jsonObject.getJSONObject("data");
@@ -417,9 +428,11 @@ public class FeedDescriptionActivity extends BaseActivity {
                     public void onComplete() {
                         // Token status invalid
                         if (tokenError[0]) {
+                            ViewHelper.getSnackBar(rootView, getString(R.string.auth_token));
                         }
                         //Error occurred
                         else if (connectionError[0]) {
+                            ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_internal));
                         }
                         //No data
                         else if (mCommentsList.size() == 0) {
@@ -429,23 +442,16 @@ public class FeedDescriptionActivity extends BaseActivity {
                         } else {
                             //Apply 'Slide Up' animation
                             int resId = R.anim.layout_animation_from_bottom;
-                            LayoutAnimationController animation = AnimationUtils.loadLayoutAnimation(FeedDescriptionActivity
-                                    .this, resId);
+                            LayoutAnimationController animation = AnimationUtils.loadLayoutAnimation(FeedDescriptionActivity.this, resId);
                             recyclerView.setLayoutAnimation(animation);
 
                             //Change visibility
                             recyclerView.setVisibility(View.VISIBLE);
+                            showAllComments.setVisibility(View.VISIBLE);
                             //Set layout manager
                             recyclerView.setLayoutManager(new LinearLayoutManager(FeedDescriptionActivity.this));
                             //Set adapter
                             recyclerView.setAdapter(new CommentsAdapter(mCommentsList, FeedDescriptionActivity.this));
-
-                            //If there is a comment
-                            if (mCommentsList.size() > 0) {
-                                showAllComments.setVisibility(View.VISIBLE);
-                            } else {
-                                showAllComments.setVisibility(View.GONE);
-                            }
                         }
                     }
                 })

@@ -31,8 +31,8 @@
                     android:layout_height="50dp"
                     android:paddingLeft="16dp"
                     android:scaleType="centerCrop"
-                    android:src="@drawable/ic_account_circle_48"
-                    app:civ_border_color="@color/black_defined" />
+                    app:civ_border_color="@color/black_defined"
+                    tools:src="@drawable/ic_account_circle_48" />
 
                 <TextView
                     android:id="@+id/textCreatorName"
@@ -40,6 +40,8 @@
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
                     android:layout_marginRight="16dp"
+                    android:ellipsize="end"
+                    android:maxLines="1"
                     android:paddingLeft="5dp"
                     android:textAppearance="@style/TextAppearance.FontPath"
                     android:textColor="@color/grey_dark"
@@ -58,7 +60,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:scaleType="centerCrop"
-                    android:src="@drawable/img_demo" />
+                    android:src="@drawable/image_placeholder" />
             </com.thetestament.cread.utils.SquareView>
 
             <RelativeLayout

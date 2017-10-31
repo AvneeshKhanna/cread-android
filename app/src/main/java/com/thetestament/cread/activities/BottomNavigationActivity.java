@@ -6,7 +6,6 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
-import android.support.annotation.ColorInt;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.BottomNavigationView;
@@ -22,25 +21,20 @@ import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 
-import com.afollestad.materialdialogs.color.ColorChooserDialog;
 import com.thetestament.cread.Manifest;
 import com.thetestament.cread.R;
 import com.thetestament.cread.fragments.ExploreFragment;
 import com.thetestament.cread.fragments.FeedFragment;
 import com.thetestament.cread.fragments.MeFragment;
 import com.thetestament.cread.helpers.BottomNavigationViewHelper;
-import com.thetestament.cread.helpers.SharedPreferenceHelper;
 import com.thetestament.cread.helpers.ViewHelper;
 import com.yalantis.ucrop.UCrop;
-
-import java.io.IOException;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import icepick.Icepick;
 import icepick.State;
 
-import static com.thetestament.cread.helpers.ImageHelper.compressCroppedImg;
 import static com.thetestament.cread.helpers.ImageHelper.getImageUri;
 import static com.thetestament.cread.helpers.ImageHelper.startImageCropping;
 import static com.thetestament.cread.utils.Constant.IMAGE_TYPE_USER_CAPTURE_PIC;
@@ -55,7 +49,7 @@ import static com.thetestament.cread.utils.Constant.TAG_ME_FRAGMENT;
  * Class to provide bottom navigation functionality.
  */
 
-public class BottomNavigationActivity extends BaseActivity implements ColorChooserDialog.ColorCallback {
+public class BottomNavigationActivity extends BaseActivity {
 
     @BindView(R.id.rootView)
     RelativeLayout rootView;
@@ -68,7 +62,6 @@ public class BottomNavigationActivity extends BaseActivity implements ColorChoos
     String mFragmentTag;
     Fragment mCurrentFragment;
 
-    private SharedPreferenceHelper mHelper;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -76,8 +69,6 @@ public class BottomNavigationActivity extends BaseActivity implements ColorChoos
         setContentView(R.layout.activity_bottom_navigation);
         //Bind View to this activity
         ButterKnife.bind(this);
-        //initialize shared preferences
-        mHelper = new SharedPreferenceHelper(this);
         //Set actionbar
         setSupportActionBar(toolbar);
         //Set title
@@ -111,21 +102,8 @@ public class BottomNavigationActivity extends BaseActivity implements ColorChoos
                 if (resultCode == RESULT_OK) {
                     //Get cropped image Uri
                     Uri mCroppedImgUri = UCrop.getOutput(data);
-                    try {
-                        //Decode image file
-                        Bitmap bitmap = BitmapFactory.decodeFile(getImageUri(IMAGE_TYPE_USER_CAPTURE_PIC).toString());
+                    processCroppedImage(mCroppedImgUri);
 
-                        //If resolution of image is greater than 2000x2000 then compress this image
-                        if (bitmap.getWidth() > 2000 && bitmap.getWidth() > 2000) {
-                            compressCroppedImg(mCroppedImgUri, this, IMAGE_TYPE_USER_CAPTURE_PIC);
-                            //todo open preview screen
-                        } else {
-                            //todo open preview screen
-                        }
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                        ViewHelper.getSnackBar(rootView, "Image could not be cropped due to some error");
-                    }
                 } else if (resultCode == UCrop.RESULT_ERROR) {
                     ViewHelper.getSnackBar(rootView, "Image could not be cropped due to some error");
                 }
@@ -138,7 +116,7 @@ public class BottomNavigationActivity extends BaseActivity implements ColorChoos
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         if (requestCode == REQUEST_CODE_WRITE_EXTERNAL_STORAGE) {
             if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                openGallery();
+                chooseImageFromGallery();
             } else {
                 ViewHelper.getToast(this
                         , "The app won't function properly since the permission for storage was denied.");
@@ -297,6 +275,7 @@ public class BottomNavigationActivity extends BaseActivity implements ColorChoos
         buttonWrite.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                // TODO: functionality
                 //Dismiss bottom sheet
                 bottomSheetDialog.dismiss();
 
@@ -306,37 +285,12 @@ public class BottomNavigationActivity extends BaseActivity implements ColorChoos
         buttonCapture.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                checkCaptureFirstTime(mHelper);
+                getRuntimePermission();
                 //Dismiss bottom sheet
                 bottomSheetDialog.dismiss();
             }
         });
     }
-
-
-    /**
-     * Method to check  whether 'Upload a capture' is clicked for first time or not. If yes then show the appropriate dialog.
-     *
-     * @param helper SharedPreference reference.
-     */
-    private void checkCaptureFirstTime(SharedPreferenceHelper helper) {
-        //Check for first time status
-        if (helper.getCaptureStatus()) {
-            getRuntimePermission();
-        } else {
-            //do nothing
-        }
-        new ColorChooserDialog.Builder(BottomNavigationActivity.this, R.string.verif_title)
-                .titleSub(R.string.com_accountkit_confirmation_code_title)  // title of dialog when viewing shades of a color
-                //.accentMode(accent)  // when true, will display accent palette instead of primary palette
-                .doneButton(R.string.md_done_label)  // changes label of the done button
-                .cancelButton(R.string.md_cancel_label)  // changes label of the cancel button
-                .backButton(R.string.md_back_label)  // changes label of the back button
-                //.preselect(accent ? accentPreselect : primaryPreselect)  // optionally preselects a color
-                .dynamicButtonColor(true)  // defaults to true, false will disable changing action buttons' color to currently selected color
-                .show(); // an AppCompatActivity which implements ColorCallback
-    }
-
 
     /**
      * Method to get WRITE_EXTERNAL_STORAGE permission and perform specified operation.
@@ -358,24 +312,42 @@ public class BottomNavigationActivity extends BaseActivity implements ColorChoos
         }
         //If permission is granted
         else {
-            openGallery();
+            chooseImageFromGallery();
         }
     }
 
-    private void openGallery() {
+    /**
+     * Open gallery so user can choose his/her capture for uploading.
+     */
+    private void chooseImageFromGallery() {
         //Launch gallery
         Intent intent = new Intent(Intent.ACTION_PICK);
         intent.setType("image/*");
         startActivityForResult(intent, REQUEST_CODE_OPEN_GALLERY);
     }
 
-    @Override
-    public void onColorSelection(@NonNull ColorChooserDialog dialog, @ColorInt int selectedColor) {
-
-    }
-
-    @Override
-    public void onColorChooserDismissed(@NonNull ColorChooserDialog dialog) {
-
+    /**
+     * Method to perform required operation on cropped image.
+     *
+     * @param uri Uri of cropped image.
+     */
+    private void processCroppedImage(Uri uri) {
+        try {
+            //Decode image file
+            Bitmap bitmap = BitmapFactory.decodeFile(getImageUri(IMAGE_TYPE_USER_CAPTURE_PIC).getPath());
+            //If resolution of image is greater than 2000x2000 then compress this image
+            if (bitmap.getWidth() > 2000 && bitmap.getWidth() > 2000) {
+                //Compress image
+                //compressSpecific(uri, this, IMAGE_TYPE_USER_CAPTURE_PIC);
+                //Open preview screen
+                startActivity(new Intent(BottomNavigationActivity.this, CapturePreviewActivity.class));
+            } else {
+                //open preview screen
+                startActivity(new Intent(BottomNavigationActivity.this, CapturePreviewActivity.class));
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            ViewHelper.getSnackBar(rootView, "Image could not be cropped due to some error");
+        }
     }
 }

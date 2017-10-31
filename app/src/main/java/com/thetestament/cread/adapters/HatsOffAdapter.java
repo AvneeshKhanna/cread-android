@@ -23,6 +23,10 @@ import de.hdodenhof.circleimageview.CircleImageView;
 
 import static com.thetestament.cread.utils.Constant.EXTRA_PROFILE_UUID;
 
+/**
+ * Adapter class to provide a binding from data set to views that are displayed within a hats pff RecyclerView.
+ */
+
 public class HatsOffAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
     private final int VIEW_TYPE_ITEM = 0;
@@ -54,7 +58,6 @@ public class HatsOffAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
 
     @Override
     public int getItemViewType(int position) {
-
         return mHatsOffList.get(position) == null ? VIEW_TYPE_LOADING : VIEW_TYPE_ITEM;
     }
 
@@ -114,7 +117,7 @@ public class HatsOffAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
     }
 
     /**
-     * Method to load creator profile picture.
+     * Method to load profile picture.
      *
      * @param picUrl    picture URL.
      * @param imageView View where image to be loaded.

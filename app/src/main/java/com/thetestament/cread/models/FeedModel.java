@@ -5,10 +5,11 @@ import android.os.Parcel;
 import android.os.Parcelable;
 
 /**
- * Model class for explore feed.
+ * Model class for feed.
  */
 
 public class FeedModel implements Parcelable {
+
     public static final Creator<FeedModel> CREATOR = new Creator<FeedModel>() {
         @Override
         public FeedModel createFromParcel(Parcel in) {
@@ -26,9 +27,8 @@ public class FeedModel implements Parcelable {
     long hatsOffCount, commentCount;
     String contentType;
     String image;
-    String text, textSize, textColor;
-    String coordinates;
 
+    //Required constructor
     public FeedModel() {
     }
 
@@ -43,10 +43,6 @@ public class FeedModel implements Parcelable {
         commentCount = in.readLong();
         contentType = in.readString();
         image = in.readString();
-        text = in.readString();
-        textSize = in.readString();
-        textColor = in.readString();
-        coordinates = in.readString();
     }
 
     public String getEntityID() {
@@ -81,7 +77,7 @@ public class FeedModel implements Parcelable {
         this.creatorImage = creatorImage;
     }
 
-    public boolean isHatsOffStatus() {
+    public boolean getHatsOffStatus() {
         return hatsOffStatus;
     }
 
@@ -89,7 +85,7 @@ public class FeedModel implements Parcelable {
         this.hatsOffStatus = hatsOffStatus;
     }
 
-    public boolean isFollowStatus() {
+    public boolean getFollowStatus() {
         return followStatus;
     }
 
@@ -129,38 +125,6 @@ public class FeedModel implements Parcelable {
         this.image = image;
     }
 
-    public String getText() {
-        return text;
-    }
-
-    public void setText(String text) {
-        this.text = text;
-    }
-
-    public String getTextSize() {
-        return textSize;
-    }
-
-    public void setTextSize(String textSize) {
-        this.textSize = textSize;
-    }
-
-    public String getTextColor() {
-        return textColor;
-    }
-
-    public void setTextColor(String textColor) {
-        this.textColor = textColor;
-    }
-
-    public String getCoordinates() {
-        return coordinates;
-    }
-
-    public void setCoordinates(String coordinates) {
-        this.coordinates = coordinates;
-    }
-
     @Override
     public int describeContents() {
         return 0;
@@ -178,9 +142,5 @@ public class FeedModel implements Parcelable {
         parcel.writeLong(commentCount);
         parcel.writeString(contentType);
         parcel.writeString(image);
-        parcel.writeString(text);
-        parcel.writeString(textSize);
-        parcel.writeString(textColor);
-        parcel.writeString(coordinates);
     }
 }

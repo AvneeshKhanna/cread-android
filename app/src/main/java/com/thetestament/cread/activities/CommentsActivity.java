@@ -158,7 +158,7 @@ public class CommentsActivity extends AppCompatActivity {
         final boolean[] tokenError = {false};
         final boolean[] connectionError = {false};
 
-        mCompositeDisposable.add(getObservableFromServer(this, BuildConfig.URL + "/comment/load", mEntityID, mPageNumber)
+        mCompositeDisposable.add(getObservableFromServer(BuildConfig.URL + "/comment/load", mEntityID, "", "", mPageNumber)
                 //Run on a background thread
                 .subscribeOn(Schedulers.io())
                 //Be notified on the main thread
