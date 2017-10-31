@@ -25,4 +25,6 @@
     <string name="verif_title">Verifying</string>
     <string name="waiting_msg">Please wait</string>
 
+    <string name="Rs">\u20B9</string>
+
 </resources>

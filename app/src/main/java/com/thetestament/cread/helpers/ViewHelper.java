@@ -1,7 +1,9 @@
 package com.thetestament.cread.helpers;
 
 import android.content.Context;
+import android.content.res.Resources;
 import android.support.design.widget.Snackbar;
+import android.util.TypedValue;
 import android.view.View;
 import android.widget.Toast;
 
@@ -35,5 +37,13 @@ public class ViewHelper {
                 , message
                 , Toast.LENGTH_LONG)
                 .show();
+    }
+
+    public static int convertToPx(Context context, int dp)
+    {
+        Resources r = context.getResources();
+        int px = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, dp, r.getDisplayMetrics());
+
+        return px;
     }
 }

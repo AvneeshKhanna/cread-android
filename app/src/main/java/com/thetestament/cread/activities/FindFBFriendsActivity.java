@@ -49,7 +49,7 @@ import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.observers.DisposableObserver;
 import io.reactivex.schedulers.Schedulers;
 
-public class FindFBFriendsActivity extends AppCompatActivity {
+public class FindFBFriendsActivity extends BaseActivity {
 
     @BindView(R.id.rootView)
     CoordinatorLayout rootView;

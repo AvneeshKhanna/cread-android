@@ -102,6 +102,11 @@ public class listener {
         void onFollowClicked(int position, FBFriendsModel fbFriendsModel);
     }
 
+    public interface OnBuyButtonClickedListener{
+
+        void onBuyButtonClicked(String type, String size, String color, String quantity, String price, String productID);
+    }
+
 
 
 

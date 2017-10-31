@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.thetestament.cread">
 
@@ -17,7 +18,7 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
 
-        <!--For facebook sdk start-->
+        <!-- For facebook sdk start -->
 
         <meta-data
             android:name="com.facebook.sdk.ApplicationId"
@@ -124,8 +125,7 @@
                 android:value=".activities.BottomNavigationActivity" />
         </activity>
 
-
-        <!--ProfileActivity-->
+        <!-- ProfileActivity -->
         <activity
             android:name=".activities.ProfileActivity"
             android:screenOrientation="portrait">
@@ -134,7 +134,7 @@
                 android:value=".activities.BottomNavigationActivity" />
         </activity>
 
-        <!--UpdateProfileDetailsActivity-->
+        <!-- UpdateProfileDetailsActivity -->
         <activity
             android:name=".activities.UpdateProfileDetailsActivity"
             android:label="Update profile"
@@ -144,7 +144,7 @@
                 android:value=".activities.BottomNavigationActivity" />
         </activity>
 
-        <!--UpdateProfileImageActivity-->
+        <!-- UpdateProfileImageActivity -->
         <activity
             android:name=".activities.UpdateProfileImageActivity"
             android:label="Profile Photo"
@@ -154,7 +154,7 @@
                 android:value=".activities.BottomNavigationActivity" />
         </activity>
 
-        <!--FollowActivity-->
+        <!-- FollowActivity -->
         <activity
             android:name=".activities.FollowActivity"
             android:screenOrientation="portrait">
@@ -163,7 +163,7 @@
                 android:value=".activities.BottomNavigationActivity" />
         </activity>
 
-        <!--CapturePreviewActivity-->
+        <!-- CapturePreviewActivity -->
         <activity
             android:name=".activities.CapturePreviewActivity"
             android:label="Preview"
@@ -173,14 +173,13 @@
                 android:value=".activities.BottomNavigationActivity" />
         </activity>
 
-
-        <!--For image cropping library -->
+        <!-- For image cropping library -->
         <activity
             android:name="com.yalantis.ucrop.UCropActivity"
             android:screenOrientation="portrait"
             android:theme="@style/Theme.AppCompat.Light.NoActionBar" />
 
-        <!--Temporarily disable Firebase Analytics-->
+        <!-- Temporarily disable Firebase Analytics -->
         <meta-data
             android:name="firebase_analytics_collection_enabled"
             android:value="false" />
@@ -190,7 +189,8 @@
             android:name="firebase_crash_collection_enabled"
             android:value="false" />
 
-        <activity android:name=".activities.FindFBFriendsActivity"></activity>
+        <activity android:name=".activities.FindFBFriendsActivity" />
+        <activity android:name=".activities.MerchandizingProductsActivity"></activity>
     </application>
 
 </manifest>

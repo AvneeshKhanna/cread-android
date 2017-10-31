@@ -270,7 +270,7 @@ public class MainActivity extends BaseActivity {
                                     spHelper.setUUID(dataObject.getString("uuid"));
 
                                     // open the main screen
-                                    Intent startIntent = new Intent(MainActivity.this, BottomNavigationActivity.class);
+                                    Intent startIntent = new Intent(MainActivity.this, MerchandizingProductsActivity.class);
                                     startActivity(startIntent);
 
                                     finish();
@@ -359,6 +359,8 @@ public class MainActivity extends BaseActivity {
                         // error
                         else {
 
+
+
                             verifyDialog.dismiss();
 
                             Category errorCateg = error.getCategory();
@@ -374,8 +376,8 @@ public class MainActivity extends BaseActivity {
                                     getUserData();
                                     break;
                                 case OTHER:
-                                    AccessToken.setCurrentAccessToken(null);
                                     ViewHelper.getSnackBar(parentLayout, error.getErrorUserMessage());
+                                    AccessToken.setCurrentAccessToken(null);
                                     break;
                             }
                         }
@@ -384,7 +386,7 @@ public class MainActivity extends BaseActivity {
                     }
                 });
         Bundle parameters = new Bundle();
-        parameters.putString("fields", "id,first_name,last_name,age_range,link,gender,locale,picture,mEmail");
+        parameters.putString("fields", "id,first_name,last_name,age_range,link,gender,locale,picture,email");
         request.setParameters(parameters);
         request.executeAsync();
 
@@ -502,8 +504,8 @@ public class MainActivity extends BaseActivity {
             AccountKitLoginResult loginResult = data.getParcelableExtra(AccountKitLoginResult.RESULT_KEY);
 
             if (loginResult.getError() != null) {
-                AccessToken.setCurrentAccessToken(null);
                 ViewHelper.getSnackBar(parentLayout, loginResult.getError().getUserFacingMessage());
+                AccessToken.setCurrentAccessToken(null);
 
             } else if (loginResult.wasCancelled()) {
 

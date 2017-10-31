@@ -1,0 +1,184 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.v7.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginBottom="8dp"
+    android:layout_marginLeft="5dp"
+    android:layout_marginRight="5dp"
+    android:layout_marginTop="8dp"
+    android:background="@color/white"
+    app:cardPreventCornerOverlap="false"
+    app:cardUseCompatPadding="true">
+
+
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="20dp">
+
+
+        <RelativeLayout
+            android:id="@+id/merchProduct"
+            android:layout_width="270dp"
+            android:layout_height="270dp"
+            android:layout_centerHorizontal="true">
+
+
+            <ImageView
+                android:id="@+id/productImage"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"/>
+
+            <ImageView
+                android:id="@+id/artImg"
+                android:layout_width="250dp"
+                android:layout_height="250dp"
+                android:layout_centerInParent="true"
+                android:visibility="gone"/>
+
+        </RelativeLayout>
+
+
+
+
+        <TextView
+            android:id="@+id/productName"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/merchProduct"
+            android:text="T-shirt"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="10dp"
+            android:textSize="24sp"
+            android:textColor="@color/black_defined"/>
+
+
+
+
+        <ImageView
+            android:id="@+id/sizeImg"
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:src="@drawable/ic_format_size"
+            android:layout_alignParentLeft="true"
+            android:layout_marginLeft="5dp"
+            android:layout_below="@+id/productName"
+            android:layout_marginTop="10dp"/>
+
+        <TextView
+            android:id="@+id/sizeText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignTop="@+id/sizeImg"
+            android:layout_toRightOf="@+id/sizeImg"
+            android:text="Size"
+            android:textSize="16sp"
+            android:layout_marginLeft="5dp"/>
+
+
+        <android.support.v7.widget.AppCompatSpinner
+            android:id="@+id/sizeSpinner"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignBottom="@+id/sizeText"
+            android:layout_alignTop="@+id/sizeText"
+            android:layout_alignLeft="@+id/quantitySpinner">
+
+
+        </android.support.v7.widget.AppCompatSpinner>
+
+
+        <ImageView
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:layout_alignLeft="@+id/sizeImg"
+            android:src="@drawable/ic_palette"
+            android:layout_alignTop="@+id/colorText"
+            />
+
+        <TextView
+            android:id="@+id/colorText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Color"
+            android:layout_below="@+id/sizeText"
+            android:layout_alignLeft="@+id/sizeText"
+            android:layout_marginTop="10dp"
+            android:textSize="16sp"/>
+
+        <android.support.v7.widget.AppCompatSpinner
+            android:id="@+id/colorSpinner"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignBottom="@+id/colorText"
+            android:layout_alignTop="@+id/colorText"
+            android:layout_alignLeft="@+id/quantitySpinner">
+
+
+        </android.support.v7.widget.AppCompatSpinner>
+
+        <ImageView
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:layout_alignLeft="@+id/sizeImg"
+            android:layout_alignTop="@+id/quantityText"
+            android:src="@drawable/ic_add_shopping_cart"
+            />
+
+
+        <TextView
+            android:id="@+id/quantityText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Quantity"
+            android:layout_below="@+id/colorText"
+            android:layout_alignLeft="@+id/sizeText"
+            android:layout_marginTop="10dp"
+            android:textSize="16sp"/>
+
+        <android.support.v7.widget.AppCompatSpinner
+            android:id="@+id/quantitySpinner"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_toRightOf="@+id/quantityText"
+            android:layout_alignBottom="@+id/quantityText"
+            android:layout_alignTop="@+id/quantityText"
+            android:layout_marginLeft="5dp">
+
+
+        </android.support.v7.widget.AppCompatSpinner>
+
+        <TextView
+            android:id="@+id/price"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/Rs"
+            android:textSize="24sp"
+            android:layout_alignParentRight="true"
+            android:layout_marginRight="5dp"
+            android:layout_alignTop="@+id/sizeText"/>
+
+
+        <TextView
+            android:id="@+id/buyButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignRight="@+id/price"
+            android:text="Buy"
+            android:textSize="18sp"
+            android:background="@drawable/button_filled"
+            android:paddingTop="6dp"
+            android:paddingBottom="6dp"
+            android:paddingRight="20dp"
+            android:paddingLeft="20dp"
+            android:layout_alignBottom="@+id/quantityText"
+            android:textColor="@color/white"/>
+
+    </RelativeLayout>
+
+
+
+
+</android.support.v7.widget.CardView>

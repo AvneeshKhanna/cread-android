@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
+
+    <!--Space holder-->
+    <ImageView
+        android:id="@+id/view_filler"
+        android:layout_width="match_parent"
+        android:layout_height="160dp"
+        android:scaleType="centerCrop"
+        android:src="@drawable/img_product_terms" />
+
+    <TextView
+        android:id="@+id/text_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:paddingBottom="15dp"
+        android:paddingLeft="20dp"
+        android:paddingRight="20dp"
+        android:paddingTop="20dp"
+        android:text="Important"
+        android:textAppearance="@style/TextAppearance.FontPath"
+        android:textSize="20sp" />
+
+    <TextView
+        android:id="@+id/text_desc"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:paddingBottom="20dp"
+        android:paddingLeft="20dp"
+        android:paddingRight="20dp"
+        android:text="Before finding the shares, please note: \n\n-Please try your best to find the share you're reviewing. Only correct finds are rewarded at Cread. \n\n-Please do not choose the option 'I cannot find the post' falsely. 'Not finds' are not rewarded and may lead to low-scoring of your account if performed in an incorrect way"
+        android:textSize="16sp" />
+
+</LinearLayout>
