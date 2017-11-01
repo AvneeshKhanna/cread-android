@@ -99,10 +99,27 @@ public class listener {
         void onFollowClicked(int position, FBFriendsModel fbFriendsModel);
     }
 
-    public interface OnBuyButtonClickedListener{
+    public interface OnBuyButtonClickedListener {
 
         void onBuyButtonClicked(String type, String size, String color, String quantity, String price, String productID);
     }
 
+
+    /**
+     * Interface definition for a callback to be invoked when user scroll for more data.
+     */
+    public interface OnUserActivityLoadMoreListener {
+        void onLoadMore();
+    }
+
+    /**
+     * Interface definition for a callback to be invoked when a 'Hats off' is clicked.
+     */
+    public interface OnUserActivityHatsOffListener {
+        /**
+         * Called when hats off has been clicked.
+         */
+        void onHatsOffClick(FeedModel data, int itemPosition);
+    }
 
 }

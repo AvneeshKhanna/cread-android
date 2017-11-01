@@ -12,7 +12,6 @@ import android.view.ViewGroup;
 import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.squareup.picasso.Picasso;
@@ -21,9 +20,9 @@ import com.thetestament.cread.R;
 import com.thetestament.cread.activities.CommentsActivity;
 import com.thetestament.cread.activities.FeedDescriptionActivity;
 import com.thetestament.cread.activities.HatsOffActivity;
-import com.thetestament.cread.activities.ProfileActivity;
 import com.thetestament.cread.helpers.ViewHelper;
-import com.thetestament.cread.listeners.listener;
+import com.thetestament.cread.listeners.listener.OnUserActivityHatsOffListener;
+import com.thetestament.cread.listeners.listener.OnUserActivityLoadMoreListener;
 import com.thetestament.cread.models.FeedModel;
 
 import java.util.List;
@@ -36,20 +35,28 @@ import static com.thetestament.cread.helpers.ImageHelper.getLocalBitmapUri;
 import static com.thetestament.cread.utils.Constant.CONTENT_TYPE_CAPTURE;
 import static com.thetestament.cread.utils.Constant.CONTENT_TYPE_SHORT;
 import static com.thetestament.cread.utils.Constant.EXTRA_FEED_DESCRIPTION_DATA;
-import static com.thetestament.cread.utils.Constant.EXTRA_PROFILE_UUID;
+import static com.thetestament.cread.utils.Constant.USER_ACTIVITY_TYPE_ALL;
+import static com.thetestament.cread.utils.Constant.USER_ACTIVITY_TYPE_CAPTURE;
+import static com.thetestament.cread.utils.Constant.USER_ACTIVITY_TYPE_SHORT;
 
-
+/**
+ * Adapter class to provide a binding from data set to views that are displayed within a Me RecyclerView.
+ */
 public class MeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
     private final int VIEW_TYPE_ITEM = 0;
     private final int VIEW_TYPE_LOADING = 1;
+    private final int VIEW_TYPE_ITEM_SHORT = 2;
+    private final int VIEW_TYPE_ITEM_CAPTURE = 3;
+
     private List<FeedModel> mUserContentList;
     private FragmentActivity mContext;
     private boolean mIsLoading;
     private String mUUID;
+    private String mUserActivityType;
 
-    private listener.OnFeedLoadMoreListener onFeedLoadMoreListener;
-    private listener.OnHatsOffListener onHatsOffListener;
+    private OnUserActivityLoadMoreListener onLoadMore;
+    private OnUserActivityHatsOffListener onHatsOffListener;
 
     /**
      * Required constructor.
@@ -57,23 +64,24 @@ public class MeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
      * @param mUserContentList List of feed data.
      * @param mContext         Context to be use.
      */
-    public MeAdapter(List<FeedModel> mUserContentList, FragmentActivity mContext, String mUUID) {
+    public MeAdapter(List<FeedModel> mUserContentList, FragmentActivity mContext, String mUUID, String mUserActivityType) {
         this.mUserContentList = mUserContentList;
         this.mContext = mContext;
         this.mUUID = mUUID;
+        this.mUserActivityType = mUserActivityType;
     }
 
     /**
      * Register a callback to be invoked when user scrolls for more data.
      */
-    public void setOnFeedLoadMoreListener(listener.OnFeedLoadMoreListener onFeedLoadMoreListener) {
-        this.onFeedLoadMoreListener = onFeedLoadMoreListener;
+    public void setUserActivityLoadMoreListener(OnUserActivityLoadMoreListener onLoadMore) {
+        this.onLoadMore = onLoadMore;
     }
 
     /**
      * Register a callback to be invoked when hats off is clicked.
      */
-    public void setHatsOffListener(listener.OnHatsOffListener onHatsOffListener) {
+    public void setHatsOffListener(OnUserActivityHatsOffListener onHatsOffListener) {
         this.onHatsOffListener = onHatsOffListener;
     }
 
@@ -81,7 +89,6 @@ public class MeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     public int getItemViewType(int position) {
         return mUserContentList.get(position) == null ? VIEW_TYPE_LOADING : VIEW_TYPE_ITEM;
     }
-
 
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
@@ -102,6 +109,27 @@ public class MeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         final FeedModel data = mUserContentList.get(position);
         if (holder.getItemViewType() == VIEW_TYPE_ITEM) {
             final ItemViewHolder itemViewHolder = (ItemViewHolder) holder;
+
+            switch (mUserActivityType) {
+                case USER_ACTIVITY_TYPE_ALL:
+                    itemViewHolder.itemView.setVisibility(View.VISIBLE);
+                    break;
+                case USER_ACTIVITY_TYPE_SHORT:
+                    if (data.getContentType().equals(CONTENT_TYPE_CAPTURE)) {
+                        itemViewHolder.itemView.setVisibility(View.GONE);
+                    } else {
+                        itemViewHolder.itemView.setVisibility(View.VISIBLE);
+                    }
+                    break;
+                case USER_ACTIVITY_TYPE_CAPTURE:
+                    if (data.getContentType().equals(CONTENT_TYPE_SHORT)) {
+                        itemViewHolder.itemView.setVisibility(View.GONE);
+                    } else {
+                        itemViewHolder.itemView.setVisibility(View.VISIBLE);
+                    }
+                    break;
+
+            }
 
             //Load creator profile picture
             loadCreatorPic(data.getCreatorImage(), itemViewHolder.imageCreator);
@@ -125,11 +153,10 @@ public class MeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                 itemViewHolder.buttonMore.setVisibility(View.VISIBLE);
             }
             //// TODO: more button functionality
+
             //Check whether user has given hats off to this campaign or not
             checkHatsOffStatus(data.getHatsOffStatus(), itemViewHolder);
 
-            //Click functionality to launch profile of creator
-            openCreatorProfile(itemViewHolder.containerCreator, data.getUuID());
             //ItemView onClick functionality
             itemViewOnClick(itemViewHolder.itemView, data);
             //hats off container click functionality
@@ -141,17 +168,18 @@ public class MeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             //HatsOff onClick functionality
             hatsOffOnClick(itemViewHolder, data, position);
 
+
         } else if (holder.getItemViewType() == VIEW_TYPE_LOADING) {
-            FeedAdapter.LoadingViewHolder loadingViewHolder = (FeedAdapter.LoadingViewHolder) holder;
+            LoadingViewHolder loadingViewHolder = (LoadingViewHolder) holder;
             loadingViewHolder.progressView.setVisibility(View.VISIBLE);
         }
 
 
         //If last item is visible to user and new set of data is to yet to be loaded
         if (position == mUserContentList.size() - 1 && !mIsLoading) {
-            if (onFeedLoadMoreListener != null) {
+            if (onLoadMore != null) {
                 //Lode more data here
-                onFeedLoadMoreListener.onLoadMore();
+                onLoadMore.onLoadMore();
             }
             //toggle
             mIsLoading = true;
@@ -169,6 +197,10 @@ public class MeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
      */
     public void setLoaded() {
         mIsLoading = false;
+    }
+
+    public void setmUserActivityType(String s) {
+        mUserActivityType = s;
     }
 
     /**
@@ -198,22 +230,6 @@ public class MeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                 .into(imageView);
     }
 
-    /**
-     * Method to open creator profile.
-     *
-     * @param view        View to be clicked.
-     * @param creatorUUID UUID of creator.
-     */
-    private void openCreatorProfile(View view, final String creatorUUID) {
-        view.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent intent = new Intent(mContext, ProfileActivity.class);
-                intent.putExtra(EXTRA_PROFILE_UUID, creatorUUID);
-                mContext.startActivity(intent);
-            }
-        });
-    }
 
     /**
      * ItemView onClick functionality.
@@ -367,12 +383,8 @@ public class MeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         ImageView imageWorkType;
         @BindView(R.id.buttonMore)
         ImageView buttonMore;
-        @BindView(R.id.containerCreator)
-        RelativeLayout containerCreator;
         @BindView(R.id.imageStory)
         ImageView imageStory;
-        @BindView(R.id.buttonCompose)
-        ImageView buttonCompose;
         @BindView(R.id.imageHatsOff)
         ImageView imageHatsOff;
         @BindView(R.id.containerHatsOff)
