@@ -38,7 +38,7 @@ import io.reactivex.schedulers.Schedulers;
 
 import static com.thetestament.cread.helpers.NetworkHelper.getHatsOffObservableFromServer;
 import static com.thetestament.cread.helpers.NetworkHelper.getNetConnectionStatus;
-import static com.thetestament.cread.helpers.NetworkHelper.getObservableFromServer;
+import static com.thetestament.cread.utils.Constant.EXTRA_ENTITY_ID;
 
 
 /**
@@ -91,13 +91,12 @@ public class HatsOffActivity extends BaseActivity {
         Icepick.restoreInstanceState(this, savedInstanceState);
     }
 
-
     /**
      * Method to initialize views and retrieve data from intent.
      */
     private void initView() {
         //Retrieve data from intent
-        mEntityID = getIntent().getStringExtra("entityID");
+        mEntityID = getIntent().getStringExtra(EXTRA_ENTITY_ID);
 
         //Set layout manger for recyclerView
         recyclerView.setLayoutManager(new LinearLayoutManager(HatsOffActivity.this));
@@ -105,7 +104,7 @@ public class HatsOffActivity extends BaseActivity {
         mAdapter = new HatsOffAdapter(mHatsOffList, HatsOffActivity.this);
         recyclerView.setAdapter(mAdapter);
 
-        //initialize  recyclerView
+        //initialize swipeRefreshLayout
         initScreen();
     }
 
@@ -157,7 +156,7 @@ public class HatsOffActivity extends BaseActivity {
         final boolean[] tokenError = {false};
         final boolean[] connectionError = {false};
 
-        mCompositeDisposable.add(getHatsOffObservableFromServer(BuildConfig.URL + "/load-hatsoffs"
+        mCompositeDisposable.add(getHatsOffObservableFromServer(BuildConfig.URL + "/hatsoff/load"
                 , mEntityID
                 , mHelper.getUUID()
                 , mHelper.getAuthToken()
@@ -206,20 +205,16 @@ public class HatsOffActivity extends BaseActivity {
 
                     @Override
                     public void onComplete() {
+                        //Dismiss progress indicator
+                        swipeRefreshLayout.setRefreshing(false);
                         // Token status invalid
                         if (tokenError[0]) {
                             ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_invalid_token));
-                            //Dismiss progress indicator
-                            swipeRefreshLayout.setRefreshing(false);
                         }
                         //Error occurred
                         else if (connectionError[0]) {
                             ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_internal));
-                            //Dismiss progress indicator
-                            swipeRefreshLayout.setRefreshing(false);
                         } else {
-                            //Dismiss indicator
-                            swipeRefreshLayout.setRefreshing(false);
                             //Apply 'Slide Up' animation
                             int resId = R.anim.layout_animation_from_bottom;
                             LayoutAnimationController animation = AnimationUtils.loadLayoutAnimation(HatsOffActivity.this, resId);
@@ -256,7 +251,7 @@ public class HatsOffActivity extends BaseActivity {
                     //Increment page counter
                     mPageNumber += 1;
                     //Load new set of data
-                    loadMoreData(mHatsOffList.size());
+                    loadMoreData();
                 }
             }
         });
@@ -265,12 +260,13 @@ public class HatsOffActivity extends BaseActivity {
     /**
      * Method to retrieve next set of data from server.
      */
-    private void loadMoreData(final int oldListSize) {
+    private void loadMoreData() {
 
         final boolean[] tokenError = {false};
         final boolean[] connectionError = {false};
 
-        mCompositeDisposable.add(getObservableFromServer(BuildConfig.URL + "/load-hatsoffs", mEntityID
+        mCompositeDisposable.add(getHatsOffObservableFromServer(BuildConfig.URL + "/hatsoff/load"
+                , mEntityID
                 , mHelper.getUUID()
                 , mHelper.getAuthToken()
                 , mPageNumber)
@@ -301,6 +297,8 @@ public class HatsOffActivity extends BaseActivity {
                                     hatsOffData.setLastName(dataObj.getString("lastname"));
                                     hatsOffData.setProfilePicUrl(dataObj.getString("profilepicurl"));
                                     mHatsOffList.add(hatsOffData);
+                                    //Notify changes
+                                    mAdapter.notifyItemInserted(mHatsOffList.size() - 1);
                                 }
                             }
                         } catch (JSONException e) {
@@ -331,7 +329,6 @@ public class HatsOffActivity extends BaseActivity {
                             ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_internal));
                         } else {
                             //Notify changes
-                            mAdapter.notifyItemRangeInserted(oldListSize - 1, mHatsOffList.size() - oldListSize);
                             mAdapter.setLoaded();
                         }
                     }

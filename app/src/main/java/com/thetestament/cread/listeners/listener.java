@@ -76,11 +76,9 @@ public class listener {
      */
     public interface OnCommentEditListener {
         /**
-         * @param index     index of the comment to be edited.
-         * @param commentID Unique id for the comment.
-         * @param comment   comment text.
+         * @param index index of the comment to be edited.
          */
-        void onEdit(int index, String commentID, String comment, CommentsModel commentsModel);
+        void onEdit(int index, CommentsModel commentsModel);
     }
 
     /**

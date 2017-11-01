@@ -151,7 +151,7 @@ public class NetworkHelper {
         try {
             jsonObject.put("uuid", uuid);
             jsonObject.put("authkey", authKey);
-            jsonObject.put("entity", entityID);
+            jsonObject.put("entityid", entityID);
             jsonObject.put("page", pageNumber);
         } catch (JSONException e) {
             e.printStackTrace();
@@ -164,6 +164,33 @@ public class NetworkHelper {
     }
 
 
+    /**
+     * Method to return requested data from the server.
+     *
+     * @param serverURL  URL of the server
+     * @param uuid       UUID of the user.
+     * @param authKey    Authentication key of the user
+     * @param entityID   Entity ID of the post.
+     * @param pageNumber Page no to be loaded i.e integer
+     * @param loadAll    True for all comments false otherwise.
+     */
+    public static Observable<JSONObject> getCommentObservableFromServer(String serverURL, String uuid, String authKey, String entityID, int pageNumber, boolean loadAll) {
 
+        JSONObject jsonObject = new JSONObject();
+        try {
+            jsonObject.put("uuid", uuid);
+            jsonObject.put("authkey", authKey);
+            jsonObject.put("entityid", entityID);
+            jsonObject.put("page", pageNumber);
+            jsonObject.put("loadall", loadAll);
+        } catch (JSONException e) {
+            e.printStackTrace();
+            FirebaseCrash.report(e);
+        }
+        return Rx2AndroidNetworking.post(serverURL)
+                .addJSONObjectBody(jsonObject)
+                .build()
+                .getJSONObjectObservable();
+    }
 
 }

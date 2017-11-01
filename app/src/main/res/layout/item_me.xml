@@ -55,6 +55,15 @@
                 android:layout_toRightOf="@+id/textCreatorName"
                 android:src="@drawable/ic_camera_alt_24" />
 
+            <ImageView
+                android:id="@+id/buttonMore"
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:layout_alignParentRight="true"
+                android:layout_centerVertical="true"
+                android:src="@drawable/ic_more_vert_24"
+                android:visibility="invisible" />
+
         </RelativeLayout>
 
         <com.thetestament.cread.utils.SquareView
@@ -64,28 +73,12 @@
             android:layout_below="@+id/containerCreator">
 
             <ImageView
-                android:id="@+id/imageFeed"
+                android:id="@+id/imageStory"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:scaleType="centerCrop"
                 android:src="@drawable/image_placeholder" />
         </com.thetestament.cread.utils.SquareView>
-
-        <FrameLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_above="@+id/containerActions"
-            android:layout_alignParentRight="true"
-            android:layout_marginBottom="5dp"
-            android:layout_marginRight="5dp"
-            android:background="@color/black_overlay">
-
-            <ImageView
-                android:id="@+id/buttonCompose"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:src="@drawable/ic_compose_24" />
-        </FrameLayout>
 
         <LinearLayout
             android:id="@+id/containerActions"

@@ -20,10 +20,10 @@ import com.squareup.picasso.Target;
 import com.thetestament.cread.R;
 import com.thetestament.cread.activities.CommentsActivity;
 import com.thetestament.cread.activities.FeedDescriptionActivity;
+import com.thetestament.cread.activities.HatsOffActivity;
 import com.thetestament.cread.activities.ProfileActivity;
 import com.thetestament.cread.helpers.ViewHelper;
-import com.thetestament.cread.listeners.listener.OnFeedLoadMoreListener;
-import com.thetestament.cread.listeners.listener.OnHatsOffListener;
+import com.thetestament.cread.listeners.listener;
 import com.thetestament.cread.models.FeedModel;
 
 import java.util.List;
@@ -35,61 +35,60 @@ import de.hdodenhof.circleimageview.CircleImageView;
 import static com.thetestament.cread.helpers.ImageHelper.getLocalBitmapUri;
 import static com.thetestament.cread.utils.Constant.CONTENT_TYPE_CAPTURE;
 import static com.thetestament.cread.utils.Constant.CONTENT_TYPE_SHORT;
-import static com.thetestament.cread.utils.Constant.EXTRA_ENTITY_ID;
 import static com.thetestament.cread.utils.Constant.EXTRA_FEED_DESCRIPTION_DATA;
 import static com.thetestament.cread.utils.Constant.EXTRA_PROFILE_UUID;
 
-/**
- * Adapter class to provide a binding from data set to views that are displayed within a Feed RecyclerView.
- */
-public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
+
+public class MeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
     private final int VIEW_TYPE_ITEM = 0;
     private final int VIEW_TYPE_LOADING = 1;
-    private List<FeedModel> mFeedList;
+    private List<FeedModel> mUserContentList;
     private FragmentActivity mContext;
     private boolean mIsLoading;
+    private String mUUID;
 
-    private OnFeedLoadMoreListener onFeedLoadMoreListener;
-    private OnHatsOffListener onHatsOffListener;
+    private listener.OnFeedLoadMoreListener onFeedLoadMoreListener;
+    private listener.OnHatsOffListener onHatsOffListener;
 
     /**
      * Required constructor.
      *
-     * @param mFeedList List of feed data.
-     * @param mContext  Context to be use.
+     * @param mUserContentList List of feed data.
+     * @param mContext         Context to be use.
      */
-    public FeedAdapter(List<FeedModel> mFeedList, FragmentActivity mContext) {
-        this.mFeedList = mFeedList;
+    public MeAdapter(List<FeedModel> mUserContentList, FragmentActivity mContext, String mUUID) {
+        this.mUserContentList = mUserContentList;
         this.mContext = mContext;
+        this.mUUID = mUUID;
     }
 
     /**
      * Register a callback to be invoked when user scrolls for more data.
      */
-    public void setOnFeedLoadMoreListener(OnFeedLoadMoreListener onFeedLoadMoreListener) {
+    public void setOnFeedLoadMoreListener(listener.OnFeedLoadMoreListener onFeedLoadMoreListener) {
         this.onFeedLoadMoreListener = onFeedLoadMoreListener;
     }
 
     /**
      * Register a callback to be invoked when hats off is clicked.
      */
-    public void setHatsOffListener(OnHatsOffListener onHatsOffListener) {
+    public void setHatsOffListener(listener.OnHatsOffListener onHatsOffListener) {
         this.onHatsOffListener = onHatsOffListener;
     }
 
-
     @Override
     public int getItemViewType(int position) {
-        return mFeedList.get(position) == null ? VIEW_TYPE_LOADING : VIEW_TYPE_ITEM;
+        return mUserContentList.get(position) == null ? VIEW_TYPE_LOADING : VIEW_TYPE_ITEM;
     }
+
 
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         if (viewType == VIEW_TYPE_ITEM) {
             return new ItemViewHolder(LayoutInflater
                     .from(parent.getContext())
-                    .inflate(R.layout.item_feed, parent, false));
+                    .inflate(R.layout.item_me, parent, false));
         } else if (viewType == VIEW_TYPE_LOADING) {
             return new LoadingViewHolder(LayoutInflater
                     .from(parent.getContext())
@@ -100,8 +99,7 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
     @Override
     public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
-        final FeedModel data = mFeedList.get(position);
-
+        final FeedModel data = mUserContentList.get(position);
         if (holder.getItemViewType() == VIEW_TYPE_ITEM) {
             final ItemViewHolder itemViewHolder = (ItemViewHolder) holder;
 
@@ -109,8 +107,8 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             loadCreatorPic(data.getCreatorImage(), itemViewHolder.imageCreator);
             //Set creator name
             itemViewHolder.textCreatorName.setText(data.getCreatorName());
-            //Load feed image
-            loadFeedImage(data.getImage(), itemViewHolder.imageFeed);
+            //Load story image
+            loadStoryImage(data.getImage(), itemViewHolder.imageStory);
 
             //Check for content type
             switch (data.getContentType()) {
@@ -123,6 +121,10 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                 default:
             }
 
+            if (data.getUuID().equals(mUUID)) {
+                itemViewHolder.buttonMore.setVisibility(View.VISIBLE);
+            }
+            //// TODO: more button functionality
             //Check whether user has given hats off to this campaign or not
             checkHatsOffStatus(data.getHatsOffStatus(), itemViewHolder);
 
@@ -130,8 +132,8 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             openCreatorProfile(itemViewHolder.containerCreator, data.getUuID());
             //ItemView onClick functionality
             itemViewOnClick(itemViewHolder.itemView, data);
-            //Compose click functionality
-            composeOnClick(itemViewHolder.buttonCompose, data.getEntityID());
+            //hats off container click functionality
+            hatsOffContainerOnClick(itemViewHolder.containerHatsOff, data.getEntityID());
             //Comment click functionality
             commentOnClick(itemViewHolder.containerComment, data.getEntityID());
             //Share click functionality
@@ -140,13 +142,13 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             hatsOffOnClick(itemViewHolder, data, position);
 
         } else if (holder.getItemViewType() == VIEW_TYPE_LOADING) {
-            LoadingViewHolder loadingViewHolder = (LoadingViewHolder) holder;
+            FeedAdapter.LoadingViewHolder loadingViewHolder = (FeedAdapter.LoadingViewHolder) holder;
             loadingViewHolder.progressView.setVisibility(View.VISIBLE);
         }
 
 
         //If last item is visible to user and new set of data is to yet to be loaded
-        if (position == mFeedList.size() - 1 && !mIsLoading) {
+        if (position == mUserContentList.size() - 1 && !mIsLoading) {
             if (onFeedLoadMoreListener != null) {
                 //Lode more data here
                 onFeedLoadMoreListener.onLoadMore();
@@ -159,7 +161,7 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
     @Override
     public int getItemCount() {
-        return mFeedList == null ? 0 : mFeedList.size();
+        return mUserContentList == null ? 0 : mUserContentList.size();
     }
 
     /**
@@ -182,33 +184,18 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                 .into(imageView);
     }
 
+
     /**
-     * Method to load feed image.
+     * Method to load story image.
      *
      * @param imageUrl  picture URL.
      * @param imageView View where image to be loaded.
      */
-    private void loadFeedImage(String imageUrl, ImageView imageView) {
+    private void loadStoryImage(String imageUrl, ImageView imageView) {
         Picasso.with(mContext)
                 .load(imageUrl)
                 .error(R.drawable.image_placeholder)
                 .into(imageView);
-    }
-
-    /**
-     * Method to check hatsOff status and perform operation accordingly.
-     */
-    private void checkHatsOffStatus(boolean hatsOffStatus, ItemViewHolder itemViewHolder) {
-        if (hatsOffStatus) {
-            itemViewHolder.imageHatsOff.setColorFilter(ContextCompat.getColor(mContext, R.color.colorPrimary));
-            //Animation for hats off
-            itemViewHolder.imageHatsOff.startAnimation(AnimationUtils.loadAnimation(mContext, R.anim.rotate_animation_hats_off_fast));
-
-            itemViewHolder.mIsHatsOff = true;
-        } else {
-            itemViewHolder.imageHatsOff.setColorFilter(ContextCompat.getColor(mContext, R.color.grey));
-            itemViewHolder.mIsHatsOff = false;
-        }
     }
 
     /**
@@ -249,17 +236,19 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
      * Compose onClick functionality.
      *
      * @param view     View to be clicked.
-     * @param entityID Entity ID*
+     * @param entityID Entity ID.
      */
-    private void composeOnClick(View view, final String entityID) {
+    private void hatsOffContainerOnClick(View view, final String entityID) {
         view.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                // TODO functionality remaining
-                ViewHelper.getToast(mContext, "Coming soon");
+                Intent intent = new Intent(mContext, HatsOffActivity.class);
+                intent.putExtra("entityID", entityID);
+                mContext.startActivity(intent);
             }
         });
     }
+
 
     /**
      * Compose onClick functionality.
@@ -272,7 +261,7 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             @Override
             public void onClick(View view) {
                 Intent intent = new Intent(mContext, CommentsActivity.class);
-                intent.putExtra(EXTRA_ENTITY_ID, entityID);
+                intent.putExtra("entityID", entityID);
                 mContext.startActivity(intent);
             }
         });
@@ -281,7 +270,7 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     /**
      * Share onClick functionality.
      *
-     * @param view       View to be clicked.
+     * @param view       View to be clicked.x
      * @param pictureUrl URL of the picture to be shared.
      */
     private void shareOnClick(View view, final String pictureUrl) {
@@ -301,7 +290,7 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
                     @Override
                     public void onBitmapFailed(Drawable errorDrawable) {
-                        ViewHelper.getToast(mContext, mContext.getString(R.string.error_msg_no_image));
+                        ViewHelper.getToast(mContext, mContext.getString(R.string.error_msg_internal));
                     }
 
                     @Override
@@ -351,6 +340,23 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         });
     }
 
+
+    /**
+     * Method to check hatsOff status and perform operation accordingly.
+     */
+    private void checkHatsOffStatus(boolean hatsOffStatus, ItemViewHolder itemViewHolder) {
+        if (hatsOffStatus) {
+            itemViewHolder.imageHatsOff.setColorFilter(ContextCompat.getColor(mContext, R.color.colorPrimary));
+            //Animation for hats off
+            itemViewHolder.imageHatsOff.startAnimation(AnimationUtils.loadAnimation(mContext, R.anim.rotate_animation_hats_off_fast));
+
+            itemViewHolder.mIsHatsOff = true;
+        } else {
+            itemViewHolder.imageHatsOff.setColorFilter(ContextCompat.getColor(mContext, R.color.grey));
+            itemViewHolder.mIsHatsOff = false;
+        }
+    }
+
     //ItemViewHolder class
     static class ItemViewHolder extends RecyclerView.ViewHolder {
         @BindView(R.id.imageCreator)
@@ -359,10 +365,12 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         TextView textCreatorName;
         @BindView(R.id.imageWorkType)
         ImageView imageWorkType;
+        @BindView(R.id.buttonMore)
+        ImageView buttonMore;
         @BindView(R.id.containerCreator)
         RelativeLayout containerCreator;
-        @BindView(R.id.imageFeed)
-        ImageView imageFeed;
+        @BindView(R.id.imageStory)
+        ImageView imageStory;
         @BindView(R.id.buttonCompose)
         ImageView buttonCompose;
         @BindView(R.id.imageHatsOff)

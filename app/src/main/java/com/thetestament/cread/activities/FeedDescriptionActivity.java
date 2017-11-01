@@ -48,7 +48,7 @@ import io.reactivex.observers.DisposableObserver;
 import io.reactivex.schedulers.Schedulers;
 
 import static com.thetestament.cread.helpers.ImageHelper.getLocalBitmapUri;
-import static com.thetestament.cread.helpers.NetworkHelper.getObservableFromServer;
+import static com.thetestament.cread.helpers.NetworkHelper.getCommentObservableFromServer;
 import static com.thetestament.cread.utils.Constant.EXTRA_ENTITY_ID;
 import static com.thetestament.cread.utils.Constant.EXTRA_FEED_DESCRIPTION_DATA;
 import static com.thetestament.cread.utils.Constant.EXTRA_PROFILE_UUID;
@@ -378,10 +378,13 @@ public class FeedDescriptionActivity extends BaseActivity {
         final boolean[] tokenError = {false};
         final boolean[] connectionError = {false};
         final List<CommentsModel> mCommentsList = new ArrayList<>();
-        mCompositeDisposable.add(getObservableFromServer(BuildConfig.URL + "/comment/load"
+
+        mCompositeDisposable.add(getCommentObservableFromServer(BuildConfig.URL + "/comment/load"
                 , mHelper.getUUID()
                 , mHelper.getAuthToken()
-                , entityID)
+                , entityID
+                , 0
+                , false)
                 //Run on a background thread
                 .subscribeOn(Schedulers.io())
                 //Be notified on the main thread
@@ -391,7 +394,7 @@ public class FeedDescriptionActivity extends BaseActivity {
                     public void onNext(JSONObject jsonObject) {
                         try {
                             //Token status is invalid
-                            if (jsonObject.getString("toke nstatus").equals("invalid")) {
+                            if (jsonObject.getString("tokenstatus").equals("invalid")) {
                                 tokenError[0] = true;
                             } else {
                                 JSONObject mainData = jsonObject.getJSONObject("data");
@@ -451,7 +454,7 @@ public class FeedDescriptionActivity extends BaseActivity {
                             //Set layout manager
                             recyclerView.setLayoutManager(new LinearLayoutManager(FeedDescriptionActivity.this));
                             //Set adapter
-                            recyclerView.setAdapter(new CommentsAdapter(mCommentsList, FeedDescriptionActivity.this));
+                            recyclerView.setAdapter(new CommentsAdapter(mCommentsList, FeedDescriptionActivity.this, mHelper.getUUID()));
                         }
                     }
                 })

@@ -182,7 +182,7 @@
         <!--HatsOffActivity-->
         <activity
             android:name=".activities.HatsOffActivity"
-            android:label="Hatsoff Detail"
+            android:label="People who support"
             android:screenOrientation="portrait">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"

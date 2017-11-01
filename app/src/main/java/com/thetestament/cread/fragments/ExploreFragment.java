@@ -163,7 +163,7 @@ public class ExploreFragment extends Fragment {
                     //Increment page counter
                     mPageNumber += 1;
                     //Load new set of data
-                    loadMoreData(mExploreDataList.size());
+                    loadMoreData();
                 }
             }
         });
@@ -191,7 +191,7 @@ public class ExploreFragment extends Fragment {
         final boolean[] tokenError = {false};
         final boolean[] connectionError = {false};
 
-        mCompositeDisposable.add(getObservableFromServer(BuildConfig.URL + "/explore/load"
+        mCompositeDisposable.add(getObservableFromServer(BuildConfig.URL + "/explore-feed/load"
                 , mHelper.getUUID()
                 , mHelper.getAuthToken()
                 , mPageNumber)
@@ -209,21 +209,21 @@ public class ExploreFragment extends Fragment {
                             } else {
                                 JSONObject mainData = jsonObject.getJSONObject("data");
                                 mRequestMoreData = mainData.getBoolean("requestmore");
-                                //FeedArray list
+                                //ExploreArray list
                                 JSONArray exploreArray = mainData.getJSONArray("feed");
                                 for (int i = 0; i < exploreArray.length(); i++) {
                                     JSONObject dataObj = exploreArray.getJSONObject(i);
                                     FeedModel exploreData = new FeedModel();
                                     exploreData.setEntityID(dataObj.getString("entityid"));
+                                    exploreData.setContentType(dataObj.getString("type"));
                                     exploreData.setUuID(dataObj.getString("uuid"));
-                                    exploreData.setCreatorImage(dataObj.getString("creatorimage"));
-                                    exploreData.setCreatorName(dataObj.getString("creatorName"));
+                                    exploreData.setCreatorImage(dataObj.getString("profilepicurl"));
+                                    exploreData.setCreatorName(dataObj.getString("creatorname"));
                                     exploreData.setHatsOffStatus(dataObj.getBoolean("hatsoffstatus"));
                                     exploreData.setFollowStatus(dataObj.getBoolean("followstatus"));
                                     exploreData.setHatsOffCount(dataObj.getLong("hatsoffcount"));
-                                    exploreData.setCommentCount(dataObj.getLong("commnetcount"));
-                                    exploreData.setContentType(dataObj.getString("contenttype"));
-                                    exploreData.setImage(dataObj.getString("image"));
+                                    exploreData.setCommentCount(dataObj.getLong("commentcount"));
+                                    exploreData.setImage(dataObj.getString("captureurl"));
                                     mExploreDataList.add(exploreData);
                                 }
                             }
@@ -244,21 +244,16 @@ public class ExploreFragment extends Fragment {
 
                     @Override
                     public void onComplete() {
+                        //Dismiss progress indicator
+                        swipeRefreshLayout.setRefreshing(false);
                         // Token status invalid
                         if (tokenError[0]) {
-                            ViewHelper.getSnackBar(rootView
-                                    , getString(R.string.error_msg_invalid_token));
-                            //Dismiss progress indicator
-                            swipeRefreshLayout.setRefreshing(false);
+                            ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_invalid_token));
                         }
                         //Error occurred
                         else if (connectionError[0]) {
                             ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_internal));
-                            //Dismiss progress indicator
-                            swipeRefreshLayout.setRefreshing(false);
                         } else {
-                            //Dismiss progress indicator
-                            swipeRefreshLayout.setRefreshing(false);
                             //Apply 'Slide Up' animation
                             int resId = R.anim.layout_animation_from_bottom;
                             LayoutAnimationController animation = AnimationUtils.loadLayoutAnimation(getActivity(), resId);
@@ -273,10 +268,10 @@ public class ExploreFragment extends Fragment {
     /**
      * Method to retrieve to next set of data from server.
      */
-    private void loadMoreData(final int oldListSize) {
+    private void loadMoreData() {
         final boolean[] tokenError = {false};
         final boolean[] connectionError = {false};
-        mCompositeDisposable.add(getObservableFromServer(BuildConfig.URL + "/explore/load"
+        mCompositeDisposable.add(getObservableFromServer(BuildConfig.URL + "/explore-feed/load"
                 , mHelper.getUUID()
                 , mHelper.getAuthToken()
                 , mPageNumber)
@@ -297,23 +292,25 @@ public class ExploreFragment extends Fragment {
                             } else {
                                 JSONObject mainData = jsonObject.getJSONObject("data");
                                 mRequestMoreData = mainData.getBoolean("requestmore");
-                                //FeedArray list
+                                //ExploreArray list
                                 JSONArray exploreArray = mainData.getJSONArray("feed");
                                 for (int i = 0; i < exploreArray.length(); i++) {
                                     JSONObject dataObj = exploreArray.getJSONObject(i);
                                     FeedModel exploreData = new FeedModel();
                                     exploreData.setEntityID(dataObj.getString("entityid"));
+                                    exploreData.setContentType(dataObj.getString("type"));
                                     exploreData.setUuID(dataObj.getString("uuid"));
-                                    exploreData.setCreatorImage(dataObj.getString("creatorimage"));
-                                    exploreData.setCreatorName(dataObj.getString("creatorName"));
+                                    exploreData.setCreatorImage(dataObj.getString("profilepicurl"));
+                                    exploreData.setCreatorName(dataObj.getString("creatorname"));
                                     exploreData.setHatsOffStatus(dataObj.getBoolean("hatsoffstatus"));
                                     exploreData.setFollowStatus(dataObj.getBoolean("followstatus"));
                                     exploreData.setHatsOffCount(dataObj.getLong("hatsoffcount"));
-                                    exploreData.setCommentCount(dataObj.getLong("commnetcount"));
-                                    exploreData.setContentType(dataObj.getString("contenttype"));
-                                    exploreData.setImage(dataObj.getString("image"));
-
+                                    exploreData.setCommentCount(dataObj.getLong("commentcount"));
+                                    exploreData.setImage(dataObj.getString("captureurl"));
                                     mExploreDataList.add(exploreData);
+
+                                    //Notify item insertion
+                                    mAdapter.notifyItemInserted(mExploreDataList.size() - 1);
                                 }
                             }
                         } catch (JSONException e) {
@@ -337,15 +334,13 @@ public class ExploreFragment extends Fragment {
                     public void onComplete() {
                         // Token status invalid
                         if (tokenError[0]) {
-                            ViewHelper.getSnackBar(rootView
-                                    , getString(R.string.error_msg_invalid_token));
+                            ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_invalid_token));
                         }
                         //Error occurred
                         else if (connectionError[0]) {
                             ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_internal));
                         } else {
                             //Notify changes
-                            mAdapter.notifyItemRangeInserted(oldListSize - 1, mExploreDataList.size() - oldListSize);
                             mAdapter.setLoaded();
                         }
                     }
@@ -409,12 +404,6 @@ public class ExploreFragment extends Fragment {
                                 JSONObject mainData = response.getJSONObject("data");
                                 if (mainData.getString("status").equals("done")) {
                                     //Do nothing
-                                } else {
-                                    //set status to true if its false and vice versa
-                                    exploreData.setFollowStatus(!exploreData.getFollowStatus());
-                                    //notify changes
-                                    mAdapter.notifyItemChanged(itemPosition);
-                                    ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_internal));
                                 }
                             }
                         } catch (JSONException e) {
