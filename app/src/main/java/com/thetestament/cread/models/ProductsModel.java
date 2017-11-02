@@ -5,11 +5,12 @@ import java.util.List;
 
 public class ProductsModel {
 
-    private String type, productID, entityUrl, productUrl;
+    private String type, productID, entityUrl, productUrl,deliveryCharge;
     private List<String> colors  = new ArrayList<>();
     private List<String> sizes = new ArrayList<>();
     private List<String> quanity = new ArrayList<>();
     private List<String> price = new ArrayList<>();
+
 
 
 
@@ -79,6 +80,11 @@ public class ProductsModel {
         this.quanity = quanity;
     }
 
+    public String getDeliveryCharge() {
+        return deliveryCharge;
+    }
 
-
+    public void setDeliveryCharge(String deliveryCharge) {
+        this.deliveryCharge = deliveryCharge;
+    }
 }

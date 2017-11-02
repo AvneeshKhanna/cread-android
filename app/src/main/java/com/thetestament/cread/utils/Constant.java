@@ -40,4 +40,35 @@ public class Constant {
 
     public static final String EXTRA_FOLLOW_REQUESTED_UUID = "followRequestedUUID";
     public static final String EXTRA_FOLLOW_TYPE = "followType";
+
+    public static final String EXTRA_SHIPPING_ADDR1 = "addr1";
+    public static final String EXTRA_SHIPPING_ADDR2 = "addr2";
+    public static final String EXTRA_SHIPPING_CITY = "city";
+    public static final String EXTRA_SHIPPING_STATE = "state";
+    public static final String EXTRA_SHIPPING_PINCODE = "pincode";
+    public static final String EXTRA_SHIPPING_NAME = "name";
+    public static final String EXTRA_SHIPPING_PHONE = "phone";
+    public static final String EXTRA_SHIPPING_ALT_PHONE = "altPhone";
+    public static final String EXTRA_PRODUCT_TYPE = "type";
+    public static final String EXTRA_PRODUCT_SIZE = "size";
+    public static final String EXTRA_PRODUCT_COLOR = "color";
+    public static final String EXTRA_PRODUCT_QUANTITY = "quantity";
+    public static final String EXTRA_PRODUCT_PRICE = "price";
+    public static final String EXTRA_PRODUCT_PRODUCTID = "productID";
+    public static final String EXTRA_PRODUCT_ENTITYID = "entityID";
+    public static final String EXTRA_PRODUCT_DELIVERY_TIME = "deliveryTime";
+    public static final String EXTRA_PRODUCT_DELIVERY_CHARGE = "deliveryCharge";
+
+    public static final String PAYMENT_STATUS_SUCCESS = "paymentSuccess";
+    public static final String PAYMENT_STATUS_INVALID_TOKEN = "paymentInvalidToken";
+    public static final String PAYMENT_STATUS_CONNECTION_TERMINATED = "paymentConnectionTerminated";
+    public static final String PAYMENT_STATUS_SERVER_ERROR = "paymentServerError";
+
+
+
+
+
+
+
+
 }

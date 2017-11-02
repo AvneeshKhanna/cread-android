@@ -58,11 +58,11 @@ public class ProductsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
 
         final ItemViewHolder itemViewHolder = (ItemViewHolder) holder;
 
-        itemViewHolder.price = data.getPrice().get(0);
-
         loadproductPicture(data.getProductUrl(),itemViewHolder.productImage);
-
         loadEntityPicture(data.getEntityUrl(),processEntityImage(data.getType(),itemViewHolder.artImg));
+
+        // initializing price to a default value and it is changed according to the price
+        itemViewHolder.price = data.getPrice().get(0);
 
         itemViewHolder.type = getProductName(data.getType());
         itemViewHolder.productName.setText(itemViewHolder.type);
@@ -77,7 +77,7 @@ public class ProductsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         itemViewHolder.sizeSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-
+                // adjusting price according to the size
                 itemViewHolder.price = data.getPrice().get(position);
                 itemViewHolder.priceText.setText(mContext.getString(R.string.Rs)+ " " + itemViewHolder.price);
 
@@ -129,7 +129,7 @@ public class ProductsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
             @Override
             public void onClick(View v) {
 
-                buttonClickedListener.onBuyButtonClicked(itemViewHolder.type,itemViewHolder.size,itemViewHolder.color,itemViewHolder.quantity,itemViewHolder.price, itemViewHolder.productID);
+                buttonClickedListener.onBuyButtonClicked(itemViewHolder.type,itemViewHolder.size,itemViewHolder.color,itemViewHolder.quantity,itemViewHolder.price, itemViewHolder.productID, data.getDeliveryCharge());
 
             }
         });

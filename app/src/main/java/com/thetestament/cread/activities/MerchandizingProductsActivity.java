@@ -1,5 +1,6 @@
 package com.thetestament.cread.activities;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.CoordinatorLayout;
@@ -20,6 +21,7 @@ import android.widget.TextView;
 import com.afollestad.materialdialogs.DialogAction;
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.google.firebase.crash.FirebaseCrash;
+import com.razorpay.Checkout;
 import com.rx2androidnetworking.Rx2AndroidNetworking;
 import com.thetestament.cread.BuildConfig;
 import com.thetestament.cread.R;
@@ -44,6 +46,24 @@ import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.observers.DisposableObserver;
 import io.reactivex.schedulers.Schedulers;
 
+import static com.thetestament.cread.utils.Constant.EXTRA_PRODUCT_COLOR;
+import static com.thetestament.cread.utils.Constant.EXTRA_PRODUCT_DELIVERY_CHARGE;
+import static com.thetestament.cread.utils.Constant.EXTRA_PRODUCT_DELIVERY_TIME;
+import static com.thetestament.cread.utils.Constant.EXTRA_PRODUCT_ENTITYID;
+import static com.thetestament.cread.utils.Constant.EXTRA_PRODUCT_PRICE;
+import static com.thetestament.cread.utils.Constant.EXTRA_PRODUCT_PRODUCTID;
+import static com.thetestament.cread.utils.Constant.EXTRA_PRODUCT_QUANTITY;
+import static com.thetestament.cread.utils.Constant.EXTRA_PRODUCT_SIZE;
+import static com.thetestament.cread.utils.Constant.EXTRA_PRODUCT_TYPE;
+import static com.thetestament.cread.utils.Constant.EXTRA_SHIPPING_ADDR1;
+import static com.thetestament.cread.utils.Constant.EXTRA_SHIPPING_ADDR2;
+import static com.thetestament.cread.utils.Constant.EXTRA_SHIPPING_ALT_PHONE;
+import static com.thetestament.cread.utils.Constant.EXTRA_SHIPPING_CITY;
+import static com.thetestament.cread.utils.Constant.EXTRA_SHIPPING_NAME;
+import static com.thetestament.cread.utils.Constant.EXTRA_SHIPPING_PHONE;
+import static com.thetestament.cread.utils.Constant.EXTRA_SHIPPING_PINCODE;
+import static com.thetestament.cread.utils.Constant.EXTRA_SHIPPING_STATE;
+
 public class MerchandizingProductsActivity extends BaseActivity {
 
 
@@ -62,10 +82,13 @@ public class MerchandizingProductsActivity extends BaseActivity {
 
     private ProductsAdapter mAdapter;
     private List<ProductsModel> mDataList = new ArrayList<>();
+    private JSONObject shippingDetails;
 
     CompositeDisposable mCompositeDisposable = new CompositeDisposable();
 
     String mEntityID;
+    String deliveryTime;
+    String deliveryCharge;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -73,6 +96,10 @@ public class MerchandizingProductsActivity extends BaseActivity {
         setContentView(R.layout.activity_merchandizing_products);
         ButterKnife.bind(this);
 
+        /**
+         * Preload payment resources for razorpay which should be done 2-3 screens before payments screen
+         */
+        Checkout.preload(getApplicationContext());
 
         ViewCompat.setNestedScrollingEnabled(recyclerView, false);
 
@@ -155,6 +182,13 @@ public class MerchandizingProductsActivity extends BaseActivity {
                                     tokenError[0] = true;
                                 } else {
                                     JSONObject mainData = jsonObject.getJSONObject("data");
+                                    // TODO uncomment
+                                    //deliveryTime = mainData.getString("deliverytime");
+
+                                    if (mainData.getBoolean("detailsexist"))
+                                    {
+                                        shippingDetails = mainData.getJSONObject("details");
+                                    }
 
                                     //Hats off details list
                                     JSONArray products = mainData.getJSONArray("products");
@@ -165,10 +199,13 @@ public class MerchandizingProductsActivity extends BaseActivity {
                                         productsData.setProductUrl(dataObj.getString("productimgurl"));
                                         productsData.setEntityUrl(dataObj.getString("entityimgurl"));
                                         productsData.setProductID(dataObj.getString("productid"));
+                                        // TODO uncomment
+                                        //productsData.setDeliveryCharge(dataObj.getString("deliverycharge"));
                                         productsData.setPrice(getArrayListFromJSON(dataObj.getJSONArray("price")));
                                         productsData.setColors(getArrayListFromJSON(dataObj.getJSONArray("colors")));
                                         productsData.setSizes(getArrayListFromJSON(dataObj.getJSONArray("sizes")));
                                         productsData.setQuanity(getArrayListFromJSON(dataObj.getJSONArray("quantity")));
+
 
                                         mDataList.add(productsData);
                                     }
@@ -289,19 +326,57 @@ public class MerchandizingProductsActivity extends BaseActivity {
     {
         mAdapter.setBuyButtonClickedListener(new OnBuyButtonClickedListener() {
             @Override
-            public void onBuyButtonClicked(String type, String size, String color, String quantity, String price, String productID) {
+            public void onBuyButtonClicked(String type, String size, String color, String quantity, String price, String productID,String deliveryCharge) {
 
-              /*  Intent intent = new Intent(MerchandizingProductsActivity.this,);
                 Bundle bundle = new Bundle();
-                bundle.putString("type", type);
-                bundle.putString("size",size);
-                bundle.putString("color", color);
-                bundle.putString("quantity", quantity);
-                bundle.putString("price",price);
-                bundle.putString("productID", productID);
-                bundle.putString("entityID", mEntityID);
+                bundle.putString(EXTRA_PRODUCT_TYPE, type);
+                bundle.putString(EXTRA_PRODUCT_SIZE,size);
+                bundle.putString(EXTRA_PRODUCT_COLOR, color);
+                bundle.putString(EXTRA_PRODUCT_QUANTITY, quantity);
+                bundle.putString(EXTRA_PRODUCT_PRICE,price);
+                bundle.putString(EXTRA_PRODUCT_PRODUCTID, productID);
+                bundle.putString(EXTRA_PRODUCT_ENTITYID, mEntityID);
+                bundle.putString(EXTRA_PRODUCT_DELIVERY_TIME,deliveryTime);
+                bundle.putString(EXTRA_PRODUCT_DELIVERY_CHARGE, deliveryCharge);
+
+
+
+                if(shippingDetails != null)
+                {
+
+                    try {
+                        bundle.putString(EXTRA_SHIPPING_ADDR1,shippingDetails.getString("ship_adddr_1"));
+                        bundle.putString(EXTRA_SHIPPING_ADDR2,shippingDetails.getString("ship_adddr_2"));
+                        bundle.putString(EXTRA_SHIPPING_CITY,shippingDetails.getString("ship_city"));
+                        bundle.putString(EXTRA_SHIPPING_STATE,shippingDetails.getString("ship_state"));
+                        bundle.putString(EXTRA_SHIPPING_PINCODE,shippingDetails.getString("ship_pincode"));
+                        bundle.putString(EXTRA_SHIPPING_NAME,shippingDetails.getString("billing_name"));
+                        bundle.putString(EXTRA_SHIPPING_ALT_PHONE,shippingDetails.getString("billing_alt_contact"));
+                        bundle.putString(EXTRA_SHIPPING_PHONE,shippingDetails.getString("billing_contact"));
+
+
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                }
+
+                else {
+
+                    bundle.putString(EXTRA_SHIPPING_ADDR1, "");
+                    bundle.putString(EXTRA_SHIPPING_ADDR2,"");
+                    bundle.putString(EXTRA_SHIPPING_CITY,"");
+                    bundle.putString(EXTRA_SHIPPING_STATE,"");
+                    bundle.putString(EXTRA_SHIPPING_PINCODE,"");
+                    bundle.putString(EXTRA_SHIPPING_NAME,"");
+                    bundle.putString(EXTRA_SHIPPING_ALT_PHONE,"");
+                    bundle.putString(EXTRA_SHIPPING_PHONE,"");
+
+                }
+
+                Intent intent = new Intent(MerchandizingProductsActivity.this, AddressAcitvity.class);
                 intent.putExtras(bundle);
-                startActivity(intent);*/
+
+                startActivity(intent);
             }
         });
 

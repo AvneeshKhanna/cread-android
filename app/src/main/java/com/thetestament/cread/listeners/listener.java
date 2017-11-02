@@ -103,7 +103,7 @@ public class listener {
 
     public interface OnBuyButtonClickedListener{
 
-        void onBuyButtonClicked(String type, String size, String color, String quantity, String price, String productID);
+        void onBuyButtonClicked(String type, String size, String color, String quantity, String price, String productID, String deliveryCharge);
     }
 
 
