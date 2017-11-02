@@ -3,7 +3,6 @@ package com.thetestament.cread.helpers;
 import android.content.Context;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
-import android.support.v4.app.FragmentActivity;
 
 import com.google.firebase.crash.FirebaseCrash;
 import com.rx2androidnetworking.Rx2AndroidNetworking;
@@ -64,30 +63,6 @@ public class NetworkHelper {
 
 
     /**
-     * Reactive approach to retrieve user profile data from server.
-     *
-     * @param serverURL     URL of the server.
-     * @param uuid          UUID of the user.
-     * @param authKey       AuthKey of user i.e String
-     * @param requestedUUID UUID of user whose profile data to be loaded.
-     */
-    public static Observable<JSONObject> getObservableFromServer(String serverURL, String uuid, String authKey, String requestedUUID) {
-        JSONObject jsonObject = new JSONObject();
-        try {
-            jsonObject.put("uuid", uuid);
-            jsonObject.put("authkey", authKey);
-            jsonObject.put("requesteduuid", requestedUUID);
-        } catch (JSONException e) {
-            e.printStackTrace();
-            FirebaseCrash.report(e);
-        }
-        return Rx2AndroidNetworking.post(serverURL)
-                .addJSONObjectBody(jsonObject)
-                .build()
-                .getJSONObjectObservable();
-    }
-
-    /**
      * Method to return user timeLine data from the server.
      *
      * @param serverURL  URL of the server.
@@ -112,20 +87,21 @@ public class NetworkHelper {
     }
 
 
+
     /**
-     * Method to return data from the server.
+     * Reactive approach to retrieve user profile data from server.
      *
-     * @param context    Context where this method will be called.
-     * @param serverURL  URL of the server.
-     * @param pageNumber Page no to be loaded i.e int
+     * @param serverURL     URL of the server.
+     * @param uuid          UUID of the user.
+     * @param authKey       AuthKey of user.
+     * @param requestedUUID UUID of user whose profile data to be loaded.
      */
-    public static Observable<JSONObject> getObservableFromServer(FragmentActivity context, String serverURL, int pageNumber) {
+    public static Observable<JSONObject> getUserDataObservableFromServer(String serverURL, String uuid, String authKey, String requestedUUID) {
         JSONObject jsonObject = new JSONObject();
         try {
-            //// TODO:  retrieve data
-            jsonObject.put("uuid", "");
-            jsonObject.put("authkey", "");
-            jsonObject.put("page", pageNumber);
+            jsonObject.put("uuid", uuid);
+            jsonObject.put("authkey", authKey);
+            jsonObject.put("requesteduuid", requestedUUID);
         } catch (JSONException e) {
             e.printStackTrace();
             FirebaseCrash.report(e);
@@ -136,14 +112,15 @@ public class NetworkHelper {
                 .getJSONObjectObservable();
     }
 
+
     /**
-     * Method to return data from the server
+     * Method to return data from the server.
      *
-     * @param serverURL  URL of the server
-     * @param entityID   entity id
+     * @param serverURL  URL of the server.
+     * @param entityID   Entity id of post.
      * @param uuid       UUID of the user.
-     * @param authKey    AuthKey of user i.e String.
-     * @param pageNumber Page no to be loaded i.e int
+     * @param authKey    AuthKey of user.
+     * @param pageNumber Page no to be loaded.
      */
     public static Observable<JSONObject> getHatsOffObservableFromServer(String serverURL, String entityID, String uuid, String authKey, int pageNumber) {
 
@@ -151,7 +128,7 @@ public class NetworkHelper {
         try {
             jsonObject.put("uuid", uuid);
             jsonObject.put("authkey", authKey);
-            jsonObject.put("entity", entityID);
+            jsonObject.put("entityid", entityID);
             jsonObject.put("page", pageNumber);
         } catch (JSONException e) {
             e.printStackTrace();
@@ -164,6 +141,33 @@ public class NetworkHelper {
     }
 
 
+    /**
+     * Method to return requested data from the server.
+     *
+     * @param serverURL  URL of the server.
+     * @param uuid       UUID of the user.
+     * @param authKey    Authentication key of the user.
+     * @param entityID   Entity ID of the post.
+     * @param pageNumber Page no to be loaded.
+     * @param loadAll    True for all comments false otherwise.
+     */
+    public static Observable<JSONObject> getCommentObservableFromServer(String serverURL, String uuid, String authKey, String entityID, int pageNumber, boolean loadAll) {
 
+        JSONObject jsonObject = new JSONObject();
+        try {
+            jsonObject.put("uuid", uuid);
+            jsonObject.put("authkey", authKey);
+            jsonObject.put("entityid", entityID);
+            jsonObject.put("page", pageNumber);
+            jsonObject.put("loadall", loadAll);
+        } catch (JSONException e) {
+            e.printStackTrace();
+            FirebaseCrash.report(e);
+        }
+        return Rx2AndroidNetworking.post(serverURL)
+                .addJSONObjectBody(jsonObject)
+                .build()
+                .getJSONObjectObservable();
+    }
 
 }

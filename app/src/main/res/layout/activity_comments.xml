@@ -24,7 +24,6 @@
                 android:layoutAnimation="@anim/layout_animation_from_bottom" />
         </android.support.v4.widget.SwipeRefreshLayout>
 
-        <!--Progress View-->
         <include
             android:id="@+id/viewProgress"
             layout="@layout/layout_progress_bar"
@@ -83,7 +82,7 @@
         android:layout_height="wrap_content"
         android:layout_gravity="center_vertical"
         android:orientation="vertical"
-        android:visibility="invisible">
+        android:visibility="gone">
 
         <ImageView
             android:layout_width="100dp"

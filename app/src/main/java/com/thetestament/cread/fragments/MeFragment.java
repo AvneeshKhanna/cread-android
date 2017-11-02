@@ -22,12 +22,15 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.AnimationUtils;
+import android.view.animation.LayoutAnimationController;
 import android.widget.TextView;
 
 import com.androidnetworking.AndroidNetworking;
 import com.androidnetworking.error.ANError;
 import com.androidnetworking.interfaces.JSONObjectRequestListener;
 import com.google.firebase.crash.FirebaseCrash;
+import com.rx2androidnetworking.Rx2AndroidNetworking;
 import com.squareup.picasso.MemoryPolicy;
 import com.squareup.picasso.NetworkPolicy;
 import com.squareup.picasso.Picasso;
@@ -37,7 +40,7 @@ import com.thetestament.cread.R;
 import com.thetestament.cread.activities.FollowActivity;
 import com.thetestament.cread.activities.UpdateProfileDetailsActivity;
 import com.thetestament.cread.activities.UpdateProfileImageActivity;
-import com.thetestament.cread.adapters.FeedAdapter;
+import com.thetestament.cread.adapters.MeAdapter;
 import com.thetestament.cread.helpers.SharedPreferenceHelper;
 import com.thetestament.cread.helpers.ViewHelper;
 import com.thetestament.cread.listeners.listener;
@@ -57,14 +60,17 @@ import butterknife.Unbinder;
 import de.hdodenhof.circleimageview.CircleImageView;
 import icepick.Icepick;
 import icepick.State;
+import io.reactivex.Observer;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.CompositeDisposable;
+import io.reactivex.disposables.Disposable;
 import io.reactivex.observers.DisposableObserver;
 import io.reactivex.schedulers.Schedulers;
 
 import static android.app.Activity.RESULT_OK;
 import static com.thetestament.cread.helpers.NetworkHelper.getNetConnectionStatus;
 import static com.thetestament.cread.helpers.NetworkHelper.getObservableFromServer;
+import static com.thetestament.cread.helpers.NetworkHelper.getUserDataObservableFromServer;
 import static com.thetestament.cread.utils.Constant.EXTRA_FOLLOW_REQUESTED_UUID;
 import static com.thetestament.cread.utils.Constant.EXTRA_FOLLOW_TYPE;
 import static com.thetestament.cread.utils.Constant.EXTRA_USER_BIO;
@@ -77,13 +83,14 @@ import static com.thetestament.cread.utils.Constant.EXTRA_USER_WATER_MARK_STATUS
 import static com.thetestament.cread.utils.Constant.REQUEST_CODE_UPDATE_PROFILE_DETAILS;
 import static com.thetestament.cread.utils.Constant.REQUEST_CODE_UPDATE_PROFILE_PIC;
 import static com.thetestament.cread.utils.Constant.REQUEST_CODE_WRITE_EXTERNAL_STORAGE;
+import static com.thetestament.cread.utils.Constant.USER_ACTIVITY_TYPE_ALL;
+import static com.thetestament.cread.utils.Constant.USER_ACTIVITY_TYPE_CAPTURE;
+import static com.thetestament.cread.utils.Constant.USER_ACTIVITY_TYPE_SHORT;
 
 /**
  * Fragment class to load user profile details and his/her recent activity.
  */
-
 public class MeFragment extends Fragment {
-
 
     @BindView(R.id.rootView)
     CoordinatorLayout rootView;
@@ -111,6 +118,7 @@ public class MeFragment extends Fragment {
     TextView textFollowersCount;
     @BindView(R.id.textFollowingCount)
     TextView textFollowingCount;
+
     @State
     String mFirstName, mLastName, mProfilePicURL, mUserBio;
     @State
@@ -122,8 +130,8 @@ public class MeFragment extends Fragment {
     @State
     String mRequestedUUID;
 
-    List<FeedModel> mFeedDataList = new ArrayList<>();
-    FeedAdapter mAdapter;
+    List<FeedModel> mUserActivityDataList = new ArrayList<>();
+    MeAdapter mAdapter;
     private Unbinder mUnbinder;
     private CompositeDisposable mCompositeDisposable = new CompositeDisposable();
     private SharedPreferenceHelper mHelper;
@@ -133,47 +141,24 @@ public class MeFragment extends Fragment {
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        //Initialize preference helper
+        mHelper = new SharedPreferenceHelper(getActivity());
         //Inflate this view
-        View view = inflater
+        return inflater
                 .inflate(R.layout.fragment_me
                         , container
                         , false);
-        mUnbinder = ButterKnife.bind(this, view);
-        //initialize preference helper
-        mHelper = new SharedPreferenceHelper(getActivity());
-        //Return this view
-        return view;
     }
 
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+        //For view binding
+        mUnbinder = ButterKnife.bind(this, view);
         //For smooth scrolling
         ViewCompat.setNestedScrollingEnabled(recyclerView, false);
-
-        //Retrieve data from bundle
-        String calledFrom = getArguments().getString("calledFrom");
-        //if this screen is opened from BottomNavigationActivity
-        if (calledFrom.equals("BottomNavigationActivity")) {
-            mRequestedUUID = mHelper.getUUID();
-            isProfileEditable = true;
-        } else {
-            mRequestedUUID = getArguments().getString("requesteduuid");
-            isProfileEditable = false;
-
-        }
-
-        //Condition to  toggle visibility of follow button
-        if (mHelper.getUUID().equals(mRequestedUUID)) {
-            //Hide follow button
-            buttonFollow.setVisibility(View.GONE);
-        } else {
-            //Show follow button
-            buttonFollow.setVisibility(View.VISIBLE);
-        }
-
-        //initialize tab layout
-        initTabLayout(tabLayout);
+        //initialize this screen
+        initScreen();
     }
 
     @Override
@@ -252,14 +237,13 @@ public class MeFragment extends Fragment {
     }
 
     /**
-     * User image click functionality to launch screen where user can edit his/her profile picture i.e DP .
+     * User image click functionality to launch screen where user can edit his/her profile picture.
      */
     @OnClick(R.id.imageUser)
     public void onUserImageClicked() {
+        //If profile is editable
         if (isProfileEditable) {
             getRuntimePermission();
-        } else {
-            //do nothing
         }
     }
 
@@ -277,10 +261,7 @@ public class MeFragment extends Fragment {
             intent.putExtra(EXTRA_USER_CONTACT, mContactNumber);
             intent.putExtra(EXTRA_USER_WATER_MARK_STATUS, mWaterMarkStatus);
             startActivityForResult(intent, REQUEST_CODE_UPDATE_PROFILE_DETAILS);
-        } else {
-            //do nothing
         }
-
     }
 
     /**
@@ -336,27 +317,84 @@ public class MeFragment extends Fragment {
     }
 
     /**
+     * Method to initialize views for this screen.
+     */
+    private void initScreen() {
+        //Retrieve data from bundle
+        String calledFrom = getArguments().getString("calledFrom");
+        //Ff this screen is opened from BottomNavigationActivity
+        if (calledFrom.equals("BottomNavigationActivity")) {
+            mRequestedUUID = mHelper.getUUID();
+            //Enable profile editing
+            isProfileEditable = true;
+        } else {
+            mRequestedUUID = getArguments().getString("requesteduuid");
+            //Disable profile editing
+            isProfileEditable = false;
+        }
+
+        //Condition to  toggle visibility of follow button
+        if (mHelper.getUUID().equals(mRequestedUUID)) {
+            //Hide follow button
+            buttonFollow.setVisibility(View.GONE);
+        } else {
+            //Show follow button
+            buttonFollow.setVisibility(View.VISIBLE);
+        }
+        //initialize tab layout
+        initTabLayout(tabLayout);
+        initSwipeRefreshLayout();
+    }
+
+    /**
      * Method to initialize tab layout.
      *
-     * @param tabLayout TabLayout
+     * @param tabLayout TabLayout.
      */
     private void initTabLayout(TabLayout tabLayout) {
-        loadProfileData();
-        //setUp tabs here
+        //SetUp tabs
         setUpTabs(tabLayout);
-        //Listener
+        //Listener for tab selection
         tabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
             @Override
             public void onTabSelected(TabLayout.Tab tab) {
-
-                //To change the icon color from grey to primary color
+                //To change tab icon color from grey to primary color
                 tab.getIcon().setColorFilter(ContextCompat.getColor(getActivity(), R.color.colorPrimary), PorterDuff.Mode.SRC_IN);
+                switch (tab.getPosition()) {
+                    case 0:
+
+                        //mAdapter.setmUserActivityType(USER_ACTIVITY_TYPE_ALL);
+                        //mAdapter.notifyDataSetChanged();
+                        //Set layout manger for recyclerView
+                        recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
+                        //Set adapter
+                        mAdapter = new MeAdapter(mUserActivityDataList, getActivity(), mHelper.getUUID(), USER_ACTIVITY_TYPE_ALL);
+                        recyclerView.setAdapter(mAdapter);
+                        break;
+                    case 1:
+                        //Set layout manger for recyclerView
+                        recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
+                        //Set adapter
+                        mAdapter = new MeAdapter(mUserActivityDataList, getActivity(), mHelper.getUUID(), USER_ACTIVITY_TYPE_SHORT);
+                        recyclerView.setAdapter(mAdapter);
+                        //mAdapter.setmUserActivityType(USER_ACTIVITY_TYPE_SHORT);
+                        //mAdapter.notifyDataSetChanged();
+                        break;
+                    case 2:
+                        //Set layout manger for recyclerView
+                        recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
+                        //Set adapter
+                        mAdapter = new MeAdapter(mUserActivityDataList, getActivity(), mHelper.getUUID(), USER_ACTIVITY_TYPE_CAPTURE);
+                        recyclerView.setAdapter(mAdapter);
+                        // mAdapter.setmUserActivityType(USER_ACTIVITY_TYPE_CAPTURE);
+                        //mAdapter.notifyDataSetChanged();
+                        break;
+                }
             }
 
             @Override
             public void onTabUnselected(TabLayout.Tab tab) {
-
-                //To change the icon color from primary color to grey
+                //To change tab icon color from primary color to grey
                 tab.getIcon().setColorFilter(ContextCompat.getColor(getActivity(), R.color.grey_custom), PorterDuff.Mode.SRC_IN);
             }
 
@@ -376,7 +414,7 @@ public class MeFragment extends Fragment {
         //Add tab items
         tabLayout.addTab(tabLayout.newTab().setIcon(R.drawable.ic_apps_24));
         tabLayout.addTab(tabLayout.newTab().setIcon(R.drawable.ic_create_24));
-        tabLayout.addTab(tabLayout.newTab().setIcon(R.drawable.ic_camera_alt_24));
+        tabLayout.addTab(tabLayout.newTab().setIcon(R.drawable.ic_camera_tab_24));
         //initialize tabs icon tint
         tabLayout.getTabAt(0).getIcon().setColorFilter(ContextCompat.getColor(getActivity(), R.color.colorPrimary), PorterDuff.Mode.SRC_IN);
         tabLayout.getTabAt(1).getIcon().setColorFilter(ContextCompat.getColor(getActivity(), R.color.grey_custom), PorterDuff.Mode.SRC_IN);
@@ -394,12 +432,11 @@ public class MeFragment extends Fragment {
             //Get user profile data from server
             getUserProfileData();
             //Get user timeline data from server
-            //getUserTimeLineData();
+            getUserTimeLineData();
         } else {
             swipeToRefreshLayout.setRefreshing(false);
             //No connection Snack bar
-            ViewHelper.getSnackBar(rootView
-                    , getString(R.string.error_msg_no_connection));
+            ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_no_connection));
         }
     }
 
@@ -411,11 +448,10 @@ public class MeFragment extends Fragment {
         final boolean[] tokenError = {false};
         final boolean[] connectionError = {false};
 
-        mCompositeDisposable.add(getObservableFromServer(BuildConfig.URL + "/user-profile/load-profile"
+        mCompositeDisposable.add(getUserDataObservableFromServer(BuildConfig.URL + "/user-profile/load-profile"
                 , mHelper.getUUID()
                 , mHelper.getAuthToken()
                 , mRequestedUUID)
-
                 //Run on a background thread
                 .subscribeOn(Schedulers.io())
                 //Be notified on the main thread
@@ -458,23 +494,19 @@ public class MeFragment extends Fragment {
 
                     @Override
                     public void onComplete() {
+                        //Dismiss progress indicator
+                        swipeToRefreshLayout.setRefreshing(false);
                         // Token status invalid
                         if (tokenError[0]) {
-                            ViewHelper.getSnackBar(rootView
-                                    , getString(R.string.error_msg_invalid_token));
-                            //Dismiss progress indicator
-                            swipeToRefreshLayout.setRefreshing(false);
+                            ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_invalid_token));
                         }
                         //Error occurred
                         else if (connectionError[0]) {
                             ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_internal));
-                            //Dismiss progress indicator
-                            swipeToRefreshLayout.setRefreshing(false);
                         } else {
-                            //Dismiss progress indicator
-                            swipeToRefreshLayout.setRefreshing(false);
                             //Load user profile picture
                             loadUserPicture(mProfilePicURL, imageUser, getActivity());
+
                             //if last name is present
                             if (mLastName != null) {
                                 //Set user name
@@ -484,7 +516,7 @@ public class MeFragment extends Fragment {
                                 textUserName.setText(mFirstName);
                             }
 
-                            //Set user stats
+                            //Set user activity stats
                             textPostsCount.setText(String.valueOf(mPostCount));
                             textFollowersCount.setText(String.valueOf(mFollowerCount));
                             textFollowingCount.setText(String.valueOf(mFollowingCount));
@@ -499,6 +531,10 @@ public class MeFragment extends Fragment {
                             else {
                                 textBio.setVisibility(View.GONE);
                             }
+                            //Convert watermark status
+                            mapWaterMarkStatus(mWaterMarkStatus);
+
+                            //Toggle follow button
                             toggleFollowButton(mFollowStatus, getActivity());
                             appBarLayout.setVisibility(View.VISIBLE);
                         }
@@ -524,9 +560,10 @@ public class MeFragment extends Fragment {
     }
 
     /**
-     * Method to toggle follow.
+     * Method to toggle follow button text color , text and background.
      *
      * @param followStatus true if following false otherwise.
+     * @param context      Context to use
      */
     private void toggleFollowButton(boolean followStatus, Context context) {
         if (followStatus) {
@@ -550,173 +587,27 @@ public class MeFragment extends Fragment {
         }
     }
 
-
     /**
-     * Method to initialize swipe to refresh view and user timeline view .
-     */
-    private void initUserTimeline() {
-        //Set layout manger for recyclerView
-        recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
-        //Set adapter
-        mAdapter = new FeedAdapter(mFeedDataList, getActivity());
-        recyclerView.setAdapter(mAdapter);
-
-        swipeToRefreshLayout.setRefreshing(true);
-        swipeToRefreshLayout.setColorSchemeColors(ContextCompat.getColor(getActivity()
-                , R.color.colorPrimary));
-        swipeToRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
-            @Override
-            public void onRefresh() {
-                //Clear data
-                mFeedDataList.clear();
-                //Notify for changes
-                mAdapter.notifyDataSetChanged();
-                mAdapter.setLoaded();
-                //set page count to zero
-                mPageNumber = 0;
-                //Load data here
-                getUserTimeLineData();
-            }
-        });
-        //Load profile data
-        loadProfileData();
-
-        //Initialize listener
-        initLoadMoreListener(mAdapter);
-    }
-
-    /**
-     * RxJava2 implementation for retrieving user timeline data from server.
-     */
-    private void getUserTimeLineData() {
-        final boolean[] tokenError = {false};
-        final boolean[] connectionError = {false};
-
-        mCompositeDisposable.add(getObservableFromServer(BuildConfig.URL + "/user-profile/load-timeline"
-                , mHelper.getUUID()
-                , mHelper.getAuthToken()
-                , mRequestedUUID
-                , 0)
-
-                //Run on a background thread
-                .subscribeOn(Schedulers.io())
-                //Be notified on the main thread
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribeWith(new DisposableObserver<JSONObject>() {
-                    @Override
-                    public void onNext(JSONObject jsonObject) {
-                        try {
-                            //Token status is invalid
-                            if (jsonObject.getString("tokenstatus").equals("invalid")) {
-                                tokenError[0] = true;
-                            } else {
-                                JSONObject mainData = jsonObject.getJSONObject("data");
-                                mFirstName = mainData.getString("firstname");
-                                mLastName = mainData.getString("lastname");
-                                mProfilePicURL = mainData.getString("profilepicurl");
-                                mUserBio = mainData.getString("bio");
-                                mEmail = mainData.getString("email");
-                                mContactNumber = mainData.getString("phone");
-                                mFollowStatus = mainData.getBoolean("followstatus");
-                                // mPostCount = mainData.getString("postcount");
-                                //mFollowerCount = mainData.getString("followercount");
-                                //mFollowingCount = mainData.getString("followingcount");
-                            }
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                            FirebaseCrash.report(e);
-                            connectionError[0] = true;
-                        }
-                    }
-
-                    @Override
-                    public void onError(Throwable e) {
-                        swipeToRefreshLayout.setRefreshing(false);
-                        FirebaseCrash.report(e);
-                        //Server error Snack bar
-                        ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_server));
-                    }
-
-                    @Override
-                    public void onComplete() {
-                        // Token status invalid
-                        if (tokenError[0]) {
-                            ViewHelper.getSnackBar(rootView
-                                    , getString(R.string.error_msg_invalid_token));
-                            //Dismiss progress indicator
-                            swipeToRefreshLayout.setRefreshing(false);
-                        }
-                        //Error occurred
-                        else if (connectionError[0]) {
-                            ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_internal));
-                            //Dismiss progress indicator
-                            swipeToRefreshLayout.setRefreshing(false);
-                        } else {
-                            //Dismiss progress indicator
-                            swipeToRefreshLayout.setRefreshing(false);
-                            //Load user profile picture
-                            loadUserPicture(mProfilePicURL, imageUser, getActivity());
-
-                            //if last name is present
-                            if (mLastName != null) {
-                                //Set user name
-                                textUserName.setText(mFirstName + " " + mLastName);
-                            } else {
-                                //set user name
-                                textUserName.setText(mFirstName);
-                            }
-
-                            //Set user stats
-                            //textPostsCount.setText(mPostCount);
-                            //textFollowersCount.setText(mFollowerCount);
-                            //rtextFollowingCount.setText(mFollowerCount);
-
-                            //If user bio present
-                            if (mUserBio != null) {
-                                //Set user bio
-                                textBio.setText(mUserBio);
-                            }
-                            //Hide bio view
-                            else {
-                                textBio.setVisibility(View.GONE);
-                            }
-                            toggleFollowButton(mFollowStatus, getActivity());
-                            appBarLayout.setVisibility(View.VISIBLE);
-                        }
-                    }
-                })
-        );
-    }
-
-    /**
-     * Initialize load more listener.
+     * Method to convert watermark status.
      *
-     * @param adapter FeedAdapter reference.
+     * @param waterMarkStatus Watermark status value to be converted.
      */
-    private void initLoadMoreListener(FeedAdapter adapter) {
-
-        adapter.setOnFeedLoadMoreListener(new listener.OnFeedLoadMoreListener() {
-            @Override
-            public void onLoadMore() {
-                if (mRequestMoreData) {
-
-                    new Handler().post(new Runnable() {
-                                           @Override
-                                           public void run() {
-                                               mFeedDataList.add(null);
-                                               mAdapter.notifyItemInserted(mFeedDataList.size() - 1);
-                                           }
-                                       }
-                    );
-                    //Increment page counter
-                    mPageNumber += 1;
-                    //Load new set of data
-                    //loadMoreData();
-                }
-            }
-        });
+    private void mapWaterMarkStatus(String waterMarkStatus) {
+        switch (waterMarkStatus) {
+            case "YES":
+                mWaterMarkStatus = "Yes";
+                break;
+            case "NO":
+                mWaterMarkStatus = "No";
+                break;
+            case "ASK_ALWAYS":
+                mWaterMarkStatus = "Ask always";
+                break;
+            default:
+                mWaterMarkStatus = "Yes";
+                break;
+        }
     }
-
 
     /**
      * Method to get WRITE_EXTERNAL_STORAGE permission and perform specified operation.
@@ -743,7 +634,7 @@ public class MeFragment extends Fragment {
     }
 
     /**
-     * Open UpdateProfileImageActivity screen
+     * Open UpdateProfileImageActivity screen.
      */
     private void openUpdateImageScreen() {
         Intent intent = new Intent(getActivity(), UpdateProfileImageActivity.class);
@@ -769,34 +660,34 @@ public class MeFragment extends Fragment {
             e.printStackTrace();
             FirebaseCrash.report(e);
         }
-        AndroidNetworking.post(BuildConfig.URL + "/follow/on-click")
+        Rx2AndroidNetworking.post(BuildConfig.URL + "/follow/on-click")
                 .addJSONObjectBody(jsonObject)
                 .build()
-                .getAsJSONObject(new JSONObjectRequestListener() {
+                .getJSONObjectObservable()
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribeWith(new Observer<JSONObject>() {
                     @Override
-                    public void onResponse(JSONObject response) {
+                    public void onSubscribe(@io.reactivex.annotations.NonNull Disposable d) {
+                        mCompositeDisposable.add(d);
+                    }
+
+                    @Override
+                    public void onNext(@io.reactivex.annotations.NonNull JSONObject jsonObject) {
                         try {
                             //Token status is not valid
-                            if (response.getString("tokenstatus").equals("invalid")) {
+                            if (jsonObject.getString("tokenstatus").equals("invalid")) {
                                 //set status to true if its false and vice versa
                                 mFollowStatus = !mFollowStatus;
                                 //toggle follow button
                                 toggleFollowButton(mFollowStatus, getActivity());
-                                ViewHelper.getSnackBar(rootView
-                                        , getString(R.string.error_msg_invalid_token));
+                                ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_invalid_token));
                             }
                             //Token is valid
                             else {
-                                JSONObject mainData = response.getJSONObject("data");
+                                JSONObject mainData = jsonObject.getJSONObject("data");
                                 if (mainData.getString("status").equals("done")) {
                                     //Do nothing
-                                } else {
-                                    //set status to true if its false and vice versa
-                                    mFollowStatus = !mFollowStatus;
-                                    //toggle follow button
-                                    toggleFollowButton(mFollowStatus, getActivity());
-                                    ViewHelper.getSnackBar(rootView
-                                            , getString(R.string.error_msg_internal));
                                 }
                             }
                         } catch (JSONException e) {
@@ -806,22 +697,341 @@ public class MeFragment extends Fragment {
                             toggleFollowButton(mFollowStatus, getActivity());
                             e.printStackTrace();
                             FirebaseCrash.report(e);
-                            ViewHelper.getSnackBar(rootView
-                                    , getString(R.string.error_msg_internal));
+                            ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_internal));
+                        }
+                    }
+
+                    @Override
+                    public void onError(@io.reactivex.annotations.NonNull Throwable e) {
+                        //set status to true if its false and vice versa
+                        mFollowStatus = !mFollowStatus;
+                        //toggle follow button
+                        toggleFollowButton(mFollowStatus, getActivity());
+                        e.printStackTrace();
+                        FirebaseCrash.report(e);
+                        ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_server));
+                    }
+
+                    @Override
+                    public void onComplete() {
+                        //Do nothing
+                    }
+                });
+
+    }
+
+    /**
+     * Method to initialize swipe to refresh view and user timeline view .
+     */
+    private void initSwipeRefreshLayout() {
+        //Set layout manger for recyclerView
+        recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
+        //Set adapter
+        mAdapter = new MeAdapter(mUserActivityDataList, getActivity(), mHelper.getUUID(), USER_ACTIVITY_TYPE_ALL);
+        //  mAdapter.setmUserActivityType(USER_ACTIVITY_TYPE_ALL);
+        recyclerView.setAdapter(mAdapter);
+
+        swipeToRefreshLayout.setRefreshing(true);
+        swipeToRefreshLayout.setColorSchemeColors(ContextCompat.getColor(getActivity()
+                , R.color.colorPrimary));
+        swipeToRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                //Clear data
+                mUserActivityDataList.clear();
+                //Notify for changes
+                mAdapter.notifyDataSetChanged();
+                mAdapter.setLoaded();
+                //set page count to zero
+                mPageNumber = 0;
+                //Load data here
+                getUserTimeLineData();
+            }
+        });
+        //Load profile data
+        loadProfileData();
+        //Initialize listeners
+        initLoadMoreListener(mAdapter);
+        initHatsOffListener(mAdapter);
+    }
+
+    /**
+     * RxJava2 implementation for retrieving user timeline data from server.
+     */
+    private void getUserTimeLineData() {
+        final boolean[] tokenError = {false};
+        final boolean[] connectionError = {false};
+
+        mCompositeDisposable.add(getObservableFromServer(BuildConfig.URL + "/user-profile/load-timeline"
+                , mHelper.getUUID()
+                , mHelper.getAuthToken()
+                , mRequestedUUID
+                , mPageNumber)
+                //Run on a background thread
+                .subscribeOn(Schedulers.io())
+                //Be notified on the main thread
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribeWith(new DisposableObserver<JSONObject>() {
+                    @Override
+                    public void onNext(JSONObject jsonObject) {
+                        try {
+                            //Token status is invalid
+                            if (jsonObject.getString("tokenstatus").equals("invalid")) {
+                                tokenError[0] = true;
+                            } else {
+                                JSONObject mainData = jsonObject.getJSONObject("data");
+                                mRequestMoreData = mainData.getBoolean("requestmore");
+                                //UserActivity array list
+                                JSONArray UserActivityArray = mainData.getJSONArray("items");
+                                for (int i = 0; i < UserActivityArray.length(); i++) {
+                                    JSONObject dataObj = UserActivityArray.getJSONObject(i);
+                                    FeedModel data = new FeedModel();
+                                    data.setEntityID(dataObj.getString("entityid"));
+                                    data.setContentType(dataObj.getString("type"));
+                                    data.setUuID(dataObj.getString("uuid"));
+                                    data.setCreatorImage(dataObj.getString("profilepicurl"));
+                                    data.setCreatorName(dataObj.getString("creatorname"));
+                                    data.setHatsOffStatus(dataObj.getBoolean("hatsoffstatus"));
+                                    data.setHatsOffCount(dataObj.getLong("hatsoffcount"));
+                                    data.setCommentCount(dataObj.getLong("commentcount"));
+                                    data.setImage(dataObj.getString("captureurl"));
+                                    mUserActivityDataList.add(data);
+                                }
+                            }
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                            FirebaseCrash.report(e);
+                            connectionError[0] = true;
+                        }
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        swipeToRefreshLayout.setRefreshing(false);
+                        e.printStackTrace();
+                        FirebaseCrash.report(e);
+                        //Server error Snack bar
+                        ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_server));
+                    }
+
+                    @Override
+                    public void onComplete() {
+                        swipeToRefreshLayout.setRefreshing(false);
+                        // Token status invalid
+                        if (tokenError[0]) {
+                            ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_invalid_token));
+                        }
+                        //Error occurred
+                        else if (connectionError[0]) {
+                            ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_internal));
+                        } else if (mUserActivityDataList.size() == 0) {
+                            ViewHelper.getSnackBar(rootView, "Nothing to show");
+                        } else {
+                            //Apply 'Slide Up' animation
+                            int resId = R.anim.layout_animation_from_bottom;
+                            LayoutAnimationController animation = AnimationUtils.loadLayoutAnimation(getActivity(), resId);
+                            recyclerView.setLayoutAnimation(animation);
+                            mAdapter.notifyDataSetChanged();
+                        }
+                    }
+                })
+        );
+    }
+
+    /**
+     * Initialize load more listener.
+     *
+     * @param adapter FeedAdapter reference.
+     */
+    private void initLoadMoreListener(MeAdapter adapter) {
+
+        adapter.setUserActivityLoadMoreListener(new listener.OnUserActivityLoadMoreListener() {
+            @Override
+            public void onLoadMore() {
+                if (mRequestMoreData) {
+
+                    new Handler().post(new Runnable() {
+                                           @Override
+                                           public void run() {
+                                               mUserActivityDataList.add(null);
+                                               mAdapter.notifyItemInserted(mUserActivityDataList.size() - 1);
+                                           }
+                                       }
+                    );
+                    //Increment page counter
+                    mPageNumber += 1;
+                    //Load new set of data
+                    getUserTimeLineNextData();
+                }
+            }
+        });
+    }
+
+    /**
+     * RxJava2 implementation for retrieving next set of user timeline data from server.
+     */
+    private void getUserTimeLineNextData() {
+        final boolean[] tokenError = {false};
+        final boolean[] connectionError = {false};
+
+        mCompositeDisposable.add(getObservableFromServer(BuildConfig.URL + "/user-profile/load-timeline"
+                , mHelper.getUUID()
+                , mHelper.getAuthToken()
+                , mRequestedUUID
+                , mPageNumber)
+                //Run on a background thread
+                .subscribeOn(Schedulers.io())
+                //Be notified on the main thread
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribeWith(new DisposableObserver<JSONObject>() {
+                    @Override
+                    public void onNext(JSONObject jsonObject) {
+                        //Remove loading item
+                        mUserActivityDataList.remove(mUserActivityDataList.size() - 1);
+                        //Notify changes
+                        mAdapter.notifyItemRemoved(mUserActivityDataList.size());
+                        try {
+                            //Token status is invalid
+                            if (jsonObject.getString("tokenstatus").equals("invalid")) {
+                                tokenError[0] = true;
+                            } else {
+                                JSONObject mainData = jsonObject.getJSONObject("data");
+                                mRequestMoreData = mainData.getBoolean("requestmore");
+                                //UserActivity array list
+                                JSONArray UserActivityArray = mainData.getJSONArray("items");
+                                for (int i = 0; i < UserActivityArray.length(); i++) {
+                                    JSONObject dataObj = UserActivityArray.getJSONObject(i);
+                                    FeedModel data = new FeedModel();
+                                    data.setEntityID(dataObj.getString("entityid"));
+                                    data.setContentType(dataObj.getString("type"));
+                                    data.setUuID(dataObj.getString("uuid"));
+                                    data.setCreatorImage(dataObj.getString("profilepicurl"));
+                                    data.setCreatorName(dataObj.getString("creatorname"));
+                                    data.setHatsOffStatus(dataObj.getBoolean("hatsoffstatus"));
+                                    data.setHatsOffCount(dataObj.getLong("hatsoffcount"));
+                                    data.setCommentCount(dataObj.getLong("commentcount"));
+                                    data.setImage(dataObj.getString("captureurl"));
+
+                                    mUserActivityDataList.add(data);
+                                    //Notify item insertion
+                                    mAdapter.notifyItemInserted(mUserActivityDataList.size() - 1);
+
+                                }
+                            }
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                            FirebaseCrash.report(e);
+                            connectionError[0] = true;
+                        }
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        //Remove loading item
+                        mUserActivityDataList.remove(mUserActivityDataList.size() - 1);
+                        //Notify changes
+                        mAdapter.notifyItemRemoved(mUserActivityDataList.size());
+                        e.printStackTrace();
+                        FirebaseCrash.report(e);
+                        //Server error Snack bar
+                        ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_server));
+                    }
+
+                    @Override
+                    public void onComplete() {
+                        // Token status invalid
+                        if (tokenError[0]) {
+                            ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_invalid_token));
+                        }
+                        //Error occurred
+                        else if (connectionError[0]) {
+                            ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_internal));
+                        }
+                        //No data
+                        else if (mUserActivityDataList.size() == 0) {
+                            ViewHelper.getSnackBar(rootView, "Nothing to show");
+                        } else {
+                            //Notify changes
+                            mAdapter.setLoaded();
+                        }
+                    }
+                })
+        );
+    }
+
+    /**
+     * Initialize hats off listener.
+     *
+     * @param adapter FeedAdapter reference.
+     */
+    private void initHatsOffListener(MeAdapter adapter) {
+        adapter.setHatsOffListener(new listener.OnUserActivityHatsOffListener() {
+            @Override
+            public void onHatsOffClick(FeedModel data, int itemPosition) {
+                updateHatsOffStatus(data, itemPosition);
+            }
+        });
+    }
+
+    /**
+     * Method to update hats off status of campaign.
+     *
+     * @param data         Model of current item
+     * @param itemPosition Position of current item i.e integer
+     */
+    private void updateHatsOffStatus(final FeedModel data, final int itemPosition) {
+        final JSONObject jsonObject = new JSONObject();
+        try {
+            jsonObject.put("uuid", mHelper.getUUID());
+            jsonObject.put("authkey", mHelper.getAuthToken());
+            jsonObject.put("entityid", data.getEntityID());
+            jsonObject.put("register", data.getHatsOffStatus());
+        } catch (JSONException e) {
+            e.printStackTrace();
+            FirebaseCrash.report(e);
+        }
+        AndroidNetworking.post(BuildConfig.URL + "/hatsoff/on-click")
+                .addJSONObjectBody(jsonObject)
+                .build()
+                .getAsJSONObject(new JSONObjectRequestListener() {
+                    @Override
+                    public void onResponse(JSONObject response) {
+                        try {
+                            //Token status is not valid
+                            if (response.getString("tokenstatus").equals("invalid")) {
+                                //set status to true if its false and vice versa
+                                data.setHatsOffStatus(!data.getHatsOffStatus());
+                                //notify changes
+                                mAdapter.notifyItemChanged(itemPosition);
+                                ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_invalid_token));
+                            }
+                            //Token is valid
+                            else {
+                                JSONObject mainData = response.getJSONObject("data");
+                                if (mainData.getString("status").equals("done")) {
+                                    //Do nothing
+                                }
+                            }
+                        } catch (JSONException e) {
+                            //set status to true if its false and vice versa
+                            data.setHatsOffStatus(!data.getHatsOffStatus());
+                            //notify changes
+                            mAdapter.notifyItemChanged(itemPosition);
+                            e.printStackTrace();
+                            FirebaseCrash.report(e);
+                            ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_internal));
                         }
                     }
 
                     @Override
                     public void onError(ANError anError) {
                         //set status to true if its false and vice versa
-                        mFollowStatus = !mFollowStatus;
-                        //toggle follow button
-                        toggleFollowButton(mFollowStatus, getActivity());
-                        anError.printStackTrace();
-                        FirebaseCrash.report(anError);
-                        ViewHelper.getSnackBar(rootView
-                                , getString(R.string.error_msg_server));
+                        data.setHatsOffStatus(!data.getHatsOffStatus());
+                        //notify changes
+                        mAdapter.notifyItemChanged(itemPosition);
+                        ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_server));
                     }
                 });
     }
+
 }

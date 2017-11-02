@@ -2,7 +2,6 @@ package com.thetestament.cread.activities;
 
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.support.v7.app.AppCompatActivity;
 import android.webkit.WebView;
 
 import com.thetestament.cread.R;
@@ -14,7 +13,7 @@ import butterknife.ButterKnife;
  * Activity class to show the T&c fof this app.
  */
 
-public class TermsOfServiceActivity extends AppCompatActivity {
+public class TermsOfServiceActivity extends BaseActivity {
 
     @BindView(R.id.webViewTOS)
     WebView webView;

@@ -76,11 +76,9 @@ public class listener {
      */
     public interface OnCommentEditListener {
         /**
-         * @param index     index of the comment to be edited.
-         * @param commentID Unique id for the comment.
-         * @param comment   comment text.
+         * @param index index of the comment to be edited.
          */
-        void onEdit(int index, String commentID, String comment, CommentsModel commentsModel);
+        void onEdit(int index, CommentsModel commentsModel);
     }
 
     /**
@@ -101,10 +99,27 @@ public class listener {
         void onFollowClicked(int position, FBFriendsModel fbFriendsModel);
     }
 
-    public interface OnBuyButtonClickedListener{
+    public interface OnBuyButtonClickedListener {
 
         void onBuyButtonClicked(String type, String size, String color, String quantity, String price, String productID, String deliveryCharge);
     }
 
+
+    /**
+     * Interface definition for a callback to be invoked when user scroll for more data.
+     */
+    public interface OnUserActivityLoadMoreListener {
+        void onLoadMore();
+    }
+
+    /**
+     * Interface definition for a callback to be invoked when a 'Hats off' is clicked.
+     */
+    public interface OnUserActivityHatsOffListener {
+        /**
+         * Called when hats off has been clicked.
+         */
+        void onHatsOffClick(FeedModel data, int itemPosition);
+    }
 
 }

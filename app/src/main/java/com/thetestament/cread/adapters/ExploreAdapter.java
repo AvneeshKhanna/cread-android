@@ -18,6 +18,7 @@ import com.squareup.picasso.Picasso;
 import com.thetestament.cread.R;
 import com.thetestament.cread.activities.FeedDescriptionActivity;
 import com.thetestament.cread.activities.ProfileActivity;
+import com.thetestament.cread.helpers.ViewHelper;
 import com.thetestament.cread.listeners.listener.OnExploreFollowListener;
 import com.thetestament.cread.listeners.listener.OnExploreLoadMoreListener;
 import com.thetestament.cread.models.FeedModel;
@@ -32,6 +33,10 @@ import static com.thetestament.cread.utils.Constant.CONTENT_TYPE_CAPTURE;
 import static com.thetestament.cread.utils.Constant.CONTENT_TYPE_SHORT;
 import static com.thetestament.cread.utils.Constant.EXTRA_FEED_DESCRIPTION_DATA;
 import static com.thetestament.cread.utils.Constant.EXTRA_PROFILE_UUID;
+
+/**
+ * Adapter class to provide a binding from data set to views that are displayed within a explore RecyclerView.
+ */
 
 public class ExploreAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
@@ -78,11 +83,11 @@ public class ExploreAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         if (viewType == VIEW_TYPE_ITEM) {
-            return new FeedAdapter.ItemViewHolder(LayoutInflater
+            return new ItemViewHolder(LayoutInflater
                     .from(parent.getContext())
                     .inflate(R.layout.item_explore, parent, false));
         } else if (viewType == VIEW_TYPE_LOADING) {
-            return new FeedAdapter.LoadingViewHolder(LayoutInflater
+            return new LoadingViewHolder(LayoutInflater
                     .from(parent.getContext())
                     .inflate(R.layout.item_load_more, parent, false));
         }
@@ -98,8 +103,11 @@ public class ExploreAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
             loadCreatorPic(data.getCreatorImage(), itemViewHolder.imageCreator);
             //Set creator name
             itemViewHolder.textCreatorName.setText(data.getCreatorName());
-            //Load feed image
+            //Load explore feed image
             loadFeedImage(data.getImage(), itemViewHolder.imageExplore);
+
+            //Check follow status
+            checkFollowStatus(mContext, data.getFollowStatus(), itemViewHolder.buttonFollow);
 
             //Check for content type
             switch (data.getContentType()) {
@@ -111,11 +119,10 @@ public class ExploreAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
                     break;
                 default:
             }
-
             //Click functionality to launch profile of creator
             openCreatorProfile(itemViewHolder.containerCreator, data.getUuID());
             //Follow button click functionality
-            followOnClick(itemViewHolder.buttonFollow, position, data, itemViewHolder.buttonFollow);
+            followOnClick(position, data, itemViewHolder.buttonFollow);
             //Compose click functionality
             composeOnClick(itemViewHolder.buttonCompose, data.getEntityID());
             //ItemView onClick functionality
@@ -123,7 +130,7 @@ public class ExploreAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
 
 
         } else if (holder.getItemViewType() == VIEW_TYPE_LOADING) {
-            FeedAdapter.LoadingViewHolder loadingViewHolder = (FeedAdapter.LoadingViewHolder) holder;
+            LoadingViewHolder loadingViewHolder = (LoadingViewHolder) holder;
             loadingViewHolder.progressView.setVisibility(View.VISIBLE);
         }
 
@@ -166,7 +173,7 @@ public class ExploreAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
     }
 
     /**
-     * Method to load creator profile picture.
+     * Method to load explore feed image.
      *
      * @param imageUrl  picture URL.
      * @param imageView View where image to be loaded.
@@ -174,8 +181,8 @@ public class ExploreAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
     private void loadFeedImage(String imageUrl, ImageView imageView) {
         Picasso.with(mContext)
                 .load(imageUrl)
+                .error(R.drawable.image_placeholder)
                 .into(imageView);
-        //Todo No image placeholder
     }
 
     /**
@@ -197,9 +204,13 @@ public class ExploreAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
 
     /**
      * Follow button onClick functionality
+     *
+     * @param itemPosition index  of the item.
+     * @param data         Model for current item.
+     * @param buttonFollow View to be clicked.
      */
-    private void followOnClick(View view, final int itemPosition, final FeedModel data, final TextView buttonFollow) {
-        view.setOnClickListener(new View.OnClickListener() {
+    private void followOnClick(final int itemPosition, final FeedModel data, final TextView buttonFollow) {
+        buttonFollow.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 //Toggle follow button
@@ -220,6 +231,7 @@ public class ExploreAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
             @Override
             public void onClick(View view) {
                 // TODO functionality remaining
+                ViewHelper.getToast(mContext, "Coming soon");
             }
         });
     }
@@ -243,8 +255,40 @@ public class ExploreAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
      * Method to toggle follow.
      *
      * @param followStatus true if following false otherwise.
+     * @param context      Context to use.
+     * @param buttonFollow VIew to be clicked.
      */
     private void toggleFollowButton(Context context, boolean followStatus, TextView buttonFollow) {
+        if (followStatus) {
+            //Change background
+            ViewCompat.setBackground(buttonFollow
+                    , ContextCompat.getDrawable(context
+                            , R.drawable.button_filled));
+            //Change text color
+            buttonFollow.setTextColor(ContextCompat.getColor(context
+                    , R.color.white));
+            //Change text to 'follow'
+            buttonFollow.setText("Follow");
+
+        } else {
+            ViewCompat.setBackground(buttonFollow
+                    , ContextCompat.getDrawable(context
+                            , R.drawable.button_outline));
+            buttonFollow.setTextColor(ContextCompat.getColor(context
+                    , R.color.grey_dark));
+            //Change text to 'following'
+            buttonFollow.setText("Following");
+        }
+    }
+
+    /**
+     * Method to check follow status..
+     *
+     * @param followStatus true if following false otherwise.
+     * @param context      Context to use.
+     * @param buttonFollow VIew to be clicked.
+     */
+    private void checkFollowStatus(Context context, boolean followStatus, TextView buttonFollow) {
         if (followStatus) {
             ViewCompat.setBackground(buttonFollow
                     , ContextCompat.getDrawable(context
@@ -265,7 +309,6 @@ public class ExploreAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
             buttonFollow.setText("Follow");
         }
     }
-
 
     //ItemViewHolder class
     static class ItemViewHolder extends RecyclerView.ViewHolder {

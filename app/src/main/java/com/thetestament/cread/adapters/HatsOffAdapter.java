@@ -24,7 +24,7 @@ import de.hdodenhof.circleimageview.CircleImageView;
 import static com.thetestament.cread.utils.Constant.EXTRA_PROFILE_UUID;
 
 /**
- * Adapter class to provide a binding from data set to views that are displayed within a hats pff RecyclerView.
+ * Adapter class to provide a binding from data set to views that are displayed within a hats off RecyclerView.
  */
 
 public class HatsOffAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {

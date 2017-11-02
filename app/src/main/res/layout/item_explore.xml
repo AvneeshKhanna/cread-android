@@ -21,8 +21,8 @@
             android:id="@+id/containerCreator"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="8dp"
-            android:layout_marginTop="8dp">
+            android:layout_marginBottom="12dp"
+            android:layout_marginTop="12dp">
 
             <de.hdodenhof.circleimageview.CircleImageView
                 android:id="@+id/imageCreator"
@@ -94,13 +94,22 @@
             android:layout_height="0dp"
             android:layout_below="@+id/imageContainer" />
 
-        <ImageView
-            android:id="@+id/buttonCompose"
+        <FrameLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_above="@+id/viewDivider"
             android:layout_alignParentRight="true"
-            android:src="@drawable/ic_compose_24" />
+            android:layout_marginBottom="5dp"
+            android:layout_marginRight="5dp"
+            android:background="@color/black_overlay">
+
+            <ImageView
+                android:id="@+id/buttonCompose"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/ic_compose_24" />
+        </FrameLayout>
+
 
     </RelativeLayout>
 

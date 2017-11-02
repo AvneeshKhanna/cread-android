@@ -189,14 +189,14 @@
 
     </android.support.design.widget.AppBarLayout>
 
-    <android.support.v4.widget.NestedScrollView
-        android:id="@+id/nestedScrollView"
+    <android.support.v4.widget.SwipeRefreshLayout
+        android:id="@+id/swipeToRefreshLayout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
-        <android.support.v4.widget.SwipeRefreshLayout
-            android:id="@+id/swipeToRefreshLayout"
+        <android.support.v4.widget.NestedScrollView
+            android:id="@+id/nestedScrollView"
             android:layout_width="match_parent"
             android:layout_height="match_parent">
 
@@ -206,8 +206,8 @@
                 android:layout_height="match_parent"
                 android:layoutAnimation="@anim/layout_animation_from_bottom" />
 
-        </android.support.v4.widget.SwipeRefreshLayout>
+        </android.support.v4.widget.NestedScrollView>
 
-    </android.support.v4.widget.NestedScrollView>
+    </android.support.v4.widget.SwipeRefreshLayout>
 
 </android.support.design.widget.CoordinatorLayout>

@@ -164,7 +164,7 @@ public class FeedFragment extends Fragment {
                     //Increment page counter
                     mPageNumber += 1;
                     //Load new set of data
-                    loadMoreData(mFeedDataList.size());
+                    loadMoreData();
                 }
             }
         });
@@ -217,14 +217,14 @@ public class FeedFragment extends Fragment {
                                     JSONObject dataObj = feedArray.getJSONObject(i);
                                     FeedModel feedData = new FeedModel();
                                     feedData.setEntityID(dataObj.getString("entityid"));
+                                    feedData.setContentType(dataObj.getString("type"));
                                     feedData.setUuID(dataObj.getString("uuid"));
-                                    feedData.setCreatorImage(dataObj.getString("creatorimage"));
-                                    feedData.setCreatorName(dataObj.getString("creatorName"));
+                                    feedData.setCreatorImage(dataObj.getString("profilepicurl"));
+                                    feedData.setCreatorName(dataObj.getString("creatorname"));
                                     feedData.setHatsOffStatus(dataObj.getBoolean("hatsoffstatus"));
                                     feedData.setHatsOffCount(dataObj.getLong("hatsoffcount"));
-                                    feedData.setCommentCount(dataObj.getLong("commnetcount"));
-                                    feedData.setContentType(dataObj.getString("contenttype"));
-                                    feedData.setImage(dataObj.getString("image"));
+                                    feedData.setCommentCount(dataObj.getLong("commentcount"));
+                                    feedData.setImage(dataObj.getString("captureurl"));
 
                                     mFeedDataList.add(feedData);
                                 }
@@ -246,20 +246,20 @@ public class FeedFragment extends Fragment {
 
                     @Override
                     public void onComplete() {
+                        //Dismiss progress indicator
+                        swipeRefreshLayout.setRefreshing(false);
                         // Token status invalid
                         if (tokenError[0]) {
                             ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_invalid_token));
-                            //Dismiss progress indicator
-                            swipeRefreshLayout.setRefreshing(false);
                         }
                         //Error occurred
                         else if (connectionError[0]) {
                             ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_internal));
-                            //Dismiss progress indicator
-                            swipeRefreshLayout.setRefreshing(false);
+
+                        } else if (mFeedDataList.size() == 0) {
+                            // TODO: Find friends functionality coming soon for more information call 9711137697
+                            ViewHelper.getSnackBar(rootView, "Find friends functionality coming soon");
                         } else {
-                            //Dismiss progress indicator
-                            swipeRefreshLayout.setRefreshing(false);
                             //Apply 'Slide Up' animation
                             int resId = R.anim.layout_animation_from_bottom;
                             LayoutAnimationController animation = AnimationUtils.loadLayoutAnimation(getActivity(), resId);
@@ -274,7 +274,7 @@ public class FeedFragment extends Fragment {
     /**
      * Method to retrieve to next set of data from server.
      */
-    private void loadMoreData(final int oldListSize) {
+    private void loadMoreData() {
         final boolean[] tokenError = {false};
         final boolean[] connectionError = {false};
         mCompositeDisposable.add(getObservableFromServer(BuildConfig.URL + "/feed/load"
@@ -305,16 +305,18 @@ public class FeedFragment extends Fragment {
                                     JSONObject dataObj = feedArray.getJSONObject(i);
                                     FeedModel feedData = new FeedModel();
                                     feedData.setEntityID(dataObj.getString("entityid"));
+                                    feedData.setContentType(dataObj.getString("type"));
                                     feedData.setUuID(dataObj.getString("uuid"));
-                                    feedData.setCreatorImage(dataObj.getString("creatorimage"));
-                                    feedData.setCreatorName(dataObj.getString("creatorName"));
+                                    feedData.setCreatorImage(dataObj.getString("profilepicurl"));
+                                    feedData.setCreatorName(dataObj.getString("creatorname"));
                                     feedData.setHatsOffStatus(dataObj.getBoolean("hatsoffstatus"));
                                     feedData.setHatsOffCount(dataObj.getLong("hatsoffcount"));
-                                    feedData.setCommentCount(dataObj.getLong("commnetcount"));
-                                    feedData.setContentType(dataObj.getString("contenttype"));
-                                    feedData.setImage(dataObj.getString("image"));
+                                    feedData.setCommentCount(dataObj.getLong("commentcount"));
+                                    feedData.setImage(dataObj.getString("captureurl"));
 
                                     mFeedDataList.add(feedData);
+                                    //Notify item changes
+                                    mAdapter.notifyItemInserted(mFeedDataList.size() - 1);
                                 }
                             }
                         } catch (JSONException e) {
@@ -345,9 +347,7 @@ public class FeedFragment extends Fragment {
                         else if (connectionError[0]) {
                             ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_internal));
                         } else {
-
                             //Notify changes
-                            mAdapter.notifyItemRangeInserted(oldListSize - 1, mFeedDataList.size() - oldListSize);
                             mAdapter.setLoaded();
                         }
                     }
@@ -369,7 +369,6 @@ public class FeedFragment extends Fragment {
         });
     }
 
-
     /**
      * Method to update hats off status of campaign.
      *
@@ -381,7 +380,7 @@ public class FeedFragment extends Fragment {
         try {
             jsonObject.put("uuid", mHelper.getUUID());
             jsonObject.put("authkey", mHelper.getAuthToken());
-            jsonObject.put("enityid", feedData.getEntityID());
+            jsonObject.put("entityid", feedData.getEntityID());
             jsonObject.put("register", feedData.getHatsOffStatus());
         } catch (JSONException e) {
             e.printStackTrace();
@@ -407,12 +406,6 @@ public class FeedFragment extends Fragment {
                                 JSONObject mainData = response.getJSONObject("data");
                                 if (mainData.getString("status").equals("done")) {
                                     //Do nothing
-                                } else {
-                                    //set status to true if its false and vice versa
-                                    feedData.setHatsOffStatus(!feedData.getHatsOffStatus());
-                                    //notify changes
-                                    mAdapter.notifyItemChanged(itemPosition);
-                                    ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_internal));
                                 }
                             }
                         } catch (JSONException e) {
