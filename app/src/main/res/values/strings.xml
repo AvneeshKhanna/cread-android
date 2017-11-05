@@ -24,6 +24,7 @@
     <string name="key_watermark_status">watermarkStatus</string>
 
     // dialog messages
+    <string name="processing_title">Processing</string>
     <string name="verif_title">Verifying</string>
     <string name="waiting_msg">Please wait</string>
     <string name="text_yes">Yes</string>

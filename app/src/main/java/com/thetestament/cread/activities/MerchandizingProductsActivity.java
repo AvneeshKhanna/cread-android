@@ -86,9 +86,9 @@ public class MerchandizingProductsActivity extends BaseActivity {
 
     CompositeDisposable mCompositeDisposable = new CompositeDisposable();
 
-    String mEntityID;
-    String deliveryTime;
-    String deliveryCharge;
+    // TODO update entity id to get dynamically from intent of previous activity
+    String mEntityID = "0fb2a7ea-6f82-44cb-b40c-c26422878523", deliveryTime, billingContact;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -182,8 +182,9 @@ public class MerchandizingProductsActivity extends BaseActivity {
                                     tokenError[0] = true;
                                 } else {
                                     JSONObject mainData = jsonObject.getJSONObject("data");
-                                    // TODO uncomment
-                                    //deliveryTime = mainData.getString("deliverytime");
+
+                                    deliveryTime = mainData.getString("deliverytime");
+                                    billingContact = mainData.getString("billing_contact");
 
                                     if (mainData.getBoolean("detailsexist"))
                                     {
@@ -199,8 +200,7 @@ public class MerchandizingProductsActivity extends BaseActivity {
                                         productsData.setProductUrl(dataObj.getString("productimgurl"));
                                         productsData.setEntityUrl(dataObj.getString("entityimgurl"));
                                         productsData.setProductID(dataObj.getString("productid"));
-                                        // TODO uncomment
-                                        //productsData.setDeliveryCharge(dataObj.getString("deliverycharge"));
+                                        productsData.setDeliveryCharge(dataObj.getString("deliverycharge"));
                                         productsData.setPrice(getArrayListFromJSON(dataObj.getJSONArray("price")));
                                         productsData.setColors(getArrayListFromJSON(dataObj.getJSONArray("colors")));
                                         productsData.setSizes(getArrayListFromJSON(dataObj.getJSONArray("sizes")));
@@ -309,8 +309,8 @@ public class MerchandizingProductsActivity extends BaseActivity {
 
             jsonObject.put("uuid", spHelper.getUUID());
             jsonObject.put("authkey", spHelper.getAuthToken());
-            // TODO update dynamic entity id from intent
-            jsonObject.put("entityid", "abc");
+
+            jsonObject.put("entityid", mEntityID);
         } catch (JSONException e) {
             e.printStackTrace();
             FirebaseCrash.report(e);
@@ -338,6 +338,7 @@ public class MerchandizingProductsActivity extends BaseActivity {
                 bundle.putString(EXTRA_PRODUCT_ENTITYID, mEntityID);
                 bundle.putString(EXTRA_PRODUCT_DELIVERY_TIME,deliveryTime);
                 bundle.putString(EXTRA_PRODUCT_DELIVERY_CHARGE, deliveryCharge);
+                bundle.putString(EXTRA_SHIPPING_PHONE,billingContact);
 
 
 
@@ -345,14 +346,14 @@ public class MerchandizingProductsActivity extends BaseActivity {
                 {
 
                     try {
-                        bundle.putString(EXTRA_SHIPPING_ADDR1,shippingDetails.getString("ship_adddr_1"));
-                        bundle.putString(EXTRA_SHIPPING_ADDR2,shippingDetails.getString("ship_adddr_2"));
+                        bundle.putString(EXTRA_SHIPPING_ADDR1,shippingDetails.getString("ship_addr_1"));
+                        bundle.putString(EXTRA_SHIPPING_ADDR2,shippingDetails.getString("ship_addr_2"));
                         bundle.putString(EXTRA_SHIPPING_CITY,shippingDetails.getString("ship_city"));
                         bundle.putString(EXTRA_SHIPPING_STATE,shippingDetails.getString("ship_state"));
                         bundle.putString(EXTRA_SHIPPING_PINCODE,shippingDetails.getString("ship_pincode"));
                         bundle.putString(EXTRA_SHIPPING_NAME,shippingDetails.getString("billing_name"));
                         bundle.putString(EXTRA_SHIPPING_ALT_PHONE,shippingDetails.getString("billing_alt_contact"));
-                        bundle.putString(EXTRA_SHIPPING_PHONE,shippingDetails.getString("billing_contact"));
+
 
 
                     } catch (JSONException e) {
@@ -369,7 +370,7 @@ public class MerchandizingProductsActivity extends BaseActivity {
                     bundle.putString(EXTRA_SHIPPING_PINCODE,"");
                     bundle.putString(EXTRA_SHIPPING_NAME,"");
                     bundle.putString(EXTRA_SHIPPING_ALT_PHONE,"");
-                    bundle.putString(EXTRA_SHIPPING_PHONE,"");
+
 
                 }
 

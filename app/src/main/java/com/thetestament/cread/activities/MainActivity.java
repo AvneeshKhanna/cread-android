@@ -358,9 +358,6 @@ public class MainActivity extends BaseActivity {
                         }
                         // error
                         else {
-
-
-
                             verifyDialog.dismiss();
 
                             Category errorCateg = error.getCategory();

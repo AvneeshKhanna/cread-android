@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <android.support.v7.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_marginBottom="8dp"
@@ -10,7 +11,6 @@
     android:background="@color/white"
     app:cardPreventCornerOverlap="false"
     app:cardUseCompatPadding="true">
-
 
 
     <RelativeLayout
@@ -29,18 +29,16 @@
             <ImageView
                 android:id="@+id/productImage"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"/>
+                android:layout_height="match_parent" />
 
             <ImageView
                 android:id="@+id/artImg"
                 android:layout_width="250dp"
                 android:layout_height="250dp"
                 android:layout_centerInParent="true"
-                android:visibility="gone"/>
+                android:visibility="gone" />
 
         </RelativeLayout>
-
-
 
 
         <TextView
@@ -48,137 +46,242 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_below="@+id/merchProduct"
-            android:text="T-shirt"
             android:layout_centerHorizontal="true"
             android:layout_marginTop="10dp"
-            android:textSize="24sp"
-            android:textColor="@color/black_defined"/>
+            android:text="T-shirt"
+            android:textColor="@color/black_defined"
+            android:textSize="24sp" />
 
 
-
-
-        <ImageView
-            android:id="@+id/sizeImg"
-            android:layout_width="20dp"
-            android:layout_height="20dp"
-            android:src="@drawable/ic_format_size"
+        <LinearLayout
+            android:id="@+id/sizeLL"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:layout_alignParentLeft="true"
-            android:layout_marginLeft="5dp"
             android:layout_below="@+id/productName"
-            android:layout_marginTop="10dp"/>
-
-        <TextView
-            android:id="@+id/sizeText"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignTop="@+id/sizeImg"
-            android:layout_toRightOf="@+id/sizeImg"
-            android:text="Size"
-            android:textSize="16sp"
-            android:layout_marginLeft="5dp"/>
-
-
-        <android.support.v7.widget.AppCompatSpinner
-            android:id="@+id/sizeSpinner"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignBottom="@+id/sizeText"
-            android:layout_alignTop="@+id/sizeText"
-            android:layout_alignLeft="@+id/quantitySpinner">
-
-
-        </android.support.v7.widget.AppCompatSpinner>
-
-
-        <ImageView
-            android:layout_width="20dp"
-            android:layout_height="20dp"
-            android:layout_alignLeft="@+id/sizeImg"
-            android:src="@drawable/ic_palette"
-            android:layout_alignTop="@+id/colorText"
-            />
-
-        <TextView
-            android:id="@+id/colorText"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Color"
-            android:layout_below="@+id/sizeText"
-            android:layout_alignLeft="@+id/sizeText"
             android:layout_marginTop="10dp"
-            android:textSize="16sp"/>
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
 
-        <android.support.v7.widget.AppCompatSpinner
-            android:id="@+id/colorSpinner"
+            <ImageView
+                android:id="@+id/sizeImg"
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:src="@drawable/ic_format_size" />
+
+            <TextView
+                android:id="@+id/sizeText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Size"
+                android:textSize="16sp"
+                android:layout_marginLeft="5dp"/>
+
+
+            <android.support.v7.widget.AppCompatSpinner
+                android:id="@+id/sizeSpinner"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="5dp"
+                tools:listitem="@layout/support_simple_spinner_dropdown_item">
+
+            </android.support.v7.widget.AppCompatSpinner>
+
+
+
+
+        </LinearLayout>
+
+
+        <LinearLayout
+            android:id="@+id/colorLL"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignBottom="@+id/colorText"
-            android:layout_alignTop="@+id/colorText"
-            android:layout_alignLeft="@+id/quantitySpinner">
+            android:layout_alignParentLeft="true"
+            android:layout_below="@+id/sizeLL"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <ImageView
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+               android:src="@drawable/ic_palette" />
+
+            <TextView
+                android:id="@+id/colorText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="5dp"
+                android:text="Color"
+                android:textSize="16sp" />
+
+            <android.support.v7.widget.AppCompatSpinner
+                android:id="@+id/colorSpinner"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="5dp"
+                tools:listitem="@layout/support_simple_spinner_dropdown_item">
 
 
-        </android.support.v7.widget.AppCompatSpinner>
+            </android.support.v7.widget.AppCompatSpinner>
 
-        <ImageView
-            android:layout_width="20dp"
-            android:layout_height="20dp"
-            android:layout_alignLeft="@+id/sizeImg"
-            android:layout_alignTop="@+id/quantityText"
-            android:src="@drawable/ic_add_shopping_cart"
-            />
+            </LinearLayout>
 
 
-        <TextView
-            android:id="@+id/quantityText"
+
+        <LinearLayout
+            android:id="@+id/quantityLL"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Quantity"
-            android:layout_below="@+id/colorText"
-            android:layout_alignLeft="@+id/sizeText"
-            android:layout_marginTop="10dp"
-            android:textSize="16sp"/>
-
-        <android.support.v7.widget.AppCompatSpinner
-            android:id="@+id/quantitySpinner"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_toRightOf="@+id/quantityText"
-            android:layout_alignBottom="@+id/quantityText"
-            android:layout_alignTop="@+id/quantityText"
-            android:layout_marginLeft="5dp">
+            android:layout_alignParentLeft="true"
+            android:layout_below="@+id/colorLL"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
 
 
-        </android.support.v7.widget.AppCompatSpinner>
+            <ImageView
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:src="@drawable/ic_add_shopping_cart" />
+
+
+            <TextView
+                android:id="@+id/quantityText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="5dp"
+
+                android:text="Quantity"
+                android:textSize="16sp" />
+
+            <android.support.v7.widget.AppCompatSpinner
+                android:id="@+id/quantitySpinner"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="5dp"
+                tools:listitem="@layout/support_simple_spinner_dropdown_item">
+
+
+            </android.support.v7.widget.AppCompatSpinner>
+
+
+
+        </LinearLayout>
 
         <TextView
             android:id="@+id/price"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:layout_alignTop="@+id/sizeLL"
             android:text="@string/Rs"
             android:textSize="24sp"
-            android:layout_alignParentRight="true"
-            android:layout_marginRight="5dp"
-            android:layout_alignTop="@+id/sizeText"/>
+            android:layout_marginTop="30dp"/>
 
 
         <TextView
             android:id="@+id/buyButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_alignBottom="@+id/quantityLL"
             android:layout_alignRight="@+id/price"
-            android:text="Buy"
-            android:textSize="18sp"
             android:background="@drawable/button_filled"
-            android:paddingTop="6dp"
             android:paddingBottom="6dp"
-            android:paddingRight="20dp"
             android:paddingLeft="20dp"
-            android:layout_alignBottom="@+id/quantityText"
-            android:textColor="@color/white"/>
+            android:paddingRight="20dp"
+            android:paddingTop="6dp"
+            android:text="Buy"
+            android:textColor="@color/white"
+            android:textSize="18sp"
+            android:layout_marginBottom="30dp"/>
+
+        <!--  <ImageView
+              android:layout_width="20dp"
+              android:layout_height="20dp"
+              android:layout_alignLeft="@+id/sizeImg"
+              android:layout_alignTop="@+id/colorText"
+              android:src="@drawable/ic_palette" />
+
+          <TextView
+              android:id="@+id/colorText"
+              android:layout_width="wrap_content"
+              android:layout_height="wrap_content"
+              android:layout_alignLeft="@+id/sizeText"
+              android:layout_below="@+id/sizeText"
+              android:layout_marginTop="10dp"
+              android:text="Color"
+              android:textSize="16sp" />
+
+          <android.support.v7.widget.AppCompatSpinner
+              android:id="@+id/colorSpinner"
+              android:layout_width="wrap_content"
+              android:layout_height="wrap_content"
+              android:layout_alignBottom="@+id/colorText"
+              android:layout_alignLeft="@+id/quantitySpinner"
+              android:layout_alignTop="@+id/colorText"
+              tools:listitem="@layout/support_simple_spinner_dropdown_item">
+
+
+          </android.support.v7.widget.AppCompatSpinner>
+
+          <ImageView
+              android:layout_width="20dp"
+              android:layout_height="20dp"
+              android:layout_alignLeft="@+id/sizeImg"
+              android:layout_alignTop="@+id/quantityText"
+              android:src="@drawable/ic_add_shopping_cart" />
+
+
+          <TextView
+              android:id="@+id/quantityText"
+              android:layout_width="wrap_content"
+              android:layout_height="wrap_content"
+              android:layout_alignLeft="@+id/sizeText"
+              android:layout_below="@+id/colorText"
+              android:layout_marginTop="10dp"
+              android:text="Quantity"
+              android:textSize="16sp" />
+
+          <android.support.v7.widget.AppCompatSpinner
+              android:id="@+id/quantitySpinner"
+              android:layout_width="wrap_content"
+              android:layout_height="wrap_content"
+              android:layout_alignBottom="@+id/quantityText"
+              android:layout_alignTop="@+id/quantityText"
+              android:layout_marginLeft="5dp"
+              android:layout_toRightOf="@+id/quantityText"
+              tools:listitem="@layout/support_simple_spinner_dropdown_item">
+
+
+          </android.support.v7.widget.AppCompatSpinner>
+
+          <TextView
+              android:id="@+id/price"
+              android:layout_width="wrap_content"
+              android:layout_height="wrap_content"
+              android:layout_alignParentRight="true"
+              android:layout_alignTop="@+id/sizeText"
+              android:layout_marginRight="0dp"
+              android:text="@string/Rs"
+              android:textSize="24sp" />
+
+
+          <TextView
+              android:id="@+id/buyButton"
+              android:layout_width="wrap_content"
+              android:layout_height="wrap_content"
+              android:layout_alignBottom="@+id/quantityText"
+              android:layout_alignRight="@+id/price"
+              android:background="@drawable/button_filled"
+              android:paddingBottom="6dp"
+              android:paddingLeft="20dp"
+              android:paddingRight="20dp"
+              android:paddingTop="6dp"
+              android:text="Buy"
+              android:textColor="@color/white"
+              android:textSize="18sp" />-->
 
     </RelativeLayout>
-
-
 
 
 </android.support.v7.widget.CardView>

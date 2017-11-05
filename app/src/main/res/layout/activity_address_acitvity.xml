@@ -5,11 +5,11 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <android.support.v4.widget.NestedScrollView
-        android:id="@+id/nestedScrollView"
+    <ScrollView
+        android:id="@+id/scrollView"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        app:layout_behavior="@string/appbar_scrolling_view_behavior">
+        android:layout_height="match_parent">
+        <!--app:layout_behavior="@string/appbar_scrolling_view_behavior"-->
 
 
         <LinearLayout
@@ -42,7 +42,7 @@
                         android:layout_height="wrap_content"
                         android:text="T-Shirt"
                         android:textColor="@color/black_defined"
-                        android:textSize="18sp" />
+                        android:textSize="24sp" />
 
                     <TextView
                         android:id="@+id/prodSpecs"
@@ -98,13 +98,26 @@
                     android:layout_margin="10dp"
                     android:padding="10dp">
 
-                    <TextView
+
+                    <LinearLayout
                         android:id="@+id/priceDetails"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content">
+
+                    <ImageView
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
+                        android:src="@drawable/ic_payment_24dp"/>
+
+                    <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Price Details"
                         android:textStyle="bold"
-                        android:textSize="16sp" />
+                        android:textSize="16sp"
+                        android:layout_marginLeft="5dp"/>
+
+                    </LinearLayout>
 
                     <View
                         android:id="@+id/priceSeparator"
@@ -215,7 +228,7 @@
                         <TextView
                             android:id="@+id/shipToDetails"
                             android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
+                            android:layout_height="20dp"
                             android:text="Shipping To"
                             android:textSize="16sp"
                             android:textStyle="bold"
@@ -246,7 +259,8 @@
                             android:id="@+id/etName"
                             android:layout_width="match_parent"
                             android:layout_height="match_parent"
-                            android:inputType="textPersonName" />
+                            android:inputType="textCapWords"
+                            />
 
 
                     </android.support.design.widget.TextInputLayout>
@@ -273,13 +287,14 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="10dp"
-                        android:hint="Alternate Phone Number (Optional)">
+                        android:hint="Alternate Phone Number (+91) (Optional)">
 
                         <EditText
                             android:id="@+id/etAltPhone"
                             android:layout_width="match_parent"
                             android:layout_height="match_parent"
-                            android:inputType="phone" />
+                            android:inputType="phone"
+                            android:maxLength="10"/>
 
 
                     </android.support.design.widget.TextInputLayout>
@@ -315,14 +330,14 @@
                         android:layout_height="wrap_content">
 
                         <ImageView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
+                            android:layout_width="20dp"
+                            android:layout_height="20dp"
                             android:src="@drawable/ic_location_city"/>
 
                         <TextView
                             android:id="@+id/shipAddrDetails"
                             android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
+                            android:layout_height="20dp"
                             android:text="Shipping Address"
                             android:textSize="16sp"
                             android:textStyle="bold"
@@ -351,7 +366,8 @@
                         <EditText
                             android:id="@+id/etCity"
                             android:layout_width="match_parent"
-                            android:layout_height="match_parent" />
+                            android:layout_height="match_parent"
+                            android:inputType="textCapWords"/>
 
 
                     </android.support.design.widget.TextInputLayout>
@@ -366,7 +382,8 @@
                         <EditText
                             android:id="@+id/etAddr1"
                             android:layout_width="match_parent"
-                            android:layout_height="match_parent" />
+                            android:layout_height="match_parent"
+                            android:inputType="textCapWords"/>
 
 
                     </android.support.design.widget.TextInputLayout>
@@ -382,7 +399,8 @@
                         <EditText
                             android:id="@+id/etAddr2"
                             android:layout_width="match_parent"
-                            android:layout_height="match_parent" />
+                            android:layout_height="match_parent"
+                            android:inputType="textCapWords"/>
 
 
                     </android.support.design.widget.TextInputLayout>
@@ -406,7 +424,8 @@
                                 android:id="@+id/etPincode"
                                 android:layout_width="match_parent"
                                 android:layout_height="match_parent"
-                                android:inputType="number" />
+                                android:inputType="number"
+                                android:maxLength="6"/>
 
 
                         </android.support.design.widget.TextInputLayout>
@@ -423,7 +442,8 @@
                             <EditText
                                 android:id="@+id/etState"
                                 android:layout_width="match_parent"
-                                android:layout_height="match_parent" />
+                                android:layout_height="match_parent"
+                                android:inputType="textCapWords"/>
 
 
                         </android.support.design.widget.TextInputLayout>
@@ -456,6 +476,6 @@
 
         </LinearLayout>
 
-    </android.support.v4.widget.NestedScrollView>
+    </ScrollView>
 
 </android.support.design.widget.CoordinatorLayout>

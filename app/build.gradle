@@ -26,8 +26,8 @@ android {
             shrinkResources false
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
-            buildConfigField "String", "URL", '"http://cread-dev-remote.herokuapp.com"'
-            //buildConfigField "String", "URL", '"http://e27a9ac9.ngrok.io"'
+            //buildConfigField "String", "URL", '"http://cread-dev-remote.herokuapp.com"'
+            buildConfigField "String", "URL", '"http://27e366d1.ngrok.io"'
         }
     }
 }

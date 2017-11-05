@@ -1,29 +1,43 @@
 package com.thetestament.cread.activities;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.TextInputLayout;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.widget.NestedScrollView;
 import android.util.Log;
+import android.view.WindowManager;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.ScrollView;
 import android.widget.TextView;
 
+import com.afollestad.materialdialogs.DialogAction;
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.google.firebase.crash.FirebaseCrash;
 import com.razorpay.Checkout;
 import com.razorpay.PaymentResultListener;
+import com.rx2androidnetworking.Rx2AndroidNetworking;
+import com.thetestament.cread.BuildConfig;
 import com.thetestament.cread.R;
 import com.thetestament.cread.helpers.NetworkHelper;
+import com.thetestament.cread.helpers.SharedPreferenceHelper;
 import com.thetestament.cread.helpers.ViewHelper;
 import com.thetestament.cread.utils.Constant;
 
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
+import io.reactivex.Observer;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.annotations.NonNull;
+import io.reactivex.disposables.CompositeDisposable;
+import io.reactivex.disposables.Disposable;
+import io.reactivex.schedulers.Schedulers;
 
 import static com.thetestament.cread.utils.Constant.EXTRA_PRODUCT_COLOR;
 import static com.thetestament.cread.utils.Constant.EXTRA_PRODUCT_DELIVERY_CHARGE;
@@ -57,8 +71,6 @@ public class AddressAcitvity extends BaseActivity implements PaymentResultListen
     TextView quantityTV;
     @BindView(R.id.deliveryTime)
     TextView deliveryTimeTV;
-    @BindView(R.id.priceDetails)
-    TextView priceDetails;
     @BindView(R.id.amtItem)
     TextView amtItem;
     @BindView(R.id.amtDelivery)
@@ -101,12 +113,13 @@ public class AddressAcitvity extends BaseActivity implements PaymentResultListen
     TextView payButton;
     @BindView(R.id.rootView)
     CoordinatorLayout rootView;
-    @BindView(R.id.nestedScrollView)
-    NestedScrollView nestedScrollView;
+    @BindView(R.id.scrollView)
+    ScrollView scrollView;
 
     public final String TAG = getClass().getSimpleName();
     String productName, size, color, quantity, price, productID, entityID, deliveryTime, deliveryCharge, shipName, shipPhone, shipAltPhone, shipAddr1, shipAddr2, shipCity, shipState, shipPincode;
-
+    int totalAmount;
+    private CompositeDisposable mCompositeDisposable = new CompositeDisposable();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -114,6 +127,8 @@ public class AddressAcitvity extends BaseActivity implements PaymentResultListen
         setContentView(R.layout.activity_address_acitvity);
         ButterKnife.bind(this);
 
+        // to prevent keyboard from popping up when screen is opened
+        this.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
 
 
         Bundle bundle = getIntent().getExtras();
@@ -140,6 +155,8 @@ public class AddressAcitvity extends BaseActivity implements PaymentResultListen
         shipPincode = bundle.getString(EXTRA_SHIPPING_PINCODE);
         shipState = bundle.getString(EXTRA_SHIPPING_STATE);
 
+        totalAmount = getTotalAmount();
+
 
         // For product details
         productNameTV.setText(productName);
@@ -149,8 +166,8 @@ public class AddressAcitvity extends BaseActivity implements PaymentResultListen
 
         // For price details
         amtItem.setText(getString(R.string.Rs) + price + " X" + quantity);
-        amtDelivery.setText(deliveryCharge);
-        amtTotal.setText(getString(R.string.Rs) + String.valueOf(getTotalAmount()));
+        amtDelivery.setText(getString(R.string.Rs) + deliveryCharge);
+        amtTotal.setText(getString(R.string.Rs) + String.valueOf(totalAmount));
 
         // For shipping To
         etName.setText(shipName);
@@ -173,67 +190,88 @@ public class AddressAcitvity extends BaseActivity implements PaymentResultListen
      * @return integer total amount
      */
     private int getTotalAmount() {
-        // TODO change delivery charge
-        return Integer.parseInt(price) * Integer.parseInt(quantity) + Integer.parseInt(/*deliveryCharge*/"300");
+        return Integer.parseInt(price) * Integer.parseInt(quantity) + Integer.parseInt(deliveryCharge);
     }
 
     @OnClick(R.id.pay)
     public void onViewClicked() {
 
-       /* if (etName.getText().toString().isEmpty()) {
-            tiName.setError("Name " + getString(R.string.error_field_empty));
-            nestedScrollView.smoothScrollBy(0, tiName.getBottom() - tiName.getHeight());
+        shipName = etName.getText().toString().trim();
+        shipPhone = etPhone.getText().toString().trim();
+        shipAltPhone = etAltPhone.getText().toString().trim();
 
-        } else if (etPhone.getText().toString().isEmpty()) {
+        shipCity = etCity.getText().toString().trim();
+        shipAddr1 = etAddr1.getText().toString().trim();
+        shipAddr2 = etAddr2.getText().toString().trim();
+        shipPincode = etPincode.getText().toString().trim();
+        shipState = etState.getText().toString().trim();
+
+        if (shipName.isEmpty()) {
+            tiName.setError("Name " + getString(R.string.error_field_empty));
+            tiName.setFocusableInTouchMode(true);
+            tiName.requestFocus();
+            //scrollView.smoothScrollTo(0, tiName.getBottom() - tiName.getHeight());
+
+        } else if (shipPhone.isEmpty()) {
             tiPhone.setError("Phone " + getString(R.string.error_field_empty));
-            nestedScrollView.smoothScrollBy(0, tiPhone.getBottom() - tiPhone.getHeight());
-        } else if (etAddr1.getText().toString().isEmpty()) {
+            tiPhone.setFocusableInTouchMode(true);
+            tiPhone.requestFocus();
+            //scrollView.smoothScrollTo(0, tiPhone.getBottom() - tiPhone.getHeight());
+        } else if (shipAddr1.isEmpty()) {
             tiAddr1.setError("Address Line 1 " + getString(R.string.error_field_empty));
-            nestedScrollView.smoothScrollBy(0, tiAddr1.getBottom() - tiAddr1.getHeight());
-        } else if (etCity.getText().toString().isEmpty()) {
-            tiCity.setError("City" + getString(R.string.error_field_empty));
-            nestedScrollView.smoothScrollBy(0, tiCity.getBottom() - tiCity.getHeight());
-        } else if (etState.getText().toString().isEmpty()) {
-            tiState.setError("State" + getString(R.string.error_field_empty));
-            nestedScrollView.smoothScrollBy(0, tiState.getBottom() - tiState.getHeight());
-        } else if (etPincode.getText().toString().isEmpty()) {
-            tiPincode.setError("Pincode" + getString(R.string.error_field_empty));
-            nestedScrollView.smoothScrollBy(0, tiPincode.getBottom() - tiPincode.getHeight());
+            tiAddr1.setFocusableInTouchMode(true);
+            tiAddr1.requestFocus();
+            //scrollView.smoothScrollTo(0, tiAddr1.getBottom() - tiAddr1.getHeight());
+        } else if (shipCity.isEmpty()) {
+            tiCity.setError("City " + getString(R.string.error_field_empty));
+            tiCity.setFocusableInTouchMode(true);
+            tiCity.requestFocus();
+            //scrollView.smoothScrollTo(0, tiCity.getBottom() - tiCity.getHeight());
+        } else if (shipState.isEmpty()) {
+            tiState.setError("State " + getString(R.string.error_field_empty));
+            tiState.setFocusableInTouchMode(true);
+            tiState.requestFocus();
+            //scrollView.smoothScrollTo(0, tiState.getBottom() - tiState.getHeight());
+        } else if (shipPincode.isEmpty()) {
+            tiPincode.setError("Pincode " + getString(R.string.error_field_empty));
+            tiPincode.setFocusableInTouchMode(true);
+            tiPincode.requestFocus();
+            //scrollView.smoothScrollTo(0, tiPincode.getBottom() - tiPincode.getHeight());
         }
 
         else
         {
             startPayment();
-        }*/
+        }
 
-       startPayment();
+
 
     }
 
-    private void startPayment()
-    {
+    private void startPayment() {
 
         // Instantiate Checkout
         Checkout checkout = new Checkout();
 
 
-        try
-        {
+        try {
             JSONObject options = new JSONObject();
 
             options.put("name", "Cread");
             options.put("currency", "INR");
-            options.put("amount",String.valueOf(getTotalAmount() * 100));
+            options.put("amount", String.valueOf(totalAmount * 100));
 
             JSONObject theme = new JSONObject();
+            JSONObject prefill = new JSONObject();
 
-            theme.put("color","#F44336");
-            options.put("theme",theme);
+            prefill.put("contact", shipPhone);
+            theme.put("color", "#F44336");
+            options.put("prefill", prefill);
+            options.put("theme", theme);
             checkout.open(AddressAcitvity.this, options);
 
-        }
-        catch (Exception e)
-        {   e.printStackTrace();
+        } catch (Exception e) {
+            e.printStackTrace();
             ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_internal));
             FirebaseCrash.report(e);
         }
@@ -243,15 +281,22 @@ public class AddressAcitvity extends BaseActivity implements PaymentResultListen
     @Override
     public void onPaymentSuccess(String paymentID) {
 
-        if(NetworkHelper.getNetConnectionStatus(AddressAcitvity.this))
-        {
 
-        }
+        try {
+            if (NetworkHelper.getNetConnectionStatus(AddressAcitvity.this)) {
 
-        else
+                updatePaymentStatus(paymentID);
 
-        {
-            showPaymentStatusDialog(PAYMENT_STATUS_CONNECTION_TERMINATED);
+            } else
+
+            {
+                showPaymentStatusDialog(PAYMENT_STATUS_CONNECTION_TERMINATED);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            FirebaseCrash.report(e);
+
+            showPaymentStatusDialog(PAYMENT_STATUS_SERVER_ERROR);
         }
 
     }
@@ -259,64 +304,158 @@ public class AddressAcitvity extends BaseActivity implements PaymentResultListen
     @Override
     public void onPaymentError(int code, String response) {
 
-        if(code == Checkout.NETWORK_ERROR)
-        {
+        if (code == Checkout.NETWORK_ERROR) {
             showPaymentStatusDialog(PAYMENT_STATUS_CONNECTION_TERMINATED);
-        }
-
-        else if(code == Checkout.PAYMENT_CANCELED)
-        {
+        } else if (code == Checkout.PAYMENT_CANCELED) {
             ViewHelper.getSnackBar(rootView, "Payment Cancelled");
-        }
-
-        else if(code == Checkout.INVALID_OPTIONS)
-        {
+        } else if (code == Checkout.INVALID_OPTIONS) {
             ViewHelper.getSnackBar(rootView, "Some error occured");
         }
 
     }
 
 
-    private void showPaymentStatusDialog(String status)
-    {
+    private void showPaymentStatusDialog(String status) {
         MaterialDialog dialog = new MaterialDialog.Builder(AddressAcitvity.this)
                 .customView(R.layout.dialog_payment_status, false)
                 .positiveText("Ok")
+                .onPositive(new MaterialDialog.SingleButtonCallback() {
+                    @Override
+                    public void onClick(@android.support.annotation.NonNull MaterialDialog dialog, @android.support.annotation.NonNull DialogAction which) {
+
+                        startActivity(new Intent(AddressAcitvity.this, MerchandizingProductsActivity.class).addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT));
+                        finish();
+                    }
+                })
                 .show();
 
         TextView titleText = (TextView) dialog.getCustomView().findViewById(R.id.text_status);
         TextView descText = (TextView) dialog.getCustomView().findViewById(R.id.text_desc);
         ImageView statusImage = (ImageView) dialog.getCustomView().findViewById(R.id.image_status);
 
-        if(status.equals(PAYMENT_STATUS_CONNECTION_TERMINATED))
-        {
+        if (status.equals(PAYMENT_STATUS_CONNECTION_TERMINATED)) {
             titleText.setText(getString(R.string.payment_failed_title));
             descText.setText(getString(R.string.payment_failed_conn_term));
-            statusImage.setImageDrawable(ContextCompat.getDrawable(AddressAcitvity.this,R.drawable.ic_error));
-        }
-
-        else if(status.equals(PAYMENT_STATUS_INVALID_TOKEN))
-        {
+            statusImage.setImageDrawable(ContextCompat.getDrawable(AddressAcitvity.this, R.drawable.ic_error));
+        } else if (status.equals(PAYMENT_STATUS_INVALID_TOKEN)) {
             titleText.setText(getString(R.string.payment_failed_title));
             descText.setText(getString(R.string.payment_failed_invalid_token));
-            statusImage.setImageDrawable(ContextCompat.getDrawable(AddressAcitvity.this,R.drawable.ic_error));
+            statusImage.setImageDrawable(ContextCompat.getDrawable(AddressAcitvity.this, R.drawable.ic_error));
 
-        }
-        else if(status.equals(PAYMENT_STATUS_SERVER_ERROR))
-        {
+        } else if (status.equals(PAYMENT_STATUS_SERVER_ERROR)) {
             titleText.setText(getString(R.string.payment_failed_title));
             descText.setText(getString(R.string.payment_failed_server_error));
-            statusImage.setImageDrawable(ContextCompat.getDrawable(AddressAcitvity.this,R.drawable.ic_error));
-        }
-
-
-        else if(status.equals(PAYMENT_STATUS_SUCCESS))
-        {
+            statusImage.setImageDrawable(ContextCompat.getDrawable(AddressAcitvity.this, R.drawable.ic_error));
+        } else if (status.equals(PAYMENT_STATUS_SUCCESS)) {
             titleText.setText(getString(R.string.payment_success_title));
             descText.setText(getString(R.string.payment_success_message));
-            statusImage.setImageDrawable(ContextCompat.getDrawable(AddressAcitvity.this,R.drawable.ic_check_48dp));
+            statusImage.setImageDrawable(ContextCompat.getDrawable(AddressAcitvity.this, R.drawable.ic_check_48dp));
         }
 
     }
 
+    /**
+     * updates the payment details on the server
+     *
+     * @param paymentid razorpay payment id
+     */
+    private void updatePaymentStatus(String paymentid) {
+
+        final MaterialDialog dialog = new MaterialDialog.Builder(AddressAcitvity.this)
+                .title(getString(R.string.processing_title))
+                .content(getString(R.string.waiting_msg))
+                .progress(true, 0)
+                .show();
+
+
+        JSONObject data = new JSONObject();
+
+        SharedPreferenceHelper spHelper = new SharedPreferenceHelper(AddressAcitvity.this);
+
+        try {
+
+            data.put("uuid", spHelper.getUUID());
+            data.put("authkey", spHelper.getAuthToken());
+            data.put("productid", productID);
+            data.put("entityid", entityID);
+            data.put("paymentid", paymentid);
+            data.put("amount", String.valueOf(totalAmount * 100));
+            data.put("color", color);
+            data.put("size", size);
+            data.put("price", price);
+            data.put("quantity", quantity);
+            data.put("billing_name", shipName);
+            data.put("billing_alt_contact", shipAltPhone);
+
+            JSONObject shipmentDetails = new JSONObject();
+            shipmentDetails.put("ship_addr_1",shipAddr1);
+            shipmentDetails.put("ship_addr_2", shipAddr2);
+            shipmentDetails.put("ship_city", shipCity);
+            shipmentDetails.put("ship_state", shipState);
+            shipmentDetails.put("ship_pincode", shipPincode);
+
+            data.put("shipmentdetails", shipmentDetails);
+
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+            FirebaseCrash.report(e);
+        }
+
+        Rx2AndroidNetworking.post(BuildConfig.URL + "/order/place")
+                .addJSONObjectBody(data)
+                .build()
+                .getJSONObjectObservable()
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribeWith(new Observer<JSONObject>() {
+                    @Override
+                    public void onSubscribe(@NonNull Disposable d) {
+                        mCompositeDisposable.add(d);
+                    }
+
+                    @Override
+                    public void onNext(@NonNull JSONObject jsonObject) {
+
+                        dialog.dismiss();
+
+                        try {
+                            //Token status is not valid
+                            if (jsonObject.getString("tokenstatus").equals("invalid")) {
+
+                                showPaymentStatusDialog(PAYMENT_STATUS_INVALID_TOKEN);
+                            }
+                            //Token is valid
+                            else {
+                                JSONObject mainData = jsonObject.getJSONObject("data");
+                                if (mainData.getString("status").equals("done")) {
+
+                                    showPaymentStatusDialog(PAYMENT_STATUS_SUCCESS);
+                                }
+                            }
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                            FirebaseCrash.report(e);
+                            showPaymentStatusDialog(PAYMENT_STATUS_SERVER_ERROR);
+                        }
+                    }
+
+                    @Override
+                    public void onError(@NonNull Throwable e) {
+
+                        dialog.dismiss();
+
+                        e.printStackTrace();
+                        FirebaseCrash.report(e);
+                        showPaymentStatusDialog(PAYMENT_STATUS_SERVER_ERROR);
+                    }
+
+                    @Override
+                    public void onComplete() {
+
+                        // do nothing
+                    }
+                });
+
+    }
 }
