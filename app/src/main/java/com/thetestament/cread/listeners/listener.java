@@ -122,4 +122,10 @@ public class listener {
         void onHatsOffClick(FeedModel data, int itemPosition);
     }
 
+    /**
+     * Interface definition for a callback to be invoked when user scroll for more data.
+     */
+    public interface OnInspirationLoadMoreListener {
+        void onLoadMore();
+    }
 }

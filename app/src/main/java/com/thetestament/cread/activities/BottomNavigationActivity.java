@@ -275,7 +275,8 @@ public class BottomNavigationActivity extends BaseActivity {
         buttonWrite.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                // TODO: functionality
+                //Open ShortActivity
+                startActivity(new Intent(BottomNavigationActivity.this, ShortActivity.class));
                 //Dismiss bottom sheet
                 bottomSheetDialog.dismiss();
 

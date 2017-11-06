@@ -39,7 +39,9 @@ import static com.thetestament.cread.utils.Constant.EXTRA_USER_FIRST_NAME;
 import static com.thetestament.cread.utils.Constant.EXTRA_USER_LAST_NAME;
 import static com.thetestament.cread.utils.Constant.EXTRA_USER_WATER_MARK_STATUS;
 
-
+/**
+ * Here user can view or edit his/her profile basic details.
+ */
 public class UpdateProfileDetailsActivity extends BaseActivity {
 
     @BindView(R.id.rootView)

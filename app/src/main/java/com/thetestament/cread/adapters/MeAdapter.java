@@ -150,7 +150,7 @@ public class MeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             }
 
             if (data.getUuID().equals(mUUID)) {
-                itemViewHolder.buttonMore.setVisibility(View.VISIBLE);
+                //itemViewHolder.buttonMore.setVisibility(View.VISIBLE);
             }
             //// TODO: more button functionality
 

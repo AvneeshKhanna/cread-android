@@ -38,7 +38,7 @@ import static com.thetestament.cread.helpers.ImageHelper.getImageUri;
 import static com.thetestament.cread.utils.Constant.IMAGE_TYPE_USER_CAPTURE_PIC;
 
 /**
- * Class to show preview of capture screen.
+ * Class to show preview of capture.
  */
 
 public class CapturePreviewActivity extends BaseActivity {

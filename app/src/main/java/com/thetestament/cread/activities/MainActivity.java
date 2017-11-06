@@ -169,7 +169,7 @@ public class MainActivity extends BaseActivity {
     /**
      * Method to add dots  and to change the color of dots
      *
-     * @param currentPage value of current page i.e 0(zero)
+     * @param currentPage mGravityFlag of current page i.e 0(zero)
      */
     private void addDots(int currentPage) {
         TextView[] dots = new TextView[mLayouts.length];
