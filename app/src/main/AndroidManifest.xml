@@ -195,7 +195,39 @@
                 android:value=".activities.BottomNavigationActivity" />
         </activity>
 
-        <!-- Temporarily disable Firebase Analytics -->
+
+        <!--ShortActivity-->
+        <activity
+            android:name=".activities.ShortActivity"
+            android:label="Write"
+            android:screenOrientation="portrait">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".activities.BottomNavigationActivity" />
+        </activity>
+
+        <!--InspirationActivity-->
+        <activity
+            android:name=".activities.InspirationActivity"
+            android:label="Inspiration"
+            android:screenOrientation="portrait">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".activities.BottomNavigationActivity" />
+        </activity>
+
+        <!--FinalizeShortActivity-->
+        <activity
+            android:name=".activities.FinaliseShortActivity"
+            android:label="Modify"
+            android:screenOrientation="portrait">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".activities.BottomNavigationActivity" />
+        </activity>
+
+
+        <!--Temporarily disable Firebase Analytics-->
         <meta-data
             android:name="firebase_analytics_collection_enabled"
             android:value="false" />

@@ -10,7 +10,7 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 
 /**
- * Activity class to show the T&c fof this app.
+ * Activity class to show the T&c foe this app.
  */
 
 public class TermsOfServiceActivity extends BaseActivity {

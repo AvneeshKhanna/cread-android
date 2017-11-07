@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/rootView"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <com.thetestament.cread.utils.SquareView
+            android:id="@+id/imageContainer"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/containerCreator">
+
+            <ImageView
+                android:id="@+id/imageWrite"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:scaleType="centerCrop"
+                android:src="@drawable/img_demo" />
+        </com.thetestament.cread.utils.SquareView>
+
+        <android.support.v7.widget.AppCompatEditText
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_gravity="center_vertical"
+            android:background="@null"
+            android:gravity="center"
+            android:inputType="textCapSentences"
+            android:padding="20dp"
+            android:textColorHint="@color/white"
+            android:textCursorDrawable="@drawable/cursor_edit_text"
+            app:autoSizeMinTextSize="8sp"
+            app:autoSizeTextType="none" />
+
+    </FrameLayout>
+
+    <TextView
+        android:id="@+id/buttonClick"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom"
+        android:gravity="center"
+        android:padding="10dp"
+        android:text="Click me" />
+</android.support.design.widget.CoordinatorLayout>

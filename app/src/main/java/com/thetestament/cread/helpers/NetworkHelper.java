@@ -63,7 +63,7 @@ public class NetworkHelper {
 
 
     /**
-     * Method to return user timeLine data from the server.
+     * Method to return data from the server.
      *
      * @param serverURL  URL of the server.
      * @param uuid       UUID of the user.
@@ -85,7 +85,6 @@ public class NetworkHelper {
                 .build()
                 .getJSONObjectObservable();
     }
-
 
 
     /**
