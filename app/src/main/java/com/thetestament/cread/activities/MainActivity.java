@@ -37,6 +37,8 @@ import com.facebook.login.LoginManager;
 import com.facebook.login.LoginResult;
 import com.facebook.login.widget.LoginButton;
 import com.google.firebase.crash.FirebaseCrash;
+import com.google.firebase.iid.FirebaseInstanceId;
+import com.google.firebase.messaging.FirebaseMessaging;
 import com.thetestament.cread.BuildConfig;
 import com.thetestament.cread.R;
 import com.thetestament.cread.adapters.IntroViewPagerAdapter;
@@ -231,6 +233,7 @@ public class MainActivity extends BaseActivity {
         try {
 
             object.put("fbid", userid);
+            object.put("fcmtoken", FirebaseInstanceId.getInstance().getToken());
 
         } catch (JSONException e) {
             e.printStackTrace();
@@ -248,7 +251,6 @@ public class MainActivity extends BaseActivity {
                     .show();
 
 
-            // TODO Update url
             AndroidNetworking.post(BuildConfig.URL + "/user-access/sign-in")
                     .addJSONObjectBody(object)
                     .build()
@@ -270,7 +272,7 @@ public class MainActivity extends BaseActivity {
                                     spHelper.setUUID(dataObject.getString("uuid"));
 
                                     // open the main screen
-                                    Intent startIntent = new Intent(MainActivity.this, MerchandizingProductsActivity.class);
+                                    Intent startIntent = new Intent(MainActivity.this, BottomNavigationActivity.class);
                                     startActivity(startIntent);
 
                                     finish();
@@ -392,7 +394,7 @@ public class MainActivity extends BaseActivity {
     }
 
     /**
-     * sends phone number and other user details to the server and takes action according to the responsse
+     * sends phone number and other user details to the server and takes action according to the response
      */
     private void setUserDetails() {
 
@@ -407,12 +409,14 @@ public class MainActivity extends BaseActivity {
             graphObject.put("picture",
                     graphObject.getJSONObject("picture").getJSONObject("data").getString("url"));
             reqObject.put("userdata", graphObject);
+            reqObject.put("fcmtoken", FirebaseInstanceId.getInstance().getToken());
+
 
         } catch (JSONException e) {
             e.printStackTrace();
             FirebaseCrash.report(e);
         }
-        // TODO Update url
+
         AndroidNetworking.post(BuildConfig.URL + "/user-access/sign-up")
                 .addJSONObjectBody(reqObject)
                 .build()

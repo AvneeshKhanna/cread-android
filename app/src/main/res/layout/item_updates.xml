@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@color/highlight_color"
+    android:padding="10dp">
+
+    <!--Notification icon-->
+    <de.hdodenhof.circleimageview.CircleImageView
+        android:id="@+id/img_updates"
+        android:layout_width="60dp"
+        android:layout_height="60dp" />
+
+    <!--Notification Description Text-->
+    <TextView
+        android:id="@+id/text_description"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignTop="@+id/img_updates"
+        android:layout_toRightOf="@+id/img_updates"
+        android:padding="5dp"
+        android:text="This space will occupied by the notification message."
+        android:textColor="@color/grey_custom"
+        android:textSize="16sp" />
+
+    <!--Notification time-->
+    <TextView
+        android:id="@+id/text_timestamp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:layout_below="@+id/text_description"
+        android:text="18 Aug"
+        android:textColor="@color/grey_custom"
+        android:textSize="12sp" />
+</RelativeLayout>

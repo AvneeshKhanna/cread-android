@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.v7.preference.PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+    `
+    <android.support.v7.preference.Preference
+        android:id="@+id/about"
+        android:defaultValue="true"
+        android:icon="@drawable/ic_info_32"
+        android:title="About"
+        android:key="settings_about_key">
+
+
+    </android.support.v7.preference.Preference>
+
+
+    <android.support.v7.preference.Preference
+        android:id="@+id/findfbFriends"
+        android:defaultValue="true"
+        android:icon="@drawable/ic_person_add_32"
+        android:title="Find Facebook Friends"
+        android:key="settings_findFriends_key">
+
+    </android.support.v7.preference.Preference>
+
+    <android.support.v7.preference.SwitchPreferenceCompat
+        android:defaultValue="true"
+        android:icon="@drawable/ic_notifications_32"
+        android:key="settings_notifications_key"
+        android:persistent="true"
+        android:summary="Choose whether you want to receive notifications"
+        android:title="Notifications" />
+
+    <android.support.v7.preference.Preference
+        android:id="@+id/mr_legal"
+        android:defaultValue="true"
+        android:icon="@drawable/ic_description_32"
+        android:title="Terms of Service">
+
+        <!-- TODO add intent
+        <intent android:action="in.thetestament.marketrecruit.navigation.settings.TermsOfServiceActivity" />-->
+    </android.support.v7.preference.Preference>
+
+    <android.support.v7.preference.Preference
+        android:id="@+id/rate_us_settings"
+        android:defaultValue="true"
+        android:icon="@drawable/ic_star_32"
+        android:key="rate_us"
+        android:title="Rate us" />
+
+    <android.support.v7.preference.Preference
+        android:id="@+id/faq_settings"
+        android:defaultValue="true"
+        android:icon="@drawable/ic_faq_32"
+        android:key="faq"
+        android:title="FAQ" />
+
+    <android.support.v7.preference.Preference
+        android:id="@+id/logout_settings"
+        android:defaultValue="true"
+        android:icon="@drawable/ic_logout_32"
+        android:key="log_out"
+        android:title="Logout" />
+</android.support.v7.preference.PreferenceScreen>

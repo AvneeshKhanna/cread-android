@@ -149,8 +149,9 @@ public class BottomNavigationActivity extends BaseActivity {
         switch (item.getItemId()) {
             case R.id.action_updates:
                 //Open updates screen
-                startActivityForResult(new Intent(this, UpdatesActivity.class)
-                        , REQUEST_CODE_UPDATES_ACTIVITY);
+                // TODO uncomment
+                /*startActivityForResult(new Intent(this, UpdatesActivity.class)
+                        , REQUEST_CODE_UPDATES_ACTIVITY);*/
                 return true;
             case R.id.action_settings:
                 //Launch settings activity
@@ -177,8 +178,9 @@ public class BottomNavigationActivity extends BaseActivity {
                 mFragmentTag = TAG_FEED_FRAGMENT;
                 replaceFragment(mCurrentFragment, mFragmentTag);
                 //Launch updates activity
-                startActivityForResult(new Intent(this, UpdatesActivity.class)
-                        , REQUEST_CODE_UPDATES_ACTIVITY);
+                // TODO uncomment
+                /*startActivityForResult(new Intent(this, UpdatesActivity.class)
+                        , REQUEST_CODE_UPDATES_ACTIVITY);*/
             }
         }
         //When app opened normally

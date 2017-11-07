@@ -91,4 +91,12 @@ public class SharedPreferenceHelper {
         editor.putBoolean(mContext.getString(R.string.key_watermark_status), status);
         editor.apply();
     }
+
+    /**
+     * Method to clear all key value pairs in cread shared preferences
+     */
+    public void clearSharedPreferences()
+    {
+        mSharedPreferences.edit().clear().apply();
+    }
 }

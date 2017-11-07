@@ -208,6 +208,23 @@
         <activity android:name=".activities.FindFBFriendsActivity" />
         <activity android:name=".activities.MerchandizingProductsActivity" />
         <activity android:name=".activities.AddressAcitvity"></activity>
+        <activity android:name=".activities.AboutUsActivity"
+            android:theme="@style/BottomNavigationActivityTheme"></activity>
+
+        <service
+            android:name=".services.MyFirebaseMessagingService">
+            <intent-filter>
+                <action android:name="com.google.firebase.MESSAGING_EVENT"/>
+            </intent-filter>
+        </service>
+
+        <service
+            android:name=".services.MyFirebaseInstanceIDService">
+            <intent-filter>
+                <action android:name="com.google.firebase.INSTANCE_ID_EVENT"/>
+            </intent-filter>
+        </service>
+
     </application>
 
 </manifest>

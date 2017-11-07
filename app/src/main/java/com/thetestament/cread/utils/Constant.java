@@ -15,6 +15,7 @@ public class Constant {
     public static final String TAG_FEED_FRAGMENT = "TagFeedFragment";
     public static final String TAG_EXPLORE_FRAGMENT = "TagExploreFragment";
     public static final String TAG_ME_FRAGMENT = "TagMeFragment";
+    public static final String FRAGMENT_TAG_UPDATES_FRAGMENT = "TagUpdatesFragment";
 
     //Content Types
     public static final String CONTENT_TYPE_SHORT = "SHORT";
@@ -68,6 +69,9 @@ public class Constant {
     public static final String PAYMENT_STATUS_INVALID_TOKEN = "paymentInvalidToken";
     public static final String PAYMENT_STATUS_CONNECTION_TERMINATED = "paymentConnectionTerminated";
     public static final String PAYMENT_STATUS_SERVER_ERROR = "paymentServerError";
+
+    //Action
+    public static final String ACTION_LOG_OUT = "com.thetestament.cread.ACTION_LOGOUT";
 
 
 
