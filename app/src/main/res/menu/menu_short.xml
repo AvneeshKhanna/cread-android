@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item
+        android:id="@+id/action_next"
+        android:icon="@drawable/ic_done_24"
+        android:orderInCategory="2"
+        android:title="Next"
+        app:showAsAction="always" />
+    <item
+        android:id="@+id/action_toggle"
+        android:icon="@drawable/ic_edit_24"
+        android:iconTintMode="src_over"
+        android:orderInCategory="1"
+        android:title="Toggle"
+        app:showAsAction="always" />
+</menu>

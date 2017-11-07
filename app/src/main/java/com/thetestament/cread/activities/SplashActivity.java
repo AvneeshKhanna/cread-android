@@ -68,7 +68,8 @@ public class SplashActivity extends BaseActivity {
 
             //startActivity(new Intent(this, MerchandizingProductsActivity.class));
             //startActivity(new Intent(this, FindFBFriendsActivity.class));
-            startActivity(new Intent(this,MainActivity.class));
+            // startActivity(new Intent(this,MainActivity.class));
+            startActivity(new Intent(this, BottomNavigationActivity.class));
         }
 
         //startActivity(new Intent(this,MainActivity.class));

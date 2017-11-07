@@ -18,6 +18,16 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
 
+        <provider
+            android:name="android.support.v4.content.FileProvider"
+            android:authorities="${applicationId}.provider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/provider_paths" />
+        </provider>
+
         <!-- For facebook sdk start -->
 
         <meta-data
@@ -197,14 +207,6 @@
 
 
         <!--ShortActivity-->
-        <activity
-            android:name=".activities.ShortActivity"
-            android:label="Write"
-            android:screenOrientation="portrait">
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value=".activities.BottomNavigationActivity" />
-        </activity>
 
         <!--InspirationActivity-->
         <activity
@@ -218,7 +220,7 @@
 
         <!--FinalizeShortActivity-->
         <activity
-            android:name=".activities.FinaliseShortActivity"
+            android:name=".activities.ShortActivity"
             android:label="Modify"
             android:screenOrientation="portrait">
             <meta-data

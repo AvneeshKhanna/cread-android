@@ -6,7 +6,9 @@ import android.net.Uri;
 import android.os.Environment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.content.FileProvider;
 
+import com.thetestament.cread.BuildConfig;
 import com.thetestament.cread.R;
 import com.yalantis.ucrop.UCrop;
 
@@ -168,7 +170,8 @@ public class ImageHelper {
             FileOutputStream out = new FileOutputStream(file);
             bmp.compress(Bitmap.CompressFormat.PNG, 90, out);
             out.close();
-            bmpUri = Uri.fromFile(file);
+            bmpUri = FileProvider.getUriForFile(context, BuildConfig.APPLICATION_ID + ".provider", file);
+            //bmpUri = Uri.fromFile(file);
         } catch (IOException e) {
             e.printStackTrace();
         }
