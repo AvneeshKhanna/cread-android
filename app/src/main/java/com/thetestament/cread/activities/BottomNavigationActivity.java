@@ -251,12 +251,17 @@ public class BottomNavigationActivity extends BaseActivity {
      * @param fragment    Fragment to be open.
      * @param tagFragment Tag for the fragment to be opened.
      */
-    private void replaceFragment(Fragment fragment, String tagFragment) {
+    public void replaceFragment(Fragment fragment, String tagFragment) {
         getSupportFragmentManager()
                 .beginTransaction()
                 .replace(R.id.navigationView, fragment, tagFragment)
                 .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE)
                 .commit();
+    }
+
+    public void activateBottomNavigationItem(int id)
+    {
+        navigationView.setSelectedItemId(id);
     }
 
 

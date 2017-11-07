@@ -237,7 +237,11 @@
             android:name="firebase_crash_collection_enabled"
             android:value="false" />
 
-        <activity android:name=".activities.FindFBFriendsActivity" />
+        <activity android:name=".activities.FindFBFriendsActivity">
+        <meta-data
+            android:name="android.support.PARENT_ACTIVITY"
+            android:value=".activities.BottomNavigationActivity" />
+        </activity>
         <activity android:name=".activities.MerchandizingProductsActivity" />
         <activity android:name=".activities.AddressAcitvity"></activity>
         <activity android:name=".activities.AboutUsActivity"

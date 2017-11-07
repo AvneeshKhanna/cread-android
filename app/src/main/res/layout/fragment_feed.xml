@@ -4,6 +4,8 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
+    <!-- This layout will  be visible  when there is no content-->
+
     <android.support.v4.widget.SwipeRefreshLayout
         android:id="@+id/swipeToRefreshLayout"
         android:layout_width="match_parent"
@@ -16,5 +18,86 @@
             android:layoutAnimation="@anim/layout_animation_from_bottom" />
 
     </android.support.v4.widget.SwipeRefreshLayout>
+
+    <LinearLayout
+        android:id="@+id/view_no_posts"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:layout_gravity="center_vertical"
+        android:orientation="vertical"
+        android:visibility="gone">
+
+        <ImageView
+            android:layout_width="100dp"
+            android:layout_height="100dp"
+            android:layout_gravity="center"
+            android:src="@drawable/ic_person_add_48"
+            />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:gravity="center_horizontal"
+            android:text="Connect with others"
+            android:textColor="@color/black_overlay"
+            android:textSize="24sp"
+            android:layout_marginTop="10dp"
+            />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:gravity="center_horizontal"
+            android:text="Discover new people or find your Facebook friends on Cread"
+            android:layout_marginLeft="30dp"
+            android:layout_marginRight="30dp"
+            android:textSize="14sp"
+            android:textColor="@color/grey_dark"
+            android:layout_gravity="center"
+            />
+
+
+        <TextView
+            android:id="@+id/findfbFriendsButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Find Facebook Friends"
+            android:layout_gravity="center"
+            android:layout_marginTop="20dp"
+            android:background="@drawable/button_filled"
+            android:textColor="@color/white"
+            android:paddingLeft="16dp"
+            android:paddingRight="16dp"
+            android:paddingTop="12dp"
+            android:paddingBottom="12dp"
+            android:gravity="center"
+            android:layout_marginRight="30dp"
+            android:layout_marginLeft="30dp"
+            android:textSize="14sp"/>
+
+        <TextView
+            android:id="@+id/explorePeopleButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Find Artists"
+            android:layout_gravity="center"
+            android:layout_marginTop="15dp"
+            android:background="@drawable/button_filled"
+            android:textColor="@color/white"
+            android:paddingLeft="16dp"
+            android:paddingRight="16dp"
+            android:paddingTop="12dp"
+            android:paddingBottom="12dp"
+            android:gravity="center"
+            android:layout_marginRight="30dp"
+            android:layout_marginLeft="30dp"
+            android:textSize="14sp"/>
+
+
+    </LinearLayout>
+
 
 </android.support.design.widget.CoordinatorLayout>

@@ -238,6 +238,12 @@ public class AddressAcitvity extends BaseActivity implements PaymentResultListen
             tiPincode.requestFocus();
             //scrollView.smoothScrollTo(0, tiPincode.getBottom() - tiPincode.getHeight());
         }
+        else if (shipPincode.length() < 6) {
+            tiPincode.setError("Pincode must contain 6 digits");
+            tiPincode.setFocusableInTouchMode(true);
+            tiPincode.requestFocus();
+            //scrollView.smoothScrollTo(0, tiPincode.getBottom() - tiPincode.getHeight());
+        }
 
         else
         {

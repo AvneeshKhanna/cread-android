@@ -9,12 +9,14 @@ import android.support.annotation.Nullable;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.v13.view.ViewCompat;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.widget.NestedScrollView;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.view.animation.AnimationUtils;
 import android.view.animation.LayoutAnimationController;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.androidnetworking.AndroidNetworking;
@@ -82,6 +84,30 @@ public class FeedDescriptionActivity extends BaseActivity {
     SharedPreferenceHelper mHelper;
     CompositeDisposable mCompositeDisposable = new CompositeDisposable();
     FeedModel mFeedData;
+    @BindView(R.id.buttonHave)
+    LinearLayout buttonHave;
+    @BindView(R.id.lineSeparatorTop)
+    View lineSeparatorTop;
+    @BindView(R.id.textHatsOff)
+    TextView textHatsOff;
+    @BindView(R.id.containerHatsOff)
+    LinearLayout containerHatsOff;
+    @BindView(R.id.imageComment)
+    ImageView imageComment;
+    @BindView(R.id.textComment)
+    TextView textComment;
+    @BindView(R.id.containerComment)
+    LinearLayout containerComment;
+    @BindView(R.id.imageShare)
+    ImageView imageShare;
+    @BindView(R.id.textShare)
+    TextView textShare;
+    @BindView(R.id.containerShares)
+    LinearLayout containerShares;
+    @BindView(R.id.lineSeparatorBottom)
+    View lineSeparatorBottom;
+    @BindView(R.id.nestedScrollView)
+    NestedScrollView nestedScrollView;
 
 
     @Override
@@ -142,6 +168,15 @@ public class FeedDescriptionActivity extends BaseActivity {
         Intent intent = new Intent(this, HatsOffActivity.class);
         intent.putExtra(EXTRA_ENTITY_ID, mFeedData.getEntityID());
         startActivity(intent);
+    }
+
+    @OnClick(R.id.buttonHave)
+    public void onViewClicked() {
+
+        Intent intent = new Intent(this, MerchandizingProductsActivity.class);
+        intent.putExtra(EXTRA_ENTITY_ID, mFeedData.getEntityID());
+        startActivity(intent);
+
     }
 
     /**
@@ -460,6 +495,5 @@ public class FeedDescriptionActivity extends BaseActivity {
                 })
         );
     }
-
 
 }

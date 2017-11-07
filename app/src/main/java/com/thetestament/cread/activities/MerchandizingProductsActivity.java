@@ -46,6 +46,7 @@ import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.observers.DisposableObserver;
 import io.reactivex.schedulers.Schedulers;
 
+import static com.thetestament.cread.utils.Constant.EXTRA_ENTITY_ID;
 import static com.thetestament.cread.utils.Constant.EXTRA_PRODUCT_COLOR;
 import static com.thetestament.cread.utils.Constant.EXTRA_PRODUCT_DELIVERY_CHARGE;
 import static com.thetestament.cread.utils.Constant.EXTRA_PRODUCT_DELIVERY_TIME;
@@ -86,8 +87,8 @@ public class MerchandizingProductsActivity extends BaseActivity {
 
     CompositeDisposable mCompositeDisposable = new CompositeDisposable();
 
-    // TODO update entity id to get dynamically from intent of previous activity
-    String mEntityID = "0fb2a7ea-6f82-44cb-b40c-c26422878523", deliveryTime, billingContact;
+
+    String mEntityID, deliveryTime, billingContact;
 
 
     @Override
@@ -111,6 +112,8 @@ public class MerchandizingProductsActivity extends BaseActivity {
      * Method to initialize views
      */
     private void initView() {
+
+        mEntityID = getIntent().getStringExtra(EXTRA_ENTITY_ID);
 
         //Set layout manger for recyclerView
         recyclerView.setLayoutManager(new LinearLayoutManager(MerchandizingProductsActivity.this));

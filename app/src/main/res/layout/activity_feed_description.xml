@@ -49,19 +49,61 @@
                     tools:text="The Testament" />
             </LinearLayout>
 
-            <com.thetestament.cread.utils.SquareView
-                android:id="@+id/imageContainer"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_below="@+id/containerCreator">
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
 
-                <ImageView
-                    android:id="@+id/image"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:scaleType="centerCrop"
-                    android:src="@drawable/image_placeholder" />
-            </com.thetestament.cread.utils.SquareView>
+                <com.thetestament.cread.utils.SquareView
+                    android:id="@+id/imageContainer"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content">
+
+                    <ImageView
+                        android:id="@+id/image"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:scaleType="centerCrop"
+                        android:src="@drawable/image_placeholder" />
+                </com.thetestament.cread.utils.SquareView>
+
+                <FrameLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentRight="true"
+                    android:layout_alignBottom="@+id/imageContainer"
+                    android:layout_marginBottom="5dp"
+                    android:layout_marginRight="3dp"
+                    android:background="@color/black_overlay"
+                    android:padding="5dp">
+
+                    <LinearLayout
+                        android:id="@+id/buttonHave"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:layout_gravity="center">
+
+                        <ImageView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:src="@drawable/ic_have_18" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Have"
+                            android:textColor="@color/white"
+                            android:layout_marginLeft="5dp"/>
+
+
+                    </LinearLayout>
+
+
+                </FrameLayout>
+
+
+            </RelativeLayout>
+
 
             <RelativeLayout
                 android:layout_width="match_parent"

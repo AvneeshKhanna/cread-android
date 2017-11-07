@@ -1,5 +1,6 @@
 package com.thetestament.cread.fragments;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.Nullable;
@@ -14,6 +15,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.AnimationUtils;
 import android.view.animation.LayoutAnimationController;
+import android.widget.LinearLayout;
+import android.widget.TextView;
 
 import com.androidnetworking.AndroidNetworking;
 import com.androidnetworking.error.ANError;
@@ -21,11 +24,14 @@ import com.androidnetworking.interfaces.JSONObjectRequestListener;
 import com.google.firebase.crash.FirebaseCrash;
 import com.thetestament.cread.BuildConfig;
 import com.thetestament.cread.R;
+import com.thetestament.cread.activities.BottomNavigationActivity;
+import com.thetestament.cread.activities.FindFBFriendsActivity;
 import com.thetestament.cread.adapters.FeedAdapter;
 import com.thetestament.cread.helpers.SharedPreferenceHelper;
 import com.thetestament.cread.helpers.ViewHelper;
 import com.thetestament.cread.listeners.listener;
 import com.thetestament.cread.models.FeedModel;
+import com.thetestament.cread.utils.Constant;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -36,6 +42,7 @@ import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import butterknife.OnClick;
 import butterknife.Unbinder;
 import icepick.Icepick;
 import io.reactivex.android.schedulers.AndroidSchedulers;
@@ -60,6 +67,13 @@ public class FeedFragment extends Fragment {
     List<FeedModel> mFeedDataList = new ArrayList<>();
     FeedAdapter mAdapter;
     SharedPreferenceHelper mHelper;
+    @BindView(R.id.findfbFriendsButton)
+    TextView findfbFriendsButton;
+    @BindView(R.id.explorePeopleButton)
+    TextView explorePeopleButton;
+    @BindView(R.id.view_no_posts)
+    LinearLayout viewNoPosts;
+    Unbinder unbinder;
     private Unbinder mUnbinder;
     private int mPageNumber = 0;
     private boolean mRequestMoreData;
@@ -70,10 +84,12 @@ public class FeedFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         //SharedPreference reference
         mHelper = new SharedPreferenceHelper(getContext());
-        return inflater
+        View view = inflater
                 .inflate(R.layout.fragment_feed
                         , container
                         , false);
+        unbinder = ButterKnife.bind(this, view);
+        return view;
     }
 
     @Override
@@ -129,6 +145,8 @@ public class FeedFragment extends Fragment {
                 mAdapter.setLoaded();
                 //set page count to zero
                 mPageNumber = 0;
+                // hide no posts view
+                viewNoPosts.setVisibility(View.GONE);
                 //Load data here
                 loadFeedData();
             }
@@ -258,7 +276,10 @@ public class FeedFragment extends Fragment {
 
                         } else if (mFeedDataList.size() == 0) {
                             // TODO: Find friends functionality coming soon for more information call 9711137697
-                            ViewHelper.getSnackBar(rootView, "Find friends functionality coming soon");
+                            viewNoPosts.setVisibility(View.VISIBLE);
+
+
+                            //ViewHelper.getSnackBar(rootView, "Find friends functionality coming soon");
                         } else {
                             //Apply 'Slide Up' animation
                             int resId = R.anim.layout_animation_from_bottom;
@@ -428,6 +449,18 @@ public class FeedFragment extends Fragment {
                         ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_server));
                     }
                 });
+    }
+
+
+    @OnClick(R.id.findfbFriendsButton)
+    public void onFindFBFriendsClicked() {
+        startActivity(new Intent(getActivity(), FindFBFriendsActivity.class));
+    }
+
+    @OnClick(R.id.explorePeopleButton)
+    public void onExploreFriendsClicked() {
+        ((BottomNavigationActivity) getActivity()).activateBottomNavigationItem(R.id.action_explore);
+        ((BottomNavigationActivity) getActivity()).replaceFragment(new ExploreFragment(), Constant.TAG_EXPLORE_FRAGMENT);
     }
 
 }
