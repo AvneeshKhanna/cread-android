@@ -389,7 +389,7 @@ public class MainActivity extends BaseActivity {
         request.setParameters(parameters);
         request.executeAsync();
 
-        // TODO error handling for graph api
+
 
     }
 
@@ -446,7 +446,7 @@ public class MainActivity extends BaseActivity {
 
                             //phone number already exists
                             else if (dataObject.getString("status").equals("phone-exists")) {
-                                // TODO incomplete
+
                                 AccessToken.setCurrentAccessToken(null);
                                 ViewHelper.getSnackBar(parentLayout, "This number is already registered with us");
                             }

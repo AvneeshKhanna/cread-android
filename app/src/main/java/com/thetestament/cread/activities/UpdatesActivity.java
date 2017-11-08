@@ -1,4 +1,3 @@
-/*
 package com.thetestament.cread.activities;
 
 import android.os.Bundle;
@@ -8,15 +7,14 @@ import android.view.Menu;
 import android.view.MenuItem;
 
 import com.thetestament.cread.R;
+import com.thetestament.cread.fragments.UpdatesFragment;
 
 
 import static com.thetestament.cread.utils.Constant.FRAGMENT_TAG_UPDATES_FRAGMENT;
 
 
-*/
-/**
- * AppcompatActivity class for Updates system i.e notification system.
- *//*
+
+  /*AppcompatActivity class for Updates system i.e notification system.*/
 
 
 public class UpdatesActivity extends BaseActivity {
@@ -55,10 +53,9 @@ public class UpdatesActivity extends BaseActivity {
         }
     }
 
-    */
-/**
-     * Method to initialize views for this screen.
-     *//*
+
+     /*Method to initialize views for this screen*/
+
 
     private void initView() {
         getSupportFragmentManager().beginTransaction()
@@ -67,4 +64,3 @@ public class UpdatesActivity extends BaseActivity {
                 .commit();
     }
 }
-*/

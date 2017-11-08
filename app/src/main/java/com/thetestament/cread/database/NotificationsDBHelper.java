@@ -1,16 +1,14 @@
-/*
 package com.thetestament.cread.database;
 
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
-import in.thetestament.marketrecruit.navigation.notificationpanel.database.NotificationsDBSchema.NotificationDBEntry;
+import com.thetestament.cread.database.NotificationsDBSchema.NotificationDBEntry;
 
-*/
-/**
- * Helper class for  notification system DB
- *//*
+
+//Helper class for  notification system DB
+
 
 public class NotificationsDBHelper extends SQLiteOpenHelper {
 
@@ -19,19 +17,18 @@ public class NotificationsDBHelper extends SQLiteOpenHelper {
     private static final String COMMA_SEP = ",";
 
     // If you change the database schema, you must increment the database version.
-    public static final int DATABASE_VERSION = 3;
-    public static final String DATABASE_NAME = "MarketRecruit_Notifications.db";
+    public static final int DATABASE_VERSION = 1;
+    public static final String DATABASE_NAME = "Cread_Notifications.db";
 
     //Create table syntax
     private static final String SQL_CREATE_ENTRIES =
             "CREATE TABLE " + NotificationDBEntry.TABLE_NAME + " (" +
                     NotificationDBEntry._ID + " INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL," +
                     NotificationDBEntry.COLUMN_NAME_USER_ID + TEXT_TYPE + COMMA_SEP +
-                    NotificationDBEntry.COLUMN_NAME_TYPE + TEXT_TYPE + COMMA_SEP +
+                    NotificationDBEntry.COLUMN_NAME_ACTOR_USERID + TEXT_TYPE + COMMA_SEP +
+                    NotificationDBEntry.COLUMN_NAME_ENTITY_ID + TEXT_TYPE + COMMA_SEP +
                     NotificationDBEntry.COLUMN_NAME_MESSAGE + TEXT_TYPE + COMMA_SEP +
-                    NotificationDBEntry.COLUMN_NAME_JOB_ID + TEXT_TYPE + COMMA_SEP +
-                    NotificationDBEntry.COLUMN_NAME_CAMPAIGN_ID + TEXT_TYPE + COMMA_SEP +
-                    NotificationDBEntry.COLUMN_NAME_SHARE_ID + TEXT_TYPE + COMMA_SEP +
+                    NotificationDBEntry.COLUMN_NAME_USER_IMAGE + TEXT_TYPE + COMMA_SEP +
                     NotificationDBEntry.COLUMN_NAME_CATEGORY + TEXT_TYPE + COMMA_SEP +
                     NotificationDBEntry.COLUMN_NAME_UNREAD + TEXT_TYPE + COMMA_SEP +
                     NotificationDBEntry.COLUMN_NAME_DATE + TEXT_TYPE + COMMA_SEP +
@@ -67,4 +64,3 @@ public class NotificationsDBHelper extends SQLiteOpenHelper {
         onUpgrade(db, oldVersion, newVersion);
     }
 }
-*/

@@ -74,8 +74,32 @@ public class Constant {
     //Action
     public static final String ACTION_LOG_OUT = "com.thetestament.cread.ACTION_LOGOUT";
 
+    //Notifications Cread category
+    public static final String NOTIFICATION_CATEGORY_CREAD_FOLLOW = "follow";
+    public static final String NOTIFICATION_CATEGORY_CREAD_COLLABORATE = "collaborate";
+    public static final String NOTIFICATION_CATEGORY_CREAD_HATSOFF = "hatsoff";
+    public static final String NOTIFICATION_CATEGORY_CREAD_COMMENT = "comment";
+    public static final String NOTIFICATION_CATEGORY_CREAD_BUY = "buy";
+    public static final String NOTIFICATION_CATEGORY_CREAD_GENERAL = "general";
+
+    //Notification id cread
+    public static final int NOTIFICATION_ID_CREAD_FOLLOW = 1000;
+    public static final int NOTIFICATION_ID_CREAD_COLLABORATE = 1001;
+    public static final int NOTIFICATION_ID_CREAD_HATSOFF = 1002;
+    public static final int NOTIFICATION_ID_CREAD_COMMENT = 1003;
+    public static final int NOTIFICATION_ID_CREAD_BUY = 1004;
+    public static final int NOTIFICATION_ID_CREAD_GENERAL = 1005;
+
+    public static final String NOTIFICATION_CHANNEL_GENERAL = "generalNotificationChannel";
 
 
+    // Bundle data keys for notification
+    public static final String NOTIFICATION_BUNDLE_DATA_MESSAGE = "message";
+    public static final String NOTIFICATION_BUNDLE_DATA_CATEGORY = "category";
+    public static final String NOTIFICATION_BUNDLE_DATA_ACTOR_ID = "actorID";
+    public static final String NOTIFICATION_BUNDLE_DATA_ENTITY_ID = "entityID";
+    public static final String NOTIFICATION_BUNDLE_DATA_ACTOR_IMAGE = "actorImage";
+    public static final String NOTIFICATION_BUNDLE_DATA_PERSISTABLE = "persistable";
 
 
 

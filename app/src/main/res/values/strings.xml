@@ -42,4 +42,7 @@
     <string name="payment_failed_server_error">The transaction could not go through due to an error on the server. In case the amount has been deducted from your bank account, your refund will be processed in 5-7 days. Please check your registered mail for more details.</string>
     <string name="payment_success_message">Congratulations! Your order has been processed successfully</string>
 
+    // notifcations
+    <string name="gen_notif_channel_name">Cread</string>
+    <string name="gen_notif_channel_desc">Make sound and pop up on screen</string>
 </resources>

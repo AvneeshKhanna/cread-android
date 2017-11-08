@@ -383,6 +383,7 @@ public class AddressAcitvity extends BaseActivity implements PaymentResultListen
             data.put("uuid", spHelper.getUUID());
             data.put("authkey", spHelper.getAuthToken());
             data.put("productid", productID);
+            data.put("productname", productName);
             data.put("entityid", entityID);
             data.put("paymentid", paymentid);
             data.put("amount", String.valueOf(totalAmount * 100));

@@ -1,4 +1,3 @@
-/*
 package com.thetestament.cread.fragments;
 
 import android.content.Intent;
@@ -19,6 +18,10 @@ import android.view.ViewGroup;
 import android.widget.LinearLayout;
 
 import com.thetestament.cread.R;
+import com.thetestament.cread.adapters.UpdatesAdapter;
+import com.thetestament.cread.database.NotificationsDBHelper;
+import com.thetestament.cread.database.NotificationsDBSchema;
+import com.thetestament.cread.models.UpdatesModel;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -28,12 +31,24 @@ import butterknife.ButterKnife;
 import butterknife.Unbinder;
 
 import static android.app.Activity.RESULT_OK;
+import static com.thetestament.cread.database.NotificationsDBSchema.NotificationDBEntry.COLUMN_NAME_ACTOR_USERID;
+import static com.thetestament.cread.database.NotificationsDBSchema.NotificationDBEntry.COLUMN_NAME_CATEGORY;
+import static com.thetestament.cread.database.NotificationsDBSchema.NotificationDBEntry.COLUMN_NAME_DATE;
+import static com.thetestament.cread.database.NotificationsDBSchema.NotificationDBEntry.COLUMN_NAME_ENTITY_ID;
+import static com.thetestament.cread.database.NotificationsDBSchema.NotificationDBEntry.COLUMN_NAME_MESSAGE;
+import static com.thetestament.cread.database.NotificationsDBSchema.NotificationDBEntry.COLUMN_NAME_SEEN;
+import static com.thetestament.cread.database.NotificationsDBSchema.NotificationDBEntry.COLUMN_NAME_TIME;
+import static com.thetestament.cread.database.NotificationsDBSchema.NotificationDBEntry.COLUMN_NAME_USER_IMAGE;
+import static com.thetestament.cread.database.NotificationsDBSchema.NotificationDBEntry.TABLE_NAME;
+import static com.thetestament.cread.utils.Constant.NOTIFICATION_CATEGORY_CREAD_BUY;
+import static com.thetestament.cread.utils.Constant.NOTIFICATION_CATEGORY_CREAD_COLLABORATE;
+import static com.thetestament.cread.utils.Constant.NOTIFICATION_CATEGORY_CREAD_COMMENT;
+import static com.thetestament.cread.utils.Constant.NOTIFICATION_CATEGORY_CREAD_FOLLOW;
+import static com.thetestament.cread.utils.Constant.NOTIFICATION_CATEGORY_CREAD_HATSOFF;
 
 
-*/
-/**
- * Fragment class which shows notification.
- *//*
+
+        /*Fragment class which shows notification.*/
 
 
 public class UpdatesFragment extends Fragment {
@@ -87,30 +102,28 @@ public class UpdatesFragment extends Fragment {
         unbinder.unbind();
     }
 
-    */
-/**
-     * Method which execute GetUpdatesData AsyncTask.
-     *//*
+
+     /*Method which execute GetUpdatesData AsyncTask.*/
+
 
     private void loadUpdates() {
         new getUpdatesData().execute();
     }
 
-    */
-/**
-     * AsyncTask which retrieve notifications data from Sqlite DB
-     *//*
+
+     /* AsyncTask which retrieve notifications data from Sqlite DB*/
+
 
     private class getUpdatesData extends AsyncTask<Void, Void, Void> {
 
         SQLiteDatabase sqLiteDatabase;
-        List<UpdatesData> updatesDataList = new ArrayList<>();
+        List<UpdatesModel> updatesDataList = new ArrayList<>();
 
         @Override
         protected Void doInBackground(Void... params) {
 
             NotificationsDBHelper notificationsDBHelper = new NotificationsDBHelper(getContext());
-            // Gets the data repository in read mod
+            // Gets the data repository in read mode
             sqLiteDatabase = notificationsDBHelper.getReadableDatabase();
 
             // Define a projection that specifies which columns from the database
@@ -119,9 +132,7 @@ public class UpdatesFragment extends Fragment {
                     "*"
             };
 
-            // Filter results WHERE "type" = "2.0"
-            String selection = COLUMN_NAME_TYPE + " = ?";
-            String[] selectionArgs = {"2.0"};
+
 
             // How you want the results sorted in the resulting Cursor
             String sortOrder =
@@ -130,8 +141,8 @@ public class UpdatesFragment extends Fragment {
             Cursor cursor = sqLiteDatabase.query(
                     TABLE_NAME,                               // The table to query
                     projection,                               // The columns to return
-                    selection,                                // The columns for the WHERE clause
-                    selectionArgs,                            // The values for the WHERE clause
+                    null,                                // The columns for the WHERE clause
+                    null,                            // The values for the WHERE clause
                     null,                                     // don't group the rows
                     null,                                     // don't filter by row groups
                     sortOrder                                 // The sort order
@@ -146,39 +157,16 @@ public class UpdatesFragment extends Fragment {
 
                         + cursor.getString((cursor.getColumnIndex(COLUMN_NAME_TIME)));
 
-                UpdatesData updatesData = new UpdatesData();
+                UpdatesModel updatesData = new UpdatesModel();
 
                 updatesData.setMessage(cursor.getString(cursor.getColumnIndex(COLUMN_NAME_MESSAGE)));
-                updatesData.setType(cursor.getString(cursor.getColumnIndex(COLUMN_NAME_TYPE)));
                 updatesData.setTimeStamp(notifyDateTime);
                 updatesData.set_ID(cursor.getInt(cursor.getColumnIndex(NotificationsDBSchema.NotificationDBEntry._ID)));
                 updatesData.setSeen(cursor.getString(cursor.getColumnIndex(COLUMN_NAME_SEEN)));
                 updatesData.setCategory(cursor.getString(cursor.getColumnIndex(COLUMN_NAME_CATEGORY)));
-                updatesData.setCampaignID(cursor.getString(cursor.getColumnIndex(COLUMN_NAME_CAMPAIGN_ID)));
-                updatesData.setShareID(cursor.getString(cursor.getColumnIndex(COLUMN_NAME_SHARE_ID)));
-                // Selection of notification  icon depending  on category
-                switch (updatesData.getCategory()) {
-                    case NOTIFICATION_CATEGORY_CREAD_CAMPAIGN_SPECIFIC:
-                        updatesData.setLogo(R.drawable.ic_cread_notification_camp_specific);
-                        break;
-
-                    case NOTIFICATION_CATEGORY_CREAD_SHARE_STATUS:
-                        updatesData.setLogo(R.drawable.ic_cread_notification_share_status);
-                        break;
-
-                    case NOTIFICATION_CATEGORY_CREAD_CAMPAIGN_UNLOCKED:
-                        updatesData.setLogo(R.drawable.ic_cread_notification_camp_unlocked);
-                        break;
-
-                    case NOTIFICATION_CATEGORY_CREAD_GENERAL:
-                        updatesData.setLogo(R.drawable.ic_cread_notification_general);
-                        break;
-
-                    case NOTIFICATION_CATEGORY_CREAD_TOP_GIVERS:
-                        updatesData.setLogo(R.drawable.ic_cread_notification_top_givers);
-                        break;
-                }
-
+                updatesData.setActorID(cursor.getString(cursor.getColumnIndex(COLUMN_NAME_ACTOR_USERID)));
+                updatesData.setEntityID(cursor.getString(cursor.getColumnIndex(COLUMN_NAME_ENTITY_ID)));
+                updatesData.setActorImage(cursor.getString(cursor.getColumnIndex(COLUMN_NAME_USER_IMAGE)));
                 updatesDataList.add(updatesData);
                 cursor.moveToNext();
             }
@@ -203,12 +191,12 @@ public class UpdatesFragment extends Fragment {
                 recyclerView.setAdapter(updatesAdapter);
                 swipeRefreshLayout.setRefreshing(false);
 
-                updatesAdapter.setNotificationItemClick(new UpdatesAdapter.NotificationItemClick() {
+                /*updatesAdapter.setNotificationItemClick(new UpdatesAdapter.NotificationItemClick() {
                     @Override
                     public void onNotificationClick(String notificationType, String shareId) {
                         switch (notificationType) {
-                            case NOTIFICATION_CATEGORY_CREAD_CAMPAIGN_UNLOCKED:
-                            case NOTIFICATION_CATEGORY_CREAD_GENERAL:
+                            case NOTIFICATION_CATEGORY_CREAD_FOLLOW:
+                            case NOTIFICATION_CATEGORY_CREAD_COLLABORATE:
                                 Intent returnIntent = new Intent();
                                 Bundle returnData = new Bundle();
                                 returnData.putString("notificationCategory", notificationType);
@@ -219,7 +207,7 @@ public class UpdatesFragment extends Fragment {
                                 getActivity().finish();
                                 break;
 
-                            case NOTIFICATION_CATEGORY_CREAD_SHARE_STATUS:
+                            case NOTIFICATION_CATEGORY_CREAD_HATSOFF:
 
                                 Intent returnIntentShareStatus = new Intent();
                                 Bundle returnDataShareStatus = new Bundle();
@@ -232,7 +220,18 @@ public class UpdatesFragment extends Fragment {
                                 getActivity().finish();
                                 break;
 
-                            case NOTIFICATION_CATEGORY_CREAD_TOP_GIVERS:
+                            case NOTIFICATION_CATEGORY_CREAD_COMMENT:
+                                Intent returnIntentGivers = new Intent();
+                                Bundle returnDataGivers = new Bundle();
+                                returnDataGivers.putString("notificationCategory", NOTIFICATION_CATEGORY_CREAD_TOP_GIVERS);
+                                returnIntentGivers.putExtras(returnDataGivers);
+
+                                getActivity().setResult(RESULT_OK, returnIntentGivers);
+                                //Finish this activity
+                                getActivity().finish();
+                                break;
+
+                            case NOTIFICATION_CATEGORY_CREAD_BUY:
                                 Intent returnIntentGivers = new Intent();
                                 Bundle returnDataGivers = new Bundle();
                                 returnDataGivers.putString("notificationCategory", NOTIFICATION_CATEGORY_CREAD_TOP_GIVERS);
@@ -247,7 +246,7 @@ public class UpdatesFragment extends Fragment {
                                 break;
                         }
                     }
-                });
+                });*/
 
             }
         }
@@ -267,4 +266,3 @@ public class UpdatesFragment extends Fragment {
         loadUpdates(); //For loading the notifications
     }
 }
-*/

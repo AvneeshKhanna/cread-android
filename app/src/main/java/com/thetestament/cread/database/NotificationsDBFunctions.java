@@ -1,4 +1,3 @@
-/*
 package com.thetestament.cread.database;
 
 import android.content.ContentValues;
@@ -9,13 +8,14 @@ import android.os.NetworkOnMainThreadException;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 
+import com.thetestament.cread.BuildConfig;
 import com.thetestament.cread.database.NotificationsDBSchema.NotificationDBEntry;
+import com.thetestament.cread.helpers.SharedPreferenceHelper;
 
 
-*/
-/**
- * Created by PRAKHAR 95 on 06-09-2016.
- *//*
+
+    /*Created by PRAKHAR 95on 06-09-2016*/
+
 
 public class NotificationsDBFunctions {
 
@@ -26,15 +26,15 @@ public class NotificationsDBFunctions {
     //Required constructor
     public NotificationsDBFunctions(AppCompatActivity context) {
         this.context = context;
-        userId = AccountManagerUtils.getUserID(context);
+        SharedPreferenceHelper spHelper = new SharedPreferenceHelper(context);
+        userId = spHelper.getUUID();
     }
 
-    */
-/**
-     * Method to access  sqliteDB in writable mode
-     *//*
 
-    public void accessFormDatabase() {
+      /*Method to access  sqliteDB in writable mode*/
+
+
+    public void accessNotificationsDatabase() {
         NotificationsDBHelper notificationsDBHelper = new NotificationsDBHelper(context);
         db = notificationsDBHelper.getWritableDatabase();
     }
@@ -127,4 +127,3 @@ public class NotificationsDBFunctions {
 
     }
 }
-*/

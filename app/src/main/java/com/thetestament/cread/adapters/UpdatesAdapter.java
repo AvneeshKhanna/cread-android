@@ -1,4 +1,3 @@
-/*
 package com.thetestament.cread.adapters;
 
 import android.content.Intent;
@@ -13,7 +12,10 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import com.squareup.picasso.Picasso;
 import com.thetestament.cread.R;
+import com.thetestament.cread.database.NotificationsDBFunctions;
+import com.thetestament.cread.models.UpdatesModel;
 
 import java.util.List;
 
@@ -21,39 +23,42 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import de.hdodenhof.circleimageview.CircleImageView;
 
+import static com.thetestament.cread.utils.Constant.NOTIFICATION_CATEGORY_CREAD_BUY;
+import static com.thetestament.cread.utils.Constant.NOTIFICATION_CATEGORY_CREAD_COLLABORATE;
+import static com.thetestament.cread.utils.Constant.NOTIFICATION_CATEGORY_CREAD_COMMENT;
+import static com.thetestament.cread.utils.Constant.NOTIFICATION_CATEGORY_CREAD_FOLLOW;
+import static com.thetestament.cread.utils.Constant.NOTIFICATION_CATEGORY_CREAD_GENERAL;
+import static com.thetestament.cread.utils.Constant.NOTIFICATION_CATEGORY_CREAD_HATSOFF;
 
-*/
-/**
- * Adapter class for UpdatesFragment RecyclerView.
- *//*
+
+/*Adapter class for UpdatesFragment RecyclerView.*/
+
 
 public class UpdatesAdapter extends RecyclerView.Adapter<UpdatesAdapter.ViewHolder> {
 
     private NotificationItemClick notificationItemClick;
 
-    */
-/**
-     * Interface definition for a callback to be invoked when a notification is clicked.
-     *//*
+
+    /*Interface definition for a callback to be invoked when a notification is clicked.*/
+
 
     public interface NotificationItemClick {
         void onNotificationClick(String notificationType, String shareID);
     }
 
-    */
-/**
-     * Register a callback to be invoked when user clicks on notification item.
-     *//*
+
+      /*Register a callback to be invoked when user clicks on notification item.*/
+
 
     public void setNotificationItemClick(NotificationItemClick notificationItemClick) {
         this.notificationItemClick = notificationItemClick;
     }
 
-    private List<UpdatesData> mUpdatesDataList;
+    private List<UpdatesModel> mUpdatesDataList;
     private FragmentActivity mContext;
 
     //Constructor
-    public UpdatesAdapter(List<UpdatesData> updatesDataList, FragmentActivity context) {
+    public UpdatesAdapter(List<UpdatesModel> updatesDataList, FragmentActivity context) {
         this.mUpdatesDataList = updatesDataList;
         this.mContext = context;
     }
@@ -67,12 +72,13 @@ public class UpdatesAdapter extends RecyclerView.Adapter<UpdatesAdapter.ViewHold
 
     @Override
     public void onBindViewHolder(final UpdatesAdapter.ViewHolder holder, int position) {
-        final UpdatesData updatesData = mUpdatesDataList.get(position);
+        final UpdatesModel updatesData = mUpdatesDataList.get(position);
 
         holder.textDescription.setText(updatesData.getMessage());
-        holder.imgNotification.setImageResource(updatesData.getLogo());
         holder.textTimestamp.setText(updatesData.getTimeStamp());
         holder._id = updatesData.get_ID();
+
+        loadProfilePicture(updatesData.getActorImage(), holder.imgNotification);
 
         //Change notification item color depending upon seen status
         if (updatesData.getSeen().equals("true")) {
@@ -87,7 +93,7 @@ public class UpdatesAdapter extends RecyclerView.Adapter<UpdatesAdapter.ViewHold
             public void onClick(View v) {
                 //Background task to update seen status
                 new UpdateSeenStatus().execute(holder);
-                initClick(updatesData.getCategory(), updatesData.getCampaignID(), updatesData.getShareID());
+                //initClick(updatesData.getCategory(), updatesData.getCampaignID(), updatesData.getShareID());
             }
         });
     }
@@ -112,10 +118,9 @@ public class UpdatesAdapter extends RecyclerView.Adapter<UpdatesAdapter.ViewHold
         }
     }
 
-    */
-/**
-     * AsyncTask to update the notification seen status.
-     *//*
+
+     /* AsyncTask to update the notification seen status.*/
+
 
     class UpdateSeenStatus extends AsyncTask<ViewHolder, Void, ViewHolder> {
         @Override
@@ -123,7 +128,7 @@ public class UpdatesAdapter extends RecyclerView.Adapter<UpdatesAdapter.ViewHold
 
             NotificationsDBFunctions notificationsDBFunctions
                     = new NotificationsDBFunctions((AppCompatActivity) mContext);
-            notificationsDBFunctions.accessFormDatabase();
+            notificationsDBFunctions.accessNotificationsDatabase();
             notificationsDBFunctions.setSeen(holder[0]._id);
             return holder[0];
         }
@@ -135,19 +140,18 @@ public class UpdatesAdapter extends RecyclerView.Adapter<UpdatesAdapter.ViewHold
         }
     }
 
-    */
-/**
-     * Open screen depending on the type of the notification.
+
+     /** Open screen depending on the type of the notification.
      *
      * @param category Notification category
      * @param cmId     campaign id.
      * @param shareID  ShareID
-     *//*
+     */
 
-    private void initClick(String category, String cmId, String shareID) {
+ /*   private void initClick(String category, String cmId, String shareID) {
         switch (category) {
-            case NOTIFICATION_CATEGORY_CREAD_CAMPAIGN_SPECIFIC:
-                //Launch Campaign description activity
+            case NOTIFICATION_CATEGORY_CREAD_FOLLOW:
+                //Launch me fragment
                 Intent intent = new Intent(mContext, CampaignDescriptionActivity.class);
                 intent.putExtra(CAMPAIGN_DESC_CALLED_FROM, CAMPAIGN_DESC_FROM_UPDATES);
                 intent.putExtra(EXTRA_CAMPAIGN_ID_DATA, cmId);
@@ -156,28 +160,44 @@ public class UpdatesAdapter extends RecyclerView.Adapter<UpdatesAdapter.ViewHold
                 mContext.finish();
                 break;
 
-            case NOTIFICATION_CATEGORY_CREAD_SHARE_STATUS:
+            case NOTIFICATION_CATEGORY_CREAD_COLLABORATE:
                 //Listener
                 notificationItemClick.onNotificationClick(NOTIFICATION_CATEGORY_CREAD_SHARE_STATUS, shareID);
                 break;
 
-            case NOTIFICATION_CATEGORY_CREAD_CAMPAIGN_UNLOCKED:
+            case NOTIFICATION_CATEGORY_CREAD_HATSOFF:
                 //Listener
                 notificationItemClick.onNotificationClick(NOTIFICATION_CATEGORY_CREAD_CAMPAIGN_UNLOCKED, shareID);
                 break;
 
-            case NOTIFICATION_CATEGORY_CREAD_GENERAL:
+            case NOTIFICATION_CATEGORY_CREAD_COMMENT:
                 //Listener
                 notificationItemClick.onNotificationClick(NOTIFICATION_CATEGORY_CREAD_GENERAL, shareID);
                 break;
 
-            case NOTIFICATION_CATEGORY_CREAD_TOP_GIVERS:
+            case NOTIFICATION_CATEGORY_CREAD_BUY:
+                //Listener
+                notificationItemClick.onNotificationClick(NOTIFICATION_CATEGORY_CREAD_TOP_GIVERS, shareID);
+                break;
+            case NOTIFICATION_CATEGORY_CREAD_GENERAL:
                 //Listener
                 notificationItemClick.onNotificationClick(NOTIFICATION_CATEGORY_CREAD_TOP_GIVERS, shareID);
                 break;
             default:
                 break;
         }
+    }*/
+
+    /**
+     * Method to load creator profile picture.
+     *
+     * @param picUrl    picture URL.
+     * @param imageView View where image to be loaded.
+     */
+    private void loadProfilePicture(String picUrl, CircleImageView imageView) {
+        Picasso.with(mContext)
+                .load(picUrl)
+                .error(R.drawable.ic_account_circle_48)
+                .into(imageView);
     }
 }
-*/
