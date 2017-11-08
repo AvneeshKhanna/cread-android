@@ -68,7 +68,7 @@ public class FeedDescriptionActivity extends BaseActivity {
     CircleImageView imageCreator;
     @BindView(R.id.textCreatorName)
     TextView textCreatorName;
-    @BindView(R.id.image)
+    @BindView(R.id.contentImage)
     ImageView image;
     @BindView(R.id.textHatsOffCount)
     TextView textHatsOffCount;
