@@ -25,7 +25,7 @@ public class Constant {
     //Image Types
     public static final String IMAGE_TYPE_USER_PROFILE_PIC = "userProfilePic";
     public static final String IMAGE_TYPE_USER_CAPTURE_PIC = "UserCapturePic";
-
+    public static final String IMAGE_TYPE_USER_SHORT_PIC = "UserShortPic";
     //User Activity type
     public static final String USER_ACTIVITY_TYPE_ALL = "typeAll";
     public static final String USER_ACTIVITY_TYPE_SHORT = "typeShort";
@@ -33,7 +33,9 @@ public class Constant {
 
     //Extra data
     public static final String EXTRA_ENTITY_ID = "entityID";
-    public static final String EXTRA_FEED_DATA = "feedData";
+    public static final String EXTRA_CAPTURE_ID = "captureID";
+    public static final String EXTRA_CAPTURE_URL = "captureURL";
+    public static final String EXTRA_DATA = "data";
     public static final String EXTRA_PROFILE_UUID = "profileUUID";
     public static final String EXTRA_FEED_DESCRIPTION_DATA = "dataFeedDescription";
 

@@ -10,6 +10,7 @@ import android.os.Parcelable;
 
 public class FeedModel implements Parcelable {
 
+
     public static final Creator<FeedModel> CREATOR = new Creator<FeedModel>() {
         @Override
         public FeedModel createFromParcel(Parcel in) {
@@ -21,12 +22,13 @@ public class FeedModel implements Parcelable {
             return new FeedModel[size];
         }
     };
-    String entityID;
-    String uuID, creatorName, creatorImage;
-    boolean hatsOffStatus, followStatus;
-    long hatsOffCount, commentCount;
-    String contentType;
-    String image;
+    private String entityID, captureID;
+    private String UUID, creatorName, creatorImage;
+    private boolean hatsOffStatus, followStatus;
+    private long hatsOffCount, commentCount;
+    private String contentType;
+    private String contentImage;
+
 
     //Required constructor
     public FeedModel() {
@@ -34,7 +36,8 @@ public class FeedModel implements Parcelable {
 
     protected FeedModel(Parcel in) {
         entityID = in.readString();
-        uuID = in.readString();
+        captureID = in.readString();
+        UUID = in.readString();
         creatorName = in.readString();
         creatorImage = in.readString();
         hatsOffStatus = in.readByte() != 0;
@@ -42,7 +45,7 @@ public class FeedModel implements Parcelable {
         hatsOffCount = in.readLong();
         commentCount = in.readLong();
         contentType = in.readString();
-        image = in.readString();
+        contentImage = in.readString();
     }
 
     public String getEntityID() {
@@ -53,12 +56,20 @@ public class FeedModel implements Parcelable {
         this.entityID = entityID;
     }
 
-    public String getUuID() {
-        return uuID;
+    public String getCaptureID() {
+        return captureID;
     }
 
-    public void setUuID(String uuID) {
-        this.uuID = uuID;
+    public void setCaptureID(String captureID) {
+        this.captureID = captureID;
+    }
+
+    public String getUUID() {
+        return UUID;
+    }
+
+    public void setUUID(String UUID) {
+        this.UUID = UUID;
     }
 
     public String getCreatorName() {
@@ -117,12 +128,12 @@ public class FeedModel implements Parcelable {
         this.contentType = contentType;
     }
 
-    public String getImage() {
-        return image;
+    public String getContentImage() {
+        return contentImage;
     }
 
-    public void setImage(String image) {
-        this.image = image;
+    public void setContentImage(String contentImage) {
+        this.contentImage = contentImage;
     }
 
     @Override
@@ -133,7 +144,8 @@ public class FeedModel implements Parcelable {
     @Override
     public void writeToParcel(Parcel parcel, int i) {
         parcel.writeString(entityID);
-        parcel.writeString(uuID);
+        parcel.writeString(captureID);
+        parcel.writeString(UUID);
         parcel.writeString(creatorName);
         parcel.writeString(creatorImage);
         parcel.writeByte((byte) (hatsOffStatus ? 1 : 0));
@@ -141,6 +153,7 @@ public class FeedModel implements Parcelable {
         parcel.writeLong(hatsOffCount);
         parcel.writeLong(commentCount);
         parcel.writeString(contentType);
-        parcel.writeString(image);
+        parcel.writeString(contentImage);
     }
+
 }

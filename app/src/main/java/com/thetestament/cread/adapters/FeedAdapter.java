@@ -3,6 +3,7 @@ package com.thetestament.cread.adapters;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
+import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.RecyclerView;
@@ -21,6 +22,7 @@ import com.thetestament.cread.R;
 import com.thetestament.cread.activities.CommentsActivity;
 import com.thetestament.cread.activities.FeedDescriptionActivity;
 import com.thetestament.cread.activities.ProfileActivity;
+import com.thetestament.cread.activities.ShortActivity;
 import com.thetestament.cread.helpers.ViewHelper;
 import com.thetestament.cread.listeners.listener.OnFeedLoadMoreListener;
 import com.thetestament.cread.listeners.listener.OnHatsOffListener;
@@ -35,6 +37,9 @@ import de.hdodenhof.circleimageview.CircleImageView;
 import static com.thetestament.cread.helpers.ImageHelper.getLocalBitmapUri;
 import static com.thetestament.cread.utils.Constant.CONTENT_TYPE_CAPTURE;
 import static com.thetestament.cread.utils.Constant.CONTENT_TYPE_SHORT;
+import static com.thetestament.cread.utils.Constant.EXTRA_CAPTURE_ID;
+import static com.thetestament.cread.utils.Constant.EXTRA_CAPTURE_URL;
+import static com.thetestament.cread.utils.Constant.EXTRA_DATA;
 import static com.thetestament.cread.utils.Constant.EXTRA_ENTITY_ID;
 import static com.thetestament.cread.utils.Constant.EXTRA_FEED_DESCRIPTION_DATA;
 import static com.thetestament.cread.utils.Constant.EXTRA_PROFILE_UUID;
@@ -110,15 +115,17 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             //Set creator name
             itemViewHolder.textCreatorName.setText(data.getCreatorName());
             //Load feed image
-            loadFeedImage(data.getImage(), itemViewHolder.imageFeed);
+            loadFeedImage(data.getContentImage(), itemViewHolder.imageFeed);
 
             //Check for content type
             switch (data.getContentType()) {
                 case CONTENT_TYPE_CAPTURE:
                     itemViewHolder.imageWorkType.setImageDrawable(ContextCompat.getDrawable(mContext, R.drawable.ic_camera_alt_24));
+                    itemViewHolder.buttonCompose.setVisibility(View.VISIBLE);
                     break;
                 case CONTENT_TYPE_SHORT:
                     itemViewHolder.imageWorkType.setImageDrawable(ContextCompat.getDrawable(mContext, R.drawable.ic_create_24));
+                    itemViewHolder.buttonCompose.setVisibility(View.GONE);
                     break;
                 default:
             }
@@ -127,15 +134,15 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             checkHatsOffStatus(data.getHatsOffStatus(), itemViewHolder);
 
             //Click functionality to launch profile of creator
-            openCreatorProfile(itemViewHolder.containerCreator, data.getUuID());
+            openCreatorProfile(itemViewHolder.containerCreator, data.getUUID());
             //ItemView onClick functionality
             itemViewOnClick(itemViewHolder.itemView, data);
             //Compose click functionality
-            composeOnClick(itemViewHolder.buttonCompose, data.getEntityID());
+            composeOnClick(itemViewHolder.buttonCompose, data.getCaptureID(), data.getContentImage());
             //Comment click functionality
             commentOnClick(itemViewHolder.containerComment, data.getEntityID());
             //Share click functionality
-            shareOnClick(itemViewHolder.containerShare, data.getImage());
+            shareOnClick(itemViewHolder.containerShare, data.getContentImage());
             //HatsOff onClick functionality
             hatsOffOnClick(itemViewHolder, data, position);
 
@@ -248,15 +255,21 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     /**
      * Compose onClick functionality.
      *
-     * @param view     View to be clicked.
-     * @param entityID Entity ID*
+     * @param view       View to be clicked.
+     * @param captureID  CaptureID of image.
+     * @param captureURL Capture image url.
      */
-    private void composeOnClick(View view, final String entityID) {
+    private void composeOnClick(View view, final String captureID, final String captureURL) {
         view.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                // TODO functionality remaining
-                ViewHelper.getToast(mContext, "Coming soon");
+
+                Bundle bundle = new Bundle();
+                bundle.putString(EXTRA_CAPTURE_ID, captureID);
+                bundle.putString(EXTRA_CAPTURE_URL, captureURL);
+                Intent intent = new Intent(mContext, ShortActivity.class);
+                intent.putExtra(EXTRA_DATA, bundle);
+                mContext.startActivity(intent);
             }
         });
     }

@@ -136,7 +136,7 @@ public class MeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             //Set creator name
             itemViewHolder.textCreatorName.setText(data.getCreatorName());
             //Load story image
-            loadStoryImage(data.getImage(), itemViewHolder.imageStory);
+            loadStoryImage(data.getContentImage(), itemViewHolder.imageStory);
 
             //Check for content type
             switch (data.getContentType()) {
@@ -149,7 +149,7 @@ public class MeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                 default:
             }
 
-            if (data.getUuID().equals(mUUID)) {
+            if (data.getUUID().equals(mUUID)) {
                 //itemViewHolder.buttonMore.setVisibility(View.VISIBLE);
             }
             //// TODO: more button functionality
@@ -164,7 +164,7 @@ public class MeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             //Comment click functionality
             commentOnClick(itemViewHolder.containerComment, data.getEntityID());
             //Share click functionality
-            shareOnClick(itemViewHolder.containerShare, data.getImage());
+            shareOnClick(itemViewHolder.containerShare, data.getContentImage());
             //HatsOff onClick functionality
             hatsOffOnClick(itemViewHolder, data, position);
 

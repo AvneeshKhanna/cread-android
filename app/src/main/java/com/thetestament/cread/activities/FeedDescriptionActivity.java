@@ -68,7 +68,7 @@ public class FeedDescriptionActivity extends BaseActivity {
     CircleImageView imageCreator;
     @BindView(R.id.textCreatorName)
     TextView textCreatorName;
-    @BindView(R.id.image)
+    @BindView(R.id.contentImage)
     ImageView image;
     @BindView(R.id.textHatsOffCount)
     TextView textHatsOffCount;
@@ -156,7 +156,7 @@ public class FeedDescriptionActivity extends BaseActivity {
     @OnClick(R.id.containerCreator)
     void onProfileContainer() {
         Intent intent = new Intent(this, ProfileActivity.class);
-        intent.putExtra(EXTRA_PROFILE_UUID, mFeedData.getUuID());
+        intent.putExtra(EXTRA_PROFILE_UUID, mFeedData.getUUID());
         startActivity(intent);
     }
 
@@ -237,7 +237,7 @@ public class FeedDescriptionActivity extends BaseActivity {
      */
     @OnClick(R.id.containerShares)
     void shareOnClick() {
-        Picasso.with(this).load(mFeedData.getImage()).into(new Target() {
+        Picasso.with(this).load(mFeedData.getContentImage()).into(new Target() {
             @Override
             public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
                 Intent intent = new Intent();
@@ -267,7 +267,7 @@ public class FeedDescriptionActivity extends BaseActivity {
         //Get data from intent
         retrieveIntentData();
         //Load story image
-        loadStoryImage(mFeedData.getImage(), image);
+        loadStoryImage(mFeedData.getContentImage(), image);
         //Load creator image
         loadCreatorImage(mFeedData.getCreatorImage(), imageCreator);
         //toggle hats off status

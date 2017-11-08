@@ -6,7 +6,7 @@ package com.thetestament.cread.models;
 
 public class InspirationModel {
 
-    private String entityID, UUID, creatorName, creatorProfilePic, capturePic;
+    private String entityID, captureID, UUID, creatorName, creatorProfilePic, capturePic;
 
 
     public String getEntityID() {
@@ -15,6 +15,14 @@ public class InspirationModel {
 
     public void setEntityID(String entityID) {
         this.entityID = entityID;
+    }
+
+    public String getCaptureID() {
+        return captureID;
+    }
+
+    public void setCaptureID(String captureID) {
+        this.captureID = captureID;
     }
 
     public String getUUID() {

@@ -193,6 +193,7 @@ public class InspirationActivity extends BaseActivity {
                                     JSONObject dataObj = array.getJSONObject(i);
                                     InspirationModel data = new InspirationModel();
                                     data.setEntityID(dataObj.getString("entityid"));
+                                    data.setCaptureID(dataObj.getString("captureid"));
                                     data.setUUID(dataObj.getString("uuid"));
                                     data.setCreatorProfilePic(dataObj.getString("profilepicurl"));
                                     data.setCreatorName(dataObj.getString("creatorname"));
@@ -272,6 +273,7 @@ public class InspirationActivity extends BaseActivity {
                                     JSONObject dataObj = array.getJSONObject(i);
                                     InspirationModel data = new InspirationModel();
                                     data.setEntityID(dataObj.getString("entityid"));
+                                    data.setCaptureID(dataObj.getString("captureid"));
                                     data.setUUID(dataObj.getString("uuid"));
                                     data.setCreatorProfilePic(dataObj.getString("profilepicurl"));
                                     data.setCreatorName(dataObj.getString("creatorname"));

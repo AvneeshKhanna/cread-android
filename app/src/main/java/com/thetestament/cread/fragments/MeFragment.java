@@ -788,13 +788,13 @@ public class MeFragment extends Fragment {
                                     FeedModel data = new FeedModel();
                                     data.setEntityID(dataObj.getString("entityid"));
                                     data.setContentType(dataObj.getString("type"));
-                                    data.setUuID(dataObj.getString("uuid"));
+                                    data.setUUID(dataObj.getString("uuid"));
                                     data.setCreatorImage(dataObj.getString("profilepicurl"));
                                     data.setCreatorName(dataObj.getString("creatorname"));
                                     data.setHatsOffStatus(dataObj.getBoolean("hatsoffstatus"));
                                     data.setHatsOffCount(dataObj.getLong("hatsoffcount"));
                                     data.setCommentCount(dataObj.getLong("commentcount"));
-                                    data.setImage(dataObj.getString("captureurl"));
+                                    data.setContentImage(dataObj.getString("entityurl"));
                                     mUserActivityDataList.add(data);
                                 }
                             }
@@ -904,13 +904,13 @@ public class MeFragment extends Fragment {
                                     FeedModel data = new FeedModel();
                                     data.setEntityID(dataObj.getString("entityid"));
                                     data.setContentType(dataObj.getString("type"));
-                                    data.setUuID(dataObj.getString("uuid"));
+                                    data.setUUID(dataObj.getString("uuid"));
                                     data.setCreatorImage(dataObj.getString("profilepicurl"));
                                     data.setCreatorName(dataObj.getString("creatorname"));
                                     data.setHatsOffStatus(dataObj.getBoolean("hatsoffstatus"));
                                     data.setHatsOffCount(dataObj.getLong("hatsoffcount"));
                                     data.setCommentCount(dataObj.getLong("commentcount"));
-                                    data.setImage(dataObj.getString("captureurl"));
+                                    data.setContentImage(dataObj.getString("entityurl"));
 
                                     mUserActivityDataList.add(data);
                                     //Notify item insertion

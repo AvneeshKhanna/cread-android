@@ -189,7 +189,7 @@
                 android:value=".activities.BottomNavigationActivity" />
         </activity>
 
-        <!-- For image cropping library -->
+        <!-- For contentImage cropping library -->
         <activity
             android:name="com.yalantis.ucrop.UCropActivity"
             android:screenOrientation="portrait"
@@ -218,10 +218,10 @@
                 android:value=".activities.BottomNavigationActivity" />
         </activity>
 
-        <!--FinalizeShortActivity-->
+        <!--ShortActivity-->
         <activity
             android:name=".activities.ShortActivity"
-            android:label="Modify"
+            android:label="Write"
             android:screenOrientation="portrait">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"

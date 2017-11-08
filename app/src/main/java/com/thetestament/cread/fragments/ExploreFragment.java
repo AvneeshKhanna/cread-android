@@ -215,15 +215,16 @@ public class ExploreFragment extends Fragment {
                                     JSONObject dataObj = exploreArray.getJSONObject(i);
                                     FeedModel exploreData = new FeedModel();
                                     exploreData.setEntityID(dataObj.getString("entityid"));
+                                    exploreData.setCaptureID(dataObj.getString("captureid"));
                                     exploreData.setContentType(dataObj.getString("type"));
-                                    exploreData.setUuID(dataObj.getString("uuid"));
+                                    exploreData.setUUID(dataObj.getString("uuid"));
                                     exploreData.setCreatorImage(dataObj.getString("profilepicurl"));
                                     exploreData.setCreatorName(dataObj.getString("creatorname"));
                                     exploreData.setHatsOffStatus(dataObj.getBoolean("hatsoffstatus"));
                                     exploreData.setFollowStatus(dataObj.getBoolean("followstatus"));
                                     exploreData.setHatsOffCount(dataObj.getLong("hatsoffcount"));
                                     exploreData.setCommentCount(dataObj.getLong("commentcount"));
-                                    exploreData.setImage(dataObj.getString("captureurl"));
+                                    exploreData.setContentImage(dataObj.getString("entityurl"));
                                     mExploreDataList.add(exploreData);
                                 }
                             }
@@ -298,15 +299,16 @@ public class ExploreFragment extends Fragment {
                                     JSONObject dataObj = exploreArray.getJSONObject(i);
                                     FeedModel exploreData = new FeedModel();
                                     exploreData.setEntityID(dataObj.getString("entityid"));
+                                    exploreData.setCaptureID(dataObj.getString("captureid"));
                                     exploreData.setContentType(dataObj.getString("type"));
-                                    exploreData.setUuID(dataObj.getString("uuid"));
+                                    exploreData.setUUID(dataObj.getString("uuid"));
                                     exploreData.setCreatorImage(dataObj.getString("profilepicurl"));
                                     exploreData.setCreatorName(dataObj.getString("creatorname"));
                                     exploreData.setHatsOffStatus(dataObj.getBoolean("hatsoffstatus"));
                                     exploreData.setFollowStatus(dataObj.getBoolean("followstatus"));
                                     exploreData.setHatsOffCount(dataObj.getLong("hatsoffcount"));
                                     exploreData.setCommentCount(dataObj.getLong("commentcount"));
-                                    exploreData.setImage(dataObj.getString("captureurl"));
+                                    exploreData.setContentImage(dataObj.getString("entityurl"));
                                     mExploreDataList.add(exploreData);
 
                                     //Notify item insertion
@@ -373,7 +375,7 @@ public class ExploreFragment extends Fragment {
         final JSONObject jsonObject = new JSONObject();
         JSONArray jsonArray = new JSONArray();
         try {
-            jsonArray.put(exploreData.getUuID());
+            jsonArray.put(exploreData.getUUID());
 
             jsonObject.put("uuid", mHelper.getUUID());
             jsonObject.put("authkey", mHelper.getAuthToken());

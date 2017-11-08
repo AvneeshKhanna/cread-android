@@ -59,7 +59,7 @@
                     android:layout_height="wrap_content">
 
                     <ImageView
-                        android:id="@+id/image"
+                        android:id="@+id/contentImage"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
                         android:scaleType="centerCrop"
@@ -69,8 +69,8 @@
                 <FrameLayout
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_alignParentRight="true"
                     android:layout_alignBottom="@+id/imageContainer"
+                    android:layout_alignParentRight="true"
                     android:layout_marginBottom="5dp"
                     android:layout_marginRight="3dp"
                     android:background="@color/black_overlay"
@@ -80,8 +80,8 @@
                         android:id="@+id/buttonHave"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:orientation="horizontal"
-                        android:layout_gravity="center">
+                        android:layout_gravity="center"
+                        android:orientation="horizontal">
 
                         <ImageView
                             android:layout_width="wrap_content"
@@ -91,9 +91,9 @@
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
+                            android:layout_marginLeft="5dp"
                             android:text="Have"
-                            android:textColor="@color/white"
-                            android:layout_marginLeft="5dp"/>
+                            android:textColor="@color/white" />
 
 
                     </LinearLayout>

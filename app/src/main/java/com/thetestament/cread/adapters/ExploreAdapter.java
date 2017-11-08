@@ -3,6 +3,7 @@ package com.thetestament.cread.adapters;
 
 import android.content.Context;
 import android.content.Intent;
+import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.view.ViewCompat;
@@ -18,7 +19,7 @@ import com.squareup.picasso.Picasso;
 import com.thetestament.cread.R;
 import com.thetestament.cread.activities.FeedDescriptionActivity;
 import com.thetestament.cread.activities.ProfileActivity;
-import com.thetestament.cread.helpers.ViewHelper;
+import com.thetestament.cread.activities.ShortActivity;
 import com.thetestament.cread.listeners.listener.OnExploreFollowListener;
 import com.thetestament.cread.listeners.listener.OnExploreLoadMoreListener;
 import com.thetestament.cread.models.FeedModel;
@@ -31,6 +32,9 @@ import de.hdodenhof.circleimageview.CircleImageView;
 
 import static com.thetestament.cread.utils.Constant.CONTENT_TYPE_CAPTURE;
 import static com.thetestament.cread.utils.Constant.CONTENT_TYPE_SHORT;
+import static com.thetestament.cread.utils.Constant.EXTRA_CAPTURE_ID;
+import static com.thetestament.cread.utils.Constant.EXTRA_CAPTURE_URL;
+import static com.thetestament.cread.utils.Constant.EXTRA_DATA;
 import static com.thetestament.cread.utils.Constant.EXTRA_FEED_DESCRIPTION_DATA;
 import static com.thetestament.cread.utils.Constant.EXTRA_PROFILE_UUID;
 
@@ -104,7 +108,7 @@ public class ExploreAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
             //Set creator name
             itemViewHolder.textCreatorName.setText(data.getCreatorName());
             //Load explore feed image
-            loadFeedImage(data.getImage(), itemViewHolder.imageExplore);
+            loadFeedImage(data.getContentImage(), itemViewHolder.imageExplore);
 
             //Check follow status
             checkFollowStatus(mContext, data.getFollowStatus(), itemViewHolder.buttonFollow);
@@ -113,18 +117,20 @@ public class ExploreAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
             switch (data.getContentType()) {
                 case CONTENT_TYPE_CAPTURE:
                     itemViewHolder.imageWorkType.setImageDrawable(ContextCompat.getDrawable(mContext, R.drawable.ic_camera_alt_24));
+                    itemViewHolder.buttonCompose.setVisibility(View.VISIBLE);
                     break;
                 case CONTENT_TYPE_SHORT:
                     itemViewHolder.imageWorkType.setImageDrawable(ContextCompat.getDrawable(mContext, R.drawable.ic_create_24));
+                    itemViewHolder.buttonCompose.setVisibility(View.GONE);
                     break;
                 default:
             }
             //Click functionality to launch profile of creator
-            openCreatorProfile(itemViewHolder.containerCreator, data.getUuID());
+            openCreatorProfile(itemViewHolder.containerCreator, data.getUUID());
             //Follow button click functionality
             followOnClick(position, data, itemViewHolder.buttonFollow);
             //Compose click functionality
-            composeOnClick(itemViewHolder.buttonCompose, data.getEntityID());
+            composeOnClick(itemViewHolder.buttonCompose, data.getCaptureID(), data.getContentImage());
             //ItemView onClick functionality
             itemViewOnClick(itemViewHolder.itemView, data);
 
@@ -225,13 +231,21 @@ public class ExploreAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
 
     /**
      * Compose onClick functionality.
+     *
+     * @param view       View to be clicked.
+     * @param captureID  Capture ID of the content.
+     * @param captureURL Capture image url.
      */
-    private void composeOnClick(View view, final String entityID) {
+    private void composeOnClick(View view, final String captureID, final String captureURL) {
         view.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                // TODO functionality remaining
-                ViewHelper.getToast(mContext, "Coming soon");
+                Bundle bundle = new Bundle();
+                bundle.putString(EXTRA_CAPTURE_ID, captureID);
+                bundle.putString(EXTRA_CAPTURE_URL, captureURL);
+                Intent intent = new Intent(mContext, ShortActivity.class);
+                intent.putExtra(EXTRA_DATA, bundle);
+                mContext.startActivity(intent);
             }
         });
     }
