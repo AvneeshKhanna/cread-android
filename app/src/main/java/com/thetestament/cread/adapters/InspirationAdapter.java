@@ -25,6 +25,9 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import de.hdodenhof.circleimageview.CircleImageView;
 
+import static com.thetestament.cread.utils.Constant.EXTRA_CAPTURE_ID;
+import static com.thetestament.cread.utils.Constant.EXTRA_CAPTURE_URL;
+import static com.thetestament.cread.utils.Constant.EXTRA_DATA;
 import static com.thetestament.cread.utils.Constant.EXTRA_PROFILE_UUID;
 
 /**
@@ -182,10 +185,10 @@ public class InspirationAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
             @Override
             public void onClick(View view) {
                 Bundle bundle = new Bundle();
-                bundle.putString("entityID", data.getEntityID());
-                bundle.putString("capturePic", data.getCapturePic());
+                bundle.putString(EXTRA_CAPTURE_ID, data.getCaptureID());
+                bundle.putString(EXTRA_CAPTURE_URL, data.getCapturePic());
                 Intent intent = new Intent();
-                intent.putExtra("data", bundle);
+                intent.putExtra(EXTRA_DATA, bundle);
                 mContext.setResult(Activity.RESULT_OK, intent);
                 //finis this activity
                 mContext.finish();

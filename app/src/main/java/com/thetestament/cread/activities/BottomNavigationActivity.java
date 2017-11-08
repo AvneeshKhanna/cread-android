@@ -39,7 +39,6 @@ import static com.thetestament.cread.helpers.ImageHelper.getImageUri;
 import static com.thetestament.cread.helpers.ImageHelper.startImageCropping;
 import static com.thetestament.cread.utils.Constant.IMAGE_TYPE_USER_CAPTURE_PIC;
 import static com.thetestament.cread.utils.Constant.REQUEST_CODE_OPEN_GALLERY;
-import static com.thetestament.cread.utils.Constant.REQUEST_CODE_UPDATES_ACTIVITY;
 import static com.thetestament.cread.utils.Constant.REQUEST_CODE_WRITE_EXTERNAL_STORAGE;
 import static com.thetestament.cread.utils.Constant.TAG_EXPLORE_FRAGMENT;
 import static com.thetestament.cread.utils.Constant.TAG_FEED_FRAGMENT;
@@ -259,8 +258,7 @@ public class BottomNavigationActivity extends BaseActivity {
                 .commit();
     }
 
-    public void activateBottomNavigationItem(int id)
-    {
+    public void activateBottomNavigationItem(int id) {
         navigationView.setSelectedItemId(id);
     }
 

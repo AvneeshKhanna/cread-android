@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
@@ -14,6 +15,7 @@ import android.support.design.widget.CoordinatorLayout;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.FileProvider;
+import android.util.Log;
 import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.Menu;
@@ -22,10 +24,13 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.ImageView;
 
+import com.afollestad.materialdialogs.MaterialDialog;
 import com.afollestad.materialdialogs.color.ColorChooserDialog;
 import com.google.firebase.crash.FirebaseCrash;
 import com.rx2androidnetworking.Rx2AndroidNetworking;
+import com.squareup.picasso.Callback;
 import com.squareup.picasso.Picasso;
+import com.squareup.picasso.Target;
 import com.thetestament.cread.BuildConfig;
 import com.thetestament.cread.Manifest;
 import com.thetestament.cread.R;
@@ -56,6 +61,12 @@ import okhttp3.OkHttpClient;
 
 import static android.content.Intent.FLAG_GRANT_READ_URI_PERMISSION;
 import static android.content.Intent.FLAG_GRANT_WRITE_URI_PERMISSION;
+import static com.thetestament.cread.helpers.ImageHelper.getImageUri;
+import static com.thetestament.cread.utils.Constant.EXTRA_CAPTURE_ID;
+import static com.thetestament.cread.utils.Constant.EXTRA_CAPTURE_URL;
+import static com.thetestament.cread.utils.Constant.EXTRA_DATA;
+import static com.thetestament.cread.utils.Constant.IMAGE_TYPE_USER_SHORT_PIC;
+import static com.thetestament.cread.utils.Constant.REQUEST_CODE_INSPIRATION_ACTIVITY;
 import static com.thetestament.cread.utils.Constant.REQUEST_CODE_WRITE_EXTERNAL_STORAGE;
 
 /**
@@ -74,28 +85,36 @@ public class ShortActivity extends BaseActivity implements ColorChooserDialog.Co
     EditText textShort;
 
     @State
-    String mShortText, mPicUrl;
+    String mShortText, mCaptureUrl, mCaptureID = "";
+    @State
+    int mImageWidth = 1080;
 
-    //Initially text gravity is "CENTER"
-    TextGravity textGravity = TextGravity.CENTER;
     /**
      * Flag to maintain gravity status i.e 0 for center , 1 for right and 2 for left.
      */
     @State
     int mGravityFlag = 0;
-
+    //Initially text gravity is "CENTER"
+    TextGravity textGravity = TextGravity.CENTER;
+    /**
+     * Flag for switching b/w edit mode and drag mode.
+     * 0 for edit mode and 1 for drag mode.
+     */
     int mToggleMovement = 0;
-
     CompositeDisposable mCompositeDisposable = new CompositeDisposable();
+    SharedPreferenceHelper mHelper;
+    MaterialDialog mDialog;
 
     @Override
+
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_short);
         //ButterKnife view binding
         ButterKnife.bind(this);
+        mHelper = new SharedPreferenceHelper(this);
         //initialize screen
-        // initScreen();
+        initScreen();
     }
 
     @Override
@@ -104,6 +123,25 @@ public class ShortActivity extends BaseActivity implements ColorChooserDialog.Co
         mCompositeDisposable.dispose();
     }
 
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        switch (requestCode) {
+            case REQUEST_CODE_INSPIRATION_ACTIVITY:
+                if (resultCode == RESULT_OK) {
+                    Bundle bundle = data.getBundleExtra(EXTRA_DATA);
+                    //Retrieve data
+                    mCaptureID = bundle.getString(EXTRA_CAPTURE_ID);
+                    Log.d("TAG", "onActivityResult: " + mCaptureID);
+                    mCaptureUrl = bundle.getString(EXTRA_CAPTURE_URL);
+                    Log.d("TAG", "onActivityResult: " + mCaptureUrl);
+                    //Load inspiration/capture image
+                    loadCapture(imageShort, mCaptureUrl);
+                }
+                break;
+
+        }
+    }
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
@@ -112,8 +150,7 @@ public class ShortActivity extends BaseActivity implements ColorChooserDialog.Co
             if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 generateImage();
             } else {
-                ViewHelper.getToast(this
-                        , "The app won't function properly since the permission for storage was denied.");
+                ViewHelper.getToast(this, getString(R.string.error_msg_permission_denied));
             }
         }
     }
@@ -144,42 +181,35 @@ public class ShortActivity extends BaseActivity implements ColorChooserDialog.Co
                 finish();
                 return true;
             case R.id.action_next:
-                //// TODO: Upload functionality
-
-                 /*updateShort(new File("")
-                , String.valueOf(textShort.getX())
-                , String.valueOf(textShort.getY())
-                , String.valueOf(textShort.getWidth())
-                , String.valueOf(textShort.getHeight())
-                , textShort.getText().toString()
-                , String.valueOf(textShort.getTextSize())
-                , Integer.toHexString(textShort.getCurrentTextColor())
-                , textGravity.toString()
-        );*/
+                getRuntimePermission();
                 return true;
-
             case R.id.action_toggle:
-                //
+                //Toggle mode i.e edit to drag and vice versa
                 if (mToggleMovement == 0) {
+                    //Set drag listener
                     textShort.setOnTouchListener(new OnDragTouchListener(textShort));
+                    //Hide edit text cursor
                     textShort.setCursorVisible(false);
                     //Hide keyboard
                     InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
                     imm.hideSoftInputFromWindow(textShort.getWindowToken(), 0);
                     //Change icon
                     item.setIcon(R.drawable.ic_drag_24);
+                    //Change flag
                     mToggleMovement = 1;
                 } else {
+                    //Remove drag listener
                     textShort.setOnTouchListener(null);
+                    //Shoe edit text cursor
                     textShort.setCursorVisible(true);
                     //Show keyboard
                     InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
                     imm.showSoftInput(textShort, 0);
                     //Change icon
                     item.setIcon(R.drawable.ic_edit_24);
+                    //Change flag
                     mToggleMovement = 0;
                 }
-
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
@@ -195,27 +225,33 @@ public class ShortActivity extends BaseActivity implements ColorChooserDialog.Co
 
     @Override
     public void onColorChooserDismissed(@NonNull ColorChooserDialog dialog) {
+        //do nothing
     }
 
     /**
-     * Post button click functionality.
+     * Inspire me button click functionality to open InspirationActivity.
      */
     @OnClick(R.id.btnInspireMe)
-    public void onBtnPostClicked() {
-        getRuntimePermission();
+    public void onBtnInspireClicked() {
+        startActivityForResult(new Intent(this, InspirationActivity.class)
+                , REQUEST_CODE_INSPIRATION_ACTIVITY);
     }
 
     /**
-     * Click functionality to toggle the text gravity.
+     * Functionality to toggle the text gravity.
      */
     @OnClick(R.id.btnLAlignText)
     public void onBtnLAlignTextClicked(ImageView btnAlignText) {
 
         switch (mGravityFlag) {
             case 0:
+                //Set text gravity
                 textShort.setGravity(Gravity.RIGHT);
+                //Change button drawable
                 btnAlignText.setImageDrawable(ContextCompat.getDrawable(this, R.drawable.ic_format_align_right_32));
+                //Change gravity flag
                 mGravityFlag = 1;
+                //Set gravity variable
                 textGravity = TextGravity.RIGHT;
                 break;
             case 1:
@@ -234,25 +270,23 @@ public class ShortActivity extends BaseActivity implements ColorChooserDialog.Co
     }
 
     /**
-     * Click functionality to increase 'Short text' by one sp.
+     * Click functionality to increase 'Short text' size by five unit..
      */
     @OnClick(R.id.btnFormatTextSizePlus)
     public void onBtnFormatTextSizePlusClicked() {
         int ts = (int) textShort.getTextSize() + 5;
-        //Increase text size by one sp
+        //Increase text size by 5 unit
         textShort.setTextSize(TypedValue.COMPLEX_UNIT_PX, ts);
     }
 
     /**
-     * Click functionality to decrease 'Short text' by one sp.
+     * Click functionality to decrease 'Short text' by five unit.
      */
     @OnClick(R.id.btnFormatTextSizeMinus)
     public void onBtnFormatTextSizeMinusClicked() {
-
         int ts = (int) textShort.getTextSize() - 5;
-        //Decrease text size by one sp
+        //Decrease text size by five unit
         textShort.setTextSize(TypedValue.COMPLEX_UNIT_PX, ts);
-
     }
 
     /**
@@ -281,87 +315,52 @@ public class ShortActivity extends BaseActivity implements ColorChooserDialog.Co
      * Method to retrieve data from intent and initialize this screen.
      */
     private void initScreen() {
-        //Retrieve data
-        mShortText = getIntent().getStringExtra("shortText");
-        mPicUrl = getIntent().getStringExtra("pictureUrl");
-
-        //Set text
-        textShort.setText(mShortText);
-        //Load inspiration image
-        Picasso.with(this)
-                .load(mPicUrl)
-                .error(R.drawable.image_placeholder)
-                .into(imageShort);
+        if (getIntent().hasExtra(EXTRA_DATA)) {
+            Bundle bundle = getIntent().getBundleExtra(EXTRA_DATA);
+            //Retrieve data
+            mCaptureID = bundle.getString(EXTRA_CAPTURE_ID);
+            mCaptureUrl = bundle.getString(EXTRA_CAPTURE_URL);
+            //Load inspiration/capture image
+            loadCapture(imageShort, mCaptureUrl);
+        }
     }
 
+    /**
+     * Method to load capture image.
+     *
+     * @param imageView View where image will be loaded.
+     * @param imageUrl  URL of image to be loaded.
+     */
+    private void loadCapture(ImageView imageView, final String imageUrl) {
+        Picasso.with(this)
+                .load(imageUrl)
+                .into(imageView, new Callback() {
+                    @Override
+                    public void onSuccess() {
+                        Picasso.with(ShortActivity.this).load(imageUrl).into(new Target() {
+                            @Override
+                            public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
+                                //Get image width
+                                mImageWidth = bitmap.getWidth();
+                            }
 
-    private void generateImage() {
+                            @Override
+                            public void onBitmapFailed(Drawable errorDrawable) {
 
-        int ratio = 3000 / squareView.getWidth();
+                            }
 
-        squareView.setDrawingCacheEnabled(true);
-        squareView.buildDrawingCache();
-        Bitmap bm = squareView.getDrawingCache();
+                            @Override
+                            public void onPrepareLoad(Drawable placeHolderDrawable) {
 
-        Bitmap bitmap = Bitmap.createScaledBitmap(bm, 3000, 3000, false);
-        File file = null;
-        try {
-            file = new File(getExternalFilesDir(Environment.DIRECTORY_PICTURES), "ImageAfterAddingText_" + System.currentTimeMillis() + ".png");
-            FileOutputStream out = new FileOutputStream(file);
-            bitmap.compress(Bitmap.CompressFormat.PNG, 90, out);
-            out.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+                            }
+                        });
+                    }
 
-        squareView.setDrawingCacheEnabled(false);
-        squareView.destroyDrawingCache();
+                    @Override
+                    public void onError() {
 
-        openScreenshot(file);
-        /*Bitmap src = BitmapFactory.decodeResource(getResources(), R.drawable.image_placeholder);
-
-        Bitmap dest = Bitmap.createBitmap(src.getWidth(), src.getHeight(), Bitmap.Config.ARGB_8888);
-        Canvas canvas = new Canvas(dest);
-
-        Paint paint = new Paint();
-        paint.setTextAlign(Paint.Align.valueOf(textGravity.toString()));
-        paint.setTextSize(textShort.getTextSize());
-        paint.setColor(textShort.getCurrentTextColor());
-        paint.setStyle(Paint.Style.FILL);
-        canvas.drawBitmap(src, 0f, 0f, null);
-        float height = paint.measureText(textShort.getText().toString());
-        float width = paint.measureText(textShort.getText().toString());
-        float x_coord = (src.getWidth() - width) / 2;
-        canvas.drawText(textShort.getText().toString(), x_coord, height + 15f, paint); // 15f is to put space between top edge and the text, if you want to change it, you can
-        try {
-            dest.compress(Bitmap.CompressFormat.JPEG, 100, new FileOutputStream(new File("/sdcard/ImageAfterAddingText.jpg")));
-            // dest is Bitmap, if you want to preview the final image, you can display it on screen also before saving
-        } catch (FileNotFoundException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }*/
-
-
-
-
-/*
-        Picasso.with(this).load(mPicUrl).into(new Target() {
-            @Override
-            public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
-            }
-
-            @Override
-            public void onBitmapFailed(Drawable errorDrawable) {
-                ViewHelper.getToast(ShortActivity.this, getString(R.string.error_msg_no_image));
-            }
-
-            @Override
-            public void onPrepareLoad(Drawable placeHolderDrawable) {
-
-            }
-        });
-*/
-
+                    }
+                });
     }
 
     /**
@@ -388,23 +387,77 @@ public class ShortActivity extends BaseActivity implements ColorChooserDialog.Co
         }
     }
 
-    private void openScreenshot(File imageFile) {
-        Uri uri = FileProvider.getUriForFile(ShortActivity.this, BuildConfig.APPLICATION_ID + ".provider", imageFile);
+    /**
+     * Method to generate short image and update it on server.
+     */
+    private void generateImage() {
+        //Hide edit text cursor
+        textShort.setCursorVisible(false);
+        //To show the progress dialog
+        MaterialDialog.Builder builder = new MaterialDialog.Builder(this)
+                .title("Uploading your short")
+                .content("Please wait...")
+                .autoDismiss(false)
+                .cancelable(false)
+                .progress(true, 0);
 
-        Intent intent = new Intent();
-        intent.setAction(Intent.ACTION_VIEW);
-        intent.setDataAndType(uri, "image/*");
-        intent.setFlags(FLAG_GRANT_READ_URI_PERMISSION | FLAG_GRANT_WRITE_URI_PERMISSION); //must for reading data from directory
+        mDialog = builder.build();
+        mDialog.show();
 
-        startActivity(intent);
+        //Enable drawing cache
+        squareView.setDrawingCacheEnabled(true);
+        squareView.buildDrawingCache();
+        Bitmap bm = squareView.getDrawingCache();
+
+        //Scaled bitmap
+        Bitmap bitmap = Bitmap.createScaledBitmap(bm, mImageWidth, mImageWidth, true);
+
+        try {
+            File file = new File(Environment.getExternalStorageDirectory().getPath() + "/Cread/Short/short_pic.jpg");
+            file.getParentFile().mkdirs();
+
+            if (!file.exists()) {
+                try {
+                    file.createNewFile();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+
+            FileOutputStream out = new FileOutputStream(file);
+            bitmap.compress(Bitmap.CompressFormat.JPEG, 85, out);
+            out.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+            ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_internal));
+            //Dismiss progress dialog
+            mDialog.dismiss();
+        }
+
+        //Disable drawing cache
+        squareView.setDrawingCacheEnabled(false);
+        squareView.destroyDrawingCache();
+
+
+        //Update details on server
+        updateShort(new File(getImageUri(IMAGE_TYPE_USER_SHORT_PIC).getPath())
+                , mCaptureID
+                , String.valueOf(textShort.getX())
+                , String.valueOf(textShort.getY())
+                , String.valueOf(textShort.getWidth())
+                , String.valueOf(textShort.getHeight())
+                , textShort.getText().toString()
+                , String.valueOf(textShort.getTextSize())
+                , Integer.toHexString(textShort.getCurrentTextColor())
+                , textGravity.toString()
+        );
+
     }
-
 
     /**
      * Update short image and other details on server.
      */
-    private void updateShort(File file, String xPosition, String yPosition, String tvWidth, String tvHeight, String text, String textSize, String textColor, String textGravity) {
-        SharedPreferenceHelper helper = new SharedPreferenceHelper(this);
+    private void updateShort(File file, String captureID, String xPosition, String yPosition, String tvWidth, String tvHeight, String text, String textSize, String textColor, String textGravity) {
         //Configure OkHttpClient for time out
         OkHttpClient okHttpClient = new OkHttpClient().newBuilder()
                 .connectTimeout(20, TimeUnit.MINUTES)
@@ -413,18 +466,19 @@ public class ShortActivity extends BaseActivity implements ColorChooserDialog.Co
                 .build();
 
         Rx2AndroidNetworking.upload(BuildConfig.URL + "/short-upload")
+                .setOkHttpClient(okHttpClient)
                 .addMultipartFile("short-image", file)
-                .addMultipartParameter("uuid", helper.getUUID())
-                .addMultipartParameter("authkey", helper.getAuthToken())
+                .addMultipartParameter("captureid", captureID)
+                .addMultipartParameter("uuid", mHelper.getUUID())
+                .addMultipartParameter("authkey", mHelper.getAuthToken())
                 .addMultipartParameter("dx", xPosition)
                 .addMultipartParameter("dy", yPosition)
                 .addMultipartParameter("width", tvWidth)
-                .addMultipartParameter("hieght", tvHeight)
+                .addMultipartParameter("height", tvHeight)
                 .addMultipartParameter("text", text)
                 .addMultipartParameter("textsize", textSize)
                 .addMultipartParameter("textcolor", textColor)
                 .addMultipartParameter("textgravity", textGravity)
-                .setOkHttpClient(okHttpClient)
                 .build()
                 .getJSONObjectObservable()
                 .subscribeOn(Schedulers.io())
@@ -438,6 +492,7 @@ public class ShortActivity extends BaseActivity implements ColorChooserDialog.Co
 
                     @Override
                     public void onNext(@io.reactivex.annotations.NonNull JSONObject jsonObject) {
+                        mDialog.dismiss();
                         try {
                             //if token status is not invalid
                             if (jsonObject.getString("tokenstatus").equals("invalid")) {
@@ -445,9 +500,7 @@ public class ShortActivity extends BaseActivity implements ColorChooserDialog.Co
                             } else {
                                 JSONObject dataObject = jsonObject.getJSONObject("data");
                                 if (dataObject.getString("status").equals("done")) {
-                                    ViewHelper.getToast(ShortActivity.this, "Your Short uploaded.");
-                                    //finish this activity
-                                    finish();
+                                    ViewHelper.getSnackBar(rootView, "Your Short uploaded.");
                                 }
                             }
                         } catch (JSONException e) {
@@ -459,19 +512,35 @@ public class ShortActivity extends BaseActivity implements ColorChooserDialog.Co
 
                     @Override
                     public void onError(@io.reactivex.annotations.NonNull Throwable e) {
+                        mDialog.dismiss();
+                        e.printStackTrace();
                         FirebaseCrash.report(e);
                         ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_server));
                     }
 
                     @Override
                     public void onComplete() {
-
+                        //do nothing
                     }
                 });
     }
 
+    private void openScreenshot(File imageFile) {
+        Uri uri = FileProvider.getUriForFile(ShortActivity.this, BuildConfig.APPLICATION_ID + ".provider", imageFile);
 
+        Intent intent = new Intent();
+        intent.setAction(Intent.ACTION_VIEW);
+        intent.setDataAndType(uri, "image/*");
+        intent.setFlags(FLAG_GRANT_READ_URI_PERMISSION | FLAG_GRANT_WRITE_URI_PERMISSION); //must for reading data from directory
+
+        startActivity(intent);
+    }
+
+
+    //ENUM for text gravity
     private enum TextGravity {
         CENTER, RIGHT, LEFT
     }
+
+
 }

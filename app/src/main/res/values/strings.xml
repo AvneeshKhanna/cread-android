@@ -16,6 +16,7 @@
     <string name="error_msg_internal">Something went wrong. Please try again</string>
     <string name="error_field_empty">cannot be empty</string>
     <string name="error_msg_no_image">Image could not be loaded. Please try again</string>
+    <string name="error_msg_permission_denied">The app won\'t function properly since the permission for storage was denied.</string>
 
     //Shared preferences key
     <string name="cread_preferences">creadPrefs</string>

@@ -44,7 +44,7 @@
         android:layout_height="match_parent"
         android:paddingBottom="32dp">
 
-        <!--Underlay image-->
+        <!--Underlay contentImage-->
         <ImageView
             android:id="@+id/underlay"
             android:layout_width="match_parent"
@@ -53,7 +53,7 @@
             android:src="@drawable/underlay"
             android:tint="@color/grey_custom" />
 
-        <!--Screenshot image-->
+        <!--Screenshot contentImage-->
         <ImageView
             android:id="@+id/device"
             android:layout_width="match_parent"
@@ -61,7 +61,7 @@
             android:layout_gravity="center"
             android:src="@drawable/img_intro_one" />
 
-        <!--Ring image-->
+        <!--Ring contentImage-->
         <ImageView
             android:layout_width="match_parent"
             android:layout_height="match_parent"

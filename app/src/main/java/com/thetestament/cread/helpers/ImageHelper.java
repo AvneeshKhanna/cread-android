@@ -21,6 +21,7 @@ import java.io.IOException;
 
 import id.zelory.compressor.Compressor;
 
+import static com.thetestament.cread.utils.Constant.IMAGE_TYPE_USER_CAPTURE_PIC;
 import static com.thetestament.cread.utils.Constant.IMAGE_TYPE_USER_PROFILE_PIC;
 
 /**
@@ -40,8 +41,10 @@ public class ImageHelper {
         String s;
         if (imageType.equals(IMAGE_TYPE_USER_PROFILE_PIC)) {
             s = "/Cread/Profile/user_profile_pic.jpg";
-        } else {
+        } else if (imageType.equals(IMAGE_TYPE_USER_CAPTURE_PIC)) {
             s = "/Cread/Capture/capture_pic.jpg";
+        } else {
+            s = "/Cread/Short/short_pic.jpg";
         }
 
         File outFile = new File(Environment.getExternalStorageDirectory().getPath() + s);
@@ -171,7 +174,6 @@ public class ImageHelper {
             bmp.compress(Bitmap.CompressFormat.PNG, 90, out);
             out.close();
             bmpUri = FileProvider.getUriForFile(context, BuildConfig.APPLICATION_ID + ".provider", file);
-            //bmpUri = Uri.fromFile(file);
         } catch (IOException e) {
             e.printStackTrace();
         }

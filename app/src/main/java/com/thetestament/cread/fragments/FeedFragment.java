@@ -235,14 +235,15 @@ public class FeedFragment extends Fragment {
                                     JSONObject dataObj = feedArray.getJSONObject(i);
                                     FeedModel feedData = new FeedModel();
                                     feedData.setEntityID(dataObj.getString("entityid"));
+                                    feedData.setCaptureID(dataObj.getString("captureid"));
                                     feedData.setContentType(dataObj.getString("type"));
-                                    feedData.setUuID(dataObj.getString("uuid"));
+                                    feedData.setUUID(dataObj.getString("uuid"));
                                     feedData.setCreatorImage(dataObj.getString("profilepicurl"));
                                     feedData.setCreatorName(dataObj.getString("creatorname"));
                                     feedData.setHatsOffStatus(dataObj.getBoolean("hatsoffstatus"));
                                     feedData.setHatsOffCount(dataObj.getLong("hatsoffcount"));
                                     feedData.setCommentCount(dataObj.getLong("commentcount"));
-                                    feedData.setImage(dataObj.getString("captureurl"));
+                                    feedData.setContentImage(dataObj.getString("entityurl"));
 
                                     mFeedDataList.add(feedData);
                                 }
@@ -326,14 +327,15 @@ public class FeedFragment extends Fragment {
                                     JSONObject dataObj = feedArray.getJSONObject(i);
                                     FeedModel feedData = new FeedModel();
                                     feedData.setEntityID(dataObj.getString("entityid"));
+                                    feedData.setCaptureID(dataObj.getString("captureid"));
                                     feedData.setContentType(dataObj.getString("type"));
-                                    feedData.setUuID(dataObj.getString("uuid"));
+                                    feedData.setUUID(dataObj.getString("uuid"));
                                     feedData.setCreatorImage(dataObj.getString("profilepicurl"));
                                     feedData.setCreatorName(dataObj.getString("creatorname"));
                                     feedData.setHatsOffStatus(dataObj.getBoolean("hatsoffstatus"));
                                     feedData.setHatsOffCount(dataObj.getLong("hatsoffcount"));
                                     feedData.setCommentCount(dataObj.getLong("commentcount"));
-                                    feedData.setImage(dataObj.getString("captureurl"));
+                                    feedData.setContentImage(dataObj.getString("entityurl"));
 
                                     mFeedDataList.add(feedData);
                                     //Notify item changes
