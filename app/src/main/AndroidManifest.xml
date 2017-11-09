@@ -244,8 +244,8 @@
             android:name="android.support.PARENT_ACTIVITY"
             android:value=".activities.BottomNavigationActivity" />
         </activity>
-        <activity android:name=".activities.MerchandizingProductsActivity" />
-        <activity android:name=".activities.AddressAcitvity"></activity>
+        <activity android:name=".activities.MerchandisingProductsActivity" />
+        <activity android:name=".activities.AddressActivity"></activity>
         <activity android:name=".activities.AboutUsActivity"
             android:theme="@style/BottomNavigationActivityTheme"></activity>
 

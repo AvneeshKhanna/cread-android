@@ -21,6 +21,7 @@ import android.widget.TextView;
 import com.androidnetworking.AndroidNetworking;
 import com.androidnetworking.error.ANError;
 import com.androidnetworking.interfaces.JSONObjectRequestListener;
+import com.google.firebase.analytics.FirebaseAnalytics;
 import com.google.firebase.crash.FirebaseCrash;
 import com.thetestament.cread.BuildConfig;
 import com.thetestament.cread.R;
@@ -52,6 +53,8 @@ import io.reactivex.schedulers.Schedulers;
 
 import static com.thetestament.cread.helpers.NetworkHelper.getNetConnectionStatus;
 import static com.thetestament.cread.helpers.NetworkHelper.getObservableFromServer;
+import static com.thetestament.cread.utils.Constant.FIREBASE_EVENT_EXPLORE_CLICKED;
+import static com.thetestament.cread.utils.Constant.FIREBASE_EVENT_FIND_FRIENDS;
 
 
 public class FeedFragment extends Fragment {
@@ -128,7 +131,7 @@ public class FeedFragment extends Fragment {
         //Set layout manger for recyclerView
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
         //Set adapter
-        mAdapter = new FeedAdapter(mFeedDataList, getActivity());
+        mAdapter = new FeedAdapter(mFeedDataList, getActivity(), mHelper.getUUID());
         recyclerView.setAdapter(mAdapter);
 
 
@@ -457,12 +460,33 @@ public class FeedFragment extends Fragment {
     @OnClick(R.id.findfbFriendsButton)
     public void onFindFBFriendsClicked() {
         startActivity(new Intent(getActivity(), FindFBFriendsActivity.class));
+        //Log firebase event
+        setAnalytics(FIREBASE_EVENT_FIND_FRIENDS);
     }
 
     @OnClick(R.id.explorePeopleButton)
     public void onExploreFriendsClicked() {
         ((BottomNavigationActivity) getActivity()).activateBottomNavigationItem(R.id.action_explore);
         ((BottomNavigationActivity) getActivity()).replaceFragment(new ExploreFragment(), Constant.TAG_EXPLORE_FRAGMENT);
+        //Log firebase event
+        setAnalytics(FIREBASE_EVENT_EXPLORE_CLICKED);
     }
 
+
+    /**
+     * Method to send analytics data on firebase server.
+     *
+     * @param firebaseEvent Event type.
+     */
+    private void setAnalytics(String firebaseEvent) {
+
+        Bundle bundle = new Bundle();
+        bundle.putString("uuid", mHelper.getUUID());
+        if (firebaseEvent.equals(FIREBASE_EVENT_FIND_FRIENDS)) {
+            FirebaseAnalytics.getInstance(getActivity()).logEvent(FIREBASE_EVENT_FIND_FRIENDS, bundle);
+        } else if (firebaseEvent.equals(FIREBASE_EVENT_EXPLORE_CLICKED)) {
+            FirebaseAnalytics.getInstance(getActivity()).logEvent(FIREBASE_EVENT_EXPLORE_CLICKED, bundle);
+        }
+
+    }
 }

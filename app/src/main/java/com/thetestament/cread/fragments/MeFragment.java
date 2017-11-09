@@ -29,6 +29,7 @@ import android.widget.TextView;
 import com.androidnetworking.AndroidNetworking;
 import com.androidnetworking.error.ANError;
 import com.androidnetworking.interfaces.JSONObjectRequestListener;
+import com.google.firebase.analytics.FirebaseAnalytics;
 import com.google.firebase.crash.FirebaseCrash;
 import com.rx2androidnetworking.Rx2AndroidNetworking;
 import com.squareup.picasso.MemoryPolicy;
@@ -80,6 +81,7 @@ import static com.thetestament.cread.utils.Constant.EXTRA_USER_FIRST_NAME;
 import static com.thetestament.cread.utils.Constant.EXTRA_USER_IMAGE_PATH;
 import static com.thetestament.cread.utils.Constant.EXTRA_USER_LAST_NAME;
 import static com.thetestament.cread.utils.Constant.EXTRA_USER_WATER_MARK_STATUS;
+import static com.thetestament.cread.utils.Constant.FIREBASE_EVENT_FOLLOW_FROM_PROFILE;
 import static com.thetestament.cread.utils.Constant.REQUEST_CODE_UPDATE_PROFILE_DETAILS;
 import static com.thetestament.cread.utils.Constant.REQUEST_CODE_UPDATE_PROFILE_PIC;
 import static com.thetestament.cread.utils.Constant.REQUEST_CODE_WRITE_EXTERNAL_STORAGE;
@@ -275,6 +277,11 @@ public class MeFragment extends Fragment {
         toggleFollowButton(mFollowStatus, getActivity());
         //Update status on server
         updateFollowStatus();
+
+        //Log firebase event
+        Bundle bundle = new Bundle();
+        bundle.putString("uuid", mHelper.getUUID());
+        FirebaseAnalytics.getInstance(getActivity()).logEvent(FIREBASE_EVENT_FOLLOW_FROM_PROFILE, bundle);
     }
 
     /**

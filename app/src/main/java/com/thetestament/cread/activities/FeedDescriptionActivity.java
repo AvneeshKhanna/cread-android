@@ -22,6 +22,7 @@ import android.widget.TextView;
 import com.androidnetworking.AndroidNetworking;
 import com.androidnetworking.error.ANError;
 import com.androidnetworking.interfaces.JSONObjectRequestListener;
+import com.google.firebase.analytics.FirebaseAnalytics;
 import com.google.firebase.crash.FirebaseCrash;
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Target;
@@ -54,13 +55,14 @@ import static com.thetestament.cread.helpers.NetworkHelper.getCommentObservableF
 import static com.thetestament.cread.utils.Constant.EXTRA_ENTITY_ID;
 import static com.thetestament.cread.utils.Constant.EXTRA_FEED_DESCRIPTION_DATA;
 import static com.thetestament.cread.utils.Constant.EXTRA_PROFILE_UUID;
+import static com.thetestament.cread.utils.Constant.FIREBASE_EVENT_HAVE_CLICKED;
+import static com.thetestament.cread.utils.Constant.FIREBASE_EVENT_SHARED_FROM_FEED_DESCRIPTION;
 import static com.thetestament.cread.utils.Constant.REQUEST_CODE_COMMENTS_ACTIVITY;
 
 /**
  * Class to show detailed information of explore/feed item.
  */
 public class FeedDescriptionActivity extends BaseActivity {
-
 
     @BindView(R.id.rootView)
     CoordinatorLayout rootView;
@@ -80,10 +82,6 @@ public class FeedDescriptionActivity extends BaseActivity {
     RecyclerView recyclerView;
     @BindView(R.id.textShowComments)
     TextView showAllComments;
-
-    SharedPreferenceHelper mHelper;
-    CompositeDisposable mCompositeDisposable = new CompositeDisposable();
-    FeedModel mFeedData;
     @BindView(R.id.buttonHave)
     LinearLayout buttonHave;
     @BindView(R.id.lineSeparatorTop)
@@ -110,6 +108,11 @@ public class FeedDescriptionActivity extends BaseActivity {
     NestedScrollView nestedScrollView;
 
 
+    private SharedPreferenceHelper mHelper;
+    private CompositeDisposable mCompositeDisposable = new CompositeDisposable();
+    private FeedModel mFeedData;
+    private FirebaseAnalytics mFirebaseAnalytics;
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -117,6 +120,8 @@ public class FeedDescriptionActivity extends BaseActivity {
         ButterKnife.bind(this);
         //ShredPreference reference
         mHelper = new SharedPreferenceHelper(this);
+        // Obtain the FirebaseAnalytics instance.
+        mFirebaseAnalytics = FirebaseAnalytics.getInstance(this);
         //initialize views
         initViews();
     }
@@ -170,13 +175,16 @@ public class FeedDescriptionActivity extends BaseActivity {
         startActivity(intent);
     }
 
+    /**
+     * Have button click functionality.
+     */
     @OnClick(R.id.buttonHave)
     public void onViewClicked() {
-
-        Intent intent = new Intent(this, MerchandizingProductsActivity.class);
+        Intent intent = new Intent(this, MerchandisingProductsActivity.class);
         intent.putExtra(EXTRA_ENTITY_ID, mFeedData.getEntityID());
         startActivity(intent);
-
+        //Log firebase event
+        setAnalytics(FIREBASE_EVENT_HAVE_CLICKED);
     }
 
     /**
@@ -245,6 +253,8 @@ public class FeedDescriptionActivity extends BaseActivity {
                 intent.setType("image/*");
                 intent.putExtra(Intent.EXTRA_STREAM, getLocalBitmapUri(bitmap, FeedDescriptionActivity.this));
                 startActivity(Intent.createChooser(intent, "Share"));
+                //Log firebase event
+                setAnalytics(FIREBASE_EVENT_SHARED_FROM_FEED_DESCRIPTION);
             }
 
             @Override
@@ -342,8 +352,8 @@ public class FeedDescriptionActivity extends BaseActivity {
     /**
      * Method to update hats off status.
      *
-     * @param entityID Campaign ID i.e String
-     * @param isHatsOff  boolean true if user has given hats off to campaign, false otherwise.
+     * @param entityID  Campaign ID i.e String
+     * @param isHatsOff boolean true if user has given hats off to campaign, false otherwise.
      */
     private void updateHatsOffStatus(String entityID, boolean isHatsOff) {
         final JSONObject jsonObject = new JSONObject();
@@ -399,7 +409,6 @@ public class FeedDescriptionActivity extends BaseActivity {
                 });
 
     }
-
 
     /**
      * RxJava2 implementation for retrieving comment data from server.
@@ -494,6 +503,23 @@ public class FeedDescriptionActivity extends BaseActivity {
                     }
                 })
         );
+    }
+
+
+    /**
+     * Method to send analytics data on firebase server.
+     *
+     * @param firebaseEvent Event type.
+     */
+    private void setAnalytics(String firebaseEvent) {
+        Bundle bundle = new Bundle();
+        bundle.putString("uuid", mHelper.getUUID());
+        if (firebaseEvent.equals(FIREBASE_EVENT_HAVE_CLICKED)) {
+            mFirebaseAnalytics.logEvent(FIREBASE_EVENT_HAVE_CLICKED, bundle);
+        } else {
+            bundle.putString("entity_id", mFeedData.getEntityID());
+            mFirebaseAnalytics.logEvent(FIREBASE_EVENT_SHARED_FROM_FEED_DESCRIPTION, bundle);
+        }
     }
 
 }

@@ -3,6 +3,7 @@ package com.thetestament.cread.adapters;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
+import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.RecyclerView;
@@ -14,6 +15,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.google.firebase.analytics.FirebaseAnalytics;
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Target;
 import com.thetestament.cread.R;
@@ -35,6 +37,7 @@ import static com.thetestament.cread.helpers.ImageHelper.getLocalBitmapUri;
 import static com.thetestament.cread.utils.Constant.CONTENT_TYPE_CAPTURE;
 import static com.thetestament.cread.utils.Constant.CONTENT_TYPE_SHORT;
 import static com.thetestament.cread.utils.Constant.EXTRA_FEED_DESCRIPTION_DATA;
+import static com.thetestament.cread.utils.Constant.FIREBASE_EVENT_SHARED_FROM_PROFILE;
 import static com.thetestament.cread.utils.Constant.USER_ACTIVITY_TYPE_ALL;
 import static com.thetestament.cread.utils.Constant.USER_ACTIVITY_TYPE_CAPTURE;
 import static com.thetestament.cread.utils.Constant.USER_ACTIVITY_TYPE_SHORT;
@@ -46,8 +49,6 @@ public class MeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
     private final int VIEW_TYPE_ITEM = 0;
     private final int VIEW_TYPE_LOADING = 1;
-    private final int VIEW_TYPE_ITEM_SHORT = 2;
-    private final int VIEW_TYPE_ITEM_CAPTURE = 3;
 
     private List<FeedModel> mUserContentList;
     private FragmentActivity mContext;
@@ -164,7 +165,7 @@ public class MeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             //Comment click functionality
             commentOnClick(itemViewHolder.containerComment, data.getEntityID());
             //Share click functionality
-            shareOnClick(itemViewHolder.containerShare, data.getContentImage());
+            shareOnClick(itemViewHolder.containerShare, data.getContentImage(), data.getEntityID());
             //HatsOff onClick functionality
             hatsOffOnClick(itemViewHolder, data, position);
 
@@ -288,8 +289,9 @@ public class MeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
      *
      * @param view       View to be clicked.x
      * @param pictureUrl URL of the picture to be shared.
+     * @param entityID   Entity id of content.
      */
-    private void shareOnClick(View view, final String pictureUrl) {
+    private void shareOnClick(View view, final String pictureUrl, final String entityID) {
         view.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -302,6 +304,11 @@ public class MeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                         intent.setType("image/*");
                         intent.putExtra(Intent.EXTRA_STREAM, getLocalBitmapUri(bitmap, mContext));
                         mContext.startActivity(Intent.createChooser(intent, "Share"));
+                        //Log firebase event
+                        Bundle bundle = new Bundle();
+                        bundle.putString("uuid", mUUID);
+                        bundle.putString("entity_id", entityID);
+                        FirebaseAnalytics.getInstance(mContext).logEvent(FIREBASE_EVENT_SHARED_FROM_PROFILE, bundle);
                     }
 
                     @Override

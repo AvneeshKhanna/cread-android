@@ -26,6 +26,7 @@ import android.widget.ImageView;
 
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.afollestad.materialdialogs.color.ColorChooserDialog;
+import com.google.firebase.analytics.FirebaseAnalytics;
 import com.google.firebase.crash.FirebaseCrash;
 import com.rx2androidnetworking.Rx2AndroidNetworking;
 import com.squareup.picasso.Callback;
@@ -65,6 +66,7 @@ import static com.thetestament.cread.helpers.ImageHelper.getImageUri;
 import static com.thetestament.cread.utils.Constant.EXTRA_CAPTURE_ID;
 import static com.thetestament.cread.utils.Constant.EXTRA_CAPTURE_URL;
 import static com.thetestament.cread.utils.Constant.EXTRA_DATA;
+import static com.thetestament.cread.utils.Constant.FIREBASE_EVENT_INSPIRATION_CLICKED;
 import static com.thetestament.cread.utils.Constant.IMAGE_TYPE_USER_SHORT_PIC;
 import static com.thetestament.cread.utils.Constant.REQUEST_CODE_INSPIRATION_ACTIVITY;
 import static com.thetestament.cread.utils.Constant.REQUEST_CODE_WRITE_EXTERNAL_STORAGE;
@@ -235,6 +237,10 @@ public class ShortActivity extends BaseActivity implements ColorChooserDialog.Co
     public void onBtnInspireClicked() {
         startActivityForResult(new Intent(this, InspirationActivity.class)
                 , REQUEST_CODE_INSPIRATION_ACTIVITY);
+        //Log firebase event
+        Bundle bundle = new Bundle();
+        bundle.putString("uuid", mHelper.getUUID());
+        FirebaseAnalytics.getInstance(this).logEvent(FIREBASE_EVENT_INSPIRATION_CLICKED, bundle);
     }
 
     /**

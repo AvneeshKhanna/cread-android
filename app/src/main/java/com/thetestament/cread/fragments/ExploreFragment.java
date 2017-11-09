@@ -112,7 +112,7 @@ public class ExploreFragment extends Fragment {
         //Set layout manger for recyclerView
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
         //Set adapter
-        mAdapter = new ExploreAdapter(mExploreDataList, getActivity());
+        mAdapter = new ExploreAdapter(mExploreDataList, getActivity(),mHelper.getUUID());
         recyclerView.setAdapter(mAdapter);
 
         swipeRefreshLayout.setRefreshing(true);

@@ -16,6 +16,7 @@ import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import com.google.firebase.analytics.FirebaseAnalytics;
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Target;
 import com.thetestament.cread.R;
@@ -43,6 +44,8 @@ import static com.thetestament.cread.utils.Constant.EXTRA_DATA;
 import static com.thetestament.cread.utils.Constant.EXTRA_ENTITY_ID;
 import static com.thetestament.cread.utils.Constant.EXTRA_FEED_DESCRIPTION_DATA;
 import static com.thetestament.cread.utils.Constant.EXTRA_PROFILE_UUID;
+import static com.thetestament.cread.utils.Constant.FIREBASE_EVENT_SHARED_FROM_MAIN_FEED;
+import static com.thetestament.cread.utils.Constant.FIREBASE_EVENT_WRITE_CLICKED;
 
 /**
  * Adapter class to provide a binding from data set to views that are displayed within a Feed RecyclerView.
@@ -54,6 +57,7 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     private List<FeedModel> mFeedList;
     private FragmentActivity mContext;
     private boolean mIsLoading;
+    private String mUUID;
 
     private OnFeedLoadMoreListener onFeedLoadMoreListener;
     private OnHatsOffListener onHatsOffListener;
@@ -63,10 +67,12 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
      *
      * @param mFeedList List of feed data.
      * @param mContext  Context to be use.
+     * @param mUUID     UUID of the user
      */
-    public FeedAdapter(List<FeedModel> mFeedList, FragmentActivity mContext) {
+    public FeedAdapter(List<FeedModel> mFeedList, FragmentActivity mContext, String mUUID) {
         this.mFeedList = mFeedList;
         this.mContext = mContext;
+        this.mUUID = mUUID;
     }
 
     /**
@@ -138,11 +144,11 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             //ItemView onClick functionality
             itemViewOnClick(itemViewHolder.itemView, data);
             //Compose click functionality
-            composeOnClick(itemViewHolder.buttonCompose, data.getCaptureID(), data.getContentImage());
+            composeOnClick(itemViewHolder.buttonCompose, data.getCaptureID(), data.getContentImage(), data.getEntityID());
             //Comment click functionality
             commentOnClick(itemViewHolder.containerComment, data.getEntityID());
             //Share click functionality
-            shareOnClick(itemViewHolder.containerShare, data.getContentImage());
+            shareOnClick(itemViewHolder.containerShare, data.getContentImage(), data.getEntityID());
             //HatsOff onClick functionality
             hatsOffOnClick(itemViewHolder, data, position);
 
@@ -259,7 +265,7 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
      * @param captureID  CaptureID of image.
      * @param captureURL Capture image url.
      */
-    private void composeOnClick(View view, final String captureID, final String captureURL) {
+    private void composeOnClick(View view, final String captureID, final String captureURL, final String entityID) {
         view.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -270,6 +276,9 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                 Intent intent = new Intent(mContext, ShortActivity.class);
                 intent.putExtra(EXTRA_DATA, bundle);
                 mContext.startActivity(intent);
+
+                //Log Firebase event
+                setAnalytics(FIREBASE_EVENT_WRITE_CLICKED, entityID);
             }
         });
     }
@@ -297,7 +306,7 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
      * @param view       View to be clicked.
      * @param pictureUrl URL of the picture to be shared.
      */
-    private void shareOnClick(View view, final String pictureUrl) {
+    private void shareOnClick(View view, final String pictureUrl, final String entityID) {
         view.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -310,6 +319,8 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                         intent.setType("image/*");
                         intent.putExtra(Intent.EXTRA_STREAM, getLocalBitmapUri(bitmap, mContext));
                         mContext.startActivity(Intent.createChooser(intent, "Share"));
+                        //Log firebase event
+                        setAnalytics(FIREBASE_EVENT_SHARED_FROM_MAIN_FEED, entityID);
                     }
 
                     @Override
@@ -326,7 +337,6 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             }
         });
     }
-
 
     /**
      * HatsOff onClick functionality.
@@ -407,4 +417,22 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         }
     }
 
+
+    /**
+     * Method to send analytics data on firebase server.
+     *
+     * @param firebaseEvent Event type.
+     * @param entityID      Entity id of the content.
+     */
+    private void setAnalytics(String firebaseEvent, String entityID) {
+        Bundle bundle = new Bundle();
+        bundle.putString("uuid", mUUID);
+        if (firebaseEvent.equals(FIREBASE_EVENT_WRITE_CLICKED)) {
+            bundle.putString("class_name", "main_feed");
+            FirebaseAnalytics.getInstance(mContext).logEvent(FIREBASE_EVENT_WRITE_CLICKED, bundle);
+        } else if (firebaseEvent.equals(FIREBASE_EVENT_SHARED_FROM_MAIN_FEED)) {
+            bundle.putString("entity_id", entityID);
+            FirebaseAnalytics.getInstance(mContext).logEvent(FIREBASE_EVENT_SHARED_FROM_MAIN_FEED, bundle);
+        }
+    }
 }

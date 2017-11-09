@@ -5,8 +5,6 @@ import android.os.Bundle;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.TextInputLayout;
 import android.support.v4.content.ContextCompat;
-import android.support.v4.widget.NestedScrollView;
-import android.util.Log;
 import android.view.WindowManager;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -15,6 +13,7 @@ import android.widget.TextView;
 
 import com.afollestad.materialdialogs.DialogAction;
 import com.afollestad.materialdialogs.MaterialDialog;
+import com.google.firebase.analytics.FirebaseAnalytics;
 import com.google.firebase.crash.FirebaseCrash;
 import com.razorpay.Checkout;
 import com.razorpay.PaymentResultListener;
@@ -24,7 +23,6 @@ import com.thetestament.cread.R;
 import com.thetestament.cread.helpers.NetworkHelper;
 import com.thetestament.cread.helpers.SharedPreferenceHelper;
 import com.thetestament.cread.helpers.ViewHelper;
-import com.thetestament.cread.utils.Constant;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -56,12 +54,13 @@ import static com.thetestament.cread.utils.Constant.EXTRA_SHIPPING_NAME;
 import static com.thetestament.cread.utils.Constant.EXTRA_SHIPPING_PHONE;
 import static com.thetestament.cread.utils.Constant.EXTRA_SHIPPING_PINCODE;
 import static com.thetestament.cread.utils.Constant.EXTRA_SHIPPING_STATE;
+import static com.thetestament.cread.utils.Constant.FIREBASE_EVENT_MAKE_PAYMENT_CLICKED;
 import static com.thetestament.cread.utils.Constant.PAYMENT_STATUS_CONNECTION_TERMINATED;
 import static com.thetestament.cread.utils.Constant.PAYMENT_STATUS_INVALID_TOKEN;
 import static com.thetestament.cread.utils.Constant.PAYMENT_STATUS_SERVER_ERROR;
 import static com.thetestament.cread.utils.Constant.PAYMENT_STATUS_SUCCESS;
 
-public class AddressAcitvity extends BaseActivity implements PaymentResultListener {
+public class AddressActivity extends BaseActivity implements PaymentResultListener {
 
     @BindView(R.id.productName)
     TextView productNameTV;
@@ -121,11 +120,19 @@ public class AddressAcitvity extends BaseActivity implements PaymentResultListen
     int totalAmount;
     private CompositeDisposable mCompositeDisposable = new CompositeDisposable();
 
+    private SharedPreferenceHelper mHelper;
+    private FirebaseAnalytics mAnalytics;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_address_acitvity);
+        //Bind views
         ButterKnife.bind(this);
+        //ShredPreference reference
+        mHelper = new SharedPreferenceHelper(this);
+        // Obtain the FirebaseAnalytics instance.
+        mAnalytics = FirebaseAnalytics.getInstance(this);
 
         // to prevent keyboard from popping up when screen is opened
         this.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
@@ -237,19 +244,18 @@ public class AddressAcitvity extends BaseActivity implements PaymentResultListen
             tiPincode.setFocusableInTouchMode(true);
             tiPincode.requestFocus();
             //scrollView.smoothScrollTo(0, tiPincode.getBottom() - tiPincode.getHeight());
-        }
-        else if (shipPincode.length() < 6) {
+        } else if (shipPincode.length() < 6) {
             tiPincode.setError("Pincode must contain 6 digits");
             tiPincode.setFocusableInTouchMode(true);
             tiPincode.requestFocus();
             //scrollView.smoothScrollTo(0, tiPincode.getBottom() - tiPincode.getHeight());
-        }
-
-        else
-        {
+        } else {
             startPayment();
+            //Log firebase event
+            Bundle bundle = new Bundle();
+            bundle.putString("uuid", mHelper.getUUID());
+            mAnalytics.logEvent(FIREBASE_EVENT_MAKE_PAYMENT_CLICKED, bundle);
         }
-
 
 
     }
@@ -274,7 +280,7 @@ public class AddressAcitvity extends BaseActivity implements PaymentResultListen
             theme.put("color", "#F44336");
             options.put("prefill", prefill);
             options.put("theme", theme);
-            checkout.open(AddressAcitvity.this, options);
+            checkout.open(AddressActivity.this, options);
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -289,7 +295,7 @@ public class AddressAcitvity extends BaseActivity implements PaymentResultListen
 
 
         try {
-            if (NetworkHelper.getNetConnectionStatus(AddressAcitvity.this)) {
+            if (NetworkHelper.getNetConnectionStatus(AddressActivity.this)) {
 
                 updatePaymentStatus(paymentID);
 
@@ -322,14 +328,14 @@ public class AddressAcitvity extends BaseActivity implements PaymentResultListen
 
 
     private void showPaymentStatusDialog(String status) {
-        MaterialDialog dialog = new MaterialDialog.Builder(AddressAcitvity.this)
+        MaterialDialog dialog = new MaterialDialog.Builder(AddressActivity.this)
                 .customView(R.layout.dialog_payment_status, false)
                 .positiveText("Ok")
                 .onPositive(new MaterialDialog.SingleButtonCallback() {
                     @Override
                     public void onClick(@android.support.annotation.NonNull MaterialDialog dialog, @android.support.annotation.NonNull DialogAction which) {
 
-                        startActivity(new Intent(AddressAcitvity.this, MerchandizingProductsActivity.class).addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT));
+                        startActivity(new Intent(AddressActivity.this, MerchandisingProductsActivity.class).addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT));
                         finish();
                     }
                 })
@@ -342,20 +348,20 @@ public class AddressAcitvity extends BaseActivity implements PaymentResultListen
         if (status.equals(PAYMENT_STATUS_CONNECTION_TERMINATED)) {
             titleText.setText(getString(R.string.payment_failed_title));
             descText.setText(getString(R.string.payment_failed_conn_term));
-            statusImage.setImageDrawable(ContextCompat.getDrawable(AddressAcitvity.this, R.drawable.ic_error));
+            statusImage.setImageDrawable(ContextCompat.getDrawable(AddressActivity.this, R.drawable.ic_error));
         } else if (status.equals(PAYMENT_STATUS_INVALID_TOKEN)) {
             titleText.setText(getString(R.string.payment_failed_title));
             descText.setText(getString(R.string.payment_failed_invalid_token));
-            statusImage.setImageDrawable(ContextCompat.getDrawable(AddressAcitvity.this, R.drawable.ic_error));
+            statusImage.setImageDrawable(ContextCompat.getDrawable(AddressActivity.this, R.drawable.ic_error));
 
         } else if (status.equals(PAYMENT_STATUS_SERVER_ERROR)) {
             titleText.setText(getString(R.string.payment_failed_title));
             descText.setText(getString(R.string.payment_failed_server_error));
-            statusImage.setImageDrawable(ContextCompat.getDrawable(AddressAcitvity.this, R.drawable.ic_error));
+            statusImage.setImageDrawable(ContextCompat.getDrawable(AddressActivity.this, R.drawable.ic_error));
         } else if (status.equals(PAYMENT_STATUS_SUCCESS)) {
             titleText.setText(getString(R.string.payment_success_title));
             descText.setText(getString(R.string.payment_success_message));
-            statusImage.setImageDrawable(ContextCompat.getDrawable(AddressAcitvity.this, R.drawable.ic_check_48dp));
+            statusImage.setImageDrawable(ContextCompat.getDrawable(AddressActivity.this, R.drawable.ic_check_48dp));
         }
 
     }
@@ -367,7 +373,7 @@ public class AddressAcitvity extends BaseActivity implements PaymentResultListen
      */
     private void updatePaymentStatus(String paymentid) {
 
-        final MaterialDialog dialog = new MaterialDialog.Builder(AddressAcitvity.this)
+        final MaterialDialog dialog = new MaterialDialog.Builder(AddressActivity.this)
                 .title(getString(R.string.processing_title))
                 .content(getString(R.string.waiting_msg))
                 .progress(true, 0)
@@ -376,12 +382,10 @@ public class AddressAcitvity extends BaseActivity implements PaymentResultListen
 
         JSONObject data = new JSONObject();
 
-        SharedPreferenceHelper spHelper = new SharedPreferenceHelper(AddressAcitvity.this);
-
         try {
 
-            data.put("uuid", spHelper.getUUID());
-            data.put("authkey", spHelper.getAuthToken());
+            data.put("uuid", mHelper.getUUID());
+            data.put("authkey", mHelper.getAuthToken());
             data.put("productid", productID);
             data.put("productname", productName);
             data.put("entityid", entityID);
@@ -395,7 +399,7 @@ public class AddressAcitvity extends BaseActivity implements PaymentResultListen
             data.put("billing_alt_contact", shipAltPhone);
 
             JSONObject shipmentDetails = new JSONObject();
-            shipmentDetails.put("ship_addr_1",shipAddr1);
+            shipmentDetails.put("ship_addr_1", shipAddr1);
             shipmentDetails.put("ship_addr_2", shipAddr2);
             shipmentDetails.put("ship_city", shipCity);
             shipmentDetails.put("ship_state", shipState);

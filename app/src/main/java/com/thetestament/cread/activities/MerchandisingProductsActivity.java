@@ -41,6 +41,8 @@ import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import icepick.Icepick;
+import icepick.State;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.observers.DisposableObserver;
@@ -65,8 +67,7 @@ import static com.thetestament.cread.utils.Constant.EXTRA_SHIPPING_PHONE;
 import static com.thetestament.cread.utils.Constant.EXTRA_SHIPPING_PINCODE;
 import static com.thetestament.cread.utils.Constant.EXTRA_SHIPPING_STATE;
 
-public class MerchandizingProductsActivity extends BaseActivity {
-
+public class MerchandisingProductsActivity extends BaseActivity {
 
     @BindView(R.id.header_products)
     RelativeLayout headerProducts;
@@ -86,8 +87,9 @@ public class MerchandizingProductsActivity extends BaseActivity {
     private JSONObject shippingDetails;
 
     CompositeDisposable mCompositeDisposable = new CompositeDisposable();
+    SharedPreferenceHelper mHelper;
 
-
+    @State
     String mEntityID, deliveryTime, billingContact;
 
 
@@ -95,35 +97,74 @@ public class MerchandizingProductsActivity extends BaseActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_merchandizing_products);
+        //Bind views
         ButterKnife.bind(this);
-
-        /**
-         * Preload payment resources for razorpay which should be done 2-3 screens before payments screen
-         */
+        //ShredPreference reference
+        mHelper = new SharedPreferenceHelper(this);
+        //  Preload payment resources for Razor pay which should be done 2-3 screens before payments screen
         Checkout.preload(getApplicationContext());
 
+        //For smooth scrolling
         ViewCompat.setNestedScrollingEnabled(recyclerView, false);
 
         initView();
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        Icepick.saveInstanceState(this, outState);
+    }
+
+    @Override
+    protected void onRestoreInstanceState(Bundle savedInstanceState) {
+        super.onRestoreInstanceState(savedInstanceState);
+        Icepick.restoreInstanceState(this, savedInstanceState);
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_products, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.action_terms:
+                new MaterialDialog.Builder(MerchandisingProductsActivity.this)
+                        .customView(R.layout.dialog_products_terms, false)
+                        .positiveText("Ok")
+                        .onPositive(new MaterialDialog.SingleButtonCallback() {
+                            @Override
+                            public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
+                                dialog.dismiss();
+                            }
+                        })
+                        .build()
+                        .show();
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
 
     }
 
     /**
-     * Method to initialize views
+     * Method to initialize views.
      */
     private void initView() {
 
+        //Retrieve data from intent
         mEntityID = getIntent().getStringExtra(EXTRA_ENTITY_ID);
 
         //Set layout manger for recyclerView
-        recyclerView.setLayoutManager(new LinearLayoutManager(MerchandizingProductsActivity.this));
+        recyclerView.setLayoutManager(new LinearLayoutManager(MerchandisingProductsActivity.this));
         //Set adapter
-        mAdapter = new ProductsAdapter(MerchandizingProductsActivity.this, mDataList);
+        mAdapter = new ProductsAdapter(MerchandisingProductsActivity.this, mDataList, mHelper.getUUID());
         recyclerView.setAdapter(mAdapter);
-
         //initialize  recyclerView
         initScreen();
-
     }
 
 
@@ -131,16 +172,13 @@ public class MerchandizingProductsActivity extends BaseActivity {
      * Method to initialize swipe to refresh view.
      */
     private void initScreen() {
-
         swipeRefreshLayout.setRefreshing(true);
         swipeRefreshLayout.setColorSchemeColors(ContextCompat.getColor(this
                 , R.color.colorPrimary));
         swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
-
                 headerProducts.setVisibility(View.GONE);
-
                 //Clear data
                 mDataList.clear();
                 mAdapter.notifyDataSetChanged();
@@ -159,16 +197,15 @@ public class MerchandizingProductsActivity extends BaseActivity {
     /**
      * Method to retrieve products related data from server
      */
-    private void getProductsData()
-    {
-        if (NetworkHelper.getNetConnectionStatus(MerchandizingProductsActivity.this)) {
+    private void getProductsData() {
+        if (NetworkHelper.getNetConnectionStatus(MerchandisingProductsActivity.this)) {
 
-                swipeRefreshLayout.setRefreshing(true);
-                //Get data from server
+            swipeRefreshLayout.setRefreshing(true);
+            //Get data from server
 
 
-                final boolean[] tokenError = {false};
-                final boolean[] connectionError = {false};
+            final boolean[] tokenError = {false};
+            final boolean[] connectionError = {false};
 
 
             mCompositeDisposable.add(getObservableFromServer(BuildConfig.URL + "/products/load")
@@ -189,8 +226,7 @@ public class MerchandizingProductsActivity extends BaseActivity {
                                     deliveryTime = mainData.getString("deliverytime");
                                     billingContact = mainData.getString("billing_contact");
 
-                                    if (mainData.getBoolean("detailsexist"))
-                                    {
+                                    if (mainData.getBoolean("detailsexist")) {
                                         shippingDetails = mainData.getJSONObject("details");
                                     }
 
@@ -251,7 +287,7 @@ public class MerchandizingProductsActivity extends BaseActivity {
                                 swipeRefreshLayout.setRefreshing(false);
                                 //Apply 'Slide Up' animation
                                 int resId = R.anim.layout_animation_from_bottom;
-                                LayoutAnimationController animation = AnimationUtils.loadLayoutAnimation(MerchandizingProductsActivity.this, resId);
+                                LayoutAnimationController animation = AnimationUtils.loadLayoutAnimation(MerchandisingProductsActivity.this, resId);
                                 recyclerView.setLayoutAnimation(animation);
 
                                 //Notify changes
@@ -260,9 +296,7 @@ public class MerchandizingProductsActivity extends BaseActivity {
                         }
                     })
             );
-            }
-
-         else {
+        } else {
             swipeRefreshLayout.setRefreshing(false);
             //No connection Snack bar
             ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_no_connection));
@@ -277,19 +311,17 @@ public class MerchandizingProductsActivity extends BaseActivity {
         mAdapter.notifyDataSetChanged();
 
         swipeRefreshLayout.setRefreshing(false);
-*/    }
+*/
+    }
 
     /**
-     *
      * @param array JSON array to convert to array list
      * @return
      */
-    private ArrayList<String> getArrayListFromJSON(JSONArray array)
-    {
+    private ArrayList<String> getArrayListFromJSON(JSONArray array) {
         int i = 0;
         ArrayList<String> arrayList = new ArrayList<>();
-        while (i < array.length())
-        {
+        while (i < array.length()) {
             try {
                 arrayList.add(array.getString(i));
                 i++;
@@ -298,21 +330,15 @@ public class MerchandizingProductsActivity extends BaseActivity {
             }
         }
 
-        return  arrayList;
+        return arrayList;
     }
 
 
-
-    private io.reactivex.Observable<JSONObject> getObservableFromServer(String url)
-    {
+    private io.reactivex.Observable<JSONObject> getObservableFromServer(String url) {
         JSONObject jsonObject = new JSONObject();
         try {
-
-            SharedPreferenceHelper spHelper = new SharedPreferenceHelper(MerchandizingProductsActivity.this);
-
-            jsonObject.put("uuid", spHelper.getUUID());
-            jsonObject.put("authkey", spHelper.getAuthToken());
-
+            jsonObject.put("uuid", mHelper.getUUID());
+            jsonObject.put("authkey", mHelper.getAuthToken());
             jsonObject.put("entityid", mEntityID);
         } catch (JSONException e) {
             e.printStackTrace();
@@ -325,59 +351,53 @@ public class MerchandizingProductsActivity extends BaseActivity {
     }
 
 
-    private void initBuyButtonListener()
-    {
+    private void initBuyButtonListener() {
         mAdapter.setBuyButtonClickedListener(new OnBuyButtonClickedListener() {
             @Override
-            public void onBuyButtonClicked(String type, String size, String color, String quantity, String price, String productID,String deliveryCharge) {
+            public void onBuyButtonClicked(String type, String size, String color, String quantity, String price, String productID, String deliveryCharge) {
 
                 Bundle bundle = new Bundle();
                 bundle.putString(EXTRA_PRODUCT_TYPE, type);
-                bundle.putString(EXTRA_PRODUCT_SIZE,size);
+                bundle.putString(EXTRA_PRODUCT_SIZE, size);
                 bundle.putString(EXTRA_PRODUCT_COLOR, color);
                 bundle.putString(EXTRA_PRODUCT_QUANTITY, quantity);
-                bundle.putString(EXTRA_PRODUCT_PRICE,price);
+                bundle.putString(EXTRA_PRODUCT_PRICE, price);
                 bundle.putString(EXTRA_PRODUCT_PRODUCTID, productID);
                 bundle.putString(EXTRA_PRODUCT_ENTITYID, mEntityID);
-                bundle.putString(EXTRA_PRODUCT_DELIVERY_TIME,deliveryTime);
+                bundle.putString(EXTRA_PRODUCT_DELIVERY_TIME, deliveryTime);
                 bundle.putString(EXTRA_PRODUCT_DELIVERY_CHARGE, deliveryCharge);
-                bundle.putString(EXTRA_SHIPPING_PHONE,billingContact);
+                bundle.putString(EXTRA_SHIPPING_PHONE, billingContact);
 
 
-
-                if(shippingDetails != null)
-                {
+                if (shippingDetails != null) {
 
                     try {
-                        bundle.putString(EXTRA_SHIPPING_ADDR1,shippingDetails.getString("ship_addr_1"));
-                        bundle.putString(EXTRA_SHIPPING_ADDR2,shippingDetails.getString("ship_addr_2"));
-                        bundle.putString(EXTRA_SHIPPING_CITY,shippingDetails.getString("ship_city"));
-                        bundle.putString(EXTRA_SHIPPING_STATE,shippingDetails.getString("ship_state"));
-                        bundle.putString(EXTRA_SHIPPING_PINCODE,shippingDetails.getString("ship_pincode"));
-                        bundle.putString(EXTRA_SHIPPING_NAME,shippingDetails.getString("billing_name"));
-                        bundle.putString(EXTRA_SHIPPING_ALT_PHONE,shippingDetails.getString("billing_alt_contact"));
-
+                        bundle.putString(EXTRA_SHIPPING_ADDR1, shippingDetails.getString("ship_addr_1"));
+                        bundle.putString(EXTRA_SHIPPING_ADDR2, shippingDetails.getString("ship_addr_2"));
+                        bundle.putString(EXTRA_SHIPPING_CITY, shippingDetails.getString("ship_city"));
+                        bundle.putString(EXTRA_SHIPPING_STATE, shippingDetails.getString("ship_state"));
+                        bundle.putString(EXTRA_SHIPPING_PINCODE, shippingDetails.getString("ship_pincode"));
+                        bundle.putString(EXTRA_SHIPPING_NAME, shippingDetails.getString("billing_name"));
+                        bundle.putString(EXTRA_SHIPPING_ALT_PHONE, shippingDetails.getString("billing_alt_contact"));
 
 
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }
-                }
-
-                else {
+                } else {
 
                     bundle.putString(EXTRA_SHIPPING_ADDR1, "");
-                    bundle.putString(EXTRA_SHIPPING_ADDR2,"");
-                    bundle.putString(EXTRA_SHIPPING_CITY,"");
-                    bundle.putString(EXTRA_SHIPPING_STATE,"");
-                    bundle.putString(EXTRA_SHIPPING_PINCODE,"");
-                    bundle.putString(EXTRA_SHIPPING_NAME,"");
-                    bundle.putString(EXTRA_SHIPPING_ALT_PHONE,"");
+                    bundle.putString(EXTRA_SHIPPING_ADDR2, "");
+                    bundle.putString(EXTRA_SHIPPING_CITY, "");
+                    bundle.putString(EXTRA_SHIPPING_STATE, "");
+                    bundle.putString(EXTRA_SHIPPING_PINCODE, "");
+                    bundle.putString(EXTRA_SHIPPING_NAME, "");
+                    bundle.putString(EXTRA_SHIPPING_ALT_PHONE, "");
 
 
                 }
 
-                Intent intent = new Intent(MerchandizingProductsActivity.this, AddressAcitvity.class);
+                Intent intent = new Intent(MerchandisingProductsActivity.this, AddressActivity.class);
                 intent.putExtras(bundle);
 
                 startActivity(intent);
@@ -387,34 +407,4 @@ public class MerchandizingProductsActivity extends BaseActivity {
     }
 
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-
-        getMenuInflater().inflate(R.menu.menu_products,menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-
-        switch (item.getItemId())
-        {
-            case R.id.action_terms:
-                new MaterialDialog.Builder(MerchandizingProductsActivity.this)
-                        .customView(R.layout.dialog_products_terms, false)
-                        .positiveText("Ok")
-                        .onPositive(new MaterialDialog.SingleButtonCallback() {
-                            @Override
-                            public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
-                                dialog.dismiss();
-                            }
-                        })
-                        .build()
-                        .show();
-
-            default:
-                return super.onOptionsItemSelected(item);
-        }
-
-    }
 }
