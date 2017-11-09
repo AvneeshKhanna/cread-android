@@ -2,6 +2,8 @@ package com.thetestament.cread.utils;
 
 
 public class Constant {
+    public static final String MINIMUM_APP_VERSION_KEY = "minimum_app_version";
+
     //Request codes
     public static final int REQUEST_CODE_UPDATES_ACTIVITY = 1000;
     public static final int REQUEST_CODE_FB_ACCOUNT_KIT = 1001;
