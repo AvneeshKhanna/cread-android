@@ -13,6 +13,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v4.app.NotificationCompat;
+import android.util.Log;
 
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
@@ -52,17 +53,23 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
     private int mId = 0;
     private int resId  = 0;
     private Map<String, String> data;
+    private final String TAG = getClass().getSimpleName();
 
     @Override
     public void onMessageReceived(RemoteMessage remoteMessage) {
         super.onMessageReceived(remoteMessage);
 
         data = remoteMessage.getData();
-
+        Log.d(TAG, "onMessageReceived: " + data);
 
         category = data.get("category");
         persistable = data.get("persistable");
         message = data.get("message");
+
+
+        performCategorySpecificOperations();
+
+        initialiseNotification();
 
     }
 

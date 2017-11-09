@@ -342,16 +342,16 @@ public class FeedDescriptionActivity extends BaseActivity {
     /**
      * Method to update hats off status.
      *
-     * @param campaignID Campaign ID i.e String
+     * @param entityID Campaign ID i.e String
      * @param isHatsOff  boolean true if user has given hats off to campaign, false otherwise.
      */
-    private void updateHatsOffStatus(String campaignID, boolean isHatsOff) {
+    private void updateHatsOffStatus(String entityID, boolean isHatsOff) {
         final JSONObject jsonObject = new JSONObject();
 
         try {
             jsonObject.put("uuid", mHelper.getUUID());
             jsonObject.put("authkey", mHelper.getAuthToken());
-            jsonObject.put("cmid", campaignID);
+            jsonObject.put("entityid", entityID);
             jsonObject.put("register", isHatsOff);
         } catch (JSONException e) {
             e.printStackTrace();
