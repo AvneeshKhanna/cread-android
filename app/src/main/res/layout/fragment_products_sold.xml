@@ -5,7 +5,7 @@
 
     <!-- This layout will  be visible  when there is no notification-->
     <LinearLayout
-        android:id="@+id/view_no_notifications"
+        android:id="@+id/view_nothing_sold"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_centerInParent="true"
@@ -26,7 +26,7 @@
             android:layout_gravity="center"
             android:layout_marginTop="15dp"
             android:gravity="center"
-            android:text="No notifications to show right now"
+            android:text="Unfortunately, your art hasn't been monetised yet. We hope that happens soon."
             android:textColor="@color/grey_custom"
             android:textSize="16sp" />
 

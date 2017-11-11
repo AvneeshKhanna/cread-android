@@ -5,6 +5,7 @@ import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -20,9 +21,14 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
+import android.widget.TextView;
 
+import com.mikepenz.actionitembadge.library.ActionItemBadge;
+import com.mikepenz.actionitembadge.library.ActionItemBadgeAdder;
+import com.mikepenz.fontawesome_typeface_library.FontAwesome;
 import com.thetestament.cread.Manifest;
 import com.thetestament.cread.R;
+import com.thetestament.cread.database.NotificationsDBFunctions;
 import com.thetestament.cread.fragments.ExploreFragment;
 import com.thetestament.cread.fragments.FeedFragment;
 import com.thetestament.cread.fragments.MeFragment;
@@ -60,6 +66,8 @@ public class BottomNavigationActivity extends BaseActivity {
     @State
     String mFragmentTag;
     Fragment mCurrentFragment;
+
+    private int mUnreadCount = 0;
 
 
     @Override
@@ -137,9 +145,27 @@ public class BottomNavigationActivity extends BaseActivity {
         super.onRestoreInstanceState(savedInstanceState);
     }
 
+
+    @Override
+    public boolean onPrepareOptionsMenu(Menu menu) {
+
+        UpdateNotificationBadge updateNotificationBadge = new UpdateNotificationBadge();
+        updateNotificationBadge.execute(menu);
+
+        super.onPrepareOptionsMenu(menu);
+        return true;
+    }
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu_cread, menu);
+
+
+
+
+
+
+        super.onCreateOptionsMenu(menu);
         return true;
     }
 
@@ -149,8 +175,25 @@ public class BottomNavigationActivity extends BaseActivity {
             case R.id.action_updates:
                 //Open updates screen
                 // TODO uncomment
-                /*startActivityForResult(new Intent(this, UpdatesActivity.class)
-                        , REQUEST_CODE_UPDATES_ACTIVITY);*/
+
+                Thread thread = new Thread(
+
+                        new Runnable() {
+                            @Override
+                            public void run() {
+
+                                NotificationsDBFunctions dbFunctions = new NotificationsDBFunctions(BottomNavigationActivity.this);
+                                dbFunctions.accessNotificationsDatabase();
+                                dbFunctions.setRead();
+
+                                startActivity(new Intent(BottomNavigationActivity.this, UpdatesActivity.class));
+
+                            }
+                        }
+                );
+
+                thread.start();
+
                 return true;
             case R.id.action_settings:
                 //Launch settings activity
@@ -355,5 +398,43 @@ public class BottomNavigationActivity extends BaseActivity {
             e.printStackTrace();
             ViewHelper.getSnackBar(rootView, "Image could not be cropped due to some error");
         }
+    }
+
+
+    class UpdateNotificationBadge extends AsyncTask<Menu, Void, Menu> {
+
+
+
+        @Override
+        protected Menu doInBackground(Menu... menus) {
+
+            NotificationsDBFunctions notificationsDBFunctions = new NotificationsDBFunctions(BottomNavigationActivity.this);
+            notificationsDBFunctions.accessNotificationsDatabase();
+
+            mUnreadCount = notificationsDBFunctions.getUnreadCount();
+
+
+            return menus[0];
+        }
+
+        @Override
+        protected void onPostExecute(Menu menu) {
+            super.onPostExecute(menu);
+
+            //you can add some logic (hide it if the count == 0)
+            if (mUnreadCount > 0) {
+                ActionItemBadge.update(BottomNavigationActivity.this, menu.findItem(R.id.action_updates), ContextCompat.getDrawable(BottomNavigationActivity.this, R.drawable.ic_notifications_24)/*FontAwesome.Icon.faw_android*/, ActionItemBadge.BadgeStyles.DARK_GREY, mUnreadCount);
+
+            } else {
+
+                // setting badge count parameter as null to hide the badge
+                ActionItemBadge.update(BottomNavigationActivity.this, menu.findItem(R.id.action_updates), ContextCompat.getDrawable(BottomNavigationActivity.this, R.drawable.ic_notifications_24)/*FontAwesome.Icon.faw_android*/, ActionItemBadge.BadgeStyles.DARK_GREY, null);
+
+            }
+
+
+        }
+
+
     }
 }

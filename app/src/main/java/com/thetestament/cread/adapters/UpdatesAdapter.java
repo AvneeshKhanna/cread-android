@@ -14,6 +14,8 @@ import android.widget.TextView;
 
 import com.squareup.picasso.Picasso;
 import com.thetestament.cread.R;
+import com.thetestament.cread.activities.BottomNavigationActivity;
+import com.thetestament.cread.activities.ProfileActivity;
 import com.thetestament.cread.database.NotificationsDBFunctions;
 import com.thetestament.cread.models.UpdatesModel;
 
@@ -23,12 +25,14 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import de.hdodenhof.circleimageview.CircleImageView;
 
+import static com.thetestament.cread.utils.Constant.EXTRA_PROFILE_UUID;
 import static com.thetestament.cread.utils.Constant.NOTIFICATION_CATEGORY_CREAD_BUY;
 import static com.thetestament.cread.utils.Constant.NOTIFICATION_CATEGORY_CREAD_COLLABORATE;
 import static com.thetestament.cread.utils.Constant.NOTIFICATION_CATEGORY_CREAD_COMMENT;
 import static com.thetestament.cread.utils.Constant.NOTIFICATION_CATEGORY_CREAD_FOLLOW;
 import static com.thetestament.cread.utils.Constant.NOTIFICATION_CATEGORY_CREAD_GENERAL;
 import static com.thetestament.cread.utils.Constant.NOTIFICATION_CATEGORY_CREAD_HATSOFF;
+import static com.thetestament.cread.utils.Constant.NOTIFICATION_ID_CREAD_COMMENT;
 
 
 /*Adapter class for UpdatesFragment RecyclerView.*/
@@ -93,7 +97,7 @@ public class UpdatesAdapter extends RecyclerView.Adapter<UpdatesAdapter.ViewHold
             public void onClick(View v) {
                 //Background task to update seen status
                 new UpdateSeenStatus().execute(holder);
-                //initClick(updatesData.getCategory(), updatesData.getCampaignID(), updatesData.getShareID());
+                initClick(updatesData.getCategory(), updatesData.getEntityID(), updatesData.getActorID());
             }
         });
     }
@@ -144,17 +148,16 @@ public class UpdatesAdapter extends RecyclerView.Adapter<UpdatesAdapter.ViewHold
      /** Open screen depending on the type of the notification.
      *
      * @param category Notification category
-     * @param cmId     campaign id.
-     * @param shareID  ShareID
+     * @param entityID     entity id.
+     * @param userID  userID
      */
 
- /*   private void initClick(String category, String cmId, String shareID) {
+    private void initClick(String category, String entityID, String userID) {
         switch (category) {
             case NOTIFICATION_CATEGORY_CREAD_FOLLOW:
                 //Launch me fragment
-                Intent intent = new Intent(mContext, CampaignDescriptionActivity.class);
-                intent.putExtra(CAMPAIGN_DESC_CALLED_FROM, CAMPAIGN_DESC_FROM_UPDATES);
-                intent.putExtra(EXTRA_CAMPAIGN_ID_DATA, cmId);
+                Intent intent = new Intent(mContext, ProfileActivity.class);
+                intent.putExtra(EXTRA_PROFILE_UUID, userID);
                 mContext.startActivity(intent);
                 //Finish Updates activity
                 mContext.finish();
@@ -162,31 +165,32 @@ public class UpdatesAdapter extends RecyclerView.Adapter<UpdatesAdapter.ViewHold
 
             case NOTIFICATION_CATEGORY_CREAD_COLLABORATE:
                 //Listener
-                notificationItemClick.onNotificationClick(NOTIFICATION_CATEGORY_CREAD_SHARE_STATUS, shareID);
+                notificationItemClick.onNotificationClick(NOTIFICATION_CATEGORY_CREAD_COLLABORATE, entityID);
                 break;
 
             case NOTIFICATION_CATEGORY_CREAD_HATSOFF:
                 //Listener
-                notificationItemClick.onNotificationClick(NOTIFICATION_CATEGORY_CREAD_CAMPAIGN_UNLOCKED, shareID);
+                notificationItemClick.onNotificationClick(NOTIFICATION_CATEGORY_CREAD_HATSOFF, entityID);
                 break;
 
             case NOTIFICATION_CATEGORY_CREAD_COMMENT:
                 //Listener
-                notificationItemClick.onNotificationClick(NOTIFICATION_CATEGORY_CREAD_GENERAL, shareID);
+                notificationItemClick.onNotificationClick(NOTIFICATION_CATEGORY_CREAD_COMMENT, entityID);
                 break;
 
             case NOTIFICATION_CATEGORY_CREAD_BUY:
                 //Listener
-                notificationItemClick.onNotificationClick(NOTIFICATION_CATEGORY_CREAD_TOP_GIVERS, shareID);
+                notificationItemClick.onNotificationClick(NOTIFICATION_CATEGORY_CREAD_BUY, entityID);
                 break;
             case NOTIFICATION_CATEGORY_CREAD_GENERAL:
                 //Listener
-                notificationItemClick.onNotificationClick(NOTIFICATION_CATEGORY_CREAD_TOP_GIVERS, shareID);
+                mContext.startActivity(new Intent(mContext, BottomNavigationActivity.class));
+                mContext.finish();
                 break;
             default:
                 break;
         }
-    }*/
+    }
 
     /**
      * Method to load creator profile picture.

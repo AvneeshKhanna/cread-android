@@ -15,13 +15,29 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.AnimationUtils;
+import android.view.animation.LayoutAnimationController;
 import android.widget.LinearLayout;
+import android.widget.ProgressBar;
+import android.widget.RelativeLayout;
 
+import com.afollestad.materialdialogs.MaterialDialog;
+import com.google.firebase.crash.FirebaseCrash;
+import com.rx2androidnetworking.Rx2AndroidNetworking;
+import com.thetestament.cread.BuildConfig;
 import com.thetestament.cread.R;
+import com.thetestament.cread.activities.FeedDescriptionActivity;
 import com.thetestament.cread.adapters.UpdatesAdapter;
 import com.thetestament.cread.database.NotificationsDBHelper;
 import com.thetestament.cread.database.NotificationsDBSchema;
+import com.thetestament.cread.helpers.SharedPreferenceHelper;
+import com.thetestament.cread.helpers.ViewHelper;
+import com.thetestament.cread.models.FeedModel;
 import com.thetestament.cread.models.UpdatesModel;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -29,6 +45,14 @@ import java.util.List;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.Unbinder;
+import io.reactivex.Observable;
+import io.reactivex.Observer;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.annotations.NonNull;
+import io.reactivex.disposables.CompositeDisposable;
+import io.reactivex.disposables.Disposable;
+import io.reactivex.observers.DisposableObserver;
+import io.reactivex.schedulers.Schedulers;
 
 import static android.app.Activity.RESULT_OK;
 import static com.thetestament.cread.database.NotificationsDBSchema.NotificationDBEntry.COLUMN_NAME_ACTOR_USERID;
@@ -40,10 +64,12 @@ import static com.thetestament.cread.database.NotificationsDBSchema.Notification
 import static com.thetestament.cread.database.NotificationsDBSchema.NotificationDBEntry.COLUMN_NAME_TIME;
 import static com.thetestament.cread.database.NotificationsDBSchema.NotificationDBEntry.COLUMN_NAME_USER_IMAGE;
 import static com.thetestament.cread.database.NotificationsDBSchema.NotificationDBEntry.TABLE_NAME;
+import static com.thetestament.cread.utils.Constant.EXTRA_FEED_DESCRIPTION_DATA;
 import static com.thetestament.cread.utils.Constant.NOTIFICATION_CATEGORY_CREAD_BUY;
 import static com.thetestament.cread.utils.Constant.NOTIFICATION_CATEGORY_CREAD_COLLABORATE;
 import static com.thetestament.cread.utils.Constant.NOTIFICATION_CATEGORY_CREAD_COMMENT;
 import static com.thetestament.cread.utils.Constant.NOTIFICATION_CATEGORY_CREAD_FOLLOW;
+import static com.thetestament.cread.utils.Constant.NOTIFICATION_CATEGORY_CREAD_GENERAL;
 import static com.thetestament.cread.utils.Constant.NOTIFICATION_CATEGORY_CREAD_HATSOFF;
 
 
@@ -63,9 +89,14 @@ public class UpdatesFragment extends Fragment {
     SwipeRefreshLayout swipeRefreshLayout;
     @BindView(R.id.recycler_view)
     RecyclerView recyclerView;
+    @BindView(R.id.viewProgress)
+    ProgressBar progressBar;
+    @BindView(R.id.rootView)
+    RelativeLayout rootView;
 
     private Unbinder unbinder;
     private UpdatesFragment mUpdatesFragment;
+    private CompositeDisposable mCompositeDisposable = new CompositeDisposable();
 
     @Nullable
     @Override
@@ -133,7 +164,6 @@ public class UpdatesFragment extends Fragment {
             };
 
 
-
             // How you want the results sorted in the resulting Cursor
             String sortOrder =
                     NotificationsDBSchema.NotificationDBEntry._ID + " DESC";
@@ -191,62 +221,47 @@ public class UpdatesFragment extends Fragment {
                 recyclerView.setAdapter(updatesAdapter);
                 swipeRefreshLayout.setRefreshing(false);
 
-                /*updatesAdapter.setNotificationItemClick(new UpdatesAdapter.NotificationItemClick() {
+                updatesAdapter.setNotificationItemClick(new UpdatesAdapter.NotificationItemClick() {
                     @Override
-                    public void onNotificationClick(String notificationType, String shareId) {
+                    public void onNotificationClick(String notificationType, String entityID) {
                         switch (notificationType) {
                             case NOTIFICATION_CATEGORY_CREAD_FOLLOW:
+                                // handled in updates adapter
+                                break;
                             case NOTIFICATION_CATEGORY_CREAD_COLLABORATE:
-                                Intent returnIntent = new Intent();
-                                Bundle returnData = new Bundle();
-                                returnData.putString("notificationCategory", notificationType);
-                                returnIntent.putExtras(returnData);
 
-                                getActivity().setResult(RESULT_OK, returnIntent);
-                                //Finish this activity
-                                getActivity().finish();
+                                // gets feed details and opens details screen
+                                getFeedDetails(entityID);
+
                                 break;
 
                             case NOTIFICATION_CATEGORY_CREAD_HATSOFF:
 
-                                Intent returnIntentShareStatus = new Intent();
-                                Bundle returnDataShareStatus = new Bundle();
-                                returnDataShareStatus.putString("notificationCategory", NOTIFICATION_CATEGORY_CREAD_SHARE_STATUS);
-                                returnDataShareStatus.putString("shareID", shareId);
-                                returnIntentShareStatus.putExtras(returnDataShareStatus);
-
-                                getActivity().setResult(RESULT_OK, returnIntentShareStatus);
-                                //Finish this activity
-                                getActivity().finish();
+                                // gets feed details and opens details screen
+                                getFeedDetails(entityID);
                                 break;
 
                             case NOTIFICATION_CATEGORY_CREAD_COMMENT:
-                                Intent returnIntentGivers = new Intent();
-                                Bundle returnDataGivers = new Bundle();
-                                returnDataGivers.putString("notificationCategory", NOTIFICATION_CATEGORY_CREAD_TOP_GIVERS);
-                                returnIntentGivers.putExtras(returnDataGivers);
 
-                                getActivity().setResult(RESULT_OK, returnIntentGivers);
-                                //Finish this activity
-                                getActivity().finish();
+                                // gets feed details and opens details screen
+                                getFeedDetails(entityID);
                                 break;
 
                             case NOTIFICATION_CATEGORY_CREAD_BUY:
-                                Intent returnIntentGivers = new Intent();
-                                Bundle returnDataGivers = new Bundle();
-                                returnDataGivers.putString("notificationCategory", NOTIFICATION_CATEGORY_CREAD_TOP_GIVERS);
-                                returnIntentGivers.putExtras(returnDataGivers);
 
-                                getActivity().setResult(RESULT_OK, returnIntentGivers);
-                                //Finish this activity
-                                getActivity().finish();
+                                // gets feed details and opens details screen
+                                getFeedDetails(entityID);
+                                break;
+
+                            case NOTIFICATION_CATEGORY_CREAD_GENERAL:
+                                // handled in updates adapter
                                 break;
 
                             default:
                                 break;
                         }
                     }
-                });*/
+                });
 
             }
         }
@@ -264,5 +279,114 @@ public class UpdatesFragment extends Fragment {
             }
         });
         loadUpdates(); //For loading the notifications
+    }
+
+
+    /**
+     * RxJava2 implementation for retrieving feed details
+     *
+     * @param entityID
+     */
+    private void getFeedDetails(final String entityID) {
+        final boolean[] tokenError = {false};
+        final boolean[] connectionError = {false};
+
+        final FeedModel feedData = new FeedModel();
+
+        progressBar.setVisibility(View.VISIBLE);
+
+        SharedPreferenceHelper spHelper = new SharedPreferenceHelper(getActivity());
+
+        JSONObject data = new JSONObject();
+        try {
+            data.put("uuid", spHelper.getUUID());
+            data.put("authkey", spHelper.getAuthToken());
+            data.put("entityid", entityID);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+
+        Rx2AndroidNetworking.post(BuildConfig.URL + "/entity-manage/load-specific")
+                .addJSONObjectBody(data)
+                .build()
+                .getJSONObjectObservable()
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribeWith(new Observer<JSONObject>() {
+                    @Override
+                    public void onSubscribe(@NonNull Disposable d) {
+                        mCompositeDisposable.add(d);
+                    }
+
+                    @Override
+                    public void onNext(@NonNull JSONObject jsonObject) {
+
+                        progressBar.setVisibility(View.GONE);
+
+                        try {
+                            //Token status is invalid
+                            if (jsonObject.getString("tokenstatus").equals("invalid")) {
+                                tokenError[0] = true;
+                            } else {
+                                JSONObject mainObject = jsonObject.getJSONObject("data");
+
+                                JSONObject dataObj = mainObject.getJSONObject("entity");
+
+                                feedData.setEntityID(entityID);
+                                feedData.setCaptureID(dataObj.getString("captureid"));
+                                feedData.setContentType(dataObj.getString("type"));
+                                feedData.setUUID(dataObj.getString("uuid"));
+                                feedData.setCreatorImage(dataObj.getString("profilepicurl"));
+                                feedData.setCreatorName(dataObj.getString("creatorname"));
+                                feedData.setHatsOffStatus(dataObj.getBoolean("hatsoffstatus"));
+                                feedData.setHatsOffCount(dataObj.getLong("hatsoffcount"));
+                                feedData.setCommentCount(dataObj.getLong("commentcount"));
+                                feedData.setContentImage(dataObj.getString("entityurl"));
+
+
+                            }
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                            FirebaseCrash.report(e);
+                            connectionError[0] = true;
+
+                        }
+                    }
+
+                    @Override
+                    public void onError(@NonNull Throwable e) {
+
+                        progressBar.setVisibility(View.GONE);
+                        FirebaseCrash.report(e);
+                        //Server error Snack bar
+                        ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_server));
+
+                    }
+
+                    @Override
+                    public void onComplete() {
+
+                        // Token status invalid
+                        if (tokenError[0]) {
+                            ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_invalid_token));
+                        }
+                        //Error occurred
+                        else if (connectionError[0]) {
+                            ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_internal));
+
+                        } else
+
+                        {
+                            Intent intent = new Intent(getActivity(), FeedDescriptionActivity.class);
+                            intent.putExtra(EXTRA_FEED_DESCRIPTION_DATA, feedData);
+                            getActivity().startActivity(intent);
+
+                            getActivity().finish();
+                        }
+                    }
+                });
+
+
     }
 }
