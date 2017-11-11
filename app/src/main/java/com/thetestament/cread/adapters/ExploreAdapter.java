@@ -15,6 +15,7 @@ import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import com.google.firebase.analytics.FirebaseAnalytics;
 import com.squareup.picasso.Picasso;
 import com.thetestament.cread.R;
 import com.thetestament.cread.activities.FeedDescriptionActivity;
@@ -37,6 +38,8 @@ import static com.thetestament.cread.utils.Constant.EXTRA_CAPTURE_URL;
 import static com.thetestament.cread.utils.Constant.EXTRA_DATA;
 import static com.thetestament.cread.utils.Constant.EXTRA_FEED_DESCRIPTION_DATA;
 import static com.thetestament.cread.utils.Constant.EXTRA_PROFILE_UUID;
+import static com.thetestament.cread.utils.Constant.FIREBASE_EVENT_FOLLOW_FROM_EXPLORE;
+import static com.thetestament.cread.utils.Constant.FIREBASE_EVENT_WRITE_CLICKED;
 
 /**
  * Adapter class to provide a binding from data set to views that are displayed within a explore RecyclerView.
@@ -49,6 +52,7 @@ public class ExploreAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
     private List<FeedModel> mExploreList;
     private FragmentActivity mContext;
     private boolean mIsLoading;
+    private String mUUID;
 
     private OnExploreLoadMoreListener onExploreLoadMoreListener;
     private OnExploreFollowListener onExploreFollowListener;
@@ -59,10 +63,12 @@ public class ExploreAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
      *
      * @param mExploreList List of explore data.
      * @param mContext     Context to be use.
+     * @param mUUID        UUID of user.
      */
-    public ExploreAdapter(List<FeedModel> mExploreList, FragmentActivity mContext) {
+    public ExploreAdapter(List<FeedModel> mExploreList, FragmentActivity mContext, String mUUID) {
         this.mExploreList = mExploreList;
         this.mContext = mContext;
+        this.mUUID = mUUID;
     }
 
     /**
@@ -107,6 +113,16 @@ public class ExploreAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
             loadCreatorPic(data.getCreatorImage(), itemViewHolder.imageCreator);
             //Set creator name
             itemViewHolder.textCreatorName.setText(data.getCreatorName());
+
+
+            //Hide follow button  if creator and content consumer is same
+            if (mUUID.equals(data.getUUID())) {
+                itemViewHolder.buttonFollow.setVisibility(View.INVISIBLE);
+            } else {
+                //Show follow button
+                itemViewHolder.buttonFollow.setVisibility(View.VISIBLE);
+            }
+
             //Load explore feed image
             loadFeedImage(data.getContentImage(), itemViewHolder.imageExplore);
 
@@ -225,6 +241,9 @@ public class ExploreAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
                 data.setFollowStatus(!data.getFollowStatus());
                 //set listener
                 onExploreFollowListener.onFollowClick(data, itemPosition);
+
+                //Log firebase event
+                setAnalytics(FIREBASE_EVENT_FOLLOW_FROM_EXPLORE);
             }
         });
     }
@@ -246,6 +265,8 @@ public class ExploreAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
                 Intent intent = new Intent(mContext, ShortActivity.class);
                 intent.putExtra(EXTRA_DATA, bundle);
                 mContext.startActivity(intent);
+                //Log firebase event
+                setAnalytics(FIREBASE_EVENT_WRITE_CLICKED);
             }
         });
     }
@@ -293,6 +314,24 @@ public class ExploreAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
             //Change text to 'following'
             buttonFollow.setText("Following");
         }
+    }
+
+
+    /**
+     * Method to send analytics data on firebase server.
+     *
+     * @param firebaseEvent Event type.
+     */
+    private void setAnalytics(String firebaseEvent) {
+        Bundle bundle = new Bundle();
+        bundle.putString("uuid", mUUID);
+        if (firebaseEvent.equals(FIREBASE_EVENT_WRITE_CLICKED)) {
+            bundle.putString("class_name", "explore_item");
+            FirebaseAnalytics.getInstance(mContext).logEvent(FIREBASE_EVENT_WRITE_CLICKED, bundle);
+        } else if (firebaseEvent.equals(FIREBASE_EVENT_FOLLOW_FROM_EXPLORE)) {
+            FirebaseAnalytics.getInstance(mContext).logEvent(FIREBASE_EVENT_FOLLOW_FROM_EXPLORE, bundle);
+        }
+
     }
 
     /**
@@ -357,5 +396,6 @@ public class ExploreAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
             ButterKnife.bind(this, itemView);
         }
     }
+
 
 }

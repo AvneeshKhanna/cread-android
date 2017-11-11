@@ -128,4 +128,12 @@ public class listener {
     public interface OnInspirationLoadMoreListener {
         void onLoadMore();
     }
+
+
+    /**
+     * Interface definition for a callback to be involved when user click on delete button of his/her content.
+     */
+    public interface OnContentDeleteListener {
+        void onDelete(String entityID, int position);
+    }
 }

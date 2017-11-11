@@ -25,7 +25,7 @@ import android.widget.TextView;
 
 import com.mikepenz.actionitembadge.library.ActionItemBadge;
 import com.mikepenz.actionitembadge.library.ActionItemBadgeAdder;
-import com.mikepenz.fontawesome_typeface_library.FontAwesome;
+import com.google.firebase.analytics.FirebaseAnalytics;
 import com.thetestament.cread.Manifest;
 import com.thetestament.cread.R;
 import com.thetestament.cread.database.NotificationsDBFunctions;
@@ -33,6 +33,7 @@ import com.thetestament.cread.fragments.ExploreFragment;
 import com.thetestament.cread.fragments.FeedFragment;
 import com.thetestament.cread.fragments.MeFragment;
 import com.thetestament.cread.helpers.BottomNavigationViewHelper;
+import com.thetestament.cread.helpers.SharedPreferenceHelper;
 import com.thetestament.cread.helpers.ViewHelper;
 import com.yalantis.ucrop.UCrop;
 
@@ -43,6 +44,10 @@ import icepick.State;
 
 import static com.thetestament.cread.helpers.ImageHelper.getImageUri;
 import static com.thetestament.cread.helpers.ImageHelper.startImageCropping;
+import static com.thetestament.cread.utils.Constant.FIREBASE_EVENT_EXPLORE_CLICKED;
+import static com.thetestament.cread.utils.Constant.FIREBASE_EVENT_FEED_CLICKED;
+import static com.thetestament.cread.utils.Constant.FIREBASE_EVENT_NOTIFICATION_CLICKED;
+import static com.thetestament.cread.utils.Constant.FIREBASE_EVENT_WRITE_CLICKED;
 import static com.thetestament.cread.utils.Constant.IMAGE_TYPE_USER_CAPTURE_PIC;
 import static com.thetestament.cread.utils.Constant.REQUEST_CODE_OPEN_GALLERY;
 import static com.thetestament.cread.utils.Constant.REQUEST_CODE_WRITE_EXTERNAL_STORAGE;
@@ -69,11 +74,16 @@ public class BottomNavigationActivity extends BaseActivity {
 
     private int mUnreadCount = 0;
 
+    private FirebaseAnalytics mFirebaseAnalytics;
+
 
     @Override
+
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_bottom_navigation);
+        // Obtain the FirebaseAnalytics instance.
+        mFirebaseAnalytics = FirebaseAnalytics.getInstance(this);
         //Bind View to this activity
         ButterKnife.bind(this);
         //Set actionbar
@@ -194,6 +204,8 @@ public class BottomNavigationActivity extends BaseActivity {
 
                 thread.start();
 
+                setAnalytics(FIREBASE_EVENT_NOTIFICATION_CLICKED);
+
                 return true;
             case R.id.action_settings:
                 //Launch settings activity
@@ -255,6 +267,8 @@ public class BottomNavigationActivity extends BaseActivity {
                         //set fragment tag
                         mFragmentTag = TAG_FEED_FRAGMENT;
                         replaceFragment(mCurrentFragment, mFragmentTag);
+                        //Log firebase event
+                        setAnalytics(FIREBASE_EVENT_FEED_CLICKED);
                         break;
 
                     case R.id.action_explore:
@@ -264,10 +278,14 @@ public class BottomNavigationActivity extends BaseActivity {
                         //Set fragment tag
                         mFragmentTag = TAG_EXPLORE_FRAGMENT;
                         replaceFragment(mCurrentFragment, mFragmentTag);
+                        //Log firebase event
+                        setAnalytics(FIREBASE_EVENT_EXPLORE_CLICKED);
                         break;
 
                     case R.id.action_add:
                         getAddContentBottomSheetDialog();
+                        //Log firebase event
+                        setAnalytics(FIREBASE_EVENT_WRITE_CLICKED);
                         break;
 
                     case R.id.action_me:
@@ -400,7 +418,9 @@ public class BottomNavigationActivity extends BaseActivity {
         }
     }
 
-
+    /**
+     * async task to update the unread count in notification badge
+     */
     class UpdateNotificationBadge extends AsyncTask<Menu, Void, Menu> {
 
 
@@ -435,6 +455,29 @@ public class BottomNavigationActivity extends BaseActivity {
 
         }
 
+
+    }
+
+
+    /**
+     * Method to send analytics data on firebase server.
+     *
+     * @param firebaseEvent Event type.
+     */
+    private void setAnalytics(String firebaseEvent) {
+        SharedPreferenceHelper helper = new SharedPreferenceHelper(this);
+        Bundle bundle = new Bundle();
+        bundle.putString("uuid", helper.getUUID());
+        if (firebaseEvent.equals(FIREBASE_EVENT_FEED_CLICKED)) {
+            mFirebaseAnalytics.logEvent(FIREBASE_EVENT_FEED_CLICKED, bundle);
+        } else if (firebaseEvent.equals(FIREBASE_EVENT_EXPLORE_CLICKED)) {
+            mFirebaseAnalytics.logEvent(FIREBASE_EVENT_EXPLORE_CLICKED, bundle);
+        } else if (firebaseEvent.equals(FIREBASE_EVENT_NOTIFICATION_CLICKED)) {
+            mFirebaseAnalytics.logEvent(FIREBASE_EVENT_NOTIFICATION_CLICKED, bundle);
+        } else if (firebaseEvent.equals(FIREBASE_EVENT_WRITE_CLICKED)) {
+            bundle.putString("class_name", "from_add_item");
+            mFirebaseAnalytics.logEvent(FIREBASE_EVENT_WRITE_CLICKED, bundle);
+        }
 
     }
 }

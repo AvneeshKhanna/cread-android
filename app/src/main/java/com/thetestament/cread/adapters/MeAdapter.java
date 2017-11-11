@@ -3,6 +3,8 @@ package com.thetestament.cread.adapters;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
+import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.RecyclerView;
@@ -14,13 +16,16 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.afollestad.materialdialogs.DialogAction;
+import com.afollestad.materialdialogs.MaterialDialog;
+import com.google.firebase.analytics.FirebaseAnalytics;
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Target;
 import com.thetestament.cread.R;
 import com.thetestament.cread.activities.CommentsActivity;
 import com.thetestament.cread.activities.FeedDescriptionActivity;
-import com.thetestament.cread.activities.HatsOffActivity;
 import com.thetestament.cread.helpers.ViewHelper;
+import com.thetestament.cread.listeners.listener.OnContentDeleteListener;
 import com.thetestament.cread.listeners.listener.OnUserActivityHatsOffListener;
 import com.thetestament.cread.listeners.listener.OnUserActivityLoadMoreListener;
 import com.thetestament.cread.models.FeedModel;
@@ -34,7 +39,9 @@ import de.hdodenhof.circleimageview.CircleImageView;
 import static com.thetestament.cread.helpers.ImageHelper.getLocalBitmapUri;
 import static com.thetestament.cread.utils.Constant.CONTENT_TYPE_CAPTURE;
 import static com.thetestament.cread.utils.Constant.CONTENT_TYPE_SHORT;
+import static com.thetestament.cread.utils.Constant.EXTRA_ENTITY_ID;
 import static com.thetestament.cread.utils.Constant.EXTRA_FEED_DESCRIPTION_DATA;
+import static com.thetestament.cread.utils.Constant.FIREBASE_EVENT_SHARED_FROM_PROFILE;
 import static com.thetestament.cread.utils.Constant.USER_ACTIVITY_TYPE_ALL;
 import static com.thetestament.cread.utils.Constant.USER_ACTIVITY_TYPE_CAPTURE;
 import static com.thetestament.cread.utils.Constant.USER_ACTIVITY_TYPE_SHORT;
@@ -46,8 +53,6 @@ public class MeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
     private final int VIEW_TYPE_ITEM = 0;
     private final int VIEW_TYPE_LOADING = 1;
-    private final int VIEW_TYPE_ITEM_SHORT = 2;
-    private final int VIEW_TYPE_ITEM_CAPTURE = 3;
 
     private List<FeedModel> mUserContentList;
     private FragmentActivity mContext;
@@ -57,12 +62,15 @@ public class MeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
     private OnUserActivityLoadMoreListener onLoadMore;
     private OnUserActivityHatsOffListener onHatsOffListener;
+    private OnContentDeleteListener onContentDeleteListener;
 
     /**
      * Required constructor.
      *
-     * @param mUserContentList List of feed data.
-     * @param mContext         Context to be use.
+     * @param mUserContentList  List of feed data.
+     * @param mContext          Context to be use.
+     * @param mUUID             UUID of user.
+     * @param mUserActivityType Type of data to b shown i.e only capture , only feed  or all.
      */
     public MeAdapter(List<FeedModel> mUserContentList, FragmentActivity mContext, String mUUID, String mUserActivityType) {
         this.mUserContentList = mUserContentList;
@@ -83,6 +91,13 @@ public class MeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
      */
     public void setHatsOffListener(OnUserActivityHatsOffListener onHatsOffListener) {
         this.onHatsOffListener = onHatsOffListener;
+    }
+
+    /**
+     * Register a callback to be invoked when user clicks on delete button.
+     */
+    public void setOnContentDeleteListener(OnContentDeleteListener onContentDeleteListener) {
+        this.onContentDeleteListener = onContentDeleteListener;
     }
 
     @Override
@@ -110,6 +125,30 @@ public class MeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         if (holder.getItemViewType() == VIEW_TYPE_ITEM) {
             final ItemViewHolder itemViewHolder = (ItemViewHolder) holder;
 
+            //Load creator profile picture
+            loadCreatorPic(data.getCreatorImage(), itemViewHolder.imageCreator);
+            //Set creator name
+            itemViewHolder.textCreatorName.setText(data.getCreatorName());
+            //Set content type drawable
+            setContentType(data.getContentType(), itemViewHolder.imageWorkType);
+            //Initialize delete button
+            initializeDeleteButton(data.getUUID(), itemViewHolder.buttonDelete, position, data.getEntityID());
+
+            //Load content image
+            loadContentImage(data.getContentImage(), itemViewHolder.imageContent);
+            //ItemView onClick functionality
+            itemViewOnClick(itemViewHolder.itemView, data);
+
+            //Check whether user has given hats off to this campaign or not
+            checkHatsOffStatus(data.getHatsOffStatus(), itemViewHolder);
+            //HatsOff onClick functionality
+            hatsOffOnClick(itemViewHolder, data, position);
+            //Comment click functionality
+            commentOnClick(itemViewHolder.containerComment, data.getEntityID());
+            //Share click functionality
+            shareOnClick(itemViewHolder.containerShare, data.getContentImage(), data.getEntityID());
+
+
             switch (mUserActivityType) {
                 case USER_ACTIVITY_TYPE_ALL:
                     itemViewHolder.itemView.setVisibility(View.VISIBLE);
@@ -128,45 +167,7 @@ public class MeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                         itemViewHolder.itemView.setVisibility(View.VISIBLE);
                     }
                     break;
-
             }
-
-            //Load creator profile picture
-            loadCreatorPic(data.getCreatorImage(), itemViewHolder.imageCreator);
-            //Set creator name
-            itemViewHolder.textCreatorName.setText(data.getCreatorName());
-            //Load story image
-            loadStoryImage(data.getContentImage(), itemViewHolder.imageStory);
-
-            //Check for content type
-            switch (data.getContentType()) {
-                case CONTENT_TYPE_CAPTURE:
-                    itemViewHolder.imageWorkType.setImageDrawable(ContextCompat.getDrawable(mContext, R.drawable.ic_camera_alt_24));
-                    break;
-                case CONTENT_TYPE_SHORT:
-                    itemViewHolder.imageWorkType.setImageDrawable(ContextCompat.getDrawable(mContext, R.drawable.ic_create_24));
-                    break;
-                default:
-            }
-
-            if (data.getUUID().equals(mUUID)) {
-                //itemViewHolder.buttonMore.setVisibility(View.VISIBLE);
-            }
-            //// TODO: more button functionality
-
-            //Check whether user has given hats off to this campaign or not
-            checkHatsOffStatus(data.getHatsOffStatus(), itemViewHolder);
-
-            //ItemView onClick functionality
-            itemViewOnClick(itemViewHolder.itemView, data);
-            //hats off container click functionality
-            hatsOffContainerOnClick(itemViewHolder.containerHatsOff, data.getEntityID());
-            //Comment click functionality
-            commentOnClick(itemViewHolder.containerComment, data.getEntityID());
-            //Share click functionality
-            shareOnClick(itemViewHolder.containerShare, data.getContentImage());
-            //HatsOff onClick functionality
-            hatsOffOnClick(itemViewHolder, data, position);
 
 
         } else if (holder.getItemViewType() == VIEW_TYPE_LOADING) {
@@ -174,17 +175,8 @@ public class MeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             loadingViewHolder.progressView.setVisibility(View.VISIBLE);
         }
 
-
-        //If last item is visible to user and new set of data is to yet to be loaded
-        if (position == mUserContentList.size() - 1 && !mIsLoading) {
-            if (onLoadMore != null) {
-                //Lode more data here
-                onLoadMore.onLoadMore();
-            }
-            //toggle
-            mIsLoading = true;
-        }
-
+        //Load more data  initialization
+        initializeLoadMore(position);
     }
 
     @Override
@@ -193,20 +185,20 @@ public class MeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     }
 
     /**
-     * Method is toggle the loading status
+     * Method is set loading status to false..
      */
     public void setLoaded() {
         mIsLoading = false;
     }
 
-    public void setmUserActivityType(String s) {
+    public void setUserActivityType(String s) {
         mUserActivityType = s;
     }
 
     /**
      * Method to load creator profile picture.
      *
-     * @param picUrl    picture URL.
+     * @param picUrl    Picture URL.
      * @param imageView View where image to be loaded.
      */
     private void loadCreatorPic(String picUrl, CircleImageView imageView) {
@@ -216,14 +208,93 @@ public class MeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                 .into(imageView);
     }
 
+    /**
+     * Method to set content image depending upon its type.
+     *
+     * @param contentType      Type of content.
+     * @param imageContentType Content imageView.
+     */
+    private void setContentType(String contentType, ImageView imageContentType) {
+        //Check for content type
+        switch (contentType) {
+            case CONTENT_TYPE_CAPTURE:
+                imageContentType.setImageDrawable(ContextCompat.getDrawable(mContext, R.drawable.ic_camera_alt_24));
+                break;
+            case CONTENT_TYPE_SHORT:
+                imageContentType.setImageDrawable(ContextCompat.getDrawable(mContext, R.drawable.ic_create_24));
+                break;
+            default:
+        }
+    }
+
 
     /**
-     * Method to load story image.
+     * Method to setVisibility on delete button and initialize delete button functionality.
+     *
+     * @param creatorID UUID of content creator.
+     */
+    private void initializeDeleteButton(String creatorID, ImageView deleteButton, int index, String entityID) {
+        if (mUUID.equals(creatorID)) {
+            //Show delete button
+            deleteButton.setVisibility(View.VISIBLE);
+            //Delete click functionality
+            deleteButtonOnClick(index, entityID, deleteButton);
+        } else {
+            //Hide delete button
+            deleteButton.setVisibility(View.INVISIBLE);
+        }
+    }
+
+    /**
+     * Delete button click functionality.
+     *
+     * @param index    position of item in adapter.
+     * @param entityID Entity id of content.
+     */
+    private void deleteButtonOnClick(final int index, final String entityID, ImageView deleteButton) {
+        deleteButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                showDeleteConfirmationDialog(index, entityID);
+            }
+        });
+    }
+
+    /**
+     * Method to show confirmation dialog before deletion.
+     *
+     * @param index    position of item in adapter.
+     * @param entityID Entity id of content.
+     */
+    private void showDeleteConfirmationDialog(final int index, final String entityID) {
+        new MaterialDialog.Builder(mContext)
+                .content("Are you sure want to delete this?")
+                .positiveText("Delete")
+                .negativeText("Cancel")
+                .onPositive(new MaterialDialog.SingleButtonCallback() {
+                    @Override
+                    public void onClick(@NonNull MaterialDialog materialDialog, @NonNull DialogAction dialogAction) {
+                        onContentDeleteListener.onDelete(entityID, index);
+                        materialDialog.dismiss();
+                    }
+                })
+                .onNegative(new MaterialDialog.SingleButtonCallback() {
+                    @Override
+                    public void onClick(@NonNull MaterialDialog materialDialog, @NonNull DialogAction dialogAction) {
+                        materialDialog.dismiss();
+                    }
+                })
+                .build()
+                .show();
+    }
+
+    /**
+     * Method to load content image.
      *
      * @param imageUrl  picture URL.
      * @param imageView View where image to be loaded.
      */
-    private void loadStoryImage(String imageUrl, ImageView imageView) {
+    private void loadContentImage(String imageUrl, ImageView imageView) {
         Picasso.with(mContext)
                 .load(imageUrl)
                 .error(R.drawable.image_placeholder)
@@ -235,7 +306,7 @@ public class MeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
      * ItemView onClick functionality.
      *
      * @param view      View to be clicked.
-     * @param feedModel Data set for current item
+     * @param feedModel Data set for current item.
      */
     private void itemViewOnClick(View view, final FeedModel feedModel) {
         view.setOnClickListener(new View.OnClickListener() {
@@ -249,74 +320,21 @@ public class MeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     }
 
     /**
-     * Compose onClick functionality.
+     * Method to check hatsOff status and perform operation accordingly.
      *
-     * @param view     View to be clicked.
-     * @param entityID Entity ID.
+     * @param hatsOffStatus  True if user has given hatsOff, false otherwise.
+     * @param itemViewHolder ViewHolder object.
      */
-    private void hatsOffContainerOnClick(View view, final String entityID) {
-        view.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent intent = new Intent(mContext, HatsOffActivity.class);
-                intent.putExtra("entityID", entityID);
-                mContext.startActivity(intent);
-            }
-        });
-    }
-
-
-    /**
-     * Compose onClick functionality.
-     *
-     * @param view     View to be clicked.
-     * @param entityID Entity ID
-     */
-    private void commentOnClick(View view, final String entityID) {
-        view.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent intent = new Intent(mContext, CommentsActivity.class);
-                intent.putExtra("entityID", entityID);
-                mContext.startActivity(intent);
-            }
-        });
-    }
-
-    /**
-     * Share onClick functionality.
-     *
-     * @param view       View to be clicked.x
-     * @param pictureUrl URL of the picture to be shared.
-     */
-    private void shareOnClick(View view, final String pictureUrl) {
-        view.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-
-                Picasso.with(mContext).load(pictureUrl).into(new Target() {
-                    @Override
-                    public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
-                        Intent intent = new Intent();
-                        intent.setAction(Intent.ACTION_SEND);
-                        intent.setType("image/*");
-                        intent.putExtra(Intent.EXTRA_STREAM, getLocalBitmapUri(bitmap, mContext));
-                        mContext.startActivity(Intent.createChooser(intent, "Share"));
-                    }
-
-                    @Override
-                    public void onBitmapFailed(Drawable errorDrawable) {
-                        ViewHelper.getToast(mContext, mContext.getString(R.string.error_msg_internal));
-                    }
-
-                    @Override
-                    public void onPrepareLoad(Drawable placeHolderDrawable) {
-
-                    }
-                });
-
-            }
-        });
+    private void checkHatsOffStatus(boolean hatsOffStatus, ItemViewHolder itemViewHolder) {
+        if (hatsOffStatus) {
+            itemViewHolder.imageHatsOff.setColorFilter(ContextCompat.getColor(mContext, R.color.colorPrimary));
+            //Animation for hats off
+            itemViewHolder.imageHatsOff.startAnimation(AnimationUtils.loadAnimation(mContext, R.anim.rotate_animation_hats_off_fast));
+            itemViewHolder.mIsHatsOff = true;
+        } else {
+            itemViewHolder.imageHatsOff.setColorFilter(ContextCompat.getColor(mContext, R.color.grey));
+            itemViewHolder.mIsHatsOff = false;
+        }
     }
 
 
@@ -327,7 +345,7 @@ public class MeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
      * @param data           Data for current item.
      */
     private void hatsOffOnClick(final ItemViewHolder itemViewHolder, final FeedModel data, final int itemPosition) {
-        itemViewHolder.imageHatsOff.setOnClickListener(new View.OnClickListener() {
+        itemViewHolder.containerHatsOff.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 //User has already given the hats off
@@ -356,20 +374,77 @@ public class MeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         });
     }
 
+    /**
+     * Compose onClick functionality.
+     *
+     * @param view     View to be clicked.
+     * @param entityID Entity ID.
+     */
+    private void commentOnClick(View view, final String entityID) {
+        view.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(mContext, CommentsActivity.class);
+                intent.putExtra(EXTRA_ENTITY_ID, entityID);
+                mContext.startActivity(intent);
+            }
+        });
+    }
 
     /**
-     * Method to check hatsOff status and perform operation accordingly.
+     * Share onClick functionality.
+     *
+     * @param view       View to be clicked.x
+     * @param pictureUrl URL of the picture to be shared.
+     * @param entityID   Entity id of content.
      */
-    private void checkHatsOffStatus(boolean hatsOffStatus, ItemViewHolder itemViewHolder) {
-        if (hatsOffStatus) {
-            itemViewHolder.imageHatsOff.setColorFilter(ContextCompat.getColor(mContext, R.color.colorPrimary));
-            //Animation for hats off
-            itemViewHolder.imageHatsOff.startAnimation(AnimationUtils.loadAnimation(mContext, R.anim.rotate_animation_hats_off_fast));
+    private void shareOnClick(View view, final String pictureUrl, final String entityID) {
+        view.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
 
-            itemViewHolder.mIsHatsOff = true;
-        } else {
-            itemViewHolder.imageHatsOff.setColorFilter(ContextCompat.getColor(mContext, R.color.grey));
-            itemViewHolder.mIsHatsOff = false;
+                Picasso.with(mContext).load(pictureUrl).into(new Target() {
+                    @Override
+                    public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
+                        Intent intent = new Intent();
+                        intent.setAction(Intent.ACTION_SEND);
+                        intent.setType("image/*");
+                        intent.putExtra(Intent.EXTRA_STREAM, getLocalBitmapUri(bitmap, mContext));
+                        mContext.startActivity(Intent.createChooser(intent, "Share"));
+                        //Log firebase event
+                        Bundle bundle = new Bundle();
+                        bundle.putString("uuid", mUUID);
+                        bundle.putString("entity_id", entityID);
+                        FirebaseAnalytics.getInstance(mContext).logEvent(FIREBASE_EVENT_SHARED_FROM_PROFILE, bundle);
+                    }
+
+                    @Override
+                    public void onBitmapFailed(Drawable errorDrawable) {
+                        ViewHelper.getToast(mContext, mContext.getString(R.string.error_msg_internal));
+                    }
+
+                    @Override
+                    public void onPrepareLoad(Drawable placeHolderDrawable) {
+
+                    }
+                });
+
+            }
+        });
+    }
+
+    /**
+     * Method to initialize load more listener.
+     */
+    private void initializeLoadMore(int position) {
+        //If last item is visible to user and new set of data is to yet to be loaded
+        if (position == mUserContentList.size() - 1 && !mIsLoading) {
+            if (onLoadMore != null) {
+                //Lode more data here
+                onLoadMore.onLoadMore();
+            }
+            //toggle
+            mIsLoading = true;
         }
     }
 
@@ -381,10 +456,10 @@ public class MeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         TextView textCreatorName;
         @BindView(R.id.imageWorkType)
         ImageView imageWorkType;
-        @BindView(R.id.buttonMore)
-        ImageView buttonMore;
-        @BindView(R.id.imageStory)
-        ImageView imageStory;
+        @BindView(R.id.buttonDelete)
+        ImageView buttonDelete;
+        @BindView(R.id.imageContent)
+        ImageView imageContent;
         @BindView(R.id.imageHatsOff)
         ImageView imageHatsOff;
         @BindView(R.id.containerHatsOff)
@@ -400,6 +475,7 @@ public class MeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         public ItemViewHolder(View itemView) {
             super(itemView);
             ButterKnife.bind(this, itemView);
+
         }
     }
 

@@ -56,7 +56,9 @@ dependencies {
     compile "com.google.firebase:firebase-messaging:$rootProject.playServiceVersion"
 
     //Facebook
-    
+    compile 'com.facebook.android:facebook-login:[4,5)'
+
+    compile 'com.facebook.android:account-kit-sdk:4.24.0'
 
     //Font
     compile "uk.co.chrisjenx:calligraphy:$rootProject.calligraphyVersion"
@@ -78,41 +80,35 @@ dependencies {
     annotationProcessor "com.jakewharton:butterknife-compiler:$rootProject.butterKnifeVersion"
 
     //To maintain instance state
-    
+    compile 'frankiesardo:icepick:3.2.0'
+    provided 'frankiesardo:icepick-processor:3.2.0'
+
     //Circular imageView
-    
+    compile 'de.hdodenhof:circleimageview:2.1.0'
+
     //Sectioned RecyclerView
-    
+    compile 'com.github.zhukic:sectioned-recyclerview:0.2.2'
+
     //Tooltip
-    
+    compile 'com.github.vihtarb:tooltip:0.1.9'
+
     //Material Dialog
-    
+    compile 'com.afollestad.material-dialogs:commons:0.9.3.0'
+
     /*Image cropping*/
-    
+    compile 'com.github.yalantis:ucrop:2.2.1'
+
     /*Image compression library*/
-    
+    compile 'id.zelory:compressor:2.1.0'
+
     // for razorpay
-    
-    //Notification Badge
-    
+    compile 'com.razorpay:checkout:1.4.1'
 
-
+    // notification badge
+    compile 'com.mikepenz:actionitembadge:3.3.2@aar'
 
     // dependencies for local unit tests
     testCompile "junit:junit:$rootProject.ext.junitVersion"
-    compile 'com.facebook.android:facebook-login:[4,5)'
-    compile 'com.facebook.android:account-kit-sdk:4.24.0'
-    compile 'frankiesardo:icepick:3.2.0'
-    compile 'de.hdodenhof:circleimageview:2.1.0'
-    compile 'com.github.zhukic:sectioned-recyclerview:0.2.2'
-    compile 'com.github.vihtarb:tooltip:0.1.9'
-    compile 'com.afollestad.material-dialogs:commons:0.9.3.0'
-    compile 'com.github.yalantis:ucrop:2.2.1'
-    compile 'id.zelory:compressor:2.1.0'
-    compile 'com.razorpay:checkout:1.4.1'
-    compile 'com.mikepenz:actionitembadge:3.3.2@aar'
-    compile 'com.android.support.constraint:constraint-layout:1.0.2'
-    provided 'frankiesardo:icepick-processor:3.2.0'
 }
 
 // Add this line at the bottom of the file for firebase services

@@ -69,7 +69,7 @@
         <activity
             android:name=".activities.SplashActivity"
             android:screenOrientation="portrait"
-            android:theme="@style/Theme.AppCompat.NoActionBar">
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -241,11 +241,10 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".activities.BottomNavigationActivity" />
         </activity>
-        <activity android:name=".activities.MerchandizingProductsActivity" />
-        <activity android:name=".activities.AddressAcitvity" />
-        <activity
-            android:name=".activities.AboutUsActivity"
-            android:theme="@style/BottomNavigationActivityTheme" />
+        <activity android:name=".activities.MerchandisingProductsActivity" />
+        <activity android:name=".activities.AddressActivity"></activity>
+        <activity android:name=".activities.AboutUsActivity"
+            android:theme="@style/BottomNavigationActivityTheme"></activity>
 
         <service android:name=".services.MyFirebaseMessagingService">
             <intent-filter>

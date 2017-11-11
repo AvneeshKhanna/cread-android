@@ -2,6 +2,8 @@ package com.thetestament.cread.utils;
 
 
 public class Constant {
+    public static final String MINIMUM_APP_VERSION_KEY = "minimum_app_version";
+
     //Request codes
     public static final int REQUEST_CODE_UPDATES_ACTIVITY = 1000;
     public static final int REQUEST_CODE_FB_ACCOUNT_KIT = 1001;
@@ -104,7 +106,20 @@ public class Constant {
     public static final String NOTIFICATION_BUNDLE_DATA_PERSISTABLE = "persistable";
 
 
-
-
-
+    //Firebase event types
+    public static final String FIREBASE_EVENT_HAVE_CLICKED = "have_clicked";
+    public static final String FIREBASE_EVENT_BUY_CLICKED = "buy_clicked";
+    public static final String FIREBASE_EVENT_MAKE_PAYMENT_CLICKED = "make_payment_licked";
+    public static final String FIREBASE_EVENT_WRITE_CLICKED = "write_clicked";
+    public static final String FIREBASE_EVENT_FEED_CLICKED = "feed_clicked";
+    public static final String FIREBASE_EVENT_EXPLORE_CLICKED = "explore_clicked";
+    public static final String FIREBASE_EVENT_INSPIRATION_CLICKED = "inspire_clicked";
+    public static final String FIREBASE_EVENT_NOTIFICATION_CLICKED = "notification_clicked";
+    public static final String FIREBASE_EVENT_FIND_FRIENDS = "find_friends";
+    public static final String FIREBASE_EVENT_FOLLOW_FROM_EXPLORE = "follow_from_explore";
+    public static final String FIREBASE_EVENT_FOLLOW_FROM_PROFILE = "follow_from_profile";
+    public static final String FIREBASE_EVENT_SHARED_FROM_FEED_DESCRIPTION = "shared_from_feed_description";
+    public static final String FIREBASE_EVENT_SHARED_FROM_MAIN_FEED = "shared_from_main_feed";
+    public static final String FIREBASE_EVENT_SHARED_FROM_PROFILE = "shared_from_profile";
+    public static final String FIREBASE_EVENT_RATE_US_CLICKED = "rate_us_clicked";
 }

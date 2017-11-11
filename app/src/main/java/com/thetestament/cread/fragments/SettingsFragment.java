@@ -16,6 +16,7 @@ import android.widget.Toast;
 import com.afollestad.materialdialogs.DialogAction;
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.facebook.AccessToken;
+import com.google.firebase.analytics.FirebaseAnalytics;
 import com.google.firebase.crash.FirebaseCrash;
 import com.google.firebase.iid.FirebaseInstanceId;
 import com.razorpay.Checkout;
@@ -23,7 +24,6 @@ import com.rx2androidnetworking.Rx2AndroidNetworking;
 import com.thetestament.cread.BuildConfig;
 import com.thetestament.cread.R;
 import com.thetestament.cread.activities.AboutUsActivity;
-import com.thetestament.cread.activities.BaseActivity;
 import com.thetestament.cread.activities.FindFBFriendsActivity;
 import com.thetestament.cread.activities.MainActivity;
 import com.thetestament.cread.helpers.SharedPreferenceHelper;
@@ -39,6 +39,8 @@ import io.reactivex.disposables.Disposable;
 import io.reactivex.schedulers.Schedulers;
 
 import static com.thetestament.cread.utils.Constant.ACTION_LOG_OUT;
+import static com.thetestament.cread.utils.Constant.FIREBASE_EVENT_FIND_FRIENDS;
+import static com.thetestament.cread.utils.Constant.FIREBASE_EVENT_RATE_US_CLICKED;
 
 public class SettingsFragment extends PreferenceFragmentCompat {
 
@@ -46,6 +48,7 @@ public class SettingsFragment extends PreferenceFragmentCompat {
     private CompositeDisposable mCompositeDisposable = new CompositeDisposable();
     SharedPreferenceHelper spHelper;
 
+    private FirebaseAnalytics mFirebaseAnalytics;
 
     @Override
     public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
@@ -54,6 +57,8 @@ public class SettingsFragment extends PreferenceFragmentCompat {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        // Obtain the FirebaseAnalytics instance.
+        mFirebaseAnalytics = FirebaseAnalytics.getInstance(getActivity());
 
         spHelper = new SharedPreferenceHelper(getActivity());
 
@@ -61,9 +66,7 @@ public class SettingsFragment extends PreferenceFragmentCompat {
         about.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
             @Override
             public boolean onPreferenceClick(Preference preference) {
-
                 startActivity(new Intent(getActivity(), AboutUsActivity.class));
-
                 return false;
             }
         });
@@ -72,9 +75,9 @@ public class SettingsFragment extends PreferenceFragmentCompat {
         findFriends.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
             @Override
             public boolean onPreferenceClick(Preference preference) {
-
                 startActivity(new Intent(getActivity(), FindFBFriendsActivity.class));
-
+                //Log firebase event
+                setAnalytics(FIREBASE_EVENT_FIND_FRIENDS);
                 return false;
             }
         });
@@ -93,6 +96,8 @@ public class SettingsFragment extends PreferenceFragmentCompat {
             @Override
             public boolean onPreferenceClick(Preference preference) {
                 redirectToPlayStore();
+                //Log firebase event
+                setAnalytics(FIREBASE_EVENT_RATE_US_CLICKED);
                 return false;
             }
         });
@@ -116,7 +121,6 @@ public class SettingsFragment extends PreferenceFragmentCompat {
         super.onStart();
         getActivity().setTitle("Settings");
     }
-
 
     /**
      * Show logout dialog
@@ -259,7 +263,7 @@ public class SettingsFragment extends PreferenceFragmentCompat {
 
 
     /**
-     * Method to redirect user to Cread app on google play store
+     * Method to redirect user to Cread app on google play store.
      */
     private void redirectToPlayStore() {
         //To get the package name
@@ -275,4 +279,18 @@ public class SettingsFragment extends PreferenceFragmentCompat {
         }
     }
 
+    /**
+     * Method to send analytics data on firebase server.
+     *
+     * @param firebaseEvent Event type.
+     */
+    private void setAnalytics(String firebaseEvent) {
+        Bundle bundle = new Bundle();
+        bundle.putString("uuid", spHelper.getUUID());
+        if (firebaseEvent.equals(FIREBASE_EVENT_RATE_US_CLICKED)) {
+            mFirebaseAnalytics.logEvent(FIREBASE_EVENT_RATE_US_CLICKED, bundle);
+        } else {
+            mFirebaseAnalytics.logEvent(FIREBASE_EVENT_FIND_FRIENDS, bundle);
+        }
+    }
 }

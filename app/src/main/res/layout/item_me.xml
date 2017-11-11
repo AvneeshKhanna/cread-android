@@ -2,6 +2,7 @@
 <android.support.v7.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/cardView"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     android:layout_marginBottom="8dp"
@@ -14,8 +15,7 @@
 
     <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical">
+        android:layout_height="wrap_content">
 
         <RelativeLayout
             android:id="@+id/containerCreator"
@@ -56,13 +56,15 @@
                 android:src="@drawable/ic_camera_alt_24" />
 
             <ImageView
-                android:id="@+id/buttonMore"
+                android:id="@+id/buttonDelete"
                 android:layout_width="20dp"
                 android:layout_height="20dp"
                 android:layout_alignParentRight="true"
                 android:layout_centerVertical="true"
-                android:src="@drawable/ic_more_vert_24"
-                android:visibility="invisible" />
+                android:layout_marginRight="5dp"
+                android:src="@drawable/ic_delete_24"
+                android:tint="@color/grey_custom"
+                android:visibility="visible" />
 
         </RelativeLayout>
 
@@ -73,11 +75,10 @@
             android:layout_below="@+id/containerCreator">
 
             <ImageView
-                android:id="@+id/imageStory"
+                android:id="@+id/imageContent"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:scaleType="centerCrop"
-                android:src="@drawable/image_placeholder" />
+                android:scaleType="centerCrop" />
         </com.thetestament.cread.utils.SquareView>
 
         <LinearLayout
