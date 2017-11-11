@@ -26,6 +26,7 @@ import android.view.animation.AnimationUtils;
 import android.view.animation.LayoutAnimationController;
 import android.widget.TextView;
 
+import com.afollestad.materialdialogs.MaterialDialog;
 import com.androidnetworking.AndroidNetworking;
 import com.androidnetworking.error.ANError;
 import com.androidnetworking.interfaces.JSONObjectRequestListener;
@@ -370,31 +371,31 @@ public class MeFragment extends Fragment {
                 switch (tab.getPosition()) {
                     case 0:
 
-                        //mAdapter.setmUserActivityType(USER_ACTIVITY_TYPE_ALL);
-                        //mAdapter.notifyDataSetChanged();
+                        mAdapter.setUserActivityType(USER_ACTIVITY_TYPE_ALL);
+                        mAdapter.notifyDataSetChanged();
                         //Set layout manger for recyclerView
-                        recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
+                        // recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
                         //Set adapter
-                        mAdapter = new MeAdapter(mUserActivityDataList, getActivity(), mHelper.getUUID(), USER_ACTIVITY_TYPE_ALL);
-                        recyclerView.setAdapter(mAdapter);
+                        // mAdapter = new MeAdapter(mUserActivityDataList, getActivity(), mHelper.getUUID(), USER_ACTIVITY_TYPE_ALL);
+                        //recyclerView.setAdapter(mAdapter);
                         break;
                     case 1:
                         //Set layout manger for recyclerView
-                        recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
+                        // recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
                         //Set adapter
-                        mAdapter = new MeAdapter(mUserActivityDataList, getActivity(), mHelper.getUUID(), USER_ACTIVITY_TYPE_SHORT);
-                        recyclerView.setAdapter(mAdapter);
-                        //mAdapter.setmUserActivityType(USER_ACTIVITY_TYPE_SHORT);
-                        //mAdapter.notifyDataSetChanged();
+                        // mAdapter = new MeAdapter(mUserActivityDataList, getActivity(), mHelper.getUUID(), USER_ACTIVITY_TYPE_SHORT);
+                        // recyclerView.setAdapter(mAdapter);
+                        mAdapter.setUserActivityType(USER_ACTIVITY_TYPE_SHORT);
+                        mAdapter.notifyDataSetChanged();
                         break;
                     case 2:
                         //Set layout manger for recyclerView
-                        recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
+                        //recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
                         //Set adapter
-                        mAdapter = new MeAdapter(mUserActivityDataList, getActivity(), mHelper.getUUID(), USER_ACTIVITY_TYPE_CAPTURE);
-                        recyclerView.setAdapter(mAdapter);
-                        // mAdapter.setmUserActivityType(USER_ACTIVITY_TYPE_CAPTURE);
-                        //mAdapter.notifyDataSetChanged();
+                        //mAdapter = new MeAdapter(mUserActivityDataList, getActivity(), mHelper.getUUID(), USER_ACTIVITY_TYPE_CAPTURE);
+                        //recyclerView.setAdapter(mAdapter);
+                        mAdapter.setUserActivityType(USER_ACTIVITY_TYPE_CAPTURE);
+                        mAdapter.notifyDataSetChanged();
                         break;
                 }
             }
@@ -420,7 +421,7 @@ public class MeFragment extends Fragment {
     private void setUpTabs(TabLayout tabLayout) {
         //Add tab items
         tabLayout.addTab(tabLayout.newTab().setIcon(R.drawable.ic_apps_24));
-        tabLayout.addTab(tabLayout.newTab().setIcon(R.drawable.ic_create_24));
+        tabLayout.addTab(tabLayout.newTab().setIcon(R.drawable.ic_short_tab_24));
         tabLayout.addTab(tabLayout.newTab().setIcon(R.drawable.ic_camera_tab_24));
         //initialize tabs icon tint
         tabLayout.getTabAt(0).getIcon().setColorFilter(ContextCompat.getColor(getActivity(), R.color.colorPrimary), PorterDuff.Mode.SRC_IN);
@@ -735,7 +736,7 @@ public class MeFragment extends Fragment {
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
         //Set adapter
         mAdapter = new MeAdapter(mUserActivityDataList, getActivity(), mHelper.getUUID(), USER_ACTIVITY_TYPE_ALL);
-        //  mAdapter.setmUserActivityType(USER_ACTIVITY_TYPE_ALL);
+        //  mAdapter.setUserActivityType(USER_ACTIVITY_TYPE_ALL);
         recyclerView.setAdapter(mAdapter);
 
         swipeToRefreshLayout.setRefreshing(true);
@@ -987,6 +988,7 @@ public class MeFragment extends Fragment {
      * @param itemPosition Position of current item i.e integer
      */
     private void updateHatsOffStatus(final FeedModel data, final int itemPosition) {
+
         final JSONObject jsonObject = new JSONObject();
         try {
             jsonObject.put("uuid", mHelper.getUUID());
@@ -1041,4 +1043,98 @@ public class MeFragment extends Fragment {
                 });
     }
 
+
+    /**
+     * Initialize delete listener
+     * * @param adapter MeAdapter reference.
+     */
+    private void initializeDeleteListner(MeAdapter meAdapter) {
+        meAdapter.setOnContentDeleteListener(new listener.OnContentDeleteListener() {
+            @Override
+            public void onDelete(String entityID, int position) {
+
+            }
+        });
+    }
+
+    /**
+     * Method to delete content.
+     *
+     * @param entityID     Entity id of item to be deleted.
+     * @param itemPosition Position of current item.
+     */
+    private void deleteContent(String entityID, final int itemPosition) {
+
+        //To show the progress dialog
+        MaterialDialog.Builder builder = new MaterialDialog.Builder(getActivity())
+                .title("Deleting your comment")
+                .content("Please wait...")
+                .autoDismiss(false)
+                .cancelable(false)
+                .progress(true, 0);
+        final MaterialDialog dialog = builder.build();
+        dialog.show();
+
+        JSONObject jsonObject = new JSONObject();
+        try {
+            jsonObject.put("uuid", mHelper.getUUID());
+            jsonObject.put("authkey", mHelper.getAuthToken());
+            jsonObject.put("entityid", entityID);
+        } catch (JSONException e) {
+            e.printStackTrace();
+            FirebaseCrash.report(e);
+            dialog.dismiss();
+        }
+
+        Rx2AndroidNetworking.post(BuildConfig.URL + "/entity-manage/delete")
+                .addJSONObjectBody(jsonObject)
+                .build()
+                .getJSONObjectObservable()
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Observer<JSONObject>() {
+                    @Override
+                    public void onSubscribe(@io.reactivex.annotations.NonNull Disposable d) {
+                        //Add disposable
+                        mCompositeDisposable.add(d);
+                    }
+
+                    @Override
+                    public void onNext(@io.reactivex.annotations.NonNull JSONObject jsonObject) {
+                        dialog.dismiss();
+                        try {
+                            //if token status is not invalid
+                            if (jsonObject.getString("tokenstatus").equals("invalid")) {
+                                ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_invalid_token));
+                            } else {
+                                JSONObject dataObject = jsonObject.getJSONObject("data");
+                                if (dataObject.getString("status").equals("done")) {
+                                    //Remove item from list
+                                    mUserActivityDataList.remove(itemPosition);
+                                    //Update adapter
+                                    mAdapter.notifyItemRemoved(itemPosition);
+                                }
+                            }
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                            FirebaseCrash.report(e);
+                            ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_internal));
+                        }
+                    }
+
+                    @Override
+                    public void onError(@io.reactivex.annotations.NonNull Throwable e) {
+                        //Dismiss dialog
+                        dialog.dismiss();
+                        e.printStackTrace();
+                        FirebaseCrash.report(e);
+                        ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_server));
+                    }
+
+                    @Override
+                    public void onComplete() {
+                        //do nothing
+                    }
+                });
+    }
 }
