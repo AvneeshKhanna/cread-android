@@ -38,7 +38,6 @@ import com.facebook.login.LoginResult;
 import com.facebook.login.widget.LoginButton;
 import com.google.firebase.crash.FirebaseCrash;
 import com.google.firebase.iid.FirebaseInstanceId;
-import com.google.firebase.messaging.FirebaseMessaging;
 import com.thetestament.cread.BuildConfig;
 import com.thetestament.cread.R;
 import com.thetestament.cread.adapters.IntroViewPagerAdapter;
@@ -225,14 +224,14 @@ public class MainActivity extends BaseActivity {
     /**
      * Checks whether the user is a returning user or a new user
      *
-     * @param userid
+     * @param userID
      */
-    private void checkUserStatus(String userid) {
+    private void checkUserStatus(String userID) {
         JSONObject object = new JSONObject();
 
         try {
 
-            object.put("fbid", userid);
+            object.put("fbid", userID);
             object.put("fcmtoken", FirebaseInstanceId.getInstance().getToken());
 
         } catch (JSONException e) {
@@ -270,6 +269,9 @@ public class MainActivity extends BaseActivity {
                                     SharedPreferenceHelper spHelper = new SharedPreferenceHelper(MainActivity.this);
                                     spHelper.setAuthToken(dataObject.getString("authkey"));
                                     spHelper.setUUID(dataObject.getString("uuid"));
+                                    spHelper.setFirstName(dataObject.getString("firstname"));
+                                    spHelper.setLastName(dataObject.getString("lastname"));
+
 
                                     // open the main screen
                                     Intent startIntent = new Intent(MainActivity.this, BottomNavigationActivity.class);
@@ -390,7 +392,6 @@ public class MainActivity extends BaseActivity {
         request.executeAsync();
 
 
-
     }
 
     /**
@@ -436,6 +437,8 @@ public class MainActivity extends BaseActivity {
                                 SharedPreferenceHelper spHelper = new SharedPreferenceHelper(MainActivity.this);
                                 spHelper.setAuthToken(dataObject.getString("authkey"));
                                 spHelper.setUUID(dataObject.getString("uuid"));
+                                spHelper.setFirstName(dataObject.getString("firstname"));
+                                spHelper.setLastName(dataObject.getString("lastname"));
 
                                 // open the main screen
                                 Intent startIntent = new Intent(MainActivity.this, BottomNavigationActivity.class);

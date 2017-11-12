@@ -64,6 +64,42 @@ public class SharedPreferenceHelper {
     }
 
     /**
+     * Method to update user first name in shared preferences.
+     *
+     * @param firstName User first name.
+     */
+    public void setFirstName(String firstName) {
+        addPreferences(mContext.getString(R.string.key_first_name), firstName);
+    }
+
+    /**
+     * Method to get the user first name stored in shared preferences.
+     *
+     * @return Value of stored user first name.
+     */
+    public String getFirstName() {
+        return mSharedPreferences.getString(mContext.getString(R.string.key_first_name), null);
+    }
+
+    /**
+     * Method to update user last name in shared preferences.
+     *
+     * @param lastName User last name.
+     */
+    public void setLastName(String lastName) {
+        addPreferences(mContext.getString(R.string.key_last_name), lastName);
+    }
+
+    /**
+     * Method to get the user last name stored in shared preferences.
+     *
+     * @return Value of stored user last name.
+     */
+    public String getLastName() {
+        return mSharedPreferences.getString(mContext.getString(R.string.key_last_name), null);
+    }
+
+    /**
      * Method to update auth token in shared preferences
      *
      * @param token auth token to store
@@ -95,8 +131,7 @@ public class SharedPreferenceHelper {
     /**
      * Method to clear all key value pairs in cread shared preferences
      */
-    public void clearSharedPreferences()
-    {
+    public void clearSharedPreferences() {
         mSharedPreferences.edit().clear().apply();
     }
 }

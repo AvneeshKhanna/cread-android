@@ -5,7 +5,6 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
-import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.support.annotation.ColorInt;
@@ -14,8 +13,6 @@ import android.support.annotation.Nullable;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
-import android.support.v4.content.FileProvider;
-import android.util.Log;
 import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.Menu;
@@ -23,13 +20,17 @@ import android.view.MenuItem;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.TextView;
 
+import com.afollestad.materialdialogs.DialogAction;
 import com.afollestad.materialdialogs.MaterialDialog;
+import com.afollestad.materialdialogs.StackingBehavior;
 import com.afollestad.materialdialogs.color.ColorChooserDialog;
 import com.google.firebase.analytics.FirebaseAnalytics;
 import com.google.firebase.crash.FirebaseCrash;
 import com.rx2androidnetworking.Rx2AndroidNetworking;
 import com.squareup.picasso.Callback;
+import com.squareup.picasso.MemoryPolicy;
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Target;
 import com.thetestament.cread.BuildConfig;
@@ -60,8 +61,6 @@ import io.reactivex.disposables.Disposable;
 import io.reactivex.schedulers.Schedulers;
 import okhttp3.OkHttpClient;
 
-import static android.content.Intent.FLAG_GRANT_READ_URI_PERMISSION;
-import static android.content.Intent.FLAG_GRANT_WRITE_URI_PERMISSION;
 import static com.thetestament.cread.helpers.ImageHelper.getImageUri;
 import static com.thetestament.cread.utils.Constant.EXTRA_CAPTURE_ID;
 import static com.thetestament.cread.utils.Constant.EXTRA_CAPTURE_URL;
@@ -85,6 +84,8 @@ public class ShortActivity extends BaseActivity implements ColorChooserDialog.Co
     ImageView imageShort;
     @BindView(R.id.textShort)
     EditText textShort;
+    @BindView(R.id.textWaterMark)
+    TextView textWaterMark;
 
     @State
     String mShortText, mCaptureUrl, mCaptureID = "";
@@ -96,6 +97,12 @@ public class ShortActivity extends BaseActivity implements ColorChooserDialog.Co
      */
     @State
     int mGravityFlag = 0;
+
+    //ENUM for text gravity
+    private enum TextGravity {
+        CENTER, RIGHT, LEFT
+    }
+
     //Initially text gravity is "CENTER"
     TextGravity textGravity = TextGravity.CENTER;
     /**
@@ -103,9 +110,9 @@ public class ShortActivity extends BaseActivity implements ColorChooserDialog.Co
      * 0 for edit mode and 1 for drag mode.
      */
     int mToggleMovement = 0;
+
     CompositeDisposable mCompositeDisposable = new CompositeDisposable();
     SharedPreferenceHelper mHelper;
-    MaterialDialog mDialog;
 
     @Override
 
@@ -134,9 +141,7 @@ public class ShortActivity extends BaseActivity implements ColorChooserDialog.Co
                     Bundle bundle = data.getBundleExtra(EXTRA_DATA);
                     //Retrieve data
                     mCaptureID = bundle.getString(EXTRA_CAPTURE_ID);
-                    Log.d("TAG", "onActivityResult: " + mCaptureID);
                     mCaptureUrl = bundle.getString(EXTRA_CAPTURE_URL);
-                    Log.d("TAG", "onActivityResult: " + mCaptureUrl);
                     //Load inspiration/capture image
                     loadCapture(imageShort, mCaptureUrl);
                 }
@@ -329,6 +334,9 @@ public class ShortActivity extends BaseActivity implements ColorChooserDialog.Co
             //Load inspiration/capture image
             loadCapture(imageShort, mCaptureUrl);
         }
+
+        //Set water mark text
+        textWaterMark.setText(mHelper.getFirstName() + " " + mHelper.getLastName());
     }
 
     /**
@@ -394,21 +402,11 @@ public class ShortActivity extends BaseActivity implements ColorChooserDialog.Co
     }
 
     /**
-     * Method to generate short image and update it on server.
+     * Method to generate short image and show its preview.
      */
     private void generateImage() {
         //Hide edit text cursor
         textShort.setCursorVisible(false);
-        //To show the progress dialog
-        MaterialDialog.Builder builder = new MaterialDialog.Builder(this)
-                .title("Uploading your short")
-                .content("Please wait...")
-                .autoDismiss(false)
-                .cancelable(false)
-                .progress(true, 0);
-
-        mDialog = builder.build();
-        mDialog.show();
 
         //Enable drawing cache
         squareView.setDrawingCacheEnabled(true);
@@ -433,31 +431,55 @@ public class ShortActivity extends BaseActivity implements ColorChooserDialog.Co
             FileOutputStream out = new FileOutputStream(file);
             bitmap.compress(Bitmap.CompressFormat.JPEG, 85, out);
             out.close();
+            //Show preview
+            showShortPreview();
         } catch (IOException e) {
             e.printStackTrace();
             ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_internal));
-            //Dismiss progress dialog
-            mDialog.dismiss();
         }
 
         //Disable drawing cache
         squareView.setDrawingCacheEnabled(false);
         squareView.destroyDrawingCache();
 
+    }
 
-        //Update details on server
-        updateShort(new File(getImageUri(IMAGE_TYPE_USER_SHORT_PIC).getPath())
-                , mCaptureID
-                , String.valueOf(textShort.getX())
-                , String.valueOf(textShort.getY())
-                , String.valueOf(textShort.getWidth())
-                , String.valueOf(textShort.getHeight())
-                , textShort.getText().toString()
-                , String.valueOf(textShort.getTextSize())
-                , Integer.toHexString(textShort.getCurrentTextColor())
-                , textGravity.toString()
-        );
+    /**
+     * Method to show preview of generated image.
+     */
+    private void showShortPreview() {
 
+        MaterialDialog dialog = new MaterialDialog.Builder(this)
+                .title("Short Preview")
+                .customView(R.layout.dialog_short_preview, false)
+                .positiveText("Upload")
+                .stackingBehavior(StackingBehavior.ALWAYS)
+                .onPositive(new MaterialDialog.SingleButtonCallback() {
+                    @Override
+                    public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
+                        dialog.dismiss();
+                        //Update details on server
+                        updateShort(new File(getImageUri(IMAGE_TYPE_USER_SHORT_PIC).getPath())
+                                , mCaptureID
+                                , String.valueOf(textShort.getX())
+                                , String.valueOf(textShort.getY())
+                                , String.valueOf(textShort.getWidth())
+                                , String.valueOf(textShort.getHeight())
+                                , textShort.getText().toString()
+                                , String.valueOf(textShort.getTextSize())
+                                , Integer.toHexString(textShort.getCurrentTextColor())
+                                , textGravity.toString()
+                        );
+                    }
+                })
+                .show();
+        ImageView imagePreview = dialog.getCustomView().findViewById(R.id.imageShortPreview);
+        //Load preview image
+        Picasso.with(this)
+                .load(getImageUri(IMAGE_TYPE_USER_SHORT_PIC))
+                .error(R.drawable.image_placeholder)
+                .memoryPolicy(MemoryPolicy.NO_CACHE)
+                .into(imagePreview);
     }
 
     /**
@@ -470,6 +492,18 @@ public class ShortActivity extends BaseActivity implements ColorChooserDialog.Co
                 .readTimeout(20, TimeUnit.MINUTES)
                 .writeTimeout(20, TimeUnit.MINUTES)
                 .build();
+
+        //To show the progress dialog
+        MaterialDialog.Builder builder = new MaterialDialog.Builder(this)
+                .title("Uploading your short")
+                .content("Please wait...")
+                .autoDismiss(false)
+                .cancelable(false)
+                .progress(true, 0);
+
+        final MaterialDialog dialog = builder.build();
+        dialog.show();
+
 
         Rx2AndroidNetworking.upload(BuildConfig.URL + "/short-upload")
                 .setOkHttpClient(okHttpClient)
@@ -498,7 +532,7 @@ public class ShortActivity extends BaseActivity implements ColorChooserDialog.Co
 
                     @Override
                     public void onNext(@io.reactivex.annotations.NonNull JSONObject jsonObject) {
-                        mDialog.dismiss();
+                        dialog.dismiss();
                         try {
                             //if token status is not invalid
                             if (jsonObject.getString("tokenstatus").equals("invalid")) {
@@ -506,7 +540,9 @@ public class ShortActivity extends BaseActivity implements ColorChooserDialog.Co
                             } else {
                                 JSONObject dataObject = jsonObject.getJSONObject("data");
                                 if (dataObject.getString("status").equals("done")) {
-                                    ViewHelper.getSnackBar(rootView, "Your Short uploaded.");
+                                    ViewHelper.getSnackBar(rootView, "Short uploaded successfully.");
+                                    //Navigate back to previous market
+                                    finish();
                                 }
                             }
                         } catch (JSONException e) {
@@ -518,7 +554,7 @@ public class ShortActivity extends BaseActivity implements ColorChooserDialog.Co
 
                     @Override
                     public void onError(@io.reactivex.annotations.NonNull Throwable e) {
-                        mDialog.dismiss();
+                        dialog.dismiss();
                         e.printStackTrace();
                         FirebaseCrash.report(e);
                         ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_server));
@@ -529,23 +565,6 @@ public class ShortActivity extends BaseActivity implements ColorChooserDialog.Co
                         //do nothing
                     }
                 });
-    }
-
-    private void openScreenshot(File imageFile) {
-        Uri uri = FileProvider.getUriForFile(ShortActivity.this, BuildConfig.APPLICATION_ID + ".provider", imageFile);
-
-        Intent intent = new Intent();
-        intent.setAction(Intent.ACTION_VIEW);
-        intent.setDataAndType(uri, "image/*");
-        intent.setFlags(FLAG_GRANT_READ_URI_PERMISSION | FLAG_GRANT_WRITE_URI_PERMISSION); //must for reading data from directory
-
-        startActivity(intent);
-    }
-
-
-    //ENUM for text gravity
-    private enum TextGravity {
-        CENTER, RIGHT, LEFT
     }
 
 

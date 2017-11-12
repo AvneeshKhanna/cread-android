@@ -23,6 +23,8 @@
     <string name="uuid">uuid</string>
     <string name="auth_token">authToken</string>
     <string name="key_watermark_status">watermarkStatus</string>
+    <string name="key_first_name">firstName</string>
+    <string name="key_last_name">lastName</string>
 
     // dialog messages
     <string name="processing_title">Processing</string>

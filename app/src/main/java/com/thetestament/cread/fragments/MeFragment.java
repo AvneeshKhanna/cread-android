@@ -73,6 +73,8 @@ import static android.app.Activity.RESULT_OK;
 import static com.thetestament.cread.helpers.NetworkHelper.getNetConnectionStatus;
 import static com.thetestament.cread.helpers.NetworkHelper.getObservableFromServer;
 import static com.thetestament.cread.helpers.NetworkHelper.getUserDataObservableFromServer;
+import static com.thetestament.cread.utils.Constant.CONTENT_TYPE_CAPTURE;
+import static com.thetestament.cread.utils.Constant.CONTENT_TYPE_SHORT;
 import static com.thetestament.cread.utils.Constant.EXTRA_FOLLOW_REQUESTED_UUID;
 import static com.thetestament.cread.utils.Constant.EXTRA_FOLLOW_TYPE;
 import static com.thetestament.cread.utils.Constant.EXTRA_USER_BIO;
@@ -87,8 +89,6 @@ import static com.thetestament.cread.utils.Constant.REQUEST_CODE_UPDATE_PROFILE_
 import static com.thetestament.cread.utils.Constant.REQUEST_CODE_UPDATE_PROFILE_PIC;
 import static com.thetestament.cread.utils.Constant.REQUEST_CODE_WRITE_EXTERNAL_STORAGE;
 import static com.thetestament.cread.utils.Constant.USER_ACTIVITY_TYPE_ALL;
-import static com.thetestament.cread.utils.Constant.USER_ACTIVITY_TYPE_CAPTURE;
-import static com.thetestament.cread.utils.Constant.USER_ACTIVITY_TYPE_SHORT;
 
 /**
  * Fragment class to load user profile details and his/her recent activity.
@@ -133,8 +133,8 @@ public class MeFragment extends Fragment {
     @State
     String mRequestedUUID;
 
-    List<FeedModel> mUserActivityDataList = new ArrayList<>();
-    MeAdapter mAdapter;
+    private List<FeedModel> mUserActivityDataList = new ArrayList<>();
+    private MeAdapter mAdapter;
     private Unbinder mUnbinder;
     private CompositeDisposable mCompositeDisposable = new CompositeDisposable();
     private SharedPreferenceHelper mHelper;
@@ -228,6 +228,7 @@ public class MeFragment extends Fragment {
             else {
                 textBio.setVisibility(View.GONE);
             }
+
             //Retrieve email and watermark status
             mEmail = data.getExtras().getString(EXTRA_USER_EMAIL);
             mWaterMarkStatus = data.getExtras().getString(EXTRA_USER_WATER_MARK_STATUS);
@@ -321,7 +322,6 @@ public class MeFragment extends Fragment {
      */
     @OnClick(R.id.containerPosts)
     public void onPostsContainerClicked() {
-        //// TODO:
     }
 
     /**
@@ -330,7 +330,7 @@ public class MeFragment extends Fragment {
     private void initScreen() {
         //Retrieve data from bundle
         String calledFrom = getArguments().getString("calledFrom");
-        //Ff this screen is opened from BottomNavigationActivity
+        //if this screen is opened from BottomNavigationActivity
         if (calledFrom.equals("BottomNavigationActivity")) {
             mRequestedUUID = mHelper.getUUID();
             //Enable profile editing
@@ -370,9 +370,9 @@ public class MeFragment extends Fragment {
                 tab.getIcon().setColorFilter(ContextCompat.getColor(getActivity(), R.color.colorPrimary), PorterDuff.Mode.SRC_IN);
                 switch (tab.getPosition()) {
                     case 0:
-
-                        mAdapter.setUserActivityType(USER_ACTIVITY_TYPE_ALL);
-                        mAdapter.notifyDataSetChanged();
+                        mAdapter.filter("");
+                        //mAdapter.setUserActivityType(USER_ACTIVITY_TYPE_ALL);
+                        //mAdapter.notifyDataSetChanged();
                         //Set layout manger for recyclerView
                         // recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
                         //Set adapter
@@ -380,22 +380,24 @@ public class MeFragment extends Fragment {
                         //recyclerView.setAdapter(mAdapter);
                         break;
                     case 1:
+                        mAdapter.filter(CONTENT_TYPE_SHORT);
                         //Set layout manger for recyclerView
                         // recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
                         //Set adapter
                         // mAdapter = new MeAdapter(mUserActivityDataList, getActivity(), mHelper.getUUID(), USER_ACTIVITY_TYPE_SHORT);
                         // recyclerView.setAdapter(mAdapter);
-                        mAdapter.setUserActivityType(USER_ACTIVITY_TYPE_SHORT);
-                        mAdapter.notifyDataSetChanged();
+                        // mAdapter.setUserActivityType(USER_ACTIVITY_TYPE_SHORT);
+                        //mAdapter.notifyDataSetChanged();
                         break;
                     case 2:
+                        mAdapter.filter(CONTENT_TYPE_CAPTURE);
                         //Set layout manger for recyclerView
                         //recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
                         //Set adapter
                         //mAdapter = new MeAdapter(mUserActivityDataList, getActivity(), mHelper.getUUID(), USER_ACTIVITY_TYPE_CAPTURE);
                         //recyclerView.setAdapter(mAdapter);
-                        mAdapter.setUserActivityType(USER_ACTIVITY_TYPE_CAPTURE);
-                        mAdapter.notifyDataSetChanged();
+                        //mAdapter.setUserActivityType(USER_ACTIVITY_TYPE_CAPTURE);
+                        //mAdapter.notifyDataSetChanged();
                         break;
                 }
             }
@@ -747,6 +749,7 @@ public class MeFragment extends Fragment {
             public void onRefresh() {
                 //Clear data
                 mUserActivityDataList.clear();
+
                 //Notify for changes
                 mAdapter.notifyDataSetChanged();
                 mAdapter.setLoaded();
@@ -761,6 +764,7 @@ public class MeFragment extends Fragment {
         //Initialize listeners
         initLoadMoreListener(mAdapter);
         initHatsOffListener(mAdapter);
+        initializeDeleteListner(mAdapter);
     }
 
     /**
@@ -803,6 +807,8 @@ public class MeFragment extends Fragment {
                                     data.setHatsOffCount(dataObj.getLong("hatsoffcount"));
                                     data.setCommentCount(dataObj.getLong("commentcount"));
                                     data.setContentImage(dataObj.getString("entityurl"));
+
+
                                     mUserActivityDataList.add(data);
                                 }
                             }
