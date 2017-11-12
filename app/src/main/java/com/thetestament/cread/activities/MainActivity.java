@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.view.ViewPager;
+import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.Window;
 import android.view.WindowManager;
@@ -280,7 +281,7 @@ public class MainActivity extends BaseActivity {
 
                                 // new user so mobile verification is to be done
                                 else if (dataObject.getString("status").equals("new-user")) {
-                                    phoneLogin();
+                                    phoneLogin(MainActivity.this);
                                 }
 
 
@@ -312,9 +313,9 @@ public class MainActivity extends BaseActivity {
     /**
      * To initiate facebook register flow for mobile verification
      */
-    private void phoneLogin() {
+    public static void phoneLogin(AppCompatActivity context) {
 
-        final Intent intent = new Intent(MainActivity.this, AccountKitActivity.class);
+        final Intent intent = new Intent(context, AccountKitActivity.class);
         AccountKitConfiguration.AccountKitConfigurationBuilder configurationBuilder =
                 new AccountKitConfiguration.AccountKitConfigurationBuilder(
                         LoginType.PHONE,
@@ -322,7 +323,7 @@ public class MainActivity extends BaseActivity {
         intent.putExtra(
                 AccountKitActivity.ACCOUNT_KIT_ACTIVITY_CONFIGURATION,
                 configurationBuilder.build());
-        startActivityForResult(intent, Constant.REQUEST_CODE_FB_ACCOUNT_KIT);
+        context.startActivityForResult(intent, Constant.REQUEST_CODE_FB_ACCOUNT_KIT);
 
     }
 

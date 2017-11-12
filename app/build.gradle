@@ -26,8 +26,8 @@ android {
             shrinkResources false
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
-            buildConfigField "String", "URL", '"http://cread-dev-remote.herokuapp.com"'
-            // buildConfigField "String", "URL", '"http://3447a3fc.ngrok.io"'
+            //buildConfigField "String", "URL", '"http://cread-dev-remote.herokuapp.com"'
+            buildConfigField "String", "URL", '"http://8fc6178c.ngrok.io"'
         }
     }
 }
@@ -106,7 +106,7 @@ dependencies {
 
     // notification badge
     compile 'com.mikepenz:actionitembadge:3.3.2@aar'
-
+    compile "com.mikepenz:iconics-core:2.9.5@aar"
     // dependencies for local unit tests
     testCompile "junit:junit:$rootProject.ext.junitVersion"
 }

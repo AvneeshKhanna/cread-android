@@ -385,7 +385,8 @@ public class MerchandisingProductsActivity extends BaseActivity {
                         e.printStackTrace();
                     }
                 } else {
-
+                    // sending empty string
+                    // so these values can be directly set into edit text
                     bundle.putString(EXTRA_SHIPPING_ADDR1, "");
                     bundle.putString(EXTRA_SHIPPING_ADDR2, "");
                     bundle.putString(EXTRA_SHIPPING_CITY, "");

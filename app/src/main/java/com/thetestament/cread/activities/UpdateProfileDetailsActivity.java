@@ -1,6 +1,7 @@
 package com.thetestament.cread.activities;
 
 
+import android.app.Dialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -16,11 +17,21 @@ import com.afollestad.materialdialogs.MaterialDialog;
 import com.androidnetworking.AndroidNetworking;
 import com.androidnetworking.error.ANError;
 import com.androidnetworking.interfaces.JSONObjectRequestListener;
+import com.facebook.AccessToken;
+import com.facebook.accountkit.Account;
+import com.facebook.accountkit.AccountKit;
+import com.facebook.accountkit.AccountKitCallback;
+import com.facebook.accountkit.AccountKitError;
+import com.facebook.accountkit.AccountKitLoginResult;
+import com.facebook.accountkit.PhoneNumber;
+import com.google.common.util.concurrent.AbstractScheduledService;
 import com.google.firebase.crash.FirebaseCrash;
+import com.rx2androidnetworking.Rx2AndroidNetworking;
 import com.thetestament.cread.BuildConfig;
 import com.thetestament.cread.R;
 import com.thetestament.cread.helpers.SharedPreferenceHelper;
 import com.thetestament.cread.helpers.ViewHelper;
+import com.thetestament.cread.utils.Constant;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -30,7 +41,14 @@ import butterknife.ButterKnife;
 import butterknife.OnClick;
 import icepick.Icepick;
 import icepick.State;
+import io.reactivex.Observer;
+import io.reactivex.Scheduler;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.CompositeDisposable;
+import io.reactivex.disposables.Disposable;
+import io.reactivex.schedulers.Schedulers;
 
+import static com.thetestament.cread.activities.MainActivity.phoneLogin;
 import static com.thetestament.cread.helpers.NetworkHelper.getNetConnectionStatus;
 import static com.thetestament.cread.utils.Constant.EXTRA_USER_BIO;
 import static com.thetestament.cread.utils.Constant.EXTRA_USER_CONTACT;
@@ -62,6 +80,8 @@ public class UpdateProfileDetailsActivity extends BaseActivity {
     @State
     String mFirstName, mLastName, mEmail, mBio, mContact, mWaterMarkStatus;
 
+    private CompositeDisposable mCompositeDisposable = new CompositeDisposable();
+
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -88,7 +108,25 @@ public class UpdateProfileDetailsActivity extends BaseActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        switch (requestCode) {
+
+        // Handling the result of fb mobile verification
+        if (requestCode == Constant.REQUEST_CODE_FB_ACCOUNT_KIT) {
+            AccountKitLoginResult loginResult = data.getParcelableExtra(AccountKitLoginResult.RESULT_KEY);
+
+            if (loginResult.getError() != null) {
+                ViewHelper.getSnackBar(rootView, loginResult.getError().getUserFacingMessage());
+            } else if (loginResult.wasCancelled()) {
+                ViewHelper.getSnackBar(rootView, "Contact number updation cancelled");
+            } else {
+
+                // showing dialog
+                MaterialDialog dialog = initializeUpdateContactDialog();
+                dialog.show();
+                // get phone number from account kit
+                getPhoneNo(dialog);
+
+            }
+
         }
     }
 
@@ -137,6 +175,7 @@ public class UpdateProfileDetailsActivity extends BaseActivity {
                     @Override
                     public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
                         // TODO: Account kit functionality
+                        phoneLogin(UpdateProfileDetailsActivity.this);
                         dialog.dismiss();
                     }
                 })
@@ -149,6 +188,128 @@ public class UpdateProfileDetailsActivity extends BaseActivity {
                 .show();
     }
 
+
+    /**
+     * Method to update the contact number on the server
+     *
+     * @param newNumber the updated number which has been verfied
+     * @param dialog    instance of the dialog
+     */
+    private void updateContactNumber(final String newNumber, final MaterialDialog dialog) {
+
+        SharedPreferenceHelper helper = new SharedPreferenceHelper(this);
+        JSONObject jsonObject = new JSONObject();
+
+        try {
+
+            //Request data
+            jsonObject.put("uuid", helper.getUUID());
+            jsonObject.put("authkey", helper.getAuthToken());
+            jsonObject.put("phone", newNumber);
+        } catch (JSONException e) {
+            e.printStackTrace();
+            FirebaseCrash.report(e);
+            dialog.dismiss();
+        }
+
+        Rx2AndroidNetworking.post(BuildConfig.URL + "/user-profile/update-phone")
+                .addJSONObjectBody(jsonObject)
+                .build()
+                .getJSONObjectObservable()
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribeWith(new Observer<JSONObject>() {
+                    @Override
+                    public void onSubscribe(@io.reactivex.annotations.NonNull Disposable d) {
+                        mCompositeDisposable.add(d);
+                    }
+
+                    @Override
+                    public void onNext(@io.reactivex.annotations.NonNull JSONObject jsonObject) {
+
+                        dialog.dismiss();
+
+                        try {
+                            if (jsonObject.getString("tokenstatus").equals("invalid")) {
+                                ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_invalid_token));
+                            } else {
+                                JSONObject mainObject = jsonObject.getJSONObject("data");
+
+                                if (mainObject.getString("status").equals("done")) {
+
+                                    etContact.setText(newNumber);
+                                    ViewHelper.getSnackBar(rootView, "Contact number updated");
+                                } else if (mainObject.getString("status").equals("phone-exists")) {
+                                    ViewHelper.getSnackBar(rootView, "Contact number you entered already exists");
+                                }
+                            }
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                            FirebaseCrash.report(e);
+                            ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_internal));
+
+                        }
+
+
+                    }
+
+                    @Override
+                    public void onError(@io.reactivex.annotations.NonNull Throwable e) {
+                        dialog.dismiss();
+                        e.printStackTrace();
+                        FirebaseCrash.report(e);
+                        ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_server));
+
+                    }
+
+                    @Override
+                    public void onComplete() {
+
+                        // do nothing
+                    }
+                });
+    }
+
+    /**
+     * method to get phone number from account kit
+     *
+     * @param dialog instance of the dialog
+     */
+    private void getPhoneNo(final MaterialDialog dialog) {
+        AccountKit.getCurrentAccount(new AccountKitCallback<Account>() {
+            @Override
+            public void onSuccess(Account account) {
+
+                PhoneNumber number = account.getPhoneNumber();
+                String phoneNo = number.toString();
+
+                updateContactNumber(phoneNo, dialog);
+            }
+
+            @Override
+            public void onError(AccountKitError accountKitError) {
+
+                dialog.dismiss();
+                ViewHelper.getSnackBar(rootView, accountKitError.getUserFacingMessage());
+            }
+        });
+    }
+
+    /**
+     * Method to initialize update contact number dialog
+     */
+    private MaterialDialog initializeUpdateContactDialog() {
+        //Material progress dialog
+        return new MaterialDialog.Builder(this)
+                .title("Updating Contact Number")
+                .content(getString(R.string.waiting_msg))
+                .autoDismiss(false)
+                .cancelable(false)
+                .progress(true, 0)
+                .build();
+
+    }
+
     /**
      * Method to save user profile details on server.
      */
@@ -157,7 +318,7 @@ public class UpdateProfileDetailsActivity extends BaseActivity {
         //Material progress dialog
         final MaterialDialog dialog = new MaterialDialog.Builder(this)
                 .title("Saving your details")
-                .content("Please wait...")
+                .content(getString(R.string.waiting_msg))
                 .autoDismiss(false)
                 .cancelable(false)
                 .progress(true, 0)
