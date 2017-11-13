@@ -17,14 +17,13 @@ import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.afollestad.materialdialogs.DialogAction;
 import com.afollestad.materialdialogs.MaterialDialog;
-import com.afollestad.materialdialogs.StackingBehavior;
 import com.afollestad.materialdialogs.color.ColorChooserDialog;
 import com.google.firebase.analytics.FirebaseAnalytics;
 import com.google.firebase.crash.FirebaseCrash;
@@ -90,7 +89,7 @@ public class ShortActivity extends BaseActivity implements ColorChooserDialog.Co
     @State
     String mShortText, mCaptureUrl, mCaptureID = "";
     @State
-    int mImageWidth = 1080;
+    int mImageWidth = 650;
 
     /**
      * Flag to maintain gravity status i.e 0 for center , 1 for right and 2 for left.
@@ -100,11 +99,11 @@ public class ShortActivity extends BaseActivity implements ColorChooserDialog.Co
 
     //ENUM for text gravity
     private enum TextGravity {
-        CENTER, RIGHT, LEFT
+        Center, East, West
     }
 
     //Initially text gravity is "CENTER"
-    TextGravity textGravity = TextGravity.CENTER;
+    TextGravity textGravity = TextGravity.Center;
     /**
      * Flag for switching b/w edit mode and drag mode.
      * 0 for edit mode and 1 for drag mode.
@@ -270,19 +269,19 @@ public class ShortActivity extends BaseActivity implements ColorChooserDialog.Co
                 //Change gravity flag
                 mGravityFlag = 1;
                 //Set gravity variable
-                textGravity = TextGravity.RIGHT;
+                textGravity = TextGravity.East;
                 break;
             case 1:
                 textShort.setGravity(Gravity.LEFT);
                 btnAlignText.setImageDrawable(ContextCompat.getDrawable(this, R.drawable.ic_format_align_left_32));
                 mGravityFlag = 2;
-                textGravity = TextGravity.LEFT;
+                textGravity = TextGravity.West;
                 break;
             case 2:
                 textShort.setGravity(Gravity.CENTER);
                 btnAlignText.setImageDrawable(ContextCompat.getDrawable(this, R.drawable.ic_format_align_center_32));
                 mGravityFlag = 0;
-                textGravity = TextGravity.CENTER;
+                textGravity = TextGravity.Center;
                 break;
         }
     }
@@ -456,31 +455,33 @@ public class ShortActivity extends BaseActivity implements ColorChooserDialog.Co
      */
     private void showShortPreview() {
 
-        MaterialDialog dialog = new MaterialDialog.Builder(this)
-                .title("Short Preview")
+        final MaterialDialog dialog = new MaterialDialog.Builder(this)
                 .customView(R.layout.dialog_short_preview, false)
-                .positiveText("Upload")
-                .stackingBehavior(StackingBehavior.ALWAYS)
-                .onPositive(new MaterialDialog.SingleButtonCallback() {
-                    @Override
-                    public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
-                        dialog.dismiss();
-                        //Update details on server
-                        updateShort(new File(getImageUri(IMAGE_TYPE_USER_SHORT_PIC).getPath())
-                                , mCaptureID
-                                , String.valueOf(textShort.getX())
-                                , String.valueOf(textShort.getY())
-                                , String.valueOf(textShort.getWidth())
-                                , String.valueOf(textShort.getHeight())
-                                , textShort.getText().toString()
-                                , String.valueOf(textShort.getTextSize())
-                                , Integer.toHexString(textShort.getCurrentTextColor())
-                                , textGravity.toString()
-                        );
-                    }
-                })
                 .show();
+
+
         ImageView imagePreview = dialog.getCustomView().findViewById(R.id.imageShortPreview);
+        TextView buttonUpload = dialog.getCustomView().findViewById(R.id.buttonUpload);
+        //Click listener
+        buttonUpload.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                dialog.dismiss();
+                //Update details on server
+                updateShort(new File(getImageUri(IMAGE_TYPE_USER_SHORT_PIC).getPath())
+                        , mCaptureID
+                        , String.valueOf(textShort.getX())
+                        , String.valueOf(textShort.getY())
+                        , String.valueOf(textShort.getWidth())
+                        , String.valueOf(textShort.getHeight())
+                        , String.valueOf(mImageWidth)
+                        , textShort.getText().toString()
+                        , String.valueOf(scaledPixelsToPx(ShortActivity.this, textShort.getTextSize(), rootView))
+                        , Integer.toHexString(textShort.getCurrentTextColor())
+                        , textGravity.toString()
+                );
+            }
+        });
         //Load preview image
         Picasso.with(this)
                 .load(getImageUri(IMAGE_TYPE_USER_SHORT_PIC))
@@ -492,7 +493,7 @@ public class ShortActivity extends BaseActivity implements ColorChooserDialog.Co
     /**
      * Update short image and other details on server.
      */
-    private void updateShort(File file, String captureID, String xPosition, String yPosition, String tvWidth, String tvHeight, String text, String textSize, String textColor, String textGravity) {
+    private void updateShort(File file, String captureID, String xPosition, String yPosition, String tvWidth, String tvHeight, String text, String textSize, String textColor, String textGravity, String imgWidth) {
         //Configure OkHttpClient for time out
         OkHttpClient okHttpClient = new OkHttpClient().newBuilder()
                 .connectTimeout(20, TimeUnit.MINUTES)
@@ -520,8 +521,10 @@ public class ShortActivity extends BaseActivity implements ColorChooserDialog.Co
                 .addMultipartParameter("authkey", mHelper.getAuthToken())
                 .addMultipartParameter("dx", xPosition)
                 .addMultipartParameter("dy", yPosition)
-                .addMultipartParameter("width", tvWidth)
-                .addMultipartParameter("height", tvHeight)
+                .addMultipartParameter("txt_width", tvWidth)
+                .addMultipartParameter("txt_height", tvHeight)
+                .addMultipartParameter("img_width", imgWidth)
+                .addMultipartParameter("img_height", imgWidth)
                 .addMultipartParameter("text", text)
                 .addMultipartParameter("textsize", textSize)
                 .addMultipartParameter("textcolor", textColor)
@@ -572,6 +575,11 @@ public class ShortActivity extends BaseActivity implements ColorChooserDialog.Co
                         //do nothing
                     }
                 });
+    }
+
+    public static float scaledPixelsToPx(Context context, float px, View v) {
+        float scaledDensity = context.getResources().getDisplayMetrics().scaledDensity;
+        return px / scaledDensity;
     }
 
 

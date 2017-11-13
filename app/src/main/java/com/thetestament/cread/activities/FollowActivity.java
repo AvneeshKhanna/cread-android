@@ -41,6 +41,9 @@ import static com.thetestament.cread.helpers.NetworkHelper.getObservableFromServ
 import static com.thetestament.cread.utils.Constant.EXTRA_FOLLOW_REQUESTED_UUID;
 import static com.thetestament.cread.utils.Constant.EXTRA_FOLLOW_TYPE;
 
+/**
+ * Screen to show followers/following data from server.
+ */
 public class FollowActivity extends BaseActivity {
 
     @BindView(R.id.rootView)
@@ -49,10 +52,12 @@ public class FollowActivity extends BaseActivity {
     SwipeRefreshLayout swipeRefreshLayout;
     @BindView(R.id.recyclerView)
     RecyclerView recyclerView;
+
     @State
     String mServerURL, mRequestedUUID;
     List<FollowModel> mFollowList = new ArrayList<>();
     FollowAdapter mAdapter;
+
     private CompositeDisposable mCompositeDisposable = new CompositeDisposable();
     private SharedPreferenceHelper mHelper;
     private int mPageNumber = 0;
@@ -103,7 +108,6 @@ public class FollowActivity extends BaseActivity {
             //set server url
             mServerURL = "/follow/load-followers";
         }
-
 
         //Set layout manger for recyclerView
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
@@ -213,21 +217,16 @@ public class FollowActivity extends BaseActivity {
 
                     @Override
                     public void onComplete() {
+                        //Dismiss progress indicator
+                        swipeRefreshLayout.setRefreshing(false);
                         // Token status invalid
                         if (tokenError[0]) {
-                            ViewHelper.getSnackBar(rootView
-                                    , getString(R.string.error_msg_invalid_token));
-                            //Dismiss progress indicator
-                            swipeRefreshLayout.setRefreshing(false);
+                            ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_invalid_token));
                         }
                         //Error occurred
                         else if (connectionError[0]) {
                             ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_internal));
-                            //Dismiss progress indicator
-                            swipeRefreshLayout.setRefreshing(false);
                         } else {
-                            //Dismiss progress indicator
-                            swipeRefreshLayout.setRefreshing(false);
                             //Apply 'Slide Up' animation
                             int resId = R.anim.layout_animation_from_bottom;
                             LayoutAnimationController animation = AnimationUtils.loadLayoutAnimation(FollowActivity.this, resId);
@@ -311,6 +310,8 @@ public class FollowActivity extends BaseActivity {
                                     followData.setLastName(dataObj.getString("lastname"));
                                     followData.setProfilePicUrl(dataObj.getString("profilepicurl"));
                                     mFollowList.add(followData);
+                                    //Notify changes
+                                    mAdapter.notifyItemInserted(mFollowList.size() - 1);
                                 }
                             }
                         } catch (JSONException e) {
@@ -340,9 +341,7 @@ public class FollowActivity extends BaseActivity {
                         else if (connectionError[0]) {
                             ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_internal));
                         } else {
-                            //Notify changes
-                            //mAdapter.notifyItemRangeInserted();
-                            mAdapter.notifyDataSetChanged();
+                            //Update status
                             mAdapter.setLoaded();
                         }
                     }

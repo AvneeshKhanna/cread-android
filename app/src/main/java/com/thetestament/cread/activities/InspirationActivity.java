@@ -40,7 +40,6 @@ import static com.thetestament.cread.helpers.NetworkHelper.getObservableFromServ
 
 public class InspirationActivity extends BaseActivity {
 
-
     @BindView(R.id.rootView)
     CoordinatorLayout rootView;
     @BindView(R.id.swipeToRefreshLayout)

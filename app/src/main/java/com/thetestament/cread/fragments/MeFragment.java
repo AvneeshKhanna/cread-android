@@ -272,6 +272,8 @@ public class MeFragment extends Fragment {
      */
     @OnClick(R.id.buttonFollow)
     public void onFollowButtonClicked() {
+        //Disable follow button
+        buttonFollow.setEnabled(false);
         //set status to true if its false and vice versa
         mFollowStatus = !mFollowStatus;
         //toggle follow button
@@ -698,6 +700,8 @@ public class MeFragment extends Fragment {
 
                     @Override
                     public void onNext(@io.reactivex.annotations.NonNull JSONObject jsonObject) {
+                        //Enable follow button
+                        buttonFollow.setEnabled(true);
                         try {
                             //Token status is not valid
                             if (jsonObject.getString("tokenstatus").equals("invalid")) {
@@ -727,6 +731,8 @@ public class MeFragment extends Fragment {
 
                     @Override
                     public void onError(@io.reactivex.annotations.NonNull Throwable e) {
+                        //Enable follow button
+                        buttonFollow.setEnabled(true);
                         //set status to true if its false and vice versa
                         mFollowStatus = !mFollowStatus;
                         //toggle follow button
