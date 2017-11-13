@@ -61,27 +61,16 @@ public class FBFriendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
         this.onFriendsLoadMoreListener = onFriendsLoadMoreListener;
     }
 
-    public void setFollowFriendsClickedListener(OnFollowFriendsClickedListener followFriendsClickedListener)
-    {
+    public void setFollowFriendsClickedListener(OnFollowFriendsClickedListener followFriendsClickedListener) {
         this.followFriendsClickedListener = followFriendsClickedListener;
     }
 
     @Override
     public int getItemViewType(int position) {
 
-        if (position < mFriendsList.size() && mFriendsList.get(position) == null)
-            return VIEW_TYPE_LOADING;
-
-        /*else if (isPositionHeader(position))
-            return VIEW_TYPE_HEADER;*/
-
-        else {
-            return VIEW_TYPE_ITEM;
-        }
+        return mFriendsList.get(position) == null ? VIEW_TYPE_LOADING : VIEW_TYPE_ITEM;
 
     }
-
-
 
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
@@ -136,8 +125,7 @@ public class FBFriendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
 */
         // TODO check logic
         //If last item is visible to user and new set of data is to yet to be loaded
-        // note -1 is not present because of header
-        if (position == mFriendsList.size() && !mIsLoading) {
+        if (position == mFriendsList.size() - 1 && !mIsLoading) {
             if (onFriendsLoadMoreListener != null) {
                 //Lode more data here
                 onFriendsLoadMoreListener.onLoadMore();
@@ -151,7 +139,6 @@ public class FBFriendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
 
     @Override
     public int getItemCount() {
-        // +1 because header is also there
         return mFriendsList == null ? 0 : mFriendsList.size();
     }
 
@@ -167,7 +154,6 @@ public class FBFriendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
 
         //Variable to maintain follow status
         private boolean isFollowing = false;
-
 
 
         public ItemViewHolder(View itemView) {
@@ -237,17 +223,16 @@ public class FBFriendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
     }
 
 
-    private void followButtonClick(final ItemViewHolder itemViewHolder,final FBFriendsModel data)
-    {
+    private void followButtonClick(final ItemViewHolder itemViewHolder, final FBFriendsModel data) {
         itemViewHolder.buttonFollow.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
 
                 itemViewHolder.isFollowing = !itemViewHolder.isFollowing;
-                toggleFollowButton(itemViewHolder.isFollowing,itemViewHolder.buttonFollow);
+                toggleFollowButton(itemViewHolder.isFollowing, itemViewHolder.buttonFollow);
                 data.setFollowStatus(itemViewHolder.isFollowing);
 
-                followFriendsClickedListener.onFollowClicked(itemViewHolder.getAdapterPosition(),data);
+                followFriendsClickedListener.onFollowClicked(itemViewHolder.getAdapterPosition(), data);
 
             }
         });

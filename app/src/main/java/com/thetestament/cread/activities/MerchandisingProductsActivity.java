@@ -144,6 +144,10 @@ public class MerchandisingProductsActivity extends BaseActivity {
                         .build()
                         .show();
                 return true;
+            case android.R.id.home:
+                //finish this activity
+                finish();
+                return true;
             default:
                 return super.onOptionsItemSelected(item);
         }

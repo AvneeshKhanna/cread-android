@@ -51,7 +51,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
 
     private String category, message, entityID, actorUserID, actorUserImage, persistable;
     private int mId = 0;
-    private int resId  = 0;
+    private int resId = 0;
     private Map<String, String> data;
     private final String TAG = getClass().getSimpleName();
 
@@ -79,8 +79,6 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
     private void performCategorySpecificOperations() {
 
         switch (category) {
-
-            // TODO update resids for different categories
 
             case Constant.NOTIFICATION_CATEGORY_CREAD_FOLLOW:
                 mId = NOTIFICATION_ID_CREAD_FOLLOW;
@@ -159,8 +157,8 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
     /**
      * Method to shoot notification.
      *
-     * @param message    Message to be displayed in notification
-     * @param mId        id for notification*
+     * @param message Message to be displayed in notification
+     * @param mId     id for notification*
      */
     private void buildNotification(String message, int mId) {
 
@@ -201,8 +199,6 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
         // Builds the notification and issues it.
         notificationManager.notify(mId, mNotification.build());
     }
-
-
 
 
     /**

@@ -5,6 +5,8 @@ import android.os.Bundle;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.TextInputLayout;
 import android.support.v4.content.ContextCompat;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.WindowManager;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -30,6 +32,8 @@ import org.json.JSONObject;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
+import icepick.Icepick;
+import icepick.State;
 import io.reactivex.Observer;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.annotations.NonNull;
@@ -116,9 +120,12 @@ public class AddressActivity extends BaseActivity implements PaymentResultListen
     ScrollView scrollView;
 
     public final String TAG = getClass().getSimpleName();
-    String productName, size, color, quantity, price, productID, entityID, deliveryTime, deliveryCharge, shipName, shipPhone, shipAltPhone, shipAddr1, shipAddr2, shipCity, shipState, shipPincode;
-    int totalAmount;
     private CompositeDisposable mCompositeDisposable = new CompositeDisposable();
+
+    @State
+    String productName, size, color, quantity, price, productID, entityID, deliveryTime, deliveryCharge, shipName, shipPhone, shipAltPhone, shipAddr1, shipAddr2, shipCity, shipState, shipPincode;
+    @State
+    int totalAmount;
 
     private SharedPreferenceHelper mHelper;
     private FirebaseAnalytics mAnalytics;
@@ -189,6 +196,31 @@ public class AddressActivity extends BaseActivity implements PaymentResultListen
         etState.setText(shipState);
 
 
+    }
+
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        Icepick.saveInstanceState(this, outState);
+    }
+
+    @Override
+    protected void onRestoreInstanceState(Bundle savedInstanceState) {
+        super.onRestoreInstanceState(savedInstanceState);
+        Icepick.restoreInstanceState(this, savedInstanceState);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                //finish this activity
+                finish();
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
     }
 
     /**

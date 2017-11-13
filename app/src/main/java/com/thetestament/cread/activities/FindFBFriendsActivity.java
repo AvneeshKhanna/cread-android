@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.view.ViewCompat;
 import android.support.v4.widget.NestedScrollView;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
@@ -86,29 +87,8 @@ public class FindFBFriendsActivity extends BaseActivity {
         setContentView(R.layout.activity_find_fbfriends);
         ButterKnife.bind(this);
 
-
-      /*  FBFriendsModel friendsModel = new FBFriendsModel();
-        friendsModel.setFirstName("Prakhar");
-        friendsModel.setLastName("Chandna");
-        friendsModel.setUuid("abc");
-        friendsModel.setProfilePicUrl("https://scontent.xx.fbcdn.net/v/t1.0-1/c41.41.512.512/s50x50/407817_2584380493226_1285693610_n.jpg?oh=18ac083ae4f5906f3576efa1f4f530cf&oe=5A82237B");
-        mDataList.add(friendsModel);
-
-        FBFriendsModel friendsModel1 = new FBFriendsModel();
-        friendsModel1.setFirstName("Avneesh");
-        friendsModel1.setLastName("Khanna");
-        friendsModel1.setUuid("def");
-        friendsModel1.setProfilePicUrl("https://scontent.xx.fbcdn.net/v/t1.0-1/c41.41.512.512/s50x50/407817_2584380493226_1285693610_n.jpg?oh=18ac083ae4f5906f3576efa1f4f530cf&oe=5A82237B");
-        mDataList.add(friendsModel1);
-
-        FBFriendsModel friendsModel2 = new FBFriendsModel();
-        friendsModel2.setFirstName("Biswa");
-        friendsModel2.setLastName("Kalyan Rath");
-        friendsModel2.setUuid("pqr");
-        friendsModel2.setProfilePicUrl("https://scontent.xx.fbcdn.net/v/t1.0-1/c41.41.512.512/s50x50/407817_2584380493226_1285693610_n.jpg?oh=18ac083ae4f5906f3576efa1f4f530cf&oe=5A82237B");
-        mDataList.add(friendsModel2);*/
-
-        //askFBFriendsPermission();
+        //For smooth scrolling
+        ViewCompat.setNestedScrollingEnabled(recyclerView, false);
 
         spHelper = new SharedPreferenceHelper(FindFBFriendsActivity.this);
 

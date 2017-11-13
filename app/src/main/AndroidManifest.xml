@@ -241,9 +241,18 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".activities.BottomNavigationActivity" />
         </activity>
-        <activity android:name=".activities.MerchandisingProductsActivity" />
-        <activity android:name=".activities.AddressActivity"></activity>
-        <activity android:name=".activities.AboutUsActivity"
+        <activity android:name=".activities.MerchandisingProductsActivity">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".activities.BottomNavigationActivity" />
+        </activity>
+        <activity android:name=".activities.AddressActivity">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".activities.MerchandisingProductsActivity" />
+        </activity>
+        <activity
+            android:name=".activities.AboutUsActivity"
             android:theme="@style/BottomNavigationActivityTheme"></activity>
 
         <service android:name=".services.MyFirebaseMessagingService">
