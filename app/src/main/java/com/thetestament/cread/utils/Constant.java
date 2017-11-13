@@ -52,6 +52,9 @@ public class Constant {
     public static final String EXTRA_FOLLOW_REQUESTED_UUID = "followRequestedUUID";
     public static final String EXTRA_FOLLOW_TYPE = "followType";
 
+    public static final String EXTRA_WEB_VIEW_URL = "webViewUrl";
+    public static final String EXTRA_WEB_VIEW_TITLE = "webViewTitle";
+
     public static final String EXTRA_SHIPPING_ADDR1 = "addr1";
     public static final String EXTRA_SHIPPING_ADDR2 = "addr2";
     public static final String EXTRA_SHIPPING_CITY = "city";

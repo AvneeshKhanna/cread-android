@@ -2,6 +2,7 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
+    android:background="@color/white"
     android:orientation="vertical">
 
     <com.thetestament.cread.utils.SquareView
@@ -17,7 +18,24 @@
             android:layout_height="match_parent"
             android:scaleType="centerCrop" />
 
-
     </com.thetestament.cread.utils.SquareView>
 
+
+    <TextView
+        android:id="@+id/buttonUpload"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_gravity="center"
+        android:layout_marginBottom="15dp"
+        android:layout_marginTop="15dp"
+        android:background="@drawable/button_filled"
+        android:gravity="center"
+        android:paddingBottom="10dp"
+        android:paddingLeft="32dp"
+        android:paddingRight="32dp"
+        android:paddingTop="10dp"
+        android:text="Upload"
+        android:textColor="@color/white"
+        android:textSize="16dp" />
 </LinearLayout>

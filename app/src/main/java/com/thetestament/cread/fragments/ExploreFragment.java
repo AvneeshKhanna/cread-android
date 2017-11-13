@@ -131,8 +131,7 @@ public class ExploreFragment extends Fragment {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
 
-        switch (item.getItemId())
-        {
+        switch (item.getItemId()) {
             case R.id.action_findfbFriends:
                 startActivity(new Intent(getActivity(), FindFBFriendsActivity.class));
             default:

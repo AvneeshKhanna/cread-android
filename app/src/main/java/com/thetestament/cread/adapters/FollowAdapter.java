@@ -22,7 +22,9 @@ import de.hdodenhof.circleimageview.CircleImageView;
 
 import static com.thetestament.cread.utils.Constant.EXTRA_PROFILE_UUID;
 
-
+/**
+ * Adapter class to provide a binding from data set to views that are displayed within a follow RecyclerView.
+ */
 public class FollowAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
     private final int VIEW_TYPE_ITEM = 0;
@@ -91,14 +93,7 @@ public class FollowAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
         }
 
         //If last item is visible to user and new set of data is to yet to be loaded
-        if (position == mFollowList.size() - 1 && !mIsLoading) {
-            if (onFollowLoadMoreListener != null) {
-                //Lode more data here
-                onFollowLoadMoreListener.onLoadMore();
-            }
-            //toggle
-            mIsLoading = true;
-        }
+        initializeLoadMore(position);
     }
 
     @Override
@@ -142,6 +137,21 @@ public class FollowAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
         });
     }
 
+
+    /**
+     * Method to initialize load more listener.
+     */
+    private void initializeLoadMore(int position) {
+        //If last item is visible to user and new set of data is to yet to be loaded
+        if (position == mFollowList.size() - 1 && !mIsLoading) {
+            if (onFollowLoadMoreListener != null) {
+                //Lode more data here
+                onFollowLoadMoreListener.onLoadMore();
+            }
+            //toggle
+            mIsLoading = true;
+        }
+    }
 
     //ItemViewHolder class
     static class ItemViewHolder extends RecyclerView.ViewHolder {

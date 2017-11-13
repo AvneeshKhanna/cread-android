@@ -46,6 +46,8 @@ import icepick.Icepick;
 import icepick.State;
 
 import static com.thetestament.cread.helpers.ImageHelper.compressSpecific;
+import static com.thetestament.cread.utils.Constant.EXTRA_WEB_VIEW_TITLE;
+import static com.thetestament.cread.utils.Constant.EXTRA_WEB_VIEW_URL;
 import static com.thetestament.cread.utils.Constant.FIREBASE_EVENT_EXPLORE_CLICKED;
 import static com.thetestament.cread.utils.Constant.FIREBASE_EVENT_FEED_CLICKED;
 import static com.thetestament.cread.utils.Constant.FIREBASE_EVENT_NOTIFICATION_CLICKED;
@@ -516,8 +518,12 @@ public class BottomNavigationActivity extends BaseActivity {
                     @Override
                     public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
                         dialog.dismiss();
-                        //Open ReadMore activity
-                        startActivity(new Intent(BottomNavigationActivity.this, ReadMoreActivity.class));
+
+                        //Todo change parameter
+                        Intent intent = new Intent(BottomNavigationActivity.this, WebViewActivity.class);
+                        intent.putExtra(EXTRA_WEB_VIEW_URL, "");
+                        intent.putExtra(EXTRA_WEB_VIEW_TITLE, "");
+                        startActivity(intent);
                     }
                 })
                 .show();
@@ -547,8 +553,11 @@ public class BottomNavigationActivity extends BaseActivity {
                     @Override
                     public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
                         dialog.dismiss();
-                        //Open ReadMore activity
-                        startActivity(new Intent(BottomNavigationActivity.this, ReadMoreActivity.class));
+                        //Todo change parameter
+                        Intent intent = new Intent(BottomNavigationActivity.this, WebViewActivity.class);
+                        intent.putExtra(EXTRA_WEB_VIEW_URL, "");
+                        intent.putExtra(EXTRA_WEB_VIEW_TITLE, "");
+                        startActivity(intent);
                     }
                 })
                 .onPositive(new MaterialDialog.SingleButtonCallback() {
