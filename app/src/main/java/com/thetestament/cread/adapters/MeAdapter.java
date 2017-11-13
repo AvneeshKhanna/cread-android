@@ -433,6 +433,20 @@ public class MeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         });
     }
 
+    public void filter(String text) {
+       // mUserContentList.clear();
+        if (text.isEmpty()) {
+            mUserContentList.addAll(mUserContentList);
+        } else {
+            for (FeedModel item : mUserContentList) {
+                if (item.getContentType().equals(text)) {
+                    mUserContentList.add(item);
+                }
+            }
+        }
+        notifyDataSetChanged();
+    }
+
     /**
      * Method to initialize load more listener.
      */
