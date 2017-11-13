@@ -42,9 +42,6 @@ import static com.thetestament.cread.utils.Constant.CONTENT_TYPE_SHORT;
 import static com.thetestament.cread.utils.Constant.EXTRA_ENTITY_ID;
 import static com.thetestament.cread.utils.Constant.EXTRA_FEED_DESCRIPTION_DATA;
 import static com.thetestament.cread.utils.Constant.FIREBASE_EVENT_SHARED_FROM_PROFILE;
-import static com.thetestament.cread.utils.Constant.USER_ACTIVITY_TYPE_ALL;
-import static com.thetestament.cread.utils.Constant.USER_ACTIVITY_TYPE_CAPTURE;
-import static com.thetestament.cread.utils.Constant.USER_ACTIVITY_TYPE_SHORT;
 
 /**
  * Adapter class to provide a binding from data set to views that are displayed within a Me RecyclerView.
@@ -58,7 +55,6 @@ public class MeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     private FragmentActivity mContext;
     private boolean mIsLoading;
     private String mUUID;
-    private String mUserActivityType;
 
     private OnUserActivityLoadMoreListener onLoadMore;
     private OnUserActivityHatsOffListener onHatsOffListener;
@@ -67,16 +63,14 @@ public class MeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     /**
      * Required constructor.
      *
-     * @param mUserContentList  List of feed data.
-     * @param mContext          Context to be use.
-     * @param mUUID             UUID of user.
-     * @param mUserActivityType Type of data to b shown i.e only capture , only feed  or all.
+     * @param mUserContentList List of feed data.
+     * @param mContext         Context to be use.
+     * @param mUUID            UUID of user.
      */
-    public MeAdapter(List<FeedModel> mUserContentList, FragmentActivity mContext, String mUUID, String mUserActivityType) {
+    public MeAdapter(List<FeedModel> mUserContentList, FragmentActivity mContext, String mUUID) {
         this.mUserContentList = mUserContentList;
         this.mContext = mContext;
         this.mUUID = mUUID;
-        this.mUserActivityType = mUserActivityType;
     }
 
     /**
@@ -149,27 +143,6 @@ public class MeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             shareOnClick(itemViewHolder.containerShare, data.getContentImage(), data.getEntityID());
 
 
-            switch (mUserActivityType) {
-                case USER_ACTIVITY_TYPE_ALL:
-                    itemViewHolder.itemView.setVisibility(View.VISIBLE);
-                    break;
-                case USER_ACTIVITY_TYPE_SHORT:
-                    if (data.getContentType().equals(CONTENT_TYPE_CAPTURE)) {
-                        itemViewHolder.itemView.setVisibility(View.GONE);
-                    } else {
-                        itemViewHolder.itemView.setVisibility(View.VISIBLE);
-                    }
-                    break;
-                case USER_ACTIVITY_TYPE_CAPTURE:
-                    if (data.getContentType().equals(CONTENT_TYPE_SHORT)) {
-                        itemViewHolder.itemView.setVisibility(View.GONE);
-                    } else {
-                        itemViewHolder.itemView.setVisibility(View.VISIBLE);
-                    }
-                    break;
-            }
-
-
         } else if (holder.getItemViewType() == VIEW_TYPE_LOADING) {
             LoadingViewHolder loadingViewHolder = (LoadingViewHolder) holder;
             loadingViewHolder.progressView.setVisibility(View.VISIBLE);
@@ -191,9 +164,6 @@ public class MeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         mIsLoading = false;
     }
 
-    public void setUserActivityType(String s) {
-        mUserActivityType = s;
-    }
 
     /**
      * Method to load creator profile picture.
@@ -433,17 +403,9 @@ public class MeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         });
     }
 
-    public void filter(String text) {
-       // mUserContentList.clear();
-        if (text.isEmpty()) {
-            mUserContentList.addAll(mUserContentList);
-        } else {
-            for (FeedModel item : mUserContentList) {
-                if (item.getContentType().equals(text)) {
-                    mUserContentList.add(item);
-                }
-            }
-        }
+
+    public void updateList(List<FeedModel> list) {
+        mUserContentList = list;
         notifyDataSetChanged();
     }
 

@@ -3,6 +3,7 @@ package com.thetestament.cread.fragments;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.v4.app.Fragment;
@@ -18,7 +19,11 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.AnimationUtils;
 import android.view.animation.LayoutAnimationController;
+import android.widget.ImageView;
+import android.widget.TextView;
 
+import com.afollestad.materialdialogs.DialogAction;
+import com.afollestad.materialdialogs.MaterialDialog;
 import com.androidnetworking.AndroidNetworking;
 import com.androidnetworking.error.ANError;
 import com.androidnetworking.interfaces.JSONObjectRequestListener;
@@ -89,6 +94,11 @@ public class ExploreFragment extends Fragment {
         //ButterKnife view binding
         mUnbinder = ButterKnife.bind(this, view);
         initScreen();
+
+        //Explore screen open for first time
+        if (mHelper.isExploreIntroFirstTime()) {
+            getExploreIntroDialog();
+        }
     }
 
     @Override
@@ -137,7 +147,7 @@ public class ExploreFragment extends Fragment {
         //Set layout manger for recyclerView
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
         //Set adapter
-        mAdapter = new ExploreAdapter(mExploreDataList, getActivity(),mHelper.getUUID());
+        mAdapter = new ExploreAdapter(mExploreDataList, getActivity(), mHelper.getUUID());
         recyclerView.setAdapter(mAdapter);
 
         swipeRefreshLayout.setRefreshing(true);
@@ -247,6 +257,7 @@ public class ExploreFragment extends Fragment {
                                     exploreData.setCreatorName(dataObj.getString("creatorname"));
                                     exploreData.setHatsOffStatus(dataObj.getBoolean("hatsoffstatus"));
                                     exploreData.setFollowStatus(dataObj.getBoolean("followstatus"));
+                                    exploreData.setMerchantable(dataObj.getBoolean("merchantable"));
                                     exploreData.setHatsOffCount(dataObj.getLong("hatsoffcount"));
                                     exploreData.setCommentCount(dataObj.getLong("commentcount"));
                                     exploreData.setContentImage(dataObj.getString("entityurl"));
@@ -331,6 +342,7 @@ public class ExploreFragment extends Fragment {
                                     exploreData.setCreatorName(dataObj.getString("creatorname"));
                                     exploreData.setHatsOffStatus(dataObj.getBoolean("hatsoffstatus"));
                                     exploreData.setFollowStatus(dataObj.getBoolean("followstatus"));
+                                    exploreData.setMerchantable(dataObj.getBoolean("merchantable"));
                                     exploreData.setHatsOffCount(dataObj.getLong("hatsoffcount"));
                                     exploreData.setCommentCount(dataObj.getLong("commentcount"));
                                     exploreData.setContentImage(dataObj.getString("entityurl"));
@@ -389,7 +401,6 @@ public class ExploreFragment extends Fragment {
         });
     }
 
-
     /**
      * Method to update follow status.
      *
@@ -430,7 +441,13 @@ public class ExploreFragment extends Fragment {
                             else {
                                 JSONObject mainData = response.getJSONObject("data");
                                 if (mainData.getString("status").equals("done")) {
-                                    //Do nothing
+
+                                    for (FeedModel f : mExploreDataList) {
+                                        if (f.getUUID().equals(exploreData.getUUID())) {
+                                            f.setFollowStatus(exploreData.getFollowStatus());
+                                        }
+                                    }
+                                    mAdapter.notifyDataSetChanged();
                                 }
                             }
                         } catch (JSONException e) {
@@ -456,4 +473,36 @@ public class ExploreFragment extends Fragment {
                     }
                 });
     }
+
+
+    /**
+     * Method to show intro dialog when user land on this screen for the first time.
+     */
+    private void getExploreIntroDialog() {
+        //Todo change image and text
+        MaterialDialog dialog = new MaterialDialog.Builder(getActivity())
+                .customView(R.layout.dialog_generic, false)
+                .positiveText(getString(R.string.text_ok))
+                .onPositive(new MaterialDialog.SingleButtonCallback() {
+                    @Override
+                    public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
+                        dialog.dismiss();
+                        //update status
+                        mHelper.updateExploreIntroStatus(false);
+                    }
+                })
+                .show();
+        //Obtain views reference
+        ImageView fillerImage = dialog.getCustomView().findViewById(R.id.viewFiller);
+        TextView textTitle = dialog.getCustomView().findViewById(R.id.textTitle);
+        TextView textDesc = dialog.getCustomView().findViewById(R.id.textDesc);
+
+        //Set filler image
+        fillerImage.setImageDrawable(ContextCompat.getDrawable(getActivity(), R.drawable.image_placeholder));
+        //Set title text
+        textTitle.setText("Set title");
+        //Set description text
+        textDesc.setText("Set description text");
+    }
+
 }

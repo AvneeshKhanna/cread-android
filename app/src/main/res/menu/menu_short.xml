@@ -13,5 +13,6 @@
         android:iconTintMode="src_over"
         android:orderInCategory="1"
         android:title="Toggle"
+        app:actionViewClass="android.widget.ImageView"
         app:showAsAction="always" />
 </menu>

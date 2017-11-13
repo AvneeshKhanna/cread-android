@@ -57,7 +57,6 @@ dependencies {
 
     //Facebook
     compile 'com.facebook.android:facebook-login:[4,5)'
-
     compile 'com.facebook.android:account-kit-sdk:4.24.0'
 
     //Font
@@ -75,7 +74,7 @@ dependencies {
     // debug database
     debugCompile "com.amitshekhar.android:debug-db:$rootProject.debugDBVersion"
 
-    // code generator for view
+    //Code generator for view
     compile "com.jakewharton:butterknife:$rootProject.butterKnifeVersion"
     annotationProcessor "com.jakewharton:butterknife-compiler:$rootProject.butterKnifeVersion"
 
@@ -97,11 +96,12 @@ dependencies {
 
     /*Image cropping*/
     compile 'com.github.yalantis:ucrop:2.2.1'
+    compile 'com.theartofdev.edmodo:android-image-cropper:2.5.1'
 
     /*Image compression library*/
     compile 'id.zelory:compressor:2.1.0'
 
-    // for razorpay
+    // for Razor pay
     compile 'com.razorpay:checkout:1.4.1'
 
     // notification badge

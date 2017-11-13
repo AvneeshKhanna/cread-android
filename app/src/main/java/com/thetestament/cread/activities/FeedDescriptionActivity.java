@@ -180,9 +180,14 @@ public class FeedDescriptionActivity extends BaseActivity {
      */
     @OnClick(R.id.buttonHave)
     public void onViewClicked() {
-        Intent intent = new Intent(this, MerchandisingProductsActivity.class);
-        intent.putExtra(EXTRA_ENTITY_ID, mFeedData.getEntityID());
-        startActivity(intent);
+        if (mFeedData.isMerchantable()) {
+            Intent intent = new Intent(this, MerchandisingProductsActivity.class);
+            intent.putExtra(EXTRA_ENTITY_ID, mFeedData.getEntityID());
+            startActivity(intent);
+        } else {
+            ViewHelper.getSnackBar(rootView, "This item is not available");
+        }
+
         //Log firebase event
         setAnalytics(FIREBASE_EVENT_HAVE_CLICKED);
     }
@@ -310,6 +315,9 @@ public class FeedDescriptionActivity extends BaseActivity {
             textCommentsCount.setVisibility(View.GONE);
             showAllComments.setVisibility(View.GONE);
         }
+
+        //Show tooltip on have button
+        showTooltip();
     }
 
     /**
@@ -505,6 +513,17 @@ public class FeedDescriptionActivity extends BaseActivity {
         );
     }
 
+    /**
+     * Method to show tooltip on have button
+     */
+    private void showTooltip() {
+        if (mHelper.isHaveButtonTooltipFirstTime()) {
+            //Show tooltip on have button
+            ViewHelper.getToolTip(buttonHave, "Tooltip goes here", FeedDescriptionActivity.this);
+        }
+        //Update status
+        mHelper.updateHaveButtonToolTipStatus(false);
+    }
 
     /**
      * Method to send analytics data on firebase server.

@@ -3,6 +3,7 @@ package com.thetestament.cread.fragments;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.v4.app.Fragment;
@@ -15,9 +16,12 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.AnimationUtils;
 import android.view.animation.LayoutAnimationController;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.afollestad.materialdialogs.DialogAction;
+import com.afollestad.materialdialogs.MaterialDialog;
 import com.androidnetworking.AndroidNetworking;
 import com.androidnetworking.error.ANError;
 import com.androidnetworking.interfaces.JSONObjectRequestListener;
@@ -101,6 +105,12 @@ public class FeedFragment extends Fragment {
         //ButterKnife view binding
         mUnbinder = ButterKnife.bind(this, view);
         initScreen();
+
+        //This screen opened for first time
+        if (mHelper.isWelcomeFirstTime()) {
+            //Show welcome dialog
+            showWelcomeMessage();
+        }
     }
 
     @Override
@@ -244,6 +254,7 @@ public class FeedFragment extends Fragment {
                                     feedData.setCreatorImage(dataObj.getString("profilepicurl"));
                                     feedData.setCreatorName(dataObj.getString("creatorname"));
                                     feedData.setHatsOffStatus(dataObj.getBoolean("hatsoffstatus"));
+                                    feedData.setMerchantable(dataObj.getBoolean("merchantable"));
                                     feedData.setHatsOffCount(dataObj.getLong("hatsoffcount"));
                                     feedData.setCommentCount(dataObj.getLong("commentcount"));
                                     feedData.setContentImage(dataObj.getString("entityurl"));
@@ -336,6 +347,7 @@ public class FeedFragment extends Fragment {
                                     feedData.setCreatorImage(dataObj.getString("profilepicurl"));
                                     feedData.setCreatorName(dataObj.getString("creatorname"));
                                     feedData.setHatsOffStatus(dataObj.getBoolean("hatsoffstatus"));
+                                    feedData.setMerchantable(dataObj.getBoolean("merchantable"));
                                     feedData.setHatsOffCount(dataObj.getLong("hatsoffcount"));
                                     feedData.setCommentCount(dataObj.getLong("commentcount"));
                                     feedData.setContentImage(dataObj.getString("entityurl"));
@@ -454,6 +466,35 @@ public class FeedFragment extends Fragment {
                         ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_server));
                     }
                 });
+    }
+
+    /**
+     * Method to show welcome Message when user land on this screen for the first time.
+     */
+    private void showWelcomeMessage() {
+        //Todo change image and text
+        MaterialDialog dialog = new MaterialDialog.Builder(getActivity())
+                .customView(R.layout.dialog_generic, false)
+                .positiveText(getString(R.string.text_ok))
+                .onPositive(new MaterialDialog.SingleButtonCallback() {
+                    @Override
+                    public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
+                        dialog.dismiss();
+                        //update status
+                        mHelper.updateWelcomeDialogStatus(false);
+                    }
+                }).show();
+
+        ImageView fillerImage = dialog.getCustomView().findViewById(R.id.viewFiller);
+        TextView textTitle = dialog.getCustomView().findViewById(R.id.textTitle);
+        TextView textDesc = dialog.getCustomView().findViewById(R.id.textDesc);
+
+        //Set filler image
+        fillerImage.setImageDrawable(ContextCompat.getDrawable(getActivity(), R.drawable.image_placeholder));
+        //Set title text
+        textTitle.setText("Set title");
+        //Set description text
+        textDesc.setText("Set description text");
     }
 
 

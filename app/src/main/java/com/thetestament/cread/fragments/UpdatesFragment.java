@@ -15,13 +15,10 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.animation.AnimationUtils;
-import android.view.animation.LayoutAnimationController;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 
-import com.afollestad.materialdialogs.MaterialDialog;
 import com.google.firebase.crash.FirebaseCrash;
 import com.rx2androidnetworking.Rx2AndroidNetworking;
 import com.thetestament.cread.BuildConfig;
@@ -35,7 +32,6 @@ import com.thetestament.cread.helpers.ViewHelper;
 import com.thetestament.cread.models.FeedModel;
 import com.thetestament.cread.models.UpdatesModel;
 
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -45,16 +41,13 @@ import java.util.List;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.Unbinder;
-import io.reactivex.Observable;
 import io.reactivex.Observer;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.annotations.NonNull;
 import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.disposables.Disposable;
-import io.reactivex.observers.DisposableObserver;
 import io.reactivex.schedulers.Schedulers;
 
-import static android.app.Activity.RESULT_OK;
 import static com.thetestament.cread.database.NotificationsDBSchema.NotificationDBEntry.COLUMN_NAME_ACTOR_USERID;
 import static com.thetestament.cread.database.NotificationsDBSchema.NotificationDBEntry.COLUMN_NAME_CATEGORY;
 import static com.thetestament.cread.database.NotificationsDBSchema.NotificationDBEntry.COLUMN_NAME_DATE;
@@ -340,6 +333,7 @@ public class UpdatesFragment extends Fragment {
                                 feedData.setCreatorImage(dataObj.getString("profilepicurl"));
                                 feedData.setCreatorName(dataObj.getString("creatorname"));
                                 feedData.setHatsOffStatus(dataObj.getBoolean("hatsoffstatus"));
+                                feedData.setMerchantable(dataObj.getBoolean("merchantable"));
                                 feedData.setHatsOffCount(dataObj.getLong("hatsoffcount"));
                                 feedData.setCommentCount(dataObj.getLong("commentcount"));
                                 feedData.setContentImage(dataObj.getString("entityurl"));

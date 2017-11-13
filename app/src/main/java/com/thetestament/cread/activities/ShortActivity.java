@@ -177,6 +177,13 @@ public class ShortActivity extends BaseActivity implements ColorChooserDialog.Co
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu_short, menu);
+
+        ImageView imageView = (ImageView) menu.findItem(R.id.action_toggle).getActionView();
+        imageView.setImageDrawable(ContextCompat.getDrawable(this, R.drawable.ic_edit_24));
+        //Screen opened for first time
+        if (mHelper.isToggleButtonTooltipFirstTime()) {
+            ViewHelper.getToolTip(imageView, "Here goes .....", this);
+        }
         return true;
     }
 

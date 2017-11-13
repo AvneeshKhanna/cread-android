@@ -16,6 +16,7 @@
     <color name="grey_light">#f0efef</color>
 
     //Black variant
+    <color name="black_dark">#010101</color>
     <color name="black_overlay">#66000000</color>
     <color name="black_defined">#FF282828</color>
 
