@@ -20,6 +20,7 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -27,7 +28,11 @@ import android.widget.TextView;
 import com.google.firebase.iid.FirebaseInstanceId;
 import com.mikepenz.actionitembadge.library.ActionItemBadge;
 import com.mikepenz.actionitembadge.library.ActionItemBadgeAdder;
+import com.afollestad.materialdialogs.DialogAction;
+import com.afollestad.materialdialogs.MaterialDialog;
 import com.google.firebase.analytics.FirebaseAnalytics;
+import com.theartofdev.edmodo.cropper.CropImage;
+import com.theartofdev.edmodo.cropper.CropImageView;
 import com.thetestament.cread.Manifest;
 import com.thetestament.cread.R;
 import com.thetestament.cread.database.NotificationsDBFunctions;
@@ -37,7 +42,6 @@ import com.thetestament.cread.fragments.MeFragment;
 import com.thetestament.cread.helpers.BottomNavigationViewHelper;
 import com.thetestament.cread.helpers.SharedPreferenceHelper;
 import com.thetestament.cread.helpers.ViewHelper;
-import com.yalantis.ucrop.UCrop;
 
 import java.io.IOException;
 
@@ -46,8 +50,7 @@ import butterknife.ButterKnife;
 import icepick.Icepick;
 import icepick.State;
 
-import static com.thetestament.cread.helpers.ImageHelper.getImageUri;
-import static com.thetestament.cread.helpers.ImageHelper.startImageCropping;
+import static com.thetestament.cread.helpers.ImageHelper.compressSpecific;
 import static com.thetestament.cread.utils.Constant.FIREBASE_EVENT_EXPLORE_CLICKED;
 import static com.thetestament.cread.utils.Constant.FIREBASE_EVENT_FEED_CLICKED;
 import static com.thetestament.cread.utils.Constant.FIREBASE_EVENT_NOTIFICATION_CLICKED;
@@ -79,7 +82,7 @@ public class BottomNavigationActivity extends BaseActivity {
     private int mUnreadCount = 0;
 
     private FirebaseAnalytics mFirebaseAnalytics;
-
+    private SharedPreferenceHelper mHelper;
 
     @Override
 
@@ -89,6 +92,8 @@ public class BottomNavigationActivity extends BaseActivity {
 
         // Obtain the FirebaseAnalytics instance.
         mFirebaseAnalytics = FirebaseAnalytics.getInstance(this);
+        //Obtain sharedPreference reference
+        mHelper = new SharedPreferenceHelper(this);
         //Bind View to this activity
         ButterKnife.bind(this);
         //Set actionbar
@@ -114,19 +119,22 @@ public class BottomNavigationActivity extends BaseActivity {
             case REQUEST_CODE_OPEN_GALLERY:
                 if (resultCode == RESULT_OK) {
                     // To crop the selected image
-                    startImageCropping(this, data.getData(), getImageUri(IMAGE_TYPE_USER_CAPTURE_PIC));
+                    CropImage.activity(data.getData())
+                            .setAllowRotation(true)
+                            .setGuidelines(CropImageView.Guidelines.ON_TOUCH)
+                            .start(BottomNavigationActivity.this);
                 } else {
                     ViewHelper.getSnackBar(rootView, "Image from gallery was not attached");
                 }
                 break;
-            //For more information please visit "https://github.com/Yalantis/uCrop"
-            case UCrop.REQUEST_CROP:
+            //For more information please visit "https://github.com/ArthurHub/Android-Image-Cropper"
+            case CropImage.CROP_IMAGE_ACTIVITY_REQUEST_CODE:
+                CropImage.ActivityResult result = CropImage.getActivityResult(data);
                 if (resultCode == RESULT_OK) {
                     //Get cropped image Uri
-                    Uri mCroppedImgUri = UCrop.getOutput(data);
-                    processCroppedImage(mCroppedImgUri);
-
-                } else if (resultCode == UCrop.RESULT_ERROR) {
+                    Uri resultUri = result.getUri();
+                    processCroppedImage(resultUri);
+                } else if (resultCode == CropImage.CROP_IMAGE_ACTIVITY_RESULT_ERROR_CODE) {
                     ViewHelper.getSnackBar(rootView, "Image could not be cropped due to some error");
                 }
                 break;
@@ -324,9 +332,6 @@ public class BottomNavigationActivity extends BaseActivity {
                 .commit();
     }
 
-    public void activateBottomNavigationItem(int id) {
-        navigationView.setSelectedItemId(id);
-    }
 
 
     /**
@@ -346,8 +351,13 @@ public class BottomNavigationActivity extends BaseActivity {
         buttonWrite.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                //Open ShortActivity
-                startActivity(new Intent(BottomNavigationActivity.this, ShortActivity.class));
+                if (mHelper.isShortFirstTime()) {
+                    getShortDialog();
+                } else {
+                    //Open ShortActivity
+                    startActivity(new Intent(BottomNavigationActivity.this, ShortActivity.class));
+                }
+
                 //Dismiss bottom sheet
                 bottomSheetDialog.dismiss();
 
@@ -357,7 +367,13 @@ public class BottomNavigationActivity extends BaseActivity {
         buttonCapture.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                getRuntimePermission();
+                //Capture clicked for first time
+                if (mHelper.isCaptureFirstTime()) {
+                    //Show capture intro dialog
+                    getCaptureIntroDialog();
+                } else {
+                    getRuntimePermission();
+                }
                 //Dismiss bottom sheet
                 bottomSheetDialog.dismiss();
             }
@@ -406,11 +422,11 @@ public class BottomNavigationActivity extends BaseActivity {
     private void processCroppedImage(Uri uri) {
         try {
             //Decode image file
-            Bitmap bitmap = BitmapFactory.decodeFile(getImageUri(IMAGE_TYPE_USER_CAPTURE_PIC).getPath());
+            Bitmap bitmap = BitmapFactory.decodeFile(uri.getPath());
             //If resolution of image is greater than 2000x2000 then compress this image
             if (bitmap.getWidth() > 2000 && bitmap.getWidth() > 2000) {
                 //Compress image
-                //compressSpecific(uri, this, IMAGE_TYPE_USER_CAPTURE_PIC);
+                compressSpecific(uri, this, IMAGE_TYPE_USER_CAPTURE_PIC);
                 //Open preview screen
                 startActivity(new Intent(BottomNavigationActivity.this, CapturePreviewActivity.class));
             } else {
@@ -485,4 +501,92 @@ public class BottomNavigationActivity extends BaseActivity {
         }
 
     }
+
+    /**
+     * Method to show intro dialog when user land on this screen for the first time.
+     */
+    private void getCaptureIntroDialog() {
+        //Todo change image and text
+        MaterialDialog dialog = new MaterialDialog.Builder(this)
+                .customView(R.layout.dialog_generic, false)
+                .positiveText(getString(R.string.text_ok))
+                .negativeText(getString(R.string.text_read_more))
+                .onPositive(new MaterialDialog.SingleButtonCallback() {
+                    @Override
+                    public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
+                        getRuntimePermission();
+                        dialog.dismiss();
+                        //update status
+                        mHelper.updateCaptureIntroStatus(false);
+                    }
+                })
+                .onNegative(new MaterialDialog.SingleButtonCallback() {
+                    @Override
+                    public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
+                        dialog.dismiss();
+                        //Open ReadMore activity
+                        startActivity(new Intent(BottomNavigationActivity.this, ReadMoreActivity.class));
+                    }
+                })
+                .show();
+        //Obtain views reference
+        ImageView fillerImage = dialog.getCustomView().findViewById(R.id.viewFiller);
+        TextView textTitle = dialog.getCustomView().findViewById(R.id.textTitle);
+        TextView textDesc = dialog.getCustomView().findViewById(R.id.textDesc);
+
+        //Set filler image
+        fillerImage.setImageDrawable(ContextCompat.getDrawable(this, R.drawable.image_placeholder));
+        //Set title text
+        textTitle.setText("Set title");
+        //Set description text
+        textDesc.setText("Set description text");
+    }
+
+    /**
+     * Method to show intro dialog when user land on this screen for the first time.
+     */
+    private void getShortDialog() {
+        //Todo change image and text
+        MaterialDialog dialog = new MaterialDialog.Builder(this)
+                .customView(R.layout.dialog_generic, false)
+                .positiveText(getString(R.string.text_ok))
+                .negativeText(getString(R.string.text_read_more))
+                .onNegative(new MaterialDialog.SingleButtonCallback() {
+                    @Override
+                    public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
+                        dialog.dismiss();
+                        //Open ReadMore activity
+                        startActivity(new Intent(BottomNavigationActivity.this, ReadMoreActivity.class));
+                    }
+                })
+                .onPositive(new MaterialDialog.SingleButtonCallback() {
+                    @Override
+                    public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
+                        //Open ShortActivity
+                        startActivity(new Intent(BottomNavigationActivity.this, ShortActivity.class));
+                        dialog.dismiss();
+                        //update status
+                        mHelper.updateShortIntroStatus(false);
+                    }
+                })
+                .show();
+        //Obtain views reference
+        ImageView fillerImage = dialog.getCustomView().findViewById(R.id.viewFiller);
+        TextView textTitle = dialog.getCustomView().findViewById(R.id.textTitle);
+        TextView textDesc = dialog.getCustomView().findViewById(R.id.textDesc);
+
+        //Set filler image
+        fillerImage.setImageDrawable(ContextCompat.getDrawable(this, R.drawable.image_placeholder));
+        //Set title text
+        textTitle.setText("Set title");
+        //Set description text
+        textDesc.setText("Set description text");
+    }
+
+
+    public void activateBottomNavigationItem(int id) {
+        navigationView.setSelectedItemId(id);
+    }
+
+
 }

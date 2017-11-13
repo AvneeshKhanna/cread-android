@@ -88,7 +88,6 @@ import static com.thetestament.cread.utils.Constant.FIREBASE_EVENT_FOLLOW_FROM_P
 import static com.thetestament.cread.utils.Constant.REQUEST_CODE_UPDATE_PROFILE_DETAILS;
 import static com.thetestament.cread.utils.Constant.REQUEST_CODE_UPDATE_PROFILE_PIC;
 import static com.thetestament.cread.utils.Constant.REQUEST_CODE_WRITE_EXTERNAL_STORAGE;
-import static com.thetestament.cread.utils.Constant.USER_ACTIVITY_TYPE_ALL;
 
 /**
  * Fragment class to load user profile details and his/her recent activity.
@@ -370,7 +369,8 @@ public class MeFragment extends Fragment {
                 tab.getIcon().setColorFilter(ContextCompat.getColor(getActivity(), R.color.colorPrimary), PorterDuff.Mode.SRC_IN);
                 switch (tab.getPosition()) {
                     case 0:
-                        mAdapter.filter("");
+
+                        mAdapter.updateList(mUserActivityDataList);
                         //mAdapter.setUserActivityType(USER_ACTIVITY_TYPE_ALL);
                         //mAdapter.notifyDataSetChanged();
                         //Set layout manger for recyclerView
@@ -380,7 +380,14 @@ public class MeFragment extends Fragment {
                         //recyclerView.setAdapter(mAdapter);
                         break;
                     case 1:
-                        mAdapter.filter(CONTENT_TYPE_SHORT);
+                        List<FeedModel> temp = new ArrayList<>();
+                        for (FeedModel f : mUserActivityDataList) {
+                            if (f.getContentType().equals(CONTENT_TYPE_SHORT)) {
+                                temp.add(f);
+                            }
+                        }
+                        mAdapter.updateList(temp);
+                        //mAdapter.filter(CONTENT_TYPE_SHORT);
                         //Set layout manger for recyclerView
                         // recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
                         //Set adapter
@@ -390,7 +397,14 @@ public class MeFragment extends Fragment {
                         //mAdapter.notifyDataSetChanged();
                         break;
                     case 2:
-                        mAdapter.filter(CONTENT_TYPE_CAPTURE);
+                        List<FeedModel> temp1 = new ArrayList<>();
+                        for (FeedModel f : mUserActivityDataList) {
+                            if (f.getContentType().equals(CONTENT_TYPE_CAPTURE)) {
+                                temp1.add(f);
+                            }
+                        }
+                        mAdapter.updateList(temp1);
+                        //mAdapter.filter(CONTENT_TYPE_CAPTURE);
                         //Set layout manger for recyclerView
                         //recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
                         //Set adapter
@@ -737,7 +751,7 @@ public class MeFragment extends Fragment {
         //Set layout manger for recyclerView
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
         //Set adapter
-        mAdapter = new MeAdapter(mUserActivityDataList, getActivity(), mHelper.getUUID(), USER_ACTIVITY_TYPE_ALL);
+        mAdapter = new MeAdapter(mUserActivityDataList, getActivity(), mHelper.getUUID());
         //  mAdapter.setUserActivityType(USER_ACTIVITY_TYPE_ALL);
         recyclerView.setAdapter(mAdapter);
 
@@ -764,7 +778,7 @@ public class MeFragment extends Fragment {
         //Initialize listeners
         initLoadMoreListener(mAdapter);
         initHatsOffListener(mAdapter);
-        initializeDeleteListner(mAdapter);
+        initializeDeleteListener(mAdapter);
     }
 
     /**
@@ -804,6 +818,7 @@ public class MeFragment extends Fragment {
                                     data.setCreatorImage(dataObj.getString("profilepicurl"));
                                     data.setCreatorName(dataObj.getString("creatorname"));
                                     data.setHatsOffStatus(dataObj.getBoolean("hatsoffstatus"));
+                                    data.setMerchantable(dataObj.getBoolean("merchantable"));
                                     data.setHatsOffCount(dataObj.getLong("hatsoffcount"));
                                     data.setCommentCount(dataObj.getLong("commentcount"));
                                     data.setContentImage(dataObj.getString("entityurl"));
@@ -922,6 +937,7 @@ public class MeFragment extends Fragment {
                                     data.setCreatorImage(dataObj.getString("profilepicurl"));
                                     data.setCreatorName(dataObj.getString("creatorname"));
                                     data.setHatsOffStatus(dataObj.getBoolean("hatsoffstatus"));
+                                    data.setMerchantable(dataObj.getBoolean("merchantable"));
                                     data.setHatsOffCount(dataObj.getLong("hatsoffcount"));
                                     data.setCommentCount(dataObj.getLong("commentcount"));
                                     data.setContentImage(dataObj.getString("entityurl"));
@@ -1054,11 +1070,11 @@ public class MeFragment extends Fragment {
      * Initialize delete listener
      * * @param adapter MeAdapter reference.
      */
-    private void initializeDeleteListner(MeAdapter meAdapter) {
+    private void initializeDeleteListener(MeAdapter meAdapter) {
         meAdapter.setOnContentDeleteListener(new listener.OnContentDeleteListener() {
             @Override
             public void onDelete(String entityID, int position) {
-
+                deleteContent(entityID, position);
             }
         });
     }
@@ -1143,4 +1159,6 @@ public class MeFragment extends Fragment {
                     }
                 });
     }
+
+
 }

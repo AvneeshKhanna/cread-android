@@ -25,15 +25,22 @@
     <string name="key_watermark_status">watermarkStatus</string>
     <string name="key_first_name">firstName</string>
     <string name="key_last_name">lastName</string>
+    <string name="key_welcome_dialog">welcomeDialog</string>
+    <string name="key_explore_intro">exploreIntro</string>
+    <string name="key_capture_intro">captureIntro</string>
+    <string name="key_short_intro">shortIntro</string>
+    <string name="key_have_tooltip">haveButton</string>
+    <string name="key_short_tooltip">shortTooltip</string>
 
     // dialog messages
     <string name="processing_title">Processing</string>
     <string name="verif_title">Verifying</string>
     <string name="waiting_msg">Please wait</string>
+    <string name="text_ok">Ok</string>
     <string name="text_yes">Yes</string>
     <string name="text_no">No</string>
     <string name="text_color">Color</string>
-
+    <string name="text_read_more">Read More</string>
 
     <string name="Rs">\u20B9</string>
 
@@ -48,4 +55,5 @@
     // notifcations
     <string name="gen_notif_channel_name">Cread</string>
     <string name="gen_notif_channel_desc">Make sound and pop up on screen</string>
+
 </resources>

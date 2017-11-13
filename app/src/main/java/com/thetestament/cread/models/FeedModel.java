@@ -10,21 +10,9 @@ import android.os.Parcelable;
 
 public class FeedModel implements Parcelable {
 
-
-    public static final Creator<FeedModel> CREATOR = new Creator<FeedModel>() {
-        @Override
-        public FeedModel createFromParcel(Parcel in) {
-            return new FeedModel(in);
-        }
-
-        @Override
-        public FeedModel[] newArray(int size) {
-            return new FeedModel[size];
-        }
-    };
     private String entityID, captureID;
     private String UUID, creatorName, creatorImage;
-    private boolean hatsOffStatus, followStatus;
+    private boolean hatsOffStatus, followStatus, merchantable;
     private long hatsOffCount, commentCount;
     private String contentType;
     private String contentImage;
@@ -34,19 +22,6 @@ public class FeedModel implements Parcelable {
     public FeedModel() {
     }
 
-    protected FeedModel(Parcel in) {
-        entityID = in.readString();
-        captureID = in.readString();
-        UUID = in.readString();
-        creatorName = in.readString();
-        creatorImage = in.readString();
-        hatsOffStatus = in.readByte() != 0;
-        followStatus = in.readByte() != 0;
-        hatsOffCount = in.readLong();
-        commentCount = in.readLong();
-        contentType = in.readString();
-        contentImage = in.readString();
-    }
 
     public String getEntityID() {
         return entityID;
@@ -136,6 +111,14 @@ public class FeedModel implements Parcelable {
         this.contentImage = contentImage;
     }
 
+    public boolean isMerchantable() {
+        return merchantable;
+    }
+
+    public void setMerchantable(boolean merchantable) {
+        this.merchantable = merchantable;
+    }
+
     @Override
     public int describeContents() {
         return 0;
@@ -150,10 +133,39 @@ public class FeedModel implements Parcelable {
         parcel.writeString(creatorImage);
         parcel.writeByte((byte) (hatsOffStatus ? 1 : 0));
         parcel.writeByte((byte) (followStatus ? 1 : 0));
+        parcel.writeByte((byte) (merchantable ? 1 : 0));
         parcel.writeLong(hatsOffCount);
         parcel.writeLong(commentCount);
         parcel.writeString(contentType);
         parcel.writeString(contentImage);
+    }
+
+
+    public static final Creator<FeedModel> CREATOR = new Creator<FeedModel>() {
+        @Override
+        public FeedModel createFromParcel(Parcel in) {
+            return new FeedModel(in);
+        }
+
+        @Override
+        public FeedModel[] newArray(int size) {
+            return new FeedModel[size];
+        }
+    };
+
+    protected FeedModel(Parcel in) {
+        entityID = in.readString();
+        captureID = in.readString();
+        UUID = in.readString();
+        creatorName = in.readString();
+        creatorImage = in.readString();
+        hatsOffStatus = in.readByte() != 0;
+        followStatus = in.readByte() != 0;
+        merchantable = in.readByte() != 0;
+        hatsOffCount = in.readLong();
+        commentCount = in.readLong();
+        contentType = in.readString();
+        contentImage = in.readString();
     }
 
 }

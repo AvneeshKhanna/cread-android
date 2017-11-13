@@ -129,9 +129,139 @@ public class SharedPreferenceHelper {
     }
 
     /**
+     * Method to update Welcome dialog status.
+     *
+     * @param status boolean value i.e true or false
+     */
+    public void updateWelcomeDialogStatus(boolean status) {
+        SharedPreferences.Editor editor = mSharedPreferences.edit();
+        editor.putBoolean(mContext.getString(R.string.key_welcome_dialog), status);
+        editor.apply();
+    }
+
+    /**
+     * Method to retrieve the "Welcome dialog first time run status".
+     *
+     * @return True by default
+     */
+    public boolean isWelcomeFirstTime() {
+        return mSharedPreferences
+                .getBoolean(mContext.getString(R.string.key_welcome_dialog), true);
+    }
+
+    /**
+     * Method to update explore intro dialog status.
+     *
+     * @param status boolean value i.e true or false
+     */
+    public void updateExploreIntroStatus(boolean status) {
+        SharedPreferences.Editor editor = mSharedPreferences.edit();
+        editor.putBoolean(mContext.getString(R.string.key_explore_intro), status);
+        editor.apply();
+    }
+
+    /**
+     * Method to retrieve the explore intro dialog first time run status.
+     *
+     * @return True by default
+     */
+    public boolean isExploreIntroFirstTime() {
+        return mSharedPreferences
+                .getBoolean(mContext.getString(R.string.key_explore_intro), true);
+    }
+
+
+    /**
+     * Method to update capture intro dialog status.
+     *
+     * @param status boolean value i.e true or false
+     */
+    public void updateCaptureIntroStatus(boolean status) {
+        SharedPreferences.Editor editor = mSharedPreferences.edit();
+        editor.putBoolean(mContext.getString(R.string.key_capture_intro), status);
+        editor.apply();
+    }
+
+    /**
+     * Method to retrieve capture intro dialog first time run status.
+     *
+     * @return True by default
+     */
+    public boolean isCaptureFirstTime() {
+        return mSharedPreferences
+                .getBoolean(mContext.getString(R.string.key_explore_intro), true);
+    }
+
+    /**
+     * Method to update short intro dialog status.
+     *
+     * @param status boolean value i.e true or false
+     */
+    public void updateShortIntroStatus(boolean status) {
+        SharedPreferences.Editor editor = mSharedPreferences.edit();
+        editor.putBoolean(mContext.getString(R.string.key_short_intro), status);
+        editor.apply();
+    }
+
+    /**
+     * Method to retrieve short intro dialog first time run status.
+     *
+     * @return True by default
+     */
+    public boolean isShortFirstTime() {
+        return mSharedPreferences
+                .getBoolean(mContext.getString(R.string.key_short_intro), true);
+    }
+
+    /**
+     * Method to update 'Have button' tooltip status.
+     *
+     * @param status boolean value i.e true or false
+     */
+    public void updateHaveButtonToolTipStatus(boolean status) {
+        SharedPreferences.Editor editor = mSharedPreferences.edit();
+        editor.putBoolean(mContext.getString(R.string.key_have_tooltip), status);
+        editor.apply();
+    }
+
+    /**
+     * Method to retrieve "Have button " tooltip status.
+     *
+     * @return True by default.
+     */
+    public boolean isHaveButtonTooltipFirstTime() {
+        return mSharedPreferences
+                .getBoolean(mContext.getString(R.string.key_have_tooltip), true);
+    }
+
+    /**
+     * Method to update 'Toggle button' tooltip status.
+     *
+     * @param status boolean value i.e true or false
+     */
+    public void updateToggleButtonToolTipStatus(boolean status) {
+        SharedPreferences.Editor editor = mSharedPreferences.edit();
+        editor.putBoolean(mContext.getString(R.string.key_short_tooltip), status);
+        editor.apply();
+    }
+
+    /**
+     * Method to retrieve "Toggle button" tooltip status.
+     *
+     * @return True by default.
+     */
+    public boolean isToggleButtonTooltipFirstTime() {
+        return mSharedPreferences
+                .getBoolean(mContext.getString(R.string.key_short_tooltip), true);
+    }
+
+
+    /**
      * Method to clear all key value pairs in cread shared preferences
      */
     public void clearSharedPreferences() {
         mSharedPreferences.edit().clear().apply();
     }
+
+
 }

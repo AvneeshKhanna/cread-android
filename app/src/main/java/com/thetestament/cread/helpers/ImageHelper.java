@@ -33,7 +33,7 @@ public class ImageHelper {
     /**
      * Return the Uri of picture stored in phone storage.
      *
-     * @param imageType Type of image i.e IMAGE_TYPE_USER_PROFILE_PIC or IMAGE_TYPE_USER_CAPTURE_PIC
+     * @param imageType Type of image i.e IMAGE_TYPE_USER_PROFILE_PIC , IMAGE_TYPE_USER_CAPTURE_PIC and IMAGE_TYPE_USER_SHORT_PIC
      * @return uri of Picture.
      **/
     public static Uri getImageUri(String imageType) {

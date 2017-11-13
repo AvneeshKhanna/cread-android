@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
+
+    <!--Space holder-->
+    <ImageView
+        android:id="@+id/viewFiller"
+        android:layout_width="match_parent"
+        android:layout_height="160dp"
+        android:scaleType="centerCrop"
+        android:src="@drawable/image_placeholder" />
+
+    <TextView
+        android:id="@+id/textTitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:paddingBottom="15dp"
+        android:paddingLeft="20dp"
+        android:paddingRight="20dp"
+        android:paddingTop="25dp"
+        android:text="Welcome to Cread"
+        android:textSize="20sp" />
+
+    <TextView
+        android:id="@+id/textDesc"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:gravity="center"
+        android:paddingBottom="20dp"
+        android:paddingLeft="20dp"
+        android:paddingRight="20dp"
+        android:text="Creadjdakkaskkasfkkfkjakjkskldl;;;;;hskd;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;ncxnbvnxbcvnbvncvbncxbvnbcnxbvnxcbnbxcnbhvsduufsdb cjhbxhcjb hxjc bhbcxhvj bhsbsdjvhj bhxbj bsbxhcb h hdsbhxbhbxhxhxhsjhh sbvjhbvjhbxj"
+        android:textSize="14sp" />
+</LinearLayout>
