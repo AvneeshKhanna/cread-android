@@ -14,6 +14,7 @@ import com.afollestad.materialdialogs.GravityEnum;
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.iid.FirebaseInstanceId;
 import com.google.firebase.remoteconfig.FirebaseRemoteConfig;
 import com.google.firebase.remoteconfig.FirebaseRemoteConfigSettings;
 import com.thetestament.cread.BuildConfig;
@@ -39,6 +40,7 @@ public class SplashActivity extends BaseActivity {
         //Set layout files
         setContentView(R.layout.activity_splash);
         //initialize force update system
+
         initForceUpdateSystem();
     }
 
@@ -91,6 +93,10 @@ public class SplashActivity extends BaseActivity {
             //startActivity(new Intent(this, MerchandizingProductsActivity.class));
             //startActivity(new Intent(this, FindFBFriendsActivity.class));
         } else {
+
+            // to generate token when the app is installed first time
+            // so that it can be sent to the server when user logs in
+            FirebaseInstanceId.getInstance().getToken();
 
             //startActivity(new Intent(this, MerchandizingProductsActivity.class));
             //startActivity(new Intent(this, FindFBFriendsActivity.class));

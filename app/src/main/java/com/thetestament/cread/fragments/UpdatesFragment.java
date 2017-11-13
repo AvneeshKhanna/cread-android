@@ -345,6 +345,7 @@ public class UpdatesFragment extends Fragment {
                                 feedData.setContentImage(dataObj.getString("entityurl"));
 
 
+
                             }
                         } catch (JSONException e) {
                             e.printStackTrace();

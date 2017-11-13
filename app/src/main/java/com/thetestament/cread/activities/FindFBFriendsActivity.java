@@ -191,7 +191,7 @@ public class FindFBFriendsActivity extends BaseActivity {
 
                                         JSONObject mainData = jsonObject.getJSONObject("data");
                                         mRequestMoreData = mainData.getBoolean("requestmore");
-
+                                        mNextUrl = mainData.getString("nexturl");
                                         //Friends details list
                                         JSONArray friendsArray = mainData.getJSONArray("friends");
                                         for (int i = 0; i < friendsArray.length(); i++) {
@@ -274,7 +274,6 @@ public class FindFBFriendsActivity extends BaseActivity {
                                     int resId = R.anim.layout_animation_from_bottom;
                                     LayoutAnimationController animation = AnimationUtils.loadLayoutAnimation(FindFBFriendsActivity.this, resId);
                                     recyclerView.setLayoutAnimation(animation);
-                                    //Notify changes
                                     mAdapter.notifyDataSetChanged();
                                 }
                             }
@@ -477,6 +476,7 @@ public class FindFBFriendsActivity extends BaseActivity {
                             else {
                                 JSONObject mainData = jsonObject.getJSONObject("data");
                                 mRequestMoreData = mainData.getBoolean("requestmore");
+                                mNextUrl = mainData.getString("nexturl");
                                 //friends details list
                                 JSONArray friendsArray = mainData.getJSONArray("friends");
                                 for (int i = 0; i < friendsArray.length(); i++) {
@@ -488,6 +488,8 @@ public class FindFBFriendsActivity extends BaseActivity {
                                     friendsModel.setProfilePicUrl(dataObj.getString("profilepicurl"));
                                     friendsModel.setFollowStatus(dataObj.getBoolean("followstatus"));
                                     mDataList.add(friendsModel);
+                                    //Notify item changes
+                                    mAdapter.notifyItemInserted(mDataList.size() - 1);
                                 }
                             }
                         } catch (JSONException e) {
@@ -539,12 +541,6 @@ public class FindFBFriendsActivity extends BaseActivity {
                         else if (connectionError[0]) {
                             ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_internal));
                         } else {
-                            //Apply 'Slide Up' animation
-                            int resId = R.anim.layout_animation_from_bottom;
-                            LayoutAnimationController animation = AnimationUtils.loadLayoutAnimation(FindFBFriendsActivity.this, resId);
-                            recyclerView.setLayoutAnimation(animation);
-                            //Notify changes
-                            mAdapter.notifyDataSetChanged();
                             mAdapter.setLoaded();
                         }
                     }

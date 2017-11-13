@@ -58,6 +58,8 @@ public class NotificationsDBFunctions {
                 contentValues,
                 selection,
                 selectionArgs);
+
+        db.close();
     }
 
     public int getUnreadCount() {
@@ -101,8 +103,9 @@ public class NotificationsDBFunctions {
         int count = c.getCount();
         c.close();
 
-        return count;
+        db.close();
 
+        return count;
     }
 
     public void setRead() {
@@ -124,6 +127,8 @@ public class NotificationsDBFunctions {
                 contentValues,
                 selection,
                 selectionArgs);
+
+        db.close();
 
     }
 }
