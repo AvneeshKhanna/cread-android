@@ -88,14 +88,6 @@
             android:theme="@style/BottomNavigationActivityTheme" />
 
         <!-- TermsOfServiceActivity -->
-        <activity
-            android:name=".activities.TermsOfServiceActivity"
-            android:label="Terms of Service"
-            android:screenOrientation="portrait">
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value=".activities.MainActivity" />
-        </activity>
 
         <!-- BottomNavigationActivity -->
         <activity
@@ -232,9 +224,9 @@
                 android:value=".activities.BottomNavigationActivity" />
         </activity>
 
-        <!--ReadMoreActivity-->
+        <!--WebViewActivity-->
         <activity
-            android:name=".activities.ReadMoreActivity"
+            android:name=".activities.WebViewActivity"
             android:label="Details"
             android:screenOrientation="portrait">
             <meta-data

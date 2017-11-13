@@ -24,11 +24,10 @@ import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
-import com.mikepenz.actionitembadge.library.ActionItemBadge;
-import com.mikepenz.actionitembadge.library.ActionItemBadgeAdder;
 import com.afollestad.materialdialogs.DialogAction;
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.google.firebase.analytics.FirebaseAnalytics;
+import com.mikepenz.actionitembadge.library.ActionItemBadge;
 import com.theartofdev.edmodo.cropper.CropImage;
 import com.theartofdev.edmodo.cropper.CropImageView;
 import com.thetestament.cread.Manifest;
@@ -47,6 +46,8 @@ import icepick.Icepick;
 import icepick.State;
 
 import static com.thetestament.cread.helpers.ImageHelper.compressSpecific;
+import static com.thetestament.cread.utils.Constant.EXTRA_WEB_VIEW_TITLE;
+import static com.thetestament.cread.utils.Constant.EXTRA_WEB_VIEW_URL;
 import static com.thetestament.cread.utils.Constant.FIREBASE_EVENT_EXPLORE_CLICKED;
 import static com.thetestament.cread.utils.Constant.FIREBASE_EVENT_FEED_CLICKED;
 import static com.thetestament.cread.utils.Constant.FIREBASE_EVENT_NOTIFICATION_CLICKED;
@@ -177,10 +178,6 @@ public class BottomNavigationActivity extends BaseActivity {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu_cread, menu);
-
-
-
-
 
 
         super.onCreateOptionsMenu(menu);
@@ -328,7 +325,6 @@ public class BottomNavigationActivity extends BaseActivity {
     }
 
 
-
     /**
      * Method to show bottomSheet dialog with 'write a short' and 'Upload a capture' option.
      */
@@ -440,7 +436,6 @@ public class BottomNavigationActivity extends BaseActivity {
     class UpdateNotificationBadge extends AsyncTask<Menu, Void, Menu> {
 
 
-
         @Override
         protected Menu doInBackground(Menu... menus) {
 
@@ -519,8 +514,12 @@ public class BottomNavigationActivity extends BaseActivity {
                     @Override
                     public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
                         dialog.dismiss();
-                        //Open ReadMore activity
-                        startActivity(new Intent(BottomNavigationActivity.this, ReadMoreActivity.class));
+
+                        //Todo change parameter
+                        Intent intent = new Intent(BottomNavigationActivity.this, WebViewActivity.class);
+                        intent.putExtra(EXTRA_WEB_VIEW_URL, "");
+                        intent.putExtra(EXTRA_WEB_VIEW_TITLE, "");
+                        startActivity(intent);
                     }
                 })
                 .show();
@@ -550,8 +549,11 @@ public class BottomNavigationActivity extends BaseActivity {
                     @Override
                     public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
                         dialog.dismiss();
-                        //Open ReadMore activity
-                        startActivity(new Intent(BottomNavigationActivity.this, ReadMoreActivity.class));
+                        //Todo change parameter
+                        Intent intent = new Intent(BottomNavigationActivity.this, WebViewActivity.class);
+                        intent.putExtra(EXTRA_WEB_VIEW_URL, "");
+                        intent.putExtra(EXTRA_WEB_VIEW_TITLE, "");
+                        startActivity(intent);
                     }
                 })
                 .onPositive(new MaterialDialog.SingleButtonCallback() {

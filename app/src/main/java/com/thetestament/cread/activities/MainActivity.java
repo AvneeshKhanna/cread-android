@@ -57,6 +57,9 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 
+import static com.thetestament.cread.utils.Constant.EXTRA_WEB_VIEW_TITLE;
+import static com.thetestament.cread.utils.Constant.EXTRA_WEB_VIEW_URL;
+
 public class MainActivity extends BaseActivity {
 
     private final String TAG = getClass().getSimpleName();
@@ -163,9 +166,11 @@ public class MainActivity extends BaseActivity {
      */
     @OnClick(R.id.textTOS)
     public void showTos() {
-        startActivity(new Intent(MainActivity.this
-                , TermsOfServiceActivity.class));
-
+        //Todo change parameter
+        Intent intent = new Intent(MainActivity.this, WebViewActivity.class);
+        intent.putExtra(EXTRA_WEB_VIEW_URL, "");
+        intent.putExtra(EXTRA_WEB_VIEW_TITLE, "");
+        startActivity(intent);
     }
 
     /**
