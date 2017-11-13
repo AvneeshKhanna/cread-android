@@ -12,6 +12,7 @@ import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -90,6 +91,7 @@ public class UpdatesFragment extends Fragment {
     private Unbinder unbinder;
     private UpdatesFragment mUpdatesFragment;
     private CompositeDisposable mCompositeDisposable = new CompositeDisposable();
+    private final String TAG = getClass().getSimpleName();
 
     @Nullable
     @Override
@@ -146,7 +148,7 @@ public class UpdatesFragment extends Fragment {
         @Override
         protected Void doInBackground(Void... params) {
 
-            NotificationsDBHelper notificationsDBHelper = new NotificationsDBHelper(getContext());
+            NotificationsDBHelper notificationsDBHelper = new NotificationsDBHelper(getActivity());
             // Gets the data repository in read mode
             sqLiteDatabase = notificationsDBHelper.getReadableDatabase();
 
@@ -202,61 +204,61 @@ public class UpdatesFragment extends Fragment {
         @Override
         protected void onPostExecute(Void aVoid) {
             super.onPostExecute(aVoid);
-            if (mUpdatesFragment != null && mUpdatesFragment.isVisible()) {
-                //if the fragment is visible, only then load the contents
-                //If there is no notification
-                if (updatesDataList.size() == 0) {
-                    viewNoNotification.setVisibility(View.VISIBLE);
-                }
-                UpdatesAdapter updatesAdapter = new UpdatesAdapter(updatesDataList, getActivity());
-                recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
-                recyclerView.setItemAnimator(new DefaultItemAnimator());
-                recyclerView.setAdapter(updatesAdapter);
-                swipeRefreshLayout.setRefreshing(false);
 
-                updatesAdapter.setNotificationItemClick(new UpdatesAdapter.NotificationItemClick() {
-                    @Override
-                    public void onNotificationClick(String notificationType, String entityID) {
-                        switch (notificationType) {
-                            case NOTIFICATION_CATEGORY_CREAD_FOLLOW:
-                                // handled in updates adapter
-                                break;
-                            case NOTIFICATION_CATEGORY_CREAD_COLLABORATE:
 
-                                // gets feed details and opens details screen
-                                getFeedDetails(entityID);
-
-                                break;
-
-                            case NOTIFICATION_CATEGORY_CREAD_HATSOFF:
-
-                                // gets feed details and opens details screen
-                                getFeedDetails(entityID);
-                                break;
-
-                            case NOTIFICATION_CATEGORY_CREAD_COMMENT:
-
-                                // gets feed details and opens details screen
-                                getFeedDetails(entityID);
-                                break;
-
-                            case NOTIFICATION_CATEGORY_CREAD_BUY:
-
-                                // gets feed details and opens details screen
-                                getFeedDetails(entityID);
-                                break;
-
-                            case NOTIFICATION_CATEGORY_CREAD_GENERAL:
-                                // handled in updates adapter
-                                break;
-
-                            default:
-                                break;
-                        }
-                    }
-                });
-
+            //if the fragment is visible, only then load the contents
+            //If there is no notification
+            if (updatesDataList.size() == 0) {
+                viewNoNotification.setVisibility(View.VISIBLE);
             }
+            UpdatesAdapter updatesAdapter = new UpdatesAdapter(updatesDataList, getActivity());
+            recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
+            recyclerView.setItemAnimator(new DefaultItemAnimator());
+            recyclerView.setAdapter(updatesAdapter);
+            swipeRefreshLayout.setRefreshing(false);
+
+            updatesAdapter.setNotificationItemClick(new UpdatesAdapter.NotificationItemClick() {
+                @Override
+                public void onNotificationClick(String notificationType, String entityID) {
+                    switch (notificationType) {
+                        case NOTIFICATION_CATEGORY_CREAD_FOLLOW:
+                            // handled in updates adapter
+                            break;
+                        case NOTIFICATION_CATEGORY_CREAD_COLLABORATE:
+
+                            // gets feed details and opens details screen
+                            getFeedDetails(entityID);
+
+                            break;
+
+                        case NOTIFICATION_CATEGORY_CREAD_HATSOFF:
+
+                            // gets feed details and opens details screen
+                            getFeedDetails(entityID);
+                            break;
+
+                        case NOTIFICATION_CATEGORY_CREAD_COMMENT:
+
+                            // gets feed details and opens details screen
+                            getFeedDetails(entityID);
+                            break;
+
+                        case NOTIFICATION_CATEGORY_CREAD_BUY:
+
+                            // gets feed details and opens details screen
+                            getFeedDetails(entityID);
+                            break;
+
+                        case NOTIFICATION_CATEGORY_CREAD_GENERAL:
+                            // handled in updates adapter
+                            break;
+
+                        default:
+                            break;
+                    }
+                }
+            });
+
         }
     }
 
@@ -337,7 +339,6 @@ public class UpdatesFragment extends Fragment {
                                 feedData.setHatsOffCount(dataObj.getLong("hatsoffcount"));
                                 feedData.setCommentCount(dataObj.getLong("commentcount"));
                                 feedData.setContentImage(dataObj.getString("entityurl"));
-
 
 
                             }

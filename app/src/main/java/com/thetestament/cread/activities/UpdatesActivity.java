@@ -50,7 +50,7 @@ public class UpdatesActivity extends BaseActivity {
         switch (item.getItemId()) {
             case android.R.id.home:
                 Intent upIntent = NavUtils.getParentActivityIntent(this);
-                if (NavUtils.shouldUpRecreateTask(this, upIntent)) {
+                if (NavUtils.shouldUpRecreateTask(this, upIntent) || isTaskRoot()) {
                     // This activity is NOT part of this app's task, so create a new task
                     // when navigating up, with a synthesized back stack.
                     TaskStackBuilder.create(this)
@@ -63,7 +63,7 @@ public class UpdatesActivity extends BaseActivity {
                     // navigate up to the logical parent activity.
                     NavUtils.navigateUpTo(this, upIntent);
                 }
-                finish();
+
                 return true;
             default:
                 return super.onOptionsItemSelected(item);

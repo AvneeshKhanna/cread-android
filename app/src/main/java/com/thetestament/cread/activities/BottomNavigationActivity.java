@@ -7,7 +7,6 @@ import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.BottomNavigationView;
@@ -25,12 +24,10 @@ import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
-import com.google.firebase.iid.FirebaseInstanceId;
-import com.mikepenz.actionitembadge.library.ActionItemBadge;
-import com.mikepenz.actionitembadge.library.ActionItemBadgeAdder;
 import com.afollestad.materialdialogs.DialogAction;
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.google.firebase.analytics.FirebaseAnalytics;
+import com.mikepenz.actionitembadge.library.ActionItemBadge;
 import com.theartofdev.edmodo.cropper.CropImage;
 import com.theartofdev.edmodo.cropper.CropImageView;
 import com.thetestament.cread.Manifest;
@@ -42,8 +39,6 @@ import com.thetestament.cread.fragments.MeFragment;
 import com.thetestament.cread.helpers.BottomNavigationViewHelper;
 import com.thetestament.cread.helpers.SharedPreferenceHelper;
 import com.thetestament.cread.helpers.ViewHelper;
-
-import java.io.IOException;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -184,20 +179,19 @@ public class BottomNavigationActivity extends BaseActivity {
         getMenuInflater().inflate(R.menu.menu_cread, menu);
 
 
-
-
-
-
         super.onCreateOptionsMenu(menu);
         return true;
     }
 
     @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
+    public boolean onOptionsItemSelected(final MenuItem item) {
         switch (item.getItemId()) {
             case R.id.action_updates:
                 //Open updates screen
-                // TODO uncomment
+
+                // to hide the badge
+                mUnreadCount = 0;
+                ActionItemBadge.update(BottomNavigationActivity.this, item, ContextCompat.getDrawable(BottomNavigationActivity.this, R.drawable.ic_notifications_24), ActionItemBadge.BadgeStyles.DARK_GREY, null);
 
                 Thread thread = new Thread(
 
@@ -208,8 +202,8 @@ public class BottomNavigationActivity extends BaseActivity {
                                 NotificationsDBFunctions dbFunctions = new NotificationsDBFunctions(BottomNavigationActivity.this);
                                 dbFunctions.accessNotificationsDatabase();
                                 dbFunctions.setRead();
-
                                 startActivity(new Intent(BottomNavigationActivity.this, UpdatesActivity.class));
+
 
                             }
                         }
@@ -333,7 +327,6 @@ public class BottomNavigationActivity extends BaseActivity {
     }
 
 
-
     /**
      * Method to show bottomSheet dialog with 'write a short' and 'Upload a capture' option.
      */
@@ -443,7 +436,6 @@ public class BottomNavigationActivity extends BaseActivity {
      * async task to update the unread count in notification badge
      */
     class UpdateNotificationBadge extends AsyncTask<Menu, Void, Menu> {
-
 
 
         @Override
