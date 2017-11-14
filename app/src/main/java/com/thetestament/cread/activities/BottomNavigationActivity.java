@@ -441,10 +441,11 @@ public class BottomNavigationActivity extends BaseActivity {
                 //Compress image
                 compressSpecific(uri, this, IMAGE_TYPE_USER_CAPTURE_PIC);
                 //Open preview screen
-                startActivity(new Intent(BottomNavigationActivity.this, CapturePreviewActivity.class));
+                Intent intent = new Intent(BottomNavigationActivity.this, CapturePreviewActivity.class);
+                intent.putExtra("isMerchantable", 1);
+                startActivity(intent);
             } else {
-                //open preview screen
-                startActivity(new Intent(BottomNavigationActivity.this, CapturePreviewActivity.class));
+                getMerchantableDialog();
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -600,6 +601,34 @@ public class BottomNavigationActivity extends BaseActivity {
         textTitle.setText("Set title");
         //Set description text
         textDesc.setText("Set description text");
+    }
+
+    /**
+     * Method to show intro dialog when user land on this screen for the first time.
+     */
+    private void getMerchantableDialog() {
+        new MaterialDialog.Builder(this)
+                .title("Hey")
+                .content("We don't accept low resolution image ")
+                .positiveText("Proceed")
+                .negativeText("Cancel")
+                .onNegative(new MaterialDialog.SingleButtonCallback() {
+                    @Override
+                    public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
+                        dialog.dismiss();
+                        //open preview screen
+                        Intent intent = new Intent(BottomNavigationActivity.this, CapturePreviewActivity.class);
+                        intent.putExtra("isMerchantable", 0);
+                        startActivity(intent);
+                    }
+                })
+                .onPositive(new MaterialDialog.SingleButtonCallback() {
+                    @Override
+                    public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
+                        dialog.dismiss();
+                    }
+                })
+                .show();
     }
 
 

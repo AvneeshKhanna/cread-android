@@ -48,7 +48,7 @@ public class CapturePreviewActivity extends BaseActivity {
     @BindView(R.id.imageCapture)
     ImageView imageCapture;
     @State
-    String mWaterMarkText = "";
+    String mWaterMarkText = "", isMerchantable;
     private SharedPreferenceHelper mHelper;
 
     @Override
@@ -59,6 +59,8 @@ public class CapturePreviewActivity extends BaseActivity {
         ButterKnife.bind(this);
         //Get sharedPreference
         mHelper = new SharedPreferenceHelper(this);
+        //Retrieve data from intent
+        isMerchantable = getIntent().getStringExtra("isMerchantable");
         //load image
         loadCaptureImage();
         checkWatermarkStatus(mHelper);
@@ -211,8 +213,7 @@ public class CapturePreviewActivity extends BaseActivity {
                 .addMultipartParameter("uuid", mHelper.getUUID())
                 .addMultipartParameter("authkey", mHelper.getAuthToken())
                 .addMultipartParameter("watermark", mWaterMarkText)
-                //Todo change this
-                .addMultipartParameter("merchantable", String.valueOf(1))
+                .addMultipartParameter("merchantable", isMerchantable)
                 .setOkHttpClient(okHttpClient)
                 .build()
                 .getAsJSONObject(new JSONObjectRequestListener() {
