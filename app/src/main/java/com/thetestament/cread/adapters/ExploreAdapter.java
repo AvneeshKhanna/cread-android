@@ -37,6 +37,7 @@ import static com.thetestament.cread.utils.Constant.EXTRA_CAPTURE_ID;
 import static com.thetestament.cread.utils.Constant.EXTRA_CAPTURE_URL;
 import static com.thetestament.cread.utils.Constant.EXTRA_DATA;
 import static com.thetestament.cread.utils.Constant.EXTRA_FEED_DESCRIPTION_DATA;
+import static com.thetestament.cread.utils.Constant.EXTRA_MERCHANTABLE;
 import static com.thetestament.cread.utils.Constant.EXTRA_PROFILE_UUID;
 import static com.thetestament.cread.utils.Constant.FIREBASE_EVENT_FOLLOW_FROM_EXPLORE;
 import static com.thetestament.cread.utils.Constant.FIREBASE_EVENT_WRITE_CLICKED;
@@ -146,7 +147,7 @@ public class ExploreAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
             //Follow button click functionality
             followOnClick(position, data, itemViewHolder.buttonFollow);
             //Compose click functionality
-            composeOnClick(itemViewHolder.buttonCompose, data.getCaptureID(), data.getContentImage());
+            composeOnClick(itemViewHolder.buttonCompose, data.getCaptureID(), data.getContentImage(), data.isMerchantable());
             //ItemView onClick functionality
             itemViewOnClick(itemViewHolder.itemView, data);
 
@@ -254,14 +255,16 @@ public class ExploreAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
      * @param view       View to be clicked.
      * @param captureID  Capture ID of the content.
      * @param captureURL Capture image url.
+     * @param
      */
-    private void composeOnClick(View view, final String captureID, final String captureURL) {
+    private void composeOnClick(View view, final String captureID, final String captureURL, final boolean merchantable) {
         view.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 Bundle bundle = new Bundle();
                 bundle.putString(EXTRA_CAPTURE_ID, captureID);
                 bundle.putString(EXTRA_CAPTURE_URL, captureURL);
+                bundle.putBoolean(EXTRA_MERCHANTABLE, merchantable);
                 Intent intent = new Intent(mContext, ShortActivity.class);
                 intent.putExtra(EXTRA_DATA, bundle);
                 mContext.startActivity(intent);

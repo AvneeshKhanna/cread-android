@@ -197,6 +197,7 @@ public class InspirationActivity extends BaseActivity {
                                     data.setCreatorProfilePic(dataObj.getString("profilepicurl"));
                                     data.setCreatorName(dataObj.getString("creatorname"));
                                     data.setCapturePic(dataObj.getString("captureurl"));
+                                    data.setMerchantable(dataObj.getBoolean("merchantable"));
                                     mInspirationDataList.add(data);
                                 }
                             }
@@ -277,6 +278,7 @@ public class InspirationActivity extends BaseActivity {
                                     data.setCreatorProfilePic(dataObj.getString("profilepicurl"));
                                     data.setCreatorName(dataObj.getString("creatorname"));
                                     data.setCapturePic(dataObj.getString("captureurl"));
+                                    data.setMerchantable(dataObj.getBoolean("merchantable"));
                                     mInspirationDataList.add(data);
                                     //Notify item insertion
                                     mAdapter.notifyItemInserted(mInspirationDataList.size() - 1);

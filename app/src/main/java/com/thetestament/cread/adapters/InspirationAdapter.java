@@ -28,6 +28,7 @@ import de.hdodenhof.circleimageview.CircleImageView;
 import static com.thetestament.cread.utils.Constant.EXTRA_CAPTURE_ID;
 import static com.thetestament.cread.utils.Constant.EXTRA_CAPTURE_URL;
 import static com.thetestament.cread.utils.Constant.EXTRA_DATA;
+import static com.thetestament.cread.utils.Constant.EXTRA_MERCHANTABLE;
 import static com.thetestament.cread.utils.Constant.EXTRA_PROFILE_UUID;
 
 /**
@@ -187,6 +188,7 @@ public class InspirationAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
                 Bundle bundle = new Bundle();
                 bundle.putString(EXTRA_CAPTURE_ID, data.getCaptureID());
                 bundle.putString(EXTRA_CAPTURE_URL, data.getCapturePic());
+                bundle.putBoolean(EXTRA_MERCHANTABLE, data.isMerchantable());
                 Intent intent = new Intent();
                 intent.putExtra(EXTRA_DATA, bundle);
                 mContext.setResult(Activity.RESULT_OK, intent);

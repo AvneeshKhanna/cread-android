@@ -43,6 +43,7 @@ import static com.thetestament.cread.utils.Constant.EXTRA_CAPTURE_URL;
 import static com.thetestament.cread.utils.Constant.EXTRA_DATA;
 import static com.thetestament.cread.utils.Constant.EXTRA_ENTITY_ID;
 import static com.thetestament.cread.utils.Constant.EXTRA_FEED_DESCRIPTION_DATA;
+import static com.thetestament.cread.utils.Constant.EXTRA_MERCHANTABLE;
 import static com.thetestament.cread.utils.Constant.EXTRA_PROFILE_UUID;
 import static com.thetestament.cread.utils.Constant.FIREBASE_EVENT_SHARED_FROM_MAIN_FEED;
 import static com.thetestament.cread.utils.Constant.FIREBASE_EVENT_WRITE_CLICKED;
@@ -144,7 +145,7 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             //ItemView onClick functionality
             itemViewOnClick(itemViewHolder.itemView, data);
             //Compose click functionality
-            composeOnClick(itemViewHolder.buttonCompose, data.getCaptureID(), data.getContentImage(), data.getEntityID());
+            composeOnClick(itemViewHolder.buttonCompose, data.getCaptureID(), data.getContentImage(), data.getEntityID(), data.isMerchantable());
             //Comment click functionality
             commentOnClick(itemViewHolder.containerComment, data.getEntityID());
             //Share click functionality
@@ -265,7 +266,7 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
      * @param captureID  CaptureID of image.
      * @param captureURL Capture image url.
      */
-    private void composeOnClick(View view, final String captureID, final String captureURL, final String entityID) {
+    private void composeOnClick(View view, final String captureID, final String captureURL, final String entityID, final boolean merchantable) {
         view.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -273,6 +274,7 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                 Bundle bundle = new Bundle();
                 bundle.putString(EXTRA_CAPTURE_ID, captureID);
                 bundle.putString(EXTRA_CAPTURE_URL, captureURL);
+                bundle.putBoolean(EXTRA_MERCHANTABLE, merchantable);
                 Intent intent = new Intent(mContext, ShortActivity.class);
                 intent.putExtra(EXTRA_DATA, bundle);
                 mContext.startActivity(intent);

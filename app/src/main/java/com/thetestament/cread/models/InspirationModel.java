@@ -7,7 +7,7 @@ package com.thetestament.cread.models;
 public class InspirationModel {
 
     private String entityID, captureID, UUID, creatorName, creatorProfilePic, capturePic;
-
+    private boolean merchantable;
 
     public String getEntityID() {
         return entityID;
@@ -55,5 +55,13 @@ public class InspirationModel {
 
     public void setCapturePic(String capturePic) {
         this.capturePic = capturePic;
+    }
+
+    public boolean isMerchantable() {
+        return merchantable;
+    }
+
+    public void setMerchantable(boolean merchantable) {
+        this.merchantable = merchantable;
     }
 }

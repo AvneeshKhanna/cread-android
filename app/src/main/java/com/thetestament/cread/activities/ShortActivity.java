@@ -67,6 +67,7 @@ import static com.thetestament.cread.helpers.ImageHelper.getImageUri;
 import static com.thetestament.cread.utils.Constant.EXTRA_CAPTURE_ID;
 import static com.thetestament.cread.utils.Constant.EXTRA_CAPTURE_URL;
 import static com.thetestament.cread.utils.Constant.EXTRA_DATA;
+import static com.thetestament.cread.utils.Constant.EXTRA_MERCHANTABLE;
 import static com.thetestament.cread.utils.Constant.FIREBASE_EVENT_INSPIRATION_CLICKED;
 import static com.thetestament.cread.utils.Constant.IMAGE_TYPE_USER_SHORT_PIC;
 import static com.thetestament.cread.utils.Constant.REQUEST_CODE_INSPIRATION_ACTIVITY;
@@ -91,6 +92,8 @@ public class ShortActivity extends BaseActivity implements ColorChooserDialog.Co
 
     @State
     String mShortText, mCaptureUrl, mCaptureID = "";
+    @State
+    boolean mIsMerchantable;
     @State
     int mImageWidth = 650;
 
@@ -158,6 +161,7 @@ public class ShortActivity extends BaseActivity implements ColorChooserDialog.Co
                     //Retrieve data
                     mCaptureID = bundle.getString(EXTRA_CAPTURE_ID);
                     mCaptureUrl = bundle.getString(EXTRA_CAPTURE_URL);
+                    mIsMerchantable = bundle.getBoolean(EXTRA_MERCHANTABLE);
                     //Load inspiration/capture image
                     loadCapture(imageShort, mCaptureUrl);
                 }
@@ -386,6 +390,7 @@ public class ShortActivity extends BaseActivity implements ColorChooserDialog.Co
             //Retrieve data
             mCaptureID = bundle.getString(EXTRA_CAPTURE_ID);
             mCaptureUrl = bundle.getString(EXTRA_CAPTURE_URL);
+            mIsMerchantable = bundle.getBoolean(EXTRA_MERCHANTABLE);
             //Load inspiration/capture image
             loadCapture(imageShort, mCaptureUrl);
         }
@@ -559,6 +564,14 @@ public class ShortActivity extends BaseActivity implements ColorChooserDialog.Co
      * Update short image and other details on server.
      */
     private void updateShort(File file, String captureID, String xPosition, String yPosition, String tvWidth, String tvHeight, String text, String textSize, String textColor, String textGravity, String imgWidth) {
+
+        int merchantable;
+        if (mIsMerchantable) {
+            merchantable = 1;
+        } else {
+            merchantable = 0;
+        }
+
         //Configure OkHttpClient for time out
         OkHttpClient okHttpClient = new OkHttpClient().newBuilder()
                 .connectTimeout(20, TimeUnit.MINUTES)
@@ -594,6 +607,8 @@ public class ShortActivity extends BaseActivity implements ColorChooserDialog.Co
                 .addMultipartParameter("textsize", textSize)
                 .addMultipartParameter("textcolor", textColor)
                 .addMultipartParameter("textgravity", textGravity)
+                .addMultipartParameter("textgravity", textGravity)
+                .addMultipartParameter("merchantable", String.valueOf(merchantable))
                 .addMultipartParameter("top", String.valueOf(scaledPixelsToPx(ShortActivity.this, textShort.getTop())))
                 .addMultipartParameter("bottom", String.valueOf(scaledPixelsToPx(ShortActivity.this, textShort.getBottom())))
                 .addMultipartParameter("left", String.valueOf(scaledPixelsToPx(ShortActivity.this, textShort.getLeft())))
