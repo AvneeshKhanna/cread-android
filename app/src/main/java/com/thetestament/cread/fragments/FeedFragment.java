@@ -254,8 +254,7 @@ public class FeedFragment extends Fragment {
                                     feedData.setCreatorImage(dataObj.getString("profilepicurl"));
                                     feedData.setCreatorName(dataObj.getString("creatorname"));
                                     feedData.setHatsOffStatus(dataObj.getBoolean("hatsoffstatus"));
-                                    // TODO make dynamic
-                                    feedData.setMerchantable(/*dataObj.getBoolean("merchantable")*/true);
+                                    feedData.setMerchantable(dataObj.getBoolean("merchantable"));
                                     feedData.setHatsOffCount(dataObj.getLong("hatsoffcount"));
                                     feedData.setCommentCount(dataObj.getLong("commentcount"));
                                     feedData.setContentImage(dataObj.getString("entityurl"));
@@ -348,8 +347,7 @@ public class FeedFragment extends Fragment {
                                     feedData.setCreatorImage(dataObj.getString("profilepicurl"));
                                     feedData.setCreatorName(dataObj.getString("creatorname"));
                                     feedData.setHatsOffStatus(dataObj.getBoolean("hatsoffstatus"));
-                                    // TODO make dynamic
-                                    feedData.setMerchantable(/*dataObj.getBoolean("merchantable")*/true);
+                                    feedData.setMerchantable(dataObj.getBoolean("merchantable"));
                                     feedData.setHatsOffCount(dataObj.getLong("hatsoffcount"));
                                     feedData.setCommentCount(dataObj.getLong("commentcount"));
                                     feedData.setContentImage(dataObj.getString("entityurl"));

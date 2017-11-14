@@ -211,6 +211,8 @@ public class CapturePreviewActivity extends BaseActivity {
                 .addMultipartParameter("uuid", mHelper.getUUID())
                 .addMultipartParameter("authkey", mHelper.getAuthToken())
                 .addMultipartParameter("watermark", mWaterMarkText)
+                //Todo change this
+                .addMultipartParameter("merchantable", String.valueOf(1))
                 .setOkHttpClient(okHttpClient)
                 .build()
                 .getAsJSONObject(new JSONObjectRequestListener() {
