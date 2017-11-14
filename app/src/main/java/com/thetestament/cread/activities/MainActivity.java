@@ -447,8 +447,10 @@ public class MainActivity extends BaseActivity {
                                 SharedPreferenceHelper spHelper = new SharedPreferenceHelper(MainActivity.this);
                                 spHelper.setAuthToken(dataObject.getString("authkey"));
                                 spHelper.setUUID(dataObject.getString("uuid"));
-                                spHelper.setFirstName(dataObject.getString("firstname"));
-                                spHelper.setLastName(dataObject.getString("lastname"));
+
+                                // getting first name and last name from graph object
+                                spHelper.setFirstName(graphObject.getString("first_name"));
+                                spHelper.setLastName(graphObject.getString("last_name"));
 
                                 // open the main screen
                                 Intent startIntent = new Intent(MainActivity.this, BottomNavigationActivity.class);
