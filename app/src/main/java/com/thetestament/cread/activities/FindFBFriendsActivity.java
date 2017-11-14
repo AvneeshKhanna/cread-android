@@ -305,7 +305,7 @@ public class FindFBFriendsActivity extends BaseActivity {
                 if (mRequestMoreData) {
                     new Handler().post(new Runnable() {
                                            @Override
-                                           public void run() {// TODO check logic
+                                           public void run() {
                                                mDataList.add(null);
                                                mAdapter.notifyItemInserted(mDataList.size() - 1);
                                            }
@@ -461,7 +461,6 @@ public class FindFBFriendsActivity extends BaseActivity {
                     @Override
                     public void onNext(JSONObject jsonObject) {
                         //Remove loading item
-                        // TODO check logic
                         mDataList.remove(mDataList.size() - 1);
                         mAdapter.notifyItemRemoved(mDataList.size());
                         try {
@@ -469,10 +468,7 @@ public class FindFBFriendsActivity extends BaseActivity {
                             if (jsonObject.getString("tokenstatus").equals("invalid")) {
                                 tokenError[0] = true;
                             }
-                            // TODO when fb access token has expired
-                            /*else if () {
 
-                            }*/
                             else {
                                 JSONObject mainData = jsonObject.getJSONObject("data");
                                 mRequestMoreData = mainData.getBoolean("requestmore");
@@ -504,7 +500,6 @@ public class FindFBFriendsActivity extends BaseActivity {
 
 
                         //Remove loading item
-                        // TODO check logic
                         mDataList.remove(mDataList.size() - 1);
                         mAdapter.notifyItemRemoved(mDataList.size());
                         FirebaseCrash.report(e);

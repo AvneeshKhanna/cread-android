@@ -1,5 +1,6 @@
 package com.thetestament.cread.fragments;
 
+import android.app.NotificationManager;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
@@ -26,6 +27,7 @@ import com.thetestament.cread.R;
 import com.thetestament.cread.activities.AboutUsActivity;
 import com.thetestament.cread.activities.FindFBFriendsActivity;
 import com.thetestament.cread.activities.MainActivity;
+import com.thetestament.cread.activities.WebViewActivity;
 import com.thetestament.cread.helpers.SharedPreferenceHelper;
 import com.thetestament.cread.helpers.ViewHelper;
 
@@ -39,6 +41,8 @@ import io.reactivex.disposables.Disposable;
 import io.reactivex.schedulers.Schedulers;
 
 import static com.thetestament.cread.utils.Constant.ACTION_LOG_OUT;
+import static com.thetestament.cread.utils.Constant.EXTRA_WEB_VIEW_TITLE;
+import static com.thetestament.cread.utils.Constant.EXTRA_WEB_VIEW_URL;
 import static com.thetestament.cread.utils.Constant.FIREBASE_EVENT_FIND_FRIENDS;
 import static com.thetestament.cread.utils.Constant.FIREBASE_EVENT_RATE_US_CLICKED;
 
@@ -91,6 +95,20 @@ public class SettingsFragment extends PreferenceFragmentCompat {
             }
         });
 
+        Preference tosItem = findPreference("settings_tos_key");
+        tosItem.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+            @Override
+            public boolean onPreferenceClick(Preference preference) {
+                Intent intent = new Intent(getActivity(), WebViewActivity.class);
+                intent.putExtra(EXTRA_WEB_VIEW_URL, "file:///android_asset/" + "cread_tos.html");
+                intent.putExtra(EXTRA_WEB_VIEW_TITLE, "Terms of Service");
+                startActivity(intent);
+                return false;
+            }
+        });
+
+
+
         Preference rateUsItem = findPreference("rate_us");
         rateUsItem.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
             @Override
@@ -108,7 +126,10 @@ public class SettingsFragment extends PreferenceFragmentCompat {
             @Override
             public boolean onPreferenceClick(Preference preference) {
                 //Start   FAQ Screen
-                //startActivity(new Intent(getActivity(), FaqActivity.class));
+                Intent intent = new Intent(getActivity(), WebViewActivity.class);
+                intent.putExtra(EXTRA_WEB_VIEW_URL, "http://cread.in/FAQ-users.php");
+                intent.putExtra(EXTRA_WEB_VIEW_TITLE, "FAQ");
+                startActivity(intent);
                 return false;
             }
         });
@@ -120,6 +141,12 @@ public class SettingsFragment extends PreferenceFragmentCompat {
     public void onStart() {
         super.onStart();
         getActivity().setTitle("Settings");
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        mCompositeDisposable.dispose();
     }
 
     /**
@@ -208,14 +235,19 @@ public class SettingsFragment extends PreferenceFragmentCompat {
                                 // clear facebook token
                                 AccessToken.setCurrentAccessToken(null);
 
+                                // to remove all notifications from drawer
+                                // so user can't open them after logging out
+                                NotificationManager notificationManager = (NotificationManager) getActivity().getApplicationContext().getSystemService(getActivity().NOTIFICATION_SERVICE);
+                                notificationManager.cancelAll();
 
                                 // broadcast the logout action
                                 // base activity receives the broadcast and destroys all activities
                                 // directs the user to Main Activity
-                                Intent broadcastIntent = new Intent();
+                                /*Intent broadcastIntent = new Intent();
                                 broadcastIntent.setAction(ACTION_LOG_OUT);
-                                getActivity().sendBroadcast(broadcastIntent);
-
+                                getActivity().sendBroadcast(broadcastIntent);*/
+                                // to close all all activities
+                                getActivity().finishAffinity();
                                 startActivity(new Intent(getActivity(), MainActivity.class));
                                 //To finish SettingsActivity
                                 getActivity().finish();

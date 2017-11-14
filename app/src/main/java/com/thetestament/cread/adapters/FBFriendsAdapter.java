@@ -123,7 +123,7 @@ public class FBFriendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
             headerViewHolder.friendCount.setText("You have " + mFriendCount + " friends on Cread");
         }
 */
-        // TODO check logic
+
         //If last item is visible to user and new set of data is to yet to be loaded
         if (position == mFriendsList.size() - 1 && !mIsLoading) {
             if (onFriendsLoadMoreListener != null) {

@@ -108,6 +108,8 @@ public class NotificationDataSaver {
                 db = notificationsDBHelper.getWritableDatabase();
                 // Insert the new row, returning the primary key value of the new row
                 db.insert(TABLE_NAME, null, contentValues);
+
+                db.close();
             }
             return null;
         }

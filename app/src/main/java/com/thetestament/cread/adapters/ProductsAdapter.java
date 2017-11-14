@@ -34,7 +34,7 @@ public class ProductsAdapter extends RecyclerView.Adapter<ProductsAdapter.ItemVi
 
     private List<ProductsModel> mProductsList;
     private FragmentActivity mContext;
-    private String mUUID;
+    private String mUUID, mEntityURL;
     private OnBuyButtonClickedListener buttonClickedListener;
 
 
@@ -45,10 +45,11 @@ public class ProductsAdapter extends RecyclerView.Adapter<ProductsAdapter.ItemVi
      * @param mProductsList Data list.
      * @param mUUID         User uuid
      */
-    public ProductsAdapter(FragmentActivity mContext, List<ProductsModel> mProductsList, String mUUID) {
+    public ProductsAdapter(FragmentActivity mContext, List<ProductsModel> mProductsList, String mUUID, String mEntityURL) {
         this.mContext = mContext;
         this.mProductsList = mProductsList;
         this.mUUID = mUUID;
+        this.mEntityURL = mEntityURL;
     }
 
     /**
@@ -70,7 +71,7 @@ public class ProductsAdapter extends RecyclerView.Adapter<ProductsAdapter.ItemVi
         final ProductsModel data = mProductsList.get(position);
 
         loadProductPicture(data.getProductUrl(), holder.productImage);
-        loadEntityPicture(data.getEntityUrl(), processEntityImage(data.getType(), holder.artImg));
+        loadEntityPicture(mEntityURL, processEntityImage(data.getType(), holder.artImg));
 
         // initializing price to a default value and it is changed according to the price
         holder.price = data.getPrice().get(0);
@@ -165,8 +166,7 @@ public class ProductsAdapter extends RecyclerView.Adapter<ProductsAdapter.ItemVi
     private void loadEntityPicture(String picUrl, ImageView imageView) {
         Picasso.with(mContext)
                 .load(picUrl)
-                // TODO change error image
-                .error(R.drawable.ic_account_circle_48)
+                .error(R.drawable.image_placeholder)
                 .into(imageView);
     }
 
@@ -179,8 +179,7 @@ public class ProductsAdapter extends RecyclerView.Adapter<ProductsAdapter.ItemVi
     private void loadProductPicture(String picUrl, ImageView imageView) {
         Picasso.with(mContext)
                 .load(picUrl)
-                // TODO change error image
-                .error(R.drawable.ic_account_circle_48)
+                .error(R.drawable.image_placeholder)
                 .into(imageView);
     }
 

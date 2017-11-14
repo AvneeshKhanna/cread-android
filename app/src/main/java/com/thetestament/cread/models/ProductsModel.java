@@ -5,7 +5,7 @@ import java.util.List;
 
 public class ProductsModel {
 
-    private String type, productID, entityUrl, productUrl,deliveryCharge;
+    private String type, productID, productUrl,deliveryCharge;
     private List<String> colors  = new ArrayList<>();
     private List<String> sizes = new ArrayList<>();
     private List<String> quanity = new ArrayList<>();
@@ -23,14 +23,6 @@ public class ProductsModel {
     }
 
 
-
-    public String getEntityUrl() {
-        return entityUrl;
-    }
-
-    public void setEntityUrl(String entityUrl) {
-        this.entityUrl = entityUrl;
-    }
 
     public String getProductUrl() {
         return productUrl;

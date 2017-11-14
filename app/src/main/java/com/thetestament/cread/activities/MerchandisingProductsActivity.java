@@ -48,6 +48,7 @@ import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.observers.DisposableObserver;
 import io.reactivex.schedulers.Schedulers;
 
+import static com.thetestament.cread.utils.Constant.EXTRA_CAPTURE_URL;
 import static com.thetestament.cread.utils.Constant.EXTRA_ENTITY_ID;
 import static com.thetestament.cread.utils.Constant.EXTRA_PRODUCT_COLOR;
 import static com.thetestament.cread.utils.Constant.EXTRA_PRODUCT_DELIVERY_CHARGE;
@@ -90,7 +91,7 @@ public class MerchandisingProductsActivity extends BaseActivity {
     SharedPreferenceHelper mHelper;
 
     @State
-    String mEntityID, deliveryTime, billingContact;
+    String mEntityID, mEntityURL, deliveryTime, billingContact;
 
 
     @Override
@@ -154,6 +155,12 @@ public class MerchandisingProductsActivity extends BaseActivity {
 
     }
 
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        mCompositeDisposable.dispose();
+    }
+
     /**
      * Method to initialize views.
      */
@@ -161,11 +168,12 @@ public class MerchandisingProductsActivity extends BaseActivity {
 
         //Retrieve data from intent
         mEntityID = getIntent().getStringExtra(EXTRA_ENTITY_ID);
+        mEntityURL = getIntent().getStringExtra(EXTRA_CAPTURE_URL);
 
         //Set layout manger for recyclerView
         recyclerView.setLayoutManager(new LinearLayoutManager(MerchandisingProductsActivity.this));
         //Set adapter
-        mAdapter = new ProductsAdapter(MerchandisingProductsActivity.this, mDataList, mHelper.getUUID());
+        mAdapter = new ProductsAdapter(MerchandisingProductsActivity.this, mDataList, mHelper.getUUID(), mEntityURL);
         recyclerView.setAdapter(mAdapter);
         //initialize  recyclerView
         initScreen();
@@ -241,13 +249,13 @@ public class MerchandisingProductsActivity extends BaseActivity {
                                         ProductsModel productsData = new ProductsModel();
                                         productsData.setType(dataObj.getString("type"));
                                         productsData.setProductUrl(dataObj.getString("productimgurl"));
-                                        productsData.setEntityUrl(dataObj.getString("entityimgurl"));
                                         productsData.setProductID(dataObj.getString("productid"));
                                         productsData.setDeliveryCharge(dataObj.getString("deliverycharge"));
                                         productsData.setPrice(getArrayListFromJSON(dataObj.getJSONArray("price")));
                                         productsData.setColors(getArrayListFromJSON(dataObj.getJSONArray("colors")));
                                         productsData.setSizes(getArrayListFromJSON(dataObj.getJSONArray("sizes")));
                                         productsData.setQuanity(getArrayListFromJSON(dataObj.getJSONArray("quantity")));
+
 
 
                                         mDataList.add(productsData);

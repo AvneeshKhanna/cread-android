@@ -33,7 +33,7 @@ public class BaseActivity extends AppCompatActivity {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        IntentFilter intentFilter = new IntentFilter();
+        /*IntentFilter intentFilter = new IntentFilter();
         intentFilter.addAction(ACTION_LOG_OUT);
         receiver = new BroadcastReceiver() {
             @Override
@@ -43,7 +43,7 @@ public class BaseActivity extends AppCompatActivity {
             }
         };
 
-        registerReceiver(receiver, intentFilter);
+        registerReceiver(receiver, intentFilter);*/
 
     }
 
@@ -51,10 +51,10 @@ public class BaseActivity extends AppCompatActivity {
     protected void onDestroy() {
         super.onDestroy();
 
-        if(receiver != null)
+        /*if(receiver != null)
         {
             unregisterReceiver(receiver);
-        }
+        }*/
     }
 
     @Override

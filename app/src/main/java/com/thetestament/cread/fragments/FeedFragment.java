@@ -254,7 +254,8 @@ public class FeedFragment extends Fragment {
                                     feedData.setCreatorImage(dataObj.getString("profilepicurl"));
                                     feedData.setCreatorName(dataObj.getString("creatorname"));
                                     feedData.setHatsOffStatus(dataObj.getBoolean("hatsoffstatus"));
-                                    feedData.setMerchantable(dataObj.getBoolean("merchantable"));
+                                    // TODO make dynamic
+                                    feedData.setMerchantable(/*dataObj.getBoolean("merchantable")*/true);
                                     feedData.setHatsOffCount(dataObj.getLong("hatsoffcount"));
                                     feedData.setCommentCount(dataObj.getLong("commentcount"));
                                     feedData.setContentImage(dataObj.getString("entityurl"));
@@ -290,7 +291,7 @@ public class FeedFragment extends Fragment {
                             ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_internal));
 
                         } else if (mFeedDataList.size() == 0) {
-                            // TODO: Find friends functionality coming soon for more information call 9711137697
+
                             viewNoPosts.setVisibility(View.VISIBLE);
 
 
@@ -347,7 +348,8 @@ public class FeedFragment extends Fragment {
                                     feedData.setCreatorImage(dataObj.getString("profilepicurl"));
                                     feedData.setCreatorName(dataObj.getString("creatorname"));
                                     feedData.setHatsOffStatus(dataObj.getBoolean("hatsoffstatus"));
-                                    feedData.setMerchantable(dataObj.getBoolean("merchantable"));
+                                    // TODO make dynamic
+                                    feedData.setMerchantable(/*dataObj.getBoolean("merchantable")*/true);
                                     feedData.setHatsOffCount(dataObj.getLong("hatsoffcount"));
                                     feedData.setCommentCount(dataObj.getLong("commentcount"));
                                     feedData.setContentImage(dataObj.getString("entityurl"));

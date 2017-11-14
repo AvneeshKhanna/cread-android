@@ -116,13 +116,17 @@ public class MainActivity extends BaseActivity {
             @Override
             public void onSuccess(LoginResult loginResult) {
 
-                AccessToken accessToken = loginResult.getAccessToken();
-                Log.d(TAG, "onSuccess: token" + accessToken.getToken());
+                if(loginResult.getRecentlyDeniedPermissions().contains("user_friends"))
+                {
+                    ViewHelper.getSnackBar(parentLayout, "You need to grant friends permission to continue");
+                    AccessToken.setCurrentAccessToken(null);
+                }
 
-                Log.d(TAG, "onSuccess: user token id" + accessToken.getUserId());
-
-                //phoneLogin();
-                checkUserStatus(accessToken.getUserId());
+                else
+                {
+                    AccessToken accessToken = loginResult.getAccessToken();
+                    checkUserStatus(accessToken.getUserId());
+                }
             }
 
             @Override
@@ -166,10 +170,10 @@ public class MainActivity extends BaseActivity {
      */
     @OnClick(R.id.textTOS)
     public void showTos() {
-        //Todo change parameter
+
         Intent intent = new Intent(MainActivity.this, WebViewActivity.class);
-        intent.putExtra(EXTRA_WEB_VIEW_URL, "");
-        intent.putExtra(EXTRA_WEB_VIEW_TITLE, "");
+        intent.putExtra(EXTRA_WEB_VIEW_URL, "file:///android_asset/" + "cread_tos.html");
+        intent.putExtra(EXTRA_WEB_VIEW_TITLE, "Terms of Service");
         startActivity(intent);
     }
 

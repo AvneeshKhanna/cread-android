@@ -126,6 +126,7 @@ public class UpdatesFragment extends Fragment {
     public void onDestroyView() {
         super.onDestroyView();
         unbinder.unbind();
+        mCompositeDisposable.dispose();
     }
 
 
@@ -194,10 +195,12 @@ public class UpdatesFragment extends Fragment {
                 updatesData.setActorImage(cursor.getString(cursor.getColumnIndex(COLUMN_NAME_USER_IMAGE)));
                 updatesDataList.add(updatesData);
                 cursor.moveToNext();
+
             }
             //Close to release resources
             cursor.close();
 
+            sqLiteDatabase.close();
             return null;
         }
 

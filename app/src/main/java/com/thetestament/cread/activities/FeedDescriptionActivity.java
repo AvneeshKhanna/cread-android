@@ -52,6 +52,7 @@ import io.reactivex.schedulers.Schedulers;
 
 import static com.thetestament.cread.helpers.ImageHelper.getLocalBitmapUri;
 import static com.thetestament.cread.helpers.NetworkHelper.getCommentObservableFromServer;
+import static com.thetestament.cread.utils.Constant.EXTRA_CAPTURE_URL;
 import static com.thetestament.cread.utils.Constant.EXTRA_ENTITY_ID;
 import static com.thetestament.cread.utils.Constant.EXTRA_FEED_DESCRIPTION_DATA;
 import static com.thetestament.cread.utils.Constant.EXTRA_PROFILE_UUID;
@@ -183,6 +184,7 @@ public class FeedDescriptionActivity extends BaseActivity {
         if (mFeedData.isMerchantable()) {
             Intent intent = new Intent(this, MerchandisingProductsActivity.class);
             intent.putExtra(EXTRA_ENTITY_ID, mFeedData.getEntityID());
+            intent.putExtra(EXTRA_CAPTURE_URL, mFeedData.getContentImage());
             startActivity(intent);
         } else {
             ViewHelper.getSnackBar(rootView, "This item is not available");

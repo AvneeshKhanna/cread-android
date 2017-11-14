@@ -223,6 +223,13 @@ public class AddressActivity extends BaseActivity implements PaymentResultListen
         }
     }
 
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        mCompositeDisposable.dispose();
+
+    }
+
     /**
      * calculates the total amount based on the price and quantity of the product including the delivery charges
      *
