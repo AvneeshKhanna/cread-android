@@ -14,7 +14,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_below="@+id/containerCreator"
-            android:background="@color/grey_light">
+            android:background="@color/yellow_light">
 
             <ImageView
                 android:id="@+id/imageShort"
@@ -30,6 +30,7 @@
                 android:background="@null"
                 android:gravity="center"
                 android:hint="Type your short"
+                android:inputType="textCapSentences"
                 android:longClickable="true"
                 android:textCursorDrawable="@drawable/cursor_edit_text"
                 android:textIsSelectable="false"
@@ -58,6 +59,8 @@
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:layout_alignParentBottom="true"
+                    android:paddingLeft="3dp"
+                    android:paddingRight="3dp"
                     android:textColor="@color/white"
                     android:textSize="12sp"
                     tools:text="~The testament" />

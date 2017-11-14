@@ -116,14 +116,10 @@ public class MainActivity extends BaseActivity {
             @Override
             public void onSuccess(LoginResult loginResult) {
 
-                if(loginResult.getRecentlyDeniedPermissions().contains("user_friends"))
-                {
+                if (loginResult.getRecentlyDeniedPermissions().contains("user_friends")) {
                     ViewHelper.getSnackBar(parentLayout, "You need to grant friends permission to continue");
                     AccessToken.setCurrentAccessToken(null);
-                }
-
-                else
-                {
+                } else {
                     AccessToken accessToken = loginResult.getAccessToken();
                     checkUserStatus(accessToken.getUserId());
                 }
@@ -468,9 +464,11 @@ public class MainActivity extends BaseActivity {
 
 
                         } catch (JSONException e) {
+                            //Invalidate token
+                            AccessToken.setCurrentAccessToken(null);
                             e.printStackTrace();
                             FirebaseCrash.report(e);
-
+                            ViewHelper.getSnackBar(parentLayout, getString(R.string.error_msg_internal));
                         }
                     }
 

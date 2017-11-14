@@ -138,6 +138,7 @@
         <!-- ProfileActivity -->
         <activity
             android:name=".activities.ProfileActivity"
+            android:label="Profile"
             android:screenOrientation="portrait">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
