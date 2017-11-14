@@ -183,7 +183,7 @@
                 android:value=".activities.BottomNavigationActivity" />
         </activity>
 
-        <!-- For contentImage cropping library -->
+        <!-- For Image cropping library -->
         <activity
             android:name="com.yalantis.ucrop.UCropActivity"
             android:screenOrientation="portrait"
@@ -227,7 +227,6 @@
         <!--WebViewActivity-->
         <activity
             android:name=".activities.WebViewActivity"
-            android:label="Details"
             android:screenOrientation="portrait">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"

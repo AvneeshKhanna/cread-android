@@ -64,6 +64,15 @@ public class SharedPreferenceHelper {
     }
 
     /**
+     * Method to update auth token in shared preferences
+     *
+     * @param token auth token to store
+     */
+    public void setAuthToken(String token) {
+        addPreferences(mContext.getString(R.string.auth_token), token);
+    }
+
+    /**
      * Method to update user first name in shared preferences.
      *
      * @param firstName User first name.
@@ -99,14 +108,6 @@ public class SharedPreferenceHelper {
         return mSharedPreferences.getString(mContext.getString(R.string.key_last_name), null);
     }
 
-    /**
-     * Method to update auth token in shared preferences
-     *
-     * @param token auth token to store
-     */
-    public void setAuthToken(String token) {
-        addPreferences(mContext.getString(R.string.auth_token), token);
-    }
 
     /**
      * Method to return watermark status i.e true for checked false otherwise.
@@ -189,7 +190,7 @@ public class SharedPreferenceHelper {
      */
     public boolean isCaptureFirstTime() {
         return mSharedPreferences
-                .getBoolean(mContext.getString(R.string.key_explore_intro), true);
+                .getBoolean(mContext.getString(R.string.key_capture_intro), true);
     }
 
     /**

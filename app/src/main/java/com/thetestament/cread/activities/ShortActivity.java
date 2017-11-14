@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
+import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Environment;
@@ -17,12 +18,14 @@ import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.afollestad.materialdialogs.DialogAction;
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.afollestad.materialdialogs.color.ColorChooserDialog;
 import com.google.firebase.analytics.FirebaseAnalytics;
@@ -113,6 +116,8 @@ public class ShortActivity extends BaseActivity implements ColorChooserDialog.Co
     CompositeDisposable mCompositeDisposable = new CompositeDisposable();
     SharedPreferenceHelper mHelper;
 
+    int[] location = new int[2];
+
     @Override
 
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -123,6 +128,18 @@ public class ShortActivity extends BaseActivity implements ColorChooserDialog.Co
         mHelper = new SharedPreferenceHelper(this);
         //initialize screen
         initScreen();
+
+        textShort.addOnLayoutChangeListener(new View.OnLayoutChangeListener() {
+            @Override
+            public void onLayoutChange(View view, int i, int i1, int i2, int i3, int i4, int i5, int i6, int i7) {
+                int[] newLocation = new int[2];
+                view.getLocationOnScreen(newLocation);
+
+                /** Do whatever is needed with old and new locations **/
+                location = newLocation;
+
+            }
+        });
     }
 
     @Override
@@ -177,12 +194,44 @@ public class ShortActivity extends BaseActivity implements ColorChooserDialog.Co
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu_short, menu);
 
-        ImageView imageView = (ImageView) menu.findItem(R.id.action_toggle).getActionView();
+        final ImageView imageView = (ImageView) menu.findItem(R.id.action_toggle).getActionView();
         imageView.setImageDrawable(ContextCompat.getDrawable(this, R.drawable.ic_edit_24));
         //Screen opened for first time
         if (mHelper.isToggleButtonTooltipFirstTime()) {
             ViewHelper.getToolTip(imageView, "Here goes .....", this);
         }
+        imageView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                //Toggle mode i.e edit to drag and vice versa
+                if (mToggleMovement == 0) {
+                    //Set drag listener
+                    textShort.setOnTouchListener(new OnDragTouchListener(textShort));
+                    //Hide edit text cursor
+                    textShort.setCursorVisible(false);
+                    //Hide keyboard
+                    InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                    imm.hideSoftInputFromWindow(textShort.getWindowToken(), 0);
+                    //Change icon
+                    imageView.setImageDrawable(ContextCompat.getDrawable(ShortActivity.this, R.drawable.ic_drag_24));
+                    //Change flag
+                    mToggleMovement = 1;
+                } else {
+                    //Remove drag listener
+                    textShort.setOnTouchListener(null);
+                    //Shoe edit text cursor
+                    textShort.setCursorVisible(true);
+                    //Show keyboard
+                    InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                    imm.showSoftInput(textShort, 0);
+                    //Change icon
+                    imageView.setImageDrawable(ContextCompat.getDrawable(ShortActivity.this, R.drawable.ic_edit_24));
+                    // item.setIcon(R.drawable.ic_edit_24);
+                    //Change flag
+                    mToggleMovement = 0;
+                }
+            }
+        });
         return true;
     }
 
@@ -414,6 +463,7 @@ public class ShortActivity extends BaseActivity implements ColorChooserDialog.Co
         //Hide edit text cursor
         textShort.setCursorVisible(false);
 
+
         //Enable drawing cache
         squareView.setDrawingCacheEnabled(true);
         squareView.buildDrawingCache();
@@ -421,7 +471,6 @@ public class ShortActivity extends BaseActivity implements ColorChooserDialog.Co
 
         //Scaled bitmap
         Bitmap bitmap = Bitmap.createScaledBitmap(bm, mImageWidth, mImageWidth, true);
-
         try {
             File file = new File(Environment.getExternalStorageDirectory().getPath() + "/Cread/Short/short_pic.jpg");
             file.getParentFile().mkdirs();
@@ -455,33 +504,49 @@ public class ShortActivity extends BaseActivity implements ColorChooserDialog.Co
      */
     private void showShortPreview() {
 
+
         final MaterialDialog dialog = new MaterialDialog.Builder(this)
                 .customView(R.layout.dialog_short_preview, false)
+                .title("Preview")
+                .positiveText("Upload")
+                .onPositive(new MaterialDialog.SingleButtonCallback() {
+                    @Override
+                    public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
+
+                        dialog.dismiss();
+                        Rect myViewRect = new Rect();
+                        textShort.getGlobalVisibleRect(myViewRect);
+                        float x = myViewRect.left;
+                        float y = myViewRect.top;
+                        //Update details on server
+                        updateShort(new File(getImageUri(IMAGE_TYPE_USER_SHORT_PIC).getPath())
+                                , mCaptureID
+                                // , String.valueOf(scaledPixelsToPx(ShortActivity.this, textShort.getLeft()))
+                                , String.valueOf(scaledPixelsToPx(ShortActivity.this, location[0]))
+                                //, String.valueOf(scaledPixelsToPx(ShortActivity.this, textShort.getTop()))
+                                , String.valueOf(scaledPixelsToPx(ShortActivity.this, location[1]))
+                                , String.valueOf(scaledPixelsToPx(ShortActivity.this, textShort.getWidth()))
+                                , String.valueOf(scaledPixelsToPx(ShortActivity.this, textShort.getHeight()))
+                                , textShort.getText().toString()
+                                , String.valueOf(scaledPixelsToPx(ShortActivity.this, textShort.getTextSize()))
+                                , Integer.toHexString(textShort.getCurrentTextColor())
+                                , textGravity.toString()
+                                , String.valueOf(mImageWidth)
+                        );
+                    }
+                })
                 .show();
 
 
         ImageView imagePreview = dialog.getCustomView().findViewById(R.id.imageShortPreview);
-        TextView buttonUpload = dialog.getCustomView().findViewById(R.id.buttonUpload);
+        // TextView buttonUpload = dialog.getCustomView().findViewById(R.id.buttonUpload);
         //Click listener
-        buttonUpload.setOnClickListener(new View.OnClickListener() {
+        /*buttonUpload.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                dialog.dismiss();
-                //Update details on server
-                updateShort(new File(getImageUri(IMAGE_TYPE_USER_SHORT_PIC).getPath())
-                        , mCaptureID
-                        , String.valueOf(textShort.getX())
-                        , String.valueOf(textShort.getY())
-                        , String.valueOf(textShort.getWidth())
-                        , String.valueOf(textShort.getHeight())
-                        , String.valueOf(mImageWidth)
-                        , textShort.getText().toString()
-                        , String.valueOf(scaledPixelsToPx(ShortActivity.this, textShort.getTextSize(), rootView))
-                        , Integer.toHexString(textShort.getCurrentTextColor())
-                        , textGravity.toString()
-                );
+
             }
-        });
+        });*/
         //Load preview image
         Picasso.with(this)
                 .load(getImageUri(IMAGE_TYPE_USER_SHORT_PIC))
@@ -529,6 +594,10 @@ public class ShortActivity extends BaseActivity implements ColorChooserDialog.Co
                 .addMultipartParameter("textsize", textSize)
                 .addMultipartParameter("textcolor", textColor)
                 .addMultipartParameter("textgravity", textGravity)
+                .addMultipartParameter("top", String.valueOf(scaledPixelsToPx(ShortActivity.this, textShort.getTop())))
+                .addMultipartParameter("bottom", String.valueOf(scaledPixelsToPx(ShortActivity.this, textShort.getBottom())))
+                .addMultipartParameter("left", String.valueOf(scaledPixelsToPx(ShortActivity.this, textShort.getLeft())))
+                .addMultipartParameter("right", String.valueOf(scaledPixelsToPx(ShortActivity.this, textShort.getRight())))
                 .build()
                 .getJSONObjectObservable()
                 .subscribeOn(Schedulers.io())
@@ -550,9 +619,9 @@ public class ShortActivity extends BaseActivity implements ColorChooserDialog.Co
                             } else {
                                 JSONObject dataObject = jsonObject.getJSONObject("data");
                                 if (dataObject.getString("status").equals("done")) {
-                                    ViewHelper.getSnackBar(rootView, "Short uploaded successfully.");
+                                    ViewHelper.getToast(ShortActivity.this, "Short uploaded successfully.");
                                     //Navigate back to previous market
-                                    finish();
+                                    //finish();
                                 }
                             }
                         } catch (JSONException e) {
@@ -577,10 +646,13 @@ public class ShortActivity extends BaseActivity implements ColorChooserDialog.Co
                 });
     }
 
-    public static float scaledPixelsToPx(Context context, float px, View v) {
+    public static float scaledPixelsToPx(Context context, float px) {
         float scaledDensity = context.getResources().getDisplayMetrics().scaledDensity;
         return px / scaledDensity;
     }
 
-
+    @Override
+    public boolean onTouchEvent(MotionEvent event) {
+        return super.onTouchEvent(event);
+    }
 }

@@ -28,8 +28,6 @@ import com.afollestad.materialdialogs.DialogAction;
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.google.firebase.analytics.FirebaseAnalytics;
 import com.mikepenz.actionitembadge.library.ActionItemBadge;
-import com.theartofdev.edmodo.cropper.CropImage;
-import com.theartofdev.edmodo.cropper.CropImageView;
 import com.thetestament.cread.Manifest;
 import com.thetestament.cread.R;
 import com.thetestament.cread.database.NotificationsDBFunctions;
@@ -39,6 +37,7 @@ import com.thetestament.cread.fragments.MeFragment;
 import com.thetestament.cread.helpers.BottomNavigationViewHelper;
 import com.thetestament.cread.helpers.SharedPreferenceHelper;
 import com.thetestament.cread.helpers.ViewHelper;
+import com.yalantis.ucrop.UCrop;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -46,6 +45,8 @@ import icepick.Icepick;
 import icepick.State;
 
 import static com.thetestament.cread.helpers.ImageHelper.compressSpecific;
+import static com.thetestament.cread.helpers.ImageHelper.getImageUri;
+import static com.thetestament.cread.helpers.ImageHelper.startImageCropping;
 import static com.thetestament.cread.utils.Constant.EXTRA_WEB_VIEW_TITLE;
 import static com.thetestament.cread.utils.Constant.EXTRA_WEB_VIEW_URL;
 import static com.thetestament.cread.utils.Constant.FIREBASE_EVENT_EXPLORE_CLICKED;
@@ -86,7 +87,6 @@ public class BottomNavigationActivity extends BaseActivity {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_bottom_navigation);
-
         // Obtain the FirebaseAnalytics instance.
         mFirebaseAnalytics = FirebaseAnalytics.getInstance(this);
         //Obtain sharedPreference reference
@@ -112,13 +112,15 @@ public class BottomNavigationActivity extends BaseActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        switch (requestCode) {
-            case REQUEST_CODE_OPEN_GALLERY:
+        //switch (requestCode) {
+         /*   case REQUEST_CODE_OPEN_GALLERY:
                 if (resultCode == RESULT_OK) {
                     // To crop the selected image
                     CropImage.activity(data.getData())
                             .setAllowRotation(true)
                             .setGuidelines(CropImageView.Guidelines.ON_TOUCH)
+                            .setAspectRatio(1, 1)
+                            .setActivityTitle("Edit")
                             .start(BottomNavigationActivity.this);
                 } else {
                     ViewHelper.getSnackBar(rootView, "Image from gallery was not attached");
@@ -132,6 +134,27 @@ public class BottomNavigationActivity extends BaseActivity {
                     Uri resultUri = result.getUri();
                     processCroppedImage(resultUri);
                 } else if (resultCode == CropImage.CROP_IMAGE_ACTIVITY_RESULT_ERROR_CODE) {
+                    ViewHelper.getSnackBar(rootView, "Image could not be cropped due to some error");
+                }
+                break;
+        }*/
+        switch (requestCode) {
+            case REQUEST_CODE_OPEN_GALLERY:
+                if (resultCode == RESULT_OK) {
+                    // To crop the selected image
+                    startImageCropping(this, data.getData(), getImageUri(IMAGE_TYPE_USER_CAPTURE_PIC));
+                } else {
+                    ViewHelper.getSnackBar(rootView, "Image from gallery was not attached");
+                }
+                break;
+            //For more information please visit "https://github.com/Yalantis/uCrop"
+            case UCrop.REQUEST_CROP:
+                if (resultCode == RESULT_OK) {
+                    //Get cropped image Uri
+                    Uri mCroppedImgUri = UCrop.getOutput(data);
+                    processCroppedImage(mCroppedImgUri);
+
+                } else if (resultCode == UCrop.RESULT_ERROR) {
                     ViewHelper.getSnackBar(rootView, "Image could not be cropped due to some error");
                 }
                 break;
@@ -168,7 +191,6 @@ public class BottomNavigationActivity extends BaseActivity {
 
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
-
         UpdateNotificationBadge updateNotificationBadge = new UpdateNotificationBadge();
         updateNotificationBadge.execute(menu);
 
@@ -179,8 +201,6 @@ public class BottomNavigationActivity extends BaseActivity {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu_cread, menu);
-
-
         super.onCreateOptionsMenu(menu);
         return true;
     }
@@ -189,14 +209,14 @@ public class BottomNavigationActivity extends BaseActivity {
     public boolean onOptionsItemSelected(final MenuItem item) {
         switch (item.getItemId()) {
             case R.id.action_updates:
-                //Open updates screen
-
-                // to hide the badge
+                // To hide the badge
                 mUnreadCount = 0;
-                ActionItemBadge.update(BottomNavigationActivity.this, item, ContextCompat.getDrawable(BottomNavigationActivity.this, R.drawable.ic_notifications_24), ActionItemBadge.BadgeStyles.DARK_GREY, null);
+                ActionItemBadge.update(BottomNavigationActivity.this
+                        , item
+                        , ContextCompat.getDrawable(BottomNavigationActivity.this, R.drawable.ic_notifications_24)
+                        , ActionItemBadge.BadgeStyles.DARK_GREY, null);
 
                 Thread thread = new Thread(
-
                         new Runnable() {
                             @Override
                             public void run() {
@@ -204,15 +224,14 @@ public class BottomNavigationActivity extends BaseActivity {
                                 NotificationsDBFunctions dbFunctions = new NotificationsDBFunctions(BottomNavigationActivity.this);
                                 dbFunctions.accessNotificationsDatabase();
                                 dbFunctions.setRead();
+                                //Open updates screen
                                 startActivity(new Intent(BottomNavigationActivity.this, UpdatesActivity.class));
-
-
                             }
                         }
                 );
-
                 thread.start();
 
+                //Log firebase analytics
                 setAnalytics(FIREBASE_EVENT_NOTIFICATION_CLICKED);
 
                 return true;
@@ -352,7 +371,6 @@ public class BottomNavigationActivity extends BaseActivity {
                     //Open ShortActivity
                     startActivity(new Intent(BottomNavigationActivity.this, ShortActivity.class));
                 }
-
                 //Dismiss bottom sheet
                 bottomSheetDialog.dismiss();
 
@@ -522,7 +540,7 @@ public class BottomNavigationActivity extends BaseActivity {
                         //Todo change parameter
                         Intent intent = new Intent(BottomNavigationActivity.this, WebViewActivity.class);
                         intent.putExtra(EXTRA_WEB_VIEW_URL, "");
-                        intent.putExtra(EXTRA_WEB_VIEW_TITLE, "");
+                        intent.putExtra(EXTRA_WEB_VIEW_TITLE, "Details");
                         startActivity(intent);
                     }
                 })
@@ -556,7 +574,7 @@ public class BottomNavigationActivity extends BaseActivity {
                         //Todo change parameter
                         Intent intent = new Intent(BottomNavigationActivity.this, WebViewActivity.class);
                         intent.putExtra(EXTRA_WEB_VIEW_URL, "");
-                        intent.putExtra(EXTRA_WEB_VIEW_TITLE, "");
+                        intent.putExtra(EXTRA_WEB_VIEW_TITLE, "Details");
                         startActivity(intent);
                     }
                 })
