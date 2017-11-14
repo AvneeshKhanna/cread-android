@@ -95,7 +95,8 @@ dependencies {
     compile 'com.afollestad.material-dialogs:commons:0.9.3.0'
 
     /*Image cropping*/
-    compile 'com.github.yalantis:ucrop:2.2.1'
+    //compile 'com.github.yalantis:ucrop:2.2.1'
+    compile 'com.github.yalantis:ucrop:2.2.1-native'
     compile 'com.theartofdev.edmodo:android-image-cropper:2.5.1'
 
     /*Image compression library*/

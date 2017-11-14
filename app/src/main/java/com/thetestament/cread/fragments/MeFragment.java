@@ -715,7 +715,17 @@ public class MeFragment extends Fragment {
                             else {
                                 JSONObject mainData = jsonObject.getJSONObject("data");
                                 if (mainData.getString("status").equals("done")) {
-                                    //Do nothing
+                                    if (mFollowStatus) {
+                                        //Increase count by one
+                                        mFollowerCount += 1;
+                                        //Set count
+                                        textFollowersCount.setText(String.valueOf(mFollowerCount += 1));
+                                    } else {
+                                        //Decrease count by one
+                                        mFollowerCount -= 1;
+                                        //Set count
+                                        textFollowersCount.setText(String.valueOf(mFollowerCount -= 1));
+                                    }
                                 }
                             }
                         } catch (JSONException e) {
@@ -1095,7 +1105,7 @@ public class MeFragment extends Fragment {
 
         //To show the progress dialog
         MaterialDialog.Builder builder = new MaterialDialog.Builder(getActivity())
-                .title("Deleting your comment")
+                .title("Deleting")
                 .content("Please wait...")
                 .autoDismiss(false)
                 .cancelable(false)

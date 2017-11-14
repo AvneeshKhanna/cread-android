@@ -20,7 +20,7 @@
 
     </com.thetestament.cread.utils.SquareView>
 
-
+<!--
     <TextView
         android:id="@+id/buttonUpload"
         android:layout_width="wrap_content"
@@ -37,5 +37,5 @@
         android:paddingTop="10dp"
         android:text="Upload"
         android:textColor="@color/white"
-        android:textSize="16dp" />
+        android:textSize="16dp" />-->
 </LinearLayout>

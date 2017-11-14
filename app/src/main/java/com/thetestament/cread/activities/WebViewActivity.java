@@ -68,7 +68,7 @@ public class WebViewActivity extends BaseActivity {
         mWebPageUrl = getIntent().getStringExtra(EXTRA_WEB_VIEW_URL);
         mTitle = getIntent().getStringExtra(EXTRA_WEB_VIEW_TITLE);
         //Set toolbar title
-        getSupportActionBar().setTitle(mTitle);
+        setTitle(mTitle);
         //initialize webView
         initWebView();
     }
