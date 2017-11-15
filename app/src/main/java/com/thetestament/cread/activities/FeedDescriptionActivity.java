@@ -521,7 +521,7 @@ public class FeedDescriptionActivity extends BaseActivity {
     private void showTooltip() {
         if (mHelper.isHaveButtonTooltipFirstTime()) {
             //Show tooltip on have button
-            ViewHelper.getToolTip(buttonHave, "Tooltip goes here", FeedDescriptionActivity.this);
+            ViewHelper.getToolTip(buttonHave, "Like the photo? Print and order it!", FeedDescriptionActivity.this);
         }
         //Update status
         mHelper.updateHaveButtonToolTipStatus(false);
