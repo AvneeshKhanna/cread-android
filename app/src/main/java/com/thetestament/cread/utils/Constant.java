@@ -28,10 +28,11 @@ public class Constant {
     public static final String IMAGE_TYPE_USER_PROFILE_PIC = "userProfilePic";
     public static final String IMAGE_TYPE_USER_CAPTURE_PIC = "UserCapturePic";
     public static final String IMAGE_TYPE_USER_SHORT_PIC = "UserShortPic";
-    //User Activity type
-    public static final String USER_ACTIVITY_TYPE_ALL = "typeAll";
-    public static final String USER_ACTIVITY_TYPE_SHORT = "typeShort";
-    public static final String USER_ACTIVITY_TYPE_CAPTURE = "typeCapture";
+
+    //Photo watermark status
+    public static final String WATERMARK_STATUS_YES = "statusYes";
+    public static final String WATERMARK_STATUS_NO = "statusNo";
+    public static final String WATERMARK_STATUS_ASK_ALWAYS = "StatusAskAlways";
 
     //Extra data
     public static final String EXTRA_ENTITY_ID = "entityID";

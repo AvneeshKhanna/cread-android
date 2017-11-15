@@ -497,11 +497,11 @@ public class ExploreFragment extends Fragment {
         TextView textDesc = dialog.getCustomView().findViewById(R.id.textDesc);
 
         //Set filler image
-        fillerImage.setImageDrawable(ContextCompat.getDrawable(getActivity(), R.drawable.image_placeholder));
+        fillerImage.setImageDrawable(ContextCompat.getDrawable(getActivity(), R.drawable.img_explore_intro));
         //Set title text
-        textTitle.setText("Set title");
+        textTitle.setText("You complete art.");
         //Set description text
-        textDesc.setText("Set description text");
+        textDesc.setText("And the reverse is true as well. Appreciating art is perhaps the greatest of all arts; we hope you find yourself mastering it here. ");
     }
 
 }

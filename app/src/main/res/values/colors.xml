@@ -20,6 +20,8 @@
     <color name="black_overlay">#66000000</color>
     <color name="black_defined">#FF282828</color>
 
+    //Red variant
+    <color name="red">#fdb70202</color>
     //Yellow variant
     <color name="yellow_light">#FFFDE7</color>
 

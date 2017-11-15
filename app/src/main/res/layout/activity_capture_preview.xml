@@ -6,12 +6,43 @@
     android:layout_height="match_parent"
     android:background="@color/black_defined">
 
-    <ImageView
-        android:id="@+id/imageCapture"
-        android:layout_width="match_parent"
+    <com.thetestament.cread.utils.SquareView
+        android:id="@+id/imageContainer"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:scaleType="fitCenter"
-        tools:src="@drawable/ic_account_circle_48" />
+        android:layout_gravity="center">
+
+        <ImageView
+            android:id="@+id/imageCapture"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:scaleType="centerCrop" />
+
+
+        <FrameLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_above="@+id/viewDivider"
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentLeft="true"
+            android:layout_marginBottom="5dp"
+            android:layout_marginLeft="5dp"
+            android:background="@color/black_overlay">
+
+            <TextView
+                android:id="@+id/textWaterMark"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_alignParentBottom="true"
+                android:paddingLeft="3dp"
+                android:paddingRight="3dp"
+                android:textColor="@color/white"
+                android:textSize="12sp"
+                tools:text="~The testament" />
+        </FrameLayout>
+
+
+    </com.thetestament.cread.utils.SquareView>
+
 
 </android.support.design.widget.CoordinatorLayout>

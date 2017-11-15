@@ -7,6 +7,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.TextInputEditText;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.AppCompatSpinner;
 import android.text.InputType;
 import android.text.TextUtils;
@@ -52,6 +53,9 @@ import static com.thetestament.cread.utils.Constant.EXTRA_USER_EMAIL;
 import static com.thetestament.cread.utils.Constant.EXTRA_USER_FIRST_NAME;
 import static com.thetestament.cread.utils.Constant.EXTRA_USER_LAST_NAME;
 import static com.thetestament.cread.utils.Constant.EXTRA_USER_WATER_MARK_STATUS;
+import static com.thetestament.cread.utils.Constant.WATERMARK_STATUS_ASK_ALWAYS;
+import static com.thetestament.cread.utils.Constant.WATERMARK_STATUS_NO;
+import static com.thetestament.cread.utils.Constant.WATERMARK_STATUS_YES;
 
 /**
  * Here user can view or edit his/her profile basic details.
@@ -78,10 +82,11 @@ public class UpdateProfileDetailsActivity extends BaseActivity {
     View progressView;
 
     @State
-    String mFirstName, mLastName, mEmail, mBio, mContact, mWaterMarkStatus, mWaterMarkText;
+    String mFirstName, mLastName, mEmail, mBio, mContact, mWaterMarkStatus, mWaterMarkText = "";
 
     private CompositeDisposable mCompositeDisposable = new CompositeDisposable();
 
+    private SharedPreferenceHelper mPreferenceHelper;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -89,6 +94,8 @@ public class UpdateProfileDetailsActivity extends BaseActivity {
         setContentView(R.layout.activity_update_profile_details);
         //Bind views
         ButterKnife.bind(this);
+        //Get reference
+        mPreferenceHelper = new SharedPreferenceHelper(this);
         initScreen();
     }
 
@@ -156,12 +163,15 @@ public class UpdateProfileDetailsActivity extends BaseActivity {
             switch (spinnerWaterMark.getSelectedItemPosition()) {
                 case 0:
                     mWaterMarkStatus = "YES";
+                    mPreferenceHelper.setWatermarkStatus(WATERMARK_STATUS_YES);
                     break;
                 case 1:
                     mWaterMarkStatus = "NO";
+                    mPreferenceHelper.setWatermarkStatus(WATERMARK_STATUS_NO);
                     break;
                 case 2:
                     mWaterMarkStatus = "ASK_ALWAYS";
+                    mPreferenceHelper.setWatermarkStatus(WATERMARK_STATUS_ASK_ALWAYS);
                     break;
             }
 
@@ -217,8 +227,9 @@ public class UpdateProfileDetailsActivity extends BaseActivity {
      */
     private void showWaterMarkInputDialog() {
         new MaterialDialog.Builder(this)
-                .title("Watermark")
+                .title("Signature")
                 .autoDismiss(false)
+                .inputRange(1, 20, ContextCompat.getColor(UpdateProfileDetailsActivity.this, R.color.red))
                 .inputType(InputType.TYPE_TEXT_FLAG_CAP_SENTENCES | InputType.TYPE_TEXT_VARIATION_SHORT_MESSAGE)
                 .input(null, null, false, new MaterialDialog.InputCallback() {
                     @Override
@@ -230,6 +241,8 @@ public class UpdateProfileDetailsActivity extends BaseActivity {
                             //Dismiss
                             dialog.dismiss();
                             mWaterMarkText = s;
+                            //Save watermark text
+                            mPreferenceHelper.setCaptureWaterMarkText(mWaterMarkText);
                         }
                     }
                 })
@@ -331,7 +344,7 @@ public class UpdateProfileDetailsActivity extends BaseActivity {
             userObject.put("email", mEmail);
             userObject.put("bio", mBio);
             userObject.put("watermarkstatus", mWaterMarkStatus);
-            userObject.put("watermarktext", mWaterMarkText);
+            userObject.put("watermark", mWaterMarkText);
             //Request data
             jsonObject.put("uuid", helper.getUUID());
             jsonObject.put("authkey", helper.getAuthToken());

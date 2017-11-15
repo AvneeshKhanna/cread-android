@@ -1,5 +1,6 @@
 package com.thetestament.cread.activities;
 
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
@@ -44,11 +45,9 @@ import butterknife.ButterKnife;
 import icepick.Icepick;
 import icepick.State;
 
-import static com.thetestament.cread.helpers.ImageHelper.compressSpecific;
+import static com.thetestament.cread.helpers.ImageHelper.compressCroppedImg;
 import static com.thetestament.cread.helpers.ImageHelper.getImageUri;
 import static com.thetestament.cread.helpers.ImageHelper.startImageCropping;
-import static com.thetestament.cread.utils.Constant.EXTRA_WEB_VIEW_TITLE;
-import static com.thetestament.cread.utils.Constant.EXTRA_WEB_VIEW_URL;
 import static com.thetestament.cread.utils.Constant.FIREBASE_EVENT_EXPLORE_CLICKED;
 import static com.thetestament.cread.utils.Constant.FIREBASE_EVENT_FEED_CLICKED;
 import static com.thetestament.cread.utils.Constant.FIREBASE_EVENT_NOTIFICATION_CLICKED;
@@ -78,6 +77,9 @@ public class BottomNavigationActivity extends BaseActivity {
     Fragment mCurrentFragment;
 
     private int mUnreadCount = 0;
+
+    @State
+    int mSelectedItemID;
 
     private FirebaseAnalytics mFirebaseAnalytics;
     private SharedPreferenceHelper mHelper;
@@ -188,7 +190,6 @@ public class BottomNavigationActivity extends BaseActivity {
         super.onRestoreInstanceState(savedInstanceState);
     }
 
-
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
         UpdateNotificationBadge updateNotificationBadge = new UpdateNotificationBadge();
@@ -249,32 +250,17 @@ public class BottomNavigationActivity extends BaseActivity {
      * Method to load required screen.
      */
     private void loadScreen() {
-        //if called from onClick of notifications
-        if (getIntent().hasExtra("DATA")) {
-            if (getIntent().getStringExtra("DATA").equals("startUpdatesFragment")) {
-                //To select feed menu
-                navigationView.setSelectedItemId(R.id.action_feed);
-                //To open Feed Screen
-                mCurrentFragment = new FeedFragment();
-                //set fragment title
-                mFragmentTag = TAG_FEED_FRAGMENT;
-                replaceFragment(mCurrentFragment, mFragmentTag);
-                //Launch updates activity
-                // TODO uncomment
-                /*startActivityForResult(new Intent(this, UpdatesActivity.class)
-                        , REQUEST_CODE_UPDATES_ACTIVITY);*/
-            }
-        }
         //When app opened normally
-        else {
-            navigationView.setSelectedItemId(R.id.action_feed);
-            //To open Feed Screen
-            mCurrentFragment = new FeedFragment();
-            //Set fragment tag
-            mFragmentTag = TAG_FEED_FRAGMENT;
-            replaceFragment(mCurrentFragment, mFragmentTag);
-        }
+        navigationView.setSelectedItemId(R.id.action_feed);
+        //To open Feed Screen
+        mCurrentFragment = new FeedFragment();
+        //Set fragment tag
+        mFragmentTag = TAG_FEED_FRAGMENT;
+        replaceFragment(mCurrentFragment, mFragmentTag);
+
+        mSelectedItemID = R.id.action_feed;
     }
+
 
     /**
      * Method to initialize BottomNavigation view item click functionality.
@@ -297,6 +283,8 @@ public class BottomNavigationActivity extends BaseActivity {
                         replaceFragment(mCurrentFragment, mFragmentTag);
                         //Log firebase event
                         setAnalytics(FIREBASE_EVENT_FEED_CLICKED);
+                        //Update flag
+                        mSelectedItemID = R.id.action_feed;
                         break;
 
                     case R.id.action_explore:
@@ -308,6 +296,8 @@ public class BottomNavigationActivity extends BaseActivity {
                         replaceFragment(mCurrentFragment, mFragmentTag);
                         //Log firebase event
                         setAnalytics(FIREBASE_EVENT_EXPLORE_CLICKED);
+                        //Update flag
+                        mSelectedItemID = R.id.action_explore;
                         break;
 
                     case R.id.action_add:
@@ -326,6 +316,8 @@ public class BottomNavigationActivity extends BaseActivity {
                         //set fragment tag
                         mFragmentTag = TAG_ME_FRAGMENT;
                         replaceFragment(mCurrentFragment, mFragmentTag);
+                        //Update flag
+                        mSelectedItemID = R.id.action_me;
                         break;
                 }
                 return true;
@@ -373,7 +365,6 @@ public class BottomNavigationActivity extends BaseActivity {
                 }
                 //Dismiss bottom sheet
                 bottomSheetDialog.dismiss();
-
             }
         });
         //Capture button functionality
@@ -391,6 +382,17 @@ public class BottomNavigationActivity extends BaseActivity {
                 bottomSheetDialog.dismiss();
             }
         });
+
+        //Bottom sheet dialog dismiss listener
+        bottomSheetDialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
+            @Override
+            public void onDismiss(DialogInterface dialogInterface) {
+                //Select previous selected menu item
+                navigationView.getMenu().findItem(mSelectedItemID).setChecked(true);
+
+            }
+        });
+
     }
 
     /**
@@ -437,9 +439,9 @@ public class BottomNavigationActivity extends BaseActivity {
             //Decode image file
             Bitmap bitmap = BitmapFactory.decodeFile(uri.getPath());
             //If resolution of image is greater than 2000x2000 then compress this image
-            if (bitmap.getWidth() > 2000 && bitmap.getWidth() > 2000) {
+            if (bitmap.getWidth() > 1800 && bitmap.getWidth() > 1800) {
                 //Compress image
-                compressSpecific(uri, this, IMAGE_TYPE_USER_CAPTURE_PIC);
+                compressCroppedImg(uri, this, IMAGE_TYPE_USER_CAPTURE_PIC);
                 //Open preview screen
                 Intent intent = new Intent(BottomNavigationActivity.this, CapturePreviewActivity.class);
                 intent.putExtra("isMerchantable", "1");
@@ -519,11 +521,9 @@ public class BottomNavigationActivity extends BaseActivity {
      * Method to show intro dialog when user land on this screen for the first time.
      */
     private void getCaptureIntroDialog() {
-        //Todo change image and text
         MaterialDialog dialog = new MaterialDialog.Builder(this)
                 .customView(R.layout.dialog_generic, false)
                 .positiveText(getString(R.string.text_ok))
-                .negativeText(getString(R.string.text_read_more))
                 .onPositive(new MaterialDialog.SingleButtonCallback() {
                     @Override
                     public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
@@ -533,18 +533,6 @@ public class BottomNavigationActivity extends BaseActivity {
                         mHelper.updateCaptureIntroStatus(false);
                     }
                 })
-                .onNegative(new MaterialDialog.SingleButtonCallback() {
-                    @Override
-                    public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
-                        dialog.dismiss();
-
-                        //Todo change parameter
-                        Intent intent = new Intent(BottomNavigationActivity.this, WebViewActivity.class);
-                        intent.putExtra(EXTRA_WEB_VIEW_URL, "");
-                        intent.putExtra(EXTRA_WEB_VIEW_TITLE, "Details");
-                        startActivity(intent);
-                    }
-                })
                 .show();
         //Obtain views reference
         ImageView fillerImage = dialog.getCustomView().findViewById(R.id.viewFiller);
@@ -552,33 +540,20 @@ public class BottomNavigationActivity extends BaseActivity {
         TextView textDesc = dialog.getCustomView().findViewById(R.id.textDesc);
 
         //Set filler image
-        fillerImage.setImageDrawable(ContextCompat.getDrawable(this, R.drawable.image_placeholder));
+        fillerImage.setImageDrawable(ContextCompat.getDrawable(this, R.drawable.img_capture_intro));
         //Set title text
-        textTitle.setText("Set title");
+        textTitle.setText("Upload your best shot!");
         //Set description text
-        textDesc.setText("Set description text");
+        textDesc.setText("A photograph says a thousand words. Sharing your work here can inspire thousands of writers. All the best!");
     }
 
     /**
      * Method to show intro dialog when user land on this screen for the first time.
      */
     private void getShortDialog() {
-        //Todo change image and text
         MaterialDialog dialog = new MaterialDialog.Builder(this)
                 .customView(R.layout.dialog_generic, false)
                 .positiveText(getString(R.string.text_ok))
-                .negativeText(getString(R.string.text_read_more))
-                .onNegative(new MaterialDialog.SingleButtonCallback() {
-                    @Override
-                    public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
-                        dialog.dismiss();
-                        //Todo change parameter
-                        Intent intent = new Intent(BottomNavigationActivity.this, WebViewActivity.class);
-                        intent.putExtra(EXTRA_WEB_VIEW_URL, "");
-                        intent.putExtra(EXTRA_WEB_VIEW_TITLE, "Details");
-                        startActivity(intent);
-                    }
-                })
                 .onPositive(new MaterialDialog.SingleButtonCallback() {
                     @Override
                     public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
@@ -596,11 +571,11 @@ public class BottomNavigationActivity extends BaseActivity {
         TextView textDesc = dialog.getCustomView().findViewById(R.id.textDesc);
 
         //Set filler image
-        fillerImage.setImageDrawable(ContextCompat.getDrawable(this, R.drawable.image_placeholder));
+        fillerImage.setImageDrawable(ContextCompat.getDrawable(this, R.drawable.img_short_intro));
         //Set title text
-        textTitle.setText("Set title");
+        textTitle.setText("Write your masterpiece here");
         //Set description text
-        textDesc.setText("Set description text");
+        textDesc.setText("This is where you must share your words. We'll save it as an image to inspire people and prevent plagiarism.");
     }
 
     /**
@@ -608,23 +583,23 @@ public class BottomNavigationActivity extends BaseActivity {
      */
     private void getMerchantableDialog() {
         new MaterialDialog.Builder(this)
-                .title("Hey")
-                .content("We don't accept low resolution image ")
+                .title("Note")
+                .content("The resolution of this image is not printable. Other users won't be able to order a print version of it. Do you wish to proceed?")
                 .positiveText("Proceed")
                 .negativeText("Cancel")
                 .onNegative(new MaterialDialog.SingleButtonCallback() {
                     @Override
                     public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
                         dialog.dismiss();
-                        //open preview screen
-                        Intent intent = new Intent(BottomNavigationActivity.this, CapturePreviewActivity.class);
-                        intent.putExtra("isMerchantable", "0");
-                        startActivity(intent);
                     }
                 })
                 .onPositive(new MaterialDialog.SingleButtonCallback() {
                     @Override
                     public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
+                        //open preview screen
+                        Intent intent = new Intent(BottomNavigationActivity.this, CapturePreviewActivity.class);
+                        intent.putExtra("isMerchantable", "0");
+                        startActivity(intent);
                         dialog.dismiss();
                     }
                 })

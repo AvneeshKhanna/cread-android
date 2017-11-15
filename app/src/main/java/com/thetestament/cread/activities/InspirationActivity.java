@@ -227,6 +227,10 @@ public class InspirationActivity extends BaseActivity {
                         //Error occurred
                         else if (connectionError[0]) {
                             ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_internal));
+                        }
+                        //No data
+                        else if (mInspirationDataList.size() == 0) {
+                            ViewHelper.getSnackBar(rootView, "Nothing to show.");
                         } else {
                             //Apply 'Slide Up' animation
                             int resId = R.anim.layout_animation_from_bottom;

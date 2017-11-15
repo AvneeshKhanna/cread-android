@@ -27,13 +27,13 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_centerInParent="true"
+                android:layout_marginLeft="10dp"
+                android:layout_marginRight="10dp"
                 android:background="@null"
                 android:gravity="center"
                 android:hint="Type your short"
-                android:inputType="textCapSentences"
-                android:longClickable="true"
+                android:inputType="textCapSentences|textMultiLine"
                 android:textCursorDrawable="@drawable/cursor_edit_text"
-                android:textIsSelectable="false"
                 android:textSize="16sp" />
 
             <View
@@ -69,12 +69,23 @@
 
         </com.thetestament.cread.utils.SquareView>
 
+        <TextView
+            android:id="@+id/textNote"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/imageContainer"
+            android:layout_centerHorizontal="true"
+            android:gravity="center"
+            android:paddingTop="10sp"
+            android:text="Tap to switch between drag and edit mode"
+            android:textSize="12sp" />
+
         <FrameLayout
             android:id="@+id/containerPostButton"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_above="@+id/containerFormatOptions"
-            android:layout_below="@+id/imageContainer">
+            android:layout_below="@+id/textNote">
 
             <TextView
                 android:id="@+id/btnInspireMe"
