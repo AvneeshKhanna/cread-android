@@ -31,6 +31,7 @@
     <string name="key_short_intro">shortIntro</string>
     <string name="key_have_tooltip">haveButton</string>
     <string name="key_short_tooltip">shortTooltip</string>
+    <string name="key_capture_water_mark_text">captureWaterMarkText</string>
 
     // dialog messages
     <string name="processing_title">Processing</string>

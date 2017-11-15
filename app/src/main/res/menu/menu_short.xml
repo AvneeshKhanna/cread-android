@@ -7,12 +7,4 @@
         android:orderInCategory="2"
         android:title="Next"
         app:showAsAction="always" />
-    <item
-        android:id="@+id/action_toggle"
-        android:icon="@drawable/ic_edit_24"
-        android:iconTintMode="src_over"
-        android:orderInCategory="1"
-        android:title="Toggle"
-        app:actionViewClass="android.widget.ImageView"
-        app:showAsAction="always" />
 </menu>

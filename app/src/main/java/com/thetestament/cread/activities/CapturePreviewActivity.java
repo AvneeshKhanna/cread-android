@@ -8,6 +8,7 @@ import android.text.InputType;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.ImageView;
+import android.widget.TextView;
 
 import com.afollestad.materialdialogs.DialogAction;
 import com.afollestad.materialdialogs.MaterialDialog;
@@ -36,6 +37,9 @@ import okhttp3.OkHttpClient;
 
 import static com.thetestament.cread.helpers.ImageHelper.getImageUri;
 import static com.thetestament.cread.utils.Constant.IMAGE_TYPE_USER_CAPTURE_PIC;
+import static com.thetestament.cread.utils.Constant.WATERMARK_STATUS_ASK_ALWAYS;
+import static com.thetestament.cread.utils.Constant.WATERMARK_STATUS_NO;
+import static com.thetestament.cread.utils.Constant.WATERMARK_STATUS_YES;
 
 /**
  * Class to show preview of capture.
@@ -47,6 +51,9 @@ public class CapturePreviewActivity extends BaseActivity {
     CoordinatorLayout rootView;
     @BindView(R.id.imageCapture)
     ImageView imageCapture;
+    @BindView(R.id.textWaterMark)
+    TextView textWaterMark;
+
     @State
     String mWaterMarkText = "", isMerchantable;
     private SharedPreferenceHelper mHelper;
@@ -61,7 +68,7 @@ public class CapturePreviewActivity extends BaseActivity {
         mHelper = new SharedPreferenceHelper(this);
         //Retrieve data from intent
         isMerchantable = getIntent().getStringExtra("isMerchantable");
-        //load image
+        //load capture image for preview
         loadCaptureImage();
         checkWatermarkStatus(mHelper);
     }
@@ -102,7 +109,7 @@ public class CapturePreviewActivity extends BaseActivity {
     }
 
     /**
-     * Method to load capture image.
+     * Method to load capture image for preview.
      */
     private void loadCaptureImage() {
         Picasso.with(this)
@@ -119,11 +126,14 @@ public class CapturePreviewActivity extends BaseActivity {
      */
     private void checkWatermarkStatus(SharedPreferenceHelper helper) {
         //Check for first time status
-        if (helper.getWatermarkStatus()) {
+        if (helper.getWatermarkStatus().equals(WATERMARK_STATUS_YES)) {
+            mWaterMarkText = helper.getCaptureWaterMarkText();
+            textWaterMark.setText(mWaterMarkText);
+        } else if (helper.getWatermarkStatus().equals(WATERMARK_STATUS_NO)) {
+            //Do nothing
+        } else if (helper.getWatermarkStatus().equals(WATERMARK_STATUS_ASK_ALWAYS)) {
             //Show watermark dialog
             getWaterWorkDialog();
-        } else {
-            //do nothing
         }
     }
 
@@ -139,8 +149,11 @@ public class CapturePreviewActivity extends BaseActivity {
                 .onPositive(new MaterialDialog.SingleButtonCallback() {
                     @Override
                     public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
-                        //Save watermark status
-                        mHelper.setWatermarkStatus(!dialog.isPromptCheckBoxChecked());
+                        //If checkbox is selected
+                        if (dialog.isPromptCheckBoxChecked()) {
+                            //Save watermark status
+                            mHelper.setWatermarkStatus(WATERMARK_STATUS_YES);
+                        }
                         //Dismiss this dialog
                         dialog.dismiss();
                         //Show input dialog
@@ -150,8 +163,11 @@ public class CapturePreviewActivity extends BaseActivity {
                 .onNegative(new MaterialDialog.SingleButtonCallback() {
                     @Override
                     public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
-                        //Save watermark status
-                        mHelper.setWatermarkStatus(!dialog.isPromptCheckBoxChecked());
+                        //If checkbox is selected
+                        if (dialog.isPromptCheckBoxChecked()) {
+                            //Save watermark status
+                            mHelper.setWatermarkStatus(WATERMARK_STATUS_NO);
+                        }
                         //Dismiss this dialog
                         dialog.dismiss();
                     }
@@ -177,6 +193,10 @@ public class CapturePreviewActivity extends BaseActivity {
                             //Dismiss
                             dialog.dismiss();
                             mWaterMarkText = s;
+                            //Set watermark
+                            textWaterMark.setText(mWaterMarkText);
+                            //Save watermark text
+                            mHelper.setCaptureWaterMarkText(mWaterMarkText);
                         }
                     }
                 })
@@ -231,8 +251,6 @@ public class CapturePreviewActivity extends BaseActivity {
                                     ViewHelper.getToast(CapturePreviewActivity.this, "Your capture uploaded.");
                                     //finish this activity
                                     finish();
-                                } else {
-                                    ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_internal));
                                 }
                             }
                         } catch (JSONException e) {

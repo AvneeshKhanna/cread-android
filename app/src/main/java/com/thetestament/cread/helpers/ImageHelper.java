@@ -148,8 +148,8 @@ public class ImageHelper {
         options.setToolbarColor(ContextCompat.getColor(context, R.color.colorPrimary));
         //Change status bar color
         options.setStatusBarColor(ContextCompat.getColor(context, R.color.colorPrimaryDark));
-        options.setCompressionFormat(Bitmap.CompressFormat.PNG);
-        options.setCompressionQuality(100);
+        //options.setCompressionFormat(Bitmap.CompressFormat.PNG);
+        //options.setCompressionQuality(100);
 
 
         //Launch  image cropping activity

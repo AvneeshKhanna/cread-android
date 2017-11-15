@@ -85,7 +85,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:scaleType="centerCrop"
-                android:src="@drawable/img_demo" />
+                android:src="@drawable/image_placeholder" />
         </com.thetestament.cread.utils.SquareView>
 
         <View

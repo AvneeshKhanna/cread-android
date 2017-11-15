@@ -490,11 +490,11 @@ public class FeedFragment extends Fragment {
         TextView textDesc = dialog.getCustomView().findViewById(R.id.textDesc);
 
         //Set filler image
-        fillerImage.setImageDrawable(ContextCompat.getDrawable(getActivity(), R.drawable.image_placeholder));
+        fillerImage.setImageDrawable(ContextCompat.getDrawable(getActivity(), R.drawable.img_welcome));
         //Set title text
-        textTitle.setText("Set title");
+        textTitle.setText("Welcome to Cread");
         //Set description text
-        textDesc.setText("Set description text");
+        textDesc.setText("Cread is a Social platform where artists can collaborate and showcase their work to earn recognition, goodwill and revenues.");
     }
 
 

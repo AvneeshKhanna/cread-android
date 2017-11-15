@@ -5,6 +5,8 @@ import android.content.SharedPreferences;
 
 import com.thetestament.cread.R;
 
+import static com.thetestament.cread.utils.Constant.WATERMARK_STATUS_ASK_ALWAYS;
+
 /**
  * A utility class for managing SharedPreferences keys.
  */
@@ -25,7 +27,7 @@ public class SharedPreferenceHelper {
     }
 
     /**
-     * Method to store key value pairs in shared preferences
+     * Method to store key value pairs in shared preferences.
      *
      * @param key   Shared preferences key
      * @param value The value to be stored
@@ -64,9 +66,9 @@ public class SharedPreferenceHelper {
     }
 
     /**
-     * Method to update auth token in shared preferences
+     * Method to update auth token in shared preferences.
      *
-     * @param token auth token to store
+     * @param token auth token to store.
      */
     public void setAuthToken(String token) {
         addPreferences(mContext.getString(R.string.auth_token), token);
@@ -84,7 +86,7 @@ public class SharedPreferenceHelper {
     /**
      * Method to get the user first name stored in shared preferences.
      *
-     * @return Value of stored user first name.
+     * @return Value of user first name.
      */
     public String getFirstName() {
         return mSharedPreferences.getString(mContext.getString(R.string.key_first_name), null);
@@ -108,26 +110,6 @@ public class SharedPreferenceHelper {
         return mSharedPreferences.getString(mContext.getString(R.string.key_last_name), null);
     }
 
-
-    /**
-     * Method to return watermark status i.e true for checked false otherwise.
-     *
-     * @return Return true by default.
-     */
-    public boolean getWatermarkStatus() {
-        return mSharedPreferences.getBoolean(mContext.getString(R.string.key_watermark_status), true);
-    }
-
-    /**
-     * Method to update capture status.
-     *
-     * @param status Status value to be updated i.e true or false.
-     */
-    public void setWatermarkStatus(boolean status) {
-        SharedPreferences.Editor editor = mSharedPreferences.edit();
-        editor.putBoolean(mContext.getString(R.string.key_watermark_status), status);
-        editor.apply();
-    }
 
     /**
      * Method to update Welcome dialog status.
@@ -236,26 +218,43 @@ public class SharedPreferenceHelper {
     }
 
     /**
-     * Method to update 'Toggle button' tooltip status.
+     * Method to return watermark status i.e Yes , No and Ask Always.
      *
-     * @param status boolean value i.e true or false
+     * @return Return "Ask Always by default.
      */
-    public void updateToggleButtonToolTipStatus(boolean status) {
-        SharedPreferences.Editor editor = mSharedPreferences.edit();
-        editor.putBoolean(mContext.getString(R.string.key_short_tooltip), status);
-        editor.apply();
+    public String getWatermarkStatus() {
+        return mSharedPreferences.getString(mContext.getString(R.string.key_watermark_status), WATERMARK_STATUS_ASK_ALWAYS);
     }
 
     /**
-     * Method to retrieve "Toggle button" tooltip status.
+     * Method to update watermark status.
      *
-     * @return True by default.
+     * @param status Status value to be updated i.e true or false.
      */
-    public boolean isToggleButtonTooltipFirstTime() {
-        return mSharedPreferences
-                .getBoolean(mContext.getString(R.string.key_short_tooltip), true);
+    public void setWatermarkStatus(String status) {
+        SharedPreferences.Editor editor = mSharedPreferences.edit();
+        editor.putString(mContext.getString(R.string.key_watermark_status), status);
+        editor.apply();
     }
 
+
+    /**
+     * Method to update capture watermark text in shared preferences.
+     *
+     * @param watermarkText Capture watermark text.
+     */
+    public void setCaptureWaterMarkText(String watermarkText) {
+        addPreferences(mContext.getString(R.string.key_capture_water_mark_text), watermarkText);
+    }
+
+    /**
+     * Method to get capture watermark text stored in shared preferences.
+     *
+     * @return Default value is user name.
+     */
+    public String getCaptureWaterMarkText() {
+        return mSharedPreferences.getString(mContext.getString(R.string.key_last_name), getFirstName() + " " + getLastName());
+    }
 
     /**
      * Method to clear all key value pairs in cread shared preferences
