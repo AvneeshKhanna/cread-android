@@ -184,8 +184,7 @@ public class UpdatesAdapter extends RecyclerView.Adapter<UpdatesAdapter.ViewHold
                 break;
             case NOTIFICATION_CATEGORY_CREAD_GENERAL:
                 //Listener
-                mContext.startActivity(new Intent(mContext, BottomNavigationActivity.class));
-                mContext.finish();
+                // do nothing since it is not persistable and not present here
                 break;
             default:
                 break;

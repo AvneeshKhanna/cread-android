@@ -30,6 +30,7 @@ import com.google.firebase.crash.FirebaseCrash;
 import com.thetestament.cread.BuildConfig;
 import com.thetestament.cread.R;
 import com.thetestament.cread.adapters.CommentsAdapter;
+import com.thetestament.cread.helpers.NetworkHelper;
 import com.thetestament.cread.helpers.SharedPreferenceHelper;
 import com.thetestament.cread.helpers.ViewHelper;
 import com.thetestament.cread.listeners.listener;
@@ -128,12 +129,24 @@ public class CommentsActivity extends BaseActivity {
      */
     @OnClick(R.id.buttonPost)
     public void onButtonPostClicked(View view) {
-        saveComment(editTextComment.getText().toString().trim());
-        //Clear edit text
-        editTextComment.getText().clear();
-        //Hide keyboard
-        InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-        imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+
+        // check net status
+        if(NetworkHelper.getNetConnectionStatus(CommentsActivity.this))
+        {
+            saveComment(editTextComment.getText().toString().trim());
+            //Clear edit text
+            editTextComment.getText().clear();
+            //Hide keyboard
+            InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+            imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+        }
+
+        else
+        {
+            ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_no_connection));
+        }
+
+
     }
 
     /**

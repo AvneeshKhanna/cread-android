@@ -34,6 +34,7 @@ import com.squareup.picasso.Target;
 import com.thetestament.cread.BuildConfig;
 import com.thetestament.cread.Manifest;
 import com.thetestament.cread.R;
+import com.thetestament.cread.helpers.NetworkHelper;
 import com.thetestament.cread.helpers.SharedPreferenceHelper;
 import com.thetestament.cread.helpers.ViewHelper;
 import com.thetestament.cread.listeners.OnDragTouchListener;
@@ -471,22 +472,31 @@ public class ShortActivity extends BaseActivity implements ColorChooserDialog.Co
                     @Override
                     public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
 
-                        dialog.dismiss();
-                        //Update details on server
-                        updateShort(new File(getImageUri(IMAGE_TYPE_USER_SHORT_PIC).getPath())
-                                , mCaptureID
-                                //, String.valueOf(scaledPixelsToPx(ShortActivity.this, textShort.getX()))
-                                , String.valueOf(textShort.getX() / factor)
-                                //, String.valueOf(scaledPixelsToPx(ShortActivity.this, textShort.getY() - squareView.getY()))
-                                , String.valueOf((textShort.getY() - squareView.getY()) / factor)
-                                , String.valueOf(textShort.getWidth() / factor)
-                                , String.valueOf(textShort.getHeight() / factor)
-                                , textShort.getText().toString()
-                                , String.valueOf(textShort.getTextSize() / factor)
-                                , Integer.toHexString(textShort.getCurrentTextColor())
-                                , textGravity.toString()
-                                , String.valueOf(mImageWidth)
-                        );
+                        // check net status
+                        if(NetworkHelper.getNetConnectionStatus(ShortActivity.this))
+                        {
+                            dialog.dismiss();
+                            //Update details on server
+                            updateShort(new File(getImageUri(IMAGE_TYPE_USER_SHORT_PIC).getPath())
+                                    , mCaptureID
+                                    //, String.valueOf(scaledPixelsToPx(ShortActivity.this, textShort.getX()))
+                                    , String.valueOf(textShort.getX() / factor)
+                                    //, String.valueOf(scaledPixelsToPx(ShortActivity.this, textShort.getY() - squareView.getY()))
+                                    , String.valueOf((textShort.getY() - squareView.getY()) / factor)
+                                    , String.valueOf(textShort.getWidth() / factor)
+                                    , String.valueOf(textShort.getHeight() / factor)
+                                    , textShort.getText().toString()
+                                    , String.valueOf(textShort.getTextSize() / factor)
+                                    , Integer.toHexString(textShort.getCurrentTextColor())
+                                    , textGravity.toString()
+                                    , String.valueOf(mImageWidth)
+                            );
+                        }
+
+                        else
+                        {
+                            ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_no_connection));
+                        }
                     }
                 })
                 .show();
