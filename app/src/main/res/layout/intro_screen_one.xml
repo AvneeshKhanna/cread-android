@@ -19,7 +19,7 @@
             android:layout_gravity="top|center"
             android:layout_marginTop="32dp"
             android:gravity="center"
-            android:text="Share"
+            android:text="Explore"
             android:textColor="@color/colorPrimary"
             android:textSize="40sp" />
 
@@ -31,7 +31,7 @@
             android:layout_gravity="top|center"
             android:layout_marginTop="16dp"
             android:gravity="center"
-            android:text="Help promote people's work"
+            android:text="Follow new and interesting people"
             android:textColor="@color/colorPrimary"
             android:textSize="18sp"
             android:textStyle="bold" />

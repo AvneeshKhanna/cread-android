@@ -55,7 +55,7 @@
             android:layout_centerHorizontal="true"
             android:gravity="center"
             android:paddingTop="10sp"
-            android:text="Tap to switch between drag and edit mode"
+            android:text="Tap outside to switch between drag and edit mode"
             android:textSize="12sp" />
 
         <FrameLayout

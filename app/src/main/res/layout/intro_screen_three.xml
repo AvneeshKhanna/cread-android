@@ -17,7 +17,7 @@
             android:layout_gravity="top|center"
             android:layout_marginTop="32dp"
             android:gravity="center"
-            android:text="Earn"
+            android:text="Collaborate"
             android:textColor="@color/colorPrimary"
             android:textSize="40sp" />
 
@@ -27,10 +27,10 @@
             android:layout_height="wrap_content"
             android:layout_gravity="top|center"
             android:layout_marginTop="16dp"
+            android:gravity="center"
             android:paddingLeft="10dp"
             android:paddingRight="10dp"
-            android:gravity="center"
-            android:text="Money in your account. Every day. "
+            android:text="Write on others photographs and vice-versa"
             android:textColor="@color/colorPrimary"
             android:textSize="18sp"
             android:textStyle="bold" />
@@ -54,7 +54,7 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_gravity="center"
-            android:src="@drawable/img_intro_one" />
+            android:src="@drawable/img_intro_three" />
 
         <ImageView
             android:layout_width="match_parent"
