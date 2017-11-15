@@ -97,6 +97,18 @@ public class FindFBFriendsActivity extends BaseActivity {
     }
 
     @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                //finish this activity
+                finish();
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
+
+    @Override
     protected void onDestroy() {
         super.onDestroy();
         mCompositeDisposable.dispose();
@@ -221,8 +233,7 @@ public class FindFBFriendsActivity extends BaseActivity {
 
                                 ANError error = (ANError) e;
 
-                                if(error.getErrorCode() == 500)
-                                {
+                                if (error.getErrorCode() == 500) {
                                     try {
                                         JSONObject object = new JSONObject(error.getErrorBody());
 
@@ -234,8 +245,7 @@ public class FindFBFriendsActivity extends BaseActivity {
                                     }
                                 }
                                 // case when server is down
-                                else
-                                {
+                                else {
                                     ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_server));
                                 }
                             }
@@ -262,10 +272,8 @@ public class FindFBFriendsActivity extends BaseActivity {
                                     if (mDataList.size() == 0) {
                                         scrollView.setVisibility(View.GONE);
                                         placeholder.setVisibility(View.VISIBLE);
-                                    }
-
-                                    else
-                                    {   scrollView.setVisibility(View.VISIBLE);
+                                    } else {
+                                        scrollView.setVisibility(View.VISIBLE);
                                         placeholder.setVisibility(View.INVISIBLE);
                                     }
                                     //Dismiss indicator
@@ -326,7 +334,11 @@ public class FindFBFriendsActivity extends BaseActivity {
             @Override
             public void onFollowClicked(int position, FBFriendsModel data) {
 
-                updateFollowStatus(position, data);
+                if (NetworkHelper.getNetConnectionStatus(FindFBFriendsActivity.this)) {
+                    updateFollowStatus(position, data);
+                } else {
+                    ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_no_connection));
+                }
 
             }
         });
@@ -467,9 +479,7 @@ public class FindFBFriendsActivity extends BaseActivity {
                             //Token status is invalid
                             if (jsonObject.getString("tokenstatus").equals("invalid")) {
                                 tokenError[0] = true;
-                            }
-
-                            else {
+                            } else {
                                 JSONObject mainData = jsonObject.getJSONObject("data");
                                 mRequestMoreData = mainData.getBoolean("requestmore");
                                 mNextUrl = mainData.getString("nexturl");
@@ -506,8 +516,7 @@ public class FindFBFriendsActivity extends BaseActivity {
                         //Server error Snack bar
                         ANError error = (ANError) e;
 
-                        if(error.getErrorCode() == 500)
-                        {
+                        if (error.getErrorCode() == 500) {
                             try {
                                 JSONObject object = new JSONObject(error.getErrorBody());
 
@@ -519,8 +528,7 @@ public class FindFBFriendsActivity extends BaseActivity {
                             }
                         }
                         // case when server is down
-                        else
-                        {
+                        else {
                             ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_server));
                         }
                     }
@@ -543,154 +551,89 @@ public class FindFBFriendsActivity extends BaseActivity {
         );
     }
 
-    /*private boolean hasPermission() {
-        return AccessToken.getCurrentAccessToken().getPermissions().contains("user_friends");
-
-    }
-
-    private void askFBFriendsPermission() {
-        if (hasPermission()) {
-            initView();
-        } else {
-
-            handlePermissionCallback();
-
-
-        }
-    }*/
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case android.R.id.home:
-                //finish this activity
-                finish();
-                return true;
-            default:
-                return super.onOptionsItemSelected(item);
-        }
-    }
-
-
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-
-        // mCallbackManager.onActivityResult(requestCode, resultCode, data);
-    }
-
     @OnClick(R.id.buttonFollowAll)
     public void onViewClicked() {
 
-        final JSONObject jsonObject = new JSONObject();
-        try {
-            jsonObject.put("uuid", spHelper.getUUID());
-            jsonObject.put("authkey", spHelper.getAuthToken());
-            jsonObject.put("fbid", AccessToken.getCurrentAccessToken().getUserId());
-            jsonObject.put("fbaccesstoken", AccessToken.getCurrentAccessToken().getToken());
-        } catch (JSONException e) {
-            e.printStackTrace();
-            FirebaseCrash.report(e);
-        }
+        if(NetworkHelper.getNetConnectionStatus(FindFBFriendsActivity.this))
+        {
+            final JSONObject jsonObject = new JSONObject();
+            try {
+                jsonObject.put("uuid", spHelper.getUUID());
+                jsonObject.put("authkey", spHelper.getAuthToken());
+                jsonObject.put("fbid", AccessToken.getCurrentAccessToken().getUserId());
+                jsonObject.put("fbaccesstoken", AccessToken.getCurrentAccessToken().getToken());
+            } catch (JSONException e) {
+                e.printStackTrace();
+                FirebaseCrash.report(e);
+            }
 
 
-        AndroidNetworking.post(BuildConfig.URL + "/follow/fb-friends-all")
-                .addJSONObjectBody(jsonObject)
-                .build()
-                .getAsJSONObject(new JSONObjectRequestListener() {
-                    @Override
-                    public void onResponse(JSONObject response) {
+            AndroidNetworking.post(BuildConfig.URL + "/follow/fb-friends-all")
+                    .addJSONObjectBody(jsonObject)
+                    .build()
+                    .getAsJSONObject(new JSONObjectRequestListener() {
+                        @Override
+                        public void onResponse(JSONObject response) {
 
 
-                        try {
-                            //Token status is not valid
-                            if (response.getString("tokenstatus").equals("invalid")) {
-                                ViewHelper.getSnackBar(rootView
-                                        , getString(R.string.error_msg_invalid_token));
-                            }
-                            //Token is valid
-                            else {
-                                JSONObject mainData = response.getJSONObject("data");
-                                if (mainData.getString("status").equals("done")) {
-
-                                    int i = 0;
-                                    while (i < mDataList.size()) {
-                                        mDataList.get(i).setFollowStatus(true);
-                                        i++;
-                                    }
-                                    mAdapter.notifyDataSetChanged();
-                                    ViewHelper.getSnackBar(rootView, "All friends followed");
-                                } else {
-                                    ViewHelper.getSnackBar(rootView
-                                            , getString(R.string.error_msg_internal));
-                                }
-                            }
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                            FirebaseCrash.report(e);
-                            ViewHelper.getSnackBar(rootView
-                                    , getString(R.string.error_msg_internal));
-                        }
-                    }
-
-                    @Override
-                    public void onError(ANError anError) {
-                        anError.printStackTrace();
-                        FirebaseCrash.report(anError);
-
-                        if(anError.getErrorCode() == 500)
-                        {
                             try {
-                                JSONObject error = new JSONObject(anError.getErrorBody());
-                                ViewHelper.getSnackBar(rootView, error.getString("message"));
+                                //Token status is not valid
+                                if (response.getString("tokenstatus").equals("invalid")) {
+                                    ViewHelper.getSnackBar(rootView
+                                            , getString(R.string.error_msg_invalid_token));
+                                }
+                                //Token is valid
+                                else {
+                                    JSONObject mainData = response.getJSONObject("data");
+                                    if (mainData.getString("status").equals("done")) {
+
+                                        int i = 0;
+                                        while (i < mDataList.size()) {
+                                            mDataList.get(i).setFollowStatus(true);
+                                            i++;
+                                        }
+                                        mAdapter.notifyDataSetChanged();
+                                        ViewHelper.getSnackBar(rootView, "All friends followed");
+                                    } else {
+                                        ViewHelper.getSnackBar(rootView
+                                                , getString(R.string.error_msg_internal));
+                                    }
+                                }
                             } catch (JSONException e) {
                                 e.printStackTrace();
+                                FirebaseCrash.report(e);
+                                ViewHelper.getSnackBar(rootView
+                                        , getString(R.string.error_msg_internal));
                             }
                         }
-                        // case when server is down
-                        else
-                        {
-                            ViewHelper.getSnackBar(rootView,getString(R.string.error_msg_server));
+
+                        @Override
+                        public void onError(ANError anError) {
+                            anError.printStackTrace();
+                            FirebaseCrash.report(anError);
+
+                            if (anError.getErrorCode() == 500) {
+                                try {
+                                    JSONObject error = new JSONObject(anError.getErrorBody());
+                                    ViewHelper.getSnackBar(rootView, error.getString("message"));
+                                } catch (JSONException e) {
+                                    e.printStackTrace();
+                                }
+                            }
+                            // case when server is down
+                            else {
+                                ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_server));
+                            }
+
+
                         }
+                    });
+        }
 
-
-                    }
-                });
+        else
+        {
+            ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_no_connection));
+        }
 
     }
-
-
-
-    /*private void handlePermissionCallback() {
-        *//*mCallbackManager = CallbackManager.Factory.create();
-        LoginManager.getInstance().registerCallback(mCallbackManager, new FacebookCallback<LoginResult>() {
-            @Override
-            public void onSuccess(LoginResult loginResult) {
-
-                Log.d(TAG, "onSuccess: " + loginResult.getAccessToken().getToken());
-                Log.d(TAG, "onSuccess: " + loginResult.getRecentlyDeniedPermissions());
-                Log.d(TAG, "onSuccess: " + loginResult.getRecentlyGrantedPermissions());
-
-                if(loginResult.getRecentlyDeniedPermissions().contains("user_friends"))
-                {
-                    handlePermissionCallback();
-                }
-
-            }
-
-            @Override
-            public void onCancel() {
-
-            }
-
-            @Override
-            public void onError(FacebookException error) {
-
-            }
-        });*//*
-
-
-        LoginManager.getInstance().logInWithReadPermissions(FindFBFriendsActivity.this, Arrays.asList("user_friends"));
-
-    }*/
 }

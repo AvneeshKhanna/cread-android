@@ -7,6 +7,7 @@ import android.support.design.widget.TextInputLayout;
 import android.support.v4.content.ContextCompat;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.view.WindowManager;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -289,14 +290,20 @@ public class AddressActivity extends BaseActivity implements PaymentResultListen
             tiPincode.requestFocus();
             //scrollView.smoothScrollTo(0, tiPincode.getBottom() - tiPincode.getHeight());
         } else {
-            startPayment();
-            //Log firebase event
-            Bundle bundle = new Bundle();
-            bundle.putString("uuid", mHelper.getUUID());
-            mAnalytics.logEvent(FIREBASE_EVENT_MAKE_PAYMENT_CLICKED, bundle);
+            // check net status
+            if(NetworkHelper.getNetConnectionStatus(AddressActivity.this))
+            {
+                startPayment();
+                //Log firebase event
+                Bundle bundle = new Bundle();
+                bundle.putString("uuid", mHelper.getUUID());
+                mAnalytics.logEvent(FIREBASE_EVENT_MAKE_PAYMENT_CLICKED, bundle);
+            }
+            else
+            {
+                ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_no_connection));
+            }
         }
-
-
     }
 
     private void startPayment() {
