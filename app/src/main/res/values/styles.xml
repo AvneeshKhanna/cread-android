@@ -39,6 +39,7 @@
     <!--Short font-->
     <style name="ShortFont" parent="android:TextAppearance">
         <!-- Custom Attr-->
-        <item name="fontPath">fonts/RalewayLight.ttf</item>
+        <item name="fontPath">fonts/Barlow-Medium.ttf</item>
+
     </style>
 </resources>
