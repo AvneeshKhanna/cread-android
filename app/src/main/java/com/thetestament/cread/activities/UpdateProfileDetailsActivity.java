@@ -7,6 +7,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.TextInputEditText;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.AppCompatSpinner;
 import android.text.InputType;
 import android.text.TextUtils;
@@ -226,8 +227,9 @@ public class UpdateProfileDetailsActivity extends BaseActivity {
      */
     private void showWaterMarkInputDialog() {
         new MaterialDialog.Builder(this)
-                .title("Watermark")
+                .title("Signature")
                 .autoDismiss(false)
+                .inputRange(1, 20, ContextCompat.getColor(UpdateProfileDetailsActivity.this, R.color.red))
                 .inputType(InputType.TYPE_TEXT_FLAG_CAP_SENTENCES | InputType.TYPE_TEXT_VARIATION_SHORT_MESSAGE)
                 .input(null, null, false, new MaterialDialog.InputCallback() {
                     @Override

@@ -4,6 +4,7 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.CoordinatorLayout;
+import android.support.v4.content.ContextCompat;
 import android.text.InputType;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -180,8 +181,9 @@ public class CapturePreviewActivity extends BaseActivity {
      */
     private void showWaterMarkInputDialog() {
         new MaterialDialog.Builder(this)
-                .title("Watermark")
+                .title("Signature")
                 .autoDismiss(false)
+                .inputRange(1, 20, ContextCompat.getColor(CapturePreviewActivity.this, R.color.red))
                 .inputType(InputType.TYPE_TEXT_FLAG_CAP_SENTENCES | InputType.TYPE_TEXT_VARIATION_SHORT_MESSAGE)
                 .input(null, null, false, new MaterialDialog.InputCallback() {
                     @Override
