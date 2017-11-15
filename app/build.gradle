@@ -23,11 +23,11 @@ android {
             buildConfigField "String", "URL", '"http://marketrecruitserver-env.ap-northeast-1.elasticbeanstalk.com"'
         }
         debug {
-            shrinkResources false
-            minifyEnabled false
+            shrinkResources true
+            minifyEnabled true
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
             //buildConfigField "String", "URL", '"http://cread-dev-remote.herokuapp.com"'
-            buildConfigField "String", "URL", '"http://f243b591.ngrok.io"'
+            buildConfigField "String", "URL", '"http://070ef74b.ngrok.io"'
         }
     }
 }
@@ -68,8 +68,7 @@ dependencies {
     //Image
     compile "com.squareup.picasso:picasso:$rootProject.picassoVersion"
 
-    //Json parser
-    compile "com.google.code.gson:gson:$rootProject.gsonVersion"
+
 
     // debug database
     debugCompile "com.amitshekhar.android:debug-db:$rootProject.debugDBVersion"
@@ -85,8 +84,8 @@ dependencies {
     //Circular imageView
     compile 'de.hdodenhof:circleimageview:2.1.0'
 
-    //Sectioned RecyclerView
-    compile 'com.github.zhukic:sectioned-recyclerview:0.2.2'
+    /*//Sectioned RecyclerView
+    compile 'com.github.zhukic:sectioned-recyclerview:0.2.2'*/
 
     //Tooltip
     compile 'com.github.vihtarb:tooltip:0.1.9'
@@ -97,7 +96,7 @@ dependencies {
     /*Image cropping*/
     //compile 'com.github.yalantis:ucrop:2.2.1'
     compile 'com.github.yalantis:ucrop:2.2.1-native'
-    compile 'com.theartofdev.edmodo:android-image-cropper:2.5.1'
+    /*compile 'com.theartofdev.edmodo:android-image-cropper:2.5.1'*/
 
     /*Image compression library*/
     compile 'id.zelory:compressor:2.1.0'

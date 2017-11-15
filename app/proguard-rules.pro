@@ -30,7 +30,7 @@
 -keep interface com.yalantis.ucrop** { *; }
 
 
-######## For Razorpay SDK
+######## For Razorpay SDK ##########
  -keepclassmembers class * {
      @android.webkit.JavascriptInterface <methods>;
  }
@@ -46,3 +46,19 @@
  -keepclasseswithmembers class * {
    public void onPayment*(...);
  }
+
+ ############ For Picasso ##############
+ -dontwarn com.squareup.okhttp.**
+
+ #*********************************For BottomNavigationView*******************************************#
+ -keepclassmembers class android.support.design.internal.BottomNavigationMenuView {
+     boolean mShiftingMode;
+ }
+ ####################### For IcePick  ###########################
+ -dontwarn icepick.**
+ -keep class icepick.** { *; }
+ -keep class **$$Icepick { *; }
+ -keepclasseswithmembernames class * {
+     @icepick.* <fields>;
+ }
+ -keepnames class * { @icepick.State *;}
