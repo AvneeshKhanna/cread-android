@@ -468,9 +468,11 @@ public class MainActivity extends BaseActivity {
 
 
                         } catch (JSONException e) {
+                            //Invalidate token
+                            AccessToken.setCurrentAccessToken(null);
                             e.printStackTrace();
                             FirebaseCrash.report(e);
-
+                            ViewHelper.getSnackBar(parentLayout, getString(R.string.error_msg_internal));
                         }
                     }
 

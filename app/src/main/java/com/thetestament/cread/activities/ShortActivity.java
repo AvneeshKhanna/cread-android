@@ -93,7 +93,7 @@ public class ShortActivity extends BaseActivity implements ColorChooserDialog.Co
     @State
     String mShortText, mCaptureUrl, mCaptureID = "";
     @State
-    boolean mIsMerchantable;
+    boolean mIsMerchantable =true;
     @State
     int mImageWidth = 650;
 
@@ -636,7 +636,7 @@ public class ShortActivity extends BaseActivity implements ColorChooserDialog.Co
                                 if (dataObject.getString("status").equals("done")) {
                                     ViewHelper.getToast(ShortActivity.this, "Short uploaded successfully.");
                                     //Navigate back to previous market
-                                    //finish();
+                                    finish();
                                 }
                             }
                         } catch (JSONException e) {

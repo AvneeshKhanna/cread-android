@@ -442,7 +442,7 @@ public class BottomNavigationActivity extends BaseActivity {
                 compressSpecific(uri, this, IMAGE_TYPE_USER_CAPTURE_PIC);
                 //Open preview screen
                 Intent intent = new Intent(BottomNavigationActivity.this, CapturePreviewActivity.class);
-                intent.putExtra("isMerchantable", 1);
+                intent.putExtra("isMerchantable", "1");
                 startActivity(intent);
             } else {
                 getMerchantableDialog();
@@ -618,7 +618,7 @@ public class BottomNavigationActivity extends BaseActivity {
                         dialog.dismiss();
                         //open preview screen
                         Intent intent = new Intent(BottomNavigationActivity.this, CapturePreviewActivity.class);
-                        intent.putExtra("isMerchantable", 0);
+                        intent.putExtra("isMerchantable", "0");
                         startActivity(intent);
                     }
                 })
