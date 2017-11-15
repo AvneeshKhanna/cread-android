@@ -28,6 +28,7 @@ import com.thetestament.cread.activities.FeedDescriptionActivity;
 import com.thetestament.cread.adapters.UpdatesAdapter;
 import com.thetestament.cread.database.NotificationsDBHelper;
 import com.thetestament.cread.database.NotificationsDBSchema;
+import com.thetestament.cread.helpers.NetworkHelper;
 import com.thetestament.cread.helpers.SharedPreferenceHelper;
 import com.thetestament.cread.helpers.ViewHelper;
 import com.thetestament.cread.models.FeedModel;
@@ -286,105 +287,117 @@ public class UpdatesFragment extends Fragment {
      * @param entityID
      */
     private void getFeedDetails(final String entityID) {
-        final boolean[] tokenError = {false};
-        final boolean[] connectionError = {false};
 
-        final FeedModel feedData = new FeedModel();
+        // check net status
+        if(NetworkHelper.getNetConnectionStatus(getActivity()))
+        {
+            final boolean[] tokenError = {false};
+            final boolean[] connectionError = {false};
 
-        progressBar.setVisibility(View.VISIBLE);
+            final FeedModel feedData = new FeedModel();
 
-        SharedPreferenceHelper spHelper = new SharedPreferenceHelper(getActivity());
+            progressBar.setVisibility(View.VISIBLE);
 
-        JSONObject data = new JSONObject();
-        try {
-            data.put("uuid", spHelper.getUUID());
-            data.put("authkey", spHelper.getAuthToken());
-            data.put("entityid", entityID);
-        } catch (JSONException e) {
-            e.printStackTrace();
+            SharedPreferenceHelper spHelper = new SharedPreferenceHelper(getActivity());
+
+            JSONObject data = new JSONObject();
+            try {
+                data.put("uuid", spHelper.getUUID());
+                data.put("authkey", spHelper.getAuthToken());
+                data.put("entityid", entityID);
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+
+
+            Rx2AndroidNetworking.post(BuildConfig.URL + "/entity-manage/load-specific")
+                    .addJSONObjectBody(data)
+                    .build()
+                    .getJSONObjectObservable()
+                    .subscribeOn(Schedulers.io())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribeWith(new Observer<JSONObject>() {
+                        @Override
+                        public void onSubscribe(@NonNull Disposable d) {
+                            mCompositeDisposable.add(d);
+                        }
+
+                        @Override
+                        public void onNext(@NonNull JSONObject jsonObject) {
+
+                            progressBar.setVisibility(View.GONE);
+
+                            try {
+                                //Token status is invalid
+                                if (jsonObject.getString("tokenstatus").equals("invalid")) {
+                                    tokenError[0] = true;
+                                } else {
+                                    JSONObject mainObject = jsonObject.getJSONObject("data");
+
+                                    JSONObject dataObj = mainObject.getJSONObject("entity");
+
+                                    feedData.setEntityID(entityID);
+                                    feedData.setCaptureID(dataObj.getString("captureid"));
+                                    feedData.setContentType(dataObj.getString("type"));
+                                    feedData.setUUID(dataObj.getString("uuid"));
+                                    feedData.setCreatorImage(dataObj.getString("profilepicurl"));
+                                    feedData.setCreatorName(dataObj.getString("creatorname"));
+                                    feedData.setHatsOffStatus(dataObj.getBoolean("hatsoffstatus"));
+                                    feedData.setMerchantable(dataObj.getBoolean("merchantable"));
+                                    feedData.setHatsOffCount(dataObj.getLong("hatsoffcount"));
+                                    feedData.setCommentCount(dataObj.getLong("commentcount"));
+                                    feedData.setContentImage(dataObj.getString("entityurl"));
+
+
+                                }
+                            } catch (JSONException e) {
+                                e.printStackTrace();
+                                FirebaseCrash.report(e);
+                                connectionError[0] = true;
+
+                            }
+                        }
+
+                        @Override
+                        public void onError(@NonNull Throwable e) {
+
+                            progressBar.setVisibility(View.GONE);
+                            FirebaseCrash.report(e);
+                            //Server error Snack bar
+                            ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_server));
+
+                        }
+
+                        @Override
+                        public void onComplete() {
+
+                            // Token status invalid
+                            if (tokenError[0]) {
+                                ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_invalid_token));
+                            }
+                            //Error occurred
+                            else if (connectionError[0]) {
+                                ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_internal));
+
+                            } else
+
+                            {
+                                Intent intent = new Intent(getActivity(), FeedDescriptionActivity.class);
+                                intent.putExtra(EXTRA_FEED_DESCRIPTION_DATA, feedData);
+                                getActivity().startActivity(intent);
+
+                                getActivity().finish();
+                            }
+                        }
+                    });
+        }
+
+        else
+        {
+            ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_no_connection));
         }
 
 
-        Rx2AndroidNetworking.post(BuildConfig.URL + "/entity-manage/load-specific")
-                .addJSONObjectBody(data)
-                .build()
-                .getJSONObjectObservable()
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribeWith(new Observer<JSONObject>() {
-                    @Override
-                    public void onSubscribe(@NonNull Disposable d) {
-                        mCompositeDisposable.add(d);
-                    }
-
-                    @Override
-                    public void onNext(@NonNull JSONObject jsonObject) {
-
-                        progressBar.setVisibility(View.GONE);
-
-                        try {
-                            //Token status is invalid
-                            if (jsonObject.getString("tokenstatus").equals("invalid")) {
-                                tokenError[0] = true;
-                            } else {
-                                JSONObject mainObject = jsonObject.getJSONObject("data");
-
-                                JSONObject dataObj = mainObject.getJSONObject("entity");
-
-                                feedData.setEntityID(entityID);
-                                feedData.setCaptureID(dataObj.getString("captureid"));
-                                feedData.setContentType(dataObj.getString("type"));
-                                feedData.setUUID(dataObj.getString("uuid"));
-                                feedData.setCreatorImage(dataObj.getString("profilepicurl"));
-                                feedData.setCreatorName(dataObj.getString("creatorname"));
-                                feedData.setHatsOffStatus(dataObj.getBoolean("hatsoffstatus"));
-                                feedData.setMerchantable(dataObj.getBoolean("merchantable"));
-                                feedData.setHatsOffCount(dataObj.getLong("hatsoffcount"));
-                                feedData.setCommentCount(dataObj.getLong("commentcount"));
-                                feedData.setContentImage(dataObj.getString("entityurl"));
-
-
-                            }
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                            FirebaseCrash.report(e);
-                            connectionError[0] = true;
-
-                        }
-                    }
-
-                    @Override
-                    public void onError(@NonNull Throwable e) {
-
-                        progressBar.setVisibility(View.GONE);
-                        FirebaseCrash.report(e);
-                        //Server error Snack bar
-                        ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_server));
-
-                    }
-
-                    @Override
-                    public void onComplete() {
-
-                        // Token status invalid
-                        if (tokenError[0]) {
-                            ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_invalid_token));
-                        }
-                        //Error occurred
-                        else if (connectionError[0]) {
-                            ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_internal));
-
-                        } else
-
-                        {
-                            Intent intent = new Intent(getActivity(), FeedDescriptionActivity.class);
-                            intent.putExtra(EXTRA_FEED_DESCRIPTION_DATA, feedData);
-                            getActivity().startActivity(intent);
-
-                            getActivity().finish();
-                        }
-                    }
-                });
 
 
     }

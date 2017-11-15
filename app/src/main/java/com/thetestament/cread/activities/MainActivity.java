@@ -3,6 +3,7 @@ package com.thetestament.cread.activities;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.annotation.Nullable;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
@@ -339,65 +340,68 @@ public class MainActivity extends BaseActivity {
      */
     private void getUserData() {
 
-        verifyDialog = new MaterialDialog.Builder(MainActivity.this)
-                .title(getString(R.string.verif_title))
-                .content(getString(R.string.waiting_msg))
-                .progress(true, 0)
-                .show();
+        if (NetworkHelper.getNetConnectionStatus(MainActivity.this)) {
+            verifyDialog = new MaterialDialog.Builder(MainActivity.this)
+                    .title(getString(R.string.verif_title))
+                    .content(getString(R.string.waiting_msg))
+                    .progress(true, 0)
+                    .show();
 
 
-        // reading the user's data from graph API
-        final GraphRequest request = GraphRequest.newMeRequest(
-                AccessToken.getCurrentAccessToken(),
-                new GraphRequest.GraphJSONObjectCallback() {
-                    @Override
-                    public void onCompleted(
-                            JSONObject object,
-                            GraphResponse response) {
-                        Log.d(TAG, "onCompleted: " + object);
+            // reading the user's data from graph API
+            final GraphRequest request = GraphRequest.newMeRequest(
+                    AccessToken.getCurrentAccessToken(),
+                    new GraphRequest.GraphJSONObjectCallback() {
+                        @Override
+                        public void onCompleted(
+                                JSONObject object,
+                                GraphResponse response) {
+                            Log.d(TAG, "onCompleted: " + object);
 
 
-                        FacebookRequestError error = response.getError();
+                            FacebookRequestError error = response.getError();
 
-                        //no error
-                        if (error == null) {
+                            //no error
+                            if (error == null) {
 
-                            graphObject = object;
-                            // retrieve the verified number and send the details to the server
-                            getPhoneNo();
-                        }
-                        // error
-                        else {
-                            verifyDialog.dismiss();
-
-                            Category errorCateg = error.getCategory();
-
-                            switch (errorCateg) {
-                                case LOGIN_RECOVERABLE:
-                                    // error is authentication related
-                                    LoginManager.getInstance().resolveError(MainActivity.this, response);
-                                    break;
-                                case TRANSIENT:
-                                    // some temporary error occurred so try again
-                                    //access token is not set to null because graph request is retried
-                                    getUserData();
-                                    break;
-                                case OTHER:
-                                    ViewHelper.getSnackBar(parentLayout, error.getErrorUserMessage());
-                                    AccessToken.setCurrentAccessToken(null);
-                                    break;
+                                graphObject = object;
+                                // retrieve the verified number and send the details to the server
+                                getPhoneNo();
                             }
+                            // error
+                            else {
+                                verifyDialog.dismiss();
+
+                                Category errorCateg = error.getCategory();
+
+                                switch (errorCateg) {
+                                    case LOGIN_RECOVERABLE:
+                                        // error is authentication related
+                                        LoginManager.getInstance().resolveError(MainActivity.this, response);
+                                        break;
+                                    case TRANSIENT:
+                                        // some temporary error occurred so try again
+                                        //access token is not set to null because graph request is retried
+                                        getUserData();
+                                        break;
+                                    case OTHER:
+                                        ViewHelper.getSnackBar(parentLayout, error.getErrorUserMessage());
+                                        AccessToken.setCurrentAccessToken(null);
+                                        break;
+                                }
+                            }
+
+
                         }
-
-
-                    }
-                });
-        Bundle parameters = new Bundle();
-        parameters.putString("fields", "id,first_name,last_name,age_range,link,gender,locale,picture,email");
-        request.setParameters(parameters);
-        request.executeAsync();
-
-
+                    });
+            Bundle parameters = new Bundle();
+            parameters.putString("fields", "id,first_name,last_name,age_range,link,gender,locale,picture,email");
+            request.setParameters(parameters);
+            request.executeAsync();
+        } else {
+            AccessToken.setCurrentAccessToken(null);
+            ViewHelper.getSnackBar(parentLayout, getString(R.string.error_msg_no_connection));
+        }
     }
 
     /**

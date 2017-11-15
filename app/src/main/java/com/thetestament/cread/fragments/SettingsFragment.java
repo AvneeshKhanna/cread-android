@@ -3,6 +3,7 @@ package com.thetestament.cread.fragments;
 import android.app.NotificationManager;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.hardware.display.VirtualDisplay;
 import android.net.Uri;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
@@ -28,6 +29,7 @@ import com.thetestament.cread.activities.AboutUsActivity;
 import com.thetestament.cread.activities.FindFBFriendsActivity;
 import com.thetestament.cread.activities.MainActivity;
 import com.thetestament.cread.activities.WebViewActivity;
+import com.thetestament.cread.helpers.NetworkHelper;
 import com.thetestament.cread.helpers.SharedPreferenceHelper;
 import com.thetestament.cread.helpers.ViewHelper;
 
@@ -178,80 +180,96 @@ public class SettingsFragment extends PreferenceFragmentCompat {
      * Method to perform log out task.
      */
     private void performLogOut() {
-        //To show the progress dialog
-        MaterialDialog.Builder builder = new MaterialDialog.Builder(getActivity())
-                .title("Log out in progress")
-                .content("Please wait...")
-                .autoDismiss(false)
-                .cancelable(false)
-                .progress(true, 0);
-        final MaterialDialog dialog = builder.build();
-        dialog.show();
 
-        //Retrieving fcmToken
-        String fcmToken = FirebaseInstanceId.getInstance().getToken();
-        //Send request to server
-        JSONObject jsonObject = new JSONObject();
-        try {
+        // check net status
+        if(NetworkHelper.getNetConnectionStatus(getActivity()))
+        {
+            //To show the progress dialog
+            MaterialDialog.Builder builder = new MaterialDialog.Builder(getActivity())
+                    .title("Log out in progress")
+                    .content("Please wait...")
+                    .autoDismiss(false)
+                    .cancelable(false)
+                    .progress(true, 0);
+            final MaterialDialog dialog = builder.build();
+            dialog.show();
 
-            jsonObject.put("uuid", spHelper.getUUID());
-            jsonObject.put("fcmtoken", fcmToken);
+            //Retrieving fcmToken
+            String fcmToken = FirebaseInstanceId.getInstance().getToken();
+            //Send request to server
+            JSONObject jsonObject = new JSONObject();
+            try {
 
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
+                jsonObject.put("uuid", spHelper.getUUID());
+                jsonObject.put("fcmtoken", fcmToken);
 
-        Rx2AndroidNetworking.post(BuildConfig.URL + "/user-access/sign-out")
-                .addJSONObjectBody(jsonObject)
-                .build()
-                .getJSONObjectObservable()
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribeWith(new Observer<JSONObject>() {
-                    @Override
-                    public void onSubscribe(@io.reactivex.annotations.NonNull Disposable d) {
-                        mCompositeDisposable.add(d);
-                    }
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
 
-                    @Override
-                    public void onNext(@io.reactivex.annotations.NonNull JSONObject jsonObject) {
+            Rx2AndroidNetworking.post(BuildConfig.URL + "/user-access/sign-out")
+                    .addJSONObjectBody(jsonObject)
+                    .build()
+                    .getJSONObjectObservable()
+                    .subscribeOn(Schedulers.io())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribeWith(new Observer<JSONObject>() {
+                        @Override
+                        public void onSubscribe(@io.reactivex.annotations.NonNull Disposable d) {
+                            mCompositeDisposable.add(d);
+                        }
 
-                        try {
-                            JSONObject data = jsonObject.getJSONObject("data");
+                        @Override
+                        public void onNext(@io.reactivex.annotations.NonNull JSONObject jsonObject) {
 
-                            if (data.getString("status").equals("done")) {
-                                dialog.dismiss();
-                                //Resetting defaultSharedPreferences to reset settings_notifications_key
-                                SharedPreferences defaultPreferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
-                                SharedPreferences.Editor defaultPrefEditor = defaultPreferences.edit();
-                                defaultPrefEditor.clear();
-                                defaultPrefEditor.apply();
+                            try {
+                                JSONObject data = jsonObject.getJSONObject("data");
 
-                                // clear shared preferences of cread
-                                spHelper.clearSharedPreferences();
+                                if (data.getString("status").equals("done")) {
+                                    dialog.dismiss();
+                                    //Resetting defaultSharedPreferences to reset settings_notifications_key
+                                    SharedPreferences defaultPreferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
+                                    SharedPreferences.Editor defaultPrefEditor = defaultPreferences.edit();
+                                    defaultPrefEditor.clear();
+                                    defaultPrefEditor.apply();
 
-                                // clear Razorpay user data
-                                Checkout.clearUserData(getActivity());
-                                // clear facebook token
-                                AccessToken.setCurrentAccessToken(null);
+                                    // clear shared preferences of cread
+                                    spHelper.clearSharedPreferences();
 
-                                // to remove all notifications from drawer
-                                // so user can't open them after logging out
-                                NotificationManager notificationManager = (NotificationManager) getActivity().getApplicationContext().getSystemService(getActivity().NOTIFICATION_SERVICE);
-                                notificationManager.cancelAll();
+                                    // clear Razorpay user data
+                                    Checkout.clearUserData(getActivity());
+                                    // clear facebook token
+                                    AccessToken.setCurrentAccessToken(null);
 
-                                // broadcast the logout action
-                                // base activity receives the broadcast and destroys all activities
-                                // directs the user to Main Activity
+                                    // to remove all notifications from drawer
+                                    // so user can't open them after logging out
+                                    NotificationManager notificationManager = (NotificationManager) getActivity().getApplicationContext().getSystemService(getActivity().NOTIFICATION_SERVICE);
+                                    notificationManager.cancelAll();
+
+                                    // broadcast the logout action
+                                    // base activity receives the broadcast and destroys all activities
+                                    // directs the user to Main Activity
                                 /*Intent broadcastIntent = new Intent();
                                 broadcastIntent.setAction(ACTION_LOG_OUT);
                                 getActivity().sendBroadcast(broadcastIntent);*/
-                                // to close all all activities
-                                getActivity().finishAffinity();
-                                startActivity(new Intent(getActivity(), MainActivity.class));
-                                //To finish SettingsActivity
-                                getActivity().finish();
-                            } else {
+                                    // to close all all activities
+                                    getActivity().finishAffinity();
+                                    startActivity(new Intent(getActivity(), MainActivity.class));
+                                    //To finish SettingsActivity
+                                    getActivity().finish();
+                                } else {
+                                    dialog.dismiss();
+                                    Toast.makeText(getActivity()
+                                            , getString(R.string.error_msg_server)
+                                            , Toast.LENGTH_LONG)
+                                            .show();
+                                }
+
+
+                            } catch (JSONException e) {
+                                e.printStackTrace();
+                                FirebaseCrash.report(e);
+
                                 dialog.dismiss();
                                 Toast.makeText(getActivity()
                                         , getString(R.string.error_msg_server)
@@ -259,38 +277,34 @@ public class SettingsFragment extends PreferenceFragmentCompat {
                                         .show();
                             }
 
+                        }
 
-                        } catch (JSONException e) {
+                        @Override
+                        public void onError(@io.reactivex.annotations.NonNull Throwable e) {
+
+                            dialog.dismiss();
+
                             e.printStackTrace();
                             FirebaseCrash.report(e);
 
-                            dialog.dismiss();
-                            Toast.makeText(getActivity()
-                                    , getString(R.string.error_msg_server)
-                                    , Toast.LENGTH_LONG)
-                                    .show();
+                            ViewHelper.getToast(getActivity(), getString(R.string.error_msg_server));
+
                         }
 
-                    }
+                        @Override
+                        public void onComplete() {
 
-                    @Override
-                    public void onError(@io.reactivex.annotations.NonNull Throwable e) {
+                            // do nothing
+                        }
+                    });
+        }
 
-                        dialog.dismiss();
+        else
+        {
+            ViewHelper.getToast(getActivity(), getString(R.string.error_msg_no_connection));
+        }
 
-                        e.printStackTrace();
-                        FirebaseCrash.report(e);
 
-                        ViewHelper.getToast(getActivity(), getString(R.string.error_msg_server));
-
-                    }
-
-                    @Override
-                    public void onComplete() {
-
-                        // do nothing
-                    }
-                });
     }
 
 
