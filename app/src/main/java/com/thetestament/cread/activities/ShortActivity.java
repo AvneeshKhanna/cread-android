@@ -20,7 +20,6 @@ import android.view.MenuItem;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.ImageView;
-import android.widget.TextView;
 
 import com.afollestad.materialdialogs.DialogAction;
 import com.afollestad.materialdialogs.MaterialDialog;
@@ -84,16 +83,14 @@ public class ShortActivity extends BaseActivity implements ColorChooserDialog.Co
     ImageView imageShort;
     @BindView(R.id.textShort)
     EditText textShort;
-    @BindView(R.id.textWaterMark)
-    TextView textWaterMark;
+
 
     @State
-    String mShortText, mCaptureUrl, mCaptureID = "";
+    String mShortText, mCaptureUrl, mCaptureID = "", mSignatureText;
     @State
-    boolean mIsMerchantable = true;
+    boolean mIsMerchantable = true, signatureStatus = false;
     @State
     int mImageWidth = 650;
-
     /**
      * Flag to maintain gravity status i.e 0 for center , 1 for right and 2 for left.
      */
@@ -115,9 +112,6 @@ public class ShortActivity extends BaseActivity implements ColorChooserDialog.Co
 
     CompositeDisposable mCompositeDisposable = new CompositeDisposable();
     SharedPreferenceHelper mHelper;
-
-    int[] location = new int[2];
-
 
     @Override
 
@@ -192,6 +186,19 @@ public class ShortActivity extends BaseActivity implements ColorChooserDialog.Co
             case android.R.id.home:
                 //Navigate back to previous screen
                 finish();
+                return true;
+            case R.id.action_signature:
+
+                if (signatureStatus) {
+                    String s = textShort.getText().toString();
+                    String removedText = s.replace(mSignatureText, "").trim();
+                    textShort.setText(removedText);
+                    signatureStatus = false;
+                } else {
+                    textShort.setText(textShort.getText() + "\n \n" + mSignatureText);
+                    signatureStatus = true;
+                }
+
                 return true;
             case R.id.action_next:
                 getRuntimePermission();
@@ -341,7 +348,7 @@ public class ShortActivity extends BaseActivity implements ColorChooserDialog.Co
         }
 
         //Set water mark text
-        textWaterMark.setText(mHelper.getFirstName() + " " + mHelper.getLastName());
+        mSignatureText = "- " + mHelper.getFirstName() + " " + mHelper.getLastName();
     }
 
     /**

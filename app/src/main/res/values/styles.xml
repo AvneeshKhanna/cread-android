@@ -35,4 +35,10 @@
         <!-- Custom Attr-->
         <item name="fontPath">fonts/RalewayLight.ttf</item>
     </style>
+
+    <!--Short font-->
+    <style name="ShortFont" parent="android:TextAppearance">
+        <!-- Custom Attr-->
+        <item name="fontPath">fonts/RalewayLight.ttf</item>
+    </style>
 </resources>

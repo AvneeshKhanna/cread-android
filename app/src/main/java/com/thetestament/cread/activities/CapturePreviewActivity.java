@@ -143,7 +143,7 @@ public class CapturePreviewActivity extends BaseActivity {
      */
     private void getWaterWorkDialog() {
         new MaterialDialog.Builder(this)
-                .content("Do you wish to add your watermark?")
+                .content("Do you wish to add your signature? It will be visible on the bottom left of the image.")
                 .positiveText(R.string.text_yes)
                 .negativeText(R.string.text_no)
                 .checkBoxPrompt("Remember this", false, null)
@@ -250,7 +250,7 @@ public class CapturePreviewActivity extends BaseActivity {
                             } else {
                                 JSONObject dataObject = response.getJSONObject("data");
                                 if (dataObject.getString("status").equals("done")) {
-                                    ViewHelper.getToast(CapturePreviewActivity.this, "Your capture uploaded.");
+                                    ViewHelper.getToast(CapturePreviewActivity.this, "Your capture uploaded");
                                     //finish this activity
                                     finish();
                                 }
