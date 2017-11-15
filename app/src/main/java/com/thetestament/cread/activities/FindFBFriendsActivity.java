@@ -1,6 +1,5 @@
 package com.thetestament.cread.activities;
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.design.widget.CoordinatorLayout;
@@ -8,14 +7,13 @@ import android.support.v4.content.ContextCompat;
 import android.support.v4.view.ViewCompat;
 import android.support.v4.widget.NestedScrollView;
 import android.support.v4.widget.SwipeRefreshLayout;
-import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.animation.AnimationUtils;
 import android.view.animation.LayoutAnimationController;
+import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
@@ -67,6 +65,8 @@ public class FindFBFriendsActivity extends BaseActivity {
     TextView placeholder;
     @BindView(R.id.nestedScrollView)
     NestedScrollView scrollView;
+    @BindView(R.id.noFriendsPlaceholder)
+    LinearLayout noFriendsPlaceholder;
 
 
     //private int mPageNumber = 0;
@@ -271,10 +271,12 @@ public class FindFBFriendsActivity extends BaseActivity {
 
                                     if (mDataList.size() == 0) {
                                         scrollView.setVisibility(View.GONE);
-                                        placeholder.setVisibility(View.VISIBLE);
+                                        //placeholder.setVisibility(View.VISIBLE);
+                                        noFriendsPlaceholder.setVisibility(View.VISIBLE);
                                     } else {
                                         scrollView.setVisibility(View.VISIBLE);
-                                        placeholder.setVisibility(View.INVISIBLE);
+                                        //placeholder.setVisibility(View.INVISIBLE);
+                                        noFriendsPlaceholder.setVisibility(View.INVISIBLE);
                                     }
                                     //Dismiss indicator
                                     swipeRefreshLayout.setRefreshing(false);
@@ -554,8 +556,7 @@ public class FindFBFriendsActivity extends BaseActivity {
     @OnClick(R.id.buttonFollowAll)
     public void onViewClicked() {
 
-        if(NetworkHelper.getNetConnectionStatus(FindFBFriendsActivity.this))
-        {
+        if (NetworkHelper.getNetConnectionStatus(FindFBFriendsActivity.this)) {
             final JSONObject jsonObject = new JSONObject();
             try {
                 jsonObject.put("uuid", spHelper.getUUID());
@@ -628,10 +629,7 @@ public class FindFBFriendsActivity extends BaseActivity {
 
                         }
                     });
-        }
-
-        else
-        {
+        } else {
             ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_no_connection));
         }
 

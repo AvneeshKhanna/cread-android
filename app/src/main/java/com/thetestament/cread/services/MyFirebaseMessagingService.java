@@ -19,6 +19,7 @@ import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
 import com.squareup.picasso.Picasso;
 import com.thetestament.cread.R;
+import com.thetestament.cread.activities.BottomNavigationActivity;
 import com.thetestament.cread.activities.UpdatesActivity;
 import com.thetestament.cread.fragments.SettingsFragment;
 import com.thetestament.cread.utils.Constant;
@@ -54,6 +55,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
     private int resId = 0;
     private Map<String, String> data;
     private final String TAG = getClass().getSimpleName();
+    private Intent intent;
 
     @Override
     public void onMessageReceived(RemoteMessage remoteMessage) {
@@ -85,34 +87,46 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
                 actorUserID = data.get("actorid");
                 actorUserImage = data.get("actorimage");
                 resId = R.drawable.ic_cread_notification_general;
+                intent = new Intent(this, UpdatesActivity.class);
+                intent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
                 break;
             case NOTIFICATION_CATEGORY_CREAD_COLLABORATE:
                 mId = NOTIFICATION_ID_CREAD_COLLABORATE;
                 entityID = data.get("entityid");
                 actorUserImage = data.get("actorimage");
                 resId = R.drawable.ic_cread_notification_general;
+                intent = new Intent(this, UpdatesActivity.class);
+                intent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
                 break;
             case NOTIFICATION_CATEGORY_CREAD_HATSOFF:
                 mId = NOTIFICATION_ID_CREAD_HATSOFF;
                 entityID = data.get("entityid");
                 actorUserImage = data.get("actorimage");
                 resId = R.drawable.ic_cread_notification_general;
+                intent = new Intent(this, UpdatesActivity.class);
+                intent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
                 break;
             case NOTIFICATION_CATEGORY_CREAD_COMMENT:
                 mId = NOTIFICATION_ID_CREAD_COMMENT;
                 entityID = data.get("entityid");
                 actorUserImage = data.get("actorimage");
                 resId = R.drawable.ic_cread_notification_general;
+                intent = new Intent(this, UpdatesActivity.class);
+                intent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
                 break;
             case NOTIFICATION_CATEGORY_CREAD_BUY:
                 mId = NOTIFICATION_ID_CREAD_BUY;
                 entityID = data.get("entityid");
                 actorUserImage = data.get("actorimage");
                 resId = R.drawable.ic_cread_notification_general;
+                intent = new Intent(this, UpdatesActivity.class);
+                intent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
                 break;
             case NOTIFICATION_CATEGORY_CREAD_GENERAL:
                 mId = NOTIFICATION_ID_CREAD_GENERAL;
                 resId = R.drawable.ic_cread_notification_general;
+                intent = new Intent(this, BottomNavigationActivity.class);
+                intent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
                 break;
             default:
                 break;
@@ -139,7 +153,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
 
                 if (!key_settings_notifications) {
                 } else {
-                    buildNotification(message, mId);
+                    buildNotification(message, mId, intent);
                 }
             }
         });
@@ -160,11 +174,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
      * @param message Message to be displayed in notification
      * @param mId     id for notification*
      */
-    private void buildNotification(String message, int mId) {
-
-
-        Intent intent = new Intent(this, UpdatesActivity.class);
-        intent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
+    private void buildNotification(String message, int mId, Intent intent) {
 
         PendingIntent pendingIntent =
                 PendingIntent.getActivity(

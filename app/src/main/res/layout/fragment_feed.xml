@@ -29,10 +29,10 @@
         android:visibility="gone">
 
         <ImageView
-            android:layout_width="100dp"
-            android:layout_height="100dp"
+            android:layout_width="200dp"
+            android:layout_height="150dp"
             android:layout_gravity="center"
-            android:src="@drawable/ic_person_add_48"
+            android:src="@drawable/connect_people"
             />
 
         <TextView
@@ -43,13 +43,13 @@
             android:text="Connect with others"
             android:textColor="@color/black_overlay"
             android:textSize="24sp"
-            android:layout_marginTop="10dp"
+            android:layout_marginTop="5dp"
             />
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="20dp"
+            android:layout_marginTop="15dp"
             android:gravity="center_horizontal"
             android:text="Discover new people or find your Facebook friends on Cread"
             android:layout_marginLeft="30dp"

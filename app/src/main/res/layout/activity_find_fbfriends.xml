@@ -78,14 +78,31 @@
         </android.support.v4.widget.NestedScrollView>
     </android.support.v4.widget.SwipeRefreshLayout>
 
-
-    <TextView
-        android:id="@+id/placeholder"
+    <LinearLayout
+        android:id="@+id/noFriendsPlaceholder"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:orientation="vertical"
         android:gravity="center"
-        android:text="None of your facebook friends are on Cread yet"
-        android:visibility="invisible"/>
+        android:layout_gravity="center"
+        android:visibility="invisible">
+
+        <ImageView
+            android:layout_width="80dp"
+            android:layout_height="80dp"
+            android:src="@drawable/ic_no_fb_friends_48"
+            />
+
+        <TextView
+            android:id="@+id/placeholder"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:text="None of your Facebook friends are on Cread yet"
+            android:layout_marginTop="10dp"/>
+
+    </LinearLayout>
+
 
 
 
