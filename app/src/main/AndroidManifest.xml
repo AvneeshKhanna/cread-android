@@ -45,7 +45,7 @@
         <!-- for razorpay sdk -->
         <meta-data
             android:name="com.razorpay.ApiKey"
-            android:value="rzp_test_Q09427lQA9Ol5g" />
+            android:value="rzp_live_R8v2wfBMmMnHVy" />
 
 
         <activity
@@ -190,8 +190,7 @@
             android:screenOrientation="portrait"
             android:theme="@style/Theme.AppCompat.Light.NoActionBar" />
 
-        <!--For Image cropping-->
-        <activity android:name="com.theartofdev.edmodo.cropper.CropImageActivity" />
+
 
 
         <!-- HatsOffActivity -->
