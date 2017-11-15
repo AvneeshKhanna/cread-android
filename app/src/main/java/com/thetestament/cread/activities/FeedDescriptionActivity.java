@@ -188,7 +188,7 @@ public class FeedDescriptionActivity extends BaseActivity {
             intent.putExtra(EXTRA_CAPTURE_URL, mFeedData.getContentImage());
             startActivity(intent);
         } else {
-            ViewHelper.getSnackBar(rootView, "hey i am coming soon");
+            ViewHelper.getSnackBar(rootView, "Due to low resolution this image is not available for purchase.");
         }
 
         //Log firebase event

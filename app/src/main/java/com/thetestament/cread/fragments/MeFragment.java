@@ -568,8 +568,6 @@ public class MeFragment extends Fragment {
                             else {
                                 textBio.setVisibility(View.GONE);
                             }
-                            //Convert watermark status
-                            mapWaterMarkStatus(mWaterMarkStatus);
 
                             //Toggle follow button
                             toggleFollowButton(mFollowStatus, getActivity());

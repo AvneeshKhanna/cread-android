@@ -25,6 +25,7 @@ import com.thetestament.cread.activities.FeedDescriptionActivity;
 import com.thetestament.cread.activities.ProfileActivity;
 import com.thetestament.cread.activities.ShortActivity;
 import com.thetestament.cread.helpers.NetworkHelper;
+import com.thetestament.cread.helpers.SharedPreferenceHelper;
 import com.thetestament.cread.helpers.ViewHelper;
 import com.thetestament.cread.listeners.listener.OnFeedLoadMoreListener;
 import com.thetestament.cread.listeners.listener.OnHatsOffListener;
@@ -130,6 +131,14 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                 case CONTENT_TYPE_CAPTURE:
                     itemViewHolder.imageWorkType.setImageDrawable(ContextCompat.getDrawable(mContext, R.drawable.ic_camera_alt_24));
                     itemViewHolder.buttonCompose.setVisibility(View.VISIBLE);
+                    //Show tooltip oh edit button
+                    if (position == 0) {
+                        SharedPreferenceHelper helper = new SharedPreferenceHelper(mContext);
+                        if (helper.isWriteIconTooltipFirstTime()) {
+                            ViewHelper.getToolTip(itemViewHolder.buttonCompose, "Have some thoughts about this photo? Tap to write on it", mContext);
+                        }
+                        helper.updateWriteIconToolTipStatus(false);
+                    }
                     break;
                 case CONTENT_TYPE_SHORT:
                     itemViewHolder.imageWorkType.setImageDrawable(ContextCompat.getDrawable(mContext, R.drawable.ic_create_24));
