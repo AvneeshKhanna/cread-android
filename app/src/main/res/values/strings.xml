@@ -33,6 +33,7 @@
     <string name="key_short_tooltip">shortTooltip</string>
     <string name="key_capture_water_mark_text">captureWaterMarkText</string>
     <string name="key_write_tooltip">writeButton</string>
+    <string name="key_buy_dialog">buyDialog</string>
 
     // dialog messages
     <string name="processing_title">Processing</string>

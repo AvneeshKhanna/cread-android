@@ -10,6 +10,7 @@ import android.support.v4.widget.NestedScrollView;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -108,6 +109,14 @@ public class MerchandisingProductsActivity extends BaseActivity {
         //For smooth scrolling
         ViewCompat.setNestedScrollingEnabled(recyclerView, false);
 
+        // if screen opened first time
+        if(mHelper.isBuyingFirstTime())
+        {
+            showTermsDialog();
+        }
+
+
+
         initView();
     }
 
@@ -133,17 +142,7 @@ public class MerchandisingProductsActivity extends BaseActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.action_terms:
-                new MaterialDialog.Builder(MerchandisingProductsActivity.this)
-                        .customView(R.layout.dialog_products_terms, false)
-                        .positiveText("Ok")
-                        .onPositive(new MaterialDialog.SingleButtonCallback() {
-                            @Override
-                            public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
-                                dialog.dismiss();
-                            }
-                        })
-                        .build()
-                        .show();
+                showTermsDialog();
                 return true;
             case android.R.id.home:
                 //finish this activity
@@ -203,6 +202,26 @@ public class MerchandisingProductsActivity extends BaseActivity {
         initBuyButtonListener();
 
         getProductsData();
+
+    }
+
+    /**
+     * Method to show the terms dialog
+     */
+    private void showTermsDialog()
+    {
+        new MaterialDialog.Builder(MerchandisingProductsActivity.this)
+                .customView(R.layout.dialog_products_terms, false)
+                .positiveText("Ok")
+                .onPositive(new MaterialDialog.SingleButtonCallback() {
+                    @Override
+                    public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
+                        dialog.dismiss();
+                        mHelper.updateBuyingStatus(false);
+                    }
+                })
+                .build()
+                .show();
 
     }
 

@@ -187,6 +187,22 @@ public class SharedPreferenceHelper {
     }
 
     /**
+     * Method to retrieve buy intro dialog first time run status.
+     *
+     * @return True by default
+     */
+    public boolean isBuyingFirstTime() {
+        return mSharedPreferences
+                .getBoolean(mContext.getString(R.string.key_buy_dialog), true);
+    }
+
+    public void updateBuyingStatus(boolean status) {
+        SharedPreferences.Editor editor = mSharedPreferences.edit();
+        editor.putBoolean(mContext.getString(R.string.key_buy_dialog), status);
+        editor.apply();
+    }
+
+    /**
      * Method to retrieve short intro dialog first time run status.
      *
      * @return True by default

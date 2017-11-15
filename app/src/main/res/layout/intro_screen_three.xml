@@ -30,7 +30,7 @@
             android:gravity="center"
             android:paddingLeft="10dp"
             android:paddingRight="10dp"
-            android:text="Write on others photographs and vice-versa"
+            android:text="Write on others' photographs and vice-versa"
             android:textColor="@color/colorPrimary"
             android:textSize="18sp"
             android:textStyle="bold" />
