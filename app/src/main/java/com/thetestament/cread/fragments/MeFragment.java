@@ -43,6 +43,7 @@ import com.thetestament.cread.activities.FollowActivity;
 import com.thetestament.cread.activities.UpdateProfileDetailsActivity;
 import com.thetestament.cread.activities.UpdateProfileImageActivity;
 import com.thetestament.cread.adapters.MeAdapter;
+import com.thetestament.cread.helpers.NetworkHelper;
 import com.thetestament.cread.helpers.SharedPreferenceHelper;
 import com.thetestament.cread.helpers.ViewHelper;
 import com.thetestament.cread.listeners.listener;
@@ -272,19 +273,29 @@ public class MeFragment extends Fragment {
      */
     @OnClick(R.id.buttonFollow)
     public void onFollowButtonClicked() {
-        //Disable follow button
-        buttonFollow.setEnabled(false);
-        //set status to true if its false and vice versa
-        mFollowStatus = !mFollowStatus;
-        //toggle follow button
-        toggleFollowButton(mFollowStatus, getActivity());
-        //Update status on server
-        updateFollowStatus();
 
-        //Log firebase event
-        Bundle bundle = new Bundle();
-        bundle.putString("uuid", mHelper.getUUID());
-        FirebaseAnalytics.getInstance(getActivity()).logEvent(FIREBASE_EVENT_FOLLOW_FROM_PROFILE, bundle);
+        // check net status
+        if(NetworkHelper.getNetConnectionStatus(getActivity()))
+        {
+            //Disable follow button
+            buttonFollow.setEnabled(false);
+            //set status to true if its false and vice versa
+            mFollowStatus = !mFollowStatus;
+            //toggle follow button
+            toggleFollowButton(mFollowStatus, getActivity());
+            //Update status on server
+            updateFollowStatus();
+
+            //Log firebase event
+            Bundle bundle = new Bundle();
+            bundle.putString("uuid", mHelper.getUUID());
+            FirebaseAnalytics.getInstance(getActivity()).logEvent(FIREBASE_EVENT_FOLLOW_FROM_PROFILE, bundle);
+        }
+
+        else
+        {
+            ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_no_connection));
+        }
     }
 
     /**
@@ -1014,7 +1025,7 @@ public class MeFragment extends Fragment {
         adapter.setHatsOffListener(new listener.OnUserActivityHatsOffListener() {
             @Override
             public void onHatsOffClick(FeedModel data, int itemPosition) {
-                updateHatsOffStatus(data, itemPosition);
+                    updateHatsOffStatus(data, itemPosition);
             }
         });
     }
@@ -1090,7 +1101,18 @@ public class MeFragment extends Fragment {
         meAdapter.setOnContentDeleteListener(new listener.OnContentDeleteListener() {
             @Override
             public void onDelete(String entityID, int position) {
-                deleteContent(entityID, position);
+
+                // check net status
+                if(NetworkHelper.getNetConnectionStatus(getActivity()))
+                {
+                    deleteContent(entityID, position);
+                }
+
+                else
+                {
+                    ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_no_connection));
+                }
+
             }
         });
     }
@@ -1102,6 +1124,7 @@ public class MeFragment extends Fragment {
      * @param itemPosition Position of current item.
      */
     private void deleteContent(String entityID, final int itemPosition) {
+
 
         //To show the progress dialog
         MaterialDialog.Builder builder = new MaterialDialog.Builder(getActivity())

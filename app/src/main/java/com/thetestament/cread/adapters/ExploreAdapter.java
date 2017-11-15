@@ -21,6 +21,8 @@ import com.thetestament.cread.R;
 import com.thetestament.cread.activities.FeedDescriptionActivity;
 import com.thetestament.cread.activities.ProfileActivity;
 import com.thetestament.cread.activities.ShortActivity;
+import com.thetestament.cread.helpers.NetworkHelper;
+import com.thetestament.cread.helpers.ViewHelper;
 import com.thetestament.cread.listeners.listener.OnExploreFollowListener;
 import com.thetestament.cread.listeners.listener.OnExploreLoadMoreListener;
 import com.thetestament.cread.models.FeedModel;
@@ -236,15 +238,26 @@ public class ExploreAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
         buttonFollow.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                //Toggle follow button
-                toggleFollowButton(mContext, data.getFollowStatus(), buttonFollow);
-                //Toggle status
-                data.setFollowStatus(!data.getFollowStatus());
-                //set listener
-                onExploreFollowListener.onFollowClick(data, itemPosition);
+                // check net status
+                if(NetworkHelper.getNetConnectionStatus(mContext))
+                {
+                    //Toggle follow button
+                    toggleFollowButton(mContext, data.getFollowStatus(), buttonFollow);
+                    //Toggle status
+                    data.setFollowStatus(!data.getFollowStatus());
+                    //set listener
+                    onExploreFollowListener.onFollowClick(data, itemPosition);
 
-                //Log firebase event
-                setAnalytics(FIREBASE_EVENT_FOLLOW_FROM_EXPLORE);
+                    //Log firebase event
+                    setAnalytics(FIREBASE_EVENT_FOLLOW_FROM_EXPLORE);
+                }
+
+                else
+                {
+                    ViewHelper.getToast(mContext, mContext.getString(R.string.error_msg_no_connection));
+                }
+
+
             }
         });
     }

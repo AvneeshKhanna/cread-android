@@ -32,6 +32,7 @@ import com.thetestament.cread.BuildConfig;
 import com.thetestament.cread.R;
 import com.thetestament.cread.activities.FindFBFriendsActivity;
 import com.thetestament.cread.adapters.ExploreAdapter;
+import com.thetestament.cread.helpers.NetworkHelper;
 import com.thetestament.cread.helpers.SharedPreferenceHelper;
 import com.thetestament.cread.helpers.ViewHelper;
 import com.thetestament.cread.listeners.listener;
@@ -395,7 +396,7 @@ public class ExploreFragment extends Fragment {
         adapter.setOnExploreFollowListener(new listener.OnExploreFollowListener() {
             @Override
             public void onFollowClick(FeedModel exploreData, int itemPosition) {
-                updateFollowStatus(exploreData, itemPosition);
+                    updateFollowStatus(exploreData, itemPosition);
             }
         });
     }

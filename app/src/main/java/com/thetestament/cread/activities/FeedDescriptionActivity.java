@@ -29,6 +29,7 @@ import com.squareup.picasso.Target;
 import com.thetestament.cread.BuildConfig;
 import com.thetestament.cread.R;
 import com.thetestament.cread.adapters.CommentsAdapter;
+import com.thetestament.cread.helpers.NetworkHelper;
 import com.thetestament.cread.helpers.SharedPreferenceHelper;
 import com.thetestament.cread.helpers.ViewHelper;
 import com.thetestament.cread.models.CommentsModel;
@@ -209,42 +210,52 @@ public class FeedDescriptionActivity extends BaseActivity {
      */
     @OnClick(R.id.containerHatsOff)
     void onContainerHatsOffClicked() {
-        //User has already given hats off
-        if (mFeedData.getHatsOffStatus()) {
-            //Animation for hats off
-            imageHatsOff.startAnimation(AnimationUtils.loadAnimation(this, R.anim.reverse_rotate_animation_hats_off));
-            //Toggle hatsOff tint
-            imageHatsOff.setColorFilter(ContextCompat.getColor(this, R.color.grey));
-            //Toggle hatsOff status
-            mFeedData.setHatsOffStatus(!mFeedData.getHatsOffStatus());
-            //Update hatsOffCount
-            mFeedData.setHatsOffCount(mFeedData.getHatsOffCount() - 1);
-            //If hats off count is zero
-            if (mFeedData.getHatsOffCount() < 1) {
-                textHatsOffCount.setVisibility(View.GONE);
-            }
-            //hats off count is more than zero
-            else {
-                //Change hatsOffCount i.e decrease by one
+
+        // check net status
+        if(NetworkHelper.getNetConnectionStatus(FeedDescriptionActivity.this))
+        {
+            //User has already given hats off
+            if (mFeedData.getHatsOffStatus()) {
+                //Animation for hats off
+                imageHatsOff.startAnimation(AnimationUtils.loadAnimation(this, R.anim.reverse_rotate_animation_hats_off));
+                //Toggle hatsOff tint
+                imageHatsOff.setColorFilter(ContextCompat.getColor(this, R.color.grey));
+                //Toggle hatsOff status
+                mFeedData.setHatsOffStatus(!mFeedData.getHatsOffStatus());
+                //Update hatsOffCount
+                mFeedData.setHatsOffCount(mFeedData.getHatsOffCount() - 1);
+                //If hats off count is zero
+                if (mFeedData.getHatsOffCount() < 1) {
+                    textHatsOffCount.setVisibility(View.GONE);
+                }
+                //hats off count is more than zero
+                else {
+                    //Change hatsOffCount i.e decrease by one
+                    textHatsOffCount.setVisibility(View.VISIBLE);
+                    textHatsOffCount.setText(mFeedData.getHatsOffCount() + " Hats-off");
+                }
+
+            } else {
+                //Animation for hats off
+                imageHatsOff.startAnimation(AnimationUtils.loadAnimation(this, R.anim.rotate_animation_hats_off));
+                //Toggle hatsOff tint
+                imageHatsOff.setColorFilter(ContextCompat.getColor(this, R.color.colorPrimary));
+                //Toggle hatsOff status
+                mFeedData.setHatsOffStatus(!mFeedData.getHatsOffStatus());
+                //Update hatsOffCount
+                mFeedData.setHatsOffCount(mFeedData.getHatsOffCount() + 1);
+                //Change hatsOffCount i.e increase by one
                 textHatsOffCount.setVisibility(View.VISIBLE);
                 textHatsOffCount.setText(mFeedData.getHatsOffCount() + " Hats-off");
             }
-
-        } else {
-            //Animation for hats off
-            imageHatsOff.startAnimation(AnimationUtils.loadAnimation(this, R.anim.rotate_animation_hats_off));
-            //Toggle hatsOff tint
-            imageHatsOff.setColorFilter(ContextCompat.getColor(this, R.color.colorPrimary));
-            //Toggle hatsOff status
-            mFeedData.setHatsOffStatus(!mFeedData.getHatsOffStatus());
-            //Update hatsOffCount
-            mFeedData.setHatsOffCount(mFeedData.getHatsOffCount() + 1);
-            //Change hatsOffCount i.e increase by one
-            textHatsOffCount.setVisibility(View.VISIBLE);
-            textHatsOffCount.setText(mFeedData.getHatsOffCount() + " Hats-off");
+            //update hats off status on server
+            updateHatsOffStatus(mFeedData.getEntityID(), mFeedData.getHatsOffStatus());
         }
-        //update hats off status on server
-        updateHatsOffStatus(mFeedData.getEntityID(), mFeedData.getHatsOffStatus());
+
+        else
+        {
+            ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_no_connection));
+        }
     }
 
     /**

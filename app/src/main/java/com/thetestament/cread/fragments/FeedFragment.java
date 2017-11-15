@@ -32,6 +32,7 @@ import com.thetestament.cread.R;
 import com.thetestament.cread.activities.BottomNavigationActivity;
 import com.thetestament.cread.activities.FindFBFriendsActivity;
 import com.thetestament.cread.adapters.FeedAdapter;
+import com.thetestament.cread.helpers.NetworkHelper;
 import com.thetestament.cread.helpers.SharedPreferenceHelper;
 import com.thetestament.cread.helpers.ViewHelper;
 import com.thetestament.cread.listeners.listener;
@@ -402,7 +403,9 @@ public class FeedFragment extends Fragment {
         adapter.setHatsOffListener(new listener.OnHatsOffListener() {
             @Override
             public void onHatsOffClick(FeedModel feedData, int itemPosition) {
+
                 updateHatsOffStatus(feedData, itemPosition);
+
             }
         });
     }

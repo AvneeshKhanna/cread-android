@@ -24,6 +24,7 @@ import com.squareup.picasso.Target;
 import com.thetestament.cread.R;
 import com.thetestament.cread.activities.CommentsActivity;
 import com.thetestament.cread.activities.FeedDescriptionActivity;
+import com.thetestament.cread.helpers.NetworkHelper;
 import com.thetestament.cread.helpers.ViewHelper;
 import com.thetestament.cread.listeners.listener.OnContentDeleteListener;
 import com.thetestament.cread.listeners.listener.OnUserActivityHatsOffListener;
@@ -318,28 +319,38 @@ public class MeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         itemViewHolder.containerHatsOff.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                //User has already given the hats off
-                if (itemViewHolder.mIsHatsOff) {
-                    //Animation for hats off
-                    itemViewHolder.imageHatsOff.startAnimation(AnimationUtils.loadAnimation(mContext, R.anim.reverse_rotate_animation_hats_off));
-                    //Toggle hatsOff tint
-                    itemViewHolder.imageHatsOff.setColorFilter(ContextCompat.getColor(mContext, R.color.grey));
-                    //Update hats of count i.e decrease by one
-                    data.setHatsOffCount(data.getHatsOffCount() - 1);
-                } else {
-                    //Animation for hats off
-                    itemViewHolder.imageHatsOff.startAnimation(AnimationUtils.loadAnimation(mContext, R.anim.rotate_animation_hats_off));
-                    //Toggle hatsOff tint
-                    itemViewHolder.imageHatsOff.setColorFilter(ContextCompat.getColor(mContext, R.color.colorPrimary));
-                    //Change hatsOffCount i.e increase by one
-                    data.setHatsOffCount(data.getHatsOffCount() + 1);
+
+                // check net status
+                if(NetworkHelper.getNetConnectionStatus(mContext))
+                {
+                    //User has already given the hats off
+                    if (itemViewHolder.mIsHatsOff) {
+                        //Animation for hats off
+                        itemViewHolder.imageHatsOff.startAnimation(AnimationUtils.loadAnimation(mContext, R.anim.reverse_rotate_animation_hats_off));
+                        //Toggle hatsOff tint
+                        itemViewHolder.imageHatsOff.setColorFilter(ContextCompat.getColor(mContext, R.color.grey));
+                        //Update hats of count i.e decrease by one
+                        data.setHatsOffCount(data.getHatsOffCount() - 1);
+                    } else {
+                        //Animation for hats off
+                        itemViewHolder.imageHatsOff.startAnimation(AnimationUtils.loadAnimation(mContext, R.anim.rotate_animation_hats_off));
+                        //Toggle hatsOff tint
+                        itemViewHolder.imageHatsOff.setColorFilter(ContextCompat.getColor(mContext, R.color.colorPrimary));
+                        //Change hatsOffCount i.e increase by one
+                        data.setHatsOffCount(data.getHatsOffCount() + 1);
+                    }
+                    //Toggle hatsOff status
+                    itemViewHolder.mIsHatsOff = !itemViewHolder.mIsHatsOff;
+                    //Update hats off here
+                    data.setHatsOffStatus(itemViewHolder.mIsHatsOff);
+                    //Listener
+                    onHatsOffListener.onHatsOffClick(data, itemPosition);
                 }
-                //Toggle hatsOff status
-                itemViewHolder.mIsHatsOff = !itemViewHolder.mIsHatsOff;
-                //Update hats off here
-                data.setHatsOffStatus(itemViewHolder.mIsHatsOff);
-                //Listener
-                onHatsOffListener.onHatsOffClick(data, itemPosition);
+                else
+                {
+                    ViewHelper.getToast(mContext, mContext.getString(R.string.error_msg_no_connection));
+                }
+
             }
         });
     }

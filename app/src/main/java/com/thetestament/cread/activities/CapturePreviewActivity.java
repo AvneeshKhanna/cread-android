@@ -21,6 +21,7 @@ import com.squareup.picasso.MemoryPolicy;
 import com.squareup.picasso.Picasso;
 import com.thetestament.cread.BuildConfig;
 import com.thetestament.cread.R;
+import com.thetestament.cread.helpers.NetworkHelper;
 import com.thetestament.cread.helpers.SharedPreferenceHelper;
 import com.thetestament.cread.helpers.ViewHelper;
 
@@ -100,8 +101,17 @@ public class CapturePreviewActivity extends BaseActivity {
                 finish();
                 return true;
             case R.id.action_done:
-                //Upload image on server
-                uploadCapture(new File(getImageUri(IMAGE_TYPE_USER_CAPTURE_PIC).getPath()));
+                // check net status
+                if(NetworkHelper.getNetConnectionStatus(CapturePreviewActivity.this))
+                {
+                    //Upload image on server
+                    uploadCapture(new File(getImageUri(IMAGE_TYPE_USER_CAPTURE_PIC).getPath()));
+                }
+
+                else
+                {
+                    ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_no_connection));
+                }
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
