@@ -102,14 +102,10 @@ public class CapturePreviewActivity extends BaseActivity {
                 return true;
             case R.id.action_done:
                 // check net status
-                if(NetworkHelper.getNetConnectionStatus(CapturePreviewActivity.this))
-                {
+                if (NetworkHelper.getNetConnectionStatus(CapturePreviewActivity.this)) {
                     //Upload image on server
                     uploadCapture(new File(getImageUri(IMAGE_TYPE_USER_CAPTURE_PIC).getPath()));
-                }
-
-                else
-                {
+                } else {
                     ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_no_connection));
                 }
                 return true;

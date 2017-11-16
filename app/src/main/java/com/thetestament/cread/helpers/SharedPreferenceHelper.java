@@ -187,6 +187,16 @@ public class SharedPreferenceHelper {
     }
 
     /**
+     * Method to retrieve short intro dialog first time run status.
+     *
+     * @return True by default
+     */
+    public boolean isShortFirstTime() {
+        return mSharedPreferences
+                .getBoolean(mContext.getString(R.string.key_short_intro), true);
+    }
+
+    /**
      * Method to retrieve buy intro dialog first time run status.
      *
      * @return True by default
@@ -202,15 +212,6 @@ public class SharedPreferenceHelper {
         editor.apply();
     }
 
-    /**
-     * Method to retrieve short intro dialog first time run status.
-     *
-     * @return True by default
-     */
-    public boolean isShortFirstTime() {
-        return mSharedPreferences
-                .getBoolean(mContext.getString(R.string.key_short_intro), true);
-    }
 
     /**
      * Method to update 'Have button' tooltip status.
@@ -269,7 +270,7 @@ public class SharedPreferenceHelper {
      * @return Default value is user name.
      */
     public String getCaptureWaterMarkText() {
-        return mSharedPreferences.getString(mContext.getString(R.string.key_last_name), getFirstName() + " " + getLastName());
+        return mSharedPreferences.getString(mContext.getString(R.string.key_capture_water_mark_text), getFirstName() + " " + getLastName());
     }
 
     /**
