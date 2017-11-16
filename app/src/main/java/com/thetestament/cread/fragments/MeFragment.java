@@ -728,12 +728,12 @@ public class MeFragment extends Fragment {
                                         //Increase count by one
                                         mFollowerCount += 1;
                                         //Set count
-                                        textFollowersCount.setText(String.valueOf(mFollowerCount += 1));
+                                        textFollowersCount.setText(String.valueOf(mFollowerCount));
                                     } else {
                                         //Decrease count by one
                                         mFollowerCount -= 1;
                                         //Set count
-                                        textFollowersCount.setText(String.valueOf(mFollowerCount -= 1));
+                                        textFollowersCount.setText(String.valueOf(mFollowerCount));
                                     }
                                 }
                             }
