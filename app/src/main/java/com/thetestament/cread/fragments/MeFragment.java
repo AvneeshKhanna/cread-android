@@ -879,7 +879,7 @@ public class MeFragment extends Fragment {
                         else if (connectionError[0]) {
                             ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_internal));
                         } else if (mUserActivityDataList.size() == 0) {
-                            ViewHelper.getSnackBar(rootView, mFirstName + " hasn't uploaded anything yet");
+                            ViewHelper.getSnackBar(rootView, "User hasn't uploaded anything yet");
                         } else {
                             //Apply 'Slide Up' animation
                             int resId = R.anim.layout_animation_from_bottom;

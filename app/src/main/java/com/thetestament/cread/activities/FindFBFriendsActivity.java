@@ -169,6 +169,7 @@ public class FindFBFriendsActivity extends BaseActivity {
     private void getFriendsData() {
         if (NetworkHelper.getNetConnectionStatus(FindFBFriendsActivity.this)) {
 
+            // checking validity of facebook access token
             if (AccessToken.getCurrentAccessToken().isExpired()) {
                 ViewHelper.getSnackBar(rootView, "Some problem occured. You'll have to login again.");
             } else
