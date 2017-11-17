@@ -210,7 +210,7 @@ public class MerchandisingProductsActivity extends BaseActivity {
     private void showTermsDialog()
     {
         new MaterialDialog.Builder(MerchandisingProductsActivity.this)
-                .customView(R.layout.dialog_products_terms, true)
+                .customView(R.layout.dialog_products_terms, false)
                 .positiveText("Ok")
                 .onPositive(new MaterialDialog.SingleButtonCallback() {
                     @Override
