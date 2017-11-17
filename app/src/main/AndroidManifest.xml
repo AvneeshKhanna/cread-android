@@ -191,8 +191,6 @@
             android:theme="@style/Theme.AppCompat.Light.NoActionBar" />
 
 
-
-
         <!-- HatsOffActivity -->
         <activity
             android:name=".activities.HatsOffActivity"
@@ -235,19 +233,25 @@
         </activity>
 
 
-        <activity android:name=".activities.FindFBFriendsActivity">
+        <activity
+            android:name=".activities.FindFBFriendsActivity"
+            android:screenOrientation="portrait">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".activities.BottomNavigationActivity" />
         </activity>
 
-        <activity android:name=".activities.MerchandisingProductsActivity">
+        <activity
+            android:name=".activities.MerchandisingProductsActivity"
+            android:screenOrientation="portrait">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".activities.BottomNavigationActivity" />
         </activity>
 
-        <activity android:name=".activities.AddressActivity">
+        <activity
+            android:name=".activities.AddressActivity"
+            android:screenOrientation="portrait">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".activities.MerchandisingProductsActivity" />
@@ -255,6 +259,7 @@
 
         <activity
             android:name=".activities.AboutUsActivity"
+            android:screenOrientation="portrait"
             android:theme="@style/BottomNavigationActivityTheme" />
 
         <service android:name=".services.MyFirebaseMessagingService">
@@ -269,7 +274,9 @@
             </intent-filter>
         </service>
 
-        <activity android:name=".activities.ProductsSoldActivity" />
+        <activity
+            android:name=".activities.ProductsSoldActivity"
+            android:screenOrientation="portrait" />
 
         <!--Temporarily disable Firebase Analytics-->
         <meta-data

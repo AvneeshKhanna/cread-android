@@ -275,8 +275,7 @@ public class MeFragment extends Fragment {
     public void onFollowButtonClicked() {
 
         // check net status
-        if(NetworkHelper.getNetConnectionStatus(getActivity()))
-        {
+        if (NetworkHelper.getNetConnectionStatus(getActivity())) {
             //Disable follow button
             buttonFollow.setEnabled(false);
             //set status to true if its false and vice versa
@@ -290,10 +289,7 @@ public class MeFragment extends Fragment {
             Bundle bundle = new Bundle();
             bundle.putString("uuid", mHelper.getUUID());
             FirebaseAnalytics.getInstance(getActivity()).logEvent(FIREBASE_EVENT_FOLLOW_FROM_PROFILE, bundle);
-        }
-
-        else
-        {
+        } else {
             ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_no_connection));
         }
     }
@@ -1023,7 +1019,7 @@ public class MeFragment extends Fragment {
         adapter.setHatsOffListener(new listener.OnUserActivityHatsOffListener() {
             @Override
             public void onHatsOffClick(FeedModel data, int itemPosition) {
-                    updateHatsOffStatus(data, itemPosition);
+                updateHatsOffStatus(data, itemPosition);
             }
         });
     }
@@ -1101,13 +1097,9 @@ public class MeFragment extends Fragment {
             public void onDelete(String entityID, int position) {
 
                 // check net status
-                if(NetworkHelper.getNetConnectionStatus(getActivity()))
-                {
+                if (NetworkHelper.getNetConnectionStatus(getActivity())) {
                     deleteContent(entityID, position);
-                }
-
-                else
-                {
+                } else {
                     ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_no_connection));
                 }
 
