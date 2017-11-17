@@ -9,7 +9,6 @@
         android:id="@+id/imageUser"
         android:layout_width="40dp"
         android:layout_height="40dp"
-        android:scaleType="fitCenter"
         tools:src="@drawable/ic_account_circle_48" />
 
 

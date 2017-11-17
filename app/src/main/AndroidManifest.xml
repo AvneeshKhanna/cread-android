@@ -281,12 +281,12 @@
         <!--Temporarily disable Firebase Analytics-->
         <meta-data
             android:name="firebase_analytics_collection_enabled"
-            android:value="true" />
+            android:value="false" />
 
         <!-- Toggle Firebase crash reporting for development -->
         <meta-data
             android:name="firebase_crash_collection_enabled"
-            android:value="true" />
+            android:value="false" />
 
     </application>
 

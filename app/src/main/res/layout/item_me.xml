@@ -81,6 +81,15 @@
                 android:scaleType="centerCrop" />
         </com.thetestament.cread.utils.SquareView>
 
+        <include
+            layout="@layout/layout_compose_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_above="@+id/containerActions"
+            android:layout_alignParentRight="true"
+            android:layout_marginBottom="5dp"
+            android:layout_marginRight="5dp" />
+
         <LinearLayout
             android:id="@+id/containerActions"
             android:layout_width="match_parent"
