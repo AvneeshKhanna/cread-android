@@ -61,9 +61,9 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:gravity="center"
-                        android:textColor="@color/grey_dark"
-                        android:textSize="12sp"
-                        tools:text="Mobile development passionate" />
+                        android:text="Write what describes you"
+                        android:textColor="@color/grey"
+                        android:textSize="12sp" />
 
                     <TextView
                         android:id="@+id/buttonFollow"
@@ -200,14 +200,75 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent">
 
-            <android.support.v7.widget.RecyclerView
-                android:id="@+id/recyclerView"
+            <FrameLayout
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layoutAnimation="@anim/layout_animation_from_bottom" />
+                android:layout_height="match_parent">
+
+                <android.support.v7.widget.RecyclerView
+                    android:id="@+id/recyclerView"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layoutAnimation="@anim/layout_animation_from_bottom" />
+
+
+                <!-- No data view-->
+                <LinearLayout
+                    android:id="@+id/viewNoData"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical"
+                    android:orientation="vertical"
+                    android:visibility="gone">
+
+                    <ImageView
+                        android:layout_width="80dp"
+                        android:layout_height="80dp"
+                        android:layout_gravity="center"
+                        android:layout_marginTop="30dp"
+                        android:src="@drawable/icon_art_128" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:layout_marginLeft="35dp"
+                        android:layout_marginRight="35dp"
+                        android:layout_marginTop="15dp"
+                        android:gravity="center"
+                        android:text="Start spreading your art by creating a short or capture."
+                        android:textColor="@color/black_overlay"
+                        android:textSize="16sp" />
+
+                    <TextView
+                        android:id="@+id/buttonCreate"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:layout_marginTop="15dp"
+                        android:background="@drawable/button_filled"
+                        android:gravity="center"
+                        android:paddingBottom="10dp"
+                        android:paddingLeft="30dp"
+                        android:paddingRight="30dp"
+                        android:paddingTop="10dp"
+                        android:text="Create"
+                        android:textColor="@color/white"
+                        android:textSize="16sp" />
+
+                </LinearLayout>
+            </FrameLayout>
+
 
         </android.support.v4.widget.NestedScrollView>
 
     </android.support.v4.widget.SwipeRefreshLayout>
 
+
+    <include
+        android:id="@+id/progressView"
+        layout="@layout/layout_progress_bar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:visibility="gone" />
 </android.support.design.widget.CoordinatorLayout>
