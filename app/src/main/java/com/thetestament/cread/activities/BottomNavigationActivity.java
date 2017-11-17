@@ -343,7 +343,7 @@ public class BottomNavigationActivity extends BaseActivity {
     /**
      * Method to show bottomSheet dialog with 'write a short' and 'Upload a capture' option.
      */
-    private void getAddContentBottomSheetDialog() {
+    public void getAddContentBottomSheetDialog() {
         final BottomSheetDialog bottomSheetDialog = new BottomSheetDialog(this);
         View sheetView = this.getLayoutInflater()
                 .inflate(R.layout.bottomsheet_dialog_add_content, null);

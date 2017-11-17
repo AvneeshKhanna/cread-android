@@ -19,11 +19,13 @@ import android.support.v4.widget.NestedScrollView;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.text.InputType;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.AnimationUtils;
 import android.view.animation.LayoutAnimationController;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.afollestad.materialdialogs.MaterialDialog;
@@ -39,6 +41,7 @@ import com.squareup.picasso.Picasso;
 import com.thetestament.cread.BuildConfig;
 import com.thetestament.cread.Manifest;
 import com.thetestament.cread.R;
+import com.thetestament.cread.activities.BottomNavigationActivity;
 import com.thetestament.cread.activities.FollowActivity;
 import com.thetestament.cread.activities.UpdateProfileDetailsActivity;
 import com.thetestament.cread.activities.UpdateProfileImageActivity;
@@ -121,6 +124,10 @@ public class MeFragment extends Fragment {
     TextView textFollowersCount;
     @BindView(R.id.textFollowingCount)
     TextView textFollowingCount;
+    @BindView(R.id.viewNoData)
+    LinearLayout viewNoData;
+    @BindView(R.id.progressView)
+    View progressView;
 
     @State
     String mFirstName, mLastName, mProfilePicURL, mUserBio;
@@ -219,14 +226,11 @@ public class MeFragment extends Fragment {
             if (data.getExtras().getString(EXTRA_USER_BIO) != null) {
                 //Get user bio
                 mUserBio = data.getExtras().getString(EXTRA_USER_BIO);
-
-                textBio.setVisibility(View.VISIBLE);
                 //Set user bio
                 textBio.setText(mUserBio);
-            }
-            //Hide bio view
-            else {
-                textBio.setVisibility(View.GONE);
+            } else {
+                //Set user bio
+                textBio.setText("Write what describes you");
             }
 
             //Retrieve email and watermark status
@@ -254,7 +258,7 @@ public class MeFragment extends Fragment {
     /**
      * Click functionality to open screen where user can edit his/her profile details.
      */
-    @OnClick({R.id.textUserName, R.id.textBio})
+    @OnClick(R.id.textUserName)
     public void onUserNameClicked() {
         if (isProfileEditable) {
             Intent intent = new Intent(getActivity(), UpdateProfileDetailsActivity.class);
@@ -268,6 +272,18 @@ public class MeFragment extends Fragment {
         }
     }
 
+
+    /**
+     * Click functionality to edit user bio
+     */
+    @OnClick(R.id.textBio)
+    public void onUserBioClicked() {
+        if (isProfileEditable) {
+            showBioInputDialog();
+        }
+    }
+
+
     /**
      * Follow button click functionality to follow or un-follow.
      */
@@ -275,8 +291,7 @@ public class MeFragment extends Fragment {
     public void onFollowButtonClicked() {
 
         // check net status
-        if(NetworkHelper.getNetConnectionStatus(getActivity()))
-        {
+        if (NetworkHelper.getNetConnectionStatus(getActivity())) {
             //Disable follow button
             buttonFollow.setEnabled(false);
             //set status to true if its false and vice versa
@@ -290,10 +305,7 @@ public class MeFragment extends Fragment {
             Bundle bundle = new Bundle();
             bundle.putString("uuid", mHelper.getUUID());
             FirebaseAnalytics.getInstance(getActivity()).logEvent(FIREBASE_EVENT_FOLLOW_FROM_PROFILE, bundle);
-        }
-
-        else
-        {
+        } else {
             ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_no_connection));
         }
     }
@@ -333,8 +345,17 @@ public class MeFragment extends Fragment {
      * PostContainer click functionality.
      */
     @OnClick(R.id.containerPosts)
-    public void onPostsContainerClicked() {
+    void onPostsContainerClicked() {
     }
+
+    /*
+    * Create button click functionality.
+    * */
+    @OnClick(R.id.buttonCreate)
+    void onCreateClick() {
+        ((BottomNavigationActivity) getActivity()).getAddContentBottomSheetDialog();
+    }
+
 
     /**
      * Method to initialize views for this screen.
@@ -563,10 +584,12 @@ public class MeFragment extends Fragment {
                                 textBio.setVisibility(View.VISIBLE);
                                 //Set user bio
                                 textBio.setText(mUserBio);
-                            }
-                            //Hide bio view
-                            else {
-                                textBio.setVisibility(View.GONE);
+                            } else {
+                                mUserBio = "Write what describes you";
+                                //Hide for other users
+                                if (!isProfileEditable) {
+                                    textBio.setVisibility(View.GONE);
+                                }
                             }
 
                             //Toggle follow button
@@ -619,28 +642,6 @@ public class MeFragment extends Fragment {
                     , R.color.white));
             //Change text to 'follow'
             buttonFollow.setText("Follow");
-        }
-    }
-
-    /**
-     * Method to convert watermark status.
-     *
-     * @param waterMarkStatus Watermark status value to be converted.
-     */
-    private void mapWaterMarkStatus(String waterMarkStatus) {
-        switch (waterMarkStatus) {
-            case "YES":
-                mWaterMarkStatus = "Yes";
-                break;
-            case "NO":
-                mWaterMarkStatus = "No";
-                break;
-            case "ASK_ALWAYS":
-                mWaterMarkStatus = "Ask always";
-                break;
-            default:
-                mWaterMarkStatus = "Yes";
-                break;
         }
     }
 
@@ -879,6 +880,13 @@ public class MeFragment extends Fragment {
                         else if (connectionError[0]) {
                             ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_internal));
                         } else if (mUserActivityDataList.size() == 0) {
+                            //Show no data view
+                            if (isProfileEditable) {
+                                viewNoData.setVisibility(View.VISIBLE);
+                            } else {
+                                //Hide no data view
+                                viewNoData.setVisibility(View.GONE);
+                            }
                             ViewHelper.getSnackBar(rootView, "User hasn't uploaded anything yet");
                         } else {
                             //Apply 'Slide Up' animation
@@ -886,6 +894,8 @@ public class MeFragment extends Fragment {
                             LayoutAnimationController animation = AnimationUtils.loadLayoutAnimation(getActivity(), resId);
                             recyclerView.setLayoutAnimation(animation);
                             mAdapter.notifyDataSetChanged();
+                            //Hide no data view
+                            viewNoData.setVisibility(View.GONE);
                         }
                     }
                 })
@@ -1023,7 +1033,7 @@ public class MeFragment extends Fragment {
         adapter.setHatsOffListener(new listener.OnUserActivityHatsOffListener() {
             @Override
             public void onHatsOffClick(FeedModel data, int itemPosition) {
-                    updateHatsOffStatus(data, itemPosition);
+                updateHatsOffStatus(data, itemPosition);
             }
         });
     }
@@ -1090,7 +1100,6 @@ public class MeFragment extends Fragment {
                 });
     }
 
-
     /**
      * Initialize delete listener
      * * @param adapter MeAdapter reference.
@@ -1101,13 +1110,9 @@ public class MeFragment extends Fragment {
             public void onDelete(String entityID, int position) {
 
                 // check net status
-                if(NetworkHelper.getNetConnectionStatus(getActivity()))
-                {
+                if (NetworkHelper.getNetConnectionStatus(getActivity())) {
                     deleteContent(entityID, position);
-                }
-
-                else
-                {
+                } else {
                     ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_no_connection));
                 }
 
@@ -1198,5 +1203,113 @@ public class MeFragment extends Fragment {
                 });
     }
 
+    /**
+     * Method to show input dialog where user enters his/her watermark.
+     */
+    private void showBioInputDialog() {
+        new MaterialDialog.Builder(getActivity())
+                .title("Write what describes you")
+                .autoDismiss(false)
+                .inputRange(1, 80, ContextCompat.getColor(getActivity(), R.color.red))
+                .inputType(InputType.TYPE_TEXT_FLAG_MULTI_LINE | InputType.TYPE_TEXT_FLAG_CAP_SENTENCES)
+                .input(null, mUserBio, false, new MaterialDialog.InputCallback() {
+                    @Override
+                    public void onInput(@NonNull MaterialDialog dialog, CharSequence input) {
+                        String s = String.valueOf(input).trim();
+                        if (s.length() < 1) {
+                            ViewHelper.getToast(getActivity(), "This field can't be empty");
+                        } else {
+                            //Dismiss
+                            dialog.dismiss();
+                            mUserBio = s;
+                            //Save details to server
+                            saveUserDetails();
+                        }
+                    }
+                })
+                .build()
+                .show();
+    }
+
+    /**
+     * Method to save user profile details on server.
+     */
+    public void saveUserDetails() {
+        //Show progress view
+        progressView.setVisibility(View.VISIBLE);
+
+        JSONObject jsonObject = new JSONObject();
+        JSONObject userObject = new JSONObject();
+
+        try {
+            //User data
+            userObject.put("firstname", mFirstName);
+            userObject.put("lastname", mLastName);
+            userObject.put("email", mEmail);
+            userObject.put("bio", mUserBio);
+            userObject.put("watermarkstatus", mWaterMarkStatus);
+            userObject.put("watermark", "");
+            //Request data
+            jsonObject.put("uuid", mHelper.getUUID());
+            jsonObject.put("authkey", mHelper.getAuthToken());
+            jsonObject.put("userdata", userObject);
+        } catch (JSONException e) {
+            e.printStackTrace();
+            FirebaseCrash.report(e);
+            progressView.setVisibility(View.GONE);
+        }
+
+        Rx2AndroidNetworking.post(BuildConfig.URL + "/user-profile/update-profile")
+                .addJSONObjectBody(jsonObject)
+                .build()
+                .getJSONObjectObservable()
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Observer<JSONObject>() {
+                    @Override
+                    public void onSubscribe(@io.reactivex.annotations.NonNull Disposable d) {
+                        mCompositeDisposable.add(d);
+                    }
+
+                    @Override
+                    public void onNext(@io.reactivex.annotations.NonNull JSONObject jsonObject) {
+                        //Dismiss progress indicator
+                        progressView.setVisibility(View.GONE);
+                        try {
+                            if (jsonObject.getString("tokenstatus").equals("invalid")) {
+                                //Show token invalid status
+                                ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_invalid_token));
+                            } else {
+                                JSONObject dataObject = jsonObject.getJSONObject("data");
+                                if (dataObject.getString("status").equals("done")) {
+                                    //Update user bio text
+                                    textBio.setText(mUserBio);
+                                    //Show toast
+                                    ViewHelper.getSnackBar(rootView, "Details saved");
+                                }
+                            }
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                            FirebaseCrash.report(e);
+                            //Show error snack bar
+                            ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_internal));
+                        }
+                    }
+
+                    @Override
+                    public void onError(@io.reactivex.annotations.NonNull Throwable e) {
+                        //Dismiss progress indicator
+                        progressView.setVisibility(View.GONE);
+                        //Show server error message
+                        ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_server));
+                        e.printStackTrace();
+                    }
+
+                    @Override
+                    public void onComplete() {
+
+                    }
+                });
+    }
 
 }

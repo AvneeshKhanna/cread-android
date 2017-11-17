@@ -24,6 +24,7 @@ import com.squareup.picasso.Target;
 import com.thetestament.cread.R;
 import com.thetestament.cread.activities.CommentsActivity;
 import com.thetestament.cread.activities.FeedDescriptionActivity;
+import com.thetestament.cread.activities.ShortActivity;
 import com.thetestament.cread.helpers.NetworkHelper;
 import com.thetestament.cread.helpers.ViewHelper;
 import com.thetestament.cread.listeners.listener.OnContentDeleteListener;
@@ -40,8 +41,12 @@ import de.hdodenhof.circleimageview.CircleImageView;
 import static com.thetestament.cread.helpers.ImageHelper.getLocalBitmapUri;
 import static com.thetestament.cread.utils.Constant.CONTENT_TYPE_CAPTURE;
 import static com.thetestament.cread.utils.Constant.CONTENT_TYPE_SHORT;
+import static com.thetestament.cread.utils.Constant.EXTRA_CAPTURE_ID;
+import static com.thetestament.cread.utils.Constant.EXTRA_CAPTURE_URL;
+import static com.thetestament.cread.utils.Constant.EXTRA_DATA;
 import static com.thetestament.cread.utils.Constant.EXTRA_ENTITY_ID;
 import static com.thetestament.cread.utils.Constant.EXTRA_FEED_DESCRIPTION_DATA;
+import static com.thetestament.cread.utils.Constant.EXTRA_MERCHANTABLE;
 import static com.thetestament.cread.utils.Constant.FIREBASE_EVENT_SHARED_FROM_PROFILE;
 
 /**
@@ -125,7 +130,7 @@ public class MeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             //Set creator name
             itemViewHolder.textCreatorName.setText(data.getCreatorName());
             //Set content type drawable
-            setContentType(data.getContentType(), itemViewHolder.imageWorkType);
+            setContentType(data.getContentType(), itemViewHolder.imageWorkType, itemViewHolder.buttonCompose);
             //Initialize delete button
             initializeDeleteButton(data.getUUID(), itemViewHolder.buttonDelete, position, data.getEntityID());
 
@@ -133,6 +138,8 @@ public class MeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             loadContentImage(data.getContentImage(), itemViewHolder.imageContent);
             //ItemView onClick functionality
             itemViewOnClick(itemViewHolder.itemView, data);
+            //Compose click functionality
+            composeOnClick(itemViewHolder.buttonCompose, data.getCaptureID(), data.getContentImage(), data.getEntityID(), data.isMerchantable());
 
             //Check whether user has given hats off to this campaign or not
             checkHatsOffStatus(data.getHatsOffStatus(), itemViewHolder);
@@ -185,14 +192,16 @@ public class MeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
      * @param contentType      Type of content.
      * @param imageContentType Content imageView.
      */
-    private void setContentType(String contentType, ImageView imageContentType) {
+    private void setContentType(String contentType, ImageView imageContentType, ImageView composeButton) {
         //Check for content type
         switch (contentType) {
             case CONTENT_TYPE_CAPTURE:
                 imageContentType.setImageDrawable(ContextCompat.getDrawable(mContext, R.drawable.ic_camera_alt_24));
+                composeButton.setVisibility(View.VISIBLE);
                 break;
             case CONTENT_TYPE_SHORT:
                 imageContentType.setImageDrawable(ContextCompat.getDrawable(mContext, R.drawable.ic_create_24));
+                composeButton.setVisibility(View.GONE);
                 break;
             default:
         }
@@ -291,6 +300,35 @@ public class MeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     }
 
     /**
+     * Compose onClick functionality.
+     *
+     * @param view       View to be clicked.
+     * @param captureID  CaptureID of image.
+     * @param captureURL Capture image url.
+     */
+    private void composeOnClick(View view, final String captureID, final String captureURL, final String entityID, final boolean merchantable) {
+        view.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                Bundle bundle = new Bundle();
+                bundle.putString(EXTRA_CAPTURE_ID, captureID);
+                bundle.putString(EXTRA_CAPTURE_URL, captureURL);
+                bundle.putBoolean(EXTRA_MERCHANTABLE, merchantable);
+                Intent intent = new Intent(mContext, ShortActivity.class);
+                intent.putExtra(EXTRA_DATA, bundle);
+                mContext.startActivity(intent);
+
+                //Log firebase event
+                Bundle eventBundle = new Bundle();
+                eventBundle.putString("uuid", mUUID);
+                eventBundle.putString("entity_id", entityID);
+                FirebaseAnalytics.getInstance(mContext).logEvent(FIREBASE_EVENT_SHARED_FROM_PROFILE, eventBundle);
+            }
+        });
+    }
+
+    /**
      * Method to check hatsOff status and perform operation accordingly.
      *
      * @param hatsOffStatus  True if user has given hatsOff, false otherwise.
@@ -321,8 +359,7 @@ public class MeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             public void onClick(View v) {
 
                 // check net status
-                if(NetworkHelper.getNetConnectionStatus(mContext))
-                {
+                if (NetworkHelper.getNetConnectionStatus(mContext)) {
                     //User has already given the hats off
                     if (itemViewHolder.mIsHatsOff) {
                         //Animation for hats off
@@ -345,9 +382,7 @@ public class MeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                     data.setHatsOffStatus(itemViewHolder.mIsHatsOff);
                     //Listener
                     onHatsOffListener.onHatsOffClick(data, itemPosition);
-                }
-                else
-                {
+                } else {
                     ViewHelper.getToast(mContext, mContext.getString(R.string.error_msg_no_connection));
                 }
 
@@ -447,6 +482,8 @@ public class MeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         ImageView buttonDelete;
         @BindView(R.id.imageContent)
         ImageView imageContent;
+        @BindView(R.id.buttonCompose)
+        ImageView buttonCompose;
         @BindView(R.id.imageHatsOff)
         ImageView imageHatsOff;
         @BindView(R.id.containerHatsOff)

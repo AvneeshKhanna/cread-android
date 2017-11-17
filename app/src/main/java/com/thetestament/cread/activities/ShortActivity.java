@@ -114,6 +114,9 @@ public class ShortActivity extends BaseActivity implements ColorChooserDialog.Co
     CompositeDisposable mCompositeDisposable = new CompositeDisposable();
     SharedPreferenceHelper mHelper;
 
+
+  //  private GestureDetector mTapDetector;
+
     @Override
 
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -124,6 +127,7 @@ public class ShortActivity extends BaseActivity implements ColorChooserDialog.Co
         mHelper = new SharedPreferenceHelper(this);
         //initialize screen
         initScreen();
+       // mTapDetector = new GestureDetector(this, new GestureTap());
     }
 
     @Override
@@ -473,8 +477,7 @@ public class ShortActivity extends BaseActivity implements ColorChooserDialog.Co
                     public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
 
                         // check net status
-                        if(NetworkHelper.getNetConnectionStatus(ShortActivity.this))
-                        {
+                        if (NetworkHelper.getNetConnectionStatus(ShortActivity.this)) {
                             dialog.dismiss();
                             //Update details on server
                             updateShort(new File(getImageUri(IMAGE_TYPE_USER_SHORT_PIC).getPath())
@@ -491,10 +494,7 @@ public class ShortActivity extends BaseActivity implements ColorChooserDialog.Co
                                     , textGravity.toString()
                                     , String.valueOf(mImageWidth)
                             );
-                        }
-
-                        else
-                        {
+                        } else {
                             ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_no_connection));
                         }
                     }
@@ -615,4 +615,27 @@ public class ShortActivity extends BaseActivity implements ColorChooserDialog.Co
                 });
     }
 
+/*    @Override
+    public boolean onTouchEvent(MotionEvent event) {
+        mTapDetector.onTouchEvent(event);
+        return true;
+
+    }
+
+
+    class GestureTap extends GestureDetector.SimpleOnGestureListener {
+        @Override
+        public boolean onDoubleTap(MotionEvent e) {
+            ViewHelper.getSnackBar(rootView, "onDoubleTap");
+            return true;
+            //return super.onDoubleTap(e);
+        }
+
+        @Override
+        public boolean onSingleTapConfirmed(MotionEvent e) {
+            ViewHelper.getSnackBar(rootView, "onSingleTapConfirmed");
+            return true;
+            //return super.onSingleTapConfirmed(e);
+        }
+    }*/
 }
