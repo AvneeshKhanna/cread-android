@@ -14,11 +14,9 @@ import android.support.design.widget.CoordinatorLayout;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.util.TypedValue;
-import android.view.GestureDetector;
 import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.MotionEvent;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -117,7 +115,7 @@ public class ShortActivity extends BaseActivity implements ColorChooserDialog.Co
     SharedPreferenceHelper mHelper;
 
 
-    private GestureDetector mTapDetector;
+  //  private GestureDetector mTapDetector;
 
     @Override
 
@@ -129,7 +127,7 @@ public class ShortActivity extends BaseActivity implements ColorChooserDialog.Co
         mHelper = new SharedPreferenceHelper(this);
         //initialize screen
         initScreen();
-        mTapDetector = new GestureDetector(this, new GestureTap());
+       // mTapDetector = new GestureDetector(this, new GestureTap());
     }
 
     @Override
@@ -617,7 +615,7 @@ public class ShortActivity extends BaseActivity implements ColorChooserDialog.Co
                 });
     }
 
-    @Override
+/*    @Override
     public boolean onTouchEvent(MotionEvent event) {
         mTapDetector.onTouchEvent(event);
         return true;
@@ -639,5 +637,5 @@ public class ShortActivity extends BaseActivity implements ColorChooserDialog.Co
             return true;
             //return super.onSingleTapConfirmed(e);
         }
-    }
+    }*/
 }
