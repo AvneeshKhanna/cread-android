@@ -90,6 +90,7 @@ public class SplashActivity extends BaseActivity {
 
         if (uuid != null && authkey != null) {
             startActivity(new Intent(this, BottomNavigationActivity.class));
+            finish();
             //startActivity(new Intent(this, MerchandizingProductsActivity.class));
             //startActivity(new Intent(this, FindFBFriendsActivity.class));
         } else {
@@ -101,6 +102,7 @@ public class SplashActivity extends BaseActivity {
             //startActivity(new Intent(this, MerchandizingProductsActivity.class));
             //startActivity(new Intent(this, FindFBFriendsActivity.class));
             startActivity(new Intent(this, MainActivity.class));
+            finish();
             //startActivity(new Intent(this, BottomNavigationActivity.class));
         }
 

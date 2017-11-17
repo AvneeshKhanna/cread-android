@@ -45,7 +45,7 @@
         <!-- for razorpay sdk -->
         <meta-data
             android:name="com.razorpay.ApiKey"
-            android:value="rzp_live_R8v2wfBMmMnHVy" />
+            android:value="@string/RZP_KEY"/>
 
 
         <activity
@@ -274,12 +274,12 @@
         <!--Temporarily disable Firebase Analytics-->
         <meta-data
             android:name="firebase_analytics_collection_enabled"
-            android:value="true" />
+            android:value= "@bool/FIREBASE_ANALYTICS_ENABLED" />
 
         <!-- Toggle Firebase crash reporting for development -->
         <meta-data
             android:name="firebase_crash_collection_enabled"
-            android:value="true" />
+            android:value="@bool/FIREBASE_CRASHLYTICS_ENABLED" />
 
     </application>
 

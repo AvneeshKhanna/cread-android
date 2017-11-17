@@ -394,7 +394,7 @@ public class MainActivity extends BaseActivity {
                         }
                     });
             Bundle parameters = new Bundle();
-            parameters.putString("fields", "id,first_name,last_name,age_range,link,gender,locale,picture,email");
+            parameters.putString("fields", "id,first_name,last_name,age_range,link,gender,locale,picture.type(large),email");
             request.setParameters(parameters);
             request.executeAsync();
         } else {
