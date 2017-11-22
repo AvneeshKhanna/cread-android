@@ -1,15 +1,22 @@
 package com.thetestament.cread.helpers;
 
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Environment;
+import android.support.annotation.NonNull;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.FileProvider;
+import android.view.View;
 
+import com.afollestad.materialdialogs.DialogAction;
+import com.afollestad.materialdialogs.MaterialDialog;
 import com.thetestament.cread.BuildConfig;
 import com.thetestament.cread.R;
+import com.thetestament.cread.activities.CollaborationActivity;
 import com.yalantis.ucrop.UCrop;
 
 import java.io.BufferedInputStream;
@@ -21,8 +28,11 @@ import java.io.IOException;
 
 import id.zelory.compressor.Compressor;
 
+import static com.thetestament.cread.utils.Constant.EXTRA_MERCHANTABLE;
+import static com.thetestament.cread.utils.Constant.EXTRA_SHORT_ID;
 import static com.thetestament.cread.utils.Constant.IMAGE_TYPE_USER_CAPTURE_PIC;
 import static com.thetestament.cread.utils.Constant.IMAGE_TYPE_USER_PROFILE_PIC;
+import static com.thetestament.cread.utils.Constant.REQUEST_CODE_OPEN_GALLERY;
 
 /**
  * A helper class for providing utility method for profile pic related operations
@@ -178,6 +188,74 @@ public class ImageHelper {
             e.printStackTrace();
         }
         return bmpUri;
+    }
+
+
+    /**
+     * Open gallery so user can choose his/her capture for uploading.
+     */
+    public static void chooseImageFromGallery(FragmentActivity context) {
+        //Launch gallery
+        Intent intent = new Intent(Intent.ACTION_PICK);
+        intent.setType("image/*");
+        context.startActivityForResult(intent, REQUEST_CODE_OPEN_GALLERY);
+    }
+
+    /**
+     * Method to perform required operation on cropped image.
+     *
+     * @param uri Uri of cropped image.
+     */
+    public static void processCroppedImage(Uri uri, Context context, View rootView, String shortID) {
+        try {
+            //Decode image file
+            Bitmap bitmap = BitmapFactory.decodeFile(uri.getPath());
+            //If resolution of image is greater than 2000x2000 then compress this image
+            if (bitmap.getWidth() > 1800 && bitmap.getWidth() > 1800) {
+                //Compress image
+                compressCroppedImg(uri, context, IMAGE_TYPE_USER_CAPTURE_PIC);
+                //Open preview screen
+                Intent intent = new Intent(context, CollaborationActivity.class);
+                intent.putExtra(EXTRA_MERCHANTABLE, "1");
+                intent.putExtra(EXTRA_SHORT_ID, shortID);
+                context.startActivity(intent);
+            } else {
+                getMerchantableDialog(context, shortID);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            ViewHelper.getSnackBar(rootView, "Image could not be cropped due to some error");
+        }
+    }
+
+
+    /**
+     * Method to show intro dialog when user land on this screen for the first time.
+     */
+    private static void getMerchantableDialog(final Context context, final String shortID) {
+        new MaterialDialog.Builder(context)
+                .title("Note")
+                .content("The resolution of this image is not printable. Other users won't be able to order a print version of it. Do you wish to proceed?")
+                .positiveText("Proceed")
+                .negativeText("Cancel")
+                .onNegative(new MaterialDialog.SingleButtonCallback() {
+                    @Override
+                    public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
+                        dialog.dismiss();
+                    }
+                })
+                .onPositive(new MaterialDialog.SingleButtonCallback() {
+                    @Override
+                    public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
+                        //open preview screen
+                        Intent intent = new Intent(context, CollaborationActivity.class);
+                        intent.putExtra(EXTRA_MERCHANTABLE, "0");
+                        intent.putExtra(EXTRA_SHORT_ID, shortID);
+                        context.startActivity(intent);
+                        dialog.dismiss();
+                    }
+                })
+                .show();
     }
 
 }

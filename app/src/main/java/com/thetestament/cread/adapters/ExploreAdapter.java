@@ -24,6 +24,7 @@ import com.thetestament.cread.activities.ShortActivity;
 import com.thetestament.cread.helpers.NetworkHelper;
 import com.thetestament.cread.helpers.SharedPreferenceHelper;
 import com.thetestament.cread.helpers.ViewHelper;
+import com.thetestament.cread.listeners.listener.OnExploreCaptureClickListener;
 import com.thetestament.cread.listeners.listener.OnExploreFollowListener;
 import com.thetestament.cread.listeners.listener.OnExploreLoadMoreListener;
 import com.thetestament.cread.models.FeedModel;
@@ -60,6 +61,7 @@ public class ExploreAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
 
     private OnExploreLoadMoreListener onExploreLoadMoreListener;
     private OnExploreFollowListener onExploreFollowListener;
+    private OnExploreCaptureClickListener onExploreCaptureClickListener;
 
 
     /**
@@ -87,6 +89,13 @@ public class ExploreAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
      */
     public void setOnExploreFollowListener(OnExploreFollowListener onExploreFollowListener) {
         this.onExploreFollowListener = onExploreFollowListener;
+    }
+
+    /**
+     * Register a callback to be invoked when user clicks on capture button.
+     */
+    public void setOnExploreCaptureClickListener(OnExploreCaptureClickListener onExploreCaptureClickListener) {
+        this.onExploreCaptureClickListener = onExploreCaptureClickListener;
     }
 
     @Override
@@ -279,6 +288,7 @@ public class ExploreAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
         view.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                onExploreCaptureClickListener.onClick(captureID);
                 Bundle bundle = new Bundle();
                 bundle.putString(EXTRA_CAPTURE_ID, captureID);
                 bundle.putString(EXTRA_CAPTURE_URL, captureURL);

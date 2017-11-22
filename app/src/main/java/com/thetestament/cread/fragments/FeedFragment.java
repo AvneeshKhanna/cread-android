@@ -1,6 +1,7 @@
 package com.thetestament.cread.fragments;
 
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.NonNull;
@@ -28,16 +29,18 @@ import com.androidnetworking.interfaces.JSONObjectRequestListener;
 import com.google.firebase.analytics.FirebaseAnalytics;
 import com.google.firebase.crash.FirebaseCrash;
 import com.thetestament.cread.BuildConfig;
+import com.thetestament.cread.Manifest;
 import com.thetestament.cread.R;
 import com.thetestament.cread.activities.BottomNavigationActivity;
 import com.thetestament.cread.activities.FindFBFriendsActivity;
 import com.thetestament.cread.adapters.FeedAdapter;
-import com.thetestament.cread.helpers.NetworkHelper;
+import com.thetestament.cread.helpers.ImageHelper;
 import com.thetestament.cread.helpers.SharedPreferenceHelper;
 import com.thetestament.cread.helpers.ViewHelper;
 import com.thetestament.cread.listeners.listener;
 import com.thetestament.cread.models.FeedModel;
 import com.thetestament.cread.utils.Constant;
+import com.yalantis.ucrop.UCrop;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -51,15 +54,23 @@ import butterknife.ButterKnife;
 import butterknife.OnClick;
 import butterknife.Unbinder;
 import icepick.Icepick;
+import icepick.State;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.observers.DisposableObserver;
 import io.reactivex.schedulers.Schedulers;
+import pl.tajchert.nammu.Nammu;
+import pl.tajchert.nammu.PermissionCallback;
 
+import static android.app.Activity.RESULT_OK;
+import static com.thetestament.cread.helpers.ImageHelper.getImageUri;
 import static com.thetestament.cread.helpers.NetworkHelper.getNetConnectionStatus;
 import static com.thetestament.cread.helpers.NetworkHelper.getObservableFromServer;
+import static com.thetestament.cread.utils.Constant.CONTENT_TYPE_SHORT;
 import static com.thetestament.cread.utils.Constant.FIREBASE_EVENT_EXPLORE_CLICKED;
 import static com.thetestament.cread.utils.Constant.FIREBASE_EVENT_FIND_FRIENDS;
+import static com.thetestament.cread.utils.Constant.IMAGE_TYPE_USER_CAPTURE_PIC;
+import static com.thetestament.cread.utils.Constant.REQUEST_CODE_OPEN_GALLERY;
 
 
 public class FeedFragment extends Fragment {
@@ -81,10 +92,14 @@ public class FeedFragment extends Fragment {
     TextView explorePeopleButton;
     @BindView(R.id.view_no_posts)
     LinearLayout viewNoPosts;
+
     Unbinder unbinder;
     private Unbinder mUnbinder;
     private int mPageNumber = 0;
     private boolean mRequestMoreData;
+
+    @State
+    String mShortId;
 
 
     @Nullable
@@ -135,6 +150,39 @@ public class FeedFragment extends Fragment {
         }
     }
 
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        //Required for permission manager library
+        Nammu.onRequestPermissionsResult(requestCode, permissions, grantResults);
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        switch (requestCode) {
+            case REQUEST_CODE_OPEN_GALLERY:
+                if (resultCode == RESULT_OK) {
+                    // To crop the selected image
+                    ImageHelper.startImageCropping(getActivity(), data.getData(), getImageUri(IMAGE_TYPE_USER_CAPTURE_PIC));
+                } else {
+                    ViewHelper.getSnackBar(rootView, "Image from gallery was not attached");
+                }
+                break;
+            //For more information please visit "https://github.com/Yalantis/uCrop"
+            case UCrop.REQUEST_CROP:
+                if (resultCode == RESULT_OK) {
+                    //Get cropped image Uri
+                    Uri mCroppedImgUri = UCrop.getOutput(data);
+                    ImageHelper.processCroppedImage(mCroppedImgUri, getActivity(), rootView, mShortId);
+
+                } else if (resultCode == UCrop.RESULT_ERROR) {
+                    ViewHelper.getSnackBar(rootView, "Image could not be cropped due to some error");
+                }
+                break;
+        }
+    }
+
+
     /**
      * Method to initialize swipe to refresh view.
      */
@@ -169,6 +217,7 @@ public class FeedFragment extends Fragment {
         //Initialize listeners
         initLoadMoreListener(mAdapter);
         initHatsOffListener(mAdapter);
+        initCaptureListener(mAdapter);
         //Load data here
         loadFeedData();
     }
@@ -249,7 +298,6 @@ public class FeedFragment extends Fragment {
                                     JSONObject dataObj = feedArray.getJSONObject(i);
                                     FeedModel feedData = new FeedModel();
                                     feedData.setEntityID(dataObj.getString("entityid"));
-                                    feedData.setCaptureID(dataObj.getString("captureid"));
                                     feedData.setContentType(dataObj.getString("type"));
                                     feedData.setUUID(dataObj.getString("uuid"));
                                     feedData.setCreatorImage(dataObj.getString("profilepicurl"));
@@ -259,6 +307,15 @@ public class FeedFragment extends Fragment {
                                     feedData.setHatsOffCount(dataObj.getLong("hatsoffcount"));
                                     feedData.setCommentCount(dataObj.getLong("commentcount"));
                                     feedData.setContentImage(dataObj.getString("entityurl"));
+
+                                    //Check for content type
+                                    if (dataObj.getString("type").equals(CONTENT_TYPE_SHORT)) {
+                                        //Retrieve "SHORT_ID" if type is short
+                                        feedData.setShortID(dataObj.getString("shoid"));
+                                    } else {
+                                        //Retrieve "CAPTURE_ID" if type is capture
+                                        feedData.setCaptureID(dataObj.getString("captureid"));
+                                    }
 
                                     mFeedDataList.add(feedData);
                                 }
@@ -291,11 +348,7 @@ public class FeedFragment extends Fragment {
                             ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_internal));
 
                         } else if (mFeedDataList.size() == 0) {
-
                             viewNoPosts.setVisibility(View.VISIBLE);
-
-
-                            //ViewHelper.getSnackBar(rootView, "Find friends functionality coming soon");
                         } else {
                             //Apply 'Slide Up' animation
                             int resId = R.anim.layout_animation_from_bottom;
@@ -342,7 +395,6 @@ public class FeedFragment extends Fragment {
                                     JSONObject dataObj = feedArray.getJSONObject(i);
                                     FeedModel feedData = new FeedModel();
                                     feedData.setEntityID(dataObj.getString("entityid"));
-                                    feedData.setCaptureID(dataObj.getString("captureid"));
                                     feedData.setContentType(dataObj.getString("type"));
                                     feedData.setUUID(dataObj.getString("uuid"));
                                     feedData.setCreatorImage(dataObj.getString("profilepicurl"));
@@ -352,6 +404,14 @@ public class FeedFragment extends Fragment {
                                     feedData.setHatsOffCount(dataObj.getLong("hatsoffcount"));
                                     feedData.setCommentCount(dataObj.getLong("commentcount"));
                                     feedData.setContentImage(dataObj.getString("entityurl"));
+                                    //Check for content type
+                                    if (dataObj.getString("type").equals(CONTENT_TYPE_SHORT)) {
+                                        //Retrieve "SHORT_ID" if type is short
+                                        feedData.setShortID(dataObj.getString("shoid"));
+                                    } else {
+                                        //Retrieve "CAPTURE_ID" if type is capture
+                                        feedData.setCaptureID(dataObj.getString("captureid"));
+                                    }
 
                                     mFeedDataList.add(feedData);
                                     //Notify item changes
@@ -470,6 +530,56 @@ public class FeedFragment extends Fragment {
                     }
                 });
     }
+
+    /**
+     * Initialize capture listener.
+     *
+     * @param feedAdapter FeedAdapter reference
+     */
+    private void initCaptureListener(FeedAdapter feedAdapter) {
+        feedAdapter.setOnFeedCaptureClickListener(new listener.OnFeedCaptureClickListener() {
+            @Override
+            public void onClick(String shortId) {
+                //Set entity id
+                mShortId = shortId;
+                //Check for Write permission
+                if (Nammu.checkPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+                    //We have permission do whatever you want to do
+                    ImageHelper.chooseImageFromGallery(getActivity());
+                } else {
+                    //We do not own this permission
+                    if (Nammu.shouldShowRequestPermissionRationale(FeedFragment.this
+                            , Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+                        //User already refused to give us this permission or removed it
+                        ViewHelper.getToast(getActivity()
+                                , getString(R.string.error_msg_capture_permission_denied));
+                    } else {
+                        //First time asking for permission
+                        Nammu.askForPermission(FeedFragment.this, Manifest.permission.WRITE_EXTERNAL_STORAGE, captureWritePermission);
+                    }
+                }
+            }
+        });
+    }
+
+    /**
+     * Used to handle result of askForPermission for capture.
+     */
+    PermissionCallback captureWritePermission = new PermissionCallback() {
+        @Override
+        public void permissionGranted() {
+            //Select image from gallery
+            ImageHelper.chooseImageFromGallery(getActivity());
+        }
+
+        @Override
+        public void permissionRefused() {
+            //Show error message
+            ViewHelper.getToast(getActivity()
+                    , getString(R.string.error_msg_capture_permission_denied));
+        }
+    };
+
 
     /**
      * Method to show welcome Message when user land on this screen for the first time.

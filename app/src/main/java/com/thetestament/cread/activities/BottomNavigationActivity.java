@@ -398,7 +398,7 @@ public class BottomNavigationActivity extends BaseActivity {
     /**
      * Method to get WRITE_EXTERNAL_STORAGE permission and perform specified operation.
      */
-    private void getRuntimePermission() {
+    public void getRuntimePermission() {
         //Check for WRITE_EXTERNAL_STORAGE permission
         if (ContextCompat.checkSelfPermission(this
                 , Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
@@ -407,7 +407,7 @@ public class BottomNavigationActivity extends BaseActivity {
                     , Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
 
                 ViewHelper.getToast(this
-                        , "Please grant storage permission from settings to upload your capture");
+                        , getString(R.string.error_msg_capture_permission_denied));
             } else {
                 ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}
                         , REQUEST_CODE_WRITE_EXTERNAL_STORAGE);

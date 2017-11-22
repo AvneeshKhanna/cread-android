@@ -37,6 +37,7 @@ public class Constant {
     //Extra data
     public static final String EXTRA_ENTITY_ID = "entityID";
     public static final String EXTRA_CAPTURE_ID = "captureID";
+    public static final String EXTRA_SHORT_ID = "shortID";
     public static final String EXTRA_CAPTURE_URL = "captureURL";
     public static final String EXTRA_MERCHANTABLE = "merchantable";
     public static final String EXTRA_DATA = "data";
