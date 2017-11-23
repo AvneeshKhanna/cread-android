@@ -311,6 +311,7 @@ public class FeedFragment extends Fragment {
                                     feedData.setHatsOffCount(dataObj.getLong("hatsoffcount"));
                                     feedData.setCommentCount(dataObj.getLong("commentcount"));
                                     feedData.setContentImage(dataObj.getString("entityurl"));
+                                    feedData.setCollabCount(dataObj.getLong("collabcount"));
 
                                     if (type.equals(CONTENT_TYPE_CAPTURE)) {
 
@@ -442,6 +443,7 @@ public class FeedFragment extends Fragment {
                                     feedData.setHatsOffCount(dataObj.getLong("hatsoffcount"));
                                     feedData.setCommentCount(dataObj.getLong("commentcount"));
                                     feedData.setContentImage(dataObj.getString("entityurl"));
+                                    feedData.setCollabCount(dataObj.getLong("collabcount"));
 
 
                                     if (type.equals(CONTENT_TYPE_CAPTURE)) {

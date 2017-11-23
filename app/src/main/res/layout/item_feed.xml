@@ -59,7 +59,8 @@
             android:paddingRight="2dp"
             android:text="25 people wrote on it"
             android:textAppearance="@style/TextAppearance.FontPath"
-            android:textSize="11sp" />
+            android:textSize="11sp"
+            android:visibility="gone"/>
 
         <View
             android:id="@+id/lineSeparatorTop"
@@ -70,7 +71,8 @@
             android:layout_marginRight="16dp"
             android:layout_marginTop="8dp"
             android:alpha="0.4"
-            android:background="@color/grey_dark" />
+            android:background="@color/grey_dark"
+            android:visibility="gone"/>
 
         <LinearLayout
             android:id="@+id/containerActions"

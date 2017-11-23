@@ -75,7 +75,7 @@ public class NetworkHelper {
         try {
             jsonObject.put("uuid", uuid);
             jsonObject.put("authkey", authKey);
-            jsonObject.put("page", pageNumber);
+            //jsonObject.put("page", pageNumber);
         } catch (JSONException e) {
             e.printStackTrace();
             FirebaseCrash.report(e);

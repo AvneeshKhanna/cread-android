@@ -32,6 +32,7 @@ import com.thetestament.cread.activities.CommentsActivity;
 import com.thetestament.cread.activities.FeedDescriptionActivity;
 import com.thetestament.cread.activities.MerchandisingProductsActivity;
 import com.thetestament.cread.activities.ProfileActivity;
+import com.thetestament.cread.activities.ShortActivity;
 import com.thetestament.cread.helpers.NetworkHelper;
 import com.thetestament.cread.helpers.SharedPreferenceHelper;
 import com.thetestament.cread.helpers.ViewHelper;
@@ -46,12 +47,17 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import de.hdodenhof.circleimageview.CircleImageView;
 
-import static android.graphics.Typeface.BOLD;
+
+import static com.thetestament.cread.helpers.FeedHelper.initializeSpannableString;
 import static com.thetestament.cread.helpers.ImageHelper.getLocalBitmapUri;
 import static com.thetestament.cread.utils.Constant.CONTENT_TYPE_CAPTURE;
 import static com.thetestament.cread.utils.Constant.CONTENT_TYPE_SHORT;
+import static com.thetestament.cread.utils.Constant.EXTRA_CAPTURE_ID;
+import static com.thetestament.cread.utils.Constant.EXTRA_CAPTURE_URL;
+import static com.thetestament.cread.utils.Constant.EXTRA_DATA;
 import static com.thetestament.cread.utils.Constant.EXTRA_ENTITY_ID;
 import static com.thetestament.cread.utils.Constant.EXTRA_FEED_DESCRIPTION_DATA;
+import static com.thetestament.cread.utils.Constant.EXTRA_MERCHANTABLE;
 import static com.thetestament.cread.utils.Constant.EXTRA_PROFILE_UUID;
 import static com.thetestament.cread.utils.Constant.FIREBASE_EVENT_SHARED_FROM_MAIN_FEED;
 import static com.thetestament.cread.utils.Constant.FIREBASE_EVENT_WRITE_CLICKED;
@@ -139,45 +145,6 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             //Set creator name
             //itemViewHolder.textCreatorName.setText(data.getCreatorName());
 
-            SpannableString ss = new SpannableString("Biswa kalyan Rath wrote a short on Avnnesh khanna's Capture today");
-            ClickableSpan collaboratorSpan = new ClickableSpan() {
-                @Override
-                public void onClick(View textView) {
-                    mContext.startActivity(new Intent(mContext, MerchandisingProductsActivity.class));
-                }
-
-                @Override
-                public void updateDrawState(TextPaint ds) {
-                    super.updateDrawState(ds);
-                    ds.setUnderlineText(false);
-                    ds.setTypeface(Typeface.create(Typeface.DEFAULT, Typeface.BOLD));
-                    ds.setColor(ContextCompat.getColor(mContext, R.color.grey_dark));
-                }
-            };
-            ss.setSpan(collaboratorSpan, 0, 17, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-
-            ClickableSpan collaboratedWithSpan = new ClickableSpan() {
-                @Override
-                public void onClick(View textView) {
-                    mContext.startActivity(new Intent(mContext, MerchandisingProductsActivity.class));
-                }
-
-                @Override
-                public void updateDrawState(TextPaint ds) {
-                    super.updateDrawState(ds);
-                    ds.setUnderlineText(false);
-                    ds.setTypeface(Typeface.create(Typeface.DEFAULT, Typeface.BOLD));
-                    ds.setColor(ContextCompat.getColor(mContext, R.color.grey_dark));
-                }
-            };
-            //ss.setSpan(collaboratedWithSpan, 35, 51, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-
-
-            itemViewHolder.textCreatorName.setText(ss);
-            itemViewHolder.textCreatorName.setMovementMethod(LinkMovementMethod.getInstance());
-            itemViewHolder.textCreatorName.setHighlightColor(Color.TRANSPARENT);
-
-
             //Load feed image
             loadFeedImage(data.getContentImage(), itemViewHolder.imageFeed);
 
@@ -185,10 +152,39 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             switch (data.getContentType()) {
                 case CONTENT_TYPE_CAPTURE:
 
+                    // set collab count text
+                    if (data.getCollabCount() != 0) {
+                        itemViewHolder.collabCount.setText(data.getCollabCount() + " others added a short for this");
+                        itemViewHolder.collabCount.setVisibility(View.VISIBLE);
+                        itemViewHolder.lineSepartor.setVisibility(View.VISIBLE);
+
+                    } else {
+                        itemViewHolder.collabCount.setVisibility(View.GONE);
+                        itemViewHolder.lineSepartor.setVisibility(View.GONE);
+                    }
+
                     if (data.isAvailableForCollab()) {
+
+                        // for stand alone capture
+
                         itemViewHolder.buttonCollaborate.setVisibility(View.VISIBLE);
                         // set text
                         itemViewHolder.buttonCollaborate.setText("Write");
+
+                        //write click functionality on capture
+                        writeOnClick(itemViewHolder.buttonCollaborate, data.getCaptureID(), data.getContentImage(), data.getEntityID(), data.isMerchantable());
+
+                        String text = data.getCreatorName() + " added a capture ";
+
+                        // get text indexes
+                        int creatorStartPos = text.indexOf(data.getCreatorName());
+                        int creatorEndPos = creatorStartPos + data.getCreatorName().length();
+                        int collabWithStartPos = -1;
+                        int collabWithEndPos = -1;
+
+                        // get clickable text;
+                        initializeSpannableString(mContext, itemViewHolder.textCreatorName, false, text, creatorStartPos, creatorEndPos, collabWithStartPos, collabWithEndPos, data.getUUID(), data.getCollabWithUUID());
+
 
                         //Show tooltip on edit button
                         if (isFirstCollaboratableCapture) {
@@ -202,16 +198,62 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                             isFirstCollaboratableCapture = false;
 
                         }
+                    } else {
+
+                        // hiding collaborate button
+                        itemViewHolder.buttonCollaborate.setVisibility(View.GONE);
+
+                        String text = data.getCreatorName() + " added a capture to " + data.getCollabWithName() + "'s short";
+
+                        // get text indexes
+                        int creatorStartPos = text.indexOf(data.getCreatorName());
+                        int creatorEndPos = creatorStartPos + data.getCreatorName().length();
+                        int collabWithStartPos = text.indexOf(data.getCollabWithName());
+                        int collabWithEndPos = collabWithStartPos + data.getCollabWithName().length() + 2; // +2 for 's
+
+                        // get clickable text
+                        initializeSpannableString(mContext, itemViewHolder.textCreatorName, true, text, creatorStartPos, creatorEndPos, collabWithStartPos, collabWithEndPos, data.getUUID(), data.getCollabWithUUID());
+
+
                     }
 
                     break;
+
                 case CONTENT_TYPE_SHORT:
 
-                    // chck if available for collab
+                    // set collab count text
+                    if (data.getCollabCount() != 0) {
+                        itemViewHolder.collabCount.setText(data.getCollabCount() + " others captured on it");
+                        itemViewHolder.collabCount.setVisibility(View.VISIBLE);
+                        itemViewHolder.lineSepartor.setVisibility(View.VISIBLE);
+
+                    } else {
+                        itemViewHolder.collabCount.setVisibility(View.GONE);
+                        itemViewHolder.lineSepartor.setVisibility(View.GONE);
+                    }
+
+                    // check if available for collab
                     if (data.isAvailableForCollab()) {
+
+                        // for stand alone short
+
                         itemViewHolder.buttonCollaborate.setVisibility(View.VISIBLE);
                         // set text
                         itemViewHolder.buttonCollaborate.setText("Capture");
+
+                        // capture click functionality on short
+                        captureOnClick(itemViewHolder.buttonCollaborate, data.getShortID());
+
+                        String text = data.getCreatorName() + " wrote a short ";
+
+                        // get text indexes
+                        int creatorStartPos = text.indexOf(data.getCreatorName());
+                        int creatorEndPos = creatorStartPos + data.getCreatorName().length();
+                        int collabWithStartPos = -1; // since no collabwith
+                        int collabWithEndPos = -1; // since no collabwith
+
+                        initializeSpannableString(mContext, itemViewHolder.textCreatorName, false, text, creatorStartPos, creatorEndPos, collabWithStartPos, collabWithEndPos, data.getUUID(), data.getCollabWithUUID());
+
 
                         if (isFirstCollaboratableShort) {
                             SharedPreferenceHelper helper = new SharedPreferenceHelper(mContext);
@@ -224,21 +266,36 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                             isFirstCollaboratableShort = false;
 
                         }
+                    } else {
+                        // hiding collaborate button
+                        itemViewHolder.buttonCollaborate.setVisibility(View.GONE);
+
+                        String text = data.getCreatorName() + " wrote a short on " + data.getCollabWithName() + "'s capture";
+
+                        // get text indexes
+                        int creatorStartPos = text.indexOf(data.getCreatorName());
+                        int creatorEndPos = creatorStartPos + data.getCreatorName().length();
+                        int collabWithStartPos = text.indexOf(data.getCollabWithName());
+                        int collabWithEndPos = collabWithStartPos + data.getCollabWithName().length() + 2; // +2 to incorporate 's
+
+                        // get clickable text
+                        initializeSpannableString(mContext, itemViewHolder.textCreatorName, true, text, creatorStartPos, creatorEndPos, collabWithStartPos, collabWithEndPos, data.getUUID(), data.getCollabWithUUID());
+
                     }
 
                     break;
                 default:
             }
 
+
             //Check whether user has given hats off to this campaign or not
             checkHatsOffStatus(data.getHatsOffStatus(), itemViewHolder);
 
             //Click functionality to launch profile of creator
-            openCreatorProfile(itemViewHolder.containerCreator, data.getUUID());
+            //openCreatorProfile(itemViewHolder.containerCreator, data.getUUID());
             //ItemView onClick functionality
             itemViewOnClick(itemViewHolder.itemView, data);
-            //Compose click functionality
-            composeOnClick(itemViewHolder.buttonCollaborate, data.getCaptureID(), data.getContentImage(), data.getEntityID(), data.isMerchantable());
+
             //Comment click functionality
             commentOnClick(itemViewHolder.containerComment, data.getEntityID());
             //Share click functionality
@@ -353,28 +410,48 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     }
 
     /**
-     * Compose onClick functionality.
+     * write onClick functionality.
      *
      * @param view       View to be clicked.
      * @param captureID  CaptureID of image.
      * @param captureURL Capture image url.
      */
-    private void composeOnClick(View view, final String captureID, final String captureURL, final String entityID, final boolean merchantable) {
+    private void writeOnClick(View view, final String captureID, final String captureURL, final String entityID, final boolean merchantable) {
         view.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
 
-                onFeedCaptureClickListener.onClick(entityID);
-                /*Bundle bundle = new Bundle();
+                //onFeedCaptureClickListener.onClick(entityID);
+                Bundle bundle = new Bundle();
                 bundle.putString(EXTRA_CAPTURE_ID, captureID);
                 bundle.putString(EXTRA_CAPTURE_URL, captureURL);
                 bundle.putBoolean(EXTRA_MERCHANTABLE, merchantable);
                 Intent intent = new Intent(mContext, ShortActivity.class);
                 intent.putExtra(EXTRA_DATA, bundle);
-                mContext.startActivity(intent);*/
-                ((BottomNavigationActivity) mContext).getRuntimePermission();
+                mContext.startActivity(intent);
+                // TODO check whether to comment  or not
+                // ((BottomNavigationActivity) mContext).getRuntimePermission();
                 //Log Firebase event
                 setAnalytics(FIREBASE_EVENT_WRITE_CLICKED, entityID);
+            }
+        });
+    }
+
+    /**
+     * write onClick functionality.
+     *
+     * @param view View to be clicked.
+     */
+    private void captureOnClick(View view, final String entityID) {
+        view.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                onFeedCaptureClickListener.onClick(entityID);
+                ((BottomNavigationActivity) mContext).getRuntimePermission();
+                //Log Firebase event
+                // TODO change firebase event
+                //setAnalytics(FIREBASE_EVENT_WRITE_CLICKED, entityID);
             }
         });
     }
@@ -497,6 +574,10 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         LinearLayout containerComment;
         @BindView(R.id.containerShare)
         LinearLayout containerShare;
+        @BindView(R.id.collabCount)
+        TextView collabCount;
+        @BindView(R.id.lineSeparatorTop)
+        View lineSepartor;
 
         //Variable to maintain hats off status
         private boolean mIsHatsOff = false;
