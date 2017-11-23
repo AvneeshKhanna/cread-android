@@ -442,16 +442,12 @@ public class FeedFragment extends Fragment {
                                     feedData.setHatsOffCount(dataObj.getLong("hatsoffcount"));
                                     feedData.setCommentCount(dataObj.getLong("commentcount"));
                                     feedData.setContentImage(dataObj.getString("entityurl"));
-                                    //Check for content type
-                                    if (dataObj.getString("type").equals(CONTENT_TYPE_SHORT)) {
-                                        //Retrieve "SHORT_ID" if type is short
-                                        feedData.setShortID(dataObj.getString("shoid"));
-                                    } else {
-                                        //Retrieve "CAPTURE_ID" if type is capture
-                                        feedData.setCaptureID(dataObj.getString("captureid"));
-                                    }
+
 
                                     if (type.equals(CONTENT_TYPE_CAPTURE)) {
+
+                                        //Retrieve "CAPTURE_ID" if type is capture
+                                        feedData.setCaptureID(dataObj.getString("captureid"));
                                         // if capture
                                         // then if key cpshort exists
                                         // not available for collaboration
@@ -468,7 +464,10 @@ public class FeedFragment extends Fragment {
                                         }
 
                                     } else if (type.equals(CONTENT_TYPE_SHORT)) {
-                                        // if short
+
+
+                                        //Retrieve "SHORT_ID" if type is short
+                                        feedData.setShortID(dataObj.getString("shoid"));// if short
                                         // then if key shcapture exists
                                         // not available for collaboration
                                         if (!dataObj.isNull("shcapture")) {

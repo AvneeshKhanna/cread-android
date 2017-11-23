@@ -328,7 +328,7 @@ public class MeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             @Override
             public void onClick(View view) {
                 onMeCaptureClickListener.onClick(entityID);
-                //  showDeleteConfirmationDialog(index, entityID);
+                  showDeleteConfirmationDialog(index, entityID);
             }
         });
     }
