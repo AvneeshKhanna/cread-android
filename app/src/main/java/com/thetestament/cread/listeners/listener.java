@@ -131,9 +131,30 @@ public class listener {
 
 
     /**
-     * Interface definition for a callback to be involved when user click on delete button of his/her content.
+     * Interface definition for a callback to be invoked when user clicks on delete button of his/her content.
      */
     public interface OnContentDeleteListener {
         void onDelete(String entityID, int position);
+    }
+
+    /**
+     * Interface definition for callback to be invoked when user clicks on capture button for collaboration(MeFragment).
+     */
+    public interface OnMeCaptureClickListener {
+        void onClick(String shortId);
+    }
+
+    /**
+     * Interface definition for callback to be invoked when user clicks on capture button for collaboration(ExploreFragment).
+     */
+    public interface OnExploreCaptureClickListener {
+        void onClick(String shortId);
+    }
+
+    /**
+     * Interface definition for callback to be invoked when user clicks on capture button for collaboration(FeedFragment).
+     */
+    public interface OnFeedCaptureClickListener {
+        void onClick(String shortId);
     }
 }

@@ -4,6 +4,7 @@ import android.support.multidex.MultiDexApplication;
 
 import com.androidnetworking.AndroidNetworking;
 
+import pl.tajchert.nammu.Nammu;
 import uk.co.chrisjenx.calligraphy.CalligraphyConfig;
 
 
@@ -26,6 +27,8 @@ public class CreadApp extends MultiDexApplication {
         initCalligraphy();
         //Networking library initialization
         AndroidNetworking.initialize(getApplicationContext());
+        //Permission helper library initialization
+        Nammu.init(getApplicationContext());
     }
 
     /**

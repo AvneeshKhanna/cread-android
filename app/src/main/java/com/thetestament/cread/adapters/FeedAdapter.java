@@ -27,14 +27,15 @@ import com.google.firebase.analytics.FirebaseAnalytics;
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Target;
 import com.thetestament.cread.R;
+import com.thetestament.cread.activities.BottomNavigationActivity;
 import com.thetestament.cread.activities.CommentsActivity;
 import com.thetestament.cread.activities.FeedDescriptionActivity;
 import com.thetestament.cread.activities.MerchandisingProductsActivity;
 import com.thetestament.cread.activities.ProfileActivity;
-import com.thetestament.cread.activities.ShortActivity;
 import com.thetestament.cread.helpers.NetworkHelper;
 import com.thetestament.cread.helpers.SharedPreferenceHelper;
 import com.thetestament.cread.helpers.ViewHelper;
+import com.thetestament.cread.listeners.listener.OnFeedCaptureClickListener;
 import com.thetestament.cread.listeners.listener.OnFeedLoadMoreListener;
 import com.thetestament.cread.listeners.listener.OnHatsOffListener;
 import com.thetestament.cread.models.FeedModel;
@@ -49,12 +50,8 @@ import static android.graphics.Typeface.BOLD;
 import static com.thetestament.cread.helpers.ImageHelper.getLocalBitmapUri;
 import static com.thetestament.cread.utils.Constant.CONTENT_TYPE_CAPTURE;
 import static com.thetestament.cread.utils.Constant.CONTENT_TYPE_SHORT;
-import static com.thetestament.cread.utils.Constant.EXTRA_CAPTURE_ID;
-import static com.thetestament.cread.utils.Constant.EXTRA_CAPTURE_URL;
-import static com.thetestament.cread.utils.Constant.EXTRA_DATA;
 import static com.thetestament.cread.utils.Constant.EXTRA_ENTITY_ID;
 import static com.thetestament.cread.utils.Constant.EXTRA_FEED_DESCRIPTION_DATA;
-import static com.thetestament.cread.utils.Constant.EXTRA_MERCHANTABLE;
 import static com.thetestament.cread.utils.Constant.EXTRA_PROFILE_UUID;
 import static com.thetestament.cread.utils.Constant.FIREBASE_EVENT_SHARED_FROM_MAIN_FEED;
 import static com.thetestament.cread.utils.Constant.FIREBASE_EVENT_WRITE_CLICKED;
@@ -75,6 +72,7 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
     private OnFeedLoadMoreListener onFeedLoadMoreListener;
     private OnHatsOffListener onHatsOffListener;
+    private OnFeedCaptureClickListener onFeedCaptureClickListener;
 
     /**
      * Required constructor.
@@ -103,6 +101,12 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         this.onHatsOffListener = onHatsOffListener;
     }
 
+    /**
+     * Register a callback to be invoked when user clicks on capture button.
+     */
+    public void setOnFeedCaptureClickListener(OnFeedCaptureClickListener onFeedCaptureClickListener) {
+        this.onFeedCaptureClickListener = onFeedCaptureClickListener;
+    }
 
     @Override
     public int getItemViewType(int position) {
@@ -360,14 +364,15 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             @Override
             public void onClick(View view) {
 
-                Bundle bundle = new Bundle();
+                onFeedCaptureClickListener.onClick(entityID);
+                /*Bundle bundle = new Bundle();
                 bundle.putString(EXTRA_CAPTURE_ID, captureID);
                 bundle.putString(EXTRA_CAPTURE_URL, captureURL);
                 bundle.putBoolean(EXTRA_MERCHANTABLE, merchantable);
                 Intent intent = new Intent(mContext, ShortActivity.class);
                 intent.putExtra(EXTRA_DATA, bundle);
-                mContext.startActivity(intent);
-
+                mContext.startActivity(intent);*/
+                ((BottomNavigationActivity) mContext).getRuntimePermission();
                 //Log Firebase event
                 setAnalytics(FIREBASE_EVENT_WRITE_CLICKED, entityID);
             }

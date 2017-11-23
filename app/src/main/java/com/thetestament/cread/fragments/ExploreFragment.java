@@ -1,6 +1,7 @@
 package com.thetestament.cread.fragments;
 
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.NonNull;
@@ -29,14 +30,16 @@ import com.androidnetworking.error.ANError;
 import com.androidnetworking.interfaces.JSONObjectRequestListener;
 import com.google.firebase.crash.FirebaseCrash;
 import com.thetestament.cread.BuildConfig;
+import com.thetestament.cread.Manifest;
 import com.thetestament.cread.R;
 import com.thetestament.cread.activities.FindFBFriendsActivity;
 import com.thetestament.cread.adapters.ExploreAdapter;
-import com.thetestament.cread.helpers.NetworkHelper;
+import com.thetestament.cread.helpers.ImageHelper;
 import com.thetestament.cread.helpers.SharedPreferenceHelper;
 import com.thetestament.cread.helpers.ViewHelper;
 import com.thetestament.cread.listeners.listener;
 import com.thetestament.cread.models.FeedModel;
+import com.yalantis.ucrop.UCrop;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -49,13 +52,21 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.Unbinder;
 import icepick.Icepick;
+import icepick.State;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.observers.DisposableObserver;
 import io.reactivex.schedulers.Schedulers;
+import pl.tajchert.nammu.Nammu;
+import pl.tajchert.nammu.PermissionCallback;
 
+import static android.app.Activity.RESULT_OK;
+import static com.thetestament.cread.helpers.ImageHelper.getImageUri;
 import static com.thetestament.cread.helpers.NetworkHelper.getNetConnectionStatus;
 import static com.thetestament.cread.helpers.NetworkHelper.getObservableFromServer;
+import static com.thetestament.cread.utils.Constant.CONTENT_TYPE_SHORT;
+import static com.thetestament.cread.utils.Constant.IMAGE_TYPE_USER_CAPTURE_PIC;
+import static com.thetestament.cread.utils.Constant.REQUEST_CODE_OPEN_GALLERY_FOR_CAPTURE;
 
 
 public class ExploreFragment extends Fragment {
@@ -74,6 +85,9 @@ public class ExploreFragment extends Fragment {
     private Unbinder mUnbinder;
     private int mPageNumber = 0;
     private boolean mRequestMoreData;
+
+    @State
+    String mShortId;
 
     @Nullable
     @Override
@@ -120,6 +134,38 @@ public class ExploreFragment extends Fragment {
         super.onActivityCreated(savedInstanceState);
         if (savedInstanceState != null) {
             Icepick.restoreInstanceState(this, savedInstanceState);
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        //Required for permission manager library
+        Nammu.onRequestPermissionsResult(requestCode, permissions, grantResults);
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        switch (requestCode) {
+            case REQUEST_CODE_OPEN_GALLERY_FOR_CAPTURE:
+                if (resultCode == RESULT_OK) {
+                    // To crop the selected image
+                    ImageHelper.startImageCropping(getActivity(), this, data.getData(), getImageUri(IMAGE_TYPE_USER_CAPTURE_PIC));
+                } else {
+                    ViewHelper.getSnackBar(rootView, "Image from gallery was not attached");
+                }
+                break;
+            //For more information please visit "https://github.com/Yalantis/uCrop"
+            case UCrop.REQUEST_CROP:
+                if (resultCode == RESULT_OK) {
+                    //Get cropped image Uri
+                    Uri mCroppedImgUri = UCrop.getOutput(data);
+                    ImageHelper.processCroppedImage(mCroppedImgUri, getActivity(), rootView, mShortId);
+
+                } else if (resultCode == UCrop.RESULT_ERROR) {
+                    ViewHelper.getSnackBar(rootView, "Image could not be cropped due to some error");
+                }
+                break;
         }
     }
 
@@ -171,6 +217,7 @@ public class ExploreFragment extends Fragment {
         //Initialize listeners
         initLoadMoreListener(mAdapter);
         initFollowListener(mAdapter);
+        initCaptureListener(mAdapter);
         //Load data here
         loadExploreData();
     }
@@ -250,7 +297,6 @@ public class ExploreFragment extends Fragment {
                                     JSONObject dataObj = exploreArray.getJSONObject(i);
                                     FeedModel exploreData = new FeedModel();
                                     exploreData.setEntityID(dataObj.getString("entityid"));
-                                    exploreData.setCaptureID(dataObj.getString("captureid"));
                                     exploreData.setContentType(dataObj.getString("type"));
                                     exploreData.setUUID(dataObj.getString("uuid"));
                                     exploreData.setCreatorImage(dataObj.getString("profilepicurl"));
@@ -261,6 +307,15 @@ public class ExploreFragment extends Fragment {
                                     exploreData.setHatsOffCount(dataObj.getLong("hatsoffcount"));
                                     exploreData.setCommentCount(dataObj.getLong("commentcount"));
                                     exploreData.setContentImage(dataObj.getString("entityurl"));
+
+                                    //Check for content type
+                                    if (dataObj.getString("type").equals(CONTENT_TYPE_SHORT)) {
+                                        //Retrieve "SHORT_ID" if type is short
+                                        exploreData.setShortID(dataObj.getString("shoid"));
+                                    } else {
+                                        //Retrieve "CAPTURE_ID" if type is capture
+                                        exploreData.setCaptureID(dataObj.getString("captureid"));
+                                    }
                                     mExploreDataList.add(exploreData);
                                 }
                             }
@@ -335,7 +390,6 @@ public class ExploreFragment extends Fragment {
                                     JSONObject dataObj = exploreArray.getJSONObject(i);
                                     FeedModel exploreData = new FeedModel();
                                     exploreData.setEntityID(dataObj.getString("entityid"));
-                                    exploreData.setCaptureID(dataObj.getString("captureid"));
                                     exploreData.setContentType(dataObj.getString("type"));
                                     exploreData.setUUID(dataObj.getString("uuid"));
                                     exploreData.setCreatorImage(dataObj.getString("profilepicurl"));
@@ -346,6 +400,15 @@ public class ExploreFragment extends Fragment {
                                     exploreData.setHatsOffCount(dataObj.getLong("hatsoffcount"));
                                     exploreData.setCommentCount(dataObj.getLong("commentcount"));
                                     exploreData.setContentImage(dataObj.getString("entityurl"));
+
+                                    //Check for content type
+                                    if (dataObj.getString("type").equals(CONTENT_TYPE_SHORT)) {
+                                        //Retrieve "SHORT_ID" if type is short
+                                        exploreData.setShortID(dataObj.getString("shoid"));
+                                    } else {
+                                        //Retrieve "CAPTURE_ID" if type is capture
+                                        exploreData.setCaptureID(dataObj.getString("captureid"));
+                                    }
                                     mExploreDataList.add(exploreData);
 
                                     //Notify item insertion
@@ -396,7 +459,7 @@ public class ExploreFragment extends Fragment {
         adapter.setOnExploreFollowListener(new listener.OnExploreFollowListener() {
             @Override
             public void onFollowClick(FeedModel exploreData, int itemPosition) {
-                    updateFollowStatus(exploreData, itemPosition);
+                updateFollowStatus(exploreData, itemPosition);
             }
         });
     }
@@ -473,6 +536,55 @@ public class ExploreFragment extends Fragment {
                     }
                 });
     }
+
+    /**
+     * Initialize capture listener.
+     *
+     * @param exploreAdapter ExploreAdapter reference
+     */
+    private void initCaptureListener(ExploreAdapter exploreAdapter) {
+        exploreAdapter.setOnExploreCaptureClickListener(new listener.OnExploreCaptureClickListener() {
+            @Override
+            public void onClick(String shortId) {
+                //Set entity id
+                mShortId = shortId;
+                //Check for Write permission
+                if (Nammu.checkPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+                    //We have permission do whatever you want to do
+                    ImageHelper.chooseImageFromGallery(ExploreFragment.this);
+                } else {
+                    //We do not own this permission
+                    if (Nammu.shouldShowRequestPermissionRationale(ExploreFragment.this
+                            , Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+                        //User already refused to give us this permission or removed it
+                        ViewHelper.getToast(getActivity()
+                                , getString(R.string.error_msg_capture_permission_denied));
+                    } else {
+                        //First time asking for permission
+                        Nammu.askForPermission(ExploreFragment.this, Manifest.permission.WRITE_EXTERNAL_STORAGE, captureWritePermission);
+                    }
+                }
+            }
+        });
+    }
+
+    /**
+     * Used to handle result of askForPermission for capture.
+     */
+    PermissionCallback captureWritePermission = new PermissionCallback() {
+        @Override
+        public void permissionGranted() {
+            //Select image from gallery
+            ImageHelper.chooseImageFromGallery(ExploreFragment.this);
+        }
+
+        @Override
+        public void permissionRefused() {
+            //Show error message
+            ViewHelper.getToast(getActivity()
+                    , getString(R.string.error_msg_capture_permission_denied));
+        }
+    };
 
 
     /**

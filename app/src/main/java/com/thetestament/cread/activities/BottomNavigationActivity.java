@@ -113,33 +113,7 @@ public class BottomNavigationActivity extends BaseActivity {
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        //switch (requestCode) {
-         /*   case REQUEST_CODE_OPEN_GALLERY:
-                if (resultCode == RESULT_OK) {
-                    // To crop the selected image
-                    CropImage.activity(data.getData())
-                            .setAllowRotation(true)
-                            .setGuidelines(CropImageView.Guidelines.ON_TOUCH)
-                            .setAspectRatio(1, 1)
-                            .setActivityTitle("Edit")
-                            .start(BottomNavigationActivity.this);
-                } else {
-                    ViewHelper.getSnackBar(rootView, "Image from gallery was not attached");
-                }
-                break;
-            //For more information please visit "https://github.com/ArthurHub/Android-Image-Cropper"
-            case CropImage.CROP_IMAGE_ACTIVITY_REQUEST_CODE:
-                CropImage.ActivityResult result = CropImage.getActivityResult(data);
-                if (resultCode == RESULT_OK) {
-                    //Get cropped image Uri
-                    Uri resultUri = result.getUri();
-                    processCroppedImage(resultUri);
-                } else if (resultCode == CropImage.CROP_IMAGE_ACTIVITY_RESULT_ERROR_CODE) {
-                    ViewHelper.getSnackBar(rootView, "Image could not be cropped due to some error");
-                }
-                break;
-        }*/
+       // super.onActivityResult(requestCode, resultCode, data);
         switch (requestCode) {
             case REQUEST_CODE_OPEN_GALLERY:
                 if (resultCode == RESULT_OK) {
@@ -160,6 +134,8 @@ public class BottomNavigationActivity extends BaseActivity {
                     ViewHelper.getSnackBar(rootView, "Image could not be cropped due to some error");
                 }
                 break;
+            default:
+                super.onActivityResult(requestCode, resultCode, data);
         }
     }
 
@@ -398,7 +374,7 @@ public class BottomNavigationActivity extends BaseActivity {
     /**
      * Method to get WRITE_EXTERNAL_STORAGE permission and perform specified operation.
      */
-    private void getRuntimePermission() {
+    public void getRuntimePermission() {
         //Check for WRITE_EXTERNAL_STORAGE permission
         if (ContextCompat.checkSelfPermission(this
                 , Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
@@ -407,7 +383,7 @@ public class BottomNavigationActivity extends BaseActivity {
                     , Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
 
                 ViewHelper.getToast(this
-                        , "Please grant storage permission from settings to upload your capture");
+                        , getString(R.string.error_msg_capture_permission_denied));
             } else {
                 ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}
                         , REQUEST_CODE_WRITE_EXTERNAL_STORAGE);

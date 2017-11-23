@@ -10,7 +10,7 @@ import android.os.Parcelable;
 
 public class FeedModel implements Parcelable {
 
-    private String entityID, captureID;
+    private String entityID, captureID, shortID;
     private String UUID, creatorName, creatorImage, collabWithUUID, collabWithName;
     private boolean hatsOffStatus, followStatus, merchantable, isAvailableForCollab;
     private long hatsOffCount, commentCount;
@@ -37,6 +37,14 @@ public class FeedModel implements Parcelable {
 
     public void setCaptureID(String captureID) {
         this.captureID = captureID;
+    }
+
+    public String getShortID() {
+        return shortID;
+    }
+
+    public void setShortID(String shortID) {
+        this.shortID = shortID;
     }
 
     public String getUUID() {
@@ -152,6 +160,7 @@ public class FeedModel implements Parcelable {
     public void writeToParcel(Parcel parcel, int i) {
         parcel.writeString(entityID);
         parcel.writeString(captureID);
+        parcel.writeString(shortID);
         parcel.writeString(UUID);
         parcel.writeString(creatorName);
         parcel.writeString(creatorImage);
@@ -183,6 +192,7 @@ public class FeedModel implements Parcelable {
     protected FeedModel(Parcel in) {
         entityID = in.readString();
         captureID = in.readString();
+        shortID = in.readString();
         UUID = in.readString();
         creatorName = in.readString();
         creatorImage = in.readString();

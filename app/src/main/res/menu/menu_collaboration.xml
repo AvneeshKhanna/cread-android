@@ -3,12 +3,6 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <item
-        android:id="@+id/action_signature"
-        android:icon="@drawable/ic_copyright_24"
-        android:title="Signature"
-        app:showAsAction="always" />
-
-    <item
         android:id="@+id/action_next"
         android:icon="@drawable/ic_done_24"
         android:orderInCategory="2"

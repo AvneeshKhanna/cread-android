@@ -9,14 +9,20 @@
     <string name="ACCOUNT_KIT_CLIENT_TOKEN">6a45aeaefe691d6fc069a7ae3d49f0ea</string>
 
 
-    //Error messages
+    //Networking error messages
     <string name="error_msg_no_connection">Cannot connect to network</string>
     <string name="error_msg_server">"Some error occurred at server"</string>
     <string name="error_msg_invalid_token">Session expired. Please login again</string>
     <string name="error_msg_internal">Something went wrong. Please try again</string>
+
+    //Permission denied error message
+    <string name="error_msg_permission_denied">The app won\'t function properly since the permission for storage was denied.</string>
+    <string name="error_msg_capture_permission_denied">Please grant storage permission from settings to upload your capture</string>
+
+    //Other error message
     <string name="error_field_empty">cannot be empty</string>
     <string name="error_msg_no_image">Image could not be loaded. Please try again</string>
-    <string name="error_msg_permission_denied">The app won\'t function properly since the permission for storage was denied.</string>
+
 
     //Shared preferences key
     <string name="cread_preferences">creadPrefs</string>

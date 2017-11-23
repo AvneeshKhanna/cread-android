@@ -40,6 +40,7 @@ import com.thetestament.cread.activities.ShortActivity;
 import com.thetestament.cread.helpers.NetworkHelper;
 import com.thetestament.cread.helpers.ViewHelper;
 import com.thetestament.cread.listeners.listener.OnContentDeleteListener;
+import com.thetestament.cread.listeners.listener.OnMeCaptureClickListener;
 import com.thetestament.cread.listeners.listener.OnUserActivityHatsOffListener;
 import com.thetestament.cread.listeners.listener.OnUserActivityLoadMoreListener;
 import com.thetestament.cread.models.FeedModel;
@@ -77,6 +78,7 @@ public class MeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     private OnUserActivityLoadMoreListener onLoadMore;
     private OnUserActivityHatsOffListener onHatsOffListener;
     private OnContentDeleteListener onContentDeleteListener;
+    private OnMeCaptureClickListener onMeCaptureClickListener;
 
     /**
      * Required constructor.
@@ -110,6 +112,13 @@ public class MeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
      */
     public void setOnContentDeleteListener(OnContentDeleteListener onContentDeleteListener) {
         this.onContentDeleteListener = onContentDeleteListener;
+    }
+
+    /**
+     * Register a callback to be invoked when user clicks on capture button.
+     */
+    public void setOnMeCaptureClickListener(OnMeCaptureClickListener onMeCaptureClickListener) {
+        this.onMeCaptureClickListener = onMeCaptureClickListener;
     }
 
     @Override
@@ -205,7 +214,7 @@ public class MeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                     });
                     //displaying the popup
                     popup.show();*/
-                   
+
                    getMenuActionsBottomSheet();
                 }
             });
@@ -239,7 +248,7 @@ public class MeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             loadingViewHolder.progressView.setVisibility(View.VISIBLE);
         }
 
-        //Load more data  initialization
+        //Load more data initialization
         initializeLoadMore(position);
     }
 
@@ -318,7 +327,8 @@ public class MeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         deleteButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                showDeleteConfirmationDialog(index, entityID);
+                onMeCaptureClickListener.onClick(entityID);
+                //  showDeleteConfirmationDialog(index, entityID);
             }
         });
     }
@@ -401,7 +411,6 @@ public class MeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                 Intent intent = new Intent(mContext, ShortActivity.class);
                 intent.putExtra(EXTRA_DATA, bundle);
                 mContext.startActivity(intent);
-
                 //Log firebase event
                 Bundle eventBundle = new Bundle();
                 eventBundle.putString("uuid", mUUID);
@@ -533,6 +542,11 @@ public class MeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     }
 
 
+    /**
+     * Method to update dataList and notify for changes.
+     *
+     * @param list Updated data list.
+     */
     public void updateList(List<FeedModel> list) {
         mUserContentList = list;
         notifyDataSetChanged();

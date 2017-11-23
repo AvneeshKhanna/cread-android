@@ -45,7 +45,7 @@
         <!-- for razorpay sdk -->
         <meta-data
             android:name="com.razorpay.ApiKey"
-            android:value="@string/RZP_KEY"/>
+            android:value="@string/RZP_KEY" />
 
 
         <activity
@@ -86,8 +86,6 @@
             android:name=".activities.MainActivity"
             android:screenOrientation="portrait"
             android:theme="@style/BottomNavigationActivityTheme" />
-
-        <!-- TermsOfServiceActivity -->
 
         <!-- BottomNavigationActivity -->
         <activity
@@ -278,10 +276,22 @@
             android:name=".activities.ProductsSoldActivity"
             android:screenOrientation="portrait" />
 
+
+        <!--CollaborationActivity-->
+        <activity
+            android:name=".activities.CollaborationActivity"
+            android:label="Collaboration"
+            android:screenOrientation="portrait">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".activities.BottomNavigationActivity" />
+        </activity>
+
+
         <!--Temporarily disable Firebase Analytics-->
         <meta-data
             android:name="firebase_analytics_collection_enabled"
-            android:value= "@bool/FIREBASE_ANALYTICS_ENABLED" />
+            android:value="@bool/FIREBASE_ANALYTICS_ENABLED" />
 
         <!-- Toggle Firebase crash reporting for development -->
         <meta-data

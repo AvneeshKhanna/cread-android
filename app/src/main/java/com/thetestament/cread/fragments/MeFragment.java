@@ -2,8 +2,8 @@ package com.thetestament.cread.fragments;
 
 import android.content.Context;
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.graphics.PorterDuff;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.NonNull;
@@ -11,7 +11,6 @@ import android.support.annotation.Nullable;
 import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.TabLayout;
-import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.view.ViewCompat;
@@ -46,11 +45,13 @@ import com.thetestament.cread.activities.FollowActivity;
 import com.thetestament.cread.activities.UpdateProfileDetailsActivity;
 import com.thetestament.cread.activities.UpdateProfileImageActivity;
 import com.thetestament.cread.adapters.MeAdapter;
+import com.thetestament.cread.helpers.ImageHelper;
 import com.thetestament.cread.helpers.NetworkHelper;
 import com.thetestament.cread.helpers.SharedPreferenceHelper;
 import com.thetestament.cread.helpers.ViewHelper;
 import com.thetestament.cread.listeners.listener;
 import com.thetestament.cread.models.FeedModel;
+import com.yalantis.ucrop.UCrop;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -72,8 +73,11 @@ import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.observers.DisposableObserver;
 import io.reactivex.schedulers.Schedulers;
+import pl.tajchert.nammu.Nammu;
+import pl.tajchert.nammu.PermissionCallback;
 
 import static android.app.Activity.RESULT_OK;
+import static com.thetestament.cread.helpers.ImageHelper.getImageUri;
 import static com.thetestament.cread.helpers.NetworkHelper.getNetConnectionStatus;
 import static com.thetestament.cread.helpers.NetworkHelper.getObservableFromServer;
 import static com.thetestament.cread.helpers.NetworkHelper.getUserDataObservableFromServer;
@@ -89,9 +93,10 @@ import static com.thetestament.cread.utils.Constant.EXTRA_USER_IMAGE_PATH;
 import static com.thetestament.cread.utils.Constant.EXTRA_USER_LAST_NAME;
 import static com.thetestament.cread.utils.Constant.EXTRA_USER_WATER_MARK_STATUS;
 import static com.thetestament.cread.utils.Constant.FIREBASE_EVENT_FOLLOW_FROM_PROFILE;
+import static com.thetestament.cread.utils.Constant.IMAGE_TYPE_USER_CAPTURE_PIC;
+import static com.thetestament.cread.utils.Constant.REQUEST_CODE_OPEN_GALLERY_FOR_CAPTURE;
 import static com.thetestament.cread.utils.Constant.REQUEST_CODE_UPDATE_PROFILE_DETAILS;
 import static com.thetestament.cread.utils.Constant.REQUEST_CODE_UPDATE_PROFILE_PIC;
-import static com.thetestament.cread.utils.Constant.REQUEST_CODE_WRITE_EXTERNAL_STORAGE;
 
 /**
  * Fragment class to load user profile details and his/her recent activity.
@@ -140,6 +145,9 @@ public class MeFragment extends Fragment {
     @State
     String mRequestedUUID;
 
+    @State
+    String mShortID;
+
     private List<FeedModel> mUserActivityDataList = new ArrayList<>();
     private MeAdapter mAdapter;
     private Unbinder mUnbinder;
@@ -148,16 +156,16 @@ public class MeFragment extends Fragment {
     private int mPageNumber = 0;
     private boolean mRequestMoreData;
 
+
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         //Initialize preference helper
         mHelper = new SharedPreferenceHelper(getActivity());
         //Inflate this view
-        return inflater
-                .inflate(R.layout.fragment_me
-                        , container
-                        , false);
+        return inflater.inflate(R.layout.fragment_me
+                , container
+                , false);
     }
 
     @Override
@@ -194,54 +202,74 @@ public class MeFragment extends Fragment {
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        if (requestCode == REQUEST_CODE_WRITE_EXTERNAL_STORAGE) {
-            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                openUpdateImageScreen();
-            } else {
-                ViewHelper.getToast(getActivity()
-                        , "The app won't function properly since the permission for storage was denied.");
-            }
-        }
+        //Required for permission manager library
+        Nammu.onRequestPermissionsResult(requestCode, permissions, grantResults);
     }
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == REQUEST_CODE_UPDATE_PROFILE_DETAILS && resultCode == RESULT_OK) {
-            //Get user first name
-            mFirstName = data.getExtras().getString(EXTRA_USER_FIRST_NAME);
-            //if last name is present
-            if (data.getExtras().getString(EXTRA_USER_LAST_NAME) != null) {
-                //Get user last name
-                mLastName = data.getExtras().getString(EXTRA_USER_LAST_NAME);
-                //Set user name
-                textUserName.setText(mFirstName + " " + mLastName);
-            } else {
-                //set user name
-                textUserName.setText(mFirstName);
-            }
+        switch (requestCode) {
+            case REQUEST_CODE_OPEN_GALLERY_FOR_CAPTURE:
+                if (resultCode == RESULT_OK) {
+                    // To crop the selected image
+                    ImageHelper.startImageCropping(getContext(), this, data.getData(), getImageUri(IMAGE_TYPE_USER_CAPTURE_PIC));
 
-            //If user bio present
-            if (data.getExtras().getString(EXTRA_USER_BIO) != null) {
-                //Get user bio
-                mUserBio = data.getExtras().getString(EXTRA_USER_BIO);
-                //Set user bio
-                textBio.setText(mUserBio);
-            } else {
-                //Set user bio
-                textBio.setText("Write what describes you");
-            }
+                } else {
+                    ViewHelper.getSnackBar(rootView, "Image from gallery was not attached");
+                }
+                break;
+            //For more information please visit "https://github.com/Yalantis/uCrop"
+            case UCrop.REQUEST_CROP:
+                if (resultCode == RESULT_OK) {
+                    //Get cropped image Uri
+                    Uri mCroppedImgUri = UCrop.getOutput(data);
+                    ImageHelper.processCroppedImage(mCroppedImgUri, getActivity(), rootView, mShortID);
 
-            //Retrieve email and watermark status
-            mEmail = data.getExtras().getString(EXTRA_USER_EMAIL);
-            mWaterMarkStatus = data.getExtras().getString(EXTRA_USER_WATER_MARK_STATUS);
+                } else if (resultCode == UCrop.RESULT_ERROR) {
+                    ViewHelper.getSnackBar(rootView, "Image could not be cropped due to some error");
+                }
+                break;
+            case REQUEST_CODE_UPDATE_PROFILE_PIC:
+                if (resultCode == RESULT_OK) {
+                    mProfilePicURL = data.getExtras().getString(EXTRA_USER_IMAGE_PATH);
+                    //load user profile
+                    loadUserPicture(mProfilePicURL, imageUser, getActivity());
+                }
+                break;
+            case REQUEST_CODE_UPDATE_PROFILE_DETAILS:
+                if (resultCode == RESULT_OK) {
+                    //Get user first name
+                    mFirstName = data.getExtras().getString(EXTRA_USER_FIRST_NAME);
+                    //if last name is present
+                    if (data.getExtras().getString(EXTRA_USER_LAST_NAME) != null) {
+                        //Get user last name
+                        mLastName = data.getExtras().getString(EXTRA_USER_LAST_NAME);
+                        //Set user name
+                        textUserName.setText(mFirstName + " " + mLastName);
+                    } else {
+                        //set user name
+                        textUserName.setText(mFirstName);
+                    }
 
-        } else if (requestCode == REQUEST_CODE_UPDATE_PROFILE_PIC && resultCode == RESULT_OK) {
-            mProfilePicURL = data.getExtras().getString(EXTRA_USER_IMAGE_PATH);
-            //load user profile
-            loadUserPicture(mProfilePicURL, imageUser, getActivity());
+                    //If user bio present
+                    if (data.getExtras().getString(EXTRA_USER_BIO) != null) {
+                        //Get user bio
+                        mUserBio = data.getExtras().getString(EXTRA_USER_BIO);
+                        //Set user bio
+                        textBio.setText(mUserBio);
+                    } else {
+                        //Set user bio
+                        textBio.setText("Write what describes you");
+                    }
+
+                    //Retrieve email and watermark status
+                    mEmail = data.getExtras().getString(EXTRA_USER_EMAIL);
+                    mWaterMarkStatus = data.getExtras().getString(EXTRA_USER_WATER_MARK_STATUS);
+                }
+                break;
         }
+
     }
 
     /**
@@ -271,7 +299,6 @@ public class MeFragment extends Fragment {
             startActivityForResult(intent, REQUEST_CODE_UPDATE_PROFILE_DETAILS);
         }
     }
-
 
     /**
      * Click functionality to edit user bio
@@ -403,15 +430,7 @@ public class MeFragment extends Fragment {
                 tab.getIcon().setColorFilter(ContextCompat.getColor(getActivity(), R.color.colorPrimary), PorterDuff.Mode.SRC_IN);
                 switch (tab.getPosition()) {
                     case 0:
-
                         mAdapter.updateList(mUserActivityDataList);
-                        //mAdapter.setUserActivityType(USER_ACTIVITY_TYPE_ALL);
-                        //mAdapter.notifyDataSetChanged();
-                        //Set layout manger for recyclerView
-                        // recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
-                        //Set adapter
-                        // mAdapter = new MeAdapter(mUserActivityDataList, getActivity(), mHelper.getUUID(), USER_ACTIVITY_TYPE_ALL);
-                        //recyclerView.setAdapter(mAdapter);
                         break;
                     case 1:
                         List<FeedModel> temp = new ArrayList<>();
@@ -421,14 +440,6 @@ public class MeFragment extends Fragment {
                             }
                         }
                         mAdapter.updateList(temp);
-                        //mAdapter.filter(CONTENT_TYPE_SHORT);
-                        //Set layout manger for recyclerView
-                        // recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
-                        //Set adapter
-                        // mAdapter = new MeAdapter(mUserActivityDataList, getActivity(), mHelper.getUUID(), USER_ACTIVITY_TYPE_SHORT);
-                        // recyclerView.setAdapter(mAdapter);
-                        // mAdapter.setUserActivityType(USER_ACTIVITY_TYPE_SHORT);
-                        //mAdapter.notifyDataSetChanged();
                         break;
                     case 2:
                         List<FeedModel> temp1 = new ArrayList<>();
@@ -438,14 +449,6 @@ public class MeFragment extends Fragment {
                             }
                         }
                         mAdapter.updateList(temp1);
-                        //mAdapter.filter(CONTENT_TYPE_CAPTURE);
-                        //Set layout manger for recyclerView
-                        //recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
-                        //Set adapter
-                        //mAdapter = new MeAdapter(mUserActivityDataList, getActivity(), mHelper.getUUID(), USER_ACTIVITY_TYPE_CAPTURE);
-                        //recyclerView.setAdapter(mAdapter);
-                        //mAdapter.setUserActivityType(USER_ACTIVITY_TYPE_CAPTURE);
-                        //mAdapter.notifyDataSetChanged();
                         break;
                 }
             }
@@ -649,23 +652,20 @@ public class MeFragment extends Fragment {
      * Method to get WRITE_EXTERNAL_STORAGE permission and perform specified operation.
      */
     private void getRuntimePermission() {
-        //Check for WRITE_EXTERNAL_STORAGE permission
-        if (ContextCompat.checkSelfPermission(getActivity()
-                , Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
-
-            if (ActivityCompat.shouldShowRequestPermissionRationale(getActivity()
+        //Check for Write permission
+        if (Nammu.checkPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+            //We have permission do whatever you want to do
+            openUpdateImageScreen();
+        } else {
+            //We do not own this permission
+            if (Nammu.shouldShowRequestPermissionRationale(MeFragment.this
                     , Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
-
+                //User already refused to give us this permission or removed it
                 ViewHelper.getToast(getActivity()
                         , "Please grant storage permission from settings to edit your profile picture.");
             } else {
-                requestPermissions(new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}
-                        , REQUEST_CODE_WRITE_EXTERNAL_STORAGE);
+                Nammu.askForPermission(MeFragment.this, Manifest.permission.WRITE_EXTERNAL_STORAGE, profilePicWritePermission);
             }
-        }
-        //If permission is granted
-        else {
-            openUpdateImageScreen();
         }
     }
 
@@ -805,6 +805,7 @@ public class MeFragment extends Fragment {
         initLoadMoreListener(mAdapter);
         initHatsOffListener(mAdapter);
         initializeDeleteListener(mAdapter);
+        initCaptureListener(mAdapter);
     }
 
     /**
@@ -849,7 +850,14 @@ public class MeFragment extends Fragment {
                                     data.setCommentCount(dataObj.getLong("commentcount"));
                                     data.setContentImage(dataObj.getString("entityurl"));
 
-
+                                    //Check for content type
+                                    if (dataObj.getString("type").equals(CONTENT_TYPE_SHORT)) {
+                                        //Retrieve "SHORT_ID" if type is short
+                                        data.setShortID(dataObj.getString("shoid"));
+                                    } else {
+                                        //Retrieve "CAPTURE_ID" if type is capture
+                                        data.setCaptureID(dataObj.getString("captureid"));
+                                    }
                                     mUserActivityDataList.add(data);
                                 }
                             }
@@ -976,6 +984,15 @@ public class MeFragment extends Fragment {
                                     data.setHatsOffCount(dataObj.getLong("hatsoffcount"));
                                     data.setCommentCount(dataObj.getLong("commentcount"));
                                     data.setContentImage(dataObj.getString("entityurl"));
+
+                                    //Check for content type
+                                    if (dataObj.getString("type").equals(CONTENT_TYPE_SHORT)) {
+                                        //Retrieve "SHORT_ID" if type is short
+                                        data.setShortID(dataObj.getString("shoid"));
+                                    } else {
+                                        //Retrieve "CAPTURE_ID" if type is capture
+                                        data.setCaptureID(dataObj.getString("captureid"));
+                                    }
 
                                     mUserActivityDataList.add(data);
                                     //Notify item insertion
@@ -1204,6 +1221,72 @@ public class MeFragment extends Fragment {
     }
 
     /**
+     * Initialize capture listener.
+     *
+     * @param meAdapter MeAdapter reference
+     */
+    private void initCaptureListener(MeAdapter meAdapter) {
+        meAdapter.setOnMeCaptureClickListener(new listener.OnMeCaptureClickListener() {
+            @Override
+            public void onClick(String shortID) {
+                //Set entity id
+                mShortID = shortID;
+                //Check for Write permission
+                if (Nammu.checkPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+                    //We have permission do whatever you want to do
+                    ImageHelper.chooseImageFromGallery(MeFragment.this);
+                } else {
+                    //We do not own this permission
+                    if (Nammu.shouldShowRequestPermissionRationale(MeFragment.this
+                            , Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+                        //User already refused to give us this permission or removed it
+                        ViewHelper.getToast(getActivity()
+                                , getString(R.string.error_msg_capture_permission_denied));
+                    } else {
+                        //First time asking for permission
+                        Nammu.askForPermission(MeFragment.this, Manifest.permission.WRITE_EXTERNAL_STORAGE, captureWritePermission);
+                    }
+                }
+            }
+        });
+    }
+
+    /**
+     * Used to handle result of askForPermission for capture.
+     */
+    PermissionCallback captureWritePermission = new PermissionCallback() {
+        @Override
+        public void permissionGranted() {
+            //Select image from gallery
+            ImageHelper.chooseImageFromGallery(MeFragment.this);
+        }
+
+        @Override
+        public void permissionRefused() {
+            //Show error message
+            ViewHelper.getToast(getActivity()
+                    , getString(R.string.error_msg_capture_permission_denied));
+        }
+    };
+
+    /**
+     * Used to handle result of askForPermission for Profile pic.
+     */
+    PermissionCallback profilePicWritePermission = new PermissionCallback() {
+        @Override
+        public void permissionGranted() {
+            openUpdateImageScreen();
+        }
+
+        @Override
+        public void permissionRefused() {
+            ViewHelper.getToast(getActivity()
+                    , "Please grant storage permission from settings to edit your profile picture.");
+        }
+    };
+
+
+    /**
      * Method to show input dialog where user enters his/her watermark.
      */
     private void showBioInputDialog() {
@@ -1311,5 +1394,6 @@ public class MeFragment extends Fragment {
                     }
                 });
     }
+
 
 }

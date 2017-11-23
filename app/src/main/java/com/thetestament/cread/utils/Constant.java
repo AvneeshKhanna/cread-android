@@ -5,7 +5,7 @@ public class Constant {
     public static final String MINIMUM_APP_VERSION_KEY = "minimum_app_version";
 
     //Request codes
-    public static final int REQUEST_CODE_UPDATES_ACTIVITY = 1000;
+    public static final int REQUEST_CODE_OPEN_GALLERY_FOR_CAPTURE = 1000;
     public static final int REQUEST_CODE_FB_ACCOUNT_KIT = 1001;
     public static final int REQUEST_CODE_COMMENTS_ACTIVITY = 1002;
     public static final int REQUEST_CODE_WRITE_EXTERNAL_STORAGE = 1003;
@@ -37,6 +37,7 @@ public class Constant {
     //Extra data
     public static final String EXTRA_ENTITY_ID = "entityID";
     public static final String EXTRA_CAPTURE_ID = "captureID";
+    public static final String EXTRA_SHORT_ID = "shortID";
     public static final String EXTRA_CAPTURE_URL = "captureURL";
     public static final String EXTRA_MERCHANTABLE = "merchantable";
     public static final String EXTRA_DATA = "data";
@@ -114,7 +115,7 @@ public class Constant {
     //Firebase event types
     public static final String FIREBASE_EVENT_HAVE_CLICKED = "have_clicked";
     public static final String FIREBASE_EVENT_BUY_CLICKED = "buy_clicked";
-    public static final String FIREBASE_EVENT_MAKE_PAYMENT_CLICKED = "make_payment_licked";
+    public static final String FIREBASE_EVENT_MAKE_PAYMENT_CLICKED = "make_payment_clicked";
     public static final String FIREBASE_EVENT_WRITE_CLICKED = "write_clicked";
     public static final String FIREBASE_EVENT_FEED_CLICKED = "feed_clicked";
     public static final String FIREBASE_EVENT_EXPLORE_CLICKED = "explore_clicked";
