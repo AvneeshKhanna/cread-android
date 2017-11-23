@@ -94,7 +94,7 @@ import static com.thetestament.cread.utils.Constant.EXTRA_USER_LAST_NAME;
 import static com.thetestament.cread.utils.Constant.EXTRA_USER_WATER_MARK_STATUS;
 import static com.thetestament.cread.utils.Constant.FIREBASE_EVENT_FOLLOW_FROM_PROFILE;
 import static com.thetestament.cread.utils.Constant.IMAGE_TYPE_USER_CAPTURE_PIC;
-import static com.thetestament.cread.utils.Constant.REQUEST_CODE_OPEN_GALLERY;
+import static com.thetestament.cread.utils.Constant.REQUEST_CODE_OPEN_GALLERY_FOR_CAPTURE;
 import static com.thetestament.cread.utils.Constant.REQUEST_CODE_UPDATE_PROFILE_DETAILS;
 import static com.thetestament.cread.utils.Constant.REQUEST_CODE_UPDATE_PROFILE_PIC;
 
@@ -209,12 +209,12 @@ public class MeFragment extends Fragment {
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-
         switch (requestCode) {
-            case REQUEST_CODE_OPEN_GALLERY:
+            case REQUEST_CODE_OPEN_GALLERY_FOR_CAPTURE:
                 if (resultCode == RESULT_OK) {
                     // To crop the selected image
-                    ImageHelper.startImageCropping(getActivity(), data.getData(), getImageUri(IMAGE_TYPE_USER_CAPTURE_PIC));
+                    ImageHelper.startImageCropping(getContext(), this, data.getData(), getImageUri(IMAGE_TYPE_USER_CAPTURE_PIC));
+
                 } else {
                     ViewHelper.getSnackBar(rootView, "Image from gallery was not attached");
                 }
@@ -269,6 +269,7 @@ public class MeFragment extends Fragment {
                 }
                 break;
         }
+
     }
 
     /**
@@ -298,7 +299,6 @@ public class MeFragment extends Fragment {
             startActivityForResult(intent, REQUEST_CODE_UPDATE_PROFILE_DETAILS);
         }
     }
-
 
     /**
      * Click functionality to edit user bio
@@ -1234,7 +1234,7 @@ public class MeFragment extends Fragment {
                 //Check for Write permission
                 if (Nammu.checkPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
                     //We have permission do whatever you want to do
-                    ImageHelper.chooseImageFromGallery(getActivity());
+                    ImageHelper.chooseImageFromGallery(MeFragment.this);
                 } else {
                     //We do not own this permission
                     if (Nammu.shouldShowRequestPermissionRationale(MeFragment.this
@@ -1258,7 +1258,7 @@ public class MeFragment extends Fragment {
         @Override
         public void permissionGranted() {
             //Select image from gallery
-            ImageHelper.chooseImageFromGallery(getActivity());
+            ImageHelper.chooseImageFromGallery(MeFragment.this);
         }
 
         @Override
@@ -1394,5 +1394,6 @@ public class MeFragment extends Fragment {
                     }
                 });
     }
+
 
 }

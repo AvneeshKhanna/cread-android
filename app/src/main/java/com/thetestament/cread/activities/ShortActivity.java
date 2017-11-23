@@ -115,7 +115,7 @@ public class ShortActivity extends BaseActivity implements ColorChooserDialog.Co
     SharedPreferenceHelper mHelper;
 
 
-  //  private GestureDetector mTapDetector;
+    //  private GestureDetector mTapDetector;
 
     @Override
 
@@ -127,7 +127,7 @@ public class ShortActivity extends BaseActivity implements ColorChooserDialog.Co
         mHelper = new SharedPreferenceHelper(this);
         //initialize screen
         initScreen();
-       // mTapDetector = new GestureDetector(this, new GestureTap());
+        // mTapDetector = new GestureDetector(this, new GestureTap());
     }
 
     @Override
@@ -193,7 +193,6 @@ public class ShortActivity extends BaseActivity implements ColorChooserDialog.Co
                 finish();
                 return true;
             case R.id.action_signature:
-
                 if (signatureStatus) {
                     String s = textShort.getText().toString();
                     String removedText = s.replace(mSignatureText, "").trim();
@@ -203,7 +202,6 @@ public class ShortActivity extends BaseActivity implements ColorChooserDialog.Co
                     textShort.setText(textShort.getText() + "\n \n" + mSignatureText);
                     signatureStatus = true;
                 }
-
                 return true;
             case R.id.action_next:
                 getRuntimePermission();
@@ -482,9 +480,7 @@ public class ShortActivity extends BaseActivity implements ColorChooserDialog.Co
                             //Update details on server
                             updateShort(new File(getImageUri(IMAGE_TYPE_USER_SHORT_PIC).getPath())
                                     , mCaptureID
-                                    //, String.valueOf(scaledPixelsToPx(ShortActivity.this, textShort.getX()))
                                     , String.valueOf(textShort.getX() / factor)
-                                    //, String.valueOf(scaledPixelsToPx(ShortActivity.this, textShort.getY() - squareView.getY()))
                                     , String.valueOf((textShort.getY() - squareView.getY()) / factor)
                                     , String.valueOf(textShort.getWidth() / factor)
                                     , String.valueOf(textShort.getHeight() / factor)

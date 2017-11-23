@@ -29,8 +29,8 @@ android {
             shrinkResources true
             minifyEnabled true
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
-            buildConfigField "String", "URL", '"http://cread-dev-remote.herokuapp.com"'
-            // buildConfigField "String", "URL", '"http://3c18d263.ngrok.io"'
+            //buildConfigField "String", "URL", '"http://cread-dev-remote.herokuapp.com"'
+            buildConfigField "String", "URL", '"http://b58e3740.ngrok.io"'
             resValue "string", "RZP_KEY", "rzp_test_Q09427lQA9Ol5g"
             resValue "bool", "FIREBASE_ANALYTICS_ENABLED", "false"
             resValue "bool", "FIREBASE_CRASHLYTICS_ENABLED", "false"
@@ -102,7 +102,7 @@ dependencies {
     /*Image cropping*/
     //compile 'com.github.yalantis:ucrop:2.2.1'
     compile 'com.github.yalantis:ucrop:2.2.1-native'
-    /*compile 'com.theartofdev.edmodo:android-image-cropper:2.5.1'*/
+    //compile 'com.theartofdev.edmodo:android-image-cropper:2.5.1'
 
     /*Image compression library*/
     compile 'id.zelory:compressor:2.1.0'

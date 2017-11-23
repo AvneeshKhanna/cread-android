@@ -1,10 +1,14 @@
 package com.thetestament.cread.activities;
 
+import android.graphics.Bitmap;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.os.Environment;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.v4.content.ContextCompat;
+import android.text.InputType;
 import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.Menu;
@@ -13,16 +17,30 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.afollestad.materialdialogs.DialogAction;
+import com.afollestad.materialdialogs.MaterialDialog;
 import com.afollestad.materialdialogs.color.ColorChooserDialog;
 import com.google.firebase.crash.FirebaseCrash;
 import com.rx2androidnetworking.Rx2AndroidNetworking;
+import com.squareup.picasso.Callback;
+import com.squareup.picasso.MemoryPolicy;
+import com.squareup.picasso.Picasso;
+import com.squareup.picasso.Target;
 import com.thetestament.cread.BuildConfig;
+import com.thetestament.cread.Manifest;
 import com.thetestament.cread.R;
+import com.thetestament.cread.helpers.NetworkHelper;
 import com.thetestament.cread.helpers.SharedPreferenceHelper;
+import com.thetestament.cread.helpers.ViewHelper;
 import com.thetestament.cread.utils.SquareView;
 
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.util.concurrent.TimeUnit;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -34,6 +52,19 @@ import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.schedulers.Schedulers;
+import okhttp3.OkHttpClient;
+import pl.tajchert.nammu.Nammu;
+import pl.tajchert.nammu.PermissionCallback;
+
+import static com.thetestament.cread.helpers.ImageHelper.getImageUri;
+import static com.thetestament.cread.utils.Constant.EXTRA_DATA;
+import static com.thetestament.cread.utils.Constant.EXTRA_MERCHANTABLE;
+import static com.thetestament.cread.utils.Constant.EXTRA_SHORT_ID;
+import static com.thetestament.cread.utils.Constant.IMAGE_TYPE_USER_CAPTURE_PIC;
+import static com.thetestament.cread.utils.Constant.IMAGE_TYPE_USER_SHORT_PIC;
+import static com.thetestament.cread.utils.Constant.WATERMARK_STATUS_ASK_ALWAYS;
+import static com.thetestament.cread.utils.Constant.WATERMARK_STATUS_NO;
+import static com.thetestament.cread.utils.Constant.WATERMARK_STATUS_YES;
 
 /**
  * This class shows the preview of collaboration.
@@ -49,8 +80,16 @@ public class CollaborationActivity extends BaseActivity implements ColorChooserD
     ImageView imageShort;
     @BindView(R.id.textShort)
     TextView textShort;
+    @BindView(R.id.textSignature)
+    TextView textSignature;
     @BindView(R.id.progressView)
     View viewProgress;
+
+    @State
+    String mShortID, mIsMerchantable, mSignatureText = "";
+
+    @State
+    int mImageWidth = 650;
 
     /**
      * Flag to maintain gravity status i.e 0 for center , 1 for right and 2 for left.
@@ -65,14 +104,19 @@ public class CollaborationActivity extends BaseActivity implements ColorChooserD
 
     //Initially text gravity is "CENTER"
     TextGravity textGravity = TextGravity.Center;
+
     CompositeDisposable mCompositeDisposable = new CompositeDisposable();
     SharedPreferenceHelper mHelper;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        ButterKnife.bind(this);
         setContentView(R.layout.activity_collaboration);
+        ButterKnife.bind(this);
+        //Obtain reference
+        mHelper = new SharedPreferenceHelper(this);
+        //initialize this screen
+        initScreen();
     }
 
     @Override
@@ -94,6 +138,11 @@ public class CollaborationActivity extends BaseActivity implements ColorChooserD
     }
 
     @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        Nammu.onRequestPermissionsResult(requestCode, permissions, grantResults);
+    }
+
+    @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu_collaboration, menu);
         return true;
@@ -107,7 +156,23 @@ public class CollaborationActivity extends BaseActivity implements ColorChooserD
                 finish();
                 return true;
             case R.id.action_next:
-                //todo functionality
+
+                //Check for Write permission
+                if (Nammu.checkPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+                    //We have permission do whatever you want to do
+                    generateImage();
+                } else {
+                    //We do not own this permission
+                    if (Nammu.shouldShowRequestPermissionRationale(this
+                            , Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+                        //User already refused to give us this permission or removed it
+                        ViewHelper.getToast(this
+                                , "Please grant storage permission from settings to create short");
+                    } else {
+                        //First time asking for permission
+                        Nammu.askForPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE, captureWritePermission);
+                    }
+                }
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
@@ -199,22 +264,175 @@ public class CollaborationActivity extends BaseActivity implements ColorChooserD
                 .show(); // an AppCompatActivity which implements ColorCallback
     }
 
+    PermissionCallback captureWritePermission = new PermissionCallback() {
+        @Override
+        public void permissionGranted() {
+            generateImage();
+        }
+
+        @Override
+        public void permissionRefused() {
+
+            ViewHelper.getToast(CollaborationActivity.this
+                    , "Please grant storage permission from settings to create short");
+        }
+    };
 
     /**
+     * Method to initialize this screen.
+     */
+    private void initScreen() {
+        //Retrieve data from intent
+        Bundle data = getIntent().getBundleExtra(EXTRA_DATA);
+        mShortID = data.getString(EXTRA_SHORT_ID);
+        mIsMerchantable = data.getString(EXTRA_MERCHANTABLE);
+        //Load capture pic
+        loadCaptureImage();
+        //Check for signature
+        checkSignatureStatus(mHelper);
+        //Get short data from server
+        loadShortData();
+    }
+
+    /**
+     * Method to load capture image for preview.
+     */
+    private void loadCaptureImage() {
+        Picasso.with(this)
+                .load(getImageUri(IMAGE_TYPE_USER_CAPTURE_PIC))
+                .memoryPolicy(MemoryPolicy.NO_CACHE)
+                .error(R.drawable.image_placeholder)
+                .into(imageShort, new Callback() {
+                    @Override
+                    public void onSuccess() {
+                        Picasso.with(CollaborationActivity.this).load(getImageUri(IMAGE_TYPE_USER_CAPTURE_PIC)).into(new Target() {
+                            @Override
+                            public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
+                                //Get image width
+                                mImageWidth = bitmap.getWidth();
+                            }
+
+                            @Override
+                            public void onBitmapFailed(Drawable errorDrawable) {
+
+                            }
+
+                            @Override
+                            public void onPrepareLoad(Drawable placeHolderDrawable) {
+
+                            }
+                        });
+                    }
+
+                    @Override
+                    public void onError() {
+
+                    }
+                });
+    }
+
+    /**
+     * Method to check signature status and show appropriate dialog.
      *
-     * */
+     * @param helper SharedPreference reference.
+     */
+    private void checkSignatureStatus(SharedPreferenceHelper helper) {
+        //Check for first time status
+        if (helper.getWatermarkStatus().equals(WATERMARK_STATUS_YES)) {
+            mSignatureText = helper.getCaptureWaterMarkText();
+            textSignature.setText(mSignatureText);
+        } else if (helper.getWatermarkStatus().equals(WATERMARK_STATUS_NO)) {
+            //Do nothing
+        } else if (helper.getWatermarkStatus().equals(WATERMARK_STATUS_ASK_ALWAYS)) {
+            //Show watermark dialog
+            getSignatureDialog();
+        }
+    }
+
+    /**
+     * Method to show watermark dialog.
+     */
+    private void getSignatureDialog() {
+        new MaterialDialog.Builder(this)
+                .content("Do you wish to add your signature? It will be visible on the bottom left of the image.")
+                .positiveText(R.string.text_yes)
+                .negativeText(R.string.text_no)
+                .checkBoxPrompt("Remember this", false, null)
+                .onPositive(new MaterialDialog.SingleButtonCallback() {
+                    @Override
+                    public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
+                        //If checkbox is selected
+                        if (dialog.isPromptCheckBoxChecked()) {
+                            //Save watermark status
+                            mHelper.setWatermarkStatus(WATERMARK_STATUS_YES);
+                        }
+                        //Dismiss this dialog
+                        dialog.dismiss();
+                        //Show input dialog
+                        showSignatureInputDialog();
+                    }
+                })
+                .onNegative(new MaterialDialog.SingleButtonCallback() {
+                    @Override
+                    public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
+                        //If checkbox is selected
+                        if (dialog.isPromptCheckBoxChecked()) {
+                            //Save watermark status
+                            mHelper.setWatermarkStatus(WATERMARK_STATUS_NO);
+                        }
+                        //Dismiss this dialog
+                        dialog.dismiss();
+                    }
+                })
+                .show();
+    }
+
+    /**
+     * Method to show input dialog where user enters his/her signature.
+     */
+    private void showSignatureInputDialog() {
+        new MaterialDialog.Builder(this)
+                .title("Signature")
+                .autoDismiss(false)
+                .inputRange(1, 20, ContextCompat.getColor(CollaborationActivity.this, R.color.red))
+                .inputType(InputType.TYPE_TEXT_FLAG_CAP_SENTENCES | InputType.TYPE_TEXT_VARIATION_SHORT_MESSAGE)
+                .input(null, null, false, new MaterialDialog.InputCallback() {
+                    @Override
+                    public void onInput(@NonNull MaterialDialog dialog, CharSequence input) {
+                        String s = String.valueOf(input).trim();
+                        if (s.length() < 1) {
+                            ViewHelper.getToast(CollaborationActivity.this, "This field can't be empty");
+                        } else {
+                            //Dismiss
+                            dialog.dismiss();
+                            mSignatureText = s;
+                            //Set watermark
+                            textSignature.setText(mSignatureText);
+                            //Save watermark text
+                            mHelper.setCaptureWaterMarkText(mSignatureText);
+                        }
+                    }
+                })
+                .build()
+                .show();
+    }
+
+    /**
+     * Method to retrieve short data from server.
+     */
     private void loadShortData() {
         //Show progress view
         viewProgress.setVisibility(View.VISIBLE);
 
-        JSONObject requestObject = new JSONObject();
+        final JSONObject requestObject = new JSONObject();
         try {
             requestObject.put("uuid", mHelper.getUUID());
             requestObject.put("authkey", mHelper.getAuthToken());
+            requestObject.put("shoid", mShortID);
         } catch (JSONException e) {
             e.printStackTrace();
         }
-        Rx2AndroidNetworking.post(BuildConfig.URL + "/dummyUrl")
+        Rx2AndroidNetworking.post(BuildConfig.URL + "/manage-short/load-specific")
                 .addJSONObjectBody(requestObject)
                 .build()
                 .getJSONObjectObservable()
@@ -229,7 +447,36 @@ public class CollaborationActivity extends BaseActivity implements ColorChooserD
 
                     @Override
                     public void onNext(JSONObject jsonObject) {
+                        float divisionFactor = (float) squareView.getWidth() / 650;
+                        try {
+                            //if token status is not invalid
+                            if (jsonObject.getString("tokenstatus").equals("invalid")) {
+                                ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_invalid_token));
+                            }
+                            //Token is valid
+                            else {
+                                JSONObject responseObject = jsonObject.getJSONObject("data");
+                                int dx = responseObject.getInt("dx");
+                                int dy = responseObject.getInt("dy");
+                                String text = responseObject.getString("text");
+                                int textSize = responseObject.getInt("textsize");
+                                String textColor = responseObject.getString("textcolor");
+                                //String textGravity = responseObject.getString("textGravity");
 
+                                textShort.setX(ViewHelper.pxToDp(CollaborationActivity.this, dx * divisionFactor));
+                                // textShort.setY((dy + squareView.getY()) * divisionFactor);
+                                textShort.setY(ViewHelper.pxToDp(CollaborationActivity.this, (dy + squareView.getY()) * divisionFactor));
+                                textShort.setText(text);
+                                textShort.setTextSize(ViewHelper.pxToDp(CollaborationActivity.this,textSize));
+                                // textShort.setTextColor(Integer.valueOf(textColor));
+                                textShort.setGravity(Gravity.CENTER);
+
+                            }
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                            FirebaseCrash.report(e);
+                            ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_internal));
+                        }
                     }
 
                     @Override
@@ -246,8 +493,200 @@ public class CollaborationActivity extends BaseActivity implements ColorChooserD
                         viewProgress.setVisibility(View.GONE);
                     }
                 });
+    }
 
+
+    /**
+     * Method to generate short image and show its preview.
+     */
+    private void generateImage() {
+
+        float divisionFactor = (float) squareView.getWidth() / mImageWidth;
+
+        //Enable drawing cache
+        squareView.setDrawingCacheEnabled(true);
+        squareView.buildDrawingCache();
+        Bitmap bm = squareView.getDrawingCache();
+
+        //Scaled bitmap
+        Bitmap bitmap = Bitmap.createScaledBitmap(bm, mImageWidth, mImageWidth, true);
+        try {
+            File file = new File(Environment.getExternalStorageDirectory().getPath() + "/Cread/Short/short_pic.jpg");
+            file.getParentFile().mkdirs();
+
+            if (!file.exists()) {
+                try {
+                    file.createNewFile();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+
+            FileOutputStream out = new FileOutputStream(file);
+            bitmap.compress(Bitmap.CompressFormat.JPEG, 85, out);
+            out.close();
+            //Show preview
+            showShortPreview(divisionFactor);
+        } catch (IOException e) {
+            e.printStackTrace();
+            ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_internal));
+        }
+
+        //Disable drawing cache
+        squareView.setDrawingCacheEnabled(false);
+        squareView.destroyDrawingCache();
 
     }
+
+    /**
+     * Method to show preview of generated image.
+     */
+    private void showShortPreview(final float factor) {
+
+
+        final MaterialDialog dialog = new MaterialDialog.Builder(this)
+                .customView(R.layout.dialog_short_preview, false)
+                .title("Preview")
+                .positiveText("Upload")
+                .onPositive(new MaterialDialog.SingleButtonCallback() {
+                    @Override
+                    public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
+
+                        // check net status
+                        if (NetworkHelper.getNetConnectionStatus(CollaborationActivity.this)) {
+                            dialog.dismiss();
+                            //Update details on server
+                            updateShort(
+                                    new File(getImageUri(IMAGE_TYPE_USER_CAPTURE_PIC).getPath())
+                                    , new File(getImageUri(IMAGE_TYPE_USER_SHORT_PIC).getPath())
+                                    , mShortID
+                                    , String.valueOf(textShort.getX() / factor)
+                                    , String.valueOf((textShort.getY() - squareView.getY()) / factor)
+                                    , String.valueOf(textShort.getWidth() / factor)
+                                    , String.valueOf(textShort.getHeight() / factor)
+                                    , textShort.getText().toString()
+                                    , String.valueOf(textShort.getTextSize() / factor)
+                                    , Integer.toHexString(textShort.getCurrentTextColor())
+                                    , textGravity.toString()
+                                    , String.valueOf(mImageWidth)
+                            );
+                        } else {
+                            ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_no_connection));
+                        }
+                    }
+                })
+                .show();
+
+
+        ImageView imagePreview = dialog.getCustomView().findViewById(R.id.imageShortPreview);
+        // TextView buttonUpload = dialog.getCustomView().findViewById(R.id.buttonUpload);
+        //Click listener
+        /*buttonUpload.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+            }
+        });*/
+        //Load preview image
+        Picasso.with(this)
+                .load(getImageUri(IMAGE_TYPE_USER_SHORT_PIC))
+                .error(R.drawable.image_placeholder)
+                .memoryPolicy(MemoryPolicy.NO_CACHE)
+                .into(imagePreview);
+    }
+
+    /**
+     * Update short image and other details on server.
+     */
+    private void updateShort(File file, File captureFile, String captureID, String xPosition, String yPosition, String tvWidth, String tvHeight, String text, String textSize, String textColor, String textGravity, String imgWidth) {
+
+        int merchantable = Integer.valueOf(mIsMerchantable);
+
+
+        //Configure OkHttpClient for time out
+        OkHttpClient okHttpClient = new OkHttpClient().newBuilder()
+                .connectTimeout(20, TimeUnit.MINUTES)
+                .readTimeout(20, TimeUnit.MINUTES)
+                .writeTimeout(20, TimeUnit.MINUTES)
+                .build();
+
+        //To show the progress dialog
+        MaterialDialog.Builder builder = new MaterialDialog.Builder(this)
+                .title("Uploading your short")
+                .content("Please wait...")
+                .autoDismiss(false)
+                .cancelable(false)
+                .progress(true, 0);
+
+        final MaterialDialog dialog = builder.build();
+        dialog.show();
+
+
+        Rx2AndroidNetworking.upload(BuildConfig.URL + "/short-upload")
+                .setOkHttpClient(okHttpClient)
+                .addMultipartFile("capture-image", captureFile)
+                .addMultipartFile("short-image", file)
+                .addMultipartParameter("captureid", captureID)
+                .addMultipartParameter("uuid", mHelper.getUUID())
+                .addMultipartParameter("authkey", mHelper.getAuthToken())
+                .addMultipartParameter("dx", xPosition)
+                .addMultipartParameter("dy", yPosition)
+                .addMultipartParameter("txt_width", tvWidth)
+                .addMultipartParameter("txt_height", tvHeight)
+                .addMultipartParameter("img_width", imgWidth)
+                .addMultipartParameter("img_height", imgWidth)
+                .addMultipartParameter("text", text)
+                .addMultipartParameter("textsize", textSize)
+                .addMultipartParameter("textcolor", textColor)
+                .addMultipartParameter("textgravity", textGravity)
+                .addMultipartParameter("merchantable", String.valueOf(merchantable))
+                .build()
+                .getJSONObjectObservable()
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Observer<JSONObject>() {
+                    @Override
+                    public void onSubscribe(@io.reactivex.annotations.NonNull Disposable d) {
+                        //Add disposable
+                        mCompositeDisposable.add(d);
+                    }
+
+                    @Override
+                    public void onNext(@io.reactivex.annotations.NonNull JSONObject jsonObject) {
+                        dialog.dismiss();
+                        try {
+                            //if token status is not invalid
+                            if (jsonObject.getString("tokenstatus").equals("invalid")) {
+                                ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_invalid_token));
+                            } else {
+                                JSONObject dataObject = jsonObject.getJSONObject("data");
+                                if (dataObject.getString("status").equals("done")) {
+                                    ViewHelper.getToast(CollaborationActivity.this, "Capture uploaded successfully.");
+                                    //Navigate back to previous market
+                                    finish();
+                                }
+                            }
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                            FirebaseCrash.report(e);
+                            ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_internal));
+                        }
+                    }
+
+                    @Override
+                    public void onError(@io.reactivex.annotations.NonNull Throwable e) {
+                        dialog.dismiss();
+                        e.printStackTrace();
+                        FirebaseCrash.report(e);
+                        ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_server));
+                    }
+
+                    @Override
+                    public void onComplete() {
+                        //do nothing
+                    }
+                });
+    }
+
 
 }

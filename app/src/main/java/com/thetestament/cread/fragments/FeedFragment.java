@@ -70,7 +70,7 @@ import static com.thetestament.cread.utils.Constant.CONTENT_TYPE_SHORT;
 import static com.thetestament.cread.utils.Constant.FIREBASE_EVENT_EXPLORE_CLICKED;
 import static com.thetestament.cread.utils.Constant.FIREBASE_EVENT_FIND_FRIENDS;
 import static com.thetestament.cread.utils.Constant.IMAGE_TYPE_USER_CAPTURE_PIC;
-import static com.thetestament.cread.utils.Constant.REQUEST_CODE_OPEN_GALLERY;
+import static com.thetestament.cread.utils.Constant.REQUEST_CODE_OPEN_GALLERY_FOR_CAPTURE;
 
 
 public class FeedFragment extends Fragment {
@@ -160,10 +160,10 @@ public class FeedFragment extends Fragment {
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         switch (requestCode) {
-            case REQUEST_CODE_OPEN_GALLERY:
+            case REQUEST_CODE_OPEN_GALLERY_FOR_CAPTURE:
                 if (resultCode == RESULT_OK) {
                     // To crop the selected image
-                    ImageHelper.startImageCropping(getActivity(), data.getData(), getImageUri(IMAGE_TYPE_USER_CAPTURE_PIC));
+                    ImageHelper.startImageCropping(getActivity(), this, data.getData(), getImageUri(IMAGE_TYPE_USER_CAPTURE_PIC));
                 } else {
                     ViewHelper.getSnackBar(rootView, "Image from gallery was not attached");
                 }
@@ -545,7 +545,7 @@ public class FeedFragment extends Fragment {
                 //Check for Write permission
                 if (Nammu.checkPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
                     //We have permission do whatever you want to do
-                    ImageHelper.chooseImageFromGallery(getActivity());
+                    ImageHelper.chooseImageFromGallery(FeedFragment.this);
                 } else {
                     //We do not own this permission
                     if (Nammu.shouldShowRequestPermissionRationale(FeedFragment.this
@@ -569,7 +569,7 @@ public class FeedFragment extends Fragment {
         @Override
         public void permissionGranted() {
             //Select image from gallery
-            ImageHelper.chooseImageFromGallery(getActivity());
+            ImageHelper.chooseImageFromGallery(FeedFragment.this);
         }
 
         @Override
@@ -585,7 +585,6 @@ public class FeedFragment extends Fragment {
      * Method to show welcome Message when user land on this screen for the first time.
      */
     private void showWelcomeMessage() {
-        //Todo change image and text
         MaterialDialog dialog = new MaterialDialog.Builder(getActivity())
                 .customView(R.layout.dialog_generic, false)
                 .positiveText(getString(R.string.text_ok))
@@ -625,7 +624,6 @@ public class FeedFragment extends Fragment {
         //Log firebase event
         setAnalytics(FIREBASE_EVENT_EXPLORE_CLICKED);
     }
-
 
     /**
      * Method to send analytics data on firebase server.

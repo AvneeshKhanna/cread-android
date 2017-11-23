@@ -24,6 +24,7 @@ import com.squareup.picasso.Target;
 import com.thetestament.cread.R;
 import com.thetestament.cread.activities.CommentsActivity;
 import com.thetestament.cread.activities.FeedDescriptionActivity;
+import com.thetestament.cread.activities.ShortActivity;
 import com.thetestament.cread.helpers.NetworkHelper;
 import com.thetestament.cread.helpers.ViewHelper;
 import com.thetestament.cread.listeners.listener.OnContentDeleteListener;
@@ -41,8 +42,12 @@ import de.hdodenhof.circleimageview.CircleImageView;
 import static com.thetestament.cread.helpers.ImageHelper.getLocalBitmapUri;
 import static com.thetestament.cread.utils.Constant.CONTENT_TYPE_CAPTURE;
 import static com.thetestament.cread.utils.Constant.CONTENT_TYPE_SHORT;
+import static com.thetestament.cread.utils.Constant.EXTRA_CAPTURE_ID;
+import static com.thetestament.cread.utils.Constant.EXTRA_CAPTURE_URL;
+import static com.thetestament.cread.utils.Constant.EXTRA_DATA;
 import static com.thetestament.cread.utils.Constant.EXTRA_ENTITY_ID;
 import static com.thetestament.cread.utils.Constant.EXTRA_FEED_DESCRIPTION_DATA;
+import static com.thetestament.cread.utils.Constant.EXTRA_MERCHANTABLE;
 import static com.thetestament.cread.utils.Constant.FIREBASE_EVENT_SHARED_FROM_PROFILE;
 
 /**
@@ -136,7 +141,7 @@ public class MeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             //Set content type drawable
             setContentType(data.getContentType(), itemViewHolder.imageWorkType, itemViewHolder.buttonCompose);
             //Initialize delete button
-            initializeDeleteButton(data.getUUID(), itemViewHolder.buttonDelete, position, data.getEntityID());
+            initializeDeleteButton(data.getUUID(), itemViewHolder.buttonDelete, position, data.getShortID());
 
             //Load content image
             loadContentImage(data.getContentImage(), itemViewHolder.imageContent);
@@ -239,7 +244,8 @@ public class MeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         deleteButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                showDeleteConfirmationDialog(index, entityID);
+                onMeCaptureClickListener.onClick(entityID);
+                //  showDeleteConfirmationDialog(index, entityID);
             }
         });
     }
@@ -315,14 +321,13 @@ public class MeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             @Override
             public void onClick(View view) {
 
-                /*Bundle bundle = new Bundle();
+                Bundle bundle = new Bundle();
                 bundle.putString(EXTRA_CAPTURE_ID, captureID);
                 bundle.putString(EXTRA_CAPTURE_URL, captureURL);
                 bundle.putBoolean(EXTRA_MERCHANTABLE, merchantable);
                 Intent intent = new Intent(mContext, ShortActivity.class);
                 intent.putExtra(EXTRA_DATA, bundle);
-                mContext.startActivity(intent);*/
-                onMeCaptureClickListener.onClick(entityID);
+                mContext.startActivity(intent);
                 //Log firebase event
                 Bundle eventBundle = new Bundle();
                 eventBundle.putString("uuid", mUUID);

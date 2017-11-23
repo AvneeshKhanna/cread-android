@@ -5,8 +5,10 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
+import android.os.Bundle;
 import android.os.Environment;
 import android.support.annotation.NonNull;
+import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.FileProvider;
@@ -28,11 +30,12 @@ import java.io.IOException;
 
 import id.zelory.compressor.Compressor;
 
+import static com.thetestament.cread.utils.Constant.EXTRA_DATA;
 import static com.thetestament.cread.utils.Constant.EXTRA_MERCHANTABLE;
 import static com.thetestament.cread.utils.Constant.EXTRA_SHORT_ID;
 import static com.thetestament.cread.utils.Constant.IMAGE_TYPE_USER_CAPTURE_PIC;
 import static com.thetestament.cread.utils.Constant.IMAGE_TYPE_USER_PROFILE_PIC;
-import static com.thetestament.cread.utils.Constant.REQUEST_CODE_OPEN_GALLERY;
+import static com.thetestament.cread.utils.Constant.REQUEST_CODE_OPEN_GALLERY_FOR_CAPTURE;
 
 /**
  * A helper class for providing utility method for profile pic related operations
@@ -161,13 +164,13 @@ public class ImageHelper {
         //options.setCompressionFormat(Bitmap.CompressFormat.PNG);
         //options.setCompressionQuality(100);
 
-
         //Launch  image cropping activity
         UCrop.of(sourceUri, destinationUri)
                 .withAspectRatio(1, 1)
                 .withOptions(options)
                 .start(context);
     }
+
 
     /**
      * Method to convert bitmap into Uri.
@@ -193,18 +196,49 @@ public class ImageHelper {
 
     /**
      * Open gallery so user can choose his/her capture for uploading.
+     *
+     * @param fragment Fragment reference.
      */
-    public static void chooseImageFromGallery(FragmentActivity context) {
+    public static void chooseImageFromGallery(Fragment fragment) {
         //Launch gallery
         Intent intent = new Intent(Intent.ACTION_PICK);
         intent.setType("image/*");
-        context.startActivityForResult(intent, REQUEST_CODE_OPEN_GALLERY);
+        fragment.startActivityForResult(intent, REQUEST_CODE_OPEN_GALLERY_FOR_CAPTURE);
+    }
+
+    /**
+     * Method to open image cropper screen.
+     *
+     * @param sourceUri      Uri of image to be cropped.
+     * @param destinationUri Where image will be saved.
+     * @param context        Context of use usually activity or application.
+     * @param fragment       Fragment reference.
+     */
+    public static void startImageCropping(Context context, Fragment fragment, Uri sourceUri, Uri destinationUri) {
+        //For more information please visit "https://github.com/Yalantis/uCrop"
+        UCrop.Options options = new UCrop.Options();
+        //Change toolbar color
+        options.setToolbarColor(ContextCompat.getColor(context, R.color.colorPrimary));
+        //Change status bar color
+        options.setStatusBarColor(ContextCompat.getColor(context, R.color.colorPrimaryDark));
+        //options.setCompressionFormat(Bitmap.CompressFormat.PNG);
+        //options.setCompressionQuality(100);
+
+
+        //Launch  image cropping activity
+        UCrop.of(sourceUri, destinationUri)
+                .withAspectRatio(1, 1)
+                .withOptions(options)
+                .start(context, fragment, UCrop.REQUEST_CROP);
     }
 
     /**
      * Method to perform required operation on cropped image.
      *
-     * @param uri Uri of cropped image.
+     * @param uri      Uri of cropped image.
+     * @param context  Context of use.
+     * @param rootView Layout parent view reference.
+     * @param shortID  Short id if the content.
      */
     public static void processCroppedImage(Uri uri, Context context, View rootView, String shortID) {
         try {
@@ -214,10 +248,12 @@ public class ImageHelper {
             if (bitmap.getWidth() > 1800 && bitmap.getWidth() > 1800) {
                 //Compress image
                 compressCroppedImg(uri, context, IMAGE_TYPE_USER_CAPTURE_PIC);
+                Bundle bundle = new Bundle();
+                bundle.putString(EXTRA_SHORT_ID, shortID);
+                bundle.putString(EXTRA_MERCHANTABLE, "1");
                 //Open preview screen
                 Intent intent = new Intent(context, CollaborationActivity.class);
-                intent.putExtra(EXTRA_MERCHANTABLE, "1");
-                intent.putExtra(EXTRA_SHORT_ID, shortID);
+                intent.putExtra(EXTRA_DATA, bundle);
                 context.startActivity(intent);
             } else {
                 getMerchantableDialog(context, shortID);
@@ -228,9 +264,11 @@ public class ImageHelper {
         }
     }
 
-
     /**
-     * Method to show intro dialog when user land on this screen for the first time.
+     * Method to show dialog when user uploads low resolution image.
+     *
+     * @param context Context of use.
+     * @param shortID Short id if the content.
      */
     private static void getMerchantableDialog(final Context context, final String shortID) {
         new MaterialDialog.Builder(context)
@@ -247,15 +285,18 @@ public class ImageHelper {
                 .onPositive(new MaterialDialog.SingleButtonCallback() {
                     @Override
                     public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
+                        Bundle bundle = new Bundle();
+                        bundle.putString(EXTRA_SHORT_ID, shortID);
+                        bundle.putString(EXTRA_MERCHANTABLE, "1");
                         //open preview screen
                         Intent intent = new Intent(context, CollaborationActivity.class);
-                        intent.putExtra(EXTRA_MERCHANTABLE, "0");
-                        intent.putExtra(EXTRA_SHORT_ID, shortID);
+                        intent.putExtra(EXTRA_DATA, bundle);
                         context.startActivity(intent);
                         dialog.dismiss();
                     }
                 })
                 .show();
     }
+
 
 }

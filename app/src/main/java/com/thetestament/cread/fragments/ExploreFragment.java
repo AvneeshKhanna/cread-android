@@ -66,7 +66,7 @@ import static com.thetestament.cread.helpers.NetworkHelper.getNetConnectionStatu
 import static com.thetestament.cread.helpers.NetworkHelper.getObservableFromServer;
 import static com.thetestament.cread.utils.Constant.CONTENT_TYPE_SHORT;
 import static com.thetestament.cread.utils.Constant.IMAGE_TYPE_USER_CAPTURE_PIC;
-import static com.thetestament.cread.utils.Constant.REQUEST_CODE_OPEN_GALLERY;
+import static com.thetestament.cread.utils.Constant.REQUEST_CODE_OPEN_GALLERY_FOR_CAPTURE;
 
 
 public class ExploreFragment extends Fragment {
@@ -147,10 +147,10 @@ public class ExploreFragment extends Fragment {
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         switch (requestCode) {
-            case REQUEST_CODE_OPEN_GALLERY:
+            case REQUEST_CODE_OPEN_GALLERY_FOR_CAPTURE:
                 if (resultCode == RESULT_OK) {
                     // To crop the selected image
-                    ImageHelper.startImageCropping(getActivity(), data.getData(), getImageUri(IMAGE_TYPE_USER_CAPTURE_PIC));
+                    ImageHelper.startImageCropping(getActivity(), this, data.getData(), getImageUri(IMAGE_TYPE_USER_CAPTURE_PIC));
                 } else {
                     ViewHelper.getSnackBar(rootView, "Image from gallery was not attached");
                 }
@@ -551,7 +551,7 @@ public class ExploreFragment extends Fragment {
                 //Check for Write permission
                 if (Nammu.checkPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
                     //We have permission do whatever you want to do
-                    ImageHelper.chooseImageFromGallery(getActivity());
+                    ImageHelper.chooseImageFromGallery(ExploreFragment.this);
                 } else {
                     //We do not own this permission
                     if (Nammu.shouldShowRequestPermissionRationale(ExploreFragment.this
@@ -575,7 +575,7 @@ public class ExploreFragment extends Fragment {
         @Override
         public void permissionGranted() {
             //Select image from gallery
-            ImageHelper.chooseImageFromGallery(getActivity());
+            ImageHelper.chooseImageFromGallery(ExploreFragment.this);
         }
 
         @Override
