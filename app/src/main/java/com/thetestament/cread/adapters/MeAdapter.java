@@ -1,6 +1,5 @@
 package com.thetestament.cread.adapters;
 
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Color;
@@ -11,7 +10,6 @@ import android.support.annotation.NonNull;
 import android.support.design.widget.BottomSheetDialog;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.content.ContextCompat;
-import android.support.v7.widget.PopupMenu;
 import android.support.v7.widget.RecyclerView;
 import android.text.SpannableString;
 import android.text.Spanned;
@@ -19,7 +17,6 @@ import android.text.TextPaint;
 import android.text.method.LinkMovementMethod;
 import android.text.style.ClickableSpan;
 import android.view.LayoutInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.AnimationUtils;
@@ -34,7 +31,6 @@ import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Target;
 import com.thetestament.cread.R;
 import com.thetestament.cread.activities.CommentsActivity;
-import com.thetestament.cread.activities.FeedDescriptionActivity;
 import com.thetestament.cread.activities.MerchandisingProductsActivity;
 import com.thetestament.cread.activities.ShortActivity;
 import com.thetestament.cread.helpers.NetworkHelper;
@@ -58,7 +54,6 @@ import static com.thetestament.cread.utils.Constant.EXTRA_CAPTURE_ID;
 import static com.thetestament.cread.utils.Constant.EXTRA_CAPTURE_URL;
 import static com.thetestament.cread.utils.Constant.EXTRA_DATA;
 import static com.thetestament.cread.utils.Constant.EXTRA_ENTITY_ID;
-import static com.thetestament.cread.utils.Constant.EXTRA_FEED_DESCRIPTION_DATA;
 import static com.thetestament.cread.utils.Constant.EXTRA_MERCHANTABLE;
 import static com.thetestament.cread.utils.Constant.FIREBASE_EVENT_SHARED_FROM_PROFILE;
 
@@ -145,7 +140,6 @@ public class MeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         final FeedModel data = mUserContentList.get(position);
         if (holder.getItemViewType() == VIEW_TYPE_ITEM) {
             final ItemViewHolder itemViewHolder = (ItemViewHolder) holder;
-
             //Load creator profile picture
             loadCreatorPic(data.getCreatorImage(), itemViewHolder.imageCreator);
             //Set creator name
@@ -215,7 +209,7 @@ public class MeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                     //displaying the popup
                     popup.show();*/
 
-                   getMenuActionsBottomSheet();
+                    getMenuActionsBottomSheet();
                 }
             });
 
@@ -327,8 +321,7 @@ public class MeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         deleteButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                onMeCaptureClickListener.onClick(entityID);
-                  showDeleteConfirmationDialog(index, entityID);
+                showDeleteConfirmationDialog(index, entityID);
             }
         });
     }
@@ -385,9 +378,10 @@ public class MeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         view.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent = new Intent(mContext, FeedDescriptionActivity.class);
+                onMeCaptureClickListener.onClick(feedModel.getShortID());
+                /*Intent intent = new Intent(mContext, FeedDescriptionActivity.class);
                 intent.putExtra(EXTRA_FEED_DESCRIPTION_DATA, feedModel);
-                mContext.startActivity(intent);
+                mContext.startActivity(intent);*/
             }
         });
     }

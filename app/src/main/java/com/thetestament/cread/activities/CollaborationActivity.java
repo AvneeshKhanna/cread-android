@@ -1,7 +1,6 @@
 package com.thetestament.cread.activities;
 
 import android.graphics.Bitmap;
-import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Environment;
 import android.support.annotation.NonNull;
@@ -22,16 +21,15 @@ import com.afollestad.materialdialogs.MaterialDialog;
 import com.afollestad.materialdialogs.color.ColorChooserDialog;
 import com.google.firebase.crash.FirebaseCrash;
 import com.rx2androidnetworking.Rx2AndroidNetworking;
-import com.squareup.picasso.Callback;
 import com.squareup.picasso.MemoryPolicy;
 import com.squareup.picasso.Picasso;
-import com.squareup.picasso.Target;
 import com.thetestament.cread.BuildConfig;
 import com.thetestament.cread.Manifest;
 import com.thetestament.cread.R;
 import com.thetestament.cread.helpers.NetworkHelper;
 import com.thetestament.cread.helpers.SharedPreferenceHelper;
 import com.thetestament.cread.helpers.ViewHelper;
+import com.thetestament.cread.listeners.OnDragTouchListener;
 import com.thetestament.cread.utils.SquareView;
 
 import org.json.JSONException;
@@ -139,6 +137,7 @@ public class CollaborationActivity extends BaseActivity implements ColorChooserD
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        //For permission manager library
         Nammu.onRequestPermissionsResult(requestCode, permissions, grantResults);
     }
 
@@ -156,7 +155,6 @@ public class CollaborationActivity extends BaseActivity implements ColorChooserD
                 finish();
                 return true;
             case R.id.action_next:
-
                 //Check for Write permission
                 if (Nammu.checkPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
                     //We have permission do whatever you want to do
@@ -181,13 +179,13 @@ public class CollaborationActivity extends BaseActivity implements ColorChooserD
 
     @Override
     public void onColorSelection(@NonNull ColorChooserDialog dialog, int selectedColor) {
-        //Change short text color
+        //Update short text color
         textShort.setTextColor(selectedColor);
     }
 
     @Override
     public void onColorChooserDismissed(@NonNull ColorChooserDialog dialog) {
-
+        //Do nothing
     }
 
     /**
@@ -264,6 +262,9 @@ public class CollaborationActivity extends BaseActivity implements ColorChooserD
                 .show(); // an AppCompatActivity which implements ColorCallback
     }
 
+    /**
+     * Used to handle result of askForPermission for capture.
+     */
     PermissionCallback captureWritePermission = new PermissionCallback() {
         @Override
         public void permissionGranted() {
@@ -272,7 +273,6 @@ public class CollaborationActivity extends BaseActivity implements ColorChooserD
 
         @Override
         public void permissionRefused() {
-
             ViewHelper.getToast(CollaborationActivity.this
                     , "Please grant storage permission from settings to create short");
         }
@@ -287,48 +287,24 @@ public class CollaborationActivity extends BaseActivity implements ColorChooserD
         mShortID = data.getString(EXTRA_SHORT_ID);
         mIsMerchantable = data.getString(EXTRA_MERCHANTABLE);
         //Load capture pic
-        loadCaptureImage();
+        loadCaptureImage(imageShort);
         //Check for signature
         checkSignatureStatus(mHelper);
         //Get short data from server
         loadShortData();
+        //Set drag listener
+        textShort.setOnTouchListener(new OnDragTouchListener(textShort));
     }
 
     /**
      * Method to load capture image for preview.
      */
-    private void loadCaptureImage() {
+    private void loadCaptureImage(ImageView imageView) {
         Picasso.with(this)
                 .load(getImageUri(IMAGE_TYPE_USER_CAPTURE_PIC))
                 .memoryPolicy(MemoryPolicy.NO_CACHE)
                 .error(R.drawable.image_placeholder)
-                .into(imageShort, new Callback() {
-                    @Override
-                    public void onSuccess() {
-                        Picasso.with(CollaborationActivity.this).load(getImageUri(IMAGE_TYPE_USER_CAPTURE_PIC)).into(new Target() {
-                            @Override
-                            public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
-                                //Get image width
-                                mImageWidth = bitmap.getWidth();
-                            }
-
-                            @Override
-                            public void onBitmapFailed(Drawable errorDrawable) {
-
-                            }
-
-                            @Override
-                            public void onPrepareLoad(Drawable placeHolderDrawable) {
-
-                            }
-                        });
-                    }
-
-                    @Override
-                    public void onError() {
-
-                    }
-                });
+                .into(imageView);
     }
 
     /**
@@ -342,6 +318,8 @@ public class CollaborationActivity extends BaseActivity implements ColorChooserD
             mSignatureText = helper.getCaptureWaterMarkText();
             textSignature.setText(mSignatureText);
         } else if (helper.getWatermarkStatus().equals(WATERMARK_STATUS_NO)) {
+            //Hide view
+            textSignature.setVisibility(View.GONE);
             //Do nothing
         } else if (helper.getWatermarkStatus().equals(WATERMARK_STATUS_ASK_ALWAYS)) {
             //Show watermark dialog
@@ -431,6 +409,7 @@ public class CollaborationActivity extends BaseActivity implements ColorChooserD
             requestObject.put("shoid", mShortID);
         } catch (JSONException e) {
             e.printStackTrace();
+            //Hide progress view
         }
         Rx2AndroidNetworking.post(BuildConfig.URL + "/manage-short/load-specific")
                 .addJSONObjectBody(requestObject)
@@ -447,7 +426,7 @@ public class CollaborationActivity extends BaseActivity implements ColorChooserD
 
                     @Override
                     public void onNext(JSONObject jsonObject) {
-                        float divisionFactor = (float) squareView.getWidth() / 650;
+                        float factor = (float) squareView.getWidth() / 650;
                         try {
                             //if token status is not invalid
                             if (jsonObject.getString("tokenstatus").equals("invalid")) {
@@ -456,23 +435,19 @@ public class CollaborationActivity extends BaseActivity implements ColorChooserD
                             //Token is valid
                             else {
                                 JSONObject responseObject = jsonObject.getJSONObject("data");
-                                int dx = responseObject.getInt("dx");
-                                int dy = responseObject.getInt("dy");
+                                //Retrieve data from server response
                                 String text = responseObject.getString("text");
                                 int textSize = responseObject.getInt("textsize");
-                                String textColor = responseObject.getString("textcolor");
-                                //String textGravity = responseObject.getString("textGravity");
+                                int textColor = (int) Long.parseLong(responseObject.getString("textcolor"), 16);
 
-                                textShort.setX(ViewHelper.pxToDp(CollaborationActivity.this, dx * divisionFactor));
-                                // textShort.setY((dy + squareView.getY()) * divisionFactor);
-                                textShort.setY(ViewHelper.pxToDp(CollaborationActivity.this, (dy + squareView.getY()) * divisionFactor));
+                                //Set textView property
                                 textShort.setText(text);
-                                textShort.setTextSize(ViewHelper.pxToDp(CollaborationActivity.this,textSize));
-                                // textShort.setTextColor(Integer.valueOf(textColor));
-                                textShort.setGravity(Gravity.CENTER);
-
+                                textShort.setTextSize(ViewHelper.pixelsToSp(CollaborationActivity.this, textSize * factor));
+                                textShort.setTextColor(textColor);
                             }
                         } catch (JSONException e) {
+                            //Hide progress view
+                            viewProgress.setVisibility(View.GONE);
                             e.printStackTrace();
                             FirebaseCrash.report(e);
                             ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_internal));
@@ -483,6 +458,7 @@ public class CollaborationActivity extends BaseActivity implements ColorChooserD
                     public void onError(Throwable e) {
                         e.printStackTrace();
                         FirebaseCrash.report(e);
+                        ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_server));
                         //Hide progress view
                         viewProgress.setVisibility(View.GONE);
                     }
@@ -497,10 +473,11 @@ public class CollaborationActivity extends BaseActivity implements ColorChooserD
 
 
     /**
-     * Method to generate short image and show its preview.
+     * Method to generate image and show its preview.
      */
     private void generateImage() {
 
+        //Obtain division factor
         float divisionFactor = (float) squareView.getWidth() / mImageWidth;
 
         //Enable drawing cache
@@ -551,12 +528,12 @@ public class CollaborationActivity extends BaseActivity implements ColorChooserD
                 .onPositive(new MaterialDialog.SingleButtonCallback() {
                     @Override
                     public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
-
+                        //Dismiss dialog
+                        dialog.dismiss();
                         // check net status
                         if (NetworkHelper.getNetConnectionStatus(CollaborationActivity.this)) {
-                            dialog.dismiss();
                             //Update details on server
-                            updateShort(
+                            updateData(
                                     new File(getImageUri(IMAGE_TYPE_USER_CAPTURE_PIC).getPath())
                                     , new File(getImageUri(IMAGE_TYPE_USER_SHORT_PIC).getPath())
                                     , mShortID
@@ -579,30 +556,19 @@ public class CollaborationActivity extends BaseActivity implements ColorChooserD
 
 
         ImageView imagePreview = dialog.getCustomView().findViewById(R.id.imageShortPreview);
-        // TextView buttonUpload = dialog.getCustomView().findViewById(R.id.buttonUpload);
-        //Click listener
-        /*buttonUpload.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-
-            }
-        });*/
         //Load preview image
         Picasso.with(this)
                 .load(getImageUri(IMAGE_TYPE_USER_SHORT_PIC))
-                .error(R.drawable.image_placeholder)
                 .memoryPolicy(MemoryPolicy.NO_CACHE)
+                .error(R.drawable.image_placeholder)
                 .into(imagePreview);
     }
 
+
     /**
-     * Update short image and other details on server.
+     * Method to update capture details on server.
      */
-    private void updateShort(File file, File captureFile, String captureID, String xPosition, String yPosition, String tvWidth, String tvHeight, String text, String textSize, String textColor, String textGravity, String imgWidth) {
-
-        int merchantable = Integer.valueOf(mIsMerchantable);
-
-
+    private void updateData(File imgHighRes, File imgLowRes, String shortID, String xPosition, String yPosition, String tvWidth, String tvHeight, String text, String textSize, String textColor, String textGravity, String imgWidth) {
         //Configure OkHttpClient for time out
         OkHttpClient okHttpClient = new OkHttpClient().newBuilder()
                 .connectTimeout(20, TimeUnit.MINUTES)
@@ -612,7 +578,7 @@ public class CollaborationActivity extends BaseActivity implements ColorChooserD
 
         //To show the progress dialog
         MaterialDialog.Builder builder = new MaterialDialog.Builder(this)
-                .title("Uploading your short")
+                .title("Uploading your capture")
                 .content("Please wait...")
                 .autoDismiss(false)
                 .cancelable(false)
@@ -622,11 +588,11 @@ public class CollaborationActivity extends BaseActivity implements ColorChooserD
         dialog.show();
 
 
-        Rx2AndroidNetworking.upload(BuildConfig.URL + "/short-upload")
+        Rx2AndroidNetworking.upload(BuildConfig.URL + "/capture-upload/collaborated")
                 .setOkHttpClient(okHttpClient)
-                .addMultipartFile("capture-image", captureFile)
-                .addMultipartFile("short-image", file)
-                .addMultipartParameter("captureid", captureID)
+                .addMultipartFile("capture-img-high", imgHighRes)
+                .addMultipartFile("capture-img-low", imgLowRes)
+                .addMultipartParameter("shoid", shortID)
                 .addMultipartParameter("uuid", mHelper.getUUID())
                 .addMultipartParameter("authkey", mHelper.getAuthToken())
                 .addMultipartParameter("dx", xPosition)
@@ -639,7 +605,8 @@ public class CollaborationActivity extends BaseActivity implements ColorChooserD
                 .addMultipartParameter("textsize", textSize)
                 .addMultipartParameter("textcolor", textColor)
                 .addMultipartParameter("textgravity", textGravity)
-                .addMultipartParameter("merchantable", String.valueOf(merchantable))
+                .addMultipartParameter("watermark", mSignatureText)
+                .addMultipartParameter("merchantable", mIsMerchantable)
                 .build()
                 .getJSONObjectObservable()
                 .subscribeOn(Schedulers.io())
