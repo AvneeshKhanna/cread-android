@@ -284,6 +284,8 @@ public class SharedPreferenceHelper {
         editor.apply();
     }
 
+
+
     /**
      * Method to retrieve "Write button " tooltip status.
      *
@@ -292,6 +294,29 @@ public class SharedPreferenceHelper {
     public boolean isWriteIconTooltipFirstTime() {
         return mSharedPreferences
                 .getBoolean(mContext.getString(R.string.key_write_tooltip), true);
+    }
+
+
+    /**
+     * Method to retrieve "Write button " tooltip status.
+     *
+     * @return True by default.
+     */
+    public boolean isCaptureIconTooltipFirstTime() {
+        return mSharedPreferences
+                .getBoolean(mContext.getString(R.string.key_capture_tooltip), true);
+    }
+
+
+    /**
+     * Method to update 'Write button' tooltip status.
+     *
+     * @param status boolean value i.e true or false
+     */
+    public void updateCaptureIconToolTipStatus(boolean status) {
+        SharedPreferences.Editor editor = mSharedPreferences.edit();
+        editor.putBoolean(mContext.getString(R.string.key_capture_tooltip), status);
+        editor.apply();
     }
 
 

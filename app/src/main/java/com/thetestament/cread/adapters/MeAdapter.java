@@ -1,14 +1,25 @@
 package com.thetestament.cread.adapters;
 
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.Color;
+import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.design.widget.BottomSheetDialog;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.content.ContextCompat;
+import android.support.v7.widget.PopupMenu;
 import android.support.v7.widget.RecyclerView;
+import android.text.SpannableString;
+import android.text.Spanned;
+import android.text.TextPaint;
+import android.text.method.LinkMovementMethod;
+import android.text.style.ClickableSpan;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.AnimationUtils;
@@ -24,6 +35,7 @@ import com.squareup.picasso.Target;
 import com.thetestament.cread.R;
 import com.thetestament.cread.activities.CommentsActivity;
 import com.thetestament.cread.activities.FeedDescriptionActivity;
+import com.thetestament.cread.activities.MerchandisingProductsActivity;
 import com.thetestament.cread.activities.ShortActivity;
 import com.thetestament.cread.helpers.NetworkHelper;
 import com.thetestament.cread.helpers.ViewHelper;
@@ -128,11 +140,82 @@ public class MeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             //Load creator profile picture
             loadCreatorPic(data.getCreatorImage(), itemViewHolder.imageCreator);
             //Set creator name
-            itemViewHolder.textCreatorName.setText(data.getCreatorName());
+            //itemViewHolder.textCreatorName.setText(data.getCreatorName());
+            SpannableString ss = new SpannableString("Biswa kalyan Rath wrote a short on Avnnesh khanna's Capture today");
+            ClickableSpan collaboratorSpan = new ClickableSpan() {
+                @Override
+                public void onClick(View textView) {
+                    mContext.startActivity(new Intent(mContext, MerchandisingProductsActivity.class));
+                }
+
+                @Override
+                public void updateDrawState(TextPaint ds) {
+                    super.updateDrawState(ds);
+                    ds.setUnderlineText(false);
+                    ds.setTypeface(Typeface.create(Typeface.DEFAULT, Typeface.BOLD));
+                    ds.setColor(ContextCompat.getColor(mContext, R.color.grey_dark));
+                }
+            };
+            ss.setSpan(collaboratorSpan, 0, 17, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+
+            ClickableSpan collaboratedWithSpan = new ClickableSpan() {
+                @Override
+                public void onClick(View textView) {
+                    mContext.startActivity(new Intent(mContext, MerchandisingProductsActivity.class));
+                }
+
+                @Override
+                public void updateDrawState(TextPaint ds) {
+                    super.updateDrawState(ds);
+                    ds.setUnderlineText(false);
+                    ds.setTypeface(Typeface.create(Typeface.DEFAULT, Typeface.BOLD));
+                    ds.setColor(ContextCompat.getColor(mContext, R.color.grey_dark));
+                }
+            };
+            //ss.setSpan(collaboratedWithSpan, 35, 51, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+
+
+            itemViewHolder.textCreatorName.setText(ss);
+            itemViewHolder.textCreatorName.setMovementMethod(LinkMovementMethod.getInstance());
+            itemViewHolder.textCreatorName.setHighlightColor(Color.TRANSPARENT);
+
+
+            //open bottom sheet on clicking of 3 dots
+            itemViewHolder.buttonMenu.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                   /* //creating a popup menu
+                    PopupMenu popup = new PopupMenu(mContext, itemViewHolder.buttonMenu);
+                    //inflating menu from xml resource
+                    popup.inflate(R.menu.menu_item_me);
+                    //adding click listener
+                    popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
+                        @Override
+                        public boolean onMenuItemClick(MenuItem item) {
+                            switch (item.getItemId()) {
+                                case R.id.menu_action_delete:
+                                    //handle delete click
+                                    // TODO update functionality
+                                    ViewHelper.getToast(mContext, "delete clicked");
+                                    break;
+
+                            }
+                            return false;
+                        }
+                    });
+                    //displaying the popup
+                    popup.show();*/
+                   
+                   getMenuActionsBottomSheet();
+                }
+            });
+
+
             //Set content type drawable
-            setContentType(data.getContentType(), itemViewHolder.imageWorkType, itemViewHolder.buttonCompose);
+            //setContentType(data.getContentType(), itemViewHolder.imageWorkType, itemViewHolder.buttonCompose);
             //Initialize delete button
-            initializeDeleteButton(data.getUUID(), itemViewHolder.buttonDelete, position, data.getEntityID());
+            // TODO uncomment
+            //initializeDeleteButton(data.getUUID(), itemViewHolder.buttonDelete, position, data.getEntityID());
 
             //Load content image
             loadContentImage(data.getContentImage(), itemViewHolder.imageContent);
@@ -456,6 +539,31 @@ public class MeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     }
 
     /**
+     * Method to show bottomSheet dialog with 'write a short' and 'Upload a capture' option.
+     */
+    public void getMenuActionsBottomSheet() {
+        final BottomSheetDialog bottomSheetDialog = new BottomSheetDialog(mContext);
+        View sheetView = mContext.getLayoutInflater()
+                .inflate(R.layout.bottomsheet_dialog_content_actions, null);
+        bottomSheetDialog.setContentView(sheetView);
+        bottomSheetDialog.show();
+
+        LinearLayout buttonDelete = sheetView.findViewById(R.id.buttonDelete);
+
+
+        //Delete button functionality
+        buttonDelete.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                ViewHelper.getToast(mContext, "Delete clicked");
+                //Dismiss bottom sheet
+                bottomSheetDialog.dismiss();
+            }
+        });
+    }
+
+    /**
      * Method to initialize load more listener.
      */
     private void initializeLoadMore(int position) {
@@ -476,8 +584,6 @@ public class MeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         CircleImageView imageCreator;
         @BindView(R.id.textCreatorName)
         TextView textCreatorName;
-        @BindView(R.id.imageWorkType)
-        ImageView imageWorkType;
         @BindView(R.id.buttonDelete)
         ImageView buttonDelete;
         @BindView(R.id.imageContent)
@@ -492,6 +598,8 @@ public class MeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         LinearLayout containerComment;
         @BindView(R.id.containerShare)
         LinearLayout containerShare;
+        @BindView(R.id.buttonMenu)
+        TextView buttonMenu;
 
         //Variable to maintain hats off status
         private boolean mIsHatsOff = false;

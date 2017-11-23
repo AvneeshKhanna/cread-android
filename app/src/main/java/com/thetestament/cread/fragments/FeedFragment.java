@@ -58,6 +58,8 @@ import io.reactivex.schedulers.Schedulers;
 
 import static com.thetestament.cread.helpers.NetworkHelper.getNetConnectionStatus;
 import static com.thetestament.cread.helpers.NetworkHelper.getObservableFromServer;
+import static com.thetestament.cread.utils.Constant.CONTENT_TYPE_CAPTURE;
+import static com.thetestament.cread.utils.Constant.CONTENT_TYPE_SHORT;
 import static com.thetestament.cread.utils.Constant.FIREBASE_EVENT_EXPLORE_CLICKED;
 import static com.thetestament.cread.utils.Constant.FIREBASE_EVENT_FIND_FRIENDS;
 
@@ -246,7 +248,10 @@ public class FeedFragment extends Fragment {
                                 //FeedArray list
                                 JSONArray feedArray = mainData.getJSONArray("feed");
                                 for (int i = 0; i < feedArray.length(); i++) {
+
                                     JSONObject dataObj = feedArray.getJSONObject(i);
+                                    String type = dataObj.getString("type");
+
                                     FeedModel feedData = new FeedModel();
                                     feedData.setEntityID(dataObj.getString("entityid"));
                                     feedData.setCaptureID(dataObj.getString("captureid"));
@@ -259,6 +264,39 @@ public class FeedFragment extends Fragment {
                                     feedData.setHatsOffCount(dataObj.getLong("hatsoffcount"));
                                     feedData.setCommentCount(dataObj.getLong("commentcount"));
                                     feedData.setContentImage(dataObj.getString("entityurl"));
+
+                                    if (type.equals(CONTENT_TYPE_CAPTURE)) {
+                                        // if capture
+                                        // then if key cpshort exists
+                                        // not available for collaboration
+                                        if (!dataObj.isNull("cpshort")) {
+                                            JSONObject collabObject = dataObj.getJSONObject("cpshort");
+
+                                            feedData.setAvailableForCollab(false);
+                                            // set collaborator details
+                                            feedData.setCollabWithUUID(collabObject.getString("uuid"));
+                                            feedData.setCollabWithName(collabObject.getString("name"));
+
+                                        } else {
+                                            feedData.setAvailableForCollab(true);
+                                        }
+
+                                    } else if (type.equals(CONTENT_TYPE_SHORT)) {
+                                        // if short
+                                        // then if key shcapture exists
+                                        // not available for collaboration
+                                        if (!dataObj.isNull("shcapture")) {
+
+                                            JSONObject collabObject = dataObj.getJSONObject("shcapture");
+
+                                            feedData.setAvailableForCollab(false);
+                                            // set collaborator details
+                                            feedData.setCollabWithUUID(collabObject.getString("uuid"));
+                                            feedData.setCollabWithName(collabObject.getString("name"));
+                                        } else {
+                                            feedData.setAvailableForCollab(true);
+                                        }
+                                    }
 
                                     mFeedDataList.add(feedData);
                                 }
@@ -338,8 +376,11 @@ public class FeedFragment extends Fragment {
                                 mRequestMoreData = mainData.getBoolean("requestmore");
                                 //FeedArray list
                                 JSONArray feedArray = mainData.getJSONArray("feed");
+
                                 for (int i = 0; i < feedArray.length(); i++) {
                                     JSONObject dataObj = feedArray.getJSONObject(i);
+                                    String type = dataObj.getString("type");
+
                                     FeedModel feedData = new FeedModel();
                                     feedData.setEntityID(dataObj.getString("entityid"));
                                     feedData.setCaptureID(dataObj.getString("captureid"));
@@ -352,6 +393,39 @@ public class FeedFragment extends Fragment {
                                     feedData.setHatsOffCount(dataObj.getLong("hatsoffcount"));
                                     feedData.setCommentCount(dataObj.getLong("commentcount"));
                                     feedData.setContentImage(dataObj.getString("entityurl"));
+
+                                    if (type.equals(CONTENT_TYPE_CAPTURE)) {
+                                        // if capture
+                                        // then if key cpshort exists
+                                        // not available for collaboration
+                                        if (!dataObj.isNull("cpshort")) {
+                                            JSONObject collabObject = dataObj.getJSONObject("cpshort");
+
+                                            feedData.setAvailableForCollab(false);
+                                            // set collaborator details
+                                            feedData.setCollabWithUUID(collabObject.getString("uuid"));
+                                            feedData.setCollabWithName(collabObject.getString("name"));
+
+                                        } else {
+                                            feedData.setAvailableForCollab(true);
+                                        }
+
+                                    } else if (type.equals(CONTENT_TYPE_SHORT)) {
+                                        // if short
+                                        // then if key shcapture exists
+                                        // not available for collaboration
+                                        if (!dataObj.isNull("shcapture")) {
+
+                                            JSONObject collabObject = dataObj.getJSONObject("shcapture");
+
+                                            feedData.setAvailableForCollab(false);
+                                            // set collaborator details
+                                            feedData.setCollabWithUUID(collabObject.getString("uuid"));
+                                            feedData.setCollabWithName(collabObject.getString("name"));
+                                        } else {
+                                            feedData.setAvailableForCollab(true);
+                                        }
+                                    }
 
                                     mFeedDataList.add(feedData);
                                     //Notify item changes

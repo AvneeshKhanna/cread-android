@@ -88,14 +88,10 @@ public class FeedDescriptionActivity extends BaseActivity {
     LinearLayout buttonHave;
     @BindView(R.id.lineSeparatorTop)
     View lineSeparatorTop;
-    @BindView(R.id.textHatsOff)
-    TextView textHatsOff;
     @BindView(R.id.containerHatsOff)
     LinearLayout containerHatsOff;
     @BindView(R.id.imageComment)
     ImageView imageComment;
-    @BindView(R.id.textComment)
-    TextView textComment;
     @BindView(R.id.containerComment)
     LinearLayout containerComment;
     @BindView(R.id.imageShare)
@@ -208,12 +204,11 @@ public class FeedDescriptionActivity extends BaseActivity {
     /**
      * HatsOff onClick functionality.
      */
-    @OnClick(R.id.containerHatsOff)
+    @OnClick(R.id.imageHatsOff)
     void onContainerHatsOffClicked() {
 
         // check net status
-        if(NetworkHelper.getNetConnectionStatus(FeedDescriptionActivity.this))
-        {
+        if (NetworkHelper.getNetConnectionStatus(FeedDescriptionActivity.this)) {
             //User has already given hats off
             if (mFeedData.getHatsOffStatus()) {
                 //Animation for hats off
@@ -250,10 +245,7 @@ public class FeedDescriptionActivity extends BaseActivity {
             }
             //update hats off status on server
             updateHatsOffStatus(mFeedData.getEntityID(), mFeedData.getHatsOffStatus());
-        }
-
-        else
-        {
+        } else {
             ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_no_connection));
         }
     }
@@ -309,9 +301,11 @@ public class FeedDescriptionActivity extends BaseActivity {
 
         mFeedData = getIntent().getParcelableExtra(EXTRA_FEED_DESCRIPTION_DATA);
         //Set creator name
-        textCreatorName.setText(mFeedData.getCreatorName());
+        //TODO uncomment
+        //textCreatorName.setText(mFeedData.getCreatorName());
+        textCreatorName.setText("Biswa bhai ne likha Vipul ji ke kaam par aur Badia likha");
 
-        //Check for hats of count
+        /*//Check for hats of count
         if (mFeedData.getHatsOffCount() > 0) {
             textHatsOffCount.setText(mFeedData.getHatsOffCount() + " Hats-off");
         } else {
@@ -327,7 +321,7 @@ public class FeedDescriptionActivity extends BaseActivity {
         } else {
             textCommentsCount.setVisibility(View.GONE);
             showAllComments.setVisibility(View.GONE);
-        }
+        }*/
 
         //Show tooltip on have button
         showTooltip();

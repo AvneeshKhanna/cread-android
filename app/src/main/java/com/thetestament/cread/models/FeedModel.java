@@ -11,8 +11,8 @@ import android.os.Parcelable;
 public class FeedModel implements Parcelable {
 
     private String entityID, captureID;
-    private String UUID, creatorName, creatorImage;
-    private boolean hatsOffStatus, followStatus, merchantable;
+    private String UUID, creatorName, creatorImage, collabWithUUID, collabWithName;
+    private boolean hatsOffStatus, followStatus, merchantable, isAvailableForCollab;
     private long hatsOffCount, commentCount;
     private String contentType;
     private String contentImage;
@@ -119,6 +119,30 @@ public class FeedModel implements Parcelable {
         this.merchantable = merchantable;
     }
 
+    public boolean isAvailableForCollab() {
+        return isAvailableForCollab;
+    }
+
+    public void setAvailableForCollab(boolean availableForCollab) {
+        isAvailableForCollab = availableForCollab;
+    }
+
+    public String getCollabWithUUID() {
+        return collabWithUUID;
+    }
+
+    public void setCollabWithUUID(String collabWithUUID) {
+        this.collabWithUUID = collabWithUUID;
+    }
+
+    public String getCollabWithName() {
+        return collabWithName;
+    }
+
+    public void setCollabWithName(String collabWithName) {
+        this.collabWithName = collabWithName;
+    }
+
     @Override
     public int describeContents() {
         return 0;
@@ -138,6 +162,9 @@ public class FeedModel implements Parcelable {
         parcel.writeLong(commentCount);
         parcel.writeString(contentType);
         parcel.writeString(contentImage);
+        parcel.writeByte((byte) (isAvailableForCollab ? 1 : 0));
+        parcel.writeString(collabWithUUID);
+        parcel.writeString(collabWithName);
     }
 
 
@@ -166,6 +193,9 @@ public class FeedModel implements Parcelable {
         commentCount = in.readLong();
         contentType = in.readString();
         contentImage = in.readString();
+        isAvailableForCollab = in.readByte() != 0;
+        collabWithUUID = in.readString();
+        collabWithName = in.readString();
     }
 
 }

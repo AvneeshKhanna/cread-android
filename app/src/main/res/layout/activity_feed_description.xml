@@ -19,7 +19,7 @@
             android:animateLayoutChanges="true"
             android:orientation="vertical">
 
-            <LinearLayout
+            <!--<LinearLayout
                 android:id="@+id/containerCreator"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -47,7 +47,10 @@
                     android:textColor="@color/grey_dark"
                     android:textSize="16sp"
                     tools:text="The Testament" />
-            </LinearLayout>
+            </LinearLayout>-->
+
+            <include layout="@layout/layout_content_creator">
+            </include>
 
             <RelativeLayout
                 android:layout_width="match_parent"
@@ -102,39 +105,55 @@
                 </FrameLayout>
 
 
-            </RelativeLayout>
-
-
-            <RelativeLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="16dp"
-                android:layout_marginRight="16dp"
-                android:layout_marginTop="10dp">
-
                 <TextView
-                    android:id="@+id/textHatsOffCount"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_centerVertical="true"
-                    android:paddingRight="3dp"
-                    android:textAppearance="@style/TextAppearance.FontPath"
-                    android:textSize="11sp"
-                    tools:text="4 Hats off" />
-
-                <TextView
-                    android:id="@+id/textCommentsCount"
+                    android:id="@+id/collabCount"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_alignParentRight="true"
+                    android:layout_below="@id/imageContainer"
                     android:layout_centerVertical="true"
+                    android:layout_marginRight="16dp"
+                    android:layout_marginTop="8dp"
                     android:paddingLeft="5dp"
                     android:paddingRight="2dp"
-                    android:text="4 Comments"
+                    android:text="25 people wrote on it"
                     android:textAppearance="@style/TextAppearance.FontPath"
                     android:textSize="11sp" />
 
+
             </RelativeLayout>
+
+
+            <!-- <RelativeLayout
+                 android:layout_width="match_parent"
+                 android:layout_height="wrap_content"
+                 android:layout_marginLeft="16dp"
+                 android:layout_marginRight="16dp"
+                 android:layout_marginTop="10dp">
+
+                 <TextView
+                     android:id="@+id/textHatsOffCount"
+                     android:layout_width="wrap_content"
+                     android:layout_height="wrap_content"
+                     android:layout_centerVertical="true"
+                     android:paddingRight="3dp"
+                     android:textAppearance="@style/TextAppearance.FontPath"
+                     android:textSize="11sp"
+                     tools:text="4 Hats off" />
+
+                 <TextView
+                     android:id="@+id/textCommentsCount"
+                     android:layout_width="wrap_content"
+                     android:layout_height="wrap_content"
+                     android:layout_alignParentRight="true"
+                     android:layout_centerVertical="true"
+                     android:paddingLeft="5dp"
+                     android:paddingRight="2dp"
+                     android:text="4 Comments"
+                     android:textAppearance="@style/TextAppearance.FontPath"
+                     android:textSize="11sp" />
+
+             </RelativeLayout>-->
 
             <View
                 android:id="@+id/lineSeparatorTop"
@@ -170,14 +189,17 @@
                         android:src="@drawable/ic_hats_off" />
 
                     <TextView
-                        android:id="@+id/textHatsOff"
+                        android:id="@+id/textHatsOffCount"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center"
                         android:gravity="center"
-                        android:paddingLeft="3dp"
-                        android:text="Hats off"
-                        android:textSize="12sp" />
+                        android:paddingLeft="10dp"
+                        android:paddingRight="30dp"
+                        android:layout_marginLeft="5dp"
+                        android:text="12"
+                        android:textAppearance="@style/TextAppearance.FontPath"
+                        android:textSize="14sp" />
 
                 </LinearLayout>
 
@@ -197,14 +219,17 @@
                         android:src="@drawable/ic_comment_24" />
 
                     <TextView
-                        android:id="@+id/textComment"
+                        android:id="@+id/textCommentsCount"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center"
                         android:gravity="center"
-                        android:paddingLeft="2dp"
-                        android:text="Comment"
-                        android:textSize="12sp" />
+                        android:layout_marginLeft="5dp"
+                        android:paddingLeft="10dp"
+                        android:paddingRight="20dp"
+                        android:text="2"
+                        android:textAppearance="@style/TextAppearance.FontPath"
+                        android:textSize="14sp" />
                 </LinearLayout>
 
                 <LinearLayout
@@ -229,7 +254,7 @@
                         android:gravity="center"
                         android:paddingLeft="2dp"
                         android:text="Share"
-                        android:textSize="12sp" />
+                        android:textSize="14sp" />
                 </LinearLayout>
 
             </LinearLayout>

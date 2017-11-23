@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<RelativeLayout android:id="@+id/containerCreator"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginBottom="8dp"
+    android:layout_marginTop="8dp"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <LinearLayout
+        android:id="@+id/containerCreatorSpecific"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical"
+        android:layout_alignParentLeft="true"
+        android:layout_toLeftOf="@+id/buttonCollaborate">
+
+        <de.hdodenhof.circleimageview.CircleImageView
+            android:id="@+id/imageCreator"
+            android:layout_width="35dp"
+            android:layout_height="35dp"
+            android:layout_marginLeft="8dp"
+            android:scaleType="centerCrop"
+            app:civ_border_color="@color/black_defined"
+            tools:src="@drawable/ic_account_circle_48" />
+
+        <TextView
+            android:id="@+id/textCreatorName"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingLeft="8dp"
+            android:paddingRight="8dp"
+            android:textColor="@color/grey"
+            android:textSize="14sp"
+            tools:text="The Cread" />
+
+
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/buttonCollaborate"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:layout_centerVertical="true"
+        android:layout_marginRight="8dp"
+        android:background="@drawable/button_filled"
+        android:paddingBottom="5dp"
+        android:paddingLeft="10dp"
+        android:paddingRight="10dp"
+        android:paddingTop="5dp"
+        android:text="Write"
+        android:textColor="@color/white"
+        android:textSize="12sp"
+        android:visibility="gone"/>
+    <!--<ImageView
+        android:id="@+id/imageWorkType"
+        android:layout_width="18dp"
+        android:layout_height="18dp"
+        android:layout_centerVertical="true"
+        android:layout_toRightOf="@+id/textCreatorName"
+        android:src="@drawable/ic_camera_alt_24" />-->
+
+</RelativeLayout>

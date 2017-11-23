@@ -3,11 +3,18 @@ package com.thetestament.cread.adapters;
 
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
+import android.graphics.Typeface;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.view.ViewCompat;
 import android.support.v7.widget.RecyclerView;
+import android.text.SpannableString;
+import android.text.Spanned;
+import android.text.TextPaint;
+import android.text.method.LinkMovementMethod;
+import android.text.style.ClickableSpan;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -19,6 +26,7 @@ import com.google.firebase.analytics.FirebaseAnalytics;
 import com.squareup.picasso.Picasso;
 import com.thetestament.cread.R;
 import com.thetestament.cread.activities.FeedDescriptionActivity;
+import com.thetestament.cread.activities.MerchandisingProductsActivity;
 import com.thetestament.cread.activities.ProfileActivity;
 import com.thetestament.cread.activities.ShortActivity;
 import com.thetestament.cread.helpers.NetworkHelper;
@@ -116,8 +124,43 @@ public class ExploreAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
             //Load creator profile picture
             loadCreatorPic(data.getCreatorImage(), itemViewHolder.imageCreator);
             //Set creator name
-            itemViewHolder.textCreatorName.setText(data.getCreatorName());
+            //itemViewHolder.textCreatorName.setText(data.getCreatorName());
 
+            SpannableString ss = new SpannableString("Biswa kalyan Rath wrote a short on Avnnesh khanna's Capture today");
+            ClickableSpan collaboratorSpan = new ClickableSpan() {
+                @Override
+                public void onClick(View textView) {
+                    mContext.startActivity(new Intent(mContext, MerchandisingProductsActivity.class));
+                }
+                @Override
+                public void updateDrawState(TextPaint ds) {
+                    super.updateDrawState(ds);
+                    ds.setUnderlineText(false);
+                    ds.setTypeface(Typeface.create(Typeface.DEFAULT, Typeface.BOLD));
+                    ds.setColor(ContextCompat.getColor(mContext, R.color.grey_dark));
+                }
+            };
+            ss.setSpan(collaboratorSpan, 0, 17, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+
+            ClickableSpan collaboratedWithSpan = new ClickableSpan() {
+                @Override
+                public void onClick(View textView) {
+                    mContext.startActivity(new Intent(mContext, MerchandisingProductsActivity.class));
+                }
+                @Override
+                public void updateDrawState(TextPaint ds) {
+                    super.updateDrawState(ds);
+                    ds.setUnderlineText(false);
+                    ds.setTypeface(Typeface.create(Typeface.DEFAULT, Typeface.BOLD));
+                    ds.setColor(ContextCompat.getColor(mContext, R.color.grey_dark));
+                }
+            };
+            //ss.setSpan(collaboratedWithSpan, 35, 51, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+
+
+            itemViewHolder.textCreatorName.setText(ss);
+            itemViewHolder.textCreatorName.setMovementMethod(LinkMovementMethod.getInstance());
+            itemViewHolder.textCreatorName.setHighlightColor(Color.TRANSPARENT);
 
             //Hide follow button  if creator and content consumer is same
             if (mUUID.equals(data.getUUID())) {
@@ -131,12 +174,13 @@ public class ExploreAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
             loadFeedImage(data.getContentImage(), itemViewHolder.imageExplore);
 
             //Check follow status
-            checkFollowStatus(mContext, data.getFollowStatus(), itemViewHolder.buttonFollow);
+            // TODO uncomment
+            //checkFollowStatus(mContext, data.getFollowStatus(), itemViewHolder.buttonFollow);
 
             //Check for content type
             switch (data.getContentType()) {
                 case CONTENT_TYPE_CAPTURE:
-                    itemViewHolder.imageWorkType.setImageDrawable(ContextCompat.getDrawable(mContext, R.drawable.ic_camera_alt_24));
+                    //itemViewHolder.imageWorkType.setImageDrawable(ContextCompat.getDrawable(mContext, R.drawable.ic_camera_alt_24));
                     itemViewHolder.buttonCompose.setVisibility(View.VISIBLE);
                     //Show tooltip oh edit button
                     if (position == 0) {
@@ -148,7 +192,7 @@ public class ExploreAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
                     }
                     break;
                 case CONTENT_TYPE_SHORT:
-                    itemViewHolder.imageWorkType.setImageDrawable(ContextCompat.getDrawable(mContext, R.drawable.ic_create_24));
+                    //itemViewHolder.imageWorkType.setImageDrawable(ContextCompat.getDrawable(mContext, R.drawable.ic_create_24));
                     itemViewHolder.buttonCompose.setVisibility(View.GONE);
                     break;
                 default:
@@ -390,8 +434,6 @@ public class ExploreAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
         CircleImageView imageCreator;
         @BindView(R.id.textCreatorName)
         TextView textCreatorName;
-        @BindView(R.id.imageWorkType)
-        ImageView imageWorkType;
         @BindView(R.id.buttonFollow)
         TextView buttonFollow;
         @BindView(R.id.containerCreator)
