@@ -3,48 +3,59 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:layout_gravity="center"
+    android:layout_marginLeft="10dp"
+    android:layout_height="match_parent"
+    android:layout_marginRight="10dp"
+    android:background="@color/black_defined"
+    android:gravity="center"
     android:orientation="vertical">
 
-    <RelativeLayout
-        android:id="@+id/containerCreator"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="12dp"
-        android:layout_marginTop="12dp">
+        android:background="@color/white">
 
-        <de.hdodenhof.circleimageview.CircleImageView
-            android:id="@+id/imageCreator"
-            android:layout_width="30dp"
-            android:layout_height="30dp"
-            android:layout_centerVertical="true"
-            android:layout_marginLeft="8dp"
-            android:scaleType="centerCrop"
-            app:civ_border_color="@color/black_defined"
-            tools:src="@drawable/ic_account_circle_48" />
-
-        <TextView
-            android:id="@+id/textCreatorName"
+        <RelativeLayout
+            android:id="@+id/containerCreator"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_centerVertical="true"
-            android:layout_toRightOf="@+id/imageCreator"
-            android:gravity="center_vertical"
-            android:paddingLeft="8dp"
-            android:paddingRight="8dp"
-            android:textColor="@color/grey_dark"
-            android:textSize="16sp"
-            tools:text="The Cread" />
+            android:layout_marginBottom="12dp"
+            android:layout_marginTop="12dp"
+
+            android:background="@color/white">
+
+            <de.hdodenhof.circleimageview.CircleImageView
+                android:id="@+id/imageCreator"
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:layout_centerVertical="true"
+                android:layout_marginLeft="8dp"
+                android:scaleType="centerCrop"
+                app:civ_border_color="@color/black_defined"
+                tools:src="@drawable/ic_account_circle_48" />
+
+            <TextView
+                android:id="@+id/textCreatorName"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
+                android:layout_toRightOf="@+id/imageCreator"
+                android:gravity="center_vertical"
+                android:paddingLeft="8dp"
+                android:paddingRight="8dp"
+                android:textColor="@color/grey_dark"
+                android:textSize="16sp"
+                tools:text="The Cread" />
 
 
-    </RelativeLayout>
+        </RelativeLayout>
+
+    </LinearLayout>
 
     <com.thetestament.cread.utils.SquareView
         android:id="@+id/imageContainer"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/containerCreator">
+        android:layout_height="wrap_content">
 
         <ImageView
             android:id="@+id/imageCollaboration"

@@ -482,7 +482,6 @@ public class MeFragment extends Fragment {
         tabLayout.getTabAt(2).getIcon().setColorFilter(ContextCompat.getColor(getActivity(), R.color.grey_custom), PorterDuff.Mode.SRC_IN);
     }
 
-
     /**
      * This method loads data from server if user device is connected to internet.
      */

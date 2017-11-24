@@ -37,7 +37,6 @@ import io.reactivex.observers.DisposableObserver;
 import io.reactivex.schedulers.Schedulers;
 
 import static com.thetestament.cread.helpers.NetworkHelper.getCollaborationDetailsObservableFromServer;
-import static com.thetestament.cread.helpers.NetworkHelper.getHatsOffObservableFromServer;
 import static com.thetestament.cread.helpers.NetworkHelper.getNetConnectionStatus;
 import static com.thetestament.cread.utils.Constant.EXTRA_DATA;
 import static com.thetestament.cread.utils.Constant.EXTRA_ENTITY_ID;
@@ -54,7 +53,7 @@ public class CollaborationDetailsActivity extends BaseActivity {
     SwipeRefreshLayout swipeRefreshLayout;
     @BindView(R.id.recyclerView)
     RecyclerView recyclerView;
-    @BindView(R.id.viewPager)
+    @BindView(R.id.viewProgress)
     View viewProgress;
 
 
@@ -229,6 +228,10 @@ public class CollaborationDetailsActivity extends BaseActivity {
                         //Error occurred
                         else if (connectionError[0]) {
                             ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_internal));
+                        }
+                        //Error occurred
+                        else if (mDataList.size() == 0) {
+                            ViewHelper.getSnackBar(rootView, "No data");
                         } else {
                             //Apply 'Slide Up' animation
                             int resId = R.anim.layout_animation_from_bottom;
@@ -272,8 +275,9 @@ public class CollaborationDetailsActivity extends BaseActivity {
         final boolean[] tokenError = {false};
         final boolean[] connectionError = {false};
 
-        mCompositeDisposable.add(getHatsOffObservableFromServer(BuildConfig.URL + "/entity-manage/load-collab-details"
+        mCompositeDisposable.add(getCollaborationDetailsObservableFromServer(BuildConfig.URL + "/entity-manage/load-collab-details"
                 , mEntityID
+                , mEntityType
                 , mHelper.getUUID()
                 , mHelper.getAuthToken()
                 , mLastIndexKey)
