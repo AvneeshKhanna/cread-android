@@ -117,6 +117,7 @@ public class Constant {
     public static final String FIREBASE_EVENT_BUY_CLICKED = "buy_clicked";
     public static final String FIREBASE_EVENT_MAKE_PAYMENT_CLICKED = "make_payment_clicked";
     public static final String FIREBASE_EVENT_WRITE_CLICKED = "write_clicked";
+    public static final String FIREBASE_EVENT_CAPTURE_CLICKED = "capture_clicked";
     public static final String FIREBASE_EVENT_FEED_CLICKED = "feed_clicked";
     public static final String FIREBASE_EVENT_EXPLORE_CLICKED = "explore_clicked";
     public static final String FIREBASE_EVENT_INSPIRATION_CLICKED = "inspire_clicked";

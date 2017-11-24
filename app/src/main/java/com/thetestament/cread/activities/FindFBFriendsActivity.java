@@ -69,7 +69,6 @@ public class FindFBFriendsActivity extends BaseActivity {
     LinearLayout noFriendsPlaceholder;
 
 
-    //private int mPageNumber = 0;
     private String mNextUrl;
     private boolean mRequestMoreData;
     List<FBFriendsModel> mDataList = new ArrayList<>();

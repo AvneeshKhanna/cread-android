@@ -96,7 +96,7 @@ public class FeedFragment extends Fragment {
 
     Unbinder unbinder;
     private Unbinder mUnbinder;
-    private int mPageNumber = 0;
+    private String mLastIndexKey;
     private boolean mRequestMoreData;
 
     @State
@@ -206,8 +206,8 @@ public class FeedFragment extends Fragment {
                 //Notify for changes
                 mAdapter.notifyDataSetChanged();
                 mAdapter.setLoaded();
-                //set page count to zero
-                mPageNumber = 0;
+                //set last index key to null
+                mLastIndexKey = null;
                 // hide no posts view
                 viewNoPosts.setVisibility(View.GONE);
                 //Load data here
@@ -243,8 +243,6 @@ public class FeedFragment extends Fragment {
                                            }
                                        }
                     );
-                    //Increment page counter
-                    mPageNumber += 1;
                     //Load new set of data
                     loadMoreData();
                 }
@@ -278,7 +276,8 @@ public class FeedFragment extends Fragment {
         mCompositeDisposable.add(getObservableFromServer(BuildConfig.URL + "/feed/load"
                 , mHelper.getUUID()
                 , mHelper.getAuthToken()
-                , mPageNumber)
+                , mLastIndexKey
+                )
                 //Run on a background thread
                 .subscribeOn(Schedulers.io())
                 //Be notified on the main thread
@@ -293,6 +292,7 @@ public class FeedFragment extends Fragment {
                             } else {
                                 JSONObject mainData = jsonObject.getJSONObject("data");
                                 mRequestMoreData = mainData.getBoolean("requestmore");
+                                mLastIndexKey = mainData.getString("lastindexkey");
                                 //FeedArray list
                                 JSONArray feedArray = mainData.getJSONArray("feed");
                                 for (int i = 0; i < feedArray.length(); i++) {
@@ -406,7 +406,7 @@ public class FeedFragment extends Fragment {
         mCompositeDisposable.add(getObservableFromServer(BuildConfig.URL + "/feed/load"
                 , mHelper.getUUID()
                 , mHelper.getAuthToken()
-                , mPageNumber)
+                , mLastIndexKey)
                 //Run on a background thread
                 .subscribeOn(Schedulers.io())
                 //Be notified on the main thread
@@ -425,6 +425,7 @@ public class FeedFragment extends Fragment {
                             } else {
                                 JSONObject mainData = jsonObject.getJSONObject("data");
                                 mRequestMoreData = mainData.getBoolean("requestmore");
+                                mLastIndexKey = mainData.getString("lastindexkey");
                                 //FeedArray list
                                 JSONArray feedArray = mainData.getJSONArray("feed");
 

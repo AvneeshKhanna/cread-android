@@ -20,7 +20,6 @@ import com.google.firebase.analytics.FirebaseAnalytics;
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Target;
 import com.thetestament.cread.R;
-import com.thetestament.cread.activities.BottomNavigationActivity;
 import com.thetestament.cread.activities.CommentsActivity;
 import com.thetestament.cread.activities.FeedDescriptionActivity;
 import com.thetestament.cread.activities.ProfileActivity;
@@ -50,6 +49,7 @@ import static com.thetestament.cread.utils.Constant.EXTRA_ENTITY_ID;
 import static com.thetestament.cread.utils.Constant.EXTRA_FEED_DESCRIPTION_DATA;
 import static com.thetestament.cread.utils.Constant.EXTRA_MERCHANTABLE;
 import static com.thetestament.cread.utils.Constant.EXTRA_PROFILE_UUID;
+import static com.thetestament.cread.utils.Constant.FIREBASE_EVENT_CAPTURE_CLICKED;
 import static com.thetestament.cread.utils.Constant.FIREBASE_EVENT_SHARED_FROM_MAIN_FEED;
 import static com.thetestament.cread.utils.Constant.FIREBASE_EVENT_WRITE_CLICKED;
 
@@ -233,7 +233,7 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                         itemViewHolder.buttonCollaborate.setText("Capture");
 
                         // capture click functionality on short
-                        captureOnClick(itemViewHolder.buttonCollaborate, data.getShortID());
+                        captureOnClick(itemViewHolder.buttonCollaborate, data.getEntityID(), data.getShortID());
 
                         String text = data.getCreatorName() + " wrote a short ";
 
@@ -412,7 +412,6 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             @Override
             public void onClick(View view) {
 
-                //onFeedCaptureClickListener.onClick(entityID);
                 Bundle bundle = new Bundle();
                 bundle.putString(EXTRA_CAPTURE_ID, captureID);
                 bundle.putString(EXTRA_CAPTURE_URL, captureURL);
@@ -420,8 +419,7 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                 Intent intent = new Intent(mContext, ShortActivity.class);
                 intent.putExtra(EXTRA_DATA, bundle);
                 mContext.startActivity(intent);
-                // TODO check whether to comment  or not
-                // ((BottomNavigationActivity) mContext).getRuntimePermission();
+
                 //Log Firebase event
                 setAnalytics(FIREBASE_EVENT_WRITE_CLICKED, entityID);
             }
@@ -433,16 +431,15 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
      *
      * @param view View to be clicked.
      */
-    private void captureOnClick(View view, final String entityID) {
+    private void captureOnClick(View view, final String entityID, final String shoid) {
         view.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
 
-                onFeedCaptureClickListener.onClick(entityID);
-                ((BottomNavigationActivity) mContext).getRuntimePermission();
+                onFeedCaptureClickListener.onClick(shoid);
+
                 //Log Firebase event
-                // TODO change firebase event
-                //setAnalytics(FIREBASE_EVENT_WRITE_CLICKED, entityID);
+                setAnalytics(FIREBASE_EVENT_CAPTURE_CLICKED, entityID);
             }
         });
     }
@@ -607,5 +604,10 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             bundle.putString("entity_id", entityID);
             FirebaseAnalytics.getInstance(mContext).logEvent(FIREBASE_EVENT_SHARED_FROM_MAIN_FEED, bundle);
         }
+        else if (firebaseEvent.equals(FIREBASE_EVENT_CAPTURE_CLICKED)) {
+            bundle.putString("entity_id", entityID);
+            FirebaseAnalytics.getInstance(mContext).logEvent(FIREBASE_EVENT_CAPTURE_CLICKED, bundle);
+        }
+
     }
 }

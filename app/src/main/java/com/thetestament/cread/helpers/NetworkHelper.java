@@ -67,15 +67,14 @@ public class NetworkHelper {
      *
      * @param serverURL  URL of the server.
      * @param uuid       UUID of the user.
-     * @param authKey    AuthKey of user i.e String.
-     * @param pageNumber Page no to be loaded i.e integer
+     * @param authKey    AuthKey of user i.e String.*
      */
-    public static Observable<JSONObject> getObservableFromServer(String serverURL, String uuid, String authKey, int pageNumber) {
+    public static Observable<JSONObject> getObservableFromServer(String serverURL, String uuid, String authKey, String lastIndexKey) {
         JSONObject jsonObject = new JSONObject();
         try {
             jsonObject.put("uuid", uuid);
             jsonObject.put("authkey", authKey);
-            //jsonObject.put("page", pageNumber);
+            jsonObject.put("lastindexkey", lastIndexKey);
         } catch (JSONException e) {
             e.printStackTrace();
             FirebaseCrash.report(e);

@@ -83,7 +83,7 @@ public class ExploreFragment extends Fragment {
     ExploreAdapter mAdapter;
     SharedPreferenceHelper mHelper;
     private Unbinder mUnbinder;
-    private int mPageNumber = 0;
+    private String mLastIndexKey;
     private boolean mRequestMoreData;
 
     @State
@@ -207,8 +207,8 @@ public class ExploreFragment extends Fragment {
                 //Notify for changes
                 mAdapter.notifyDataSetChanged();
                 mAdapter.setLoaded();
-                //set page count to zero
-                mPageNumber = 0;
+                //set last index key to nul
+                mLastIndexKey = null;
                 //Load data here
                 loadExploreData();
             }
@@ -242,8 +242,7 @@ public class ExploreFragment extends Fragment {
                                            }
                                        }
                     );
-                    //Increment page counter
-                    mPageNumber += 1;
+
                     //Load new set of data
                     loadMoreData();
                 }
@@ -276,7 +275,7 @@ public class ExploreFragment extends Fragment {
         mCompositeDisposable.add(getObservableFromServer(BuildConfig.URL + "/explore-feed/load"
                 , mHelper.getUUID()
                 , mHelper.getAuthToken()
-                , mPageNumber)
+                , mLastIndexKey)
                 //Run on a background thread
                 .subscribeOn(Schedulers.io())
                 //Be notified on the main thread
@@ -366,7 +365,7 @@ public class ExploreFragment extends Fragment {
         mCompositeDisposable.add(getObservableFromServer(BuildConfig.URL + "/explore-feed/load"
                 , mHelper.getUUID()
                 , mHelper.getAuthToken()
-                , mPageNumber)
+                , mLastIndexKey)
                 //Run on a background thread
                 .subscribeOn(Schedulers.io())
                 //Be notified on the main thread
@@ -384,6 +383,7 @@ public class ExploreFragment extends Fragment {
                             } else {
                                 JSONObject mainData = jsonObject.getJSONObject("data");
                                 mRequestMoreData = mainData.getBoolean("requestmore");
+                                mLastIndexKey = mainData.getString("lastindexkey");
                                 //ExploreArray list
                                 JSONArray exploreArray = mainData.getJSONArray("feed");
                                 for (int i = 0; i < exploreArray.length(); i++) {

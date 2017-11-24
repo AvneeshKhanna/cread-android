@@ -51,7 +51,7 @@ public class InspirationActivity extends BaseActivity {
     List<InspirationModel> mInspirationDataList = new ArrayList<>();
     InspirationAdapter mAdapter;
     SharedPreferenceHelper mHelper;
-    private int mPageNumber = 0;
+    private String mLastIndexKey;
     private boolean mRequestMoreData;
 
     @Override
@@ -104,8 +104,8 @@ public class InspirationActivity extends BaseActivity {
                 //Notify for changes
                 mAdapter.notifyDataSetChanged();
                 mAdapter.setLoaded();
-                //set page count to zero
-                mPageNumber = 0;
+                //set last index key to null
+                mLastIndexKey = null;
                 //Load data here
                 loadInspirationData();
             }
@@ -136,8 +136,6 @@ public class InspirationActivity extends BaseActivity {
                                            }
                                        }
                     );
-                    //Increment page counter
-                    mPageNumber += 1;
                     //Load new set of data
                     loadMoreData();
                 }
@@ -171,7 +169,7 @@ public class InspirationActivity extends BaseActivity {
         mCompositeDisposable.add(getObservableFromServer(BuildConfig.URL + "/inspiration-feed/load"
                 , mHelper.getUUID()
                 , mHelper.getAuthToken()
-                , mPageNumber)
+                , mLastIndexKey)
                 //Run on a background thread
                 .subscribeOn(Schedulers.io())
                 //Be notified on the main thread
@@ -186,6 +184,7 @@ public class InspirationActivity extends BaseActivity {
                             } else {
                                 JSONObject mainData = jsonObject.getJSONObject("data");
                                 mRequestMoreData = mainData.getBoolean("requestmore");
+                                mLastIndexKey = mainData.getString("lastindexkey");
                                 //Inspiration list
                                 JSONArray array = mainData.getJSONArray("items");
                                 for (int i = 0; i < array.length(); i++) {
@@ -252,7 +251,7 @@ public class InspirationActivity extends BaseActivity {
         mCompositeDisposable.add(getObservableFromServer(BuildConfig.URL + "/inspiration-feed/load"
                 , mHelper.getUUID()
                 , mHelper.getAuthToken()
-                , mPageNumber)
+                , mLastIndexKey)
                 //Run on a background thread
                 .subscribeOn(Schedulers.io())
                 //Be notified on the main thread
@@ -271,6 +270,7 @@ public class InspirationActivity extends BaseActivity {
 
                                 JSONObject mainData = jsonObject.getJSONObject("data");
                                 mRequestMoreData = mainData.getBoolean("requestmore");
+                                mLastIndexKey = mainData.getString("lastindexkey");
                                 //Inspiration list
                                 JSONArray array = mainData.getJSONArray("items");
                                 for (int i = 0; i < array.length(); i++) {
