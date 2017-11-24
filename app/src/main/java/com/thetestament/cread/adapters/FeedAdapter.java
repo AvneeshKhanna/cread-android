@@ -20,6 +20,7 @@ import com.google.firebase.analytics.FirebaseAnalytics;
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Target;
 import com.thetestament.cread.R;
+import com.thetestament.cread.activities.CollaborationDetailsActivity;
 import com.thetestament.cread.activities.CommentsActivity;
 import com.thetestament.cread.activities.FeedDescriptionActivity;
 import com.thetestament.cread.activities.ProfileActivity;
@@ -46,6 +47,7 @@ import static com.thetestament.cread.utils.Constant.EXTRA_CAPTURE_ID;
 import static com.thetestament.cread.utils.Constant.EXTRA_CAPTURE_URL;
 import static com.thetestament.cread.utils.Constant.EXTRA_DATA;
 import static com.thetestament.cread.utils.Constant.EXTRA_ENTITY_ID;
+import static com.thetestament.cread.utils.Constant.EXTRA_ENTITY_TYPE;
 import static com.thetestament.cread.utils.Constant.EXTRA_FEED_DESCRIPTION_DATA;
 import static com.thetestament.cread.utils.Constant.EXTRA_MERCHANTABLE;
 import static com.thetestament.cread.utils.Constant.EXTRA_PROFILE_UUID;
@@ -293,6 +295,9 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             shareOnClick(itemViewHolder.containerShare, data.getContentImage(), data.getEntityID());
             //HatsOff onClick functionality
             hatsOffOnClick(itemViewHolder, data, position);
+            //Collaboration count click functionality
+            collaborationCountOnClick(itemViewHolder.collabCount, data.getEntityID(), data.getContentType());
+
 
         } else if (holder.getItemViewType() == VIEW_TYPE_LOADING) {
             LoadingViewHolder loadingViewHolder = (LoadingViewHolder) holder;
@@ -542,6 +547,30 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         });
     }
 
+    /**
+     * Collaboration count click functionality to launch collaborationDetailsActivity.
+     *
+     * @param textView   View to be clicked
+     * @param entityID   Entity id of the content.
+     * @param entityType Type of content i.e CAPTURE or SHORT
+     */
+    private void collaborationCountOnClick(TextView textView, final String entityID, final String entityType) {
+        textView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                Bundle bundle = new Bundle();
+                bundle.putString(EXTRA_ENTITY_ID, entityID);
+                bundle.putString(EXTRA_ENTITY_TYPE, entityType);
+
+                Intent intent = new Intent(mContext, CollaborationDetailsActivity.class);
+                intent.putExtra(EXTRA_DATA, bundle);
+                mContext.startActivity(intent);
+            }
+        });
+    }
+
+
     //ItemViewHolder class
     static class ItemViewHolder extends RecyclerView.ViewHolder {
         @BindView(R.id.imageCreator)
@@ -603,8 +632,7 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         } else if (firebaseEvent.equals(FIREBASE_EVENT_SHARED_FROM_MAIN_FEED)) {
             bundle.putString("entity_id", entityID);
             FirebaseAnalytics.getInstance(mContext).logEvent(FIREBASE_EVENT_SHARED_FROM_MAIN_FEED, bundle);
-        }
-        else if (firebaseEvent.equals(FIREBASE_EVENT_CAPTURE_CLICKED)) {
+        } else if (firebaseEvent.equals(FIREBASE_EVENT_CAPTURE_CLICKED)) {
             bundle.putString("entity_id", entityID);
             FirebaseAnalytics.getInstance(mContext).logEvent(FIREBASE_EVENT_CAPTURE_CLICKED, bundle);
         }

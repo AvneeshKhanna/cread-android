@@ -30,6 +30,7 @@ import com.google.firebase.analytics.FirebaseAnalytics;
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Target;
 import com.thetestament.cread.R;
+import com.thetestament.cread.activities.CollaborationDetailsActivity;
 import com.thetestament.cread.activities.CommentsActivity;
 import com.thetestament.cread.activities.MerchandisingProductsActivity;
 import com.thetestament.cread.activities.ShortActivity;
@@ -54,6 +55,7 @@ import static com.thetestament.cread.utils.Constant.EXTRA_CAPTURE_ID;
 import static com.thetestament.cread.utils.Constant.EXTRA_CAPTURE_URL;
 import static com.thetestament.cread.utils.Constant.EXTRA_DATA;
 import static com.thetestament.cread.utils.Constant.EXTRA_ENTITY_ID;
+import static com.thetestament.cread.utils.Constant.EXTRA_ENTITY_TYPE;
 import static com.thetestament.cread.utils.Constant.EXTRA_MERCHANTABLE;
 import static com.thetestament.cread.utils.Constant.FIREBASE_EVENT_SHARED_FROM_PROFILE;
 
@@ -235,7 +237,8 @@ public class MeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             commentOnClick(itemViewHolder.containerComment, data.getEntityID());
             //Share click functionality
             shareOnClick(itemViewHolder.containerShare, data.getContentImage(), data.getEntityID());
-
+            //Collaboration count click functionality
+            collaborationCountOnClick(itemViewHolder.collabCount, data.getEntityID(), data.getContentType());
 
         } else if (holder.getItemViewType() == VIEW_TYPE_LOADING) {
             LoadingViewHolder loadingViewHolder = (LoadingViewHolder) holder;
@@ -586,6 +589,30 @@ public class MeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         }
     }
 
+    /**
+     * Collaboration count click functionality to launch collaborationDetailsActivity.
+     *
+     * @param textView   View to be clicked
+     * @param entityID   Entity id of the content.
+     * @param entityType Type of content i.e CAPTURE or SHORT
+     */
+    private void collaborationCountOnClick(TextView textView, final String entityID, final String entityType) {
+        textView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                Bundle bundle = new Bundle();
+                bundle.putString(EXTRA_ENTITY_ID, entityID);
+                bundle.putString(EXTRA_ENTITY_TYPE, entityType);
+
+                Intent intent = new Intent(mContext, CollaborationDetailsActivity.class);
+                intent.putExtra(EXTRA_DATA, bundle);
+                mContext.startActivity(intent);
+            }
+        });
+    }
+
+
     //ItemViewHolder class
     static class ItemViewHolder extends RecyclerView.ViewHolder {
         @BindView(R.id.imageCreator)
@@ -608,6 +635,8 @@ public class MeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         LinearLayout containerShare;
         @BindView(R.id.buttonMenu)
         TextView buttonMenu;
+        @BindView(R.id.collabCount)
+        TextView collabCount;
 
         //Variable to maintain hats off status
         private boolean mIsHatsOff = false;

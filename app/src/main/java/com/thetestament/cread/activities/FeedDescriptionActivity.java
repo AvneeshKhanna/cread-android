@@ -54,7 +54,9 @@ import io.reactivex.schedulers.Schedulers;
 import static com.thetestament.cread.helpers.ImageHelper.getLocalBitmapUri;
 import static com.thetestament.cread.helpers.NetworkHelper.getCommentObservableFromServer;
 import static com.thetestament.cread.utils.Constant.EXTRA_CAPTURE_URL;
+import static com.thetestament.cread.utils.Constant.EXTRA_DATA;
 import static com.thetestament.cread.utils.Constant.EXTRA_ENTITY_ID;
+import static com.thetestament.cread.utils.Constant.EXTRA_ENTITY_TYPE;
 import static com.thetestament.cread.utils.Constant.EXTRA_FEED_DESCRIPTION_DATA;
 import static com.thetestament.cread.utils.Constant.EXTRA_PROFILE_UUID;
 import static com.thetestament.cread.utils.Constant.FIREBASE_EVENT_HAVE_CLICKED;
@@ -278,6 +280,29 @@ public class FeedDescriptionActivity extends BaseActivity {
             }
         });
     }
+
+    /**
+     * Collaboration count click functionality to launch collaborationDetailsActivity.
+     *
+     * @param textView View to be clicked
+     */
+    @OnClick(R.id.collabCount)
+    void collaborationCountOnClick(TextView textView) {
+        textView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                Bundle bundle = new Bundle();
+                bundle.putString(EXTRA_ENTITY_ID, mFeedData.getEntityID());
+                bundle.putString(EXTRA_ENTITY_TYPE, mFeedData.getContentType());
+
+                Intent intent = new Intent(FeedDescriptionActivity.this, CollaborationDetailsActivity.class);
+                intent.putExtra(EXTRA_DATA, bundle);
+                startActivity(intent);
+            }
+        });
+    }
+
 
     /**
      * Method to initialize Toolbar.
