@@ -1,18 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_marginLeft="10dp"
     android:layout_height="match_parent"
+    android:layout_marginLeft="10dp"
     android:layout_marginRight="10dp"
     android:background="@color/black_defined"
-    android:gravity="center"
-    android:orientation="vertical">
+    android:gravity="center">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_above="@+id/imageContainer"
         android:background="@color/black_defined">
 
         <RelativeLayout
@@ -22,7 +22,7 @@
             android:layout_marginBottom="12dp"
             android:layout_marginTop="12dp"
 
-        >
+            >
 
             <de.hdodenhof.circleimageview.CircleImageView
                 android:id="@+id/imageCreator"
@@ -55,7 +55,8 @@
     <com.thetestament.cread.utils.SquareView
         android:id="@+id/imageContainer"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:layout_centerVertical="true">
 
         <ImageView
             android:id="@+id/imageCollaboration"
@@ -65,4 +66,4 @@
             tools:src="@drawable/image_placeholder" />
     </com.thetestament.cread.utils.SquareView>
 
-</LinearLayout>
+</RelativeLayout>
