@@ -41,16 +41,16 @@ public class NetworkHelper {
      * @param uuid          UUID of the user.
      * @param authKey       Authentication key of the user
      * @param requestedUUID UUID of user whose profile data to be loaded.
-     * @param pageNumber    Page no to be loaded i.e integer
+     * @param lastIndexKey Last index key.
      */
-    public static Observable<JSONObject> getObservableFromServer(String serverURL, String uuid, String authKey, String requestedUUID, int pageNumber) {
+    public static Observable<JSONObject> getObservableFromServer(String serverURL, String uuid, String authKey, String requestedUUID, String lastIndexKey) {
 
         JSONObject jsonObject = new JSONObject();
         try {
             jsonObject.put("uuid", uuid);
             jsonObject.put("authkey", authKey);
             jsonObject.put("requesteduuid", requestedUUID);
-            jsonObject.put("page", pageNumber);
+            jsonObject.put("lastindexkey", lastIndexKey);
         } catch (JSONException e) {
             e.printStackTrace();
             FirebaseCrash.report(e);
@@ -114,20 +114,20 @@ public class NetworkHelper {
     /**
      * Method to return data from the server.
      *
-     * @param serverURL  URL of the server.
-     * @param entityID   Entity id of post.
-     * @param uuid       UUID of the user.
-     * @param authKey    AuthKey of user.
-     * @param pageNumber Page no to be loaded.
+     * @param serverURL    URL of the server.
+     * @param entityID     Entity id of post.
+     * @param uuid         UUID of the user.
+     * @param authKey      AuthKey of user.
+     * @param lastIndexKey Last index key.
      */
-    public static Observable<JSONObject> getHatsOffObservableFromServer(String serverURL, String entityID, String uuid, String authKey, int pageNumber) {
+    public static Observable<JSONObject> getHatsOffObservableFromServer(String serverURL, String entityID, String uuid, String authKey, String lastIndexKey) {
 
         JSONObject jsonObject = new JSONObject();
         try {
             jsonObject.put("uuid", uuid);
             jsonObject.put("authkey", authKey);
             jsonObject.put("entityid", entityID);
-            jsonObject.put("page", pageNumber);
+            jsonObject.put("lastindexkey", lastIndexKey);
         } catch (JSONException e) {
             e.printStackTrace();
             FirebaseCrash.report(e);
@@ -146,17 +146,17 @@ public class NetworkHelper {
      * @param uuid       UUID of the user.
      * @param authKey    Authentication key of the user.
      * @param entityID   Entity ID of the post.
-     * @param pageNumber Page no to be loaded.
+     * @param lastIndexKey Last index key.
      * @param loadAll    True for all comments false otherwise.
      */
-    public static Observable<JSONObject> getCommentObservableFromServer(String serverURL, String uuid, String authKey, String entityID, int pageNumber, boolean loadAll) {
+    public static Observable<JSONObject> getCommentObservableFromServer(String serverURL, String uuid, String authKey, String entityID, String lastIndexKey, boolean loadAll) {
 
         JSONObject jsonObject = new JSONObject();
         try {
             jsonObject.put("uuid", uuid);
             jsonObject.put("authkey", authKey);
             jsonObject.put("entityid", entityID);
-            jsonObject.put("page", pageNumber);
+            jsonObject.put("lastindexkey", lastIndexKey);
             jsonObject.put("loadall", loadAll);
         } catch (JSONException e) {
             e.printStackTrace();

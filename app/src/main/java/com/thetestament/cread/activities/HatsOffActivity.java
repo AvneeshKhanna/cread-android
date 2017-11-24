@@ -52,15 +52,18 @@ public class HatsOffActivity extends BaseActivity {
     SwipeRefreshLayout swipeRefreshLayout;
     @BindView(R.id.recyclerView)
     RecyclerView recyclerView;
+
+
     CompositeDisposable mCompositeDisposable = new CompositeDisposable();
     SharedPreferenceHelper mHelper;
-    @State
-    String mEntityID;
 
     List<HatsOffModel> mHatsOffList = new ArrayList<>();
     HatsOffAdapter mAdapter;
-    private int mPageNumber = 0;
-    private boolean mRequestMoreData;
+
+    @State
+    String mEntityID, mLastIndexKey = null;
+    @State
+    boolean mRequestMoreData;
 
 
     @Override
@@ -103,7 +106,6 @@ public class HatsOffActivity extends BaseActivity {
         //Set adapter
         mAdapter = new HatsOffAdapter(mHatsOffList, HatsOffActivity.this);
         recyclerView.setAdapter(mAdapter);
-
         //initialize swipeRefreshLayout
         initScreen();
     }
@@ -122,8 +124,8 @@ public class HatsOffActivity extends BaseActivity {
                 mHatsOffList.clear();
                 mAdapter.notifyDataSetChanged();
                 mAdapter.setLoaded();
-                //set page count to zero
-                mPageNumber = 0;
+                //set last index value to null
+                mLastIndexKey = null;
                 loadHatsOffData();
             }
         });
@@ -160,7 +162,7 @@ public class HatsOffActivity extends BaseActivity {
                 , mEntityID
                 , mHelper.getUUID()
                 , mHelper.getAuthToken()
-                , mPageNumber)
+                , mLastIndexKey)
                 //Run on a background thread
                 .subscribeOn(Schedulers.io())
                 //Be notified on the main thread
@@ -175,6 +177,7 @@ public class HatsOffActivity extends BaseActivity {
                             } else {
                                 JSONObject mainData = jsonObject.getJSONObject("data");
                                 mRequestMoreData = mainData.getBoolean("requestmore");
+                                mLastIndexKey = mainData.getString("lastindexkey");
                                 //Hats off details list
                                 JSONArray hatsOffArray = mainData.getJSONArray("hatsoffs");
                                 for (int i = 0; i < hatsOffArray.length(); i++) {
@@ -248,8 +251,6 @@ public class HatsOffActivity extends BaseActivity {
                                            }
                                        }
                     );
-                    //Increment page counter
-                    mPageNumber += 1;
                     //Load new set of data
                     loadMoreData();
                 }
@@ -269,7 +270,7 @@ public class HatsOffActivity extends BaseActivity {
                 , mEntityID
                 , mHelper.getUUID()
                 , mHelper.getAuthToken()
-                , mPageNumber)
+                , mLastIndexKey)
                 //Run on a background thread
                 .subscribeOn(Schedulers.io())
                 //Be notified on the main thread
@@ -287,6 +288,7 @@ public class HatsOffActivity extends BaseActivity {
                             } else {
                                 JSONObject mainData = jsonObject.getJSONObject("data");
                                 mRequestMoreData = mainData.getBoolean("requestmore");
+                                mLastIndexKey = mainData.getString("lastindexkey");
                                 //Hats off details list
                                 JSONArray hatsOffArray = mainData.getJSONArray("hatsoffs");
                                 for (int i = 0; i < hatsOffArray.length(); i++) {

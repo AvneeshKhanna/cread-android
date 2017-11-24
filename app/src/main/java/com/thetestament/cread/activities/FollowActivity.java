@@ -53,15 +53,17 @@ public class FollowActivity extends BaseActivity {
     @BindView(R.id.recyclerView)
     RecyclerView recyclerView;
 
-    @State
-    String mServerURL, mRequestedUUID;
-    List<FollowModel> mFollowList = new ArrayList<>();
-    FollowAdapter mAdapter;
 
     private CompositeDisposable mCompositeDisposable = new CompositeDisposable();
     private SharedPreferenceHelper mHelper;
-    private int mPageNumber = 0;
-    private boolean mRequestMoreData;
+
+    List<FollowModel> mFollowList = new ArrayList<>();
+    FollowAdapter mAdapter;
+
+    @State
+    String mServerURL, mRequestedUUID, mLastIndexKey = null;
+    @State
+    boolean mRequestMoreData;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -132,8 +134,8 @@ public class FollowActivity extends BaseActivity {
                 //Notify changes
                 mAdapter.notifyDataSetChanged();
                 mAdapter.setLoaded();
-                //set page count to zero
-                mPageNumber = 0;
+                //set last index key
+                mLastIndexKey = null;
                 //Load follow data here
                 loadFollowData();
             }
@@ -171,7 +173,7 @@ public class FollowActivity extends BaseActivity {
                 , mHelper.getUUID()
                 , mHelper.getAuthToken()
                 , mRequestedUUID
-                , mPageNumber)
+                , mLastIndexKey)
 
                 //Run on a background thread
                 .subscribeOn(Schedulers.io())
@@ -187,6 +189,7 @@ public class FollowActivity extends BaseActivity {
                             } else {
                                 JSONObject mainData = jsonObject.getJSONObject("data");
                                 mRequestMoreData = mainData.getBoolean("requestmore");
+                                mLastIndexKey = mainData.getString("lastindexkey");
                                 //Follow details list
                                 JSONArray followArray = mainData.getJSONArray("users");
                                 for (int i = 0; i < followArray.length(); i++) {
@@ -260,8 +263,6 @@ public class FollowActivity extends BaseActivity {
                                            }
                                        }
                     );
-                    //Increment page counter
-                    mPageNumber += 1;
                     //Load new set of data
                     loadMoreData();
                 }
@@ -281,7 +282,7 @@ public class FollowActivity extends BaseActivity {
                 , mHelper.getUUID()
                 , mHelper.getAuthToken()
                 , mRequestedUUID
-                , mPageNumber)
+                , mLastIndexKey)
 
                 //Run on a background thread
                 .subscribeOn(Schedulers.io())
@@ -300,6 +301,7 @@ public class FollowActivity extends BaseActivity {
                             } else {
                                 JSONObject mainData = jsonObject.getJSONObject("data");
                                 mRequestMoreData = mainData.getBoolean("requestmore");
+                                mLastIndexKey = mainData.getString("lastindexkey");
                                 //Follow details list
                                 JSONArray followArray = mainData.getJSONArray("users");
                                 for (int i = 0; i < followArray.length(); i++) {
