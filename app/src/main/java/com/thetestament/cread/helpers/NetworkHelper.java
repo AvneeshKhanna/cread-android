@@ -41,7 +41,7 @@ public class NetworkHelper {
      * @param uuid          UUID of the user.
      * @param authKey       Authentication key of the user
      * @param requestedUUID UUID of user whose profile data to be loaded.
-     * @param lastIndexKey Last index key.
+     * @param lastIndexKey  Last index key.
      */
     public static Observable<JSONObject> getObservableFromServer(String serverURL, String uuid, String authKey, String requestedUUID, String lastIndexKey) {
 
@@ -65,9 +65,9 @@ public class NetworkHelper {
     /**
      * Method to return data from the server.
      *
-     * @param serverURL  URL of the server.
-     * @param uuid       UUID of the user.
-     * @param authKey    AuthKey of user i.e String.*
+     * @param serverURL    URL of the server.
+     * @param uuid         UUID of the user.
+     * @param authKey      AuthKey of user i.e String.*
      * @param lastIndexKey Last index key
      */
     public static Observable<JSONObject> getObservableFromServer(String serverURL, String uuid, String authKey, String lastIndexKey) {
@@ -143,12 +143,12 @@ public class NetworkHelper {
     /**
      * Method to return requested data from the server.
      *
-     * @param serverURL  URL of the server.
-     * @param uuid       UUID of the user.
-     * @param authKey    Authentication key of the user.
-     * @param entityID   Entity ID of the post.
+     * @param serverURL    URL of the server.
+     * @param uuid         UUID of the user.
+     * @param authKey      Authentication key of the user.
+     * @param entityID     Entity ID of the post.
      * @param lastIndexKey Last index key.
-     * @param loadAll    True for all comments false otherwise.
+     * @param loadAll      True for all comments false otherwise.
      */
     public static Observable<JSONObject> getCommentObservableFromServer(String serverURL, String uuid, String authKey, String entityID, String lastIndexKey, boolean loadAll) {
 
@@ -159,6 +159,35 @@ public class NetworkHelper {
             jsonObject.put("entityid", entityID);
             jsonObject.put("lastindexkey", lastIndexKey);
             jsonObject.put("loadall", loadAll);
+        } catch (JSONException e) {
+            e.printStackTrace();
+            FirebaseCrash.report(e);
+        }
+        return Rx2AndroidNetworking.post(serverURL)
+                .addJSONObjectBody(jsonObject)
+                .build()
+                .getJSONObjectObservable();
+    }
+
+    /**
+     * Method to return data from the server.
+     *
+     * @param serverURL    URL of the server.
+     * @param entityID     Entity id of post.
+     * @param entityType   Type of entity i.e CAPTURE ,SHORT.
+     * @param uuid         UUID of the user.
+     * @param authKey      AuthKey of user.
+     * @param lastIndexKey Last index key.
+     */
+    public static Observable<JSONObject> getCollaborationDetailsObservableFromServer(String serverURL, String entityID, String entityType, String uuid, String authKey, String lastIndexKey) {
+
+        JSONObject jsonObject = new JSONObject();
+        try {
+            jsonObject.put("uuid", uuid);
+            jsonObject.put("authkey", authKey);
+            jsonObject.put("entityid", entityID);
+            jsonObject.put("entitytype", entityID);
+            jsonObject.put("lastindexkey", lastIndexKey);
         } catch (JSONException e) {
             e.printStackTrace();
             FirebaseCrash.report(e);

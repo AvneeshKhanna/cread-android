@@ -28,6 +28,7 @@ import com.afollestad.materialdialogs.MaterialDialog;
 import com.google.firebase.analytics.FirebaseAnalytics;
 import com.squareup.picasso.Picasso;
 import com.thetestament.cread.R;
+import com.thetestament.cread.activities.CollaborationDetailsActivity;
 import com.thetestament.cread.activities.FeedDescriptionActivity;
 import com.thetestament.cread.activities.MerchandisingProductsActivity;
 import com.thetestament.cread.activities.ProfileActivity;
@@ -52,6 +53,8 @@ import static com.thetestament.cread.utils.Constant.CONTENT_TYPE_SHORT;
 import static com.thetestament.cread.utils.Constant.EXTRA_CAPTURE_ID;
 import static com.thetestament.cread.utils.Constant.EXTRA_CAPTURE_URL;
 import static com.thetestament.cread.utils.Constant.EXTRA_DATA;
+import static com.thetestament.cread.utils.Constant.EXTRA_ENTITY_ID;
+import static com.thetestament.cread.utils.Constant.EXTRA_ENTITY_TYPE;
 import static com.thetestament.cread.utils.Constant.EXTRA_FEED_DESCRIPTION_DATA;
 import static com.thetestament.cread.utils.Constant.EXTRA_MERCHANTABLE;
 import static com.thetestament.cread.utils.Constant.EXTRA_PROFILE_UUID;
@@ -157,7 +160,8 @@ public class ExploreAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
             followOnClick(position, data, itemViewHolder.buttonFollow);
             //ItemView onClick functionality
             itemViewOnClick(itemViewHolder.itemView, data);
-
+            //Collaboration count click functionality
+            collaborationCountOnClick(itemViewHolder.collabCount, data.getEntityID(), data.getContentType());
 
         } else if (holder.getItemViewType() == VIEW_TYPE_LOADING) {
             LoadingViewHolder loadingViewHolder = (LoadingViewHolder) holder;
@@ -654,6 +658,29 @@ public class ExploreAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
         textTitle.setText("Write your masterpiece here");
         //Set description text
         textDesc.setText("This is where you must share your words. We'll save it as an image to inspire people and prevent plagiarism.");
+    }
+
+    /**
+     * Collaboration count click functionality to launch collaborationDetailsActivity.
+     *
+     * @param textView   View to be clicked
+     * @param entityID   Entity id of the content.
+     * @param entityType Type of content i.e CAPTURE or SHORT
+     */
+    private void collaborationCountOnClick(TextView textView, final String entityID, final String entityType) {
+        textView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                Bundle bundle = new Bundle();
+                bundle.putString(EXTRA_ENTITY_ID, entityID);
+                bundle.putString(EXTRA_ENTITY_TYPE, entityType);
+
+                Intent intent = new Intent(mContext, CollaborationDetailsActivity.class);
+                intent.putExtra(EXTRA_DATA, bundle);
+                mContext.startActivity(intent);
+            }
+        });
     }
 
     //ItemViewHolder class
