@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_gravity="center"
+    android:orientation="vertical">
+
+    <RelativeLayout
+        android:id="@+id/containerCreator"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="12dp"
+        android:layout_marginTop="12dp">
+
+        <de.hdodenhof.circleimageview.CircleImageView
+            android:id="@+id/imageCreator"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:layout_centerVertical="true"
+            android:layout_marginLeft="8dp"
+            android:scaleType="centerCrop"
+            app:civ_border_color="@color/black_defined"
+            tools:src="@drawable/ic_account_circle_48" />
+
+        <TextView
+            android:id="@+id/textCreatorName"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_toRightOf="@+id/imageCreator"
+            android:gravity="center_vertical"
+            android:paddingLeft="8dp"
+            android:paddingRight="8dp"
+            android:textColor="@color/grey_dark"
+            android:textSize="16sp"
+            tools:text="The Cread" />
+
+
+    </RelativeLayout>
+
+    <com.thetestament.cread.utils.SquareView
+        android:id="@+id/imageContainer"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/containerCreator">
+
+        <ImageView
+            android:id="@+id/imageCollaboration"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:scaleType="centerCrop"
+            tools:src="@drawable/image_placeholder" />
+    </com.thetestament.cread.utils.SquareView>
+
+</LinearLayout>

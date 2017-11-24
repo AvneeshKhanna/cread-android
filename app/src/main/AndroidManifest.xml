@@ -287,6 +287,17 @@
                 android:value=".activities.BottomNavigationActivity" />
         </activity>
 
+        <!--CollaborationActivity-->
+        <activity
+            android:name=".activities.CollaborationDetailsActivity"
+            android:label="Collaborations"
+            android:screenOrientation="portrait"
+            android:theme="@style/CollaborationDetailsTheme">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".activities.BottomNavigationActivity" />
+        </activity>
+
 
         <!--Temporarily disable Firebase Analytics-->
         <meta-data

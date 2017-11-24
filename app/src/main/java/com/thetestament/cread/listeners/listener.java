@@ -157,4 +157,11 @@ public class listener {
     public interface OnFeedCaptureClickListener {
         void onClick(String shortId);
     }
+
+    /**
+     * Interface definition for a callback to be invoked when user scroll for more data.
+     */
+    public interface OnCollaborationDetailsLoadMoreListener {
+        void onLoadMore();
+    }
 }

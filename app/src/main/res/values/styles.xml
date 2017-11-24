@@ -24,6 +24,17 @@
     </style>
 
 
+    <!-- CollaborationDetailsActivity theme. -->
+    <style name="CollaborationDetailsTheme" parent="Theme.AppCompat.Light.DarkActionBar">
+        <!-- Customize your theme here. -->
+        <item name="colorPrimary">@color/black_defined</item>
+        <item name="colorPrimaryDark">@color/black_defined</item>
+        <item name="colorAccent">@color/colorAccent</item>
+        <!--To change the material dialog font-family-->
+        <!-- <item name="md_medium_font">@string/app_font_family_bold</item>
+         <item name="md_regular_font">@string/app_font_family_normal</item>-->
+    </style>
+
     <!--HelveticaNeuBold font-->
     <style name="TextAppearance.FontPath" parent="android:TextAppearance">
         <!-- Custom Attr-->
