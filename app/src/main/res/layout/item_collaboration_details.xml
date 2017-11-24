@@ -13,7 +13,7 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/white">
+        android:background="@color/black_defined">
 
         <RelativeLayout
             android:id="@+id/containerCreator"
@@ -22,7 +22,7 @@
             android:layout_marginBottom="12dp"
             android:layout_marginTop="12dp"
 
-            android:background="@color/white">
+        >
 
             <de.hdodenhof.circleimageview.CircleImageView
                 android:id="@+id/imageCreator"
@@ -43,7 +43,7 @@
                 android:gravity="center_vertical"
                 android:paddingLeft="8dp"
                 android:paddingRight="8dp"
-                android:textColor="@color/grey_dark"
+                android:textColor="@color/white"
                 android:textSize="16sp"
                 tools:text="The Cread" />
 
