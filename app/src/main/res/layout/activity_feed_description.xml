@@ -118,7 +118,8 @@
                     android:paddingRight="2dp"
                     android:text="25 people wrote on it"
                     android:textAppearance="@style/TextAppearance.FontPath"
-                    android:textSize="11sp" />
+                    android:textSize="11sp"
+                    android:visibility="gone"/>
 
 
             </RelativeLayout>

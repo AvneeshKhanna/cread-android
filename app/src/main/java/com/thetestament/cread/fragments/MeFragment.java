@@ -839,6 +839,8 @@ public class MeFragment extends Fragment {
                                 JSONArray UserActivityArray = mainData.getJSONArray("items");
                                 for (int i = 0; i < UserActivityArray.length(); i++) {
                                     JSONObject dataObj = UserActivityArray.getJSONObject(i);
+                                    String type = dataObj.getString("type");
+
                                     FeedModel data = new FeedModel();
                                     data.setEntityID(dataObj.getString("entityid"));
                                     data.setContentType(dataObj.getString("type"));
@@ -850,15 +852,49 @@ public class MeFragment extends Fragment {
                                     data.setHatsOffCount(dataObj.getLong("hatsoffcount"));
                                     data.setCommentCount(dataObj.getLong("commentcount"));
                                     data.setContentImage(dataObj.getString("entityurl"));
+                                    data.setCollabCount(dataObj.getLong("collabcount"));
 
-                                    //Check for content type
-                                    if (dataObj.getString("type").equals(CONTENT_TYPE_SHORT)) {
-                                        //Retrieve "SHORT_ID" if type is short
-                                        data.setShortID(dataObj.getString("shoid"));
-                                    } else {
+                                    if (type.equals(CONTENT_TYPE_CAPTURE)) {
+
                                         //Retrieve "CAPTURE_ID" if type is capture
                                         data.setCaptureID(dataObj.getString("captureid"));
+                                        // if capture
+                                        // then if key cpshort exists
+                                        // not available for collaboration
+                                        if (!dataObj.isNull("cpshort")) {
+                                            JSONObject collabObject = dataObj.getJSONObject("cpshort");
+
+                                            data.setAvailableForCollab(false);
+                                            // set collaborator details
+                                            data.setCollabWithUUID(collabObject.getString("uuid"));
+                                            data.setCollabWithName(collabObject.getString("name"));
+
+                                        } else {
+                                            data.setAvailableForCollab(true);
+                                        }
+
+                                    } else if (type.equals(CONTENT_TYPE_SHORT)) {
+
+                                        //Retrieve "SHORT_ID" if type is short
+                                        data.setShortID(dataObj.getString("shoid"));
+
+                                        // if short
+                                        // then if key shcapture exists
+                                        // not available for collaboration
+                                        if (!dataObj.isNull("shcapture")) {
+
+                                            JSONObject collabObject = dataObj.getJSONObject("shcapture");
+
+                                            data.setAvailableForCollab(false);
+                                            // set collaborator details
+                                            data.setCollabWithUUID(collabObject.getString("uuid"));
+                                            data.setCollabWithName(collabObject.getString("name"));
+                                        } else {
+                                            data.setAvailableForCollab(true);
+                                        }
                                     }
+
+
                                     mUserActivityDataList.add(data);
                                 }
                             }
@@ -973,6 +1009,8 @@ public class MeFragment extends Fragment {
                                 JSONArray UserActivityArray = mainData.getJSONArray("items");
                                 for (int i = 0; i < UserActivityArray.length(); i++) {
                                     JSONObject dataObj = UserActivityArray.getJSONObject(i);
+                                    String type = dataObj.getString("type");
+
                                     FeedModel data = new FeedModel();
                                     data.setEntityID(dataObj.getString("entityid"));
                                     data.setContentType(dataObj.getString("type"));
@@ -984,14 +1022,46 @@ public class MeFragment extends Fragment {
                                     data.setHatsOffCount(dataObj.getLong("hatsoffcount"));
                                     data.setCommentCount(dataObj.getLong("commentcount"));
                                     data.setContentImage(dataObj.getString("entityurl"));
+                                    data.setCollabCount(dataObj.getLong("collabcount"));
 
-                                    //Check for content type
-                                    if (dataObj.getString("type").equals(CONTENT_TYPE_SHORT)) {
-                                        //Retrieve "SHORT_ID" if type is short
-                                        data.setShortID(dataObj.getString("shoid"));
-                                    } else {
+
+                                    if (type.equals(CONTENT_TYPE_CAPTURE)) {
+
                                         //Retrieve "CAPTURE_ID" if type is capture
                                         data.setCaptureID(dataObj.getString("captureid"));
+                                        // if capture
+                                        // then if key cpshort exists
+                                        // not available for collaboration
+                                        if (!dataObj.isNull("cpshort")) {
+                                            JSONObject collabObject = dataObj.getJSONObject("cpshort");
+
+                                            data.setAvailableForCollab(false);
+                                            // set collaborator details
+                                            data.setCollabWithUUID(collabObject.getString("uuid"));
+                                            data.setCollabWithName(collabObject.getString("name"));
+
+                                        } else {
+                                            data.setAvailableForCollab(true);
+                                        }
+
+                                    } else if (type.equals(CONTENT_TYPE_SHORT)) {
+
+
+                                        //Retrieve "SHORT_ID" if type is short
+                                        data.setShortID(dataObj.getString("shoid"));// if short
+                                        // then if key shcapture exists
+                                        // not available for collaboration
+                                        if (!dataObj.isNull("shcapture")) {
+
+                                            JSONObject collabObject = dataObj.getJSONObject("shcapture");
+
+                                            data.setAvailableForCollab(false);
+                                            // set collaborator details
+                                            data.setCollabWithUUID(collabObject.getString("uuid"));
+                                            data.setCollabWithName(collabObject.getString("name"));
+                                        } else {
+                                            data.setAvailableForCollab(true);
+                                        }
                                     }
 
                                     mUserActivityDataList.add(data);

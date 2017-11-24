@@ -64,6 +64,7 @@ import static android.app.Activity.RESULT_OK;
 import static com.thetestament.cread.helpers.ImageHelper.getImageUri;
 import static com.thetestament.cread.helpers.NetworkHelper.getNetConnectionStatus;
 import static com.thetestament.cread.helpers.NetworkHelper.getObservableFromServer;
+import static com.thetestament.cread.utils.Constant.CONTENT_TYPE_CAPTURE;
 import static com.thetestament.cread.utils.Constant.CONTENT_TYPE_SHORT;
 import static com.thetestament.cread.utils.Constant.IMAGE_TYPE_USER_CAPTURE_PIC;
 import static com.thetestament.cread.utils.Constant.REQUEST_CODE_OPEN_GALLERY_FOR_CAPTURE;
@@ -294,6 +295,8 @@ public class ExploreFragment extends Fragment {
                                 JSONArray exploreArray = mainData.getJSONArray("feed");
                                 for (int i = 0; i < exploreArray.length(); i++) {
                                     JSONObject dataObj = exploreArray.getJSONObject(i);
+                                    String type = dataObj.getString("type");
+
                                     FeedModel exploreData = new FeedModel();
                                     exploreData.setEntityID(dataObj.getString("entityid"));
                                     exploreData.setContentType(dataObj.getString("type"));
@@ -306,14 +309,46 @@ public class ExploreFragment extends Fragment {
                                     exploreData.setHatsOffCount(dataObj.getLong("hatsoffcount"));
                                     exploreData.setCommentCount(dataObj.getLong("commentcount"));
                                     exploreData.setContentImage(dataObj.getString("entityurl"));
+                                    exploreData.setCollabCount(dataObj.getLong("collabcount"));
 
-                                    //Check for content type
-                                    if (dataObj.getString("type").equals(CONTENT_TYPE_SHORT)) {
-                                        //Retrieve "SHORT_ID" if type is short
-                                        exploreData.setShortID(dataObj.getString("shoid"));
-                                    } else {
+                                    if (type.equals(CONTENT_TYPE_CAPTURE)) {
+
                                         //Retrieve "CAPTURE_ID" if type is capture
                                         exploreData.setCaptureID(dataObj.getString("captureid"));
+                                        // if capture
+                                        // then if key cpshort exists
+                                        // not available for collaboration
+                                        if (!dataObj.isNull("cpshort")) {
+                                            JSONObject collabObject = dataObj.getJSONObject("cpshort");
+
+                                            exploreData.setAvailableForCollab(false);
+                                            // set collaborator details
+                                            exploreData.setCollabWithUUID(collabObject.getString("uuid"));
+                                            exploreData.setCollabWithName(collabObject.getString("name"));
+
+                                        } else {
+                                            exploreData.setAvailableForCollab(true);
+                                        }
+
+                                    } else if (type.equals(CONTENT_TYPE_SHORT)) {
+
+                                        //Retrieve "SHORT_ID" if type is short
+                                        exploreData.setShortID(dataObj.getString("shoid"));
+
+                                        // if short
+                                        // then if key shcapture exists
+                                        // not available for collaboration
+                                        if (!dataObj.isNull("shcapture")) {
+
+                                            JSONObject collabObject = dataObj.getJSONObject("shcapture");
+
+                                            exploreData.setAvailableForCollab(false);
+                                            // set collaborator details
+                                            exploreData.setCollabWithUUID(collabObject.getString("uuid"));
+                                            exploreData.setCollabWithName(collabObject.getString("name"));
+                                        } else {
+                                            exploreData.setAvailableForCollab(true);
+                                        }
                                     }
                                     mExploreDataList.add(exploreData);
                                 }
@@ -388,6 +423,8 @@ public class ExploreFragment extends Fragment {
                                 JSONArray exploreArray = mainData.getJSONArray("feed");
                                 for (int i = 0; i < exploreArray.length(); i++) {
                                     JSONObject dataObj = exploreArray.getJSONObject(i);
+                                    String type = dataObj.getString("type");
+
                                     FeedModel exploreData = new FeedModel();
                                     exploreData.setEntityID(dataObj.getString("entityid"));
                                     exploreData.setContentType(dataObj.getString("type"));
@@ -401,14 +438,47 @@ public class ExploreFragment extends Fragment {
                                     exploreData.setCommentCount(dataObj.getLong("commentcount"));
                                     exploreData.setContentImage(dataObj.getString("entityurl"));
 
-                                    //Check for content type
-                                    if (dataObj.getString("type").equals(CONTENT_TYPE_SHORT)) {
-                                        //Retrieve "SHORT_ID" if type is short
-                                        exploreData.setShortID(dataObj.getString("shoid"));
-                                    } else {
+                                    if (type.equals(CONTENT_TYPE_CAPTURE)) {
+
                                         //Retrieve "CAPTURE_ID" if type is capture
                                         exploreData.setCaptureID(dataObj.getString("captureid"));
+                                        // if capture
+                                        // then if key cpshort exists
+                                        // not available for collaboration
+                                        if (!dataObj.isNull("cpshort")) {
+                                            JSONObject collabObject = dataObj.getJSONObject("cpshort");
+
+                                            exploreData.setAvailableForCollab(false);
+                                            // set collaborator details
+                                            exploreData.setCollabWithUUID(collabObject.getString("uuid"));
+                                            exploreData.setCollabWithName(collabObject.getString("name"));
+
+                                        } else {
+                                            exploreData.setAvailableForCollab(true);
+                                        }
+
+                                    } else if (type.equals(CONTENT_TYPE_SHORT)) {
+
+                                        //Retrieve "SHORT_ID" if type is short
+                                        exploreData.setShortID(dataObj.getString("shoid"));
+
+                                        // if short
+                                        // then if key shcapture exists
+                                        // not available for collaboration
+                                        if (!dataObj.isNull("shcapture")) {
+
+                                            JSONObject collabObject = dataObj.getJSONObject("shcapture");
+
+                                            exploreData.setAvailableForCollab(false);
+                                            // set collaborator details
+                                            exploreData.setCollabWithUUID(collabObject.getString("uuid"));
+                                            exploreData.setCollabWithName(collabObject.getString("name"));
+                                        } else {
+                                            exploreData.setAvailableForCollab(true);
+                                        }
                                     }
+
+
                                     mExploreDataList.add(exploreData);
 
                                     //Notify item insertion
