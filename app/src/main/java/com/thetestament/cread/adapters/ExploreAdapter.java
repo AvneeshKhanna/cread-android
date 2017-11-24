@@ -150,7 +150,7 @@ public class ExploreAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
             performContentTypeSpecificOperations(itemViewHolder, data);
 
             //Check follow status
-            checkFollowStatus(mContext, data, itemViewHolder);
+            checkFollowStatus(data, itemViewHolder);
 
             //Load explore feed image
             loadFeedImage(data.getContentImage(), itemViewHolder.imageExplore);
@@ -250,7 +250,7 @@ public class ExploreAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
                 // check net status
                 if (NetworkHelper.getNetConnectionStatus(mContext)) {
                     //Toggle follow button
-                    toggleFollowButton(mContext, data.getFollowStatus(), buttonFollow, data.getCreatorName());
+                    toggleFollowButton(data.getFollowStatus(), buttonFollow, data.getCreatorName());
                     //Toggle status
                     data.setFollowStatus(!data.getFollowStatus());
                     //set listener
@@ -279,13 +279,9 @@ public class ExploreAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
             @Override
             public void onClick(View view) {
 
-                if(mHelper.isCaptureIconTooltipFirstTime())
-                {
+                if (mHelper.isCaptureIconTooltipFirstTime()) {
                     getShortOnClickDialog(captureID, captureURL, merchantable);
-                }
-
-                else
-                {
+                } else {
                     Bundle bundle = new Bundle();
                     bundle.putString(EXTRA_CAPTURE_ID, captureID);
                     bundle.putString(EXTRA_CAPTURE_URL, captureURL);
@@ -315,10 +311,7 @@ public class ExploreAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
 
                     // open dialog
                     getCaptureOnClickDialog(shoid);
-                }
-
-                else
-                {
+                } else {
                     onExploreCaptureClickListener.onClick(shoid);
                 }
                 //Log Firebase event
@@ -356,7 +349,7 @@ public class ExploreAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
 
                 // set collab count text
                 if (data.getCollabCount() != 0) {
-                    itemViewHolder.collabCount.setText(data.getCollabCount() + " others added a short for this");
+                    itemViewHolder.collabCount.setText(data.getCollabCount() + " others added a short to it");
                     itemViewHolder.collabCount.setVisibility(View.VISIBLE);
 
 
@@ -385,18 +378,7 @@ public class ExploreAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
 
                     // get clickable text;
                     initializeSpannableString(mContext, itemViewHolder.textCreatorName, false, text, creatorStartPos, creatorEndPos, collabWithStartPos, collabWithEndPos, data.getUUID(), data.getCollabWithUUID());
-                    /*//Show tooltip on edit button
-                    if (isFirstCollaboratableCapture) {
-                        SharedPreferenceHelper helper = new SharedPreferenceHelper(mContext);
-                        if (helper.isWriteIconTooltipFirstTime()) {
-                            // TODO update text
-                            ViewHelper.getToolTip(itemViewHolder.buttonCollaborate, "Have some thoughts about this photo? Tap to write on it", mContext);
-                            helper.updateWriteIconToolTipStatus(false);
-                        }
 
-                        isFirstCollaboratableCapture = false;
-
-                    }*/
                 } else {
 
                     // hiding collaborate button
@@ -422,7 +404,7 @@ public class ExploreAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
 
                 // set collab count text
                 if (data.getCollabCount() != 0) {
-                    itemViewHolder.collabCount.setText(data.getCollabCount() + " others captured on it");
+                    itemViewHolder.collabCount.setText(data.getCollabCount() + " others added a capture to it");
                     itemViewHolder.collabCount.setVisibility(View.VISIBLE);
                 } else {
                     itemViewHolder.collabCount.setVisibility(View.GONE);
@@ -451,17 +433,6 @@ public class ExploreAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
                     initializeSpannableString(mContext, itemViewHolder.textCreatorName, false, text, creatorStartPos, creatorEndPos, collabWithStartPos, collabWithEndPos, data.getUUID(), data.getCollabWithUUID());
 
 
-                    /*if (isFirstCollaboratableShort) {
-                        SharedPreferenceHelper helper = new SharedPreferenceHelper(mContext);
-                        if (helper.isCaptureIconTooltipFirstTime()) {
-                            // TODO update text
-                            ViewHelper.getToolTip(itemViewHolder.buttonCollaborate, "Have some thoughts about this photo? Tap to write on it", mContext);
-                            helper.updateCaptureIconToolTipStatus(false);
-                        }
-
-                        isFirstCollaboratableShort = false;
-
-                    }*/
                 } else {
                     // hiding collaborate button
                     itemViewHolder.buttonCollaborate.setVisibility(View.GONE);
@@ -490,11 +461,10 @@ public class ExploreAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
      * Method to toggle follow.
      *
      * @param followStatus true if following false otherwise.
-     * @param context      Context to use.
      * @param buttonFollow VIew to be clicked.
      * @param creatorName  Name of content creator
      */
-    private void toggleFollowButton(Context context, boolean followStatus, TextView buttonFollow, String creatorName) {
+    private void toggleFollowButton(boolean followStatus, TextView buttonFollow, String creatorName) {
         if (followStatus) {
            /* //Change background
             ViewCompat.setBackground(buttonFollow
@@ -548,10 +518,9 @@ public class ExploreAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
      * Method to check follow status..
      *
      * @param data data
-     * @param context      Context to use.
-     * @param itemViewHolder item view holder
+     *             * @param itemViewHolder item view holder
      */
-    private void checkFollowStatus(Context context, FeedModel data, ExploreAdapter.ItemViewHolder itemViewHolder) {
+    private void checkFollowStatus(FeedModel data, ExploreAdapter.ItemViewHolder itemViewHolder) {
         if (data.getFollowStatus() || mUUID.equals(data.getUUID())) {
             /*ViewCompat.setBackground(buttonFollow
                     , ContextCompat.getDrawable(context
@@ -580,6 +549,7 @@ public class ExploreAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
 
     /**
      * Method to show intro dialog when user collaborated by clicking on capture
+     *
      * @param shoid short ID on which user is collaborating
      */
     private void getCaptureOnClickDialog(final String shoid) {
@@ -605,20 +575,19 @@ public class ExploreAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
         TextView textDesc = dialog.getCustomView().findViewById(R.id.textDesc);
 
 
-        // TODO update image
         //Set filler image
-        fillerImage.setImageDrawable(ContextCompat.getDrawable(mContext, R.drawable.img_short_intro));
+        fillerImage.setImageDrawable(ContextCompat.getDrawable(mContext, R.drawable.img_collab_intro));
         //Set title text
-        // TODO update text
-        textTitle.setText("Write your masterpiece here");
+        textTitle.setText(mContext.getString(R.string.title_dialog_collab_capture));
         //Set description text
-        textDesc.setText("This is where you must share your words. We'll save it as an image to inspire people and prevent plagiarism.");
+        textDesc.setText(mContext.getString(R.string.text_dialog_collab_capture));
     }
 
     /**
-     *  Method to show intro dialog when user collaborated by clicking on capture
-     * @param captureID capture ID
-     * @param captureURL capture URl
+     * Method to show intro dialog when user collaborated by clicking on capture
+     *
+     * @param captureID    capture ID
+     * @param captureURL   capture URl
      * @param merchantable merchantable true or false
      */
     private void getShortOnClickDialog(final String captureID, final String captureURL, final boolean merchantable) {
@@ -650,14 +619,14 @@ public class ExploreAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
         TextView textDesc = dialog.getCustomView().findViewById(R.id.textDesc);
 
 
-        // TODO update image
-        //Set filler image
-        fillerImage.setImageDrawable(ContextCompat.getDrawable(mContext, R.drawable.img_short_intro));
+        //Set filler im
+        fillerImage.setImageDrawable(ContextCompat.getDrawable(mContext, R.drawable.img_collab_intro));
         //Set title text
-        // TODO update text
-        textTitle.setText("Write your masterpiece here");
+
+        //Set title text
+        textTitle.setText(mContext.getString(R.string.title_dialog_collab_short));
         //Set description text
-        textDesc.setText("This is where you must share your words. We'll save it as an image to inspire people and prevent plagiarism.");
+        textDesc.setText(mContext.getString(R.string.text_dialog_collab_short));
     }
 
     /**

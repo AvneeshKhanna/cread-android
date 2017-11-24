@@ -661,7 +661,6 @@ public class ExploreFragment extends Fragment {
      * Method to show intro dialog when user land on this screen for the first time.
      */
     private void getExploreIntroDialog() {
-        //Todo change image and text
         MaterialDialog dialog = new MaterialDialog.Builder(getActivity())
                 .customView(R.layout.dialog_generic, false)
                 .positiveText(getString(R.string.text_ok))

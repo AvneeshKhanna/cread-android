@@ -51,6 +51,11 @@
     <string name="text_no">No</string>
     <string name="text_color">Color</string>
     <string name="text_read_more">Read More</string>
+    <string name="title_dialog_collab_capture">Add your capture to this</string>
+    <string name="text_dialog_collab_capture">Select and add your capture to this post and make it even more interesting</string>
+    <string name="title_dialog_collab_short">Write your short on this post</string>
+    <string name="text_dialog_collab_short">Enhance the beauty of this capture by writing a short on it</string>
+
 
     <string name="Rs">\u20B9</string>
 

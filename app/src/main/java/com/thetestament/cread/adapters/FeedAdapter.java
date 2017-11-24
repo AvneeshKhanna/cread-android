@@ -444,7 +444,7 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
                 // set collab count text
                 if (data.getCollabCount() != 0) {
-                    itemViewHolder.collabCount.setText(data.getCollabCount() + " others added a short for this");
+                    itemViewHolder.collabCount.setText(data.getCollabCount() + " others added a short to it");
                     itemViewHolder.collabCount.setVisibility(View.VISIBLE);
                     itemViewHolder.lineSepartor.setVisibility(View.VISIBLE);
 
@@ -475,19 +475,6 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                     // get clickable text;
                     initializeSpannableString(mContext, itemViewHolder.textCreatorName, false, text, creatorStartPos, creatorEndPos, collabWithStartPos, collabWithEndPos, data.getUUID(), data.getCollabWithUUID());
 
-
-/*                    //Show tooltip on edit button
-                    if (isFirstCollaboratableCapture) {
-                        SharedPreferenceHelper helper = new SharedPreferenceHelper(mContext);
-                        if (helper.isWriteIconTooltipFirstTime()) {
-                            // TODO update text
-                            ViewHelper.getToolTip(itemViewHolder.buttonCollaborate, "Have some thoughts about this photo? Tap to write on it", mContext);
-                            helper.updateWriteIconToolTipStatus(false);
-                        }
-
-                        isFirstCollaboratableCapture = false;
-
-                    }*/
                 } else {
 
                     // hiding collaborate button
@@ -513,7 +500,7 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
                 // set collab count text
                 if (data.getCollabCount() != 0) {
-                    itemViewHolder.collabCount.setText(data.getCollabCount() + " others captured on it");
+                    itemViewHolder.collabCount.setText(data.getCollabCount() + " others added a capture to it");
                     itemViewHolder.collabCount.setVisibility(View.VISIBLE);
                     itemViewHolder.lineSepartor.setVisibility(View.VISIBLE);
 
@@ -544,18 +531,6 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
                     initializeSpannableString(mContext, itemViewHolder.textCreatorName, false, text, creatorStartPos, creatorEndPos, collabWithStartPos, collabWithEndPos, data.getUUID(), data.getCollabWithUUID());
 
-
-                   /* if (isFirstCollaboratableShort) {
-                        SharedPreferenceHelper helper = new SharedPreferenceHelper(mContext);
-                        if (helper.isCaptureIconTooltipFirstTime()) {
-                            // TODO update text
-                            ViewHelper.getToolTip(itemViewHolder.buttonCollaborate, "Have some thoughts about this photo? Tap to write on it", mContext);
-                            helper.updateCaptureIconToolTipStatus(false);
-                        }
-
-                        isFirstCollaboratableShort = false;
-
-                    }*/
                 } else {
                     // hiding collaborate button
                     itemViewHolder.buttonCollaborate.setVisibility(View.GONE);
@@ -606,14 +581,12 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         TextView textDesc = dialog.getCustomView().findViewById(R.id.textDesc);
 
 
-        // TODO update image
-        //Set filler image
-        fillerImage.setImageDrawable(ContextCompat.getDrawable(mContext, R.drawable.img_short_intro));
+        ///Set filler image
+        fillerImage.setImageDrawable(ContextCompat.getDrawable(mContext, R.drawable.img_collab_intro));
         //Set title text
-        // TODO update text
-        textTitle.setText("Write your masterpiece here");
+        textTitle.setText(mContext.getString(R.string.title_dialog_collab_capture));
         //Set description text
-        textDesc.setText("This is where you must share your words. We'll save it as an image to inspire people and prevent plagiarism.");
+        textDesc.setText(mContext.getString(R.string.text_dialog_collab_capture));
     }
 
     /**
@@ -651,14 +624,12 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         TextView textDesc = dialog.getCustomView().findViewById(R.id.textDesc);
 
 
-        // TODO update image
         //Set filler image
-        fillerImage.setImageDrawable(ContextCompat.getDrawable(mContext, R.drawable.img_short_intro));
+        fillerImage.setImageDrawable(ContextCompat.getDrawable(mContext, R.drawable.img_collab_intro));
         //Set title text
-        // TODO update text
-        textTitle.setText("Write your masterpiece here");
+        textTitle.setText(mContext.getString(R.string.title_dialog_collab_short));
         //Set description text
-        textDesc.setText("This is where you must share your words. We'll save it as an image to inspire people and prevent plagiarism.");
+        textDesc.setText(mContext.getString(R.string.text_dialog_collab_short));
     }
 
     /**

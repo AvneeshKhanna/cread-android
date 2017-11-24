@@ -4,12 +4,15 @@ package com.thetestament.cread.activities;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
+import android.net.Uri;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.v13.view.ViewCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.widget.NestedScrollView;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
@@ -19,6 +22,8 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.afollestad.materialdialogs.DialogAction;
+import com.afollestad.materialdialogs.MaterialDialog;
 import com.androidnetworking.AndroidNetworking;
 import com.androidnetworking.error.ANError;
 import com.androidnetworking.interfaces.JSONObjectRequestListener;
@@ -27,13 +32,16 @@ import com.google.firebase.crash.FirebaseCrash;
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Target;
 import com.thetestament.cread.BuildConfig;
+import com.thetestament.cread.Manifest;
 import com.thetestament.cread.R;
 import com.thetestament.cread.adapters.CommentsAdapter;
+import com.thetestament.cread.helpers.ImageHelper;
 import com.thetestament.cread.helpers.NetworkHelper;
 import com.thetestament.cread.helpers.SharedPreferenceHelper;
 import com.thetestament.cread.helpers.ViewHelper;
 import com.thetestament.cread.models.CommentsModel;
 import com.thetestament.cread.models.FeedModel;
+import com.yalantis.ucrop.UCrop;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -50,18 +58,30 @@ import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.observers.DisposableObserver;
 import io.reactivex.schedulers.Schedulers;
+import pl.tajchert.nammu.Nammu;
+import pl.tajchert.nammu.PermissionCallback;
 
+import static com.thetestament.cread.helpers.FeedHelper.initializeSpannableString;
+import static com.thetestament.cread.helpers.ImageHelper.getImageUri;
 import static com.thetestament.cread.helpers.ImageHelper.getLocalBitmapUri;
 import static com.thetestament.cread.helpers.NetworkHelper.getCommentObservableFromServer;
+import static com.thetestament.cread.utils.Constant.CONTENT_TYPE_CAPTURE;
+import static com.thetestament.cread.utils.Constant.CONTENT_TYPE_SHORT;
+import static com.thetestament.cread.utils.Constant.EXTRA_CAPTURE_ID;
 import static com.thetestament.cread.utils.Constant.EXTRA_CAPTURE_URL;
 import static com.thetestament.cread.utils.Constant.EXTRA_DATA;
 import static com.thetestament.cread.utils.Constant.EXTRA_ENTITY_ID;
 import static com.thetestament.cread.utils.Constant.EXTRA_ENTITY_TYPE;
 import static com.thetestament.cread.utils.Constant.EXTRA_FEED_DESCRIPTION_DATA;
+import static com.thetestament.cread.utils.Constant.EXTRA_MERCHANTABLE;
 import static com.thetestament.cread.utils.Constant.EXTRA_PROFILE_UUID;
+import static com.thetestament.cread.utils.Constant.FIREBASE_EVENT_CAPTURE_CLICKED;
 import static com.thetestament.cread.utils.Constant.FIREBASE_EVENT_HAVE_CLICKED;
 import static com.thetestament.cread.utils.Constant.FIREBASE_EVENT_SHARED_FROM_FEED_DESCRIPTION;
+import static com.thetestament.cread.utils.Constant.FIREBASE_EVENT_WRITE_CLICKED;
+import static com.thetestament.cread.utils.Constant.IMAGE_TYPE_USER_CAPTURE_PIC;
 import static com.thetestament.cread.utils.Constant.REQUEST_CODE_COMMENTS_ACTIVITY;
+import static com.thetestament.cread.utils.Constant.REQUEST_CODE_OPEN_GALLERY;
 
 /**
  * Class to show detailed information of explore/feed item.
@@ -106,18 +126,26 @@ public class FeedDescriptionActivity extends BaseActivity {
     View lineSeparatorBottom;
     @BindView(R.id.nestedScrollView)
     NestedScrollView nestedScrollView;
+    @BindView(R.id.collabCount)
+    TextView collabCount;
+    @BindView(R.id.buttonCollaborate)
+    TextView buttonCollaborate;
 
 
     private SharedPreferenceHelper mHelper;
     private CompositeDisposable mCompositeDisposable = new CompositeDisposable();
     private FeedModel mFeedData;
     private FirebaseAnalytics mFirebaseAnalytics;
+    private AppCompatActivity mContext;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_feed_description);
         ButterKnife.bind(this);
+
+        mContext = this;
+
         //ShredPreference reference
         mHelper = new SharedPreferenceHelper(this);
         // Obtain the FirebaseAnalytics instance.
@@ -135,14 +163,42 @@ public class FeedDescriptionActivity extends BaseActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
+
         switch (requestCode) {
             case REQUEST_CODE_COMMENTS_ACTIVITY:
                 if (resultCode == RESULT_OK) {
                     //Load comments data
                     getTopComments(mFeedData.getEntityID());
                 }
+                break;
+            case REQUEST_CODE_OPEN_GALLERY:
+                if (resultCode == RESULT_OK) {
+                    // To crop the selected image
+                    ImageHelper.startImageCropping(this, data.getData(), getImageUri(IMAGE_TYPE_USER_CAPTURE_PIC));
+
+                } else {
+                    ViewHelper.getSnackBar(rootView, "Image from gallery was not attached");
+                }
+                break;
+            //For more information please visit "https://github.com/Yalantis/uCrop"
+            case UCrop.REQUEST_CROP:
+                if (resultCode == RESULT_OK) {
+                    //Get cropped image Uri
+                    Uri mCroppedImgUri = UCrop.getOutput(data);
+                    ImageHelper.processCroppedImage(mCroppedImgUri, FeedDescriptionActivity.this, rootView, mFeedData.getShortID());
+
+                } else if (resultCode == UCrop.RESULT_ERROR) {
+                    ViewHelper.getSnackBar(rootView, "Image could not be cropped due to some error");
+                }
+                break;
         }
 
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        //For permission manager library
+        Nammu.onRequestPermissionsResult(requestCode, permissions, grantResults);
     }
 
     @Override
@@ -155,15 +211,6 @@ public class FeedDescriptionActivity extends BaseActivity {
         super.onRestoreInstanceState(savedInstanceState);
     }
 
-    /**
-     * Click functionality to open creator profile.
-     */
-    @OnClick(R.id.containerCreator)
-    void onProfileContainer() {
-        Intent intent = new Intent(this, ProfileActivity.class);
-        intent.putExtra(EXTRA_PROFILE_UUID, mFeedData.getUUID());
-        startActivity(intent);
-    }
 
     /**
      * HatsOffCount click functionality to open "HatsOffActivity" screen.
@@ -229,7 +276,7 @@ public class FeedDescriptionActivity extends BaseActivity {
                 else {
                     //Change hatsOffCount i.e decrease by one
                     textHatsOffCount.setVisibility(View.VISIBLE);
-                    textHatsOffCount.setText(mFeedData.getHatsOffCount() + " Hats-off");
+                    textHatsOffCount.setText(String.valueOf(mFeedData.getHatsOffCount()));
                 }
 
             } else {
@@ -243,7 +290,7 @@ public class FeedDescriptionActivity extends BaseActivity {
                 mFeedData.setHatsOffCount(mFeedData.getHatsOffCount() + 1);
                 //Change hatsOffCount i.e increase by one
                 textHatsOffCount.setVisibility(View.VISIBLE);
-                textHatsOffCount.setText(mFeedData.getHatsOffCount() + " Hats-off");
+                textHatsOffCount.setText(String.valueOf(mFeedData.getHatsOffCount()));
             }
             //update hats off status on server
             updateHatsOffStatus(mFeedData.getEntityID(), mFeedData.getHatsOffStatus());
@@ -325,14 +372,14 @@ public class FeedDescriptionActivity extends BaseActivity {
     private void retrieveIntentData() {
 
         mFeedData = getIntent().getParcelableExtra(EXTRA_FEED_DESCRIPTION_DATA);
-        //Set creator name
-        //TODO uncomment
-        //textCreatorName.setText(mFeedData.getCreatorName());
-        textCreatorName.setText("Biswa bhai ne likha Vipul ji ke kaam par aur Badia likha");
 
-        /*//Check for hats of count
+
+        performContentTypeSpecificOperations();
+
+
+        //Check for hats of count
         if (mFeedData.getHatsOffCount() > 0) {
-            textHatsOffCount.setText(mFeedData.getHatsOffCount() + " Hats-off");
+            textHatsOffCount.setText(String.valueOf(mFeedData.getHatsOffCount()));
         } else {
             textHatsOffCount.setVisibility(View.GONE);
         }
@@ -340,13 +387,13 @@ public class FeedDescriptionActivity extends BaseActivity {
         //Check for comment count
         if (mFeedData.getCommentCount() > 0) {
             //Set comment count
-            textCommentsCount.setText(mFeedData.getCommentCount() + " Comments");
+            textCommentsCount.setText(String.valueOf(mFeedData.getCommentCount()));
             //load comments
             getTopComments(mFeedData.getEntityID());
         } else {
             textCommentsCount.setVisibility(View.GONE);
             showAllComments.setVisibility(View.GONE);
-        }*/
+        }
 
         //Show tooltip on have button
         showTooltip();
@@ -558,6 +605,253 @@ public class FeedDescriptionActivity extends BaseActivity {
     }
 
     /**
+     * Method that performs operations according to content type and collaboration functionality*
+     */
+
+    private void performContentTypeSpecificOperations() {
+        //Check for content type
+        switch (mFeedData.getContentType()) {
+            case CONTENT_TYPE_CAPTURE:
+
+                // set collab count text
+                if (mFeedData.getCollabCount() != 0) {
+                    collabCount.setText(mFeedData.getCollabCount() + " others added a short to it");
+                    collabCount.setVisibility(View.VISIBLE);
+
+                } else {
+                    collabCount.setVisibility(View.GONE);
+                }
+
+                if (mFeedData.isAvailableForCollab()) {
+
+                    // for stand alone capture
+
+                    buttonCollaborate.setVisibility(View.VISIBLE);
+                    // set text
+                    buttonCollaborate.setText("Write");
+
+                    //write click functionality on capture
+                    writeOnClick(buttonCollaborate, mFeedData.getCaptureID(), mFeedData.getContentImage(), mFeedData.isMerchantable());
+
+                    String text = mFeedData.getCreatorName() + " added a capture ";
+
+                    // get text indexes
+                    int creatorStartPos = text.indexOf(mFeedData.getCreatorName());
+                    int creatorEndPos = creatorStartPos + mFeedData.getCreatorName().length();
+                    int collabWithStartPos = -1;
+                    int collabWithEndPos = -1;
+
+                    // get clickable text;
+                    initializeSpannableString(mContext, textCreatorName, false, text, creatorStartPos, creatorEndPos, collabWithStartPos, collabWithEndPos, mFeedData.getUUID(), mFeedData.getCollabWithUUID());
+
+
+                } else {
+
+                    // hiding collaborate button
+                    buttonCollaborate.setVisibility(View.GONE);
+
+                    String text = mFeedData.getCreatorName() + " added a capture to " + mFeedData.getCollabWithName() + "'s short";
+
+                    // get text indexes
+                    int creatorStartPos = text.indexOf(mFeedData.getCreatorName());
+                    int creatorEndPos = creatorStartPos + mFeedData.getCreatorName().length();
+                    int collabWithStartPos = text.indexOf(mFeedData.getCollabWithName());
+                    int collabWithEndPos = collabWithStartPos + mFeedData.getCollabWithName().length() + 2; // +2 for 's
+
+                    // get clickable text
+                    initializeSpannableString(mContext, textCreatorName, true, text, creatorStartPos, creatorEndPos, collabWithStartPos, collabWithEndPos, mFeedData.getUUID(), mFeedData.getCollabWithUUID());
+
+
+                }
+
+                break;
+
+            case CONTENT_TYPE_SHORT:
+
+                // set collab count text
+                if (mFeedData.getCollabCount() != 0) {
+                    collabCount.setText(mFeedData.getCollabCount() + " others added a capture to it");
+                    collabCount.setVisibility(View.VISIBLE);
+                } else {
+                    collabCount.setVisibility(View.GONE);
+                }
+
+                // check if available for collab
+                if (mFeedData.isAvailableForCollab()) {
+
+                    // for stand alone short
+
+                    buttonCollaborate.setVisibility(View.VISIBLE);
+                    // set text
+                    buttonCollaborate.setText("Capture");
+
+                    // capture click functionality on short
+                    captureOnClick(buttonCollaborate);
+
+                    String text = mFeedData.getCreatorName() + " wrote a short ";
+
+                    // get text indexes
+                    int creatorStartPos = text.indexOf(mFeedData.getCreatorName());
+                    int creatorEndPos = creatorStartPos + mFeedData.getCreatorName().length();
+                    int collabWithStartPos = -1; // since no collabwith
+                    int collabWithEndPos = -1; // since no collabwith
+
+                    initializeSpannableString(mContext, textCreatorName, false, text, creatorStartPos, creatorEndPos, collabWithStartPos, collabWithEndPos, mFeedData.getUUID(), mFeedData.getCollabWithUUID());
+
+
+                } else {
+                    // hiding collaborate button
+                    buttonCollaborate.setVisibility(View.GONE);
+
+                    String text = mFeedData.getCreatorName() + " wrote a short on " + mFeedData.getCollabWithName() + "'s capture";
+
+                    // get text indexes
+                    int creatorStartPos = text.indexOf(mFeedData.getCreatorName());
+                    int creatorEndPos = creatorStartPos + mFeedData.getCreatorName().length();
+                    int collabWithStartPos = text.indexOf(mFeedData.getCollabWithName());
+                    int collabWithEndPos = collabWithStartPos + mFeedData.getCollabWithName().length() + 2; // +2 to incorporate 's
+
+                    // get clickable text
+                    initializeSpannableString(mContext, textCreatorName, true, text, creatorStartPos, creatorEndPos, collabWithStartPos, collabWithEndPos, mFeedData.getUUID(), mFeedData.getCollabWithUUID());
+
+                }
+
+                break;
+            default:
+        }
+
+    }
+
+    /**
+     * write onClick functionality.
+     *
+     * @param view       View to be clicked.
+     * @param captureID  CaptureID of image.
+     * @param captureURL Capture image url.
+     */
+    private void writeOnClick(View view, final String captureID, final String captureURL, final boolean merchantable) {
+        view.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                if (mHelper.isCaptureIconTooltipFirstTime()) {
+                    getShortOnClickDialog(captureID, captureURL, merchantable);
+                } else {
+                    Bundle bundle = new Bundle();
+                    bundle.putString(EXTRA_CAPTURE_ID, captureID);
+                    bundle.putString(EXTRA_CAPTURE_URL, captureURL);
+                    bundle.putBoolean(EXTRA_MERCHANTABLE, merchantable);
+                    Intent intent = new Intent(mContext, ShortActivity.class);
+                    intent.putExtra(EXTRA_DATA, bundle);
+                    mContext.startActivity(intent);
+                }
+                //Log Firebase event
+                setAnalytics(FIREBASE_EVENT_WRITE_CLICKED);
+            }
+        });
+    }
+
+    /**
+     * capture onClick functionality.
+     *
+     * @param view View to be clicked.
+     */
+    private void captureOnClick(View view) {
+        view.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                if (mHelper.isWriteIconTooltipFirstTime()) {
+
+                    // open dialog
+                    getCaptureOnClickDialog();
+                } else {
+                    startCaptureCollaboration();
+                }
+                //Log Firebase event
+                setAnalytics(FIREBASE_EVENT_CAPTURE_CLICKED);
+            }
+        });
+    }
+
+    /**
+     * Method to show intro dialog when user collaborated by clicking on capture
+     */
+    private void getCaptureOnClickDialog() {
+        MaterialDialog dialog = new MaterialDialog.Builder(mContext)
+                .customView(R.layout.dialog_generic, false)
+                .positiveText(mContext.getString(R.string.text_ok))
+                .onPositive(new MaterialDialog.SingleButtonCallback() {
+                    @Override
+                    public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
+                        //Open capture functionality
+                        startCaptureCollaboration();
+
+                        dialog.dismiss();
+                        //update status
+                        mHelper.updateWriteIconToolTipStatus(false);
+                    }
+                })
+                .show();
+        //Obtain views reference
+        ImageView fillerImage = dialog.getCustomView().findViewById(R.id.viewFiller);
+        TextView textTitle = dialog.getCustomView().findViewById(R.id.textTitle);
+        TextView textDesc = dialog.getCustomView().findViewById(R.id.textDesc);
+
+
+        //Set filler image
+        fillerImage.setImageDrawable(ContextCompat.getDrawable(mContext, R.drawable.img_collab_intro));
+        //Set title text
+        textTitle.setText(getString(R.string.title_dialog_collab_capture));
+        //Set description text
+        textDesc.setText(getString(R.string.text_dialog_collab_capture));
+    }
+
+    /**
+     * Method to show intro dialog when user collaborated by clicking on capture
+     *
+     * @param captureID    capture ID
+     * @param captureURL   capture URl
+     * @param merchantable merchantable true or false
+     */
+    private void getShortOnClickDialog(final String captureID, final String captureURL, final boolean merchantable) {
+        MaterialDialog dialog = new MaterialDialog.Builder(mContext)
+                .customView(R.layout.dialog_generic, false)
+                .positiveText(mContext.getString(R.string.text_ok))
+                .onPositive(new MaterialDialog.SingleButtonCallback() {
+                    @Override
+                    public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
+                        //Open short functionality
+
+                        Bundle bundle = new Bundle();
+                        bundle.putString(EXTRA_CAPTURE_ID, captureID);
+                        bundle.putString(EXTRA_CAPTURE_URL, captureURL);
+                        bundle.putBoolean(EXTRA_MERCHANTABLE, merchantable);
+                        Intent intent = new Intent(mContext, ShortActivity.class);
+                        intent.putExtra(EXTRA_DATA, bundle);
+                        mContext.startActivity(intent);
+
+                        dialog.dismiss();
+                        //update status
+                        mHelper.updateCaptureIconToolTipStatus(false);
+                    }
+                })
+                .show();
+        //Obtain views reference
+        ImageView fillerImage = dialog.getCustomView().findViewById(R.id.viewFiller);
+        TextView textTitle = dialog.getCustomView().findViewById(R.id.textTitle);
+        TextView textDesc = dialog.getCustomView().findViewById(R.id.textDesc);
+
+
+        //Set filler image
+        fillerImage.setImageDrawable(ContextCompat.getDrawable(mContext, R.drawable.img_collab_intro));
+        //Set title text
+        textTitle.setText(getString(R.string.title_dialog_collab_short));
+        //Set description text
+        textDesc.setText(getString(R.string.text_dialog_collab_short));
+    }
+
+    /**
      * Method to send analytics data on firebase server.
      *
      * @param firebaseEvent Event type.
@@ -567,10 +861,66 @@ public class FeedDescriptionActivity extends BaseActivity {
         bundle.putString("uuid", mHelper.getUUID());
         if (firebaseEvent.equals(FIREBASE_EVENT_HAVE_CLICKED)) {
             mFirebaseAnalytics.logEvent(FIREBASE_EVENT_HAVE_CLICKED, bundle);
-        } else {
+        } else if (firebaseEvent.equals(FIREBASE_EVENT_SHARED_FROM_FEED_DESCRIPTION)) {
             bundle.putString("entity_id", mFeedData.getEntityID());
             mFirebaseAnalytics.logEvent(FIREBASE_EVENT_SHARED_FROM_FEED_DESCRIPTION, bundle);
+        } else if (firebaseEvent.equals(FIREBASE_EVENT_WRITE_CLICKED)) {
+            bundle.putString("class_name", "feed_description");
+            FirebaseAnalytics.getInstance(mContext).logEvent(FIREBASE_EVENT_WRITE_CLICKED, bundle);
+        } else if (firebaseEvent.equals(FIREBASE_EVENT_CAPTURE_CLICKED)) {
+            bundle.putString("class_name", "feed_description");
+            FirebaseAnalytics.getInstance(mContext).logEvent(FIREBASE_EVENT_CAPTURE_CLICKED, bundle);
         }
     }
+
+    /**
+     * Open gallery so user can choose his/her capture for uploading.
+     */
+    private void chooseImageFromGallery() {
+        //Launch gallery
+        Intent intent = new Intent(Intent.ACTION_PICK);
+        intent.setType("image/*");
+        startActivityForResult(intent, REQUEST_CODE_OPEN_GALLERY);
+    }
+
+    /**
+     * Method to start the capture collaboration process
+     */
+    private void startCaptureCollaboration() {
+        //Check for Write permission
+        if (Nammu.checkPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+            //We have permission do whatever you want to do
+            chooseImageFromGallery();
+        } else {
+            //We do not own this permission
+            if (Nammu.shouldShowRequestPermissionRationale(this
+                    , Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+                //User already refused to give us this permission or removed it
+                ViewHelper.getToast(this
+                        , getString(R.string.error_msg_capture_permission_denied));
+            } else {
+                //First time asking for permission
+                Nammu.askForPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE, captureWritePermission);
+            }
+        }
+    }
+
+    /**
+     * Used to handle result of askForPermission for capture.
+     */
+    PermissionCallback captureWritePermission = new PermissionCallback() {
+        @Override
+        public void permissionGranted() {
+            //Select image from gallery
+            chooseImageFromGallery();
+        }
+
+        @Override
+        public void permissionRefused() {
+            //Show error message
+            ViewHelper.getToast(FeedDescriptionActivity.this
+                    , getString(R.string.error_msg_capture_permission_denied));
+        }
+    };
 
 }

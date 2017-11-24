@@ -59,6 +59,8 @@ import static com.thetestament.cread.database.NotificationsDBSchema.Notification
 import static com.thetestament.cread.database.NotificationsDBSchema.NotificationDBEntry.COLUMN_NAME_TIME;
 import static com.thetestament.cread.database.NotificationsDBSchema.NotificationDBEntry.COLUMN_NAME_USER_IMAGE;
 import static com.thetestament.cread.database.NotificationsDBSchema.NotificationDBEntry.TABLE_NAME;
+import static com.thetestament.cread.utils.Constant.CONTENT_TYPE_CAPTURE;
+import static com.thetestament.cread.utils.Constant.CONTENT_TYPE_SHORT;
 import static com.thetestament.cread.utils.Constant.EXTRA_FEED_DESCRIPTION_DATA;
 import static com.thetestament.cread.utils.Constant.NOTIFICATION_CATEGORY_CREAD_BUY;
 import static com.thetestament.cread.utils.Constant.NOTIFICATION_CATEGORY_CREAD_COLLABORATE;
@@ -335,6 +337,7 @@ public class UpdatesFragment extends Fragment {
                                     JSONObject mainObject = jsonObject.getJSONObject("data");
 
                                     JSONObject dataObj = mainObject.getJSONObject("entity");
+                                    String type = dataObj.getString("type");
 
                                     feedData.setEntityID(entityID);
                                     feedData.setCaptureID(dataObj.getString("captureid"));
@@ -348,6 +351,47 @@ public class UpdatesFragment extends Fragment {
                                     feedData.setCommentCount(dataObj.getLong("commentcount"));
                                     feedData.setContentImage(dataObj.getString("entityurl"));
 
+                                    feedData.setCollabCount(dataObj.getLong("collabcount"));
+
+                                    if (type.equals(CONTENT_TYPE_CAPTURE)) {
+
+                                        //Retrieve "CAPTURE_ID" if type is capture
+                                        feedData.setCaptureID(dataObj.getString("captureid"));
+                                        // if capture
+                                        // then if key cpshort exists
+                                        // not available for collaboration
+                                        if (!dataObj.isNull("cpshort")) {
+                                            JSONObject collabObject = dataObj.getJSONObject("cpshort");
+
+                                            feedData.setAvailableForCollab(false);
+                                            // set collaborator details
+                                            feedData.setCollabWithUUID(collabObject.getString("uuid"));
+                                            feedData.setCollabWithName(collabObject.getString("name"));
+
+                                        } else {
+                                            feedData.setAvailableForCollab(true);
+                                        }
+
+                                    } else if (type.equals(CONTENT_TYPE_SHORT)) {
+
+                                        //Retrieve "SHORT_ID" if type is short
+                                        feedData.setShortID(dataObj.getString("shoid"));
+
+                                        // if short
+                                        // then if key shcapture exists
+                                        // not available for collaboration
+                                        if (!dataObj.isNull("shcapture")) {
+
+                                            JSONObject collabObject = dataObj.getJSONObject("shcapture");
+
+                                            feedData.setAvailableForCollab(false);
+                                            // set collaborator details
+                                            feedData.setCollabWithUUID(collabObject.getString("uuid"));
+                                            feedData.setCollabWithName(collabObject.getString("name"));
+                                        } else {
+                                            feedData.setAvailableForCollab(true);
+                                        }
+                                    }
 
                                 }
                             } catch (JSONException e) {

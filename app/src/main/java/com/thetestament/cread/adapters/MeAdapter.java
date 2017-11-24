@@ -25,6 +25,7 @@ import com.squareup.picasso.Target;
 import com.thetestament.cread.R;
 import com.thetestament.cread.activities.CollaborationDetailsActivity;
 import com.thetestament.cread.activities.CommentsActivity;
+import com.thetestament.cread.activities.FeedDescriptionActivity;
 import com.thetestament.cread.activities.ShortActivity;
 import com.thetestament.cread.helpers.NetworkHelper;
 import com.thetestament.cread.helpers.SharedPreferenceHelper;
@@ -50,6 +51,7 @@ import static com.thetestament.cread.utils.Constant.EXTRA_CAPTURE_URL;
 import static com.thetestament.cread.utils.Constant.EXTRA_DATA;
 import static com.thetestament.cread.utils.Constant.EXTRA_ENTITY_ID;
 import static com.thetestament.cread.utils.Constant.EXTRA_ENTITY_TYPE;
+import static com.thetestament.cread.utils.Constant.EXTRA_FEED_DESCRIPTION_DATA;
 import static com.thetestament.cread.utils.Constant.EXTRA_MERCHANTABLE;
 import static com.thetestament.cread.utils.Constant.FIREBASE_EVENT_CAPTURE_CLICKED;
 import static com.thetestament.cread.utils.Constant.FIREBASE_EVENT_SHARED_FROM_PROFILE;
@@ -249,20 +251,7 @@ public class MeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         }
     }
 
-    /**
-     * Delete button click functionality.
-     *
-     * @param index    position of item in adapter.
-     * @param entityID Entity id of content.
-     */
-    private void deleteButtonOnClick(final int index, final String entityID, ImageView deleteButton) {
-        deleteButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                showDeleteConfirmationDialog(index, entityID);
-            }
-        });
-    }
+
 
     /**
      * Method to show confirmation dialog before deletion.
@@ -316,10 +305,10 @@ public class MeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         view.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                onMeCaptureClickListener.onClick(feedModel.getShortID());
-                /*Intent intent = new Intent(mContext, FeedDescriptionActivity.class);
+
+                Intent intent = new Intent(mContext, FeedDescriptionActivity.class);
                 intent.putExtra(EXTRA_FEED_DESCRIPTION_DATA, feedModel);
-                mContext.startActivity(intent);*/
+                mContext.startActivity(intent);
             }
         });
     }
@@ -517,7 +506,7 @@ public class MeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
                 // set collab count text
                 if (data.getCollabCount() != 0) {
-                    itemViewHolder.collabCount.setText(data.getCollabCount() + " others added a short for this");
+                    itemViewHolder.collabCount.setText(data.getCollabCount() + " others added a short to it");
                     itemViewHolder.collabCount.setVisibility(View.VISIBLE);
                     itemViewHolder.lineSepartor.setVisibility(View.VISIBLE);
 
@@ -537,7 +526,7 @@ public class MeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                     //write click functionality on capture
                     writeOnClick(itemViewHolder.buttonCollaborate, data.getCaptureID(), data.getContentImage(), data.getEntityID(), data.isMerchantable());
 
-                    String text = data.getCreatorName() + " added a capture ";
+                    String text = data.getCreatorName() + " added a capture";
 
                     // get text indexes
                     int creatorStartPos = text.indexOf(data.getCreatorName());
@@ -573,7 +562,7 @@ public class MeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
                 // set collab count text
                 if (data.getCollabCount() != 0) {
-                    itemViewHolder.collabCount.setText(data.getCollabCount() + " others captured on it");
+                    itemViewHolder.collabCount.setText(data.getCollabCount() + " others added a capture to it");
                     itemViewHolder.collabCount.setVisibility(View.VISIBLE);
                     itemViewHolder.lineSepartor.setVisibility(View.VISIBLE);
 
@@ -707,14 +696,12 @@ public class MeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         TextView textDesc = dialog.getCustomView().findViewById(R.id.textDesc);
 
 
-        // TODO update image
         //Set filler image
-        fillerImage.setImageDrawable(ContextCompat.getDrawable(mContext, R.drawable.img_short_intro));
+        fillerImage.setImageDrawable(ContextCompat.getDrawable(mContext, R.drawable.img_collab_intro));
         //Set title text
-        // TODO update text
-        textTitle.setText("Write your masterpiece here");
+        textTitle.setText(mContext.getString(R.string.title_dialog_collab_capture));
         //Set description text
-        textDesc.setText("This is where you must share your words. We'll save it as an image to inspire people and prevent plagiarism.");
+        textDesc.setText(mContext.getString(R.string.text_dialog_collab_capture));
     }
 
     /**
@@ -752,14 +739,12 @@ public class MeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         TextView textDesc = dialog.getCustomView().findViewById(R.id.textDesc);
 
 
-        // TODO update image
         //Set filler image
-        fillerImage.setImageDrawable(ContextCompat.getDrawable(mContext, R.drawable.img_short_intro));
+        fillerImage.setImageDrawable(ContextCompat.getDrawable(mContext, R.drawable.img_collab_intro));
         //Set title text
-        // TODO update text
-        textTitle.setText("Write your masterpiece here");
+        textTitle.setText(mContext.getString(R.string.title_dialog_collab_short));
         //Set description text
-        textDesc.setText("This is where you must share your words. We'll save it as an image to inspire people and prevent plagiarism.");
+        textDesc.setText(mContext.getString(R.string.text_dialog_collab_short));
     }
 
     /**
