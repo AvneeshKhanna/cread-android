@@ -442,7 +442,7 @@ public class FeedDescriptionActivity extends BaseActivity {
                 , mHelper.getUUID()
                 , mHelper.getAuthToken()
                 , entityID
-                , 0
+                , null
                 , false)
                 //Run on a background thread
                 .subscribeOn(Schedulers.io())

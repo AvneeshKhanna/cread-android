@@ -122,8 +122,6 @@
             </LinearLayout>
 
 
-
-
             <TextView
                 android:id="@+id/buttonCollaborate"
                 android:layout_width="wrap_content"
@@ -179,21 +177,6 @@
             android:text="25 people wrote on it"
             android:textAppearance="@style/TextAppearance.FontPath"
             android:textSize="11sp" />
-
-
-
-
-        <!--TODO remove this-->
-        <include
-            layout="@layout/layout_compose_button"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_above="@+id/viewDivider"
-            android:layout_alignParentRight="true"
-            android:layout_marginBottom="5dp"
-            android:layout_marginRight="5dp"
-            android:visibility="gone"/>
-
 
     </RelativeLayout>
 

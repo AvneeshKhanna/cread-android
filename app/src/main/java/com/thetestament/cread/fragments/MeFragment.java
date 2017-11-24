@@ -153,7 +153,7 @@ public class MeFragment extends Fragment {
     private Unbinder mUnbinder;
     private CompositeDisposable mCompositeDisposable = new CompositeDisposable();
     private SharedPreferenceHelper mHelper;
-    private int mPageNumber = 0;
+    private String mLastIndexKey;
     private boolean mRequestMoreData;
 
 
@@ -793,8 +793,8 @@ public class MeFragment extends Fragment {
                 //Notify for changes
                 mAdapter.notifyDataSetChanged();
                 mAdapter.setLoaded();
-                //set page count to zero
-                mPageNumber = 0;
+                //set last index key to null
+                mLastIndexKey = null;
                 //Load data here
                 getUserTimeLineData();
             }
@@ -819,7 +819,7 @@ public class MeFragment extends Fragment {
                 , mHelper.getUUID()
                 , mHelper.getAuthToken()
                 , mRequestedUUID
-                , mPageNumber)
+                , mLastIndexKey)
                 //Run on a background thread
                 .subscribeOn(Schedulers.io())
                 //Be notified on the main thread
@@ -834,6 +834,7 @@ public class MeFragment extends Fragment {
                             } else {
                                 JSONObject mainData = jsonObject.getJSONObject("data");
                                 mRequestMoreData = mainData.getBoolean("requestmore");
+                                mLastIndexKey = mainData.getString("lastindexkey");
                                 //UserActivity array list
                                 JSONArray UserActivityArray = mainData.getJSONArray("items");
                                 for (int i = 0; i < UserActivityArray.length(); i++) {
@@ -930,8 +931,6 @@ public class MeFragment extends Fragment {
                                            }
                                        }
                     );
-                    //Increment page counter
-                    mPageNumber += 1;
                     //Load new set of data
                     getUserTimeLineNextData();
                 }
@@ -950,7 +949,7 @@ public class MeFragment extends Fragment {
                 , mHelper.getUUID()
                 , mHelper.getAuthToken()
                 , mRequestedUUID
-                , mPageNumber)
+                , mLastIndexKey)
                 //Run on a background thread
                 .subscribeOn(Schedulers.io())
                 //Be notified on the main thread
@@ -969,6 +968,7 @@ public class MeFragment extends Fragment {
                             } else {
                                 JSONObject mainData = jsonObject.getJSONObject("data");
                                 mRequestMoreData = mainData.getBoolean("requestmore");
+                                mLastIndexKey = mainData.getString("lastindexkey");
                                 //UserActivity array list
                                 JSONArray UserActivityArray = mainData.getJSONArray("items");
                                 for (int i = 0; i < UserActivityArray.length(); i++) {

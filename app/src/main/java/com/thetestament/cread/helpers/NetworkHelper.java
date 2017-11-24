@@ -68,6 +68,7 @@ public class NetworkHelper {
      * @param serverURL  URL of the server.
      * @param uuid       UUID of the user.
      * @param authKey    AuthKey of user i.e String.*
+     * @param lastIndexKey Last index key
      */
     public static Observable<JSONObject> getObservableFromServer(String serverURL, String uuid, String authKey, String lastIndexKey) {
         JSONObject jsonObject = new JSONObject();
