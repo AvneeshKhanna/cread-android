@@ -80,16 +80,16 @@ public class CommentsActivity extends BaseActivity {
 
     CompositeDisposable mCompositeDisposable = new CompositeDisposable();
 
-    @State
-    String mEntityID;
     List<CommentsModel> mCommentsList = new ArrayList<>();
     CommentsAdapter mAdapter;
     LinearLayoutManager mLayoutManager;
     SharedPreferenceHelper mHelper;
 
 
-    private int mPageNumber = 0;
-    private boolean mRequestMoreData;
+    @State
+    String mEntityID, mLastIndexKey = null;
+    @State
+    boolean mRequestMoreData;
 
 
     @Override
@@ -131,18 +131,14 @@ public class CommentsActivity extends BaseActivity {
     public void onButtonPostClicked(View view) {
 
         // check net status
-        if(NetworkHelper.getNetConnectionStatus(CommentsActivity.this))
-        {
+        if (NetworkHelper.getNetConnectionStatus(CommentsActivity.this)) {
             saveComment(editTextComment.getText().toString().trim());
             //Clear edit text
             editTextComment.getText().clear();
             //Hide keyboard
             InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
             imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
-        }
-
-        else
-        {
+        } else {
             ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_no_connection));
         }
 
@@ -219,9 +215,6 @@ public class CommentsActivity extends BaseActivity {
                                       }
                                   }
                             );
-
-                    //Increment page counter
-                    mPageNumber += 1;
                     //Load new set of data
                     loadMoreData();
                 }
@@ -294,8 +287,8 @@ public class CommentsActivity extends BaseActivity {
                 mCommentsList.clear();
                 mAdapter.notifyDataSetChanged();
                 mAdapter.setLoaded();
-                //set page count to zero
-                mPageNumber = 0;
+                //Set last index key ti null
+                mLastIndexKey = null;
                 loadCommentsData();
             }
         });
@@ -331,7 +324,7 @@ public class CommentsActivity extends BaseActivity {
                 , mHelper.getUUID()
                 , mHelper.getAuthToken()
                 , mEntityID
-                , mPageNumber
+                , mLastIndexKey
                 , true)
                 //Run on a background thread
                 .subscribeOn(Schedulers.io())
@@ -347,6 +340,7 @@ public class CommentsActivity extends BaseActivity {
                             } else {
                                 JSONObject mainData = jsonObject.getJSONObject("data");
                                 mRequestMoreData = mainData.getBoolean("requestmore");
+                                mLastIndexKey = mainData.getString("lastindexkey");
                                 //Comments list
                                 JSONArray commentsArray = mainData.getJSONArray("comments");
                                 for (int i = 0; i < commentsArray.length(); i++) {
@@ -419,7 +413,7 @@ public class CommentsActivity extends BaseActivity {
                 , mHelper.getUUID()
                 , mHelper.getAuthToken()
                 , mEntityID
-                , mPageNumber
+                , mLastIndexKey
                 , true)
                 //Run on a background thread
                 .subscribeOn(Schedulers.io())
@@ -438,6 +432,7 @@ public class CommentsActivity extends BaseActivity {
                             } else {
                                 JSONObject mainData = jsonObject.getJSONObject("data");
                                 mRequestMoreData = mainData.getBoolean("requestmore");
+                                mLastIndexKey = mainData.getString("lastindexkey");
                                 //Comments list
                                 JSONArray commentsArray = mainData.getJSONArray("comments");
                                 for (int i = 0; i < commentsArray.length(); i++) {
