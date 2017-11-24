@@ -353,6 +353,8 @@ public class CollaborationActivity extends BaseActivity implements ColorChooserD
                 .onNegative(new MaterialDialog.SingleButtonCallback() {
                     @Override
                     public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
+                        //Hide view
+                        textSignature.setVisibility(View.GONE);
                         //If checkbox is selected
                         if (dialog.isPromptCheckBoxChecked()) {
                             //Save watermark status
