@@ -278,122 +278,122 @@ public class FeedFragment extends Fragment {
                 , mHelper.getAuthToken()
                 , mLastIndexKey
                 )
-                //Run on a background thread
-                .subscribeOn(Schedulers.io())
-                //Be notified on the main thread
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribeWith(new DisposableObserver<JSONObject>() {
-                    @Override
-                    public void onNext(JSONObject jsonObject) {
-                        try {
-                            //Token status is invalid
-                            if (jsonObject.getString("tokenstatus").equals("invalid")) {
-                                tokenError[0] = true;
-                            } else {
-                                JSONObject mainData = jsonObject.getJSONObject("data");
-                                mRequestMoreData = mainData.getBoolean("requestmore");
-                                mLastIndexKey = mainData.getString("lastindexkey");
-                                //FeedArray list
-                                JSONArray feedArray = mainData.getJSONArray("feed");
-                                for (int i = 0; i < feedArray.length(); i++) {
+                        //Run on a background thread
+                        .subscribeOn(Schedulers.io())
+                        //Be notified on the main thread
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribeWith(new DisposableObserver<JSONObject>() {
+                            @Override
+                            public void onNext(JSONObject jsonObject) {
+                                try {
+                                    //Token status is invalid
+                                    if (jsonObject.getString("tokenstatus").equals("invalid")) {
+                                        tokenError[0] = true;
+                                    } else {
+                                        JSONObject mainData = jsonObject.getJSONObject("data");
+                                        mRequestMoreData = mainData.getBoolean("requestmore");
+                                        mLastIndexKey = mainData.getString("lastindexkey");
+                                        //FeedArray list
+                                        JSONArray feedArray = mainData.getJSONArray("feed");
+                                        for (int i = 0; i < feedArray.length(); i++) {
 
-                                    JSONObject dataObj = feedArray.getJSONObject(i);
-                                    String type = dataObj.getString("type");
+                                            JSONObject dataObj = feedArray.getJSONObject(i);
+                                            String type = dataObj.getString("type");
 
-                                    FeedModel feedData = new FeedModel();
-                                    feedData.setEntityID(dataObj.getString("entityid"));
-                                    feedData.setContentType(dataObj.getString("type"));
-                                    feedData.setUUID(dataObj.getString("uuid"));
-                                    feedData.setCreatorImage(dataObj.getString("profilepicurl"));
-                                    feedData.setCreatorName(dataObj.getString("creatorname"));
-                                    feedData.setHatsOffStatus(dataObj.getBoolean("hatsoffstatus"));
-                                    feedData.setMerchantable(dataObj.getBoolean("merchantable"));
-                                    feedData.setHatsOffCount(dataObj.getLong("hatsoffcount"));
-                                    feedData.setCommentCount(dataObj.getLong("commentcount"));
-                                    feedData.setContentImage(dataObj.getString("entityurl"));
-                                    feedData.setCollabCount(dataObj.getLong("collabcount"));
+                                            FeedModel feedData = new FeedModel();
+                                            feedData.setEntityID(dataObj.getString("entityid"));
+                                            feedData.setContentType(dataObj.getString("type"));
+                                            feedData.setUUID(dataObj.getString("uuid"));
+                                            feedData.setCreatorImage(dataObj.getString("profilepicurl"));
+                                            feedData.setCreatorName(dataObj.getString("creatorname"));
+                                            feedData.setHatsOffStatus(dataObj.getBoolean("hatsoffstatus"));
+                                            feedData.setMerchantable(dataObj.getBoolean("merchantable"));
+                                            feedData.setHatsOffCount(dataObj.getLong("hatsoffcount"));
+                                            feedData.setCommentCount(dataObj.getLong("commentcount"));
+                                            feedData.setContentImage(dataObj.getString("entityurl"));
+                                            feedData.setCollabCount(dataObj.getLong("collabcount"));
 
-                                    if (type.equals(CONTENT_TYPE_CAPTURE)) {
+                                            if (type.equals(CONTENT_TYPE_CAPTURE)) {
 
-                                        //Retrieve "CAPTURE_ID" if type is capture
-                                        feedData.setCaptureID(dataObj.getString("captureid"));
-                                        // if capture
-                                        // then if key cpshort exists
-                                        // not available for collaboration
-                                        if (!dataObj.isNull("cpshort")) {
-                                            JSONObject collabObject = dataObj.getJSONObject("cpshort");
+                                                //Retrieve "CAPTURE_ID" if type is capture
+                                                feedData.setCaptureID(dataObj.getString("captureid"));
+                                                // if capture
+                                                // then if key cpshort exists
+                                                // not available for collaboration
+                                                if (!dataObj.isNull("cpshort")) {
+                                                    JSONObject collabObject = dataObj.getJSONObject("cpshort");
 
-                                            feedData.setAvailableForCollab(false);
-                                            // set collaborator details
-                                            feedData.setCollabWithUUID(collabObject.getString("uuid"));
-                                            feedData.setCollabWithName(collabObject.getString("name"));
+                                                    feedData.setAvailableForCollab(false);
+                                                    // set collaborator details
+                                                    feedData.setCollabWithUUID(collabObject.getString("uuid"));
+                                                    feedData.setCollabWithName(collabObject.getString("name"));
 
-                                        } else {
-                                            feedData.setAvailableForCollab(true);
-                                        }
+                                                } else {
+                                                    feedData.setAvailableForCollab(true);
+                                                }
 
-                                    } else if (type.equals(CONTENT_TYPE_SHORT)) {
+                                            } else if (type.equals(CONTENT_TYPE_SHORT)) {
 
-                                        //Retrieve "SHORT_ID" if type is short
-                                        feedData.setShortID(dataObj.getString("shoid"));
+                                                //Retrieve "SHORT_ID" if type is short
+                                                feedData.setShortID(dataObj.getString("shoid"));
 
-                                        // if short
-                                        // then if key shcapture exists
-                                        // not available for collaboration
-                                        if (!dataObj.isNull("shcapture")) {
+                                                // if short
+                                                // then if key shcapture exists
+                                                // not available for collaboration
+                                                if (!dataObj.isNull("shcapture")) {
 
-                                            JSONObject collabObject = dataObj.getJSONObject("shcapture");
+                                                    JSONObject collabObject = dataObj.getJSONObject("shcapture");
 
-                                            feedData.setAvailableForCollab(false);
-                                            // set collaborator details
-                                            feedData.setCollabWithUUID(collabObject.getString("uuid"));
-                                            feedData.setCollabWithName(collabObject.getString("name"));
-                                        } else {
-                                            feedData.setAvailableForCollab(true);
+                                                    feedData.setAvailableForCollab(false);
+                                                    // set collaborator details
+                                                    feedData.setCollabWithUUID(collabObject.getString("uuid"));
+                                                    feedData.setCollabWithName(collabObject.getString("name"));
+                                                } else {
+                                                    feedData.setAvailableForCollab(true);
+                                                }
+                                            }
+
+                                            mFeedDataList.add(feedData);
                                         }
                                     }
-
-                                    mFeedDataList.add(feedData);
+                                } catch (JSONException e) {
+                                    e.printStackTrace();
+                                    FirebaseCrash.report(e);
+                                    connectionError[0] = true;
                                 }
                             }
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                            FirebaseCrash.report(e);
-                            connectionError[0] = true;
-                        }
-                    }
 
-                    @Override
-                    public void onError(Throwable e) {
-                        swipeRefreshLayout.setRefreshing(false);
-                        FirebaseCrash.report(e);
-                        //Server error Snack bar
-                        ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_server));
-                    }
+                            @Override
+                            public void onError(Throwable e) {
+                                swipeRefreshLayout.setRefreshing(false);
+                                FirebaseCrash.report(e);
+                                //Server error Snack bar
+                                ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_server));
+                            }
 
-                    @Override
-                    public void onComplete() {
-                        //Dismiss progress indicator
-                        swipeRefreshLayout.setRefreshing(false);
-                        // Token status invalid
-                        if (tokenError[0]) {
-                            ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_invalid_token));
-                        }
-                        //Error occurred
-                        else if (connectionError[0]) {
-                            ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_internal));
+                            @Override
+                            public void onComplete() {
+                                //Dismiss progress indicator
+                                swipeRefreshLayout.setRefreshing(false);
+                                // Token status invalid
+                                if (tokenError[0]) {
+                                    ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_invalid_token));
+                                }
+                                //Error occurred
+                                else if (connectionError[0]) {
+                                    ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_internal));
 
-                        } else if (mFeedDataList.size() == 0) {
-                            viewNoPosts.setVisibility(View.VISIBLE);
-                        } else {
-                            //Apply 'Slide Up' animation
-                            int resId = R.anim.layout_animation_from_bottom;
-                            LayoutAnimationController animation = AnimationUtils.loadLayoutAnimation(getActivity(), resId);
-                            recyclerView.setLayoutAnimation(animation);
-                            mAdapter.notifyDataSetChanged();
-                        }
-                    }
-                })
+                                } else if (mFeedDataList.size() == 0) {
+                                    viewNoPosts.setVisibility(View.VISIBLE);
+                                } else {
+                                    //Apply 'Slide Up' animation
+                                    int resId = R.anim.layout_animation_from_bottom;
+                                    LayoutAnimationController animation = AnimationUtils.loadLayoutAnimation(getActivity(), resId);
+                                    recyclerView.setLayoutAnimation(animation);
+                                    mAdapter.notifyDataSetChanged();
+                                }
+                            }
+                        })
         );
     }
 

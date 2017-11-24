@@ -161,7 +161,7 @@ public class MeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             itemViewHolder.buttonMenu.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                   getMenuActionsBottomSheet(position, data.getEntityID());
+                    getMenuActionsBottomSheet(position, data.getEntityID());
                 }
             });
 
@@ -325,13 +325,9 @@ public class MeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             @Override
             public void onClick(View view) {
 
-                if(mHelper.isCaptureIconTooltipFirstTime())
-                {
+                if (mHelper.isCaptureIconTooltipFirstTime()) {
                     getShortOnClickDialog(captureID, captureURL, merchantable);
-                }
-
-                else
-                {
+                } else {
                     Bundle bundle = new Bundle();
                     bundle.putString(EXTRA_CAPTURE_ID, captureID);
                     bundle.putString(EXTRA_CAPTURE_URL, captureURL);
@@ -360,10 +356,7 @@ public class MeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
                     // open dialog
                     getCaptureOnClickDialog(shoid);
-                }
-
-                else
-                {
+                } else {
                     onMeCaptureClickListener.onClick(shoid);
                 }
                 //Log Firebase event
@@ -371,7 +364,6 @@ public class MeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             }
         });
     }
-
 
 
     /**
@@ -594,7 +586,6 @@ public class MeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                     initializeSpannableString(mContext, itemViewHolder.textCreatorName, false, text, creatorStartPos, creatorEndPos, collabWithStartPos, collabWithEndPos, data.getUUID(), data.getCollabWithUUID());
 
 
-
                 } else {
                     // hiding collaborate button
                     itemViewHolder.buttonCollaborate.setVisibility(View.GONE);
@@ -671,6 +662,7 @@ public class MeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
     /**
      * Method to show intro dialog when user collaborated by clicking on capture
+     *
      * @param shoid short ID on which user is collaborating
      */
     private void getCaptureOnClickDialog(final String shoid) {
@@ -705,9 +697,10 @@ public class MeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     }
 
     /**
-     *  Method to show intro dialog when user collaborated by clicking on capture
-     * @param captureID capture ID
-     * @param captureURL capture URl
+     * Method to show intro dialog when user collaborated by clicking on capture
+     *
+     * @param captureID    capture ID
+     * @param captureURL   capture URl
      * @param merchantable merchantable true or false
      */
     private void getShortOnClickDialog(final String captureID, final String captureURL, final boolean merchantable) {
@@ -832,8 +825,7 @@ public class MeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         } else if (firebaseEvent.equals(FIREBASE_EVENT_SHARED_FROM_PROFILE)) {
             bundle.putString("entity_id", entityID);
             FirebaseAnalytics.getInstance(mContext).logEvent(FIREBASE_EVENT_SHARED_FROM_PROFILE, bundle);
-        }
-        else if (firebaseEvent.equals(FIREBASE_EVENT_CAPTURE_CLICKED)) {
+        } else if (firebaseEvent.equals(FIREBASE_EVENT_CAPTURE_CLICKED)) {
             bundle.putString("class_name", "me_feed");
             FirebaseAnalytics.getInstance(mContext).logEvent(FIREBASE_EVENT_CAPTURE_CLICKED, bundle);
         }

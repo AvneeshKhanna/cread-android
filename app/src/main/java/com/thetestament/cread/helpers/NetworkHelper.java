@@ -186,8 +186,36 @@ public class NetworkHelper {
             jsonObject.put("uuid", uuid);
             jsonObject.put("authkey", authKey);
             jsonObject.put("entityid", entityID);
-            jsonObject.put("entitytype", entityID);
+            jsonObject.put("entitytype", entityType);
             jsonObject.put("lastindexkey", lastIndexKey);
+        } catch (JSONException e) {
+            e.printStackTrace();
+            FirebaseCrash.report(e);
+        }
+        return Rx2AndroidNetworking.post(serverURL)
+                .addJSONObjectBody(jsonObject)
+                .build()
+                .getJSONObjectObservable();
+    }
+
+
+    /**
+     * Method to return requested data from the server.
+     *
+     * @param serverURL     URL of the server
+     * @param uuid          UUID of the user.
+     * @param authKey       Authentication key of the user
+     * @param requestedUUID UUID of user whose profile data to be loaded.
+     * @param lastIndexKey  Last index key.
+     */
+    public static Observable<JSONObject> getTimeLineObservableFromServer(String serverURL, String uuid, String authKey, String requestedUUID, int lastIndexKey) {
+
+        JSONObject jsonObject = new JSONObject();
+        try {
+            jsonObject.put("uuid", uuid);
+            jsonObject.put("authkey", authKey);
+            jsonObject.put("requesteduuid", requestedUUID);
+            jsonObject.put("page", lastIndexKey);
         } catch (JSONException e) {
             e.printStackTrace();
             FirebaseCrash.report(e);
