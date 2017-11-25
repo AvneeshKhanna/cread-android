@@ -197,7 +197,7 @@ public class CollaborationDetailsActivity extends BaseActivity {
                                     model.setUserName(dataObj.getString("name"));
                                     model.setUuid(dataObj.getString("uuid"));
                                     model.setProfilePic(dataObj.getString("profilepicurl"));
-                                    model.setEntityUrl("entityurl");
+                                    model.setEntityUrl(dataObj.getString("entityurl"));
                                     mDataList.add(model);
                                 }
                             }
@@ -306,7 +306,7 @@ public class CollaborationDetailsActivity extends BaseActivity {
                                     model.setUserName(dataObj.getString("name"));
                                     model.setUuid(dataObj.getString("uuid"));
                                     model.setProfilePic(dataObj.getString("profilepicurl"));
-                                    model.setEntityUrl("entityurl");
+                                    model.setEntityUrl(dataObj.getString("entityurl"));
                                     mDataList.add(model);
                                     //Notify changes
                                     mAdapter.notifyItemInserted(mDataList.size() - 1);
