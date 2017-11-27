@@ -84,8 +84,11 @@ dependencies {
     annotationProcessor "com.jakewharton:butterknife-compiler:$rootProject.butterKnifeVersion"
 
     //To maintain instance state
-    compile 'frankiesardo:icepick:3.2.0'
-    provided 'frankiesardo:icepick-processor:3.2.0'
+    //compile 'frankiesardo:icepick:3.2.0'
+    //provided 'frankiesardo:icepick-processor:3.2.0'
+    api 'frankiesardo:icepick:3.2.0'
+    compileOnly 'frankiesardo:icepick-processor:3.2.0'
+    annotationProcessor 'frankiesardo:icepick-processor:3.2.0'
 
     //Circular imageView
     compile 'de.hdodenhof:circleimageview:2.1.0'
@@ -119,3 +122,4 @@ dependencies {
 
 // Add this line at the bottom of the file for firebase services
 apply plugin: 'com.google.gms.google-services'
+apply plugin: 'com.google.firebase.firebase-crash'
