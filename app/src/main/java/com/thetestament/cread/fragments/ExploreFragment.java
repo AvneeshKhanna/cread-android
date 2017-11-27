@@ -291,6 +291,7 @@ public class ExploreFragment extends Fragment {
                             } else {
                                 JSONObject mainData = jsonObject.getJSONObject("data");
                                 mRequestMoreData = mainData.getBoolean("requestmore");
+                                mLastIndexKey = mainData.getString("lastindexkey");
                                 //ExploreArray list
                                 JSONArray exploreArray = mainData.getJSONArray("feed");
                                 for (int i = 0; i < exploreArray.length(); i++) {
@@ -310,6 +311,7 @@ public class ExploreFragment extends Fragment {
                                     exploreData.setCommentCount(dataObj.getLong("commentcount"));
                                     exploreData.setContentImage(dataObj.getString("entityurl"));
                                     exploreData.setCollabCount(dataObj.getLong("collabcount"));
+
 
                                     if (type.equals(CONTENT_TYPE_CAPTURE)) {
 
@@ -437,6 +439,8 @@ public class ExploreFragment extends Fragment {
                                     exploreData.setHatsOffCount(dataObj.getLong("hatsoffcount"));
                                     exploreData.setCommentCount(dataObj.getLong("commentcount"));
                                     exploreData.setContentImage(dataObj.getString("entityurl"));
+                                    exploreData.setCollabCount(dataObj.getLong("collabcount"));
+
 
                                     if (type.equals(CONTENT_TYPE_CAPTURE)) {
 
