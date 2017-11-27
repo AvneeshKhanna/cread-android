@@ -3,13 +3,19 @@
 buildscript {
     repositories {
         jcenter()
+
+        google()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:2.3.3'
+        classpath 'com.android.tools.build:gradle:3.0.0'
 
         // NOTE: Do not place your application dependencies here; they belong
         // in the individual module build.gradle files
         classpath 'com.google.gms:google-services:3.0.0'
+        // For Android Studio 3.0, use firebase-plugins version 1.1.5
+        classpath 'com.google.firebase:firebase-plugins:1.1.5'
+
+
     }
 }
 
@@ -18,16 +24,14 @@ allprojects {
         jcenter()
         mavenCentral()
         //For support library
-        maven {
-            url 'https://maven.google.com'
-        }
+        google()
+
         maven {
             url "https://clojars.org/repo/"
         }
         maven {
             url "https://jitpack.io"
         }
-
     }
 }
 
