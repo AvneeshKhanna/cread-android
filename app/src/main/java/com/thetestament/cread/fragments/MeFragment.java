@@ -14,7 +14,6 @@ import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.view.ViewCompat;
-import android.support.v4.widget.NestedScrollView;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -109,8 +108,6 @@ public class MeFragment extends Fragment {
     AppBarLayout appBarLayout;
     @BindView(R.id.tabLayout)
     TabLayout tabLayout;
-    @BindView(R.id.nestedScrollView)
-    NestedScrollView nestedScrollView;
     @BindView(R.id.recyclerView)
     RecyclerView recyclerView;
     @BindView(R.id.swipeToRefreshLayout)
@@ -174,7 +171,7 @@ public class MeFragment extends Fragment {
         //For view binding
         mUnbinder = ButterKnife.bind(this, view);
         //For smooth scrolling
-        ViewCompat.setNestedScrollingEnabled(recyclerView, false);
+        //ViewCompat.setNestedScrollingEnabled(recyclerView, false);
         //initialize this screen
         initScreen();
     }
