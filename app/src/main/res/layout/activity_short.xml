@@ -30,7 +30,7 @@
                 android:layout_marginRight="10dp"
                 android:background="@null"
                 android:gravity="center"
-                android:hint="Type your short"
+                android:hint="Express yourself"
                 android:inputType="textCapSentences|textMultiLine"
                 android:textAppearance="@style/ShortFont"
                 android:textCursorDrawable="@drawable/cursor_edit_text"

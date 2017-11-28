@@ -127,7 +127,7 @@
                     android:paddingLeft="10dp"
                     android:paddingRight="10dp"
                     android:paddingTop="5dp"
-                    android:text="Write"
+                    android:text="Collaborate"
                     android:textColor="@color/white"
                     android:textSize="12sp"
                     android:visibility="visible"/>

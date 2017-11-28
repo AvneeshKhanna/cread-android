@@ -71,4 +71,21 @@
     <string name="gen_notif_channel_name">Cread</string>
     <string name="gen_notif_channel_desc">Make sound and pop up on screen</string>
 
+
+    // feeds text
+
+    // collab count text
+    <string name="collab_short_count_text_single">person wrote on it</string>
+    <string name="collab_capture_count_text_single">person added a graphic art to it</string>
+    <string name="collab_short_count_text_multiple">people wrote on it</string>
+    <string name="collab_capture_count_text_multiple">people added a graphic art to it</string>
+
+    // creator text
+    <string name="creator_text_standalone_short">wrote this</string>
+    <string name="creator_text_standalone_capture">added a graphic art</string>
+    <string name="creator_text_collab_short_part1">wrote on</string>
+    <string name="creator_text_collab_short_part2">graphic art</string>
+    <string name="creator_text_collab_capture_part1">added a graphic art to</string>
+    <string name="creator_text_collab_capture_part2">writing</string>
+
 </resources>

@@ -42,6 +42,8 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import de.hdodenhof.circleimageview.CircleImageView;
 
+import static com.thetestament.cread.helpers.FeedHelper.getCollabCountText;
+import static com.thetestament.cread.helpers.FeedHelper.getCreatorText;
 import static com.thetestament.cread.helpers.FeedHelper.initializeSpannableString;
 import static com.thetestament.cread.helpers.ImageHelper.getLocalBitmapUri;
 import static com.thetestament.cread.utils.Constant.CONTENT_TYPE_CAPTURE;
@@ -492,13 +494,18 @@ public class MeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
      */
 
     private void performContentTypeSpecificOperations(MeAdapter.ItemViewHolder itemViewHolder, FeedModel data) {
+
+        // initialize text
+        String text = getCreatorText(mContext, data.getContentType(), data.isAvailableForCollab(), data.getCreatorName(), data.getCollabWithName());
+
+
         //Check for content type
         switch (data.getContentType()) {
             case CONTENT_TYPE_CAPTURE:
 
                 // set collab count text
                 if (data.getCollabCount() != 0) {
-                    itemViewHolder.collabCount.setText(data.getCollabCount() + " others added a short to it");
+                    itemViewHolder.collabCount.setText(getCollabCountText(mContext,data.getCollabCount(), data.getContentType()));
                     itemViewHolder.collabCount.setVisibility(View.VISIBLE);
                     itemViewHolder.lineSepartor.setVisibility(View.VISIBLE);
 
@@ -513,12 +520,12 @@ public class MeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
                     itemViewHolder.buttonCollaborate.setVisibility(View.VISIBLE);
                     // set text
-                    itemViewHolder.buttonCollaborate.setText("Write");
+                    //itemViewHolder.buttonCollaborate.setText("Write");
 
                     //write click functionality on capture
                     writeOnClick(itemViewHolder.buttonCollaborate, data.getCaptureID(), data.getContentImage(), data.getEntityID(), data.isMerchantable());
 
-                    String text = data.getCreatorName() + " added a capture";
+                    //String text = data.getCreatorName() + " added a capture";
 
                     // get text indexes
                     int creatorStartPos = text.indexOf(data.getCreatorName());
@@ -534,7 +541,7 @@ public class MeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                     // hiding collaborate button
                     itemViewHolder.buttonCollaborate.setVisibility(View.GONE);
 
-                    String text = data.getCreatorName() + " added a capture to " + data.getCollabWithName() + "'s short";
+                    //String text = data.getCreatorName() + " added a capture to " + data.getCollabWithName() + "'s short";
 
                     // get text indexes
                     int creatorStartPos = text.indexOf(data.getCreatorName());
@@ -554,7 +561,7 @@ public class MeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
                 // set collab count text
                 if (data.getCollabCount() != 0) {
-                    itemViewHolder.collabCount.setText(data.getCollabCount() + " others added a capture to it");
+                    itemViewHolder.collabCount.setText(getCollabCountText(mContext,data.getCollabCount(), data.getContentType()));
                     itemViewHolder.collabCount.setVisibility(View.VISIBLE);
                     itemViewHolder.lineSepartor.setVisibility(View.VISIBLE);
 
@@ -570,12 +577,12 @@ public class MeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
                     itemViewHolder.buttonCollaborate.setVisibility(View.VISIBLE);
                     // set text
-                    itemViewHolder.buttonCollaborate.setText("Capture");
+                    //itemViewHolder.buttonCollaborate.setText("Capture");
 
                     // capture click functionality on short
                     captureOnClick(itemViewHolder.buttonCollaborate, data.getEntityID(), data.getShortID());
 
-                    String text = data.getCreatorName() + " wrote a short ";
+                    //String text = data.getCreatorName() + " wrote a short ";
 
                     // get text indexes
                     int creatorStartPos = text.indexOf(data.getCreatorName());
@@ -590,7 +597,7 @@ public class MeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                     // hiding collaborate button
                     itemViewHolder.buttonCollaborate.setVisibility(View.GONE);
 
-                    String text = data.getCreatorName() + " wrote a short on " + data.getCollabWithName() + "'s capture";
+                    //String text = data.getCreatorName() + " wrote a short on " + data.getCollabWithName() + "'s capture";
 
                     // get text indexes
                     int creatorStartPos = text.indexOf(data.getCreatorName());
