@@ -4,15 +4,21 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
+import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Environment;
 import android.support.annotation.ColorInt;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.design.widget.BottomSheetBehavior;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.widget.NestedScrollView;
+import android.support.v7.widget.AppCompatSeekBar;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.Menu;
@@ -20,6 +26,7 @@ import android.view.MenuItem;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.SeekBar;
 
 import com.afollestad.materialdialogs.DialogAction;
 import com.afollestad.materialdialogs.MaterialDialog;
@@ -34,6 +41,7 @@ import com.squareup.picasso.Target;
 import com.thetestament.cread.BuildConfig;
 import com.thetestament.cread.Manifest;
 import com.thetestament.cread.R;
+import com.thetestament.cread.adapters.FontAdapter;
 import com.thetestament.cread.helpers.NetworkHelper;
 import com.thetestament.cread.helpers.SharedPreferenceHelper;
 import com.thetestament.cread.helpers.ViewHelper;
@@ -84,6 +92,15 @@ public class ShortActivity extends BaseActivity implements ColorChooserDialog.Co
     ImageView imageShort;
     @BindView(R.id.textShort)
     EditText textShort;
+    @BindView(R.id.seekBarTextSize)
+    AppCompatSeekBar seekBarTextSize;
+
+    @BindView(R.id.bottomSheetView)
+    NestedScrollView bottomSheetView;
+    @BindView(R.id.recyclerView)
+    RecyclerView recyclerView;
+
+    private BottomSheetBehavior sheetBehavior;
 
 
     @State
@@ -92,6 +109,25 @@ public class ShortActivity extends BaseActivity implements ColorChooserDialog.Co
     boolean mIsMerchantable = true, signatureStatus = false;
     @State
     int mImageWidth = 650;
+
+    /**
+     * Flag to maintain color chooser dialog called status.
+     */
+    @State
+    String mColorChooserType;
+
+    /**
+     * Flag to maintain bold typeface status i.e 1 for bold ,0 otherwise
+     */
+    @State
+    int mBoldFlag = 0;
+
+    /**
+     * Flag to maintain italic typeface status i.e 1 for italic ,0 otherwise
+     */
+    @State
+    int mItalicFlag = 0;
+
     /**
      * Flag to maintain gravity status i.e 0 for center , 1 for right and 2 for left.
      */
@@ -127,6 +163,14 @@ public class ShortActivity extends BaseActivity implements ColorChooserDialog.Co
         mHelper = new SharedPreferenceHelper(this);
         //initialize screen
         initScreen();
+        //initialize seek bar
+        initSeekBar(seekBarTextSize);
+        //For bottomSheet
+        sheetBehavior = BottomSheetBehavior.from(bottomSheetView);
+        sheetBehavior.setPeekHeight(0);
+
+        recyclerView.setLayoutManager(new LinearLayoutManager(ShortActivity.this, LinearLayoutManager.HORIZONTAL, false));
+        recyclerView.setAdapter(new FontAdapter(ShortActivity.this));
         // mTapDetector = new GestureDetector(this, new GestureTap());
     }
 
@@ -214,8 +258,14 @@ public class ShortActivity extends BaseActivity implements ColorChooserDialog.Co
 
     @Override
     public void onColorSelection(@NonNull ColorChooserDialog dialog, @ColorInt int selectedColor) {
-        //Change short text color
-        textShort.setTextColor(selectedColor);
+        if (mColorChooserType.equals("texColor")) {
+            //Change short text color
+            textShort.setTextColor(selectedColor);
+        } else if (mColorChooserType.equals("backGroundColor")) {
+            //Change backgroundColor
+            imageShort.setBackgroundColor(selectedColor);
+        }
+
     }
 
     @Override
@@ -266,7 +316,7 @@ public class ShortActivity extends BaseActivity implements ColorChooserDialog.Co
      * Functionality to toggle the text gravity.
      */
     @OnClick(R.id.btnLAlignText)
-    public void onBtnLAlignTextClicked(ImageView btnAlignText) {
+    void onBtnLAlignTextClicked(ImageView btnAlignText) {
 
         switch (mGravityFlag) {
             case 0:
@@ -295,30 +345,108 @@ public class ShortActivity extends BaseActivity implements ColorChooserDialog.Co
     }
 
     /**
-     * Click functionality to increase 'Short text' size by five unit..
+     * Functionality to change font type.
      */
-    @OnClick(R.id.btnFormatTextSizePlus)
-    public void onBtnFormatTextSizePlusClicked() {
-        int ts = (int) textShort.getTextSize() + 5;
-        //Increase text size by 5 unit
-        textShort.setTextSize(TypedValue.COMPLEX_UNIT_PX, ts);
+    @OnClick(R.id.btnFont)
+    void onFontClicked() {
+        //Todo font change functionality
+        //Show bottomSheet
+        sheetBehavior.setState(BottomSheetBehavior.STATE_EXPANDED);
     }
 
     /**
-     * Click functionality to decrease 'Short text' by five unit.
+     * Functionality to change canvas bac
      */
-    @OnClick(R.id.btnFormatTextSizeMinus)
-    public void onBtnFormatTextSizeMinusClicked() {
-        int ts = (int) textShort.getTextSize() - 5;
-        //Decrease text size by five unit
-        textShort.setTextSize(TypedValue.COMPLEX_UNIT_PX, ts);
+    @OnClick(R.id.btnFormatBg)
+    void changeBgColor() {
+        //Set type
+        mColorChooserType = "backGroundColor";
+        //Show color dialog
+        showColorChooserDialog();
     }
 
     /**
      * Click functionality to show material color palette dialog.
      */
     @OnClick(R.id.btnFormatTextColor)
-    public void onBtnFormatTextColorClicked() {
+    void onBtnFormatTextColorClicked() {
+        //Set type
+        mColorChooserType = "texColor";
+        //Show color dialog
+        showColorChooserDialog();
+    }
+
+
+    /**
+     * Bold button click functionality to set typeface to bold.
+     */
+    @OnClick(R.id.btnFormatTextBold)
+    void boldBtnOnClick() {
+        if (mItalicFlag == 0 && mBoldFlag == 0) {
+            //Set typeface to bold
+            textShort.setTypeface(null, Typeface.BOLD);
+            //Update flag
+            mBoldFlag = 1;
+        } else if (mItalicFlag == 0 && mBoldFlag == 1) {
+            //Set typeface to normal
+            textShort.setTypeface(null, Typeface.NORMAL);
+            //Update flag
+            mBoldFlag = 0;
+        } else if (mItalicFlag == 1 && mBoldFlag == 0) {
+            //Set typeface to bold_italic
+            textShort.setTypeface(null, Typeface.BOLD_ITALIC);
+            //Update flag
+            mBoldFlag = 1;
+        } else if (mItalicFlag == 1 && mBoldFlag == 1) {
+            //Set typeface to italic
+            textShort.setTypeface(null, Typeface.ITALIC);
+            //Update flag
+            mBoldFlag = 0;
+        }
+    }
+
+    /**
+     * Italic button click functionality to set typeface of content
+     */
+    @OnClick(R.id.btnFormatTextItalic)
+    void italicBtnOnclick() {
+        if (mItalicFlag == 0 && mBoldFlag == 0) {
+            //Set typeface to italic
+            textShort.setTypeface(null, Typeface.ITALIC);
+            //Update flag
+            mItalicFlag = 1;
+        } else if (mItalicFlag == 0 && mBoldFlag == 1) {
+            //Set typeface to bold_italic
+            textShort.setTypeface(null, Typeface.BOLD_ITALIC);
+            //Update flag
+            mItalicFlag = 1;
+        } else if (mItalicFlag == 1 && mBoldFlag == 0) {
+            //Set typeface to normal
+            textShort.setTypeface(null, Typeface.NORMAL);
+            //Update flag
+            mItalicFlag = 0;
+        } else if (mItalicFlag == 1 && mBoldFlag == 1) {
+            //Set typeface to bold
+            textShort.setTypeface(null, Typeface.BOLD);
+            //Update flag
+            mItalicFlag = 0;
+        }
+
+    }
+
+    /**
+     * Close button click functionality to hide bottom sheet.
+     */
+    @OnClick(R.id.buttonClose)
+    void onCloseBtnClick() {
+        //Hide bottom sheet
+        sheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
+    }
+
+    /**
+     * Method to show color chooser dialog.
+     */
+    private void showColorChooserDialog() {
         // Pass a context, along with the title of the dialog
         new ColorChooserDialog.Builder(this, R.string.text_color)
                 // title of dialog when viewing shades of a color
@@ -352,6 +480,31 @@ public class ShortActivity extends BaseActivity implements ColorChooserDialog.Co
 
         //Set water mark text
         mSignatureText = "- " + mHelper.getFirstName() + " " + mHelper.getLastName();
+    }
+
+    /**
+     * Initialize seekBar changeListener.
+     *
+     * @param appCompatSeekBar SeekBar reference.
+     */
+    private void initSeekBar(AppCompatSeekBar appCompatSeekBar) {
+        appCompatSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
+                //Set text size
+                textShort.setTextSize(TypedValue.COMPLEX_UNIT_PX, i + 50);
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+                //Do nothing
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+                //Do nothing
+            }
+        });
     }
 
     /**
@@ -477,6 +630,12 @@ public class ShortActivity extends BaseActivity implements ColorChooserDialog.Co
                         // check net status
                         if (NetworkHelper.getNetConnectionStatus(ShortActivity.this)) {
                             dialog.dismiss();
+
+
+                            /*ColorDrawable drawable = (ColorDrawable) imageShort.getBackground();
+                            drawable.getColor();*/
+
+
                             //Update details on server
                             updateShort(new File(getImageUri(IMAGE_TYPE_USER_SHORT_PIC).getPath())
                                     , mCaptureID

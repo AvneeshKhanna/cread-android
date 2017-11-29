@@ -35,6 +35,7 @@ import com.thetestament.cread.BuildConfig;
 import com.thetestament.cread.Manifest;
 import com.thetestament.cread.R;
 import com.thetestament.cread.adapters.CommentsAdapter;
+import com.thetestament.cread.helpers.HatsOffHelper;
 import com.thetestament.cread.helpers.ImageHelper;
 import com.thetestament.cread.helpers.NetworkHelper;
 import com.thetestament.cread.helpers.SharedPreferenceHelper;
@@ -54,6 +55,7 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import de.hdodenhof.circleimageview.CircleImageView;
+import icepick.State;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.observers.DisposableObserver;
@@ -74,7 +76,6 @@ import static com.thetestament.cread.utils.Constant.EXTRA_ENTITY_ID;
 import static com.thetestament.cread.utils.Constant.EXTRA_ENTITY_TYPE;
 import static com.thetestament.cread.utils.Constant.EXTRA_FEED_DESCRIPTION_DATA;
 import static com.thetestament.cread.utils.Constant.EXTRA_MERCHANTABLE;
-import static com.thetestament.cread.utils.Constant.EXTRA_PROFILE_UUID;
 import static com.thetestament.cread.utils.Constant.FIREBASE_EVENT_CAPTURE_CLICKED;
 import static com.thetestament.cread.utils.Constant.FIREBASE_EVENT_HAVE_CLICKED;
 import static com.thetestament.cread.utils.Constant.FIREBASE_EVENT_SHARED_FROM_FEED_DESCRIPTION;
@@ -137,6 +138,9 @@ public class FeedDescriptionActivity extends BaseActivity {
     private FeedModel mFeedData;
     private FirebaseAnalytics mFirebaseAnalytics;
     private AppCompatActivity mContext;
+
+    @State
+    int mItemPosition;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -255,7 +259,6 @@ public class FeedDescriptionActivity extends BaseActivity {
      */
     @OnClick(R.id.imageHatsOff)
     void onContainerHatsOffClicked() {
-
         // check net status
         if (NetworkHelper.getNetConnectionStatus(FeedDescriptionActivity.this)) {
             //User has already given hats off
@@ -293,7 +296,32 @@ public class FeedDescriptionActivity extends BaseActivity {
                 textHatsOffCount.setText(String.valueOf(mFeedData.getHatsOffCount()));
             }
             //update hats off status on server
-            updateHatsOffStatus(mFeedData.getEntityID(), mFeedData.getHatsOffStatus());
+            // updateHatsOffStatus(mFeedData.getEntityID(), mFeedData.getHatsOffStatus());
+            HatsOffHelper hatsOffHelper = new HatsOffHelper(FeedDescriptionActivity.this);
+            hatsOffHelper.updateHatsOffStatus(mFeedData.getEntityID(), mFeedData.getHatsOffStatus());
+            // On hatsOffSuccessListener
+            hatsOffHelper.setOnHatsOffSuccessListener(new HatsOffHelper.OnHatsOffSuccessListener() {
+                @Override
+                public void onSuccess() {
+
+                    Bundle bundle = new Bundle();
+                    bundle.putInt("position", mItemPosition);
+                    bundle.putBoolean("hatsOffStatus", mFeedData.getHatsOffStatus());
+                    Intent resultIntent = new Intent();
+                    resultIntent.putExtra(EXTRA_DATA, bundle);
+                    //Return result ok
+                    setResult(RESULT_OK, resultIntent);
+                }
+            });
+            // On hatsOffSuccessListener
+            hatsOffHelper.setOnHatsOffFailureListener(new HatsOffHelper.OnHatsOffFailureListener() {
+                @Override
+                public void onFailure(String errorMsg) {
+                    mFeedData.setHatsOffStatus(!mFeedData.getHatsOffStatus());
+                    toggleHatsOffStatus();
+                    ViewHelper.getSnackBar(rootView, errorMsg);
+                }
+            });
         } else {
             ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_no_connection));
         }
@@ -372,7 +400,7 @@ public class FeedDescriptionActivity extends BaseActivity {
     private void retrieveIntentData() {
 
         mFeedData = getIntent().getParcelableExtra(EXTRA_FEED_DESCRIPTION_DATA);
-
+        mItemPosition = getIntent().getIntExtra("position", 0);
 
         performContentTypeSpecificOperations();
 
@@ -471,11 +499,14 @@ public class FeedDescriptionActivity extends BaseActivity {
                             else {
                                 JSONObject mainData = response.getJSONObject("data");
                                 if (mainData.getString("status").equals("done")) {
-                                    //Do nothing
-                                } else {
-                                    mFeedData.setHatsOffStatus(!mFeedData.getHatsOffStatus());
-                                    toggleHatsOffStatus();
-                                    ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_internal));
+
+                                    Bundle bundle = new Bundle();
+                                    bundle.putInt("position", mItemPosition);
+                                    bundle.putBoolean("hatsOffStatus", mFeedData.getHatsOffStatus());
+                                    Intent resultIntent = new Intent();
+                                    resultIntent.putExtra(EXTRA_DATA, bundle);
+                                    //Return result ok
+                                    setResult(RESULT_OK, resultIntent);
                                 }
                             }
                         } catch (JSONException e) {

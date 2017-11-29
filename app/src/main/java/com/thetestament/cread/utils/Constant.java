@@ -13,6 +13,7 @@ public class Constant {
     public static final int REQUEST_CODE_UPDATE_PROFILE_DETAILS = 1005;
     public static final int REQUEST_CODE_OPEN_GALLERY = 1006;
     public static final int REQUEST_CODE_INSPIRATION_ACTIVITY = 1007;
+    public static final int REQUEST_CODE_FEED_DESCRIPTION_ACTIVITY = 1008;
 
     //Tag value for fragments
     public static final String TAG_FEED_FRAGMENT = "TagFeedFragment";

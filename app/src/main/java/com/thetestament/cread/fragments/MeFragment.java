@@ -44,6 +44,7 @@ import com.thetestament.cread.activities.FollowActivity;
 import com.thetestament.cread.activities.UpdateProfileDetailsActivity;
 import com.thetestament.cread.activities.UpdateProfileImageActivity;
 import com.thetestament.cread.adapters.MeAdapter;
+import com.thetestament.cread.helpers.HatsOffHelper;
 import com.thetestament.cread.helpers.ImageHelper;
 import com.thetestament.cread.helpers.NetworkHelper;
 import com.thetestament.cread.helpers.SharedPreferenceHelper;
@@ -1115,8 +1116,28 @@ public class MeFragment extends Fragment {
     private void initHatsOffListener(MeAdapter adapter) {
         adapter.setHatsOffListener(new listener.OnUserActivityHatsOffListener() {
             @Override
-            public void onHatsOffClick(FeedModel data, int itemPosition) {
+            public void onHatsOffClick(final FeedModel data, final int itemPosition) {
                 updateHatsOffStatus(data, itemPosition);
+                HatsOffHelper hatsOffHelper = new HatsOffHelper(getActivity());
+                hatsOffHelper.updateHatsOffStatus(data.getEntityID(), data.getHatsOffStatus());
+                // On hatsOffSuccessListener
+                hatsOffHelper.setOnHatsOffSuccessListener(new HatsOffHelper.OnHatsOffSuccessListener() {
+                    @Override
+                    public void onSuccess() {
+                        //Do nothing
+                    }
+                });
+                // On hatsOffSuccessListener
+                hatsOffHelper.setOnHatsOffFailureListener(new HatsOffHelper.OnHatsOffFailureListener() {
+                    @Override
+                    public void onFailure(String errorMsg) {
+                        //set status to true if its false and vice versa
+                        data.setHatsOffStatus(!data.getHatsOffStatus());
+                        //notify changes
+                        mAdapter.notifyItemChanged(itemPosition);
+                        ViewHelper.getSnackBar(rootView, errorMsg);
+                    }
+                });
             }
         });
     }

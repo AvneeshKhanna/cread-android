@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/rootView"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
@@ -62,7 +63,7 @@
             android:id="@+id/containerPostButton"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_above="@+id/containerFormatOptions"
+            android:layout_above="@+id/btnFormatTextSize"
             android:layout_below="@+id/textNote">
 
             <TextView
@@ -79,14 +80,108 @@
                 android:textColor="@color/white" />
         </FrameLayout>
 
-        <!--Format option layout-->
-        <include
-            android:id="@+id/containerFormatOptions"
-            layout="@layout/layout_format_option"
+        <ImageView
+            android:id="@+id/btnFormatTextSize"
+            android:layout_width="25dp"
+            android:layout_height="25dp"
+            android:layout_above="@+id/containerFormatOptions"
+            android:layout_marginBottom="5dp"
+            android:layout_marginLeft="15dp"
+            android:src="@drawable/ic_format_size_plus_32" />
+
+        <android.support.v7.widget.AppCompatSeekBar
+            android:id="@+id/seekBarTextSize"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_alignParentBottom="true" />
+            android:layout_alignBottom="@+id/btnFormatTextSize"
+            android:layout_alignTop="@+id/btnFormatTextSize"
+            android:layout_marginLeft="5dp"
+            android:layout_marginRight="10dp"
+            android:layout_toRightOf="@+id/btnFormatTextSize" />
+
+        <!--Format option layout-->
+        <LinearLayout
+            android:id="@+id/containerFormatOptions"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:orientation="horizontal"
+            android:paddingBottom="10dp"
+            android:weightSum="6">
+
+            <ImageView
+                android:id="@+id/btnLAlignText"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:src="@drawable/ic_format_align_center_32" />
+
+
+            <ImageView
+                android:id="@+id/btnFont"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:src="@drawable/ic_font_download_32" />
+
+            <ImageView
+                android:id="@+id/btnFormatBg"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:src="@drawable/ic_format_color_fill_32" />
+
+            <ImageView
+                android:id="@+id/btnFormatTextColor"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:src="@drawable/ic_format_color_text_32" />
+
+            <ImageView
+                android:id="@+id/btnFormatTextBold"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:src="@drawable/ic_format_bold_32" />
+
+            <ImageView
+                android:id="@+id/btnFormatTextItalic"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:src="@drawable/ic_format_italic_32" />
+        </LinearLayout>
 
     </RelativeLayout>
 
+    <android.support.v4.widget.NestedScrollView
+        android:id="@+id/bottomSheetView"
+        android:layout_width="match_parent"
+        android:layout_height="100dp"
+        android:background="@color/black_defined"
+        app:layout_behavior="@string/bottom_sheet_behavior">
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <ImageView
+                android:id="@+id/buttonClose"
+                android:layout_width="25dp"
+                android:layout_height="25dp"
+                android:layout_alignParentRight="true"
+                android:layout_marginRight="10dp"
+                android:layout_marginTop="5dp"
+                android:src="@drawable/ic_close_24" />
+
+            <android.support.v7.widget.RecyclerView
+                android:id="@+id/recyclerView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/buttonClose" />
+
+        </RelativeLayout>
+
+    </android.support.v4.widget.NestedScrollView>
 </android.support.design.widget.CoordinatorLayout>
