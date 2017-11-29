@@ -29,7 +29,7 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:layout_marginLeft="16dp"
-            android:text="Write a short" />
+            android:text="Write" />
     </LinearLayout>
 
     <LinearLayout
@@ -53,6 +53,6 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:layout_marginLeft="16dp"
-            android:text="Upload a capture" />
+            android:text="Add a graphic art" />
     </LinearLayout>
 </LinearLayout>

@@ -220,7 +220,7 @@ public class CapturePreviewActivity extends BaseActivity {
     private void uploadCapture(File file) {
         //To show the progress dialog
         MaterialDialog.Builder builder = new MaterialDialog.Builder(this)
-                .title("Uploading your capture")
+                .title("Uploading your graphic art")
                 .content("Please wait...")
                 .autoDismiss(false)
                 .cancelable(false)
@@ -256,7 +256,7 @@ public class CapturePreviewActivity extends BaseActivity {
                             } else {
                                 JSONObject dataObject = response.getJSONObject("data");
                                 if (dataObject.getString("status").equals("done")) {
-                                    ViewHelper.getToast(CapturePreviewActivity.this, "Your capture uploaded");
+                                    ViewHelper.getToast(CapturePreviewActivity.this, "Graphic art uploaded successfully");
                                     //finish this activity
                                     finish();
                                 }

@@ -695,7 +695,7 @@ public class ShortActivity extends BaseActivity implements ColorChooserDialog.Co
 
         //To show the progress dialog
         MaterialDialog.Builder builder = new MaterialDialog.Builder(this)
-                .title("Uploading your short")
+                .title("Uploading your writing")
                 .content("Please wait...")
                 .autoDismiss(false)
                 .cancelable(false)
@@ -743,7 +743,7 @@ public class ShortActivity extends BaseActivity implements ColorChooserDialog.Co
                             } else {
                                 JSONObject dataObject = jsonObject.getJSONObject("data");
                                 if (dataObject.getString("status").equals("done")) {
-                                    ViewHelper.getToast(ShortActivity.this, "Short uploaded successfully.");
+                                    ViewHelper.getToast(ShortActivity.this, "Writing uploaded successfully.");
                                     //Navigate back to previous market
                                     finish();
                                 }

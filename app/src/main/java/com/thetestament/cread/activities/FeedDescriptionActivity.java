@@ -63,6 +63,8 @@ import io.reactivex.schedulers.Schedulers;
 import pl.tajchert.nammu.Nammu;
 import pl.tajchert.nammu.PermissionCallback;
 
+import static com.thetestament.cread.helpers.FeedHelper.getCollabCountText;
+import static com.thetestament.cread.helpers.FeedHelper.getCreatorText;
 import static com.thetestament.cread.helpers.FeedHelper.initializeSpannableString;
 import static com.thetestament.cread.helpers.ImageHelper.getImageUri;
 import static com.thetestament.cread.helpers.ImageHelper.getLocalBitmapUri;
@@ -640,13 +642,17 @@ public class FeedDescriptionActivity extends BaseActivity {
      */
 
     private void performContentTypeSpecificOperations() {
+
+        // initialize text
+        String text = getCreatorText(mContext, mFeedData.getContentType(), mFeedData.isAvailableForCollab(), mFeedData.getCreatorName(), mFeedData.getCollabWithName());
+
         //Check for content type
         switch (mFeedData.getContentType()) {
             case CONTENT_TYPE_CAPTURE:
 
                 // set collab count text
                 if (mFeedData.getCollabCount() != 0) {
-                    collabCount.setText(mFeedData.getCollabCount() + " others added a short to it");
+                    collabCount.setText(getCollabCountText(mContext,mFeedData.getCollabCount(), mFeedData.getContentType()));
                     collabCount.setVisibility(View.VISIBLE);
 
                 } else {
@@ -659,12 +665,12 @@ public class FeedDescriptionActivity extends BaseActivity {
 
                     buttonCollaborate.setVisibility(View.VISIBLE);
                     // set text
-                    buttonCollaborate.setText("Write");
+                    //buttonCollaborate.setText("Write");
 
                     //write click functionality on capture
                     writeOnClick(buttonCollaborate, mFeedData.getCaptureID(), mFeedData.getContentImage(), mFeedData.isMerchantable());
 
-                    String text = mFeedData.getCreatorName() + " added a capture ";
+                    //String text = mFeedData.getCreatorName() + " added a capture ";
 
                     // get text indexes
                     int creatorStartPos = text.indexOf(mFeedData.getCreatorName());
@@ -681,7 +687,7 @@ public class FeedDescriptionActivity extends BaseActivity {
                     // hiding collaborate button
                     buttonCollaborate.setVisibility(View.GONE);
 
-                    String text = mFeedData.getCreatorName() + " added a capture to " + mFeedData.getCollabWithName() + "'s short";
+                    //String text = mFeedData.getCreatorName() + " added a capture to " + mFeedData.getCollabWithName() + "'s short";
 
                     // get text indexes
                     int creatorStartPos = text.indexOf(mFeedData.getCreatorName());
@@ -701,7 +707,7 @@ public class FeedDescriptionActivity extends BaseActivity {
 
                 // set collab count text
                 if (mFeedData.getCollabCount() != 0) {
-                    collabCount.setText(mFeedData.getCollabCount() + " others added a capture to it");
+                    collabCount.setText(getCollabCountText(mContext,mFeedData.getCollabCount(), mFeedData.getContentType()));
                     collabCount.setVisibility(View.VISIBLE);
                 } else {
                     collabCount.setVisibility(View.GONE);
@@ -714,12 +720,12 @@ public class FeedDescriptionActivity extends BaseActivity {
 
                     buttonCollaborate.setVisibility(View.VISIBLE);
                     // set text
-                    buttonCollaborate.setText("Capture");
+                    //buttonCollaborate.setText("Capture");
 
                     // capture click functionality on short
                     captureOnClick(buttonCollaborate);
 
-                    String text = mFeedData.getCreatorName() + " wrote a short ";
+                    //String text = mFeedData.getCreatorName() + " wrote a short ";
 
                     // get text indexes
                     int creatorStartPos = text.indexOf(mFeedData.getCreatorName());
@@ -734,7 +740,7 @@ public class FeedDescriptionActivity extends BaseActivity {
                     // hiding collaborate button
                     buttonCollaborate.setVisibility(View.GONE);
 
-                    String text = mFeedData.getCreatorName() + " wrote a short on " + mFeedData.getCollabWithName() + "'s capture";
+                    //String text = mFeedData.getCreatorName() + " wrote a short on " + mFeedData.getCollabWithName() + "'s capture";
 
                     // get text indexes
                     int creatorStartPos = text.indexOf(mFeedData.getCreatorName());
