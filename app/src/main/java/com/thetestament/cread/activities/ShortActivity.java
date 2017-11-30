@@ -15,6 +15,7 @@ import android.support.design.widget.BottomSheetBehavior;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.content.res.ResourcesCompat;
 import android.support.v4.widget.NestedScrollView;
 import android.support.v7.widget.AppCompatSeekBar;
 import android.support.v7.widget.LinearLayoutManager;
@@ -46,6 +47,8 @@ import com.thetestament.cread.helpers.NetworkHelper;
 import com.thetestament.cread.helpers.SharedPreferenceHelper;
 import com.thetestament.cread.helpers.ViewHelper;
 import com.thetestament.cread.listeners.OnDragTouchListener;
+import com.thetestament.cread.listeners.listener;
+import com.thetestament.cread.models.FontModel;
 import com.thetestament.cread.utils.SquareView;
 
 import org.json.JSONException;
@@ -54,6 +57,7 @@ import org.json.JSONObject;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.concurrent.TimeUnit;
 
 import butterknife.BindView;
@@ -77,6 +81,7 @@ import static com.thetestament.cread.utils.Constant.FIREBASE_EVENT_INSPIRATION_C
 import static com.thetestament.cread.utils.Constant.IMAGE_TYPE_USER_SHORT_PIC;
 import static com.thetestament.cread.utils.Constant.REQUEST_CODE_INSPIRATION_ACTIVITY;
 import static com.thetestament.cread.utils.Constant.REQUEST_CODE_WRITE_EXTERNAL_STORAGE;
+import static com.thetestament.cread.utils.Constant.fontTypes;
 
 /**
  * Here user creates his/her shorts and uploads on the server.
@@ -101,7 +106,10 @@ public class ShortActivity extends BaseActivity implements ColorChooserDialog.Co
     RecyclerView recyclerView;
 
     private BottomSheetBehavior sheetBehavior;
+    //Define font typeface
+    private Typeface mTextTypeface;
 
+    private ArrayList<FontModel> mFontDataList = new ArrayList<>();
 
     @State
     String mShortText, mCaptureUrl, mCaptureID = "", mSignatureText;
@@ -168,9 +176,10 @@ public class ShortActivity extends BaseActivity implements ColorChooserDialog.Co
         //For bottomSheet
         sheetBehavior = BottomSheetBehavior.from(bottomSheetView);
         sheetBehavior.setPeekHeight(0);
-
-        recyclerView.setLayoutManager(new LinearLayoutManager(ShortActivity.this, LinearLayoutManager.HORIZONTAL, false));
-        recyclerView.setAdapter(new FontAdapter(ShortActivity.this));
+        //Set default font
+        mTextTypeface = ResourcesCompat.getFont(ShortActivity.this, R.font.helvetica_neue_medium);
+        //initialise fontLayout bottomSheet
+        initFontLayout();
         // mTapDetector = new GestureDetector(this, new GestureTap());
     }
 
@@ -349,7 +358,6 @@ public class ShortActivity extends BaseActivity implements ColorChooserDialog.Co
      */
     @OnClick(R.id.btnFont)
     void onFontClicked() {
-        //Todo font change functionality
         //Show bottomSheet
         sheetBehavior.setState(BottomSheetBehavior.STATE_EXPANDED);
     }
@@ -384,22 +392,22 @@ public class ShortActivity extends BaseActivity implements ColorChooserDialog.Co
     void boldBtnOnClick() {
         if (mItalicFlag == 0 && mBoldFlag == 0) {
             //Set typeface to bold
-            textShort.setTypeface(null, Typeface.BOLD);
+            textShort.setTypeface(mTextTypeface, Typeface.BOLD);
             //Update flag
             mBoldFlag = 1;
         } else if (mItalicFlag == 0 && mBoldFlag == 1) {
             //Set typeface to normal
-            textShort.setTypeface(null, Typeface.NORMAL);
+            textShort.setTypeface(mTextTypeface, Typeface.NORMAL);
             //Update flag
             mBoldFlag = 0;
         } else if (mItalicFlag == 1 && mBoldFlag == 0) {
             //Set typeface to bold_italic
-            textShort.setTypeface(null, Typeface.BOLD_ITALIC);
+            textShort.setTypeface(mTextTypeface, Typeface.BOLD_ITALIC);
             //Update flag
             mBoldFlag = 1;
         } else if (mItalicFlag == 1 && mBoldFlag == 1) {
             //Set typeface to italic
-            textShort.setTypeface(null, Typeface.ITALIC);
+            textShort.setTypeface(mTextTypeface, Typeface.ITALIC);
             //Update flag
             mBoldFlag = 0;
         }
@@ -410,24 +418,25 @@ public class ShortActivity extends BaseActivity implements ColorChooserDialog.Co
      */
     @OnClick(R.id.btnFormatTextItalic)
     void italicBtnOnclick() {
+
         if (mItalicFlag == 0 && mBoldFlag == 0) {
             //Set typeface to italic
-            textShort.setTypeface(null, Typeface.ITALIC);
+            textShort.setTypeface(mTextTypeface, Typeface.ITALIC);
             //Update flag
             mItalicFlag = 1;
         } else if (mItalicFlag == 0 && mBoldFlag == 1) {
             //Set typeface to bold_italic
-            textShort.setTypeface(null, Typeface.BOLD_ITALIC);
+            textShort.setTypeface(mTextTypeface, Typeface.BOLD_ITALIC);
             //Update flag
             mItalicFlag = 1;
         } else if (mItalicFlag == 1 && mBoldFlag == 0) {
             //Set typeface to normal
-            textShort.setTypeface(null, Typeface.NORMAL);
+            textShort.setTypeface(mTextTypeface, Typeface.NORMAL);
             //Update flag
             mItalicFlag = 0;
         } else if (mItalicFlag == 1 && mBoldFlag == 1) {
             //Set typeface to bold
-            textShort.setTypeface(null, Typeface.BOLD);
+            textShort.setTypeface(mTextTypeface, Typeface.BOLD);
             //Update flag
             mItalicFlag = 0;
         }
@@ -503,6 +512,32 @@ public class ShortActivity extends BaseActivity implements ColorChooserDialog.Co
             @Override
             public void onStopTrackingTouch(SeekBar seekBar) {
                 //Do nothing
+            }
+        });
+    }
+
+    private void initFontLayout() {
+        //initialize font data list
+        for (String fontName : fontTypes) {
+            FontModel data = new FontModel();
+            data.setFontName(fontName);
+            mFontDataList.add(data);
+        }
+
+        //Set layout manager
+        recyclerView.setLayoutManager(new LinearLayoutManager(ShortActivity.this, LinearLayoutManager.HORIZONTAL, false));
+        //Set adapter
+        FontAdapter fontAdapter = new FontAdapter(mFontDataList, ShortActivity.this);
+        recyclerView.setAdapter(fontAdapter);
+
+        //Font click listener
+        fontAdapter.setOnFontClickListener(new listener.OnFontClickListener() {
+            @Override
+            public void onFontClick(Typeface typeface) {
+                //Set short text typeface
+                textShort.setTypeface(typeface);
+                //set typeface
+                mTextTypeface = typeface;
             }
         });
     }

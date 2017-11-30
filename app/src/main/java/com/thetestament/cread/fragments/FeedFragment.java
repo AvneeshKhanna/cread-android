@@ -178,21 +178,20 @@ public class FeedFragment extends Fragment {
                     //Get cropped image Uri
                     Uri mCroppedImgUri = UCrop.getOutput(data);
                     ImageHelper.processCroppedImage(mCroppedImgUri, getActivity(), rootView, mShortId);
-
                 } else if (resultCode == UCrop.RESULT_ERROR) {
                     ViewHelper.getSnackBar(rootView, "Image could not be cropped due to some error");
                 }
                 break;
             case REQUEST_CODE_FEED_DESCRIPTION_ACTIVITY:
                 Bundle bundle = data.getBundleExtra(EXTRA_DATA);
-                //Update date
+                //Update data
                 mFeedDataList.get(bundle.getInt("position")).setHatsOffStatus(bundle.getBoolean("hatsOffStatus"));
+                mFeedDataList.get(bundle.getInt("position")).setHatsOffCount(bundle.getLong("hatsOffCount"));
                 //Notify changes
                 mAdapter.notifyItemChanged(bundle.getInt("position"));
                 break;
         }
     }
-
 
     /**
      * Method to initialize swipe to refresh view.
@@ -711,7 +710,6 @@ public class FeedFragment extends Fragment {
         //Set description text
         textDesc.setText("Cread is a Social platform where artists can collaborate and showcase their work to earn recognition, goodwill and revenues.");
     }
-
 
     @OnClick(R.id.findfbFriendsButton)
     public void onFindFBFriendsClicked() {

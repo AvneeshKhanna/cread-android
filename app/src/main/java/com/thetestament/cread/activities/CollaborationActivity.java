@@ -8,7 +8,6 @@ import android.support.annotation.Nullable;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.v4.content.ContextCompat;
 import android.text.InputType;
-import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -223,22 +222,22 @@ public class CollaborationActivity extends BaseActivity implements ColorChooserD
     /**
      * Click functionality to increase 'Short text' size by five unit..
      */
-    @OnClick(R.id.btnFormatTextSizePlus)
+    /*@OnClick(R.id.btnFormatTextSizePlus)
     public void onBtnFormatTextSizePlusClicked() {
         int ts = (int) textShort.getTextSize() + 5;
         //Increase text size by 5 unit
         textShort.setTextSize(TypedValue.COMPLEX_UNIT_PX, ts);
-    }
+    }*/
 
     /**
      * Click functionality to decrease 'Short text' by five unit.
      */
-    @OnClick(R.id.btnFormatTextSizeMinus)
+    /*@OnClick(R.id.btnFormatTextSizeMinus)
     public void onBtnFormatTextSizeMinusClicked() {
         int ts = (int) textShort.getTextSize() - 5;
         //Decrease text size by five unit
         textShort.setTextSize(TypedValue.COMPLEX_UNIT_PX, ts);
-    }
+    }*/
 
     /**
      * Click functionality to show material color palette dialog.

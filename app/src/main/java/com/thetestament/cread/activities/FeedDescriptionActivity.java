@@ -24,9 +24,6 @@ import android.widget.TextView;
 
 import com.afollestad.materialdialogs.DialogAction;
 import com.afollestad.materialdialogs.MaterialDialog;
-import com.androidnetworking.AndroidNetworking;
-import com.androidnetworking.error.ANError;
-import com.androidnetworking.interfaces.JSONObjectRequestListener;
 import com.google.firebase.analytics.FirebaseAnalytics;
 import com.google.firebase.crash.FirebaseCrash;
 import com.squareup.picasso.Picasso;
@@ -55,6 +52,7 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import de.hdodenhof.circleimageview.CircleImageView;
+import icepick.Icepick;
 import icepick.State;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.CompositeDisposable;
@@ -115,16 +113,6 @@ public class FeedDescriptionActivity extends BaseActivity {
     View lineSeparatorTop;
     @BindView(R.id.containerHatsOff)
     LinearLayout containerHatsOff;
-    @BindView(R.id.imageComment)
-    ImageView imageComment;
-    @BindView(R.id.containerComment)
-    LinearLayout containerComment;
-    @BindView(R.id.imageShare)
-    ImageView imageShare;
-    @BindView(R.id.textShare)
-    TextView textShare;
-    @BindView(R.id.containerShares)
-    LinearLayout containerShares;
     @BindView(R.id.lineSeparatorBottom)
     View lineSeparatorBottom;
     @BindView(R.id.nestedScrollView)
@@ -150,6 +138,7 @@ public class FeedDescriptionActivity extends BaseActivity {
         setContentView(R.layout.activity_feed_description);
         ButterKnife.bind(this);
 
+        //Obtain reference of this activity
         mContext = this;
 
         //ShredPreference reference
@@ -210,11 +199,13 @@ public class FeedDescriptionActivity extends BaseActivity {
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
+        Icepick.saveInstanceState(this, outState);
     }
 
     @Override
     protected void onRestoreInstanceState(Bundle savedInstanceState) {
         super.onRestoreInstanceState(savedInstanceState);
+        Icepick.restoreInstanceState(this, savedInstanceState);
     }
 
 
@@ -241,7 +232,6 @@ public class FeedDescriptionActivity extends BaseActivity {
         } else {
             ViewHelper.getSnackBar(rootView, "Due to low resolution this image is not available for purchase.");
         }
-
         //Log firebase event
         setAnalytics(FIREBASE_EVENT_HAVE_CLICKED);
     }
@@ -298,32 +288,8 @@ public class FeedDescriptionActivity extends BaseActivity {
                 textHatsOffCount.setText(String.valueOf(mFeedData.getHatsOffCount()));
             }
             //update hats off status on server
-            // updateHatsOffStatus(mFeedData.getEntityID(), mFeedData.getHatsOffStatus());
-            HatsOffHelper hatsOffHelper = new HatsOffHelper(FeedDescriptionActivity.this);
-            hatsOffHelper.updateHatsOffStatus(mFeedData.getEntityID(), mFeedData.getHatsOffStatus());
-            // On hatsOffSuccessListener
-            hatsOffHelper.setOnHatsOffSuccessListener(new HatsOffHelper.OnHatsOffSuccessListener() {
-                @Override
-                public void onSuccess() {
+            updateHatsOffStatus();
 
-                    Bundle bundle = new Bundle();
-                    bundle.putInt("position", mItemPosition);
-                    bundle.putBoolean("hatsOffStatus", mFeedData.getHatsOffStatus());
-                    Intent resultIntent = new Intent();
-                    resultIntent.putExtra(EXTRA_DATA, bundle);
-                    //Return result ok
-                    setResult(RESULT_OK, resultIntent);
-                }
-            });
-            // On hatsOffSuccessListener
-            hatsOffHelper.setOnHatsOffFailureListener(new HatsOffHelper.OnHatsOffFailureListener() {
-                @Override
-                public void onFailure(String errorMsg) {
-                    mFeedData.setHatsOffStatus(!mFeedData.getHatsOffStatus());
-                    toggleHatsOffStatus();
-                    ViewHelper.getSnackBar(rootView, errorMsg);
-                }
-            });
         } else {
             ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_no_connection));
         }
@@ -361,7 +327,7 @@ public class FeedDescriptionActivity extends BaseActivity {
     /**
      * Collaboration count click functionality to launch collaborationDetailsActivity.
      *
-     * @param textView View to be clicked
+     * @param textView View to be clicked.
      */
     @OnClick(R.id.collabCount)
     void collaborationCountOnClick(TextView textView) {
@@ -382,7 +348,7 @@ public class FeedDescriptionActivity extends BaseActivity {
 
 
     /**
-     * Method to initialize Toolbar.
+     * Method to initialize views for this screen.
      */
     private void initViews() {
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
@@ -409,8 +375,10 @@ public class FeedDescriptionActivity extends BaseActivity {
 
         //Check for hats of count
         if (mFeedData.getHatsOffCount() > 0) {
+            //Set hatsOff count
             textHatsOffCount.setText(String.valueOf(mFeedData.getHatsOffCount()));
         } else {
+            //Hide hatsOff count textView
             textHatsOffCount.setVisibility(View.GONE);
         }
 
@@ -431,9 +399,11 @@ public class FeedDescriptionActivity extends BaseActivity {
 
     /**
      * Method to load story image.
+     *
+     * @param imgLink Image Url.
+     * @param image   Where image to be displayed.
      */
     private void loadStoryImage(String imgLink, ImageView image) {
-        //Load campaign image
         Picasso.with(this)
                 .load(imgLink)
                 .error(R.drawable.image_placeholder)
@@ -442,9 +412,11 @@ public class FeedDescriptionActivity extends BaseActivity {
 
     /**
      * Method to load creator profile picture.
+     *
+     * @param creatorImage View where image to be displayed.
+     * @param imageURL     Image url.
      */
     private void loadCreatorImage(String imageURL, CircleImageView creatorImage) {
-        //Load campaign image
         Picasso.with(this)
                 .load(imageURL)
                 .error(R.drawable.ic_account_circle_48)
@@ -466,69 +438,6 @@ public class FeedDescriptionActivity extends BaseActivity {
         }
     }
 
-    /**
-     * Method to update hats off status.
-     *
-     * @param entityID  Campaign ID i.e String
-     * @param isHatsOff boolean true if user has given hats off to campaign, false otherwise.
-     */
-    private void updateHatsOffStatus(String entityID, boolean isHatsOff) {
-        final JSONObject jsonObject = new JSONObject();
-
-        try {
-            jsonObject.put("uuid", mHelper.getUUID());
-            jsonObject.put("authkey", mHelper.getAuthToken());
-            jsonObject.put("entityid", entityID);
-            jsonObject.put("register", isHatsOff);
-        } catch (JSONException e) {
-            e.printStackTrace();
-            FirebaseCrash.report(e);
-        }
-        AndroidNetworking.post(BuildConfig.URL + "/hatsoff/on-click")
-                .addJSONObjectBody(jsonObject)
-                .build()
-                .getAsJSONObject(new JSONObjectRequestListener() {
-                    @Override
-                    public void onResponse(JSONObject response) {
-                        try {
-                            //Token status is not valid
-                            if (response.getString("tokenstatus").equals("invalid")) {
-                                mFeedData.setHatsOffStatus(!mFeedData.getHatsOffStatus());
-                                toggleHatsOffStatus();
-                                ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_invalid_token));
-                            }
-                            //Token is valid
-                            else {
-                                JSONObject mainData = response.getJSONObject("data");
-                                if (mainData.getString("status").equals("done")) {
-
-                                    Bundle bundle = new Bundle();
-                                    bundle.putInt("position", mItemPosition);
-                                    bundle.putBoolean("hatsOffStatus", mFeedData.getHatsOffStatus());
-                                    Intent resultIntent = new Intent();
-                                    resultIntent.putExtra(EXTRA_DATA, bundle);
-                                    //Return result ok
-                                    setResult(RESULT_OK, resultIntent);
-                                }
-                            }
-                        } catch (JSONException e) {
-                            mFeedData.setHatsOffStatus(!mFeedData.getHatsOffStatus());
-                            toggleHatsOffStatus();
-                            e.printStackTrace();
-                            FirebaseCrash.report(e);
-                            ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_internal));
-                        }
-                    }
-
-                    @Override
-                    public void onError(ANError anError) {
-                        mFeedData.setHatsOffStatus(!mFeedData.getHatsOffStatus());
-                        toggleHatsOffStatus();
-                        ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_server));
-                    }
-                });
-
-    }
 
     /**
      * RxJava2 implementation for retrieving comment data from server.
@@ -595,7 +504,7 @@ public class FeedDescriptionActivity extends BaseActivity {
                     public void onComplete() {
                         // Token status invalid
                         if (tokenError[0]) {
-                            ViewHelper.getSnackBar(rootView, getString(R.string.auth_token));
+                            ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_invalid_token));
                         }
                         //Error occurred
                         else if (connectionError[0]) {
@@ -631,7 +540,9 @@ public class FeedDescriptionActivity extends BaseActivity {
     private void showTooltip() {
         if (mHelper.isHaveButtonTooltipFirstTime()) {
             //Show tooltip on have button
-            ViewHelper.getToolTip(buttonHave, "Like the photo? Print and order it!", FeedDescriptionActivity.this);
+            ViewHelper.getToolTip(buttonHave
+                    , "Like the photo? Print and order it!"
+                    , FeedDescriptionActivity.this);
         }
         //Update status
         mHelper.updateHaveButtonToolTipStatus(false);
@@ -652,7 +563,7 @@ public class FeedDescriptionActivity extends BaseActivity {
 
                 // set collab count text
                 if (mFeedData.getCollabCount() != 0) {
-                    collabCount.setText(getCollabCountText(mContext,mFeedData.getCollabCount(), mFeedData.getContentType()));
+                    collabCount.setText(getCollabCountText(mContext, mFeedData.getCollabCount(), mFeedData.getContentType()));
                     collabCount.setVisibility(View.VISIBLE);
 
                 } else {
@@ -707,7 +618,7 @@ public class FeedDescriptionActivity extends BaseActivity {
 
                 // set collab count text
                 if (mFeedData.getCollabCount() != 0) {
-                    collabCount.setText(getCollabCountText(mContext,mFeedData.getCollabCount(), mFeedData.getContentType()));
+                    collabCount.setText(getCollabCountText(mContext, mFeedData.getCollabCount(), mFeedData.getContentType()));
                     collabCount.setVisibility(View.VISIBLE);
                 } else {
                     collabCount.setVisibility(View.GONE);
@@ -799,7 +710,6 @@ public class FeedDescriptionActivity extends BaseActivity {
             public void onClick(View view) {
 
                 if (mHelper.isWriteIconTooltipFirstTime()) {
-
                     // open dialog
                     getCaptureOnClickDialog();
                 } else {
@@ -960,4 +870,63 @@ public class FeedDescriptionActivity extends BaseActivity {
         }
     };
 
+    /**
+     * Method to update hatsOff status on server
+     */
+    private void updateHatsOffStatus() {
+        HatsOffHelper hatsOffHelper = new HatsOffHelper(FeedDescriptionActivity.this);
+        hatsOffHelper.updateHatsOffStatus(mFeedData.getEntityID(), mFeedData.getHatsOffStatus());
+        // On hatsOffSuccessListener
+        hatsOffHelper.setOnHatsOffSuccessListener(new HatsOffHelper.OnHatsOffSuccessListener() {
+            @Override
+            public void onSuccess() {
+
+                Bundle bundle = new Bundle();
+                bundle.putLong("position", mItemPosition);
+                bundle.putLong("hatsOffCount", mFeedData.getHatsOffCount());
+                bundle.putBoolean("hatsOffStatus", mFeedData.getHatsOffStatus());
+                Intent resultIntent = new Intent();
+                resultIntent.putExtra(EXTRA_DATA, bundle);
+                //Return result ok
+                setResult(RESULT_OK, resultIntent);
+            }
+        });
+        // On hatsOffSuccessListener
+        hatsOffHelper.setOnHatsOffFailureListener(new HatsOffHelper.OnHatsOffFailureListener() {
+            @Override
+            public void onFailure(String errorMsg) {
+                mFeedData.setHatsOffStatus(!mFeedData.getHatsOffStatus());
+                updateHatsOffCount();
+                toggleHatsOffStatus();
+                ViewHelper.getSnackBar(rootView, errorMsg);
+            }
+        });
+    }
+
+    /**
+     * Method to update hatsOffCount after server response.
+     */
+    private void updateHatsOffCount() {
+        if (mFeedData.getHatsOffStatus()) {
+            //Update hatsOffCount
+            mFeedData.setHatsOffCount(mFeedData.getHatsOffCount() + 1);
+            //Set visibility on and set hatsOff count
+            textHatsOffCount.setVisibility(View.VISIBLE);
+            textHatsOffCount.setText(String.valueOf(mFeedData.getHatsOffCount()));
+
+
+        } else {
+            //Update hatsOffCount
+            mFeedData.setHatsOffCount(mFeedData.getHatsOffCount() - 1);
+            //If hats off count is zero
+            if (mFeedData.getHatsOffCount() < 1) {
+                textHatsOffCount.setVisibility(View.GONE);
+            }
+            //hats off count is more than zero
+            else {
+                textHatsOffCount.setVisibility(View.VISIBLE);
+                textHatsOffCount.setText(String.valueOf(mFeedData.getHatsOffCount()));
+            }
+        }
+    }
 }

@@ -66,7 +66,9 @@ import static com.thetestament.cread.helpers.NetworkHelper.getNetConnectionStatu
 import static com.thetestament.cread.helpers.NetworkHelper.getObservableFromServer;
 import static com.thetestament.cread.utils.Constant.CONTENT_TYPE_CAPTURE;
 import static com.thetestament.cread.utils.Constant.CONTENT_TYPE_SHORT;
+import static com.thetestament.cread.utils.Constant.EXTRA_DATA;
 import static com.thetestament.cread.utils.Constant.IMAGE_TYPE_USER_CAPTURE_PIC;
+import static com.thetestament.cread.utils.Constant.REQUEST_CODE_FEED_DESCRIPTION_ACTIVITY;
 import static com.thetestament.cread.utils.Constant.REQUEST_CODE_OPEN_GALLERY_FOR_CAPTURE;
 
 
@@ -167,6 +169,14 @@ public class ExploreFragment extends Fragment {
                     ViewHelper.getSnackBar(rootView, "Image could not be cropped due to some error");
                 }
                 break;
+            case REQUEST_CODE_FEED_DESCRIPTION_ACTIVITY:
+                Bundle bundle = data.getBundleExtra(EXTRA_DATA);
+                //Update data
+                mExploreDataList.get(bundle.getInt("position")).setHatsOffStatus(bundle.getBoolean("hatsOffStatus"));
+                mExploreDataList.get(bundle.getInt("position")).setHatsOffCount(bundle.getLong("hatsOffCount"));
+                //Notify changes
+                mAdapter.notifyItemChanged(bundle.getInt("position"));
+                break;
         }
     }
 
@@ -194,7 +204,7 @@ public class ExploreFragment extends Fragment {
         //Set layout manger for recyclerView
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
         //Set adapter
-        mAdapter = new ExploreAdapter(mExploreDataList, getActivity(), mHelper.getUUID());
+        mAdapter = new ExploreAdapter(mExploreDataList, getActivity(), mHelper.getUUID(), ExploreFragment.this);
         recyclerView.setAdapter(mAdapter);
 
         swipeRefreshLayout.setRefreshing(true);

@@ -83,6 +83,7 @@ import static com.thetestament.cread.helpers.NetworkHelper.getObservableFromServ
 import static com.thetestament.cread.helpers.NetworkHelper.getUserDataObservableFromServer;
 import static com.thetestament.cread.utils.Constant.CONTENT_TYPE_CAPTURE;
 import static com.thetestament.cread.utils.Constant.CONTENT_TYPE_SHORT;
+import static com.thetestament.cread.utils.Constant.EXTRA_DATA;
 import static com.thetestament.cread.utils.Constant.EXTRA_FOLLOW_REQUESTED_UUID;
 import static com.thetestament.cread.utils.Constant.EXTRA_FOLLOW_TYPE;
 import static com.thetestament.cread.utils.Constant.EXTRA_USER_BIO;
@@ -94,6 +95,7 @@ import static com.thetestament.cread.utils.Constant.EXTRA_USER_LAST_NAME;
 import static com.thetestament.cread.utils.Constant.EXTRA_USER_WATER_MARK_STATUS;
 import static com.thetestament.cread.utils.Constant.FIREBASE_EVENT_FOLLOW_FROM_PROFILE;
 import static com.thetestament.cread.utils.Constant.IMAGE_TYPE_USER_CAPTURE_PIC;
+import static com.thetestament.cread.utils.Constant.REQUEST_CODE_FEED_DESCRIPTION_ACTIVITY;
 import static com.thetestament.cread.utils.Constant.REQUEST_CODE_OPEN_GALLERY_FOR_CAPTURE;
 import static com.thetestament.cread.utils.Constant.REQUEST_CODE_UPDATE_PROFILE_DETAILS;
 import static com.thetestament.cread.utils.Constant.REQUEST_CODE_UPDATE_PROFILE_PIC;
@@ -265,6 +267,14 @@ public class MeFragment extends Fragment {
                     mEmail = data.getExtras().getString(EXTRA_USER_EMAIL);
                     mWaterMarkStatus = data.getExtras().getString(EXTRA_USER_WATER_MARK_STATUS);
                 }
+                break;
+            case REQUEST_CODE_FEED_DESCRIPTION_ACTIVITY:
+                Bundle bundle = data.getBundleExtra(EXTRA_DATA);
+                //Update data
+                mUserActivityDataList.get(bundle.getInt("position")).setHatsOffStatus(bundle.getBoolean("hatsOffStatus"));
+                mUserActivityDataList.get(bundle.getInt("position")).setHatsOffCount(bundle.getLong("hatsOffCount"));
+                //Notify changes
+                mAdapter.notifyItemChanged(bundle.getInt("position"));
                 break;
         }
 
@@ -774,7 +784,7 @@ public class MeFragment extends Fragment {
         //Set layout manger for recyclerView
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
         //Set adapter
-        mAdapter = new MeAdapter(mUserActivityDataList, getActivity(), mHelper.getUUID());
+        mAdapter = new MeAdapter(mUserActivityDataList, getActivity(), mHelper.getUUID(), MeFragment.this);
         //  mAdapter.setUserActivityType(USER_ACTIVITY_TYPE_ALL);
         recyclerView.setAdapter(mAdapter);
 
