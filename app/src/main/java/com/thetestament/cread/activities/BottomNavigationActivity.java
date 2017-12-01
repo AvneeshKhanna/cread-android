@@ -54,6 +54,7 @@ import static com.thetestament.cread.utils.Constant.FIREBASE_EVENT_NOTIFICATION_
 import static com.thetestament.cread.utils.Constant.FIREBASE_EVENT_WRITE_CLICKED;
 import static com.thetestament.cread.utils.Constant.IMAGE_TYPE_USER_CAPTURE_PIC;
 import static com.thetestament.cread.utils.Constant.REQUEST_CODE_OPEN_GALLERY;
+import static com.thetestament.cread.utils.Constant.REQUEST_CODE_ROYALTIES_ACTIVITY;
 import static com.thetestament.cread.utils.Constant.REQUEST_CODE_WRITE_EXTERNAL_STORAGE;
 import static com.thetestament.cread.utils.Constant.TAG_EXPLORE_FRAGMENT;
 import static com.thetestament.cread.utils.Constant.TAG_FEED_FRAGMENT;
@@ -132,6 +133,14 @@ public class BottomNavigationActivity extends BaseActivity {
 
                 } else if (resultCode == UCrop.RESULT_ERROR) {
                     ViewHelper.getSnackBar(rootView, "Image could not be cropped due to some error");
+                }
+                break;
+
+            case REQUEST_CODE_ROYALTIES_ACTIVITY :
+                if(resultCode == RESULT_OK)
+                {
+                    // open bottom sheet
+                    getAddContentBottomSheetDialog();
                 }
                 break;
             default:

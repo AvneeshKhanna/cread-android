@@ -3,14 +3,21 @@ package com.thetestament.cread.helpers;
 import android.content.Context;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.support.v4.app.FragmentActivity;
 
 import com.google.firebase.crash.FirebaseCrash;
 import com.rx2androidnetworking.Rx2AndroidNetworking;
+import com.thetestament.cread.BuildConfig;
+import com.thetestament.cread.listeners.listener;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import io.reactivex.Observable;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.CompositeDisposable;
+import io.reactivex.observers.DisposableObserver;
+import io.reactivex.schedulers.Schedulers;
 
 /**
  * A helper class for providing utility method for network related operations.
@@ -224,6 +231,72 @@ public class NetworkHelper {
                 .addJSONObjectBody(jsonObject)
                 .build()
                 .getJSONObjectObservable();
+    }
+
+
+    /**
+     * Method to return data from the server.
+     *
+     * @param serverURL    URL of the server.
+     * @param uuid         UUID of the user.
+     * @param authKey      AuthKey of user.
+     * @param lastIndexKey Last index key.
+     */
+    public static Observable<JSONObject> getRoyaltiesObersvable(String serverURL, String uuid, String authKey, String lastIndexKey, boolean requestRoyaltiesData) {
+
+        JSONObject jsonObject = new JSONObject();
+        try {
+            jsonObject.put("uuid", uuid);
+            jsonObject.put("authkey", authKey);
+            jsonObject.put("lastindexkey", lastIndexKey);
+            jsonObject.put("toloadtotal", requestRoyaltiesData);
+        } catch (JSONException e) {
+            e.printStackTrace();
+            FirebaseCrash.report(e);
+        }
+        return Rx2AndroidNetworking.post(serverURL)
+                .addJSONObjectBody(jsonObject)
+                .build()
+                .getJSONObjectObservable();
+    }
+
+
+
+    public static void requestServer(CompositeDisposable compositeDisposable, Observable<JSONObject> jsonObjectObservable, FragmentActivity context, final listener.OnServerRequestedListener listener)
+    {
+        if(getNetConnectionStatus(context))
+        {
+            compositeDisposable.add(jsonObjectObservable
+                    //Run on a background thread
+                    .subscribeOn(Schedulers.io())
+                    //Be notified on the main thread
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribeWith(new DisposableObserver<JSONObject>()
+                    {
+                        @Override
+                        public void onNext(JSONObject jsonObject) {
+                            listener.onNextCalled(jsonObject);
+                        }
+
+                        @Override
+                        public void onError(Throwable e) {
+                            listener.onErrorCalled(e);
+                        }
+
+                        @Override
+                        public void onComplete() {
+                            listener.onCompleteCalled();
+                        }
+                    })
+
+            );
+
+        }
+
+        else
+        {
+            listener.onDeviceOffline();
+        }
     }
 
 }

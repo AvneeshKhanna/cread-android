@@ -298,7 +298,24 @@
             android:name="firebase_crash_collection_enabled"
             android:value="@bool/FIREBASE_CRASHLYTICS_ENABLED" />
 
-        <activity android:name=".activities.RoyaltiesActivity"></activity>
+        <activity android:name=".activities.RoyaltiesActivity"
+            android:screenOrientation="portrait"
+            android:theme="@style/RoyaltyActivityTheme">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".activities.BottomNavigationActivity" />
+        </activity>
+
+        <!--For CashInActivity-->
+        <activity
+            android:name=".activities.CashInActivity"
+            android:label="Cash In"
+            android:screenOrientation="portrait">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".activities.RoyaltiesActivity" />
+        </activity>
+
     </application>
 
 </manifest>

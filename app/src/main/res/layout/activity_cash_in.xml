@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/root_view"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <!--Image wallet-->
+        <ImageView
+            android:id="@+id/image_wallet"
+            android:layout_width="150dp"
+            android:layout_height="150dp"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="80dp"
+            android:src="@drawable/img_wallet_512" />
+
+        <!--Cash in amount text-->
+        <org.fabiomsr.moneytextview.MoneyTextView
+            android:id="@+id/text_cash_in_amount"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/image_wallet"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="15dp"
+            app:amount="3000"
+            app:baseTextColor="@color/colorPrimary"
+            app:baseTextSize="24sp"
+            app:decimalGravity="bottom"
+            app:decimalSeparator="."
+            app:format="###,##0.0"
+            app:gravity="top"
+            app:includeDecimalSeparator="true"
+            app:symbol="@string/Rs"
+            app:symbolGravity="start"
+            app:symbolMargin="2dp"
+            app:symbolTextColor="@color/colorPrimary"
+            app:symbolTextSize="26dp" />
+
+        <!--Text desc-->
+        <TextView
+            android:id="@+id/text_amount_desc"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/text_cash_in_amount"
+            android:layout_centerHorizontal="true"
+            android:gravity="center"
+            android:paddingLeft="20dp"
+            android:paddingRight="20dp"
+            android:paddingTop="15dp"
+            android:text="You can transfer this amount directly to your paytm wallet. Minimum wallet balance should be \u20b9 30."
+            android:textColor="@color/grey_dark" />
+
+        <!--Buttons container-->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_below="@+id/text_amount_desc"
+            android:gravity="center_horizontal|center_vertical"
+            android:orientation="vertical">
+
+            <!--Button Cash In-->
+            <TextView
+                android:id="@+id/button_cash_in"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@drawable/button_filled"
+                android:paddingBottom="10dp"
+                android:paddingLeft="30dp"
+                android:paddingRight="30dp"
+                android:paddingTop="10dp"
+                android:text="Transfer to Paytm"
+                android:textColor="@color/white"
+                android:textSize="16sp" />
+
+        </LinearLayout>
+
+    </RelativeLayout>
+
+
+</android.support.design.widget.CoordinatorLayout>

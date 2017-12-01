@@ -19,13 +19,18 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.InputType;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.AnimationUtils;
 import android.view.animation.LayoutAnimationController;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.afollestad.materialdialogs.DialogAction;
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.androidnetworking.AndroidNetworking;
 import com.androidnetworking.error.ANError;
@@ -41,6 +46,7 @@ import com.thetestament.cread.Manifest;
 import com.thetestament.cread.R;
 import com.thetestament.cread.activities.BottomNavigationActivity;
 import com.thetestament.cread.activities.FollowActivity;
+import com.thetestament.cread.activities.RoyaltiesActivity;
 import com.thetestament.cread.activities.UpdateProfileDetailsActivity;
 import com.thetestament.cread.activities.UpdateProfileImageActivity;
 import com.thetestament.cread.adapters.MeAdapter;
@@ -84,6 +90,7 @@ import static com.thetestament.cread.utils.Constant.CONTENT_TYPE_CAPTURE;
 import static com.thetestament.cread.utils.Constant.CONTENT_TYPE_SHORT;
 import static com.thetestament.cread.utils.Constant.EXTRA_FOLLOW_REQUESTED_UUID;
 import static com.thetestament.cread.utils.Constant.EXTRA_FOLLOW_TYPE;
+import static com.thetestament.cread.utils.Constant.EXTRA_IS_PROFILE_EDITABLE;
 import static com.thetestament.cread.utils.Constant.EXTRA_USER_BIO;
 import static com.thetestament.cread.utils.Constant.EXTRA_USER_CONTACT;
 import static com.thetestament.cread.utils.Constant.EXTRA_USER_EMAIL;
@@ -94,6 +101,7 @@ import static com.thetestament.cread.utils.Constant.EXTRA_USER_WATER_MARK_STATUS
 import static com.thetestament.cread.utils.Constant.FIREBASE_EVENT_FOLLOW_FROM_PROFILE;
 import static com.thetestament.cread.utils.Constant.IMAGE_TYPE_USER_CAPTURE_PIC;
 import static com.thetestament.cread.utils.Constant.REQUEST_CODE_OPEN_GALLERY_FOR_CAPTURE;
+import static com.thetestament.cread.utils.Constant.REQUEST_CODE_ROYALTIES_ACTIVITY;
 import static com.thetestament.cread.utils.Constant.REQUEST_CODE_UPDATE_PROFILE_DETAILS;
 import static com.thetestament.cread.utils.Constant.REQUEST_CODE_UPDATE_PROFILE_PIC;
 
@@ -159,6 +167,8 @@ public class MeFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         //Initialize preference helper
         mHelper = new SharedPreferenceHelper(getActivity());
+        // Its own option menu
+        setHasOptionsMenu(true);
         //Inflate this view
         return inflater.inflate(R.layout.fragment_me
                 , container
@@ -269,6 +279,25 @@ public class MeFragment extends Fragment {
 
     }
 
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+
+        if (mHelper.getUUID().equals(mRequestedUUID)) {
+            inflater.inflate(R.menu.menu_fragment_me, menu);
+        }
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+
+        switch (item.getItemId()) {
+            case R.id.action_royalties:
+                startRoyaltiesActivity();
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
+
     /**
      * User image click functionality to launch screen where user can edit his/her profile picture.
      */
@@ -285,6 +314,7 @@ public class MeFragment extends Fragment {
      */
     @OnClick(R.id.textUserName)
     public void onUserNameClicked() {
+
         if (isProfileEditable) {
             Intent intent = new Intent(getActivity(), UpdateProfileDetailsActivity.class);
             intent.putExtra(EXTRA_USER_FIRST_NAME, mFirstName);
@@ -392,6 +422,13 @@ public class MeFragment extends Fragment {
             mRequestedUUID = mHelper.getUUID();
             //Enable profile editing
             isProfileEditable = true;
+
+            // show royalties dialog if first time
+            if(mHelper.isMeFragmentFirstTime())
+            {
+                showRoyaltiesDialog();
+            }
+
         } else {
             mRequestedUUID = getArguments().getString("requesteduuid");
             //Disable profile editing
@@ -1461,5 +1498,46 @@ public class MeFragment extends Fragment {
                 });
     }
 
+    private void startRoyaltiesActivity()
+    {
+        getActivity().startActivityForResult(
+                new Intent(getActivity(),
+                        RoyaltiesActivity.class).
+                        putExtra(EXTRA_IS_PROFILE_EDITABLE, isProfileEditable)
+                , REQUEST_CODE_ROYALTIES_ACTIVITY);
+    }
+
+    /**
+     * Method to show the royalties dialog
+     */
+    private void showRoyaltiesDialog()
+    {
+       MaterialDialog dialog = new MaterialDialog.Builder(getActivity())
+                .customView(R.layout.dialog_generic, false)
+                .positiveText("More")
+                .onPositive(new MaterialDialog.SingleButtonCallback() {
+                    @Override
+                    public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
+                        dialog.dismiss();
+                        startRoyaltiesActivity();
+                        mHelper.updateMeFragmentStatus(false);
+                    }
+                })
+                .show();
+
+        //Obtain views reference
+        ImageView fillerImage = dialog.getCustomView().findViewById(R.id.viewFiller);
+        TextView textTitle = dialog.getCustomView().findViewById(R.id.textTitle);
+        TextView textDesc = dialog.getCustomView().findViewById(R.id.textDesc);
+
+        // TODO update image
+        //Set filler image
+        fillerImage.setImageDrawable(ContextCompat.getDrawable(getActivity(), R.drawable.img_collab_intro));
+        //Set title text
+        textTitle.setText(getActivity().getString(R.string.title_dialog_me));
+        //Set description text
+        textDesc.setText(getActivity().getString(R.string.text_dialog_me));
+
+    }
 
 }

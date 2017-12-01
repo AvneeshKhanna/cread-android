@@ -13,12 +13,16 @@ public class Constant {
     public static final int REQUEST_CODE_UPDATE_PROFILE_DETAILS = 1005;
     public static final int REQUEST_CODE_OPEN_GALLERY = 1006;
     public static final int REQUEST_CODE_INSPIRATION_ACTIVITY = 1007;
+    public static final int REQUEST_CODE_CASH_IN = 1008;
+    public static final int REQUEST_CODE_ROYALTIES_ACTIVITY = 1009;
+
 
     //Tag value for fragments
     public static final String TAG_FEED_FRAGMENT = "TagFeedFragment";
     public static final String TAG_EXPLORE_FRAGMENT = "TagExploreFragment";
     public static final String TAG_ME_FRAGMENT = "TagMeFragment";
-    public static final String FRAGMENT_TAG_UPDATES_FRAGMENT = "TagUpdatesFragment";
+    public static final String TAG_UPDATES_FRAGMENT = "TagUpdatesFragment";
+    public static final String TAG_ROYALTIES_FRAGMENT = "TagRoyaltiesFragment";
 
     //Content Types
     public static final String CONTENT_TYPE_SHORT = "SHORT";
@@ -76,11 +80,17 @@ public class Constant {
     public static final String EXTRA_PRODUCT_ENTITYID = "entityID";
     public static final String EXTRA_PRODUCT_DELIVERY_TIME = "deliveryTime";
     public static final String EXTRA_PRODUCT_DELIVERY_CHARGE = "deliveryCharge";
+    public static final String EXTRA_IS_PROFILE_EDITABLE = "isProfileEditable";
+    public static final String EXTRA_MIN_CASH_AMT = "minCashInData";
+    public static final String EXTRA_CASH_IN_AMOUNT = "cashInAmount";
 
     public static final String PAYMENT_STATUS_SUCCESS = "paymentSuccess";
     public static final String PAYMENT_STATUS_INVALID_TOKEN = "paymentInvalidToken";
     public static final String PAYMENT_STATUS_CONNECTION_TERMINATED = "paymentConnectionTerminated";
     public static final String PAYMENT_STATUS_SERVER_ERROR = "paymentServerError";
+
+
+
 
     //Action
     public static final String ACTION_LOG_OUT = "com.thetestament.cread.ACTION_LOGOUT";
