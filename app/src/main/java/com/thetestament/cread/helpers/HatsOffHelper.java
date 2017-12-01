@@ -23,8 +23,6 @@ public class HatsOffHelper {
 
 
     private Context mContext;
-    private String mEntityID;
-    private boolean mIsHatsOff;
     private OnHatsOffSuccessListener onHatsOffSuccessListener;
     private OnHatsOffFailureListener onHatsOffFailureListener;
 
@@ -59,7 +57,7 @@ public class HatsOffHelper {
     /**
      * Required constructor
      *
-     * @param mContext Constructor  to use.
+     * @param mContext Constructor to use.
      */
     public HatsOffHelper(Context mContext) {
         this.mContext = mContext;

@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.Typeface;
+import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Environment;
@@ -112,12 +113,18 @@ public class ShortActivity extends BaseActivity implements ColorChooserDialog.Co
     private ArrayList<FontModel> mFontDataList = new ArrayList<>();
 
     @State
-    String mShortText, mCaptureUrl, mCaptureID = "", mSignatureText;
+    String mShortText, mCaptureUrl, mCaptureID = "", mSignatureText, mShortBgColor = "FFFFFFFF", mFontType = "ubuntu_medium.ttf";
     @State
     boolean mIsMerchantable = true, signatureStatus = false;
     @State
     int mImageWidth = 650;
 
+
+    /**
+     * Flag to maintain image background color status i.e true if background color is present false otherwise.
+     */
+    @State
+    boolean mIsBgColorPresent = false;
     /**
      * Flag to maintain color chooser dialog called status.
      */
@@ -177,7 +184,7 @@ public class ShortActivity extends BaseActivity implements ColorChooserDialog.Co
         sheetBehavior = BottomSheetBehavior.from(bottomSheetView);
         sheetBehavior.setPeekHeight(0);
         //Set default font
-        mTextTypeface = ResourcesCompat.getFont(ShortActivity.this, R.font.helvetica_neue_medium);
+        mTextTypeface = ResourcesCompat.getFont(ShortActivity.this, R.font.ubuntu_medium);
         //initialise fontLayout bottomSheet
         initFontLayout();
         // mTapDetector = new GestureDetector(this, new GestureTap());
@@ -202,6 +209,8 @@ public class ShortActivity extends BaseActivity implements ColorChooserDialog.Co
                     mIsMerchantable = bundle.getBoolean(EXTRA_MERCHANTABLE);
                     //Load inspiration/capture image
                     loadCapture(imageShort, mCaptureUrl);
+                    //Update flag
+                    mIsBgColorPresent = false;
                 }
                 break;
 
@@ -371,6 +380,8 @@ public class ShortActivity extends BaseActivity implements ColorChooserDialog.Co
         mColorChooserType = "backGroundColor";
         //Show color dialog
         showColorChooserDialog();
+        //Update flag
+        mIsBgColorPresent = true;
     }
 
     /**
@@ -516,6 +527,9 @@ public class ShortActivity extends BaseActivity implements ColorChooserDialog.Co
         });
     }
 
+    /**
+     * Method to initialize font bottom sheet
+     */
     private void initFontLayout() {
         //initialize font data list
         for (String fontName : fontTypes) {
@@ -533,11 +547,13 @@ public class ShortActivity extends BaseActivity implements ColorChooserDialog.Co
         //Font click listener
         fontAdapter.setOnFontClickListener(new listener.OnFontClickListener() {
             @Override
-            public void onFontClick(Typeface typeface) {
+            public void onFontClick(Typeface typeface, String fontType) {
                 //Set short text typeface
                 textShort.setTypeface(typeface);
                 //set typeface
                 mTextTypeface = typeface;
+                //Set font type
+                mFontType = fontType;
             }
         });
     }
@@ -667,9 +683,12 @@ public class ShortActivity extends BaseActivity implements ColorChooserDialog.Co
                             dialog.dismiss();
 
 
-                            /*ColorDrawable drawable = (ColorDrawable) imageShort.getBackground();
-                            drawable.getColor();*/
-
+                            //Retrieve background color if its present
+                            if (mIsBgColorPresent) {
+                                ColorDrawable drawable = (ColorDrawable) imageShort.getBackground();
+                                //Update bg color
+                                mShortBgColor = Integer.toHexString(drawable.getColor());
+                            }
 
                             //Update details on server
                             updateShort(new File(getImageUri(IMAGE_TYPE_USER_SHORT_PIC).getPath())
@@ -683,6 +702,10 @@ public class ShortActivity extends BaseActivity implements ColorChooserDialog.Co
                                     , Integer.toHexString(textShort.getCurrentTextColor())
                                     , textGravity.toString()
                                     , String.valueOf(mImageWidth)
+                                    , mFontType
+                                    , mShortBgColor
+                                    , String.valueOf(mBoldFlag)
+                                    , String.valueOf(mItalicFlag)
                             );
                         } else {
                             ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_no_connection));
@@ -712,7 +735,7 @@ public class ShortActivity extends BaseActivity implements ColorChooserDialog.Co
     /**
      * Update short image and other details on server.
      */
-    private void updateShort(File file, String captureID, String xPosition, String yPosition, String tvWidth, String tvHeight, String text, String textSize, String textColor, String textGravity, String imgWidth) {
+    private void updateShort(File file, String captureID, String xPosition, String yPosition, String tvWidth, String tvHeight, String text, String textSize, String textColor, String textGravity, String imgWidth, String font, String bgColor, String bold, String italic) {
 
         int merchantable;
         if (mIsMerchantable) {
@@ -757,6 +780,10 @@ public class ShortActivity extends BaseActivity implements ColorChooserDialog.Co
                 .addMultipartParameter("textcolor", textColor)
                 .addMultipartParameter("textgravity", textGravity)
                 .addMultipartParameter("merchantable", String.valueOf(merchantable))
+                .addMultipartParameter("font", font)
+                .addMultipartParameter("bgcolor", bgColor)
+                .addMultipartParameter("bold", bold)
+                .addMultipartParameter("italic", italic)
                 .build()
                 .getJSONObjectObservable()
                 .subscribeOn(Schedulers.io())

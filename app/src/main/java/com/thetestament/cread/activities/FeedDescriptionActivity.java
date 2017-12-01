@@ -15,6 +15,7 @@ import android.support.v4.widget.NestedScrollView;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.View;
 import android.view.animation.AnimationUtils;
 import android.view.animation.LayoutAnimationController;
@@ -367,9 +368,11 @@ public class FeedDescriptionActivity extends BaseActivity {
      */
     private void retrieveIntentData() {
 
-        mFeedData = getIntent().getParcelableExtra(EXTRA_FEED_DESCRIPTION_DATA);
-        mItemPosition = getIntent().getIntExtra("position", 0);
+        Bundle bundle = getIntent().getBundleExtra(EXTRA_DATA);
 
+        mFeedData = bundle.getParcelable(EXTRA_FEED_DESCRIPTION_DATA);
+        mItemPosition = bundle.getInt("position");
+        Log.d("TAG", "retrieveIntentData: " + mItemPosition);
         performContentTypeSpecificOperations();
 
 
@@ -882,7 +885,7 @@ public class FeedDescriptionActivity extends BaseActivity {
             public void onSuccess() {
 
                 Bundle bundle = new Bundle();
-                bundle.putLong("position", mItemPosition);
+                bundle.putInt("position", mItemPosition);
                 bundle.putLong("hatsOffCount", mFeedData.getHatsOffCount());
                 bundle.putBoolean("hatsOffStatus", mFeedData.getHatsOffStatus());
                 Intent resultIntent = new Intent();

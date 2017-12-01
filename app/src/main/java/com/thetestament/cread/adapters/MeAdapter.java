@@ -172,7 +172,7 @@ public class MeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             });
 
             //ItemView onClick functionality
-            itemViewOnClick(itemViewHolder.itemView, data);
+            itemViewOnClick(itemViewHolder.itemView, data, position);
 
             //Check whether user has given hats off to this campaign or not
             checkHatsOffStatus(data.getHatsOffStatus(), itemViewHolder);
@@ -305,14 +305,19 @@ public class MeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
      *
      * @param view      View to be clicked.
      * @param feedModel Data set for current item.
+     * @param position  Position of item
      */
-    private void itemViewOnClick(View view, final FeedModel feedModel) {
+    private void itemViewOnClick(View view, final FeedModel feedModel, final int position) {
         view.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
 
+                Bundle bundle = new Bundle();
+                bundle.putParcelable(EXTRA_FEED_DESCRIPTION_DATA, feedModel);
+                bundle.putInt("position", position);
+
                 Intent intent = new Intent(mContext, FeedDescriptionActivity.class);
-                intent.putExtra(EXTRA_FEED_DESCRIPTION_DATA, feedModel);
+                intent.putExtra(EXTRA_DATA, bundle);
                 mMeFragment.startActivityForResult(intent, REQUEST_CODE_FEED_DESCRIPTION_ACTIVITY);
             }
         });

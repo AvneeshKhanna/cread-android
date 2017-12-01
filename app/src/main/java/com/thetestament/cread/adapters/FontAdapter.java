@@ -31,6 +31,7 @@ import static com.thetestament.cread.utils.Constant.FONT_TYPE_POIRET_ONE_REGULAR
 import static com.thetestament.cread.utils.Constant.FONT_TYPE_SHADOWS_INTO_LIGHT;
 import static com.thetestament.cread.utils.Constant.FONT_TYPE_SPECTRA_ISC_REGULAR;
 import static com.thetestament.cread.utils.Constant.FONT_TYPE_TITILLIUM_WEB_REGULAR;
+import static com.thetestament.cread.utils.Constant.FONT_TYPE_UBUNTU_MEDIUM;
 
 /**
  * Adapter class to provide a binding from data set to views that are displayed within a Font RecyclerView.
@@ -77,7 +78,7 @@ public class FontAdapter extends RecyclerView.Adapter<FontAdapter.ItemViewHolder
             @Override
             public void onClick(View view) {
                 //Set Listener
-                onFontClickListener.onFontClick(getFontType(data.getFontName(), mContext));
+                onFontClickListener.onFontClick(getFontType(data.getFontName(), mContext), data.getFontName());
             }
         });
 
@@ -132,8 +133,10 @@ public class FontAdapter extends RecyclerView.Adapter<FontAdapter.ItemViewHolder
                 return ResourcesCompat.getFont(context, R.font.spectra_isc_regular);
             case FONT_TYPE_TITILLIUM_WEB_REGULAR:
                 return ResourcesCompat.getFont(context, R.font.titillium_web_regular);
+            case FONT_TYPE_UBUNTU_MEDIUM:
+                return ResourcesCompat.getFont(context, R.font.ubuntu_medium);
             default:
-                return ResourcesCompat.getFont(context, R.font.helvetica_neue_medium);
+                return ResourcesCompat.getFont(context, R.font.ubuntu_medium);
         }
     }
 }

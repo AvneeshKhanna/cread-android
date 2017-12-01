@@ -156,7 +156,7 @@ public class ExploreAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
             //Follow button click functionality
             followOnClick(position, data, itemViewHolder.buttonFollow);
             //ItemView onClick functionality
-            itemViewOnClick(itemViewHolder.itemView, data);
+            itemViewOnClick(itemViewHolder.itemView, data, position);
             //Collaboration count click functionality
             collaborationCountOnClick(itemViewHolder.collabCount, data.getEntityID(), data.getContentType());
 
@@ -321,12 +321,16 @@ public class ExploreAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
     /**
      * ItemView click functionality.
      */
-    private void itemViewOnClick(View view, final FeedModel feedModel) {
+    private void itemViewOnClick(View view, final FeedModel feedModel, final int position) {
         view.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                Bundle bundle = new Bundle();
+                bundle.putParcelable(EXTRA_FEED_DESCRIPTION_DATA, feedModel);
+                bundle.putInt("position", position);
+
                 Intent intent = new Intent(mContext, FeedDescriptionActivity.class);
-                intent.putExtra(EXTRA_FEED_DESCRIPTION_DATA, feedModel);
+                intent.putExtra(EXTRA_DATA, bundle);
                 mExploreFragment.startActivityForResult(intent, REQUEST_CODE_FEED_DESCRIPTION_ACTIVITY);
             }
         });

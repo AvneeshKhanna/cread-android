@@ -175,6 +175,6 @@ public class listener {
         /**
          * @param typeface Selected typeface
          */
-        void onFontClick(Typeface typeface);
+        void onFontClick(Typeface typeface, String fontType);
     }
 }

@@ -170,12 +170,14 @@ public class ExploreFragment extends Fragment {
                 }
                 break;
             case REQUEST_CODE_FEED_DESCRIPTION_ACTIVITY:
-                Bundle bundle = data.getBundleExtra(EXTRA_DATA);
-                //Update data
-                mExploreDataList.get(bundle.getInt("position")).setHatsOffStatus(bundle.getBoolean("hatsOffStatus"));
-                mExploreDataList.get(bundle.getInt("position")).setHatsOffCount(bundle.getLong("hatsOffCount"));
-                //Notify changes
-                mAdapter.notifyItemChanged(bundle.getInt("position"));
+                if (resultCode == RESULT_OK) {
+                    Bundle bundle = data.getBundleExtra(EXTRA_DATA);
+                    //Update data
+                    mExploreDataList.get(bundle.getInt("position")).setHatsOffStatus(bundle.getBoolean("hatsOffStatus"));
+                    mExploreDataList.get(bundle.getInt("position")).setHatsOffCount(bundle.getLong("hatsOffCount"));
+                    //Notify changes
+                    mAdapter.notifyItemChanged(bundle.getInt("position"));
+                }
                 break;
         }
     }

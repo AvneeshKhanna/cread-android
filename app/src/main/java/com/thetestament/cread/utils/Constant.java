@@ -145,6 +145,7 @@ public class Constant {
     public static final String FONT_TYPE_SHADOWS_INTO_LIGHT = "shadows_into_light.ttf";
     public static final String FONT_TYPE_SPECTRA_ISC_REGULAR = "spectra_isc_regular.ttf";
     public static final String FONT_TYPE_TITILLIUM_WEB_REGULAR = "titillium_web_regular.ttf";
+    public static final String FONT_TYPE_UBUNTU_MEDIUM = "ubuntu_medium.ttf";
 
     //Font list
     public static String[] fontTypes = {
@@ -160,6 +161,7 @@ public class Constant {
             , FONT_TYPE_SHADOWS_INTO_LIGHT
             , FONT_TYPE_SPECTRA_ISC_REGULAR
             , FONT_TYPE_TITILLIUM_WEB_REGULAR
+            , FONT_TYPE_UBUNTU_MEDIUM
     };
 
 }

@@ -1,19 +1,29 @@
 package com.thetestament.cread.activities;
 
 import android.graphics.Bitmap;
+import android.graphics.Typeface;
 import android.os.Bundle;
 import android.os.Environment;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.design.widget.BottomSheetBehavior;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.content.res.ResourcesCompat;
+import android.support.v4.widget.NestedScrollView;
+import android.support.v7.widget.AppCompatSeekBar;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.text.InputType;
+import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
+import android.widget.SeekBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.afollestad.materialdialogs.DialogAction;
 import com.afollestad.materialdialogs.MaterialDialog;
@@ -25,10 +35,13 @@ import com.squareup.picasso.Picasso;
 import com.thetestament.cread.BuildConfig;
 import com.thetestament.cread.Manifest;
 import com.thetestament.cread.R;
+import com.thetestament.cread.adapters.FontAdapter;
 import com.thetestament.cread.helpers.NetworkHelper;
 import com.thetestament.cread.helpers.SharedPreferenceHelper;
 import com.thetestament.cread.helpers.ViewHelper;
 import com.thetestament.cread.listeners.OnDragTouchListener;
+import com.thetestament.cread.listeners.listener;
+import com.thetestament.cread.models.FontModel;
 import com.thetestament.cread.utils.SquareView;
 
 import org.json.JSONException;
@@ -37,6 +50,7 @@ import org.json.JSONObject;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.concurrent.TimeUnit;
 
 import butterknife.BindView;
@@ -62,6 +76,7 @@ import static com.thetestament.cread.utils.Constant.IMAGE_TYPE_USER_SHORT_PIC;
 import static com.thetestament.cread.utils.Constant.WATERMARK_STATUS_ASK_ALWAYS;
 import static com.thetestament.cread.utils.Constant.WATERMARK_STATUS_NO;
 import static com.thetestament.cread.utils.Constant.WATERMARK_STATUS_YES;
+import static com.thetestament.cread.utils.Constant.fontTypes;
 
 /**
  * This class shows the preview of collaboration.
@@ -81,13 +96,40 @@ public class CollaborationActivity extends BaseActivity implements ColorChooserD
     TextView textSignature;
     @BindView(R.id.progressView)
     View viewProgress;
+    @BindView(R.id.seekBarTextSize)
+    AppCompatSeekBar seekBarTextSize;
+
+
+    @BindView(R.id.bottomSheetView)
+    NestedScrollView bottomSheetView;
+    @BindView(R.id.recyclerView)
+    RecyclerView recyclerView;
+
+    private BottomSheetBehavior sheetBehavior;
+    //Define font typeface
+    private Typeface mTextTypeface;
+
+    private ArrayList<FontModel> mFontDataList = new ArrayList<>();
+
 
     @State
-    String mShortID, mIsMerchantable, mSignatureText = "";
+    String mShortID, mIsMerchantable, mSignatureText = "", mFontType = "ubuntu_medium.ttf";
 
     @State
     int mImageWidth = 650;
 
+
+    /**
+     * Flag to maintain bold typeface status i.e 1 for bold ,0 otherwise
+     */
+    @State
+    int mBoldFlag = 0;
+
+    /**
+     * Flag to maintain italic typeface status i.e 1 for italic ,0 otherwise
+     */
+    @State
+    int mItalicFlag = 0;
     /**
      * Flag to maintain gravity status i.e 0 for center , 1 for right and 2 for left.
      */
@@ -114,6 +156,15 @@ public class CollaborationActivity extends BaseActivity implements ColorChooserD
         mHelper = new SharedPreferenceHelper(this);
         //initialize this screen
         initScreen();
+        //initialize seek bar
+        initSeekBar(seekBarTextSize);
+        //For bottomSheet
+        sheetBehavior = BottomSheetBehavior.from(bottomSheetView);
+        sheetBehavior.setPeekHeight(0);
+        //Set default font
+        mTextTypeface = ResourcesCompat.getFont(CollaborationActivity.this, R.font.ubuntu_medium);
+        //initialise fontLayout bottomSheet
+        initFontLayout();
     }
 
     @Override
@@ -178,7 +229,7 @@ public class CollaborationActivity extends BaseActivity implements ColorChooserD
 
     @Override
     public void onColorSelection(@NonNull ColorChooserDialog dialog, int selectedColor) {
-        //Update short text color
+        //Change short text color
         textShort.setTextColor(selectedColor);
     }
 
@@ -220,30 +271,106 @@ public class CollaborationActivity extends BaseActivity implements ColorChooserD
     }
 
     /**
-     * Click functionality to increase 'Short text' size by five unit..
+     * Functionality to change font type.
      */
-    /*@OnClick(R.id.btnFormatTextSizePlus)
-    public void onBtnFormatTextSizePlusClicked() {
-        int ts = (int) textShort.getTextSize() + 5;
-        //Increase text size by 5 unit
-        textShort.setTextSize(TypedValue.COMPLEX_UNIT_PX, ts);
-    }*/
+    @OnClick(R.id.btnFont)
+    void onFontClicked() {
+        //Show bottomSheet
+        sheetBehavior.setState(BottomSheetBehavior.STATE_EXPANDED);
+    }
 
     /**
-     * Click functionality to decrease 'Short text' by five unit.
+     * Functionality to  show toast.
      */
-    /*@OnClick(R.id.btnFormatTextSizeMinus)
-    public void onBtnFormatTextSizeMinusClicked() {
-        int ts = (int) textShort.getTextSize() - 5;
-        //Decrease text size by five unit
-        textShort.setTextSize(TypedValue.COMPLEX_UNIT_PX, ts);
-    }*/
+    @OnClick(R.id.btnFormatBg)
+    void changeBgColor() {
+        Toast.makeText(this
+                , "Functionality disabled"
+                , Toast.LENGTH_SHORT)
+                .show();
+    }
 
     /**
      * Click functionality to show material color palette dialog.
      */
     @OnClick(R.id.btnFormatTextColor)
-    public void onBtnFormatTextColorClicked() {
+    void onBtnFormatTextColorClicked() {
+        //Show color dialog
+        showColorChooserDialog();
+    }
+
+
+    /**
+     * Bold button click functionality to set typeface to bold.
+     */
+    @OnClick(R.id.btnFormatTextBold)
+    void boldBtnOnClick() {
+        if (mItalicFlag == 0 && mBoldFlag == 0) {
+            //Set typeface to bold
+            textShort.setTypeface(mTextTypeface, Typeface.BOLD);
+            //Update flag
+            mBoldFlag = 1;
+        } else if (mItalicFlag == 0 && mBoldFlag == 1) {
+            //Set typeface to normal
+            textShort.setTypeface(mTextTypeface, Typeface.NORMAL);
+            //Update flag
+            mBoldFlag = 0;
+        } else if (mItalicFlag == 1 && mBoldFlag == 0) {
+            //Set typeface to bold_italic
+            textShort.setTypeface(mTextTypeface, Typeface.BOLD_ITALIC);
+            //Update flag
+            mBoldFlag = 1;
+        } else if (mItalicFlag == 1 && mBoldFlag == 1) {
+            //Set typeface to italic
+            textShort.setTypeface(mTextTypeface, Typeface.ITALIC);
+            //Update flag
+            mBoldFlag = 0;
+        }
+    }
+
+    /**
+     * Italic button click functionality to set typeface of content
+     */
+    @OnClick(R.id.btnFormatTextItalic)
+    void italicBtnOnclick() {
+
+        if (mItalicFlag == 0 && mBoldFlag == 0) {
+            //Set typeface to italic
+            textShort.setTypeface(mTextTypeface, Typeface.ITALIC);
+            //Update flag
+            mItalicFlag = 1;
+        } else if (mItalicFlag == 0 && mBoldFlag == 1) {
+            //Set typeface to bold_italic
+            textShort.setTypeface(mTextTypeface, Typeface.BOLD_ITALIC);
+            //Update flag
+            mItalicFlag = 1;
+        } else if (mItalicFlag == 1 && mBoldFlag == 0) {
+            //Set typeface to normal
+            textShort.setTypeface(mTextTypeface, Typeface.NORMAL);
+            //Update flag
+            mItalicFlag = 0;
+        } else if (mItalicFlag == 1 && mBoldFlag == 1) {
+            //Set typeface to bold
+            textShort.setTypeface(mTextTypeface, Typeface.BOLD);
+            //Update flag
+            mItalicFlag = 0;
+        }
+
+    }
+
+    /**
+     * Close button click functionality to hide bottom sheet.
+     */
+    @OnClick(R.id.buttonClose)
+    void onCloseBtnClick() {
+        //Hide bottom sheet
+        sheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
+    }
+
+    /**
+     * Method to show color chooser dialog.
+     */
+    private void showColorChooserDialog() {
         // Pass a context, along with the title of the dialog
         new ColorChooserDialog.Builder(this, R.string.text_color)
                 // title of dialog when viewing shades of a color
@@ -260,6 +387,7 @@ public class CollaborationActivity extends BaseActivity implements ColorChooserD
                 .dynamicButtonColor(true)
                 .show(); // an AppCompatActivity which implements ColorCallback
     }
+
 
     /**
      * Used to handle result of askForPermission for capture.
@@ -293,6 +421,63 @@ public class CollaborationActivity extends BaseActivity implements ColorChooserD
         loadShortData();
         //Set drag listener
         textShort.setOnTouchListener(new OnDragTouchListener(textShort));
+    }
+
+
+    /**
+     * Initialize seekBar changeListener.
+     *
+     * @param appCompatSeekBar SeekBar reference.
+     */
+    private void initSeekBar(AppCompatSeekBar appCompatSeekBar) {
+        appCompatSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
+                //Set text size
+                textShort.setTextSize(TypedValue.COMPLEX_UNIT_PX, i + 50);
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+                //Do nothing
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+                //Do nothing
+            }
+        });
+    }
+
+    /**
+     * Method to initialize font bottom sheet
+     */
+    private void initFontLayout() {
+        //initialize font data list
+        for (String fontName : fontTypes) {
+            FontModel data = new FontModel();
+            data.setFontName(fontName);
+            mFontDataList.add(data);
+        }
+
+        //Set layout manager
+        recyclerView.setLayoutManager(new LinearLayoutManager(CollaborationActivity.this, LinearLayoutManager.HORIZONTAL, false));
+        //Set adapter
+        FontAdapter fontAdapter = new FontAdapter(mFontDataList, CollaborationActivity.this);
+        recyclerView.setAdapter(fontAdapter);
+
+        //Font click listener
+        fontAdapter.setOnFontClickListener(new listener.OnFontClickListener() {
+            @Override
+            public void onFontClick(Typeface typeface, String fontType) {
+                //Set short text typeface
+                textShort.setTypeface(typeface);
+                //set typeface
+                mTextTypeface = typeface;
+                //Set font name
+                mFontType = fontType;
+            }
+        });
     }
 
     /**
@@ -533,6 +718,7 @@ public class CollaborationActivity extends BaseActivity implements ColorChooserD
                         dialog.dismiss();
                         // check net status
                         if (NetworkHelper.getNetConnectionStatus(CollaborationActivity.this)) {
+
                             //Update details on server
                             updateData(
                                     new File(getImageUri(IMAGE_TYPE_USER_CAPTURE_PIC).getPath())
@@ -547,6 +733,9 @@ public class CollaborationActivity extends BaseActivity implements ColorChooserD
                                     , Integer.toHexString(textShort.getCurrentTextColor())
                                     , textGravity.toString()
                                     , String.valueOf(mImageWidth)
+                                    , mFontType
+                                    , String.valueOf(mBoldFlag)
+                                    , String.valueOf(mItalicFlag)
                             );
                         } else {
                             ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_no_connection));
@@ -569,7 +758,7 @@ public class CollaborationActivity extends BaseActivity implements ColorChooserD
     /**
      * Method to update capture details on server.
      */
-    private void updateData(File imgHighRes, File imgLowRes, String shortID, String xPosition, String yPosition, String tvWidth, String tvHeight, String text, String textSize, String textColor, String textGravity, String imgWidth) {
+    private void updateData(File imgHighRes, File imgLowRes, String shortID, String xPosition, String yPosition, String tvWidth, String tvHeight, String text, String textSize, String textColor, String textGravity, String imgWidth, String font, String bold, String italic) {
         //Configure OkHttpClient for time out
         OkHttpClient okHttpClient = new OkHttpClient().newBuilder()
                 .connectTimeout(20, TimeUnit.MINUTES)
@@ -608,6 +797,9 @@ public class CollaborationActivity extends BaseActivity implements ColorChooserD
                 .addMultipartParameter("textgravity", textGravity)
                 .addMultipartParameter("watermark", mSignatureText)
                 .addMultipartParameter("merchantable", mIsMerchantable)
+                .addMultipartParameter("font", font)
+                .addMultipartParameter("bold", bold)
+                .addMultipartParameter("italic", italic)
                 .build()
                 .getJSONObjectObservable()
                 .subscribeOn(Schedulers.io())
