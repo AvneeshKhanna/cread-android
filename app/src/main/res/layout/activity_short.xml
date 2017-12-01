@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/rootView"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
@@ -32,6 +33,7 @@
                 android:gravity="center"
                 android:hint="Express yourself"
                 android:inputType="textCapSentences|textMultiLine"
+                android:paddingRight="5dp"
                 android:textAppearance="@style/ShortFont"
                 android:textCursorDrawable="@drawable/cursor_edit_text"
                 android:textSize="16sp" />
@@ -62,7 +64,7 @@
             android:id="@+id/containerPostButton"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_above="@+id/containerFormatOptions"
+            android:layout_above="@+id/btnFormatTextSize"
             android:layout_below="@+id/textNote">
 
             <TextView
@@ -79,14 +81,65 @@
                 android:textColor="@color/white" />
         </FrameLayout>
 
-        <!--Format option layout-->
+        <ImageView
+            android:id="@+id/btnFormatTextSize"
+            android:layout_width="25dp"
+            android:layout_height="25dp"
+            android:layout_above="@+id/containerFormatOptions"
+            android:layout_marginBottom="5dp"
+            android:layout_marginLeft="15dp"
+            android:src="@drawable/ic_format_size_plus_32" />
+
+        <android.support.v7.widget.AppCompatSeekBar
+            android:id="@+id/seekBarTextSize"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignBottom="@+id/btnFormatTextSize"
+            android:layout_alignTop="@+id/btnFormatTextSize"
+            android:layout_marginLeft="5dp"
+            android:layout_marginRight="10dp"
+            android:layout_toRightOf="@+id/btnFormatTextSize" />
+
+        <!--Format options-->
         <include
             android:id="@+id/containerFormatOptions"
             layout="@layout/layout_format_option"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_alignParentBottom="true" />
-
+            android:layout_alignParentBottom="true"
+            android:orientation="horizontal" />
     </RelativeLayout>
 
+    <!--Font option bottom sheet-->
+    <include layout="@layout/layout_font_bottom_sheet" />
+
+    <android.support.v4.widget.NestedScrollView
+        android:id="@+id/bottomSheetView"
+        android:layout_width="match_parent"
+        android:layout_height="150dp"
+        android:background="@color/custom_white"
+        android:visibility="gone"
+        app:layout_behavior="@string/bottom_sheet_behavior">
+
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <android.support.v7.widget.RecyclerView
+                android:id="@+id/recyclerView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+
+            <ImageView
+                android:id="@+id/buttonClose"
+                android:layout_width="25dp"
+                android:layout_height="25dp"
+                android:layout_gravity="right"
+                android:layout_marginRight="10dp"
+                android:layout_marginTop="5dp"
+                android:src="@drawable/ic_close_24" />
+
+        </FrameLayout>
+
+    </android.support.v4.widget.NestedScrollView>
 </android.support.design.widget.CoordinatorLayout>

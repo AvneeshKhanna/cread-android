@@ -1,21 +1,13 @@
 package com.thetestament.cread.adapters;
 
 
-import android.content.Context;
 import android.content.Intent;
-import android.graphics.Color;
-import android.graphics.Typeface;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.content.ContextCompat;
-import android.support.v4.view.ViewCompat;
 import android.support.v7.widget.RecyclerView;
-import android.text.SpannableString;
-import android.text.Spanned;
-import android.text.TextPaint;
-import android.text.method.LinkMovementMethod;
-import android.text.style.ClickableSpan;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -30,7 +22,6 @@ import com.squareup.picasso.Picasso;
 import com.thetestament.cread.R;
 import com.thetestament.cread.activities.CollaborationDetailsActivity;
 import com.thetestament.cread.activities.FeedDescriptionActivity;
-import com.thetestament.cread.activities.MerchandisingProductsActivity;
 import com.thetestament.cread.activities.ProfileActivity;
 import com.thetestament.cread.activities.ShortActivity;
 import com.thetestament.cread.helpers.NetworkHelper;
@@ -63,6 +54,7 @@ import static com.thetestament.cread.utils.Constant.EXTRA_PROFILE_UUID;
 import static com.thetestament.cread.utils.Constant.FIREBASE_EVENT_CAPTURE_CLICKED;
 import static com.thetestament.cread.utils.Constant.FIREBASE_EVENT_FOLLOW_FROM_EXPLORE;
 import static com.thetestament.cread.utils.Constant.FIREBASE_EVENT_WRITE_CLICKED;
+import static com.thetestament.cread.utils.Constant.REQUEST_CODE_FEED_DESCRIPTION_ACTIVITY;
 
 /**
  * Adapter class to provide a binding from data set to views that are displayed within a explore RecyclerView.
@@ -74,9 +66,11 @@ public class ExploreAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
     private final int VIEW_TYPE_LOADING = 1;
     private List<FeedModel> mExploreList;
     private FragmentActivity mContext;
+    private Fragment mExploreFragment;
     private boolean mIsLoading;
     private String mUUID;
     private SharedPreferenceHelper mHelper;
+
 
     private OnExploreLoadMoreListener onExploreLoadMoreListener;
     private OnExploreFollowListener onExploreFollowListener;
@@ -90,10 +84,11 @@ public class ExploreAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
      * @param mContext     Context to be use.
      * @param mUUID        UUID of user.
      */
-    public ExploreAdapter(List<FeedModel> mExploreList, FragmentActivity mContext, String mUUID) {
+    public ExploreAdapter(List<FeedModel> mExploreList, FragmentActivity mContext, String mUUID, Fragment mExploreFragment) {
         this.mExploreList = mExploreList;
         this.mContext = mContext;
         this.mUUID = mUUID;
+        this.mExploreFragment = mExploreFragment;
 
         mHelper = new SharedPreferenceHelper(mContext);
     }
@@ -161,7 +156,7 @@ public class ExploreAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
             //Follow button click functionality
             followOnClick(position, data, itemViewHolder.buttonFollow);
             //ItemView onClick functionality
-            itemViewOnClick(itemViewHolder.itemView, data);
+            itemViewOnClick(itemViewHolder.itemView, data, position);
             //Collaboration count click functionality
             collaborationCountOnClick(itemViewHolder.collabCount, data.getEntityID(), data.getContentType());
 
@@ -326,13 +321,17 @@ public class ExploreAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
     /**
      * ItemView click functionality.
      */
-    private void itemViewOnClick(View view, final FeedModel feedModel) {
+    private void itemViewOnClick(View view, final FeedModel feedModel, final int position) {
         view.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                Bundle bundle = new Bundle();
+                bundle.putParcelable(EXTRA_FEED_DESCRIPTION_DATA, feedModel);
+                bundle.putInt("position", position);
+
                 Intent intent = new Intent(mContext, FeedDescriptionActivity.class);
-                intent.putExtra(EXTRA_FEED_DESCRIPTION_DATA, feedModel);
-                mContext.startActivity(intent);
+                intent.putExtra(EXTRA_DATA, bundle);
+                mExploreFragment.startActivityForResult(intent, REQUEST_CODE_FEED_DESCRIPTION_ACTIVITY);
             }
         });
     }
@@ -355,7 +354,7 @@ public class ExploreAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
 
                 // set collab count text
                 if (data.getCollabCount() != 0) {
-                    itemViewHolder.collabCount.setText(getCollabCountText(mContext,data.getCollabCount(), data.getContentType()));
+                    itemViewHolder.collabCount.setText(getCollabCountText(mContext, data.getCollabCount(), data.getContentType()));
                     itemViewHolder.collabCount.setVisibility(View.VISIBLE);
 
 
@@ -410,7 +409,7 @@ public class ExploreAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
 
                 // set collab count text
                 if (data.getCollabCount() != 0) {
-                    itemViewHolder.collabCount.setText(getCollabCountText(mContext,data.getCollabCount(), data.getContentType()));
+                    itemViewHolder.collabCount.setText(getCollabCountText(mContext, data.getCollabCount(), data.getContentType()));
                     itemViewHolder.collabCount.setVisibility(View.VISIBLE);
                 } else {
                     itemViewHolder.collabCount.setVisibility(View.GONE);

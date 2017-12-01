@@ -15,6 +15,7 @@ public class Constant {
     public static final int REQUEST_CODE_INSPIRATION_ACTIVITY = 1007;
     public static final int REQUEST_CODE_CASH_IN = 1008;
     public static final int REQUEST_CODE_ROYALTIES_ACTIVITY = 1009;
+    public static final int REQUEST_CODE_FEED_DESCRIPTION_ACTIVITY = 1010;
 
 
     //Tag value for fragments
@@ -140,4 +141,37 @@ public class Constant {
     public static final String FIREBASE_EVENT_SHARED_FROM_MAIN_FEED = "shared_from_main_feed";
     public static final String FIREBASE_EVENT_SHARED_FROM_PROFILE = "shared_from_profile";
     public static final String FIREBASE_EVENT_RATE_US_CLICKED = "rate_us_clicked";
+
+    //Font types
+    public static final String FONT_TYPE_AMATIC_SC_REGULAR = "amatic_sc_regular.ttf";
+    public static final String FONT_TYPE_BARLOW_CONDENSED_REGULAR = "barlow_condensed_regular.ttf";
+    public static final String FONT_TYPE_CABIN_SKETCH_REGULAR = "cabin_sketch_regular.ttf";
+    public static final String FONT_TYPE_HELVETICA_NEUE_MEDUIM = "helvetica_neue_medium.ttf";
+    public static final String FONT_TYPE_INDIE_FLOWER = "indie_flower.ttf";
+    public static final String FONT_TYPE_MOSTSERRAT_REGULAR = "montserrat_regular.ttf";
+    public static final String FONT_TYPE_OSWALD_REGULAR = "oswald_regular.ttf";
+    public static final String FONT_TYPE_PLAYFAIR_DISPLAY_REGULAR = "playfair_display_regular.ttf";
+    public static final String FONT_TYPE_POIRET_ONE_REGULAR = "poiret_one_regular.ttf";
+    public static final String FONT_TYPE_SHADOWS_INTO_LIGHT = "shadows_into_light.ttf";
+    public static final String FONT_TYPE_SPECTRA_ISC_REGULAR = "spectra_isc_regular.ttf";
+    public static final String FONT_TYPE_TITILLIUM_WEB_REGULAR = "titillium_web_regular.ttf";
+    public static final String FONT_TYPE_UBUNTU_MEDIUM = "ubuntu_medium.ttf";
+
+    //Font list
+    public static String[] fontTypes = {
+            FONT_TYPE_AMATIC_SC_REGULAR
+            , FONT_TYPE_BARLOW_CONDENSED_REGULAR
+            , FONT_TYPE_CABIN_SKETCH_REGULAR
+            , FONT_TYPE_HELVETICA_NEUE_MEDUIM
+            , FONT_TYPE_INDIE_FLOWER
+            , FONT_TYPE_MOSTSERRAT_REGULAR
+            , FONT_TYPE_OSWALD_REGULAR
+            , FONT_TYPE_PLAYFAIR_DISPLAY_REGULAR
+            , FONT_TYPE_POIRET_ONE_REGULAR
+            , FONT_TYPE_SHADOWS_INTO_LIGHT
+            , FONT_TYPE_SPECTRA_ISC_REGULAR
+            , FONT_TYPE_TITILLIUM_WEB_REGULAR
+            , FONT_TYPE_UBUNTU_MEDIUM
+    };
+
 }

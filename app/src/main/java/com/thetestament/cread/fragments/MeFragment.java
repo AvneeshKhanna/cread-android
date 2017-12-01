@@ -50,6 +50,7 @@ import com.thetestament.cread.activities.RoyaltiesActivity;
 import com.thetestament.cread.activities.UpdateProfileDetailsActivity;
 import com.thetestament.cread.activities.UpdateProfileImageActivity;
 import com.thetestament.cread.adapters.MeAdapter;
+import com.thetestament.cread.helpers.HatsOffHelper;
 import com.thetestament.cread.helpers.ImageHelper;
 import com.thetestament.cread.helpers.NetworkHelper;
 import com.thetestament.cread.helpers.SharedPreferenceHelper;
@@ -88,6 +89,7 @@ import static com.thetestament.cread.helpers.NetworkHelper.getObservableFromServ
 import static com.thetestament.cread.helpers.NetworkHelper.getUserDataObservableFromServer;
 import static com.thetestament.cread.utils.Constant.CONTENT_TYPE_CAPTURE;
 import static com.thetestament.cread.utils.Constant.CONTENT_TYPE_SHORT;
+import static com.thetestament.cread.utils.Constant.EXTRA_DATA;
 import static com.thetestament.cread.utils.Constant.EXTRA_FOLLOW_REQUESTED_UUID;
 import static com.thetestament.cread.utils.Constant.EXTRA_FOLLOW_TYPE;
 import static com.thetestament.cread.utils.Constant.EXTRA_IS_PROFILE_EDITABLE;
@@ -100,6 +102,7 @@ import static com.thetestament.cread.utils.Constant.EXTRA_USER_LAST_NAME;
 import static com.thetestament.cread.utils.Constant.EXTRA_USER_WATER_MARK_STATUS;
 import static com.thetestament.cread.utils.Constant.FIREBASE_EVENT_FOLLOW_FROM_PROFILE;
 import static com.thetestament.cread.utils.Constant.IMAGE_TYPE_USER_CAPTURE_PIC;
+import static com.thetestament.cread.utils.Constant.REQUEST_CODE_FEED_DESCRIPTION_ACTIVITY;
 import static com.thetestament.cread.utils.Constant.REQUEST_CODE_OPEN_GALLERY_FOR_CAPTURE;
 import static com.thetestament.cread.utils.Constant.REQUEST_CODE_ROYALTIES_ACTIVITY;
 import static com.thetestament.cread.utils.Constant.REQUEST_CODE_UPDATE_PROFILE_DETAILS;
@@ -273,6 +276,16 @@ public class MeFragment extends Fragment {
                     //Retrieve email and watermark status
                     mEmail = data.getExtras().getString(EXTRA_USER_EMAIL);
                     mWaterMarkStatus = data.getExtras().getString(EXTRA_USER_WATER_MARK_STATUS);
+                }
+                break;
+            case REQUEST_CODE_FEED_DESCRIPTION_ACTIVITY:
+                if (resultCode == RESULT_OK) {
+                    Bundle bundle = data.getBundleExtra(EXTRA_DATA);
+                    //Update data
+                    mUserActivityDataList.get(bundle.getInt("position")).setHatsOffStatus(bundle.getBoolean("hatsOffStatus"));
+                    mUserActivityDataList.get(bundle.getInt("position")).setHatsOffCount(bundle.getLong("hatsOffCount"));
+                    //Notify changes
+                    mAdapter.notifyItemChanged(bundle.getInt("position"));
                 }
                 break;
         }
@@ -810,7 +823,7 @@ public class MeFragment extends Fragment {
         //Set layout manger for recyclerView
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
         //Set adapter
-        mAdapter = new MeAdapter(mUserActivityDataList, getActivity(), mHelper.getUUID());
+        mAdapter = new MeAdapter(mUserActivityDataList, getActivity(), mHelper.getUUID(), MeFragment.this);
         //  mAdapter.setUserActivityType(USER_ACTIVITY_TYPE_ALL);
         recyclerView.setAdapter(mAdapter);
 
@@ -1152,8 +1165,28 @@ public class MeFragment extends Fragment {
     private void initHatsOffListener(MeAdapter adapter) {
         adapter.setHatsOffListener(new listener.OnUserActivityHatsOffListener() {
             @Override
-            public void onHatsOffClick(FeedModel data, int itemPosition) {
+            public void onHatsOffClick(final FeedModel data, final int itemPosition) {
                 updateHatsOffStatus(data, itemPosition);
+                HatsOffHelper hatsOffHelper = new HatsOffHelper(getActivity());
+                hatsOffHelper.updateHatsOffStatus(data.getEntityID(), data.getHatsOffStatus());
+                // On hatsOffSuccessListener
+                hatsOffHelper.setOnHatsOffSuccessListener(new HatsOffHelper.OnHatsOffSuccessListener() {
+                    @Override
+                    public void onSuccess() {
+                        //Do nothing
+                    }
+                });
+                // On hatsOffSuccessListener
+                hatsOffHelper.setOnHatsOffFailureListener(new HatsOffHelper.OnHatsOffFailureListener() {
+                    @Override
+                    public void onFailure(String errorMsg) {
+                        //set status to true if its false and vice versa
+                        data.setHatsOffStatus(!data.getHatsOffStatus());
+                        //notify changes
+                        mAdapter.notifyItemChanged(itemPosition);
+                        ViewHelper.getSnackBar(rootView, errorMsg);
+                    }
+                });
             }
         });
     }
