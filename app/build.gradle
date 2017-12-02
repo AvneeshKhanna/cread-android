@@ -7,8 +7,8 @@ android {
         applicationId "com.thetestament.cread"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 6
-        versionName "1.1.2"
+        versionCode 7
+        versionName "1.2.0"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         // Enabling multi-dex support.
         multiDexEnabled true
@@ -30,7 +30,7 @@ android {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
             //buildConfigField "String", "URL", '"http://cread-dev-remote.herokuapp.com"'
-            buildConfigField "String", "URL", '"http://735c9ecf.ngrok.io"'
+            buildConfigField "String", "URL", '"http://460fa061.ngrok.io"'
             resValue "string", "RZP_KEY", "rzp_test_Q09427lQA9Ol5g"
             resValue "bool", "FIREBASE_ANALYTICS_ENABLED", "false"
             resValue "bool", "FIREBASE_CRASHLYTICS_ENABLED", "false"
@@ -74,6 +74,9 @@ dependencies {
 
     //Image
     compile "com.squareup.picasso:picasso:$rootProject.picassoVersion"
+
+    //For MoneyTextView
+    compile 'org.fabiomsr:moneytextview:1.0.3'
 
     compile 'com.github.tajchert:nammu:1.2.0'
 

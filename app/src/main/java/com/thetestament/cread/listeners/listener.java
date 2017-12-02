@@ -5,6 +5,9 @@ import com.thetestament.cread.models.FBFriendsModel;
 import com.thetestament.cread.models.FeedModel;
 import com.thetestament.cread.models.FollowModel;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 public class listener {
 
     /**
@@ -164,4 +167,28 @@ public class listener {
     public interface OnCollaborationDetailsLoadMoreListener {
         void onLoadMore();
     }
+
+    /**
+     * Interface definition for a callback to be invoked when user scroll for more data.
+     */
+    public interface OnRoyaltiesLoadMoreListener {
+        void onLoadMore();
+    }
+
+    /**
+     * Interface definition for a callback to be invoked when user scroll for more data.
+     */
+    public interface OnServerRequestedListener {
+        void onDeviceOffline();
+        void onNextCalled(JSONObject jsonObject);
+        void onErrorCalled(Throwable e);
+        void onCompleteCalled();
+    }
+
+    public interface OnRoyaltyitemClickedListener
+    {
+        void onRoyaltyItemClicked(String entityID);
+    }
+
+
 }

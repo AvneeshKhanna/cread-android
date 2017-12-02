@@ -13,7 +13,8 @@ import com.thetestament.cread.R;
 import com.thetestament.cread.fragments.UpdatesFragment;
 
 
-import static com.thetestament.cread.utils.Constant.FRAGMENT_TAG_UPDATES_FRAGMENT;
+import static com.thetestament.cread.utils.Constant.TAG_UPDATES_FRAGMENT;
+
 
 
 
@@ -72,11 +73,9 @@ public class UpdatesActivity extends BaseActivity {
 
 
      /*Method to initialize views for this screen*/
-
-
     private void initView() {
         getSupportFragmentManager().beginTransaction()
-                .replace(R.id.updates_container, new UpdatesFragment(), FRAGMENT_TAG_UPDATES_FRAGMENT)
+                .replace(R.id.updates_container, new UpdatesFragment(), TAG_UPDATES_FRAGMENT)
                 .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE)
                 .commit();
     }

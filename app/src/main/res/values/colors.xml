@@ -40,4 +40,7 @@
         <item>@color/colorPrimary</item>
         <item>@color/colorPrimary</item>
     </array>
+
+    <color name="green">#0cba6a</color>
+
 </resources>

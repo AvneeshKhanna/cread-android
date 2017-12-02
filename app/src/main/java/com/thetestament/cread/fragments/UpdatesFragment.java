@@ -25,6 +25,7 @@ import com.rx2androidnetworking.Rx2AndroidNetworking;
 import com.thetestament.cread.BuildConfig;
 import com.thetestament.cread.R;
 import com.thetestament.cread.activities.FeedDescriptionActivity;
+import com.thetestament.cread.activities.RoyaltiesActivity;
 import com.thetestament.cread.adapters.UpdatesAdapter;
 import com.thetestament.cread.database.NotificationsDBHelper;
 import com.thetestament.cread.database.NotificationsDBSchema;
@@ -251,8 +252,9 @@ public class UpdatesFragment extends Fragment {
 
                         case NOTIFICATION_CATEGORY_CREAD_BUY:
 
-                            // gets feed details and opens details screen
-                            getFeedDetails(entityID);
+                            // open royalties screen
+                            //getFeedDetails(entityID);
+                            startActivity(new Intent(getActivity(), RoyaltiesActivity.class));
                             break;
 
                         case NOTIFICATION_CATEGORY_CREAD_GENERAL:
@@ -440,9 +442,5 @@ public class UpdatesFragment extends Fragment {
         {
             ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_no_connection));
         }
-
-
-
-
     }
 }

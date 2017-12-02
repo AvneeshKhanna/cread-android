@@ -94,7 +94,6 @@ public class FeedFragment extends Fragment {
     @BindView(R.id.view_no_posts)
     LinearLayout viewNoPosts;
 
-    Unbinder unbinder;
     private Unbinder mUnbinder;
     private String mLastIndexKey;
     private boolean mRequestMoreData;
@@ -112,7 +111,7 @@ public class FeedFragment extends Fragment {
                 .inflate(R.layout.fragment_feed
                         , container
                         , false);
-        unbinder = ButterKnife.bind(this, view);
+        mUnbinder = ButterKnife.bind(this, view);
         return view;
     }
 

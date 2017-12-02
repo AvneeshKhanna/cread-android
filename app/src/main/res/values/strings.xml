@@ -41,6 +41,9 @@
     <string name="key_write_tooltip">writeButton</string>
     <string name="key_capture_tooltip">captureButton</string>
     <string name="key_buy_dialog">buyDialog</string>
+    <string name="key_me_dialog">meDialog</string>
+    <string name="key_royalty_dialog">royaltyDialog</string>
+
 
     // dialog messages
     <string name="processing_title">Processing</string>
@@ -55,9 +58,15 @@
     <string name="text_dialog_collab_capture">Select and add your capture to this post and make it even more interesting</string>
     <string name="title_dialog_collab_short">Write your short on this post</string>
     <string name="text_dialog_collab_short">Enhance the beauty of this capture by writing a short on it</string>
+    <string name="title_dialog_me">Earn Royalties</string>
+    <string name="text_dialog_me">You can now receive royalties for every artpiece that sells. Get rewarded for your masterpiece!</string>
+    <string name="title_dialog_royalty">Manage Your Royalites</string>
+    <string name="text_dialog_royalty">Here\'s your bank of royalties which you earn (10%) for every artpiece that sells. View and manage orders placed by others for your art work. You can redeem your earnings into your Paytm account.</string>
 
 
+    //unicodes
     <string name="Rs">\u20B9</string>
+    <string name="bullet">\u25CF</string>
 
     // payment status
     <string name="payment_failed_title">Transaction Failed</string>
@@ -87,5 +96,9 @@
     <string name="creator_text_collab_short_part2">graphic art</string>
     <string name="creator_text_collab_capture_part1">added a graphic art to</string>
     <string name="creator_text_collab_capture_part2">writing</string>
+
+    <string name="rating_status">ratingStatus</string>
+    <string name="text_rate_us">We want to bring the best opportunities for you! Please encourage us by giving a 5-star rating. It\'ll mean a lot!</string>
+
 
 </resources>
