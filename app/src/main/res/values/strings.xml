@@ -58,10 +58,10 @@
     <string name="text_dialog_collab_capture">Select and add your capture to this post and make it even more interesting</string>
     <string name="title_dialog_collab_short">Write your short on this post</string>
     <string name="text_dialog_collab_short">Enhance the beauty of this capture by writing a short on it</string>
-    <string name="title_dialog_me">Hi, artist!</string>
-    <string name="text_dialog_me">Here\'s your bank of royalties for every artpiece that sells</string>
-    <string name="title_dialog_royalty">Hi, artist!</string>
-    <string name="text_dialog_royalty">Here\'s your bank of royalties for every artpiece that sells.</string>
+    <string name="title_dialog_me">Earn Royalties</string>
+    <string name="text_dialog_me">You can now receive royalties for every artpiece that sells. Get rewarded for your masterpiece!</string>
+    <string name="title_dialog_royalty">Manage Your Royalites</string>
+    <string name="text_dialog_royalty">Here\'s your bank of royalties which you earn (10%) for every artpiece that sells. View and manage orders placed by others for your art work. You can redeem your earnings into your Paytm account.</string>
 
 
     //unicodes
