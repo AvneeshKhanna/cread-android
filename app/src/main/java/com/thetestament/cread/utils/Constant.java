@@ -43,6 +43,8 @@ public class Constant {
     public static final String EXTRA_ENTITY_TYPE = "entityType";
     public static final String EXTRA_CAPTURE_ID = "captureID";
     public static final String EXTRA_SHORT_ID = "shortID";
+    public static final String EXTRA_SHORT_UUID = "shortUUID";
+    public static final String EXTRA_CAPTURE_UUID = "captureUUID";
     public static final String EXTRA_CAPTURE_URL = "captureURL";
     public static final String EXTRA_MERCHANTABLE = "merchantable";
     public static final String EXTRA_DATA = "data";
@@ -78,6 +80,8 @@ public class Constant {
     public static final String EXTRA_PRODUCT_PRICE = "price";
     public static final String EXTRA_PRODUCT_PRODUCTID = "productID";
     public static final String EXTRA_PRODUCT_ENTITYID = "entityID";
+    public static final String EXTRA_PRODUCT_SHORTUUID = "shortID";
+    public static final String EXTRA_PRODUCT_CAPTUREUUID = "captureID";
     public static final String EXTRA_PRODUCT_DELIVERY_TIME = "deliveryTime";
     public static final String EXTRA_PRODUCT_DELIVERY_CHARGE = "deliveryCharge";
     public static final String EXTRA_IS_PROFILE_EDITABLE = "isProfileEditable";

@@ -48,8 +48,11 @@ import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.observers.DisposableObserver;
 import io.reactivex.schedulers.Schedulers;
 
+import static com.thetestament.cread.utils.Constant.EXTRA_CAPTURE_ID;
 import static com.thetestament.cread.utils.Constant.EXTRA_CAPTURE_URL;
+import static com.thetestament.cread.utils.Constant.EXTRA_CAPTURE_UUID;
 import static com.thetestament.cread.utils.Constant.EXTRA_ENTITY_ID;
+import static com.thetestament.cread.utils.Constant.EXTRA_PRODUCT_CAPTUREUUID;
 import static com.thetestament.cread.utils.Constant.EXTRA_PRODUCT_COLOR;
 import static com.thetestament.cread.utils.Constant.EXTRA_PRODUCT_DELIVERY_CHARGE;
 import static com.thetestament.cread.utils.Constant.EXTRA_PRODUCT_DELIVERY_TIME;
@@ -57,6 +60,7 @@ import static com.thetestament.cread.utils.Constant.EXTRA_PRODUCT_ENTITYID;
 import static com.thetestament.cread.utils.Constant.EXTRA_PRODUCT_PRICE;
 import static com.thetestament.cread.utils.Constant.EXTRA_PRODUCT_PRODUCTID;
 import static com.thetestament.cread.utils.Constant.EXTRA_PRODUCT_QUANTITY;
+import static com.thetestament.cread.utils.Constant.EXTRA_PRODUCT_SHORTUUID;
 import static com.thetestament.cread.utils.Constant.EXTRA_PRODUCT_SIZE;
 import static com.thetestament.cread.utils.Constant.EXTRA_PRODUCT_TYPE;
 import static com.thetestament.cread.utils.Constant.EXTRA_SHIPPING_ADDR1;
@@ -67,6 +71,8 @@ import static com.thetestament.cread.utils.Constant.EXTRA_SHIPPING_NAME;
 import static com.thetestament.cread.utils.Constant.EXTRA_SHIPPING_PHONE;
 import static com.thetestament.cread.utils.Constant.EXTRA_SHIPPING_PINCODE;
 import static com.thetestament.cread.utils.Constant.EXTRA_SHIPPING_STATE;
+import static com.thetestament.cread.utils.Constant.EXTRA_SHORT_ID;
+import static com.thetestament.cread.utils.Constant.EXTRA_SHORT_UUID;
 
 public class MerchandisingProductsActivity extends BaseActivity {
 
@@ -91,7 +97,7 @@ public class MerchandisingProductsActivity extends BaseActivity {
     SharedPreferenceHelper mHelper;
 
     @State
-    String mEntityID, mEntityURL, deliveryTime, billingContact;
+    String mEntityID, mEntityURL, mShortUUID, mCaptureUUID, deliveryTime, billingContact;
 
 
     @Override
@@ -167,6 +173,8 @@ public class MerchandisingProductsActivity extends BaseActivity {
         //Retrieve data from intent
         mEntityID = getIntent().getStringExtra(EXTRA_ENTITY_ID);
         mEntityURL = getIntent().getStringExtra(EXTRA_CAPTURE_URL);
+        mShortUUID = getIntent().getStringExtra(EXTRA_SHORT_UUID);
+        mCaptureUUID = getIntent().getStringExtra(EXTRA_CAPTURE_UUID);
 
         //Set layout manger for recyclerView
         recyclerView.setLayoutManager(new LinearLayoutManager(MerchandisingProductsActivity.this));
@@ -394,6 +402,8 @@ public class MerchandisingProductsActivity extends BaseActivity {
                 bundle.putString(EXTRA_PRODUCT_PRICE, price);
                 bundle.putString(EXTRA_PRODUCT_PRODUCTID, productID);
                 bundle.putString(EXTRA_PRODUCT_ENTITYID, mEntityID);
+                bundle.putString(EXTRA_PRODUCT_SHORTUUID, mShortUUID);
+                bundle.putString(EXTRA_PRODUCT_CAPTUREUUID, mCaptureUUID);
                 bundle.putString(EXTRA_PRODUCT_DELIVERY_TIME, deliveryTime);
                 bundle.putString(EXTRA_PRODUCT_DELIVERY_CHARGE, deliveryCharge);
                 bundle.putString(EXTRA_SHIPPING_PHONE, billingContact);
