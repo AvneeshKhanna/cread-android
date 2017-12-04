@@ -63,6 +63,7 @@ import static com.thetestament.cread.helpers.NetworkHelper.requestServer;
 import static com.thetestament.cread.utils.Constant.CONTENT_TYPE_CAPTURE;
 import static com.thetestament.cread.utils.Constant.CONTENT_TYPE_SHORT;
 import static com.thetestament.cread.utils.Constant.EXTRA_CASH_IN_AMOUNT;
+import static com.thetestament.cread.utils.Constant.EXTRA_DATA;
 import static com.thetestament.cread.utils.Constant.EXTRA_FEED_DESCRIPTION_DATA;
 import static com.thetestament.cread.utils.Constant.EXTRA_IS_PROFILE_EDITABLE;
 import static com.thetestament.cread.utils.Constant.EXTRA_MIN_CASH_AMT;
@@ -644,8 +645,12 @@ public class RoyaltiesFragment extends Fragment {
                             } else
 
                             {
+                                Bundle bundle = new Bundle();
+                                bundle.putParcelable(EXTRA_FEED_DESCRIPTION_DATA, feedData);
+                                bundle.putInt("position", -1);
+
                                 Intent intent = new Intent(getActivity(), FeedDescriptionActivity.class);
-                                intent.putExtra(EXTRA_FEED_DESCRIPTION_DATA, feedData);
+                                intent.putExtra(EXTRA_DATA, bundle);
                                 getActivity().startActivity(intent);
 
                                 getActivity().finish();
@@ -694,7 +699,6 @@ public class RoyaltiesFragment extends Fragment {
 
         //Set filler image
         fillerImage.setImageDrawable(ContextCompat.getDrawable(getActivity(), R.drawable.img_intro_royalty));
-        // TODO update texts
         //Set title text
         textTitle.setText(getActivity().getString(R.string.title_dialog_royalty));
         //Set description text

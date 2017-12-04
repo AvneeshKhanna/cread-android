@@ -62,6 +62,7 @@ import static com.thetestament.cread.database.NotificationsDBSchema.Notification
 import static com.thetestament.cread.database.NotificationsDBSchema.NotificationDBEntry.TABLE_NAME;
 import static com.thetestament.cread.utils.Constant.CONTENT_TYPE_CAPTURE;
 import static com.thetestament.cread.utils.Constant.CONTENT_TYPE_SHORT;
+import static com.thetestament.cread.utils.Constant.EXTRA_DATA;
 import static com.thetestament.cread.utils.Constant.EXTRA_FEED_DESCRIPTION_DATA;
 import static com.thetestament.cread.utils.Constant.NOTIFICATION_CATEGORY_CREAD_BUY;
 import static com.thetestament.cread.utils.Constant.NOTIFICATION_CATEGORY_CREAD_COLLABORATE;
@@ -428,8 +429,13 @@ public class UpdatesFragment extends Fragment {
                             } else
 
                             {
+
+                                Bundle bundle = new Bundle();
+                                bundle.putParcelable(EXTRA_FEED_DESCRIPTION_DATA, feedData);
+                                bundle.putInt("position", -1);
+
                                 Intent intent = new Intent(getActivity(), FeedDescriptionActivity.class);
-                                intent.putExtra(EXTRA_FEED_DESCRIPTION_DATA, feedData);
+                                intent.putExtra(EXTRA_DATA, bundle);
                                 getActivity().startActivity(intent);
 
                                 getActivity().finish();

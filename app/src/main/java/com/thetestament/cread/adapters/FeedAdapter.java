@@ -247,8 +247,6 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                 if (data.isAvailableForCollab()) {
                     // For stand alone capture
                     itemViewHolder.buttonCollaborate.setVisibility(View.VISIBLE);
-                    // set text
-                    itemViewHolder.buttonCollaborate.setText("Write");
 
                     //write click functionality on capture
                     writeOnClick(itemViewHolder.buttonCollaborate, data.getCaptureID(), data.getContentImage(), data.getEntityID(), data.isMerchantable());
@@ -300,8 +298,6 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                 if (data.isAvailableForCollab()) {
                     // for stand alone short
                     itemViewHolder.buttonCollaborate.setVisibility(View.VISIBLE);
-                    // set text
-                    itemViewHolder.buttonCollaborate.setText("Capture");
                     // capture click functionality on short
                     captureOnClick(itemViewHolder.buttonCollaborate, data.getEntityID(), data.getShortID());
 
