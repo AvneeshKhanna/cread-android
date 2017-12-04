@@ -21,6 +21,7 @@ import android.support.v4.widget.NestedScrollView;
 import android.support.v7.widget.AppCompatSeekBar;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.text.TextUtils;
 import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.Menu;
@@ -29,6 +30,7 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.SeekBar;
+import android.widget.Toast;
 
 import com.afollestad.materialdialogs.DialogAction;
 import com.afollestad.materialdialogs.MaterialDialog;
@@ -44,6 +46,7 @@ import com.thetestament.cread.BuildConfig;
 import com.thetestament.cread.Manifest;
 import com.thetestament.cread.R;
 import com.thetestament.cread.adapters.FontAdapter;
+import com.thetestament.cread.dialog.CustomDialog;
 import com.thetestament.cread.helpers.NetworkHelper;
 import com.thetestament.cread.helpers.SharedPreferenceHelper;
 import com.thetestament.cread.helpers.ViewHelper;
@@ -115,7 +118,7 @@ public class ShortActivity extends BaseActivity implements ColorChooserDialog.Co
     @State
     String mShortText, mCaptureUrl, mCaptureID = "", mSignatureText, mShortBgColor = "FFFFFFFF", mFontType = "ubuntu_medium.ttf";
     @State
-    boolean mIsMerchantable = true, signatureStatus = false;
+    boolean mIsMerchantable = true, signatureStatus = false, mIsImagePresent = false;
     @State
     int mImageWidth = 650;
 
@@ -166,8 +169,6 @@ public class ShortActivity extends BaseActivity implements ColorChooserDialog.Co
     SharedPreferenceHelper mHelper;
 
 
-    //  private GestureDetector mTapDetector;
-
     @Override
 
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -211,6 +212,7 @@ public class ShortActivity extends BaseActivity implements ColorChooserDialog.Co
                     loadCapture(imageShort, mCaptureUrl);
                     //Update flag
                     mIsBgColorPresent = false;
+                    mIsImagePresent = true;
                 }
                 break;
 
@@ -251,8 +253,10 @@ public class ShortActivity extends BaseActivity implements ColorChooserDialog.Co
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case android.R.id.home:
-                //Navigate back to previous screen
-                finish();
+                //Show prompt dialog
+                CustomDialog.getBackNavigationDialog(ShortActivity.this
+                        , "Discard changes?"
+                        , "If you go back now, you will loose your changes.");
                 return true;
             case R.id.action_signature:
                 if (signatureStatus) {
@@ -266,7 +270,13 @@ public class ShortActivity extends BaseActivity implements ColorChooserDialog.Co
                 }
                 return true;
             case R.id.action_next:
-                getRuntimePermission();
+                //If short text is empty
+                if (TextUtils.getTrimmedLength(textShort.getText().toString()) == 0) {
+                    //Show toast message
+                    ViewHelper.getToast(this, "Short can't be empty. Please Write something.");
+                } else {
+                    getRuntimePermission();
+                }
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
@@ -282,6 +292,8 @@ public class ShortActivity extends BaseActivity implements ColorChooserDialog.Co
         } else if (mColorChooserType.equals("backGroundColor")) {
             //Change backgroundColor
             imageShort.setBackgroundColor(selectedColor);
+            //Update flag
+            mIsBgColorPresent = true;
         }
 
     }
@@ -291,8 +303,20 @@ public class ShortActivity extends BaseActivity implements ColorChooserDialog.Co
         //do nothing
     }
 
+    @OnClick(R.id.rootView)
+    void rootViewOnClick() {
+        //Collapse bottomSheet if its expanded
+        if (sheetBehavior.getState() == BottomSheetBehavior.STATE_EXPANDED) {
+            sheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
+        }
+    }
+
     @OnClick(R.id.imageContainer)
     void onContainerClick() {
+        //Collapse bottomSheet if its expanded
+        if (sheetBehavior.getState() == BottomSheetBehavior.STATE_EXPANDED) {
+            sheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
+        }
         //Toggle mode i.e edit to drag and vice versa
         if (mToggleMovement == 0) {
             //Set drag listener
@@ -376,12 +400,19 @@ public class ShortActivity extends BaseActivity implements ColorChooserDialog.Co
      */
     @OnClick(R.id.btnFormatBg)
     void changeBgColor() {
-        //Set type
-        mColorChooserType = "backGroundColor";
-        //Show color dialog
-        showColorChooserDialog();
-        //Update flag
-        mIsBgColorPresent = true;
+        if (mIsImagePresent) {
+            //Show toast message
+            Toast.makeText(this
+                    , "Image already attached"
+                    , Toast.LENGTH_SHORT)
+                    .show();
+        } else {
+            //Set type
+            mColorChooserType = "backGroundColor";
+            //Show color dialog
+
+            showColorChooserDialog();
+        }
     }
 
     /**
@@ -496,8 +527,9 @@ public class ShortActivity extends BaseActivity implements ColorChooserDialog.Co
             mIsMerchantable = bundle.getBoolean(EXTRA_MERCHANTABLE);
             //Load inspiration/capture image
             loadCapture(imageShort, mCaptureUrl);
+            //Update flag
+            mIsImagePresent = true;
         }
-
         //Set water mark text
         mSignatureText = "- " + mHelper.getFirstName() + " " + mHelper.getLastName();
     }
@@ -549,11 +581,26 @@ public class ShortActivity extends BaseActivity implements ColorChooserDialog.Co
             @Override
             public void onFontClick(Typeface typeface, String fontType) {
                 //Set short text typeface
-                textShort.setTypeface(typeface);
+                if (mItalicFlag == 0 && mBoldFlag == 0) {
+                    //Set typeface to bold
+                    textShort.setTypeface(typeface, Typeface.BOLD);
+                } else if (mItalicFlag == 0 && mBoldFlag == 1) {
+                    //Set typeface to normal
+                    textShort.setTypeface(typeface, Typeface.NORMAL);
+
+                } else if (mItalicFlag == 1 && mBoldFlag == 0) {
+                    //Set typeface to bold_italic
+                    textShort.setTypeface(typeface, Typeface.BOLD_ITALIC);
+                } else if (mItalicFlag == 1 && mBoldFlag == 1) {
+                    //Set typeface to italic
+                    textShort.setTypeface(typeface, Typeface.ITALIC);
+                }
+
                 //set typeface
                 mTextTypeface = typeface;
                 //Set font type
                 mFontType = fontType;
+
             }
         });
     }
@@ -831,28 +878,4 @@ public class ShortActivity extends BaseActivity implements ColorChooserDialog.Co
                     }
                 });
     }
-
-/*    @Override
-    public boolean onTouchEvent(MotionEvent event) {
-        mTapDetector.onTouchEvent(event);
-        return true;
-
-    }
-
-
-    class GestureTap extends GestureDetector.SimpleOnGestureListener {
-        @Override
-        public boolean onDoubleTap(MotionEvent e) {
-            ViewHelper.getSnackBar(rootView, "onDoubleTap");
-            return true;
-            //return super.onDoubleTap(e);
-        }
-
-        @Override
-        public boolean onSingleTapConfirmed(MotionEvent e) {
-            ViewHelper.getSnackBar(rootView, "onSingleTapConfirmed");
-            return true;
-            //return super.onSingleTapConfirmed(e);
-        }
-    }*/
 }

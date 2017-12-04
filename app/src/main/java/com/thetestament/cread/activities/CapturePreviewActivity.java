@@ -21,6 +21,7 @@ import com.squareup.picasso.MemoryPolicy;
 import com.squareup.picasso.Picasso;
 import com.thetestament.cread.BuildConfig;
 import com.thetestament.cread.R;
+import com.thetestament.cread.dialog.CustomDialog;
 import com.thetestament.cread.helpers.NetworkHelper;
 import com.thetestament.cread.helpers.SharedPreferenceHelper;
 import com.thetestament.cread.helpers.ViewHelper;
@@ -97,8 +98,10 @@ public class CapturePreviewActivity extends BaseActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case android.R.id.home:
-                //Navigate back from this screen
-                finish();
+                //Show prompt dialog
+                CustomDialog.getBackNavigationDialog(CapturePreviewActivity.this
+                        , "Discard capture?"
+                        , "If you go back now, you will loose your capture.");
                 return true;
             case R.id.action_done:
                 // check net status

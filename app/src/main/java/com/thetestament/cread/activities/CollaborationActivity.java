@@ -36,6 +36,7 @@ import com.thetestament.cread.BuildConfig;
 import com.thetestament.cread.Manifest;
 import com.thetestament.cread.R;
 import com.thetestament.cread.adapters.FontAdapter;
+import com.thetestament.cread.dialog.CustomDialog;
 import com.thetestament.cread.helpers.NetworkHelper;
 import com.thetestament.cread.helpers.SharedPreferenceHelper;
 import com.thetestament.cread.helpers.ViewHelper;
@@ -201,8 +202,10 @@ public class CollaborationActivity extends BaseActivity implements ColorChooserD
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case android.R.id.home:
-                //Navigate back to previous screen
-                finish();
+                //Show prompt dialog
+                CustomDialog.getBackNavigationDialog(CollaborationActivity.this
+                        , "Discard changes?"
+                        , "If you go back now, you will loose your changes.");
                 return true;
             case R.id.action_next:
                 //Check for Write permission
@@ -236,6 +239,14 @@ public class CollaborationActivity extends BaseActivity implements ColorChooserD
     @Override
     public void onColorChooserDismissed(@NonNull ColorChooserDialog dialog) {
         //Do nothing
+    }
+
+    @OnClick(R.id.rootView)
+    void rootViewOnClick() {
+        //Collapse bottomSheet if its expanded
+        if (sheetBehavior.getState() == BottomSheetBehavior.STATE_EXPANDED) {
+            sheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
+        }
     }
 
     /**
@@ -471,10 +482,24 @@ public class CollaborationActivity extends BaseActivity implements ColorChooserD
             @Override
             public void onFontClick(Typeface typeface, String fontType) {
                 //Set short text typeface
-                textShort.setTypeface(typeface);
+                if (mItalicFlag == 0 && mBoldFlag == 0) {
+                    //Set typeface to bold
+                    textShort.setTypeface(typeface, Typeface.BOLD);
+                } else if (mItalicFlag == 0 && mBoldFlag == 1) {
+                    //Set typeface to normal
+                    textShort.setTypeface(typeface, Typeface.NORMAL);
+
+                } else if (mItalicFlag == 1 && mBoldFlag == 0) {
+                    //Set typeface to bold_italic
+                    textShort.setTypeface(typeface, Typeface.BOLD_ITALIC);
+                } else if (mItalicFlag == 1 && mBoldFlag == 1) {
+                    //Set typeface to italic
+                    textShort.setTypeface(typeface, Typeface.ITALIC);
+                }
+
                 //set typeface
                 mTextTypeface = typeface;
-                //Set font name
+                //Set font type
                 mFontType = fontType;
             }
         });
@@ -657,7 +682,6 @@ public class CollaborationActivity extends BaseActivity implements ColorChooserD
                 });
     }
 
-
     /**
      * Method to generate image and show its preview.
      */
@@ -753,7 +777,6 @@ public class CollaborationActivity extends BaseActivity implements ColorChooserD
                 .error(R.drawable.image_placeholder)
                 .into(imagePreview);
     }
-
 
     /**
      * Method to update capture details on server.

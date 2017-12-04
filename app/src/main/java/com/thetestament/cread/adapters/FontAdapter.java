@@ -136,7 +136,7 @@ public class FontAdapter extends RecyclerView.Adapter<FontAdapter.ItemViewHolder
             case FONT_TYPE_UBUNTU_MEDIUM:
                 return ResourcesCompat.getFont(context, R.font.ubuntu_medium);
             default:
-                return ResourcesCompat.getFont(context, R.font.ubuntu_medium);
+                return ResourcesCompat.getFont(context, R.font.helvetica_neue_medium);
         }
     }
 }
