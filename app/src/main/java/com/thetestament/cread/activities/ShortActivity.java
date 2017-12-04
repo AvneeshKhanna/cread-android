@@ -26,11 +26,11 @@ import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.SeekBar;
-import android.widget.Toast;
 
 import com.afollestad.materialdialogs.DialogAction;
 import com.afollestad.materialdialogs.MaterialDialog;
@@ -103,6 +103,10 @@ public class ShortActivity extends BaseActivity implements ColorChooserDialog.Co
     EditText textShort;
     @BindView(R.id.seekBarTextSize)
     AppCompatSeekBar seekBarTextSize;
+    @BindView(R.id.dotBold)
+    View dotBold;
+    @BindView(R.id.dotItalic)
+    View dotItalic;
 
     @BindView(R.id.bottomSheetView)
     NestedScrollView bottomSheetView;
@@ -402,10 +406,8 @@ public class ShortActivity extends BaseActivity implements ColorChooserDialog.Co
     void changeBgColor() {
         if (mIsImagePresent) {
             //Show toast message
-            Toast.makeText(this
-                    , "Image already attached"
-                    , Toast.LENGTH_SHORT)
-                    .show();
+            ViewHelper.getToast(ShortActivity.this
+                    , "Cannot add background color when an image is present");
         } else {
             //Set type
             mColorChooserType = "backGroundColor";
@@ -437,21 +439,33 @@ public class ShortActivity extends BaseActivity implements ColorChooserDialog.Co
             textShort.setTypeface(mTextTypeface, Typeface.BOLD);
             //Update flag
             mBoldFlag = 1;
+            //Toggle dot views visibility
+            dotBold.setVisibility(View.VISIBLE);
+            dotItalic.setVisibility(View.INVISIBLE);
         } else if (mItalicFlag == 0 && mBoldFlag == 1) {
             //Set typeface to normal
             textShort.setTypeface(mTextTypeface, Typeface.NORMAL);
             //Update flag
             mBoldFlag = 0;
+            //Toggle dot views visibility
+            dotBold.setVisibility(View.INVISIBLE);
+            dotItalic.setVisibility(View.INVISIBLE);
         } else if (mItalicFlag == 1 && mBoldFlag == 0) {
             //Set typeface to bold_italic
             textShort.setTypeface(mTextTypeface, Typeface.BOLD_ITALIC);
             //Update flag
             mBoldFlag = 1;
+            //Toggle dot views visibility
+            dotBold.setVisibility(View.VISIBLE);
+            dotItalic.setVisibility(View.VISIBLE);
         } else if (mItalicFlag == 1 && mBoldFlag == 1) {
             //Set typeface to italic
             textShort.setTypeface(mTextTypeface, Typeface.ITALIC);
             //Update flag
             mBoldFlag = 0;
+            //Toggle dot views visibility
+            dotBold.setVisibility(View.INVISIBLE);
+            dotItalic.setVisibility(View.VISIBLE);
         }
     }
 
@@ -466,21 +480,33 @@ public class ShortActivity extends BaseActivity implements ColorChooserDialog.Co
             textShort.setTypeface(mTextTypeface, Typeface.ITALIC);
             //Update flag
             mItalicFlag = 1;
+            //Toggle dot views visibility
+            dotBold.setVisibility(View.INVISIBLE);
+            dotItalic.setVisibility(View.VISIBLE);
         } else if (mItalicFlag == 0 && mBoldFlag == 1) {
             //Set typeface to bold_italic
             textShort.setTypeface(mTextTypeface, Typeface.BOLD_ITALIC);
             //Update flag
             mItalicFlag = 1;
+            //Toggle dot views visibility
+            dotBold.setVisibility(View.VISIBLE);
+            dotItalic.setVisibility(View.VISIBLE);
         } else if (mItalicFlag == 1 && mBoldFlag == 0) {
             //Set typeface to normal
             textShort.setTypeface(mTextTypeface, Typeface.NORMAL);
             //Update flag
             mItalicFlag = 0;
+            //Toggle dot views visibility
+            dotBold.setVisibility(View.INVISIBLE);
+            dotItalic.setVisibility(View.INVISIBLE);
         } else if (mItalicFlag == 1 && mBoldFlag == 1) {
             //Set typeface to bold
             textShort.setTypeface(mTextTypeface, Typeface.BOLD);
             //Update flag
             mItalicFlag = 0;
+            //Toggle dot views visibility
+            dotBold.setVisibility(View.VISIBLE);
+            dotItalic.setVisibility(View.INVISIBLE);
         }
 
     }
@@ -583,17 +609,17 @@ public class ShortActivity extends BaseActivity implements ColorChooserDialog.Co
                 //Set short text typeface
                 if (mItalicFlag == 0 && mBoldFlag == 0) {
                     //Set typeface to bold
-                    textShort.setTypeface(typeface, Typeface.BOLD);
+                    textShort.setTypeface(typeface, Typeface.NORMAL);
                 } else if (mItalicFlag == 0 && mBoldFlag == 1) {
                     //Set typeface to normal
-                    textShort.setTypeface(typeface, Typeface.NORMAL);
+                    textShort.setTypeface(typeface, Typeface.BOLD);
 
                 } else if (mItalicFlag == 1 && mBoldFlag == 0) {
                     //Set typeface to bold_italic
-                    textShort.setTypeface(typeface, Typeface.BOLD_ITALIC);
+                    textShort.setTypeface(typeface, Typeface.ITALIC);
                 } else if (mItalicFlag == 1 && mBoldFlag == 1) {
                     //Set typeface to italic
-                    textShort.setTypeface(typeface, Typeface.ITALIC);
+                    textShort.setTypeface(typeface, Typeface.BOLD_ITALIC);
                 }
 
                 //set typeface
