@@ -36,6 +36,7 @@ import com.thetestament.cread.BuildConfig;
 import com.thetestament.cread.Manifest;
 import com.thetestament.cread.R;
 import com.thetestament.cread.adapters.FontAdapter;
+import com.thetestament.cread.dialog.CustomDialog;
 import com.thetestament.cread.helpers.NetworkHelper;
 import com.thetestament.cread.helpers.SharedPreferenceHelper;
 import com.thetestament.cread.helpers.ViewHelper;
@@ -98,6 +99,10 @@ public class CollaborationActivity extends BaseActivity implements ColorChooserD
     View viewProgress;
     @BindView(R.id.seekBarTextSize)
     AppCompatSeekBar seekBarTextSize;
+    @BindView(R.id.dotBold)
+    View dotBold;
+    @BindView(R.id.dotItalic)
+    View dotItalic;
 
 
     @BindView(R.id.bottomSheetView)
@@ -113,7 +118,7 @@ public class CollaborationActivity extends BaseActivity implements ColorChooserD
 
 
     @State
-    String mShortID, mIsMerchantable, mSignatureText = "", mFontType = "ubuntu_medium.ttf";
+    String mShortID, mIsMerchantable, mSignatureText = "", mFontType = "helvetica_neue_medium.ttf";
 
     @State
     int mImageWidth = 650;
@@ -201,8 +206,10 @@ public class CollaborationActivity extends BaseActivity implements ColorChooserD
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case android.R.id.home:
-                //Navigate back to previous screen
-                finish();
+                //Show prompt dialog
+                CustomDialog.getBackNavigationDialog(CollaborationActivity.this
+                        , "Discard changes?"
+                        , "If you go back now, you will loose your changes.");
                 return true;
             case R.id.action_next:
                 //Check for Write permission
@@ -236,6 +243,23 @@ public class CollaborationActivity extends BaseActivity implements ColorChooserD
     @Override
     public void onColorChooserDismissed(@NonNull ColorChooserDialog dialog) {
         //Do nothing
+    }
+
+    @Override
+    public void onBackPressed() {
+        //super.onBackPressed();
+        //Show prompt dialog
+        CustomDialog.getBackNavigationDialog(CollaborationActivity.this
+                , "Discard changes?"
+                , "If you go back now, you will loose your changes.");
+    }
+
+    @OnClick(R.id.rootView)
+    void rootViewOnClick() {
+        //Collapse bottomSheet if its expanded
+        if (sheetBehavior.getState() == BottomSheetBehavior.STATE_EXPANDED) {
+            sheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
+        }
     }
 
     /**
@@ -310,21 +334,33 @@ public class CollaborationActivity extends BaseActivity implements ColorChooserD
             textShort.setTypeface(mTextTypeface, Typeface.BOLD);
             //Update flag
             mBoldFlag = 1;
+            //Toggle dot views visibility
+            dotBold.setVisibility(View.VISIBLE);
+            dotItalic.setVisibility(View.INVISIBLE);
         } else if (mItalicFlag == 0 && mBoldFlag == 1) {
             //Set typeface to normal
             textShort.setTypeface(mTextTypeface, Typeface.NORMAL);
             //Update flag
             mBoldFlag = 0;
+            //Toggle dot views visibility
+            dotBold.setVisibility(View.INVISIBLE);
+            dotItalic.setVisibility(View.INVISIBLE);
         } else if (mItalicFlag == 1 && mBoldFlag == 0) {
             //Set typeface to bold_italic
             textShort.setTypeface(mTextTypeface, Typeface.BOLD_ITALIC);
             //Update flag
             mBoldFlag = 1;
+            //Toggle dot views visibility
+            dotBold.setVisibility(View.VISIBLE);
+            dotItalic.setVisibility(View.VISIBLE);
         } else if (mItalicFlag == 1 && mBoldFlag == 1) {
             //Set typeface to italic
             textShort.setTypeface(mTextTypeface, Typeface.ITALIC);
             //Update flag
             mBoldFlag = 0;
+            //Toggle dot views visibility
+            dotBold.setVisibility(View.INVISIBLE);
+            dotItalic.setVisibility(View.VISIBLE);
         }
     }
 
@@ -471,10 +507,24 @@ public class CollaborationActivity extends BaseActivity implements ColorChooserD
             @Override
             public void onFontClick(Typeface typeface, String fontType) {
                 //Set short text typeface
-                textShort.setTypeface(typeface);
+                if (mItalicFlag == 0 && mBoldFlag == 0) {
+                    //Set typeface to bold
+                    textShort.setTypeface(typeface, Typeface.NORMAL);
+                } else if (mItalicFlag == 0 && mBoldFlag == 1) {
+                    //Set typeface to normal
+                    textShort.setTypeface(typeface, Typeface.BOLD);
+
+                } else if (mItalicFlag == 1 && mBoldFlag == 0) {
+                    //Set typeface to bold_italic
+                    textShort.setTypeface(typeface, Typeface.ITALIC);
+                } else if (mItalicFlag == 1 && mBoldFlag == 1) {
+                    //Set typeface to italic
+                    textShort.setTypeface(typeface, Typeface.BOLD_ITALIC);
+                }
+
                 //set typeface
                 mTextTypeface = typeface;
-                //Set font name
+                //Set font type
                 mFontType = fontType;
             }
         });
@@ -657,7 +707,6 @@ public class CollaborationActivity extends BaseActivity implements ColorChooserD
                 });
     }
 
-
     /**
      * Method to generate image and show its preview.
      */
@@ -754,7 +803,6 @@ public class CollaborationActivity extends BaseActivity implements ColorChooserD
                 .into(imagePreview);
     }
 
-
     /**
      * Method to update capture details on server.
      */
@@ -847,6 +895,5 @@ public class CollaborationActivity extends BaseActivity implements ColorChooserD
                     }
                 });
     }
-
 
 }

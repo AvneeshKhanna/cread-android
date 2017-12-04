@@ -247,7 +247,6 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                 if (data.isAvailableForCollab()) {
                     // For stand alone capture
                     itemViewHolder.buttonCollaborate.setVisibility(View.VISIBLE);
-
                     //write click functionality on capture
                     writeOnClick(itemViewHolder.buttonCollaborate, data.getCaptureID(), data.getContentImage(), data.getEntityID(), data.isMerchantable());
 

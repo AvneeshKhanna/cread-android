@@ -62,7 +62,7 @@
     <!--Short font-->
     <style name="ShortFont" parent="android:TextAppearance">
         <!-- Custom Attr-->
-        <item name="fontPath">fonts/Ubuntu-Medium.ttf</item>
+        <item name="fontPath">fonts/helvetica_neue_medium</item>
 
     </style>
 </resources>

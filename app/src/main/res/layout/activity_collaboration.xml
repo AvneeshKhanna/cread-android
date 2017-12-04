@@ -62,7 +62,7 @@
             android:layout_width="25dp"
             android:layout_height="25dp"
             android:layout_above="@+id/containerFormatOptions"
-            android:layout_marginBottom="5dp"
+            android:layout_marginBottom="15dp"
             android:layout_marginLeft="15dp"
             android:src="@drawable/ic_format_size_plus_32" />
 
@@ -87,7 +87,7 @@
     </RelativeLayout>
 
     <!--Font option bottom sheet-->
-    <include layout="@layout/layout_font_bottom_sheet" />
+      <include layout="@layout/layout_font_bottom_sheet" />
 
     <include
         android:id="@+id/progressView"
