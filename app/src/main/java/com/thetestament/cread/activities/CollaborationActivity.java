@@ -23,7 +23,6 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.SeekBar;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.afollestad.materialdialogs.DialogAction;
 import com.afollestad.materialdialogs.MaterialDialog;
@@ -308,10 +307,8 @@ public class CollaborationActivity extends BaseActivity implements ColorChooserD
      */
     @OnClick(R.id.btnFormatBg)
     void changeBgColor() {
-        Toast.makeText(this
-                , "Functionality disabled"
-                , Toast.LENGTH_SHORT)
-                .show();
+        ViewHelper.getToast(CollaborationActivity.this
+                , "'Cannot add background color when an image is present");
     }
 
     /**
