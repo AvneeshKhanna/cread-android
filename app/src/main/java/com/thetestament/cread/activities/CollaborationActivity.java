@@ -23,7 +23,6 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.SeekBar;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.afollestad.materialdialogs.DialogAction;
 import com.afollestad.materialdialogs.MaterialDialog;
@@ -308,10 +307,8 @@ public class CollaborationActivity extends BaseActivity implements ColorChooserD
      */
     @OnClick(R.id.btnFormatBg)
     void changeBgColor() {
-        Toast.makeText(this
-                , "Functionality disabled"
-                , Toast.LENGTH_SHORT)
-                .show();
+        ViewHelper.getToast(CollaborationActivity.this
+                , "'Cannot add background color when an image is present");
     }
 
     /**
@@ -375,21 +372,33 @@ public class CollaborationActivity extends BaseActivity implements ColorChooserD
             textShort.setTypeface(mTextTypeface, Typeface.ITALIC);
             //Update flag
             mItalicFlag = 1;
+            //Toggle dot views visibility
+            dotBold.setVisibility(View.INVISIBLE);
+            dotItalic.setVisibility(View.VISIBLE);
         } else if (mItalicFlag == 0 && mBoldFlag == 1) {
             //Set typeface to bold_italic
             textShort.setTypeface(mTextTypeface, Typeface.BOLD_ITALIC);
             //Update flag
             mItalicFlag = 1;
+            //Toggle dot views visibility
+            dotBold.setVisibility(View.VISIBLE);
+            dotItalic.setVisibility(View.VISIBLE);
         } else if (mItalicFlag == 1 && mBoldFlag == 0) {
             //Set typeface to normal
             textShort.setTypeface(mTextTypeface, Typeface.NORMAL);
             //Update flag
             mItalicFlag = 0;
+            //Toggle dot views visibility
+            dotBold.setVisibility(View.INVISIBLE);
+            dotItalic.setVisibility(View.INVISIBLE);
         } else if (mItalicFlag == 1 && mBoldFlag == 1) {
             //Set typeface to bold
             textShort.setTypeface(mTextTypeface, Typeface.BOLD);
             //Update flag
             mItalicFlag = 0;
+            //Toggle dot views visibility
+            dotBold.setVisibility(View.VISIBLE);
+            dotItalic.setVisibility(View.INVISIBLE);
         }
 
     }
