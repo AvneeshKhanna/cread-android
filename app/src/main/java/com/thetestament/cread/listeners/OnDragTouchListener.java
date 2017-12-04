@@ -4,78 +4,104 @@ import android.view.MotionEvent;
 import android.view.View;
 
 /**
- * Created by gaurav on 07/11/17.
+ * Class to provide dragging functionality.
  */
 
 public class OnDragTouchListener implements View.OnTouchListener {
 
+    /**
+     * View to be dragged.
+     */
     private View mView;
+    /**
+     * Parent view of the view to be dragged.
+     */
     private View mParent;
     private boolean isDragging;
     private boolean isInitialized = false;
     private int width;
-    private float xWhenAttached;
+    private int height;
     private float maxLeft;
     private float maxRight;
-    private float dX;
-    private int height;
-    private float yWhenAttached;
     private float maxTop;
     private float maxBottom;
+    private float dX;
     private float dY;
+
+    private float xWhenAttached;
+    private float yWhenAttached;
+
+
     private OnDragActionListener mOnDragActionListener;
 
-    public OnDragTouchListener(View view) {
-        this(view, (View) view.getParent(), null);
+    /**
+     * Interface definition for a callback to be invoked when user drag or stop dragging.
+     */
+    public interface OnDragActionListener {
+        /**
+         * Called when drag event is started.
+         *
+         * @param view The view dragged.
+         */
+        void onDragStart(View view);
+
+        /**
+         * Called when drag event is completed.
+         *
+         * @param view The view dragged.
+         */
+        void onDragEnd(View view);
     }
 
-    public OnDragTouchListener(View view, View parent) {
-        this(view, parent, null);
-    }
-
-    public OnDragTouchListener(View view, OnDragActionListener onDragActionListener) {
-        this(view, (View) view.getParent(), onDragActionListener);
-    }
-
-    public OnDragTouchListener(View view, View parent, OnDragActionListener onDragActionListener) {
-        initListener(view, parent);
-        setOnDragActionListener(onDragActionListener);
-    }
-
+    /**
+     * Register a callback to be invoked when user drag or stop dragging.
+     */
     public void setOnDragActionListener(OnDragActionListener onDragActionListener) {
         mOnDragActionListener = onDragActionListener;
     }
 
-    public void initListener(View view, View parent) {
-        mView = view;
-        mParent = parent;
-        isDragging = false;
-        isInitialized = false;
+    /**
+     * Constructor
+     *
+     * @param view View to be dragged.
+     */
+    public OnDragTouchListener(View view) {
+        this(view, (View) view.getParent(), null);
     }
 
-    public void updateBounds() {
-        updateViewBounds();
-        updateParentBounds();
-        isInitialized = true;
+    /**
+     * Constructor
+     *
+     * @param view   View to be dragged.
+     * @param parent Parent view of view to be dragged.
+     */
+    public OnDragTouchListener(View view, View parent) {
+        this(view, parent, null);
     }
 
-    public void updateViewBounds() {
-        width = mView.getWidth();
-        xWhenAttached = mView.getX();
-        dX = 0;
-
-        height = mView.getHeight();
-        yWhenAttached = mView.getY();
-        dY = 0;
+    /**
+     * Constructor
+     *
+     * @param view                 View to be dragged.
+     * @param onDragActionListener DragListener reference.
+     */
+    public OnDragTouchListener(View view, OnDragActionListener onDragActionListener) {
+        this(view, (View) view.getParent(), onDragActionListener);
     }
 
-    public void updateParentBounds() {
-        maxLeft = 0;
-        maxRight = maxLeft + mParent.getWidth();
-
-        maxTop = 0;
-        maxBottom = maxTop + mParent.getHeight();
+    /**
+     * Constructor
+     *
+     * @param view                 View to be dragged.
+     * @param parent               Parent view of view to be dragged.
+     * @param onDragActionListener DragListener reference.
+     */
+    public OnDragTouchListener(View view, View parent, OnDragActionListener onDragActionListener) {
+        initListener(view, parent);
+        //Set drag listener
+        setOnDragActionListener(onDragActionListener);
     }
+
 
     @Override
     public boolean onTouch(View v, MotionEvent event) {
@@ -132,32 +158,73 @@ public class OnDragTouchListener implements View.OnTouchListener {
         return true;
     }
 
-    private void onDragFinish() {
-        if (mOnDragActionListener != null) {
-            mOnDragActionListener.onDragEnd(mView);
-        }
 
-        dX = 0;
-        dY = 0;
+    /**
+     * Initialize member variables.
+     *
+     * @param view   View to be dragged.
+     * @param parent Parent view of view to be dragged.
+     */
+    void initListener(View view, View parent) {
+        mView = view;
+        mParent = parent;
+        //Initialize variables
         isDragging = false;
+        isInitialized = false;
     }
 
     /**
-     * Callback used to indicate when the drag is finished
+     * Method to update views bounds.
      */
-    public interface OnDragActionListener {
-        /**
-         * Called when drag event is started
-         *
-         * @param view The view dragged
-         */
-        void onDragStart(View view);
-
-        /**
-         * Called when drag event is completed
-         *
-         * @param view The view dragged
-         */
-        void onDragEnd(View view);
+    void updateBounds() {
+        updateViewBounds();
+        updateParentBounds();
+        //Toggle flag
+        isInitialized = true;
     }
+
+    /**
+     * Method to update bound of the view to be dragged.
+     */
+    void updateViewBounds() {
+        width = mView.getWidth();
+        xWhenAttached = mView.getX();
+        dX = 0;
+
+        height = mView.getHeight();
+        yWhenAttached = mView.getY();
+        dY = 0;
+    }
+
+    /**
+     * Method to update bound of parent view.
+     */
+    void updateParentBounds() {
+        maxLeft = 0;
+        maxRight = maxLeft + mParent.getWidth();
+
+        maxTop = 0;
+        maxBottom = maxTop + mParent.getHeight();
+    }
+
+    /**
+     * Method to reset variables when view dragging finished.
+     */
+    private void onDragFinish() {
+        if (mOnDragActionListener != null) {
+            //Drag listener
+            mOnDragActionListener.onDragEnd(mView);
+        }
+        //Reset variables
+        dX = 0;
+        dY = 0;
+        isDragging = false;
+
+        //Disable touchListener
+        /*if (endDrag) {
+            mView.setOnTouchListener(null);
+        }*/
+    }
+
+
 }
