@@ -307,6 +307,15 @@ public class ShortActivity extends BaseActivity implements ColorChooserDialog.Co
         //do nothing
     }
 
+    @Override
+    public void onBackPressed() {
+       // super.onBackPressed();
+        //Show prompt dialog
+        CustomDialog.getBackNavigationDialog(ShortActivity.this
+                , "Discard changes?"
+                , "If you go back now, you will loose your changes.");
+    }
+
     @OnClick(R.id.rootView)
     void rootViewOnClick() {
         //Collapse bottomSheet if its expanded

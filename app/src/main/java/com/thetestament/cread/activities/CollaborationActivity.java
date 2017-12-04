@@ -245,6 +245,15 @@ public class CollaborationActivity extends BaseActivity implements ColorChooserD
         //Do nothing
     }
 
+    @Override
+    public void onBackPressed() {
+        //super.onBackPressed();
+        //Show prompt dialog
+        CustomDialog.getBackNavigationDialog(CollaborationActivity.this
+                , "Discard changes?"
+                , "If you go back now, you will loose your changes.");
+    }
+
     @OnClick(R.id.rootView)
     void rootViewOnClick() {
         //Collapse bottomSheet if its expanded

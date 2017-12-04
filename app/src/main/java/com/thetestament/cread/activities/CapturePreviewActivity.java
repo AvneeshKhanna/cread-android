@@ -118,6 +118,15 @@ public class CapturePreviewActivity extends BaseActivity {
 
     }
 
+    @Override
+    public void onBackPressed() {
+        //super.onBackPressed();
+        //Show prompt dialog
+        CustomDialog.getBackNavigationDialog(CapturePreviewActivity.this
+                , "Discard capture?"
+                , "If you go back now, you will loose your capture.");
+    }
+
     /**
      * Method to load capture image for preview.
      */
