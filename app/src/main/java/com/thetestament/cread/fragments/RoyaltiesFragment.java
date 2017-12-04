@@ -691,9 +691,10 @@ public class RoyaltiesFragment extends Fragment {
         TextView textTitle = dialog.getCustomView().findViewById(R.id.textTitle);
         TextView textDesc = dialog.getCustomView().findViewById(R.id.textDesc);
 
-        // TODO update image
+
         //Set filler image
-        fillerImage.setImageDrawable(ContextCompat.getDrawable(getActivity(), R.drawable.img_collab_intro));
+        fillerImage.setImageDrawable(ContextCompat.getDrawable(getActivity(), R.drawable.img_intro_royalty));
+        // TODO update texts
         //Set title text
         textTitle.setText(getActivity().getString(R.string.title_dialog_royalty));
         //Set description text

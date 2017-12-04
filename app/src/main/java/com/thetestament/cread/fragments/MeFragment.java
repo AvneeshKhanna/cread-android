@@ -1563,9 +1563,9 @@ public class MeFragment extends Fragment {
         TextView textTitle = dialog.getCustomView().findViewById(R.id.textTitle);
         TextView textDesc = dialog.getCustomView().findViewById(R.id.textDesc);
 
-        // TODO update image
+
         //Set filler image
-        fillerImage.setImageDrawable(ContextCompat.getDrawable(getActivity(), R.drawable.img_collab_intro));
+        fillerImage.setImageDrawable(ContextCompat.getDrawable(getActivity(), R.drawable.img_intro_royalty));
         //Set title text
         textTitle.setText(getActivity().getString(R.string.title_dialog_me));
         //Set description text

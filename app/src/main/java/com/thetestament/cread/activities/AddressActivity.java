@@ -42,6 +42,8 @@ import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.schedulers.Schedulers;
 
+
+import static com.thetestament.cread.utils.Constant.EXTRA_PRODUCT_CAPTUREUUID;
 import static com.thetestament.cread.utils.Constant.EXTRA_PRODUCT_COLOR;
 import static com.thetestament.cread.utils.Constant.EXTRA_PRODUCT_DELIVERY_CHARGE;
 import static com.thetestament.cread.utils.Constant.EXTRA_PRODUCT_DELIVERY_TIME;
@@ -49,6 +51,7 @@ import static com.thetestament.cread.utils.Constant.EXTRA_PRODUCT_ENTITYID;
 import static com.thetestament.cread.utils.Constant.EXTRA_PRODUCT_PRICE;
 import static com.thetestament.cread.utils.Constant.EXTRA_PRODUCT_PRODUCTID;
 import static com.thetestament.cread.utils.Constant.EXTRA_PRODUCT_QUANTITY;
+import static com.thetestament.cread.utils.Constant.EXTRA_PRODUCT_SHORTUUID;
 import static com.thetestament.cread.utils.Constant.EXTRA_PRODUCT_SIZE;
 import static com.thetestament.cread.utils.Constant.EXTRA_PRODUCT_TYPE;
 import static com.thetestament.cread.utils.Constant.EXTRA_SHIPPING_ADDR1;
@@ -124,7 +127,7 @@ public class AddressActivity extends BaseActivity implements PaymentResultListen
     private CompositeDisposable mCompositeDisposable = new CompositeDisposable();
 
     @State
-    String productName, size, color, quantity, price, productID, entityID, deliveryTime, deliveryCharge, shipName, shipPhone, shipAltPhone, shipAddr1, shipAddr2, shipCity, shipState, shipPincode;
+    String productName, size, color, quantity, price, productID, entityID, shortUUID, captureUUID, deliveryTime, deliveryCharge, shipName, shipPhone, shipAltPhone, shipAddr1, shipAddr2, shipCity, shipState, shipPincode;
     @State
     int totalAmount;
 
@@ -156,6 +159,8 @@ public class AddressActivity extends BaseActivity implements PaymentResultListen
         price = bundle.getString(EXTRA_PRODUCT_PRICE);
         productID = bundle.getString(EXTRA_PRODUCT_PRODUCTID);
         entityID = bundle.getString(EXTRA_PRODUCT_ENTITYID);
+        shortUUID = bundle.getString(EXTRA_PRODUCT_SHORTUUID);
+        captureUUID = bundle.getString(EXTRA_PRODUCT_CAPTUREUUID);
         deliveryTime = bundle.getString(EXTRA_PRODUCT_DELIVERY_TIME);
         deliveryCharge = bundle.getString(EXTRA_PRODUCT_DELIVERY_CHARGE);
 
@@ -435,6 +440,8 @@ public class AddressActivity extends BaseActivity implements PaymentResultListen
             data.put("productid", productID);
             data.put("productname", productName);
             data.put("entityid", entityID);
+            data.put("shortuuid", shortUUID);
+            data.put("captureuuid", captureUUID);
             data.put("paymentid", paymentid);
             data.put("amount", String.valueOf(totalAmount * 100));
             data.put("color", color);

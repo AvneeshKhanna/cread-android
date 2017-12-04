@@ -72,11 +72,15 @@ import static com.thetestament.cread.utils.Constant.CONTENT_TYPE_CAPTURE;
 import static com.thetestament.cread.utils.Constant.CONTENT_TYPE_SHORT;
 import static com.thetestament.cread.utils.Constant.EXTRA_CAPTURE_ID;
 import static com.thetestament.cread.utils.Constant.EXTRA_CAPTURE_URL;
+import static com.thetestament.cread.utils.Constant.EXTRA_CAPTURE_UUID;
 import static com.thetestament.cread.utils.Constant.EXTRA_DATA;
 import static com.thetestament.cread.utils.Constant.EXTRA_ENTITY_ID;
 import static com.thetestament.cread.utils.Constant.EXTRA_ENTITY_TYPE;
 import static com.thetestament.cread.utils.Constant.EXTRA_FEED_DESCRIPTION_DATA;
 import static com.thetestament.cread.utils.Constant.EXTRA_MERCHANTABLE;
+import static com.thetestament.cread.utils.Constant.EXTRA_PROFILE_UUID;
+import static com.thetestament.cread.utils.Constant.EXTRA_SHORT_ID;
+import static com.thetestament.cread.utils.Constant.EXTRA_SHORT_UUID;
 import static com.thetestament.cread.utils.Constant.FIREBASE_EVENT_CAPTURE_CLICKED;
 import static com.thetestament.cread.utils.Constant.FIREBASE_EVENT_HAVE_CLICKED;
 import static com.thetestament.cread.utils.Constant.FIREBASE_EVENT_SHARED_FROM_FEED_DESCRIPTION;
@@ -229,6 +233,17 @@ public class FeedDescriptionActivity extends BaseActivity {
             Intent intent = new Intent(this, MerchandisingProductsActivity.class);
             intent.putExtra(EXTRA_ENTITY_ID, mFeedData.getEntityID());
             intent.putExtra(EXTRA_CAPTURE_URL, mFeedData.getContentImage());
+            // getting short uuid and capture uuid
+            if(mFeedData.getContentType().equals(CONTENT_TYPE_SHORT))
+            {
+                intent.putExtra(EXTRA_SHORT_UUID, mFeedData.getUUID());
+                intent.putExtra(EXTRA_CAPTURE_UUID, mFeedData.getCollabWithUUID());
+            }
+            else if(mFeedData.getContentType().equals(CONTENT_TYPE_CAPTURE))
+            {
+                intent.putExtra(EXTRA_SHORT_UUID, mFeedData.getCollabWithUUID());
+                intent.putExtra(EXTRA_CAPTURE_UUID, mFeedData.getUUID());
+            }
             startActivity(intent);
         } else {
             ViewHelper.getSnackBar(rootView, "Due to low resolution this image is not available for purchase.");
