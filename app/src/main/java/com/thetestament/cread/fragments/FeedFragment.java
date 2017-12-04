@@ -34,6 +34,7 @@ import com.thetestament.cread.R;
 import com.thetestament.cread.activities.BottomNavigationActivity;
 import com.thetestament.cread.activities.FindFBFriendsActivity;
 import com.thetestament.cread.adapters.FeedAdapter;
+import com.thetestament.cread.helpers.HatsOffHelper;
 import com.thetestament.cread.helpers.ImageHelper;
 import com.thetestament.cread.helpers.SharedPreferenceHelper;
 import com.thetestament.cread.helpers.ViewHelper;
@@ -68,9 +69,11 @@ import static com.thetestament.cread.helpers.NetworkHelper.getNetConnectionStatu
 import static com.thetestament.cread.helpers.NetworkHelper.getObservableFromServer;
 import static com.thetestament.cread.utils.Constant.CONTENT_TYPE_CAPTURE;
 import static com.thetestament.cread.utils.Constant.CONTENT_TYPE_SHORT;
+import static com.thetestament.cread.utils.Constant.EXTRA_DATA;
 import static com.thetestament.cread.utils.Constant.FIREBASE_EVENT_EXPLORE_CLICKED;
 import static com.thetestament.cread.utils.Constant.FIREBASE_EVENT_FIND_FRIENDS;
 import static com.thetestament.cread.utils.Constant.IMAGE_TYPE_USER_CAPTURE_PIC;
+import static com.thetestament.cread.utils.Constant.REQUEST_CODE_FEED_DESCRIPTION_ACTIVITY;
 import static com.thetestament.cread.utils.Constant.REQUEST_CODE_OPEN_GALLERY_FOR_CAPTURE;
 
 
@@ -174,14 +177,22 @@ public class FeedFragment extends Fragment {
                     //Get cropped image Uri
                     Uri mCroppedImgUri = UCrop.getOutput(data);
                     ImageHelper.processCroppedImage(mCroppedImgUri, getActivity(), rootView, mShortId);
-
                 } else if (resultCode == UCrop.RESULT_ERROR) {
                     ViewHelper.getSnackBar(rootView, "Image could not be cropped due to some error");
                 }
                 break;
+            case REQUEST_CODE_FEED_DESCRIPTION_ACTIVITY:
+                if (resultCode == RESULT_OK) {
+                    Bundle bundle = data.getBundleExtra(EXTRA_DATA);
+                    //Update data
+                    mFeedDataList.get(bundle.getInt("position")).setHatsOffStatus(bundle.getBoolean("hatsOffStatus"));
+                    mFeedDataList.get(bundle.getInt("position")).setHatsOffCount(bundle.getLong("hatsOffCount"));
+                    //Notify changes
+                    mAdapter.notifyItemChanged(bundle.getInt("position"));
+                }
+                break;
         }
     }
-
 
     /**
      * Method to initialize swipe to refresh view.
@@ -190,7 +201,7 @@ public class FeedFragment extends Fragment {
         //Set layout manger for recyclerView
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
         //Set adapter
-        mAdapter = new FeedAdapter(mFeedDataList, getActivity(), mHelper.getUUID());
+        mAdapter = new FeedAdapter(mFeedDataList, getActivity(), mHelper.getUUID(), FeedFragment.this);
         recyclerView.setAdapter(mAdapter);
 
 
@@ -534,10 +545,30 @@ public class FeedFragment extends Fragment {
     private void initHatsOffListener(FeedAdapter adapter) {
         adapter.setHatsOffListener(new listener.OnHatsOffListener() {
             @Override
-            public void onHatsOffClick(FeedModel feedData, int itemPosition) {
+            public void onHatsOffClick(final FeedModel feedData, final int itemPosition) {
 
-                updateHatsOffStatus(feedData, itemPosition);
+                // updateHatsOffStatus(feedData, itemPosition);
 
+                HatsOffHelper hatsOffHelper = new HatsOffHelper(getActivity());
+                hatsOffHelper.updateHatsOffStatus(feedData.getEntityID(), feedData.getHatsOffStatus());
+                // On hatsOffSuccessListener
+                hatsOffHelper.setOnHatsOffSuccessListener(new HatsOffHelper.OnHatsOffSuccessListener() {
+                    @Override
+                    public void onSuccess() {
+                        // do nothing
+                    }
+                });
+                // On hatsOffSuccessListener
+                hatsOffHelper.setOnHatsOffFailureListener(new HatsOffHelper.OnHatsOffFailureListener() {
+                    @Override
+                    public void onFailure(String errorMsg) {
+                        //set status to true if its false and vice versa
+                        feedData.setHatsOffStatus(!feedData.getHatsOffStatus());
+                        //notify changes
+                        mAdapter.notifyItemChanged(itemPosition);
+                        ViewHelper.getSnackBar(rootView, errorMsg);
+                    }
+                });
             }
         });
     }
@@ -680,7 +711,6 @@ public class FeedFragment extends Fragment {
         //Set description text
         textDesc.setText("Cread is a Social platform where artists can collaborate and showcase their work to earn recognition, goodwill and revenues.");
     }
-
 
     @OnClick(R.id.findfbFriendsButton)
     public void onFindFBFriendsClicked() {

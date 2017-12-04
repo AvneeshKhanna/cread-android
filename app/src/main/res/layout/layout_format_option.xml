@@ -1,11 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/containerFormatOptions"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="horizontal"
     android:paddingBottom="10dp"
-    android:weightSum="4">
+    android:weightSum="6">
 
     <ImageView
         android:id="@+id/btnLAlignText"
@@ -16,18 +15,18 @@
 
 
     <ImageView
-        android:id="@+id/btnFormatTextSizePlus"
+        android:id="@+id/btnFont"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_weight="1"
-        android:src="@drawable/ic_format_size_plus_32" />
+        android:src="@drawable/ic_font_download_32" />
 
     <ImageView
-        android:id="@+id/btnFormatTextSizeMinus"
+        android:id="@+id/btnFormatBg"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_weight="1"
-        android:src="@drawable/ic_format_size_minus_32" />
+        android:src="@drawable/ic_format_color_fill_32" />
 
     <ImageView
         android:id="@+id/btnFormatTextColor"
@@ -35,4 +34,52 @@
         android:layout_height="wrap_content"
         android:layout_weight="1"
         android:src="@drawable/ic_format_color_text_32" />
+
+
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:orientation="vertical">
+
+        <ImageView
+            android:id="@+id/btnFormatTextBold"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:src="@drawable/ic_format_bold_32" />
+
+        <View
+            android:id="@+id/dotBold"
+            android:layout_width="6dp"
+            android:layout_height="6dp"
+            android:layout_gravity="bottom|center"
+            android:layout_marginTop="-2dp"
+            android:background="@drawable/dot_shape"
+            android:visibility="invisible" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:orientation="vertical">
+
+        <ImageView
+            android:id="@+id/btnFormatTextItalic"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:src="@drawable/ic_format_italic_32" />
+
+        <View
+            android:id="@+id/dotItalic"
+            android:layout_width="6dp"
+            android:layout_height="6dp"
+            android:layout_gravity="bottom|center"
+            android:layout_marginTop="-2dp"
+            android:background="@drawable/dot_shape"
+            android:visibility="invisible" />
+    </LinearLayout>
+
 </LinearLayout>

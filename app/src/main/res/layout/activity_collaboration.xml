@@ -14,7 +14,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_below="@+id/containerCreator"
-            android:background="@color/yellow_light">
+            android:background="@color/white">
 
             <ImageView
                 android:id="@+id/imageCapture"
@@ -57,13 +57,37 @@
             </FrameLayout>
         </com.thetestament.cread.utils.SquareView>
 
+        <ImageView
+            android:id="@+id/btnFormatTextSize"
+            android:layout_width="25dp"
+            android:layout_height="25dp"
+            android:layout_above="@+id/containerFormatOptions"
+            android:layout_marginBottom="15dp"
+            android:layout_marginLeft="15dp"
+            android:src="@drawable/ic_format_size_plus_32" />
+
+        <android.support.v7.widget.AppCompatSeekBar
+            android:id="@+id/seekBarTextSize"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignBottom="@+id/btnFormatTextSize"
+            android:layout_alignTop="@+id/btnFormatTextSize"
+            android:layout_marginLeft="5dp"
+            android:layout_marginRight="10dp"
+            android:layout_toRightOf="@+id/btnFormatTextSize" />
+
+
         <!--Format option layout-->
         <include
+            android:id="@+id/containerFormatOptions"
             layout="@layout/layout_format_option"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_alignParentBottom="true" />
     </RelativeLayout>
+
+    <!--Font option bottom sheet-->
+      <include layout="@layout/layout_font_bottom_sheet" />
 
     <include
         android:id="@+id/progressView"

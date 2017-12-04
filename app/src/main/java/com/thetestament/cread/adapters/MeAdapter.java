@@ -6,6 +6,7 @@ import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomSheetDialog;
+import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.RecyclerView;
@@ -58,6 +59,7 @@ import static com.thetestament.cread.utils.Constant.EXTRA_MERCHANTABLE;
 import static com.thetestament.cread.utils.Constant.FIREBASE_EVENT_CAPTURE_CLICKED;
 import static com.thetestament.cread.utils.Constant.FIREBASE_EVENT_SHARED_FROM_PROFILE;
 import static com.thetestament.cread.utils.Constant.FIREBASE_EVENT_WRITE_CLICKED;
+import static com.thetestament.cread.utils.Constant.REQUEST_CODE_FEED_DESCRIPTION_ACTIVITY;
 
 /**
  * Adapter class to provide a binding from data set to views that are displayed within a Me RecyclerView.
@@ -69,6 +71,7 @@ public class MeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
     private List<FeedModel> mUserContentList;
     private FragmentActivity mContext;
+    private Fragment mMeFragment;
     private boolean mIsLoading;
     private String mUUID;
     private SharedPreferenceHelper mHelper;
@@ -85,10 +88,11 @@ public class MeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
      * @param mContext         Context to be use.
      * @param mUUID            UUID of user.
      */
-    public MeAdapter(List<FeedModel> mUserContentList, FragmentActivity mContext, String mUUID) {
+    public MeAdapter(List<FeedModel> mUserContentList, FragmentActivity mContext, String mUUID, Fragment mMeFragment) {
         this.mUserContentList = mUserContentList;
         this.mContext = mContext;
         this.mUUID = mUUID;
+        this.mMeFragment = mMeFragment;
 
         mHelper = new SharedPreferenceHelper(mContext);
     }
@@ -168,7 +172,7 @@ public class MeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             });
 
             //ItemView onClick functionality
-            itemViewOnClick(itemViewHolder.itemView, data);
+            itemViewOnClick(itemViewHolder.itemView, data, position);
 
             //Check whether user has given hats off to this campaign or not
             checkHatsOffStatus(data.getHatsOffStatus(), itemViewHolder);
@@ -254,7 +258,6 @@ public class MeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     }
 
 
-
     /**
      * Method to show confirmation dialog before deletion.
      *
@@ -302,15 +305,20 @@ public class MeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
      *
      * @param view      View to be clicked.
      * @param feedModel Data set for current item.
+     * @param position  Position of item
      */
-    private void itemViewOnClick(View view, final FeedModel feedModel) {
+    private void itemViewOnClick(View view, final FeedModel feedModel, final int position) {
         view.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
 
+                Bundle bundle = new Bundle();
+                bundle.putParcelable(EXTRA_FEED_DESCRIPTION_DATA, feedModel);
+                bundle.putInt("position", position);
+
                 Intent intent = new Intent(mContext, FeedDescriptionActivity.class);
-                intent.putExtra(EXTRA_FEED_DESCRIPTION_DATA, feedModel);
-                mContext.startActivity(intent);
+                intent.putExtra(EXTRA_DATA, bundle);
+                mMeFragment.startActivityForResult(intent, REQUEST_CODE_FEED_DESCRIPTION_ACTIVITY);
             }
         });
     }
@@ -505,7 +513,7 @@ public class MeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
                 // set collab count text
                 if (data.getCollabCount() != 0) {
-                    itemViewHolder.collabCount.setText(getCollabCountText(mContext,data.getCollabCount(), data.getContentType()));
+                    itemViewHolder.collabCount.setText(getCollabCountText(mContext, data.getCollabCount(), data.getContentType()));
                     itemViewHolder.collabCount.setVisibility(View.VISIBLE);
                     itemViewHolder.lineSepartor.setVisibility(View.VISIBLE);
 
@@ -561,7 +569,7 @@ public class MeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
                 // set collab count text
                 if (data.getCollabCount() != 0) {
-                    itemViewHolder.collabCount.setText(getCollabCountText(mContext,data.getCollabCount(), data.getContentType()));
+                    itemViewHolder.collabCount.setText(getCollabCountText(mContext, data.getCollabCount(), data.getContentType()));
                     itemViewHolder.collabCount.setVisibility(View.VISIBLE);
                     itemViewHolder.lineSepartor.setVisibility(View.VISIBLE);
 
