@@ -6,8 +6,6 @@
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     android:layout_marginBottom="8dp"
-    android:layout_marginLeft="5dp"
-    android:layout_marginRight="5dp"
     android:layout_marginTop="8dp"
     android:background="@color/white"
     app:cardPreventCornerOverlap="false"
@@ -113,8 +111,8 @@
                 android:layout_height="wrap_content"
                 android:layout_alignParentRight="true"
                 android:layout_centerVertical="true"
-                android:gravity="center"
                 android:layout_marginRight="8dp"
+                android:gravity="center"
                 android:orientation="horizontal">
 
                 <TextView
@@ -130,7 +128,7 @@
                     android:text="Collaborate"
                     android:textColor="@color/white"
                     android:textSize="12sp"
-                    android:visibility="visible"/>
+                    android:visibility="visible" />
 
 
                 <TextView
@@ -144,7 +142,7 @@
                     android:text="&#8942;"
 
                     android:textAppearance="?android:textAppearanceLarge"
-                    android:visibility="visible"/>
+                    android:visibility="visible" />
 
 
             </LinearLayout>
