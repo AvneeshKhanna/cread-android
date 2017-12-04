@@ -118,7 +118,7 @@ public class CollaborationActivity extends BaseActivity implements ColorChooserD
 
 
     @State
-    String mShortID, mIsMerchantable, mSignatureText = "", mFontType = "ubuntu_medium.ttf";
+    String mShortID, mIsMerchantable, mSignatureText = "", mFontType = "helvetica_neue_medium.ttf";
 
     @State
     int mImageWidth = 650;

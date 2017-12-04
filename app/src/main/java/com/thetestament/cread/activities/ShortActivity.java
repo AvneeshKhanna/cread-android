@@ -120,7 +120,7 @@ public class ShortActivity extends BaseActivity implements ColorChooserDialog.Co
     private ArrayList<FontModel> mFontDataList = new ArrayList<>();
 
     @State
-    String mShortText, mCaptureUrl, mCaptureID = "", mSignatureText, mShortBgColor = "FFFFFFFF", mFontType = "ubuntu_medium.ttf";
+    String mShortText, mCaptureUrl, mCaptureID = "", mSignatureText, mShortBgColor = "FFFFFFFF", mFontType = "helvetica_neue_medium.ttf";
     @State
     boolean mIsMerchantable = true, signatureStatus = false, mIsImagePresent = false;
     @State
@@ -309,7 +309,7 @@ public class ShortActivity extends BaseActivity implements ColorChooserDialog.Co
 
     @Override
     public void onBackPressed() {
-       // super.onBackPressed();
+        // super.onBackPressed();
         //Show prompt dialog
         CustomDialog.getBackNavigationDialog(ShortActivity.this
                 , "Discard changes?"
