@@ -4,7 +4,6 @@ import android.content.Context;
 import android.content.res.Resources;
 import android.support.design.widget.Snackbar;
 import android.support.v4.content.ContextCompat;
-import android.util.DisplayMetrics;
 import android.util.TypedValue;
 import android.view.View;
 import android.widget.Toast;
@@ -64,20 +63,14 @@ public class ViewHelper {
     public static int convertToPx(Context context, int dp) {
         Resources r = context.getResources();
         int px = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, dp, r.getDisplayMetrics());
-
         return px;
     }
 
-    public static int pxToDp(Context context, float px) {
-        DisplayMetrics displayMetrics = context.getResources().getDisplayMetrics();
-        return Math.round(px / (displayMetrics.densityDpi / DisplayMetrics.DENSITY_DEFAULT));
-    }
+
     public static float pixelsToSp(Context context, float px) {
         float scaledDensity = context.getResources().getDisplayMetrics().scaledDensity;
-        return px/scaledDensity;
+        return px / scaledDensity;
     }
-
-
 
 
 }

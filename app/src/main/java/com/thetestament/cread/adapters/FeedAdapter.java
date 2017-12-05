@@ -241,7 +241,7 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
                 // set Collaboration count text
                 if (data.getCollabCount() != 0) {
-                    itemViewHolder.collabCount.setText(getCollabCountText(mContext,data.getCollabCount(), data.getContentType()));
+                    itemViewHolder.collabCount.setText(getCollabCountText(mContext, data.getCollabCount(), data.getContentType()));
                     itemViewHolder.collabCount.setVisibility(View.VISIBLE);
                     itemViewHolder.lineSepartor.setVisibility(View.VISIBLE);
 
@@ -286,7 +286,7 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
                 // Set collaboration count text
                 if (data.getCollabCount() != 0) {
-                    itemViewHolder.collabCount.setText(getCollabCountText(mContext,data.getCollabCount(), data.getContentType()));
+                    itemViewHolder.collabCount.setText(getCollabCountText(mContext, data.getCollabCount(), data.getContentType()));
                     itemViewHolder.collabCount.setVisibility(View.VISIBLE);
                     itemViewHolder.lineSepartor.setVisibility(View.VISIBLE);
 
