@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <android.support.v7.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     android:layout_marginBottom="8dp"
@@ -33,7 +32,6 @@
         </com.thetestament.cread.utils.SquareView>
 
 
-
         <TextView
             android:id="@+id/collabCount"
             android:layout_width="wrap_content"
@@ -48,7 +46,7 @@
             android:text="25 people wrote on it"
             android:textAppearance="@style/TextAppearance.FontPath"
             android:textSize="11sp"
-            android:visibility="gone"/>
+            android:visibility="gone" />
 
         <View
             android:id="@+id/lineSeparatorTop"
@@ -60,7 +58,7 @@
             android:layout_marginTop="8dp"
             android:alpha="0.4"
             android:background="@color/grey_dark"
-            android:visibility="gone"/>
+            android:visibility="gone" />
 
         <LinearLayout
             android:id="@+id/containerActions"

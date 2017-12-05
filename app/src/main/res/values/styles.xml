@@ -40,7 +40,7 @@
     <style name="RoyaltyActivityTheme" parent="AppTheme">
         <!-- Customize your theme here. -->
         <!-- remove shadow below action bar -->
-         <item name="android:elevation">0dp</item>
+        <item name="android:elevation">0dp</item>
         <!-- Support library compatibility -->
         <item name="elevation">0dp</item>
         <!-- Remove shadow below action bar Android < 5.0 -->
@@ -51,18 +51,5 @@
     <style name="TextAppearance.FontPath" parent="android:TextAppearance">
         <!-- Custom Attr-->
         <item name="fontPath">fonts/HelveticaNeuBold.ttf</item>
-    </style>
-
-    <!--RalewayLight font-->
-    <style name="RalewayLight" parent="android:TextAppearance">
-        <!-- Custom Attr-->
-        <item name="fontPath">fonts/RalewayLight.ttf</item>
-    </style>
-
-    <!--Short font-->
-    <style name="ShortFont" parent="android:TextAppearance">
-        <!-- Custom Attr-->
-        <item name="fontPath">fonts/helvetica_neue_medium</item>
-
     </style>
 </resources>

@@ -70,15 +70,14 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
 
 
         performCategorySpecificOperations();
-
-        initialiseNotification();
-
     }
 
     /**
      * Method to perform respective operations depending upon the category of notifications.
      */
     private void performCategorySpecificOperations() {
+
+        boolean isValidCategory = true;
 
         switch (category) {
 
@@ -129,7 +128,14 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
                 intent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
                 break;
             default:
+                isValidCategory = false;
                 break;
+        }
+
+        //show notification only if valid category
+        if(isValidCategory)
+        {
+            initialiseNotification();
         }
     }
 

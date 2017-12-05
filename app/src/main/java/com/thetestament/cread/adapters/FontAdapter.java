@@ -1,9 +1,6 @@
 package com.thetestament.cread.adapters;
 
-import android.content.Context;
-import android.graphics.Typeface;
 import android.support.v4.app.FragmentActivity;
-import android.support.v4.content.res.ResourcesCompat;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -19,19 +16,7 @@ import java.util.List;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
-import static com.thetestament.cread.utils.Constant.FONT_TYPE_AMATIC_SC_REGULAR;
-import static com.thetestament.cread.utils.Constant.FONT_TYPE_BARLOW_CONDENSED_REGULAR;
-import static com.thetestament.cread.utils.Constant.FONT_TYPE_CABIN_SKETCH_REGULAR;
-import static com.thetestament.cread.utils.Constant.FONT_TYPE_HELVETICA_NEUE_MEDUIM;
-import static com.thetestament.cread.utils.Constant.FONT_TYPE_INDIE_FLOWER;
-import static com.thetestament.cread.utils.Constant.FONT_TYPE_MOSTSERRAT_REGULAR;
-import static com.thetestament.cread.utils.Constant.FONT_TYPE_OSWALD_REGULAR;
-import static com.thetestament.cread.utils.Constant.FONT_TYPE_PLAYFAIR_DISPLAY_REGULAR;
-import static com.thetestament.cread.utils.Constant.FONT_TYPE_POIRET_ONE_REGULAR;
-import static com.thetestament.cread.utils.Constant.FONT_TYPE_SHADOWS_INTO_LIGHT;
-import static com.thetestament.cread.utils.Constant.FONT_TYPE_SPECTRA_ISC_REGULAR;
-import static com.thetestament.cread.utils.Constant.FONT_TYPE_TITILLIUM_WEB_REGULAR;
-import static com.thetestament.cread.utils.Constant.FONT_TYPE_UBUNTU_MEDIUM;
+import static com.thetestament.cread.helpers.FontsHelper.getFontType;
 
 /**
  * Adapter class to provide a binding from data set to views that are displayed within a Font RecyclerView.
@@ -98,45 +83,6 @@ public class FontAdapter extends RecyclerView.Adapter<FontAdapter.ItemViewHolder
             super(itemView);
             //Bind view
             ButterKnife.bind(this, itemView);
-        }
-    }
-
-    /**
-     * Method to return typeFace
-     *
-     * @param context  Context to use.
-     * @param fontType Font type.
-     */
-    private Typeface getFontType(String fontType, Context context) {
-        switch (fontType) {
-            case FONT_TYPE_AMATIC_SC_REGULAR:
-                return ResourcesCompat.getFont(context, R.font.amatic_sc_regular);
-            case FONT_TYPE_BARLOW_CONDENSED_REGULAR:
-                return ResourcesCompat.getFont(context, R.font.barlow_condensed_regular);
-            case FONT_TYPE_CABIN_SKETCH_REGULAR:
-                return ResourcesCompat.getFont(context, R.font.cabin_sketch_regular);
-            case FONT_TYPE_HELVETICA_NEUE_MEDUIM:
-                return ResourcesCompat.getFont(context, R.font.helvetica_neue_medium);
-            case FONT_TYPE_INDIE_FLOWER:
-                return ResourcesCompat.getFont(context, R.font.indie_flower);
-            case FONT_TYPE_MOSTSERRAT_REGULAR:
-                return ResourcesCompat.getFont(context, R.font.montserrat_regular);
-            case FONT_TYPE_OSWALD_REGULAR:
-                return ResourcesCompat.getFont(context, R.font.oswald_regular);
-            case FONT_TYPE_PLAYFAIR_DISPLAY_REGULAR:
-                return ResourcesCompat.getFont(context, R.font.playfair_display_regular);
-            case FONT_TYPE_POIRET_ONE_REGULAR:
-                return ResourcesCompat.getFont(context, R.font.poiret_one_regular);
-            case FONT_TYPE_SHADOWS_INTO_LIGHT:
-                return ResourcesCompat.getFont(context, R.font.shadows_into_light);
-            case FONT_TYPE_SPECTRA_ISC_REGULAR:
-                return ResourcesCompat.getFont(context, R.font.spectra_isc_regular);
-            case FONT_TYPE_TITILLIUM_WEB_REGULAR:
-                return ResourcesCompat.getFont(context, R.font.titillium_web_regular);
-            case FONT_TYPE_UBUNTU_MEDIUM:
-                return ResourcesCompat.getFont(context, R.font.ubuntu_medium);
-            default:
-                return ResourcesCompat.getFont(context, R.font.helvetica_neue_medium);
         }
     }
 }
