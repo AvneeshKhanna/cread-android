@@ -545,7 +545,7 @@ public class FeedDescriptionActivity extends BaseActivity {
                             //Set layout manager
                             recyclerView.setLayoutManager(new LinearLayoutManager(FeedDescriptionActivity.this));
                             //Set adapter
-                            recyclerView.setAdapter(new CommentsAdapter(mCommentsList, FeedDescriptionActivity.this, mHelper.getUUID()));
+                            recyclerView.setAdapter(new CommentsAdapter(mCommentsList, FeedDescriptionActivity.this, mHelper.getUUID(), recyclerView));
                         }
                     }
                 })

@@ -78,6 +78,8 @@ public class CommentsActivity extends BaseActivity {
     View viewProgress;
     @BindView(R.id.viewNoData)
     LinearLayout viewNoData;
+    @BindView(R.id.imgLoadComments)
+    ImageView imgLoadComments;
 
     CompositeDisposable mCompositeDisposable = new CompositeDisposable();
 
@@ -195,43 +197,16 @@ public class CommentsActivity extends BaseActivity {
         mLayoutManager = new LinearLayoutManager(this);
         recyclerView.setLayoutManager(mLayoutManager);
         //Set adapter
-        mAdapter = new CommentsAdapter(mCommentsList, this, mHelper.getUUID());
+        mAdapter = new CommentsAdapter(mCommentsList, this, mHelper.getUUID(),recyclerView );
         recyclerView.setAdapter(mAdapter);
 
         initSwipeRefreshLayout();
 
         //Initialize listeners
-        initLoadMoreListener(mAdapter);
         initDeleteCommentListener(mAdapter);
         initEditCommentListener(mAdapter);
     }
 
-    /**
-     * Initialize load more listener.
-     *
-     * @param adapter CommentsAdapter reference.
-     */
-    private void initLoadMoreListener(CommentsAdapter adapter) {
-        adapter.setOnLoadMoreListener(new listener.OnCommentsLoadMoreListener() {
-            @Override
-            public void onLoadMore() {
-                //if more data is available
-                if (mRequestMoreData) {
-                    new Handler()
-                            .post(new Runnable() {
-                                      @Override
-                                      public void run() {
-                                          mCommentsList.add(null);
-                                          mAdapter.notifyItemInserted(mCommentsList.size() - 1);
-                                      }
-                                  }
-                            );
-                    //Load new set of data
-                    loadMoreData();
-                }
-            }
-        });
-    }
 
     /**
      * Initialize delete comment listener.
@@ -404,6 +379,12 @@ public class CommentsActivity extends BaseActivity {
                             //SHow no data layout
                             viewNoData.setVisibility(View.VISIBLE);
                         } else {
+
+                            // show header
+                            if(mRequestMoreData)
+                            {
+                                imgLoadComments.setVisibility(View.VISIBLE);
+                            }
                             //Apply 'Slide Up' animation
                             int resId = R.anim.layout_animation_from_bottom;
                             LayoutAnimationController animation = AnimationUtils.loadLayoutAnimation(CommentsActivity.this, resId);
@@ -411,6 +392,17 @@ public class CommentsActivity extends BaseActivity {
 
                             //Notify for data set changes
                             mAdapter.notifyDataSetChanged();
+
+                            //recyclerView.scrollToPosition(mCommentsList.size() - 1);
+                            // scroll to last item in the recycler view
+                            /*RecyclerView.SmoothScroller smoothScroller = new LinearSmoothScroller(CommentsActivity.this) {
+                                @Override
+                                protected int getVerticalSnapPreference() {
+                                    return LinearSmoothScroller.SNAP_TO_START;
+                                }
+                            };
+                            smoothScroller.setTargetPosition(mCommentsList.size() - 1);
+                            mLayoutManager.startSmoothScroll(smoothScroller);*/
                         }
                     }
                 })
@@ -421,6 +413,10 @@ public class CommentsActivity extends BaseActivity {
      * Method to load next set of data from server.
      */
     private void loadMoreData() {
+
+        // hide load comments and show loading icon
+        imgLoadComments.setVisibility(View.GONE);
+        viewProgress.setVisibility(View.VISIBLE);
 
         final boolean[] tokenError = {false};
         final boolean[] connectionError = {false};
@@ -438,6 +434,7 @@ public class CommentsActivity extends BaseActivity {
                 .subscribeWith(new DisposableObserver<JSONObject>() {
                     @Override
                     public void onNext(JSONObject jsonObject) {
+
                         try {
                             //Token status is invalid
                             if (jsonObject.getString("tokenstatus").equals("invalid")) {
@@ -475,10 +472,24 @@ public class CommentsActivity extends BaseActivity {
                             FirebaseCrash.report(e);
                             connectionError[0] = true;
                         }
+
+                        // hide loading icon  and show load comments image
+                        if(mRequestMoreData)
+                        {
+                            imgLoadComments.setVisibility(View.VISIBLE);
+                        }
+                        viewProgress.setVisibility(View.GONE);
                     }
 
                     @Override
                     public void onError(Throwable e) {
+
+                        // hide loading icon  and show load comments image
+                        if(mRequestMoreData)
+                        {
+                            imgLoadComments.setVisibility(View.VISIBLE);
+                        }
+                        viewProgress.setVisibility(View.GONE);
 
                         FirebaseCrash.report(e);
                         //Server error Snack bar
@@ -487,6 +498,7 @@ public class CommentsActivity extends BaseActivity {
 
                     @Override
                     public void onComplete() {
+
                         // Token status invalid
                         if (tokenError[0]) {
                             ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_invalid_token));
@@ -557,8 +569,8 @@ public class CommentsActivity extends BaseActivity {
                                                       @Override
                                                       public void run() {
                                                           //Add data and notify
-                                                          mCommentsList.add(0, commentsData);
-                                                          mAdapter.notifyItemInserted(0);
+                                                          mCommentsList.add(commentsData);
+                                                          mAdapter.notifyItemInserted(mCommentsList.size() - 1);
 
                                                           //Scroll to top
                                                           RecyclerView.SmoothScroller smoothScroller = new LinearSmoothScroller(CommentsActivity.this) {
