@@ -7,6 +7,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.view.ViewCompat;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.LinearSmoothScroller;
@@ -97,6 +98,10 @@ public class CommentsActivity extends BaseActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_comments);
         ButterKnife.bind(this);
+
+        //For smooth scrolling
+        ViewCompat.setNestedScrollingEnabled(recyclerView, false);
+
         //SharedPreference reference
         mHelper = new SharedPreferenceHelper(this);
         //initialize textWatcher
@@ -143,6 +148,12 @@ public class CommentsActivity extends BaseActivity {
         }
 
 
+    }
+
+    @OnClick(R.id.imgLoadComments)
+    public void onCommentsLoadMoreClicked(View view)
+    {
+        loadMoreData();
     }
 
     /**
@@ -280,7 +291,8 @@ public class CommentsActivity extends BaseActivity {
         swipeRefreshLayout.setRefreshing(true);
         swipeRefreshLayout.setColorSchemeColors(ContextCompat.getColor(this
                 , R.color.colorPrimary));
-        swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+
+       /* swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
                 //Clear data
@@ -291,7 +303,7 @@ public class CommentsActivity extends BaseActivity {
                 mLastIndexKey = null;
                 loadCommentsData();
             }
-        });
+        });*/
         loadCommentsData();
     }
 
@@ -308,9 +320,12 @@ public class CommentsActivity extends BaseActivity {
             getCommentsData();
         } else {
             swipeRefreshLayout.setRefreshing(false);
+            swipeRefreshLayout.setEnabled(false);
             //No connection Snack bar
             ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_no_connection));
         }
+
+
     }
 
     /**
@@ -375,6 +390,7 @@ public class CommentsActivity extends BaseActivity {
                     public void onComplete() {
                         //Hide progress indicator
                         swipeRefreshLayout.setRefreshing(false);
+                        swipeRefreshLayout.setEnabled(false);
                         // Token status invalid
                         if (tokenError[0]) {
                             ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_invalid_token));
@@ -422,14 +438,14 @@ public class CommentsActivity extends BaseActivity {
                 .subscribeWith(new DisposableObserver<JSONObject>() {
                     @Override
                     public void onNext(JSONObject jsonObject) {
-                        //Remove loading item
-                        mCommentsList.remove(mCommentsList.size() - 1);
-                        mAdapter.notifyItemRemoved(mCommentsList.size());
                         try {
                             //Token status is invalid
                             if (jsonObject.getString("tokenstatus").equals("invalid")) {
                                 tokenError[0] = true;
                             } else {
+
+                                List<CommentsModel> tempList = new ArrayList<>();
+
                                 JSONObject mainData = jsonObject.getJSONObject("data");
                                 mRequestMoreData = mainData.getBoolean("requestmore");
                                 mLastIndexKey = mainData.getString("lastindexkey");
@@ -445,10 +461,14 @@ public class CommentsActivity extends BaseActivity {
                                     commentsData.setComment(dataObj.getString("comment"));
                                     commentsData.setCommentId(dataObj.getString("commid"));
                                     commentsData.setEdited(dataObj.getBoolean("edited"));
-                                    mCommentsList.add(commentsData);
-                                    //Notify changes
-                                    mAdapter.notifyItemInserted(mCommentsList.size() - 1);
+
+                                    tempList.add(commentsData);
+
                                 }
+
+                                mCommentsList.addAll(0, tempList);
+
+                                mAdapter.notifyItemRangeInserted(0, tempList.size());
                             }
                         } catch (JSONException e) {
                             e.printStackTrace();
@@ -459,9 +479,7 @@ public class CommentsActivity extends BaseActivity {
 
                     @Override
                     public void onError(Throwable e) {
-                        //Remove loading item
-                        mCommentsList.remove(mCommentsList.size() - 1);
-                        mAdapter.notifyItemRemoved(mCommentsList.size());
+
                         FirebaseCrash.report(e);
                         //Server error Snack bar
                         ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_server));
@@ -477,8 +495,7 @@ public class CommentsActivity extends BaseActivity {
                         else if (connectionError[0]) {
                             ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_internal));
                         } else {
-                            //Notify changes
-                            mAdapter.setLoaded();
+
                         }
                     }
                 })

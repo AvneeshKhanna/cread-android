@@ -149,7 +149,7 @@ public class CommentsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
             //Show progress view
             loadingViewHolder.progressView.setVisibility(View.VISIBLE);
         }
-
+/*
         //If last item is visible to user and new set of data is to yet to be loaded
         if (position == mCommentList.size() - 1 && !mIsLoading) {
             if (onLoadMoreListener != null) {
@@ -158,7 +158,7 @@ public class CommentsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
             }
             //toggle
             mIsLoading = true;
-        }
+        }*/
     }
 
     @Override
