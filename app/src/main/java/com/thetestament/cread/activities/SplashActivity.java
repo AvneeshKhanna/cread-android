@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.v4.content.ContextCompat;
+import android.support.v7.app.AppCompatActivity;
 import android.view.Window;
 import android.view.WindowManager;
 
@@ -28,7 +29,7 @@ import static com.thetestament.cread.utils.Constant.MINIMUM_APP_VERSION_KEY;
  * Launcher screen for the app.
  */
 
-public class SplashActivity extends BaseActivity {
+public class SplashActivity extends AppCompatActivity {
 
     FirebaseRemoteConfig mFirebaseRemoteConfig;
 
