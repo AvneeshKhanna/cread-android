@@ -18,6 +18,7 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.res.ResourcesCompat;
 import android.support.v4.widget.NestedScrollView;
+import android.support.v7.widget.AppCompatEditText;
 import android.support.v7.widget.AppCompatSeekBar;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -28,7 +29,6 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
-import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.SeekBar;
 
@@ -100,7 +100,7 @@ public class ShortActivity extends BaseActivity implements ColorChooserDialog.Co
     @BindView(R.id.imageShort)
     ImageView imageShort;
     @BindView(R.id.textShort)
-    EditText textShort;
+    AppCompatEditText textShort;
     @BindView(R.id.seekBarTextSize)
     AppCompatSeekBar seekBarTextSize;
     @BindView(R.id.dotBold)
@@ -436,7 +436,6 @@ public class ShortActivity extends BaseActivity implements ColorChooserDialog.Co
         //Show color dialog
         showColorChooserDialog();
     }
-
 
     /**
      * Bold button click functionality to set typeface to bold.

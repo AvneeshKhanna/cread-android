@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/white">
@@ -25,7 +26,7 @@
                 android:contentDescription="App Logo"
                 android:src="@drawable/cread_logo" />
 
-            <TextView
+            <android.support.v7.widget.AppCompatTextView
                 android:id="@+id/textCread"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -33,24 +34,24 @@
                 android:layout_alignTop="@+id/imageCread"
                 android:layout_marginLeft="10dp"
                 android:layout_toRightOf="@+id/imageCread"
+                android:fontFamily="@font/raleway_light"
                 android:gravity="center"
                 android:text="Cread"
-                android:textAppearance="@style/RalewayLight"
                 android:textColor="@color/colorPrimary"
                 android:textSize="44sp" />
 
         </RelativeLayout>
 
-        <TextView
-            android:layout_marginTop="10dp"
+        <android.support.v7.widget.AppCompatTextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_below="@+id/innerContainer"
             android:layout_centerHorizontal="true"
-            android:textColor="@color/grey_dark"
-            android:textAppearance="@style/RalewayLight"
+            android:layout_marginTop="10dp"
             android:text="Where artists get their due"
-            android:textSize="20sp" />
+            android:textColor="@color/grey_dark"
+            android:textSize="20sp"
+            app:fontFamily="@font/raleway_light" />
 
 
     </RelativeLayout>

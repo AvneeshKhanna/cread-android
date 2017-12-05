@@ -25,6 +25,15 @@ public class FontsHelper {
     public static final String FONT_TYPE_SPECTRA_ISC_REGULAR = "spectra_isc_regular.ttf";
     public static final String FONT_TYPE_TITILLIUM_WEB_REGULAR = "titillium_web_regular.ttf";
     public static final String FONT_TYPE_UBUNTU_MEDIUM = "ubuntu_medium.ttf";
+    public static final String FONT_TYPE_ITALIANNO_REGULAR = "italianno_regular.ttf";
+    public static final String FONT_TYPE_LALEZAR_REGULAR = "lalezar_regular.ttf";
+    public static final String FONT_TYPE_MARVEL_REGULAR = "marvel_regular.ttf";
+    public static final String FONT_TYPE_TANGERINE_REGULAR = "tangerine_regular.ttf";
+    public static final String FONT_TYPE_TENOR_SANS_REGULAR = "tenor_sans_regular.ttf";
+    public static final String FONT_TYPE_TEXT_ME_ONE_REGULAR = "text_me_one_regular.ttf";
+    public static final String FONT_TYPE_VIGA_REGULAR = "viga_regular.ttf";
+    public static final String FONT_TYPE_WALTERTURNCOAT_REGULAR = "walterturncoat_regular.ttf";
+    public static final String FONT_TYPE_RALEWAY_LIGHT = "raleway_light.ttf";
 
 
     //Font list
@@ -42,6 +51,16 @@ public class FontsHelper {
             , FONT_TYPE_SPECTRA_ISC_REGULAR
             , FONT_TYPE_TITILLIUM_WEB_REGULAR
             , FONT_TYPE_UBUNTU_MEDIUM
+            , FONT_TYPE_ITALIANNO_REGULAR
+            , FONT_TYPE_LALEZAR_REGULAR
+            , FONT_TYPE_MARVEL_REGULAR
+            , FONT_TYPE_TANGERINE_REGULAR
+            , FONT_TYPE_TENOR_SANS_REGULAR
+            , FONT_TYPE_TEXT_ME_ONE_REGULAR
+            , FONT_TYPE_VIGA_REGULAR
+            , FONT_TYPE_WALTERTURNCOAT_REGULAR
+            , FONT_TYPE_RALEWAY_LIGHT
+
     };
 
     /**
@@ -78,6 +97,24 @@ public class FontsHelper {
                 return ResourcesCompat.getFont(context, R.font.titillium_web_regular);
             case FONT_TYPE_UBUNTU_MEDIUM:
                 return ResourcesCompat.getFont(context, R.font.ubuntu_medium);
+            case FONT_TYPE_ITALIANNO_REGULAR:
+                return ResourcesCompat.getFont(context, R.font.italianno_regular);
+            case FONT_TYPE_LALEZAR_REGULAR:
+                return ResourcesCompat.getFont(context, R.font.lalezar_regular);
+            case FONT_TYPE_MARVEL_REGULAR:
+                return ResourcesCompat.getFont(context, R.font.marvel_regular);
+            case FONT_TYPE_TANGERINE_REGULAR:
+                return ResourcesCompat.getFont(context, R.font.tangerine_regular);
+            case FONT_TYPE_TENOR_SANS_REGULAR:
+                return ResourcesCompat.getFont(context, R.font.tenor_sans_regular);
+            case FONT_TYPE_TEXT_ME_ONE_REGULAR:
+                return ResourcesCompat.getFont(context, R.font.text_me_one_regular);
+            case FONT_TYPE_VIGA_REGULAR:
+                return ResourcesCompat.getFont(context, R.font.viga_regular);
+            case FONT_TYPE_WALTERTURNCOAT_REGULAR:
+                return ResourcesCompat.getFont(context, R.font.walterturncoat_regular);
+            case FONT_TYPE_RALEWAY_LIGHT:
+                return ResourcesCompat.getFont(context, R.font.raleway_light);
             default:
                 return ResourcesCompat.getFont(context, R.font.ubuntu_medium);
         }

@@ -12,6 +12,7 @@ import android.support.v4.content.ContextCompat;
 import android.support.v4.content.res.ResourcesCompat;
 import android.support.v4.widget.NestedScrollView;
 import android.support.v7.widget.AppCompatSeekBar;
+import android.support.v7.widget.AppCompatTextView;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.InputType;
@@ -92,7 +93,7 @@ public class CollaborationActivity extends BaseActivity implements ColorChooserD
     @BindView(R.id.imageCapture)
     ImageView imageShort;
     @BindView(R.id.textShort)
-    TextView textShort;
+    AppCompatTextView textShort;
     @BindView(R.id.textSignature)
     TextView textSignature;
     @BindView(R.id.progressView)
