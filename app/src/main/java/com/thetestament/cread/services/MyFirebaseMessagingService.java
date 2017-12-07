@@ -33,13 +33,17 @@ import static com.thetestament.cread.utils.Constant.NOTIFICATION_BUNDLE_DATA_ACT
 import static com.thetestament.cread.utils.Constant.NOTIFICATION_BUNDLE_DATA_ACTOR_IMAGE;
 import static com.thetestament.cread.utils.Constant.NOTIFICATION_BUNDLE_DATA_CATEGORY;
 import static com.thetestament.cread.utils.Constant.NOTIFICATION_BUNDLE_DATA_ENTITY_ID;
+import static com.thetestament.cread.utils.Constant.NOTIFICATION_BUNDLE_DATA_ENTITY_IMAGE;
 import static com.thetestament.cread.utils.Constant.NOTIFICATION_BUNDLE_DATA_MESSAGE;
+import static com.thetestament.cread.utils.Constant.NOTIFICATION_BUNDLE_DATA_OTHER_COLLABORATOR;
 import static com.thetestament.cread.utils.Constant.NOTIFICATION_BUNDLE_DATA_PERSISTABLE;
 import static com.thetestament.cread.utils.Constant.NOTIFICATION_CATEGORY_CREAD_BUY;
 import static com.thetestament.cread.utils.Constant.NOTIFICATION_CATEGORY_CREAD_COLLABORATE;
 import static com.thetestament.cread.utils.Constant.NOTIFICATION_CATEGORY_CREAD_COMMENT;
+import static com.thetestament.cread.utils.Constant.NOTIFICATION_CATEGORY_CREAD_COMMENT_OTHER;
 import static com.thetestament.cread.utils.Constant.NOTIFICATION_CATEGORY_CREAD_GENERAL;
 import static com.thetestament.cread.utils.Constant.NOTIFICATION_CATEGORY_CREAD_HATSOFF;
+import static com.thetestament.cread.utils.Constant.NOTIFICATION_CATEGORY_CREAD_TOP_POST;
 import static com.thetestament.cread.utils.Constant.NOTIFICATION_CHANNEL_GENERAL;
 import static com.thetestament.cread.utils.Constant.NOTIFICATION_ID_CREAD_BUY;
 import static com.thetestament.cread.utils.Constant.NOTIFICATION_ID_CREAD_COLLABORATE;
@@ -50,7 +54,8 @@ import static com.thetestament.cread.utils.Constant.NOTIFICATION_ID_CREAD_HATSOF
 
 public class MyFirebaseMessagingService extends FirebaseMessagingService {
 
-    private String category, message, entityID, actorUserID, actorUserImage, persistable;
+    private String category, message, entityID, actorUserID, actorUserImage, persistable, entityImage;
+    private boolean otherCollaborator = false;
     private int mId = 0;
     private int resId = 0;
     private Map<String, String> data;
@@ -101,6 +106,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
                 mId = NOTIFICATION_ID_CREAD_HATSOFF;
                 entityID = data.get("entityid");
                 actorUserImage = data.get("actorimage");
+                otherCollaborator = Boolean.parseBoolean(data.get("other_collaborator"));
                 resId = R.drawable.ic_cread_notification_general;
                 intent = new Intent(this, UpdatesActivity.class);
                 intent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
@@ -109,6 +115,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
                 mId = NOTIFICATION_ID_CREAD_COMMENT;
                 entityID = data.get("entityid");
                 actorUserImage = data.get("actorimage");
+                otherCollaborator = Boolean.parseBoolean(data.get("other_collaborator"));
                 resId = R.drawable.ic_cread_notification_general;
                 intent = new Intent(this, UpdatesActivity.class);
                 intent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
@@ -117,6 +124,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
                 mId = NOTIFICATION_ID_CREAD_BUY;
                 entityID = data.get("entityid");
                 actorUserImage = data.get("actorimage");
+                otherCollaborator = Boolean.parseBoolean(data.get("other_collaborator"));
                 resId = R.drawable.ic_cread_notification_general;
                 intent = new Intent(this, UpdatesActivity.class);
                 intent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
@@ -127,6 +135,23 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
                 intent = new Intent(this, BottomNavigationActivity.class);
                 intent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
                 break;
+            case NOTIFICATION_CATEGORY_CREAD_COMMENT_OTHER:
+                mId = NOTIFICATION_ID_CREAD_COMMENT;
+                entityID = data.get("entityid");
+                actorUserImage = data.get("actorimage");
+                resId = R.drawable.ic_cread_notification_general;
+                intent = new Intent(this, UpdatesActivity.class);
+                intent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
+                break;
+            case NOTIFICATION_CATEGORY_CREAD_TOP_POST:
+                mId = NOTIFICATION_ID_CREAD_COMMENT;
+                entityID = data.get("entityid");
+                entityImage = data.get("entityimage");
+                resId = R.drawable.ic_cread_notification_general;
+                intent = new Intent(this, UpdatesActivity.class);
+                intent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
+                break;
+
             default:
                 isValidCategory = false;
                 break;
@@ -170,7 +195,9 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
         data.putString(NOTIFICATION_BUNDLE_DATA_ACTOR_ID, actorUserID);
         data.putString(NOTIFICATION_BUNDLE_DATA_ENTITY_ID, entityID);
         data.putString(NOTIFICATION_BUNDLE_DATA_ACTOR_IMAGE, actorUserImage);
+        data.putString(NOTIFICATION_BUNDLE_DATA_ENTITY_IMAGE, entityImage);
         data.putString(NOTIFICATION_BUNDLE_DATA_PERSISTABLE, persistable);
+        data.putBoolean(NOTIFICATION_BUNDLE_DATA_OTHER_COLLABORATOR, otherCollaborator);
         nData.save(getApplicationContext(), data);
     }
 

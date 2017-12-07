@@ -3,7 +3,7 @@ package com.thetestament.cread.models;
 public class UpdatesModel {
 
 
-    String  message, timeStamp, seen, category, actorID, entityID, actorImage;
+    String message, timeStamp, seen, category, actorID, entityID, actorImage, entityImage;
     int _ID;
 
 
@@ -61,6 +61,14 @@ public class UpdatesModel {
 
     public void setActorImage(String actorImage) {
         this.actorImage = actorImage;
+    }
+
+    public String getEntityImage() {
+        return entityImage;
+    }
+
+    public void setEntityImage(String entityImage) {
+        this.entityImage = entityImage;
     }
 
     public int get_ID() {

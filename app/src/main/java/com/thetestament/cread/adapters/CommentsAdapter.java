@@ -18,9 +18,11 @@ import com.afollestad.materialdialogs.MaterialDialog;
 import com.squareup.picasso.Picasso;
 import com.thetestament.cread.R;
 import com.thetestament.cread.activities.ProfileActivity;
+import com.thetestament.cread.listeners.listener;
 import com.thetestament.cread.listeners.listener.OnCommentDeleteListener;
 import com.thetestament.cread.listeners.listener.OnCommentEditListener;
 import com.thetestament.cread.listeners.listener.OnCommentsLoadMoreListener;
+import com.thetestament.cread.listeners.listener.OnLoadMoreClickedListener;
 import com.thetestament.cread.models.CommentsModel;
 
 import java.util.List;
@@ -37,16 +39,17 @@ import static com.thetestament.cread.utils.Constant.EXTRA_PROFILE_UUID;
 
 public class CommentsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
-    private final int VIEW_TYPE_ITEM = 0;
+    private static final int VIEW_TYPE_HEADER = 0;
+    private static final int VIEW_TYPE_ITEM = 1;
     private List<CommentsModel> mCommentList;
     private FragmentActivity mContext;
     private String mUUID;
     RecyclerView recyclerView;
 
 
-
     private OnCommentDeleteListener onDeleteListener;
     private OnCommentEditListener onEditListener;
+    private OnLoadMoreClickedListener onLoadMoreClickedListener;
 
 
     /**
@@ -79,6 +82,9 @@ public class CommentsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         this.onEditListener = onEditListener;
     }
 
+    public void setOnViewLoadMoreListener(OnLoadMoreClickedListener onLoadMoreClickedListener) {
+        this.onLoadMoreClickedListener = onLoadMoreClickedListener;
+    }
 
 
     @Override
@@ -87,13 +93,19 @@ public class CommentsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
             return new ItemViewHolder(LayoutInflater
                     .from(parent.getContext())
                     .inflate(R.layout.item_comment, parent, false));
+        } else if (viewType == VIEW_TYPE_HEADER) {
+            return new HeaderViewHolder(LayoutInflater
+                    .from(parent.getContext())
+                    .inflate(R.layout.header_comments, parent, false));
         }
         return null;
     }
 
     @Override
     public void onBindViewHolder(final RecyclerView.ViewHolder holder, final int position) {
-        final CommentsModel data = mCommentList.get(position);
+
+        if (holder instanceof ItemViewHolder) {
+            final CommentsModel data = getItem(position);
 
             //Typecast viewHolder
             final ItemViewHolder itemViewHolder = (ItemViewHolder) holder;
@@ -129,17 +141,53 @@ public class CommentsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
             //Open creator profile
             openCreatorProfile(itemViewHolder.textUserName, data.getUuid());
             openCreatorProfile(itemViewHolder.imageUser, data.getUuid());
+        } else if (holder instanceof HeaderViewHolder) {
+            final HeaderViewHolder headerViewHolder = (HeaderViewHolder) holder;
 
-            if(position == mCommentList.size() - 1)
-            {
-                recyclerView.scrollToPosition(position);
-            }
-
+            // init header click functionality
+            initLoadMoreViewClicked(headerViewHolder.loadMoreView);
+        }
     }
 
     @Override
     public int getItemCount() {
-        return mCommentList == null ? 0 : mCommentList.size();
+        return mCommentList == null ? 0 : mCommentList.size() + 1;
+    }
+
+    @Override
+    public int getItemViewType(int position) {
+
+        if (isPositionHeader(position))
+            return VIEW_TYPE_HEADER;
+
+        return VIEW_TYPE_ITEM;
+    }
+
+    private boolean isPositionHeader(int position) {
+        return position == 0;
+    }
+
+    private CommentsModel getItem(int position) {
+        return mCommentList.get(position - 1);
+    }
+
+    public void setLoadMoreViewVisibility(HeaderViewHolder holder, int visibility) {
+        holder.loadMoreView.setVisibility(visibility);
+    }
+
+    public void setLoadingIconVisibility(HeaderViewHolder holder, int visibility) {
+        holder.loadMoreViewProgress.setVisibility(visibility);
+    }
+
+    private void initLoadMoreViewClicked(LinearLayout view) {
+        view.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                onLoadMoreClickedListener.onLoadMoreClicked();
+            }
+        });
+
     }
 
 
@@ -269,6 +317,21 @@ public class CommentsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         public ItemViewHolder(View itemView) {
             super(itemView);
             ButterKnife.bind(this, itemView);
+        }
+    }
+
+    //ViewHolder class for header
+    public static class HeaderViewHolder extends RecyclerView.ViewHolder {
+
+        @BindView(R.id.loadMoreView)
+        LinearLayout loadMoreView;
+        @BindView(R.id.loadMoreViewProgress)
+        View loadMoreViewProgress;
+
+        public HeaderViewHolder(View headerView) {
+            super(headerView);
+            ButterKnife.bind(this, headerView);
+
         }
     }
 

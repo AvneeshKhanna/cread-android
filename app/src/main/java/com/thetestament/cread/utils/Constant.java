@@ -107,6 +107,8 @@ public class Constant {
     public static final String NOTIFICATION_CATEGORY_CREAD_COMMENT = "comment";
     public static final String NOTIFICATION_CATEGORY_CREAD_BUY = "buy";
     public static final String NOTIFICATION_CATEGORY_CREAD_GENERAL = "general";
+    public static final String NOTIFICATION_CATEGORY_CREAD_COMMENT_OTHER = "other-comment";
+    public static final String NOTIFICATION_CATEGORY_CREAD_TOP_POST = "topPost";
 
     //Notification id cread
     public static final int NOTIFICATION_ID_CREAD_FOLLOW = 1000;
@@ -125,7 +127,9 @@ public class Constant {
     public static final String NOTIFICATION_BUNDLE_DATA_ACTOR_ID = "actorID";
     public static final String NOTIFICATION_BUNDLE_DATA_ENTITY_ID = "entityID";
     public static final String NOTIFICATION_BUNDLE_DATA_ACTOR_IMAGE = "actorImage";
+    public static final String NOTIFICATION_BUNDLE_DATA_ENTITY_IMAGE = "entityImage";
     public static final String NOTIFICATION_BUNDLE_DATA_PERSISTABLE = "persistable";
+    public static final String NOTIFICATION_BUNDLE_DATA_OTHER_COLLABORATOR = "otherCollaborator";
 
 
     //Firebase event types

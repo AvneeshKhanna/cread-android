@@ -698,7 +698,8 @@ public class FeedFragment extends Fragment {
                         //update status
                         mHelper.updateWelcomeDialogStatus(false);
                     }
-                }).show();
+                })
+                .show();
 
         ImageView fillerImage = dialog.getCustomView().findViewById(R.id.viewFiller);
         TextView textTitle = dialog.getCustomView().findViewById(R.id.textTitle);

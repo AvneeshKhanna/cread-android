@@ -55,6 +55,7 @@ import static com.thetestament.cread.database.NotificationsDBSchema.Notification
 import static com.thetestament.cread.database.NotificationsDBSchema.NotificationDBEntry.COLUMN_NAME_CATEGORY;
 import static com.thetestament.cread.database.NotificationsDBSchema.NotificationDBEntry.COLUMN_NAME_DATE;
 import static com.thetestament.cread.database.NotificationsDBSchema.NotificationDBEntry.COLUMN_NAME_ENTITY_ID;
+import static com.thetestament.cread.database.NotificationsDBSchema.NotificationDBEntry.COLUMN_NAME_ENTITY_IMAGE;
 import static com.thetestament.cread.database.NotificationsDBSchema.NotificationDBEntry.COLUMN_NAME_MESSAGE;
 import static com.thetestament.cread.database.NotificationsDBSchema.NotificationDBEntry.COLUMN_NAME_SEEN;
 import static com.thetestament.cread.database.NotificationsDBSchema.NotificationDBEntry.COLUMN_NAME_TIME;
@@ -67,9 +68,11 @@ import static com.thetestament.cread.utils.Constant.EXTRA_FEED_DESCRIPTION_DATA;
 import static com.thetestament.cread.utils.Constant.NOTIFICATION_CATEGORY_CREAD_BUY;
 import static com.thetestament.cread.utils.Constant.NOTIFICATION_CATEGORY_CREAD_COLLABORATE;
 import static com.thetestament.cread.utils.Constant.NOTIFICATION_CATEGORY_CREAD_COMMENT;
+import static com.thetestament.cread.utils.Constant.NOTIFICATION_CATEGORY_CREAD_COMMENT_OTHER;
 import static com.thetestament.cread.utils.Constant.NOTIFICATION_CATEGORY_CREAD_FOLLOW;
 import static com.thetestament.cread.utils.Constant.NOTIFICATION_CATEGORY_CREAD_GENERAL;
 import static com.thetestament.cread.utils.Constant.NOTIFICATION_CATEGORY_CREAD_HATSOFF;
+import static com.thetestament.cread.utils.Constant.NOTIFICATION_CATEGORY_CREAD_TOP_POST;
 
 
 
@@ -198,6 +201,7 @@ public class UpdatesFragment extends Fragment {
                 updatesData.setActorID(cursor.getString(cursor.getColumnIndex(COLUMN_NAME_ACTOR_USERID)));
                 updatesData.setEntityID(cursor.getString(cursor.getColumnIndex(COLUMN_NAME_ENTITY_ID)));
                 updatesData.setActorImage(cursor.getString(cursor.getColumnIndex(COLUMN_NAME_USER_IMAGE)));
+                updatesData.setEntityImage(cursor.getString(cursor.getColumnIndex(COLUMN_NAME_ENTITY_IMAGE)));
                 updatesDataList.add(updatesData);
                 cursor.moveToNext();
 
@@ -246,6 +250,18 @@ public class UpdatesFragment extends Fragment {
                             break;
 
                         case NOTIFICATION_CATEGORY_CREAD_COMMENT:
+
+                            // gets feed details and opens details screen
+                            getFeedDetails(entityID);
+                            break;
+
+                        case NOTIFICATION_CATEGORY_CREAD_COMMENT_OTHER:
+
+                            // gets feed details and opens details screen
+                            getFeedDetails(entityID);
+                            break;
+
+                        case NOTIFICATION_CATEGORY_CREAD_TOP_POST:
 
                             // gets feed details and opens details screen
                             getFeedDetails(entityID);

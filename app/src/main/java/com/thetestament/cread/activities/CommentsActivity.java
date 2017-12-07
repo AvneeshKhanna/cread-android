@@ -31,6 +31,7 @@ import com.google.firebase.crash.FirebaseCrash;
 import com.thetestament.cread.BuildConfig;
 import com.thetestament.cread.R;
 import com.thetestament.cread.adapters.CommentsAdapter;
+import com.thetestament.cread.adapters.CommentsAdapter.HeaderViewHolder;
 import com.thetestament.cread.helpers.NetworkHelper;
 import com.thetestament.cread.helpers.SharedPreferenceHelper;
 import com.thetestament.cread.helpers.ViewHelper;
@@ -42,7 +43,10 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -74,12 +78,11 @@ public class CommentsActivity extends BaseActivity {
     EditText editTextComment;
     @BindView(R.id.buttonPost)
     ImageView buttonPost;
-    @BindView(R.id.viewProgress)
-    View viewProgress;
+    @BindView(R.id.addCommentViewProgress)
+    View addCommentViewProgress;
     @BindView(R.id.viewNoData)
     LinearLayout viewNoData;
-    @BindView(R.id.imgLoadComments)
-    ImageView imgLoadComments;
+
 
     CompositeDisposable mCompositeDisposable = new CompositeDisposable();
 
@@ -100,9 +103,6 @@ public class CommentsActivity extends BaseActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_comments);
         ButterKnife.bind(this);
-
-        //For smooth scrolling
-        ViewCompat.setNestedScrollingEnabled(recyclerView, false);
 
         //SharedPreference reference
         mHelper = new SharedPreferenceHelper(this);
@@ -152,11 +152,6 @@ public class CommentsActivity extends BaseActivity {
 
     }
 
-    @OnClick(R.id.imgLoadComments)
-    public void onCommentsLoadMoreClicked(View view)
-    {
-        loadMoreData();
-    }
 
     /**
      * Method to set text watcher on edit text.
@@ -197,12 +192,13 @@ public class CommentsActivity extends BaseActivity {
         mLayoutManager = new LinearLayoutManager(this);
         recyclerView.setLayoutManager(mLayoutManager);
         //Set adapter
-        mAdapter = new CommentsAdapter(mCommentsList, this, mHelper.getUUID(),recyclerView );
+        mAdapter = new CommentsAdapter(mCommentsList, this, mHelper.getUUID(), recyclerView);
         recyclerView.setAdapter(mAdapter);
 
         initSwipeRefreshLayout();
 
         //Initialize listeners
+        initLoadMoreCommentsListener();
         initDeleteCommentListener(mAdapter);
         initEditCommentListener(mAdapter);
     }
@@ -260,6 +256,19 @@ public class CommentsActivity extends BaseActivity {
     }
 
     /**
+     * Initialize load more comments listener.
+     */
+    private void initLoadMoreCommentsListener() {
+        mAdapter.setOnViewLoadMoreListener(new listener.OnLoadMoreClickedListener() {
+            @Override
+            public void onLoadMoreClicked() {
+                loadMoreData();
+            }
+        });
+    }
+
+
+    /**
      * Method to initialize SwipeRefreshLayout
      */
     private void initSwipeRefreshLayout() {
@@ -267,18 +276,6 @@ public class CommentsActivity extends BaseActivity {
         swipeRefreshLayout.setColorSchemeColors(ContextCompat.getColor(this
                 , R.color.colorPrimary));
 
-       /* swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
-            @Override
-            public void onRefresh() {
-                //Clear data
-                mCommentsList.clear();
-                mAdapter.notifyDataSetChanged();
-                mAdapter.setLoaded();
-                //Set last index key ti null
-                mLastIndexKey = null;
-                loadCommentsData();
-            }
-        });*/
         loadCommentsData();
     }
 
@@ -381,28 +378,16 @@ public class CommentsActivity extends BaseActivity {
                         } else {
 
                             // show header
-                            if(mRequestMoreData)
-                            {
-                                imgLoadComments.setVisibility(View.VISIBLE);
-                            }
-                            //Apply 'Slide Up' animation
-                            int resId = R.anim.layout_animation_from_bottom;
-                            LayoutAnimationController animation = AnimationUtils.loadLayoutAnimation(CommentsActivity.this, resId);
-                            recyclerView.setLayoutAnimation(animation);
+                            if (mRequestMoreData) {
+                                mAdapter.setLoadMoreViewVisibility((HeaderViewHolder) recyclerView.
+                                        findViewHolderForAdapterPosition(0), View.VISIBLE);
 
+                            }
                             //Notify for data set changes
                             mAdapter.notifyDataSetChanged();
 
-                            //recyclerView.scrollToPosition(mCommentsList.size() - 1);
                             // scroll to last item in the recycler view
-                            /*RecyclerView.SmoothScroller smoothScroller = new LinearSmoothScroller(CommentsActivity.this) {
-                                @Override
-                                protected int getVerticalSnapPreference() {
-                                    return LinearSmoothScroller.SNAP_TO_START;
-                                }
-                            };
-                            smoothScroller.setTargetPosition(mCommentsList.size() - 1);
-                            mLayoutManager.startSmoothScroll(smoothScroller);*/
+                            recyclerView.smoothScrollToPosition(mCommentsList.size());
                         }
                     }
                 })
@@ -415,8 +400,10 @@ public class CommentsActivity extends BaseActivity {
     private void loadMoreData() {
 
         // hide load comments and show loading icon
-        imgLoadComments.setVisibility(View.GONE);
-        viewProgress.setVisibility(View.VISIBLE);
+        mAdapter.setLoadMoreViewVisibility((HeaderViewHolder) recyclerView.
+                findViewHolderForAdapterPosition(0), View.GONE);
+        mAdapter.setLoadingIconVisibility((HeaderViewHolder) recyclerView.
+                findViewHolderForAdapterPosition(0), View.VISIBLE);
 
         final boolean[] tokenError = {false};
         final boolean[] connectionError = {false};
@@ -464,8 +451,8 @@ public class CommentsActivity extends BaseActivity {
                                 }
 
                                 mCommentsList.addAll(0, tempList);
-
-                                mAdapter.notifyItemRangeInserted(0, tempList.size());
+                                // 1 because header is present at 0
+                                mAdapter.notifyItemRangeInserted(1, tempList.size());
                             }
                         } catch (JSONException e) {
                             e.printStackTrace();
@@ -474,22 +461,26 @@ public class CommentsActivity extends BaseActivity {
                         }
 
                         // hide loading icon  and show load comments image
-                        if(mRequestMoreData)
-                        {
-                            imgLoadComments.setVisibility(View.VISIBLE);
+                        if (mRequestMoreData) {
+                            mAdapter.setLoadMoreViewVisibility((HeaderViewHolder) recyclerView.
+                                    findViewHolderForAdapterPosition(0), View.VISIBLE);
+
                         }
-                        viewProgress.setVisibility(View.GONE);
+                        mAdapter.setLoadingIconVisibility((HeaderViewHolder) recyclerView.
+                                findViewHolderForAdapterPosition(0), View.GONE);
                     }
 
                     @Override
                     public void onError(Throwable e) {
 
                         // hide loading icon  and show load comments image
-                        if(mRequestMoreData)
-                        {
-                            imgLoadComments.setVisibility(View.VISIBLE);
+                        if (mRequestMoreData) {
+                            mAdapter.setLoadMoreViewVisibility((HeaderViewHolder) recyclerView.
+                                    findViewHolderForAdapterPosition(0), View.VISIBLE);
+
                         }
-                        viewProgress.setVisibility(View.GONE);
+                        mAdapter.setLoadingIconVisibility((HeaderViewHolder) recyclerView.
+                                findViewHolderForAdapterPosition(0), View.GONE);
 
                         FirebaseCrash.report(e);
                         //Server error Snack bar
@@ -522,7 +513,31 @@ public class CommentsActivity extends BaseActivity {
      */
     private void saveComment(final String textComment) {
         //Show progress view
-        viewProgress.setVisibility(View.VISIBLE);
+        addCommentViewProgress.setVisibility(View.VISIBLE);
+
+        List<CommentsModel> otherCommentorsList = new ArrayList<>();
+
+        // if comments are more than 10
+        if (mCommentsList.size() >= 10) {
+            otherCommentorsList = mCommentsList.subList(mCommentsList.size() - 10
+                    , mCommentsList.size());
+        } else {
+            otherCommentorsList.addAll(mCommentsList);
+        }
+
+        List<String> otherCommentorsUUID = new ArrayList<>();
+
+        for (CommentsModel otherCommentors : otherCommentorsList) {
+            otherCommentorsUUID.add(otherCommentors.getUuid());
+        }
+
+        // removing all occurrences own uuid
+        otherCommentorsUUID.removeAll(Collections.singleton(mHelper.getUUID()));
+        // getting unique uuids
+        Set<String> uniqueCommentors = new HashSet<String>(otherCommentorsUUID);
+
+        JSONArray otherCommentorsJSON = new JSONArray(uniqueCommentors);
+
 
         JSONObject jsonObject = new JSONObject();
         try {
@@ -530,12 +545,13 @@ public class CommentsActivity extends BaseActivity {
             jsonObject.put("authkey", mHelper.getAuthToken());
             jsonObject.put("entityid", mEntityID);
             jsonObject.put("comment", textComment);
+            jsonObject.put("othercommenters", otherCommentorsJSON);
 
         } catch (JSONException e) {
             e.printStackTrace();
             FirebaseCrash.report(e);
             //Hide progress view
-            viewProgress.setVisibility(View.GONE);
+            addCommentViewProgress.setVisibility(View.GONE);
         }
         AndroidNetworking.post(BuildConfig.URL + "/comment/add")
                 .addJSONObjectBody(jsonObject)
@@ -544,7 +560,7 @@ public class CommentsActivity extends BaseActivity {
                     @Override
                     public void onResponse(JSONObject jsonObject) {
                         //Hide progress view
-                        viewProgress.setVisibility(View.GONE);
+                        addCommentViewProgress.setVisibility(View.GONE);
                         try {
                             //Token in not valid
                             if (jsonObject.getString("tokenstatus").equals("invalid")) {
@@ -570,17 +586,10 @@ public class CommentsActivity extends BaseActivity {
                                                       public void run() {
                                                           //Add data and notify
                                                           mCommentsList.add(commentsData);
-                                                          mAdapter.notifyItemInserted(mCommentsList.size() - 1);
+                                                          mAdapter.notifyItemInserted(mCommentsList.size());
 
-                                                          //Scroll to top
-                                                          RecyclerView.SmoothScroller smoothScroller = new LinearSmoothScroller(CommentsActivity.this) {
-                                                              @Override
-                                                              protected int getVerticalSnapPreference() {
-                                                                  return LinearSmoothScroller.SNAP_TO_START;
-                                                              }
-                                                          };
-                                                          smoothScroller.setTargetPosition(0);
-                                                          mLayoutManager.startSmoothScroll(smoothScroller);
+                                                          //Scroll to bottom
+                                                          recyclerView.smoothScrollToPosition(mCommentsList.size());
 
 
                                                       }
@@ -601,7 +610,7 @@ public class CommentsActivity extends BaseActivity {
                     @Override
                     public void onError(ANError anError) {
                         //Hide progress view
-                        viewProgress.setVisibility(View.GONE);
+                        addCommentViewProgress.setVisibility(View.GONE);
                         anError.printStackTrace();
                         FirebaseCrash.report(anError);
                         //Server error Snack bar
