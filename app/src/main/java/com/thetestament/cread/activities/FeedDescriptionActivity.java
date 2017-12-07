@@ -315,11 +315,10 @@ public class FeedDescriptionActivity extends BaseActivity {
         Picasso.with(this).load(mFeedData.getContentImage()).into(new Target() {
             @Override
             public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
-
+                mBitmap = bitmap;
                 //Check for Write permission
                 if (Nammu.checkPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
                     //We have permission do whatever you want to do
-                    mBitmap = bitmap;
                     sharePost(bitmap);
                 } else {
                     //We do not own this permission
