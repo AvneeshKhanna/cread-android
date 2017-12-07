@@ -34,6 +34,7 @@ import com.thetestament.cread.helpers.ViewHelper;
 import com.thetestament.cread.listeners.listener.OnFeedCaptureClickListener;
 import com.thetestament.cread.listeners.listener.OnFeedLoadMoreListener;
 import com.thetestament.cread.listeners.listener.OnHatsOffListener;
+import com.thetestament.cread.listeners.listener.OnShareListener;
 import com.thetestament.cread.models.FeedModel;
 
 import java.util.List;
@@ -45,7 +46,6 @@ import de.hdodenhof.circleimageview.CircleImageView;
 import static com.thetestament.cread.helpers.FeedHelper.getCollabCountText;
 import static com.thetestament.cread.helpers.FeedHelper.getCreatorText;
 import static com.thetestament.cread.helpers.FeedHelper.initializeSpannableString;
-import static com.thetestament.cread.helpers.ImageHelper.getLocalBitmapUri;
 import static com.thetestament.cread.utils.Constant.CONTENT_TYPE_CAPTURE;
 import static com.thetestament.cread.utils.Constant.CONTENT_TYPE_SHORT;
 import static com.thetestament.cread.utils.Constant.EXTRA_CAPTURE_ID;
@@ -78,6 +78,7 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     private OnFeedLoadMoreListener onFeedLoadMoreListener;
     private OnHatsOffListener onHatsOffListener;
     private OnFeedCaptureClickListener onFeedCaptureClickListener;
+    private OnShareListener onShareListener;
 
     /**
      * Required constructor.
@@ -114,6 +115,13 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
      */
     public void setOnFeedCaptureClickListener(OnFeedCaptureClickListener onFeedCaptureClickListener) {
         this.onFeedCaptureClickListener = onFeedCaptureClickListener;
+    }
+
+    /**
+     * Register a callback to be invoked when user clicks on share button.
+     */
+    public void setOnShareListener(OnShareListener onShareListener) {
+        this.onShareListener = onShareListener;
     }
 
     @Override
@@ -450,11 +458,8 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                 Picasso.with(mContext).load(pictureUrl).into(new Target() {
                     @Override
                     public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
-                        Intent intent = new Intent();
-                        intent.setAction(Intent.ACTION_SEND);
-                        intent.setType("image/*");
-                        intent.putExtra(Intent.EXTRA_STREAM, getLocalBitmapUri(bitmap, mContext));
-                        mContext.startActivity(Intent.createChooser(intent, "Share"));
+                        //Set Listener
+                        onShareListener.onShareClick(bitmap);
                         //Log firebase event
                         setAnalytics(FIREBASE_EVENT_SHARED_FROM_MAIN_FEED, entityID);
                     }

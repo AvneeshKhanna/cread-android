@@ -4,6 +4,9 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
@@ -35,6 +38,8 @@ import static com.thetestament.cread.utils.Constant.EXTRA_MERCHANTABLE;
 import static com.thetestament.cread.utils.Constant.EXTRA_SHORT_ID;
 import static com.thetestament.cread.utils.Constant.IMAGE_TYPE_USER_CAPTURE_PIC;
 import static com.thetestament.cread.utils.Constant.IMAGE_TYPE_USER_PROFILE_PIC;
+import static com.thetestament.cread.utils.Constant.IMAGE_TYPE_USER_SHARED_PIC;
+import static com.thetestament.cread.utils.Constant.IMAGE_TYPE_USER_SHORT_PIC;
 import static com.thetestament.cread.utils.Constant.REQUEST_CODE_OPEN_GALLERY_FOR_CAPTURE;
 
 /**
@@ -56,8 +61,10 @@ public class ImageHelper {
             s = "/Cread/Profile/user_profile_pic.jpg";
         } else if (imageType.equals(IMAGE_TYPE_USER_CAPTURE_PIC)) {
             s = "/Cread/Capture/capture_pic.jpg";
-        } else {
+        } else if (imageType.equals(IMAGE_TYPE_USER_SHORT_PIC)) {
             s = "/Cread/Short/short_pic.jpg";
+        } else {
+            s = "/Cread/Share/share_pic.png";
         }
 
         File outFile = new File(Environment.getExternalStorageDirectory().getPath() + s);
@@ -180,11 +187,42 @@ public class ImageHelper {
      * @return Uri of image.
      */
     public static Uri getLocalBitmapUri(Bitmap bmp, Context context) {
+        //Create bitmap
+        Bitmap src = Bitmap.createBitmap(bmp);
+        Bitmap dest = Bitmap.createBitmap(src.getWidth(), src.getHeight(), Bitmap.Config.ARGB_8888);
+        //Create canvas
+        Canvas canvas = new Canvas(dest);
+        //Draw image bitmap on canvas
+        canvas.drawBitmap(src, 1f, 1f, null);
+
+        //Create bitmap from watermark drawable
+        Bitmap bitmapSrc = BitmapFactory.decodeResource(context.getResources(), R.drawable.cread_logo_watermark_share);
+
+        //Scale factor for width and height
+        int watermarkScaledWidth = src.getWidth() / 6;
+        int watermarkScaledHeight = bitmapSrc.getHeight() / (bitmapSrc.getWidth() / watermarkScaledWidth);
+
+        //Create scaled bitmap
+        Bitmap scaledBitmap = Bitmap.createScaledBitmap(bitmapSrc, watermarkScaledWidth, watermarkScaledHeight, false);
+        //Create watermark drawable from bitmap
+        Drawable waterMarkDrawable = new BitmapDrawable(context.getResources(), scaledBitmap);
+        //Set watermark image bounds
+        waterMarkDrawable.setBounds(
+                src.getWidth() - waterMarkDrawable.getMinimumWidth()
+                , src.getHeight() - waterMarkDrawable.getMinimumHeight()
+                , src.getWidth()
+                , src.getHeight()
+        );
+        //Draw watermark canvas
+        waterMarkDrawable.draw(canvas);
+
+        //Uri to be returned
         Uri bmpUri = null;
         try {
-            File file = new File(context.getExternalFilesDir(Environment.DIRECTORY_PICTURES), "share_image_" + System.currentTimeMillis() + ".png");
+            // File file = new File(context.getExternalFilesDir(Environment.DIRECTORY_PICTURES), "share_image_" + System.currentTimeMillis() + ".png");
+            File file = new File(ImageHelper.getImageUri(IMAGE_TYPE_USER_SHARED_PIC).getPath());
             FileOutputStream out = new FileOutputStream(file);
-            bmp.compress(Bitmap.CompressFormat.PNG, 90, out);
+            dest.compress(Bitmap.CompressFormat.PNG, 100, out);
             out.close();
             bmpUri = FileProvider.getUriForFile(context, BuildConfig.APPLICATION_ID + ".provider", file);
         } catch (IOException e) {
@@ -192,7 +230,6 @@ public class ImageHelper {
         }
         return bmpUri;
     }
-
 
     /**
      * Open gallery so user can choose his/her capture for uploading.
@@ -274,7 +311,7 @@ public class ImageHelper {
         new MaterialDialog.Builder(context)
                 .title("Note")
                 .content("The resolution of this image is not printable. Other users won't be able to order a print version of it. Do you wish to proceed?")
-                .positiveText("Proceed")
+                .positiveText("Procxeed")
                 .negativeText("Cancel")
                 .onNegative(new MaterialDialog.SingleButtonCallback() {
                     @Override

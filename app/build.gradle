@@ -29,8 +29,8 @@ android {
             shrinkResources false
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
-            //buildConfigField "String", "URL", '"http://cread-dev-remote.herokuapp.com"'
-            buildConfigField "String", "URL", '"http://3f6e4a4c.ngrok.io"'
+            buildConfigField "String", "URL", '"http://cread-dev-remote.herokuapp.com"'
+            //buildConfigField "String", "URL", '"http://e1f2071a.ngrok.io"'
             resValue "string", "RZP_KEY", "rzp_test_Q09427lQA9Ol5g"
             resValue "bool", "FIREBASE_ANALYTICS_ENABLED", "false"
             resValue "bool", "FIREBASE_CRASHLYTICS_ENABLED", "false"
@@ -77,6 +77,7 @@ dependencies {
     //For MoneyTextView
     compile 'org.fabiomsr:moneytextview:1.0.3'
 
+    //For runtime permission
     compile 'com.github.tajchert:nammu:1.2.0'
 
     // debug database

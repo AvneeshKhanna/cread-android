@@ -2,6 +2,7 @@ package com.thetestament.cread.fragments;
 
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.graphics.PorterDuff;
 import android.net.Uri;
 import android.os.Bundle;
@@ -84,6 +85,7 @@ import pl.tajchert.nammu.PermissionCallback;
 
 import static android.app.Activity.RESULT_OK;
 import static com.thetestament.cread.helpers.ImageHelper.getImageUri;
+import static com.thetestament.cread.helpers.ImageHelper.getLocalBitmapUri;
 import static com.thetestament.cread.helpers.NetworkHelper.getNetConnectionStatus;
 import static com.thetestament.cread.helpers.NetworkHelper.getObservableFromServer;
 import static com.thetestament.cread.helpers.NetworkHelper.getUserDataObservableFromServer;
@@ -155,6 +157,7 @@ public class MeFragment extends Fragment {
 
     @State
     String mShortID;
+    Bitmap mBitmap;
 
     private List<FeedModel> mUserActivityDataList = new ArrayList<>();
     private MeAdapter mAdapter;
@@ -849,6 +852,7 @@ public class MeFragment extends Fragment {
         initHatsOffListener(mAdapter);
         initializeDeleteListener(mAdapter);
         initCaptureListener(mAdapter);
+        initShareListener(mAdapter);
     }
 
     /**
@@ -1384,6 +1388,52 @@ public class MeFragment extends Fragment {
     }
 
     /**
+     * Initialize share listener.
+     */
+    private void initShareListener(MeAdapter meAdapter) {
+        meAdapter.setOnShareListener(new listener.OnShareListener() {
+            @Override
+            public void onShareClick(Bitmap bitmap) {
+                //Check for Write permission
+                if (Nammu.checkPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+                    //We have permission do whatever you want to do
+                    mBitmap = bitmap;
+                    sharePost(bitmap);
+                } else {
+                    //We do not own this permission
+                    if (Nammu.shouldShowRequestPermissionRationale(MeFragment.this
+                            , Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+                        //User already refused to give us this permission or removed it
+                        ViewHelper.getToast(getActivity()
+                                , getString(R.string.error_msg_share_permission_denied));
+                    } else {
+                        //First time asking for permission
+                        Nammu.askForPermission(MeFragment.this, Manifest.permission.WRITE_EXTERNAL_STORAGE, shareWritePermission);
+                    }
+                }
+            }
+        });
+    }
+
+    /**
+     * Used to handle result of askForPermission for share
+     */
+    PermissionCallback shareWritePermission = new PermissionCallback() {
+        @Override
+        public void permissionGranted() {
+            sharePost(mBitmap);
+        }
+
+        @Override
+        public void permissionRefused() {
+            //Show error message
+            ViewHelper.getToast(getActivity()
+                    , getString(R.string.error_msg_share_permission_denied));
+        }
+    };
+
+
+    /**
      * Used to handle result of askForPermission for capture.
      */
     PermissionCallback captureWritePermission = new PermissionCallback() {
@@ -1567,4 +1617,16 @@ public class MeFragment extends Fragment {
 
     }
 
+    /**
+     * Method to create intent choose so he/she can share the post.
+     *
+     * @param bitmap Bitmap to be shared.
+     */
+    private void sharePost(Bitmap bitmap) {
+        Intent intent = new Intent();
+        intent.setAction(Intent.ACTION_SEND);
+        intent.setType("image/*");
+        intent.putExtra(Intent.EXTRA_STREAM, getLocalBitmapUri(bitmap, getActivity()));
+        startActivity(Intent.createChooser(intent, "Share"));
+    }
 }
