@@ -78,8 +78,6 @@ import static com.thetestament.cread.utils.Constant.EXTRA_ENTITY_ID;
 import static com.thetestament.cread.utils.Constant.EXTRA_ENTITY_TYPE;
 import static com.thetestament.cread.utils.Constant.EXTRA_FEED_DESCRIPTION_DATA;
 import static com.thetestament.cread.utils.Constant.EXTRA_MERCHANTABLE;
-import static com.thetestament.cread.utils.Constant.EXTRA_PROFILE_UUID;
-import static com.thetestament.cread.utils.Constant.EXTRA_SHORT_ID;
 import static com.thetestament.cread.utils.Constant.EXTRA_SHORT_UUID;
 import static com.thetestament.cread.utils.Constant.FIREBASE_EVENT_CAPTURE_CLICKED;
 import static com.thetestament.cread.utils.Constant.FIREBASE_EVENT_HAVE_CLICKED;
@@ -136,6 +134,7 @@ public class FeedDescriptionActivity extends BaseActivity {
 
     @State
     int mItemPosition;
+    Bitmap mBitmap;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -234,13 +233,10 @@ public class FeedDescriptionActivity extends BaseActivity {
             intent.putExtra(EXTRA_ENTITY_ID, mFeedData.getEntityID());
             intent.putExtra(EXTRA_CAPTURE_URL, mFeedData.getContentImage());
             // getting short uuid and capture uuid
-            if(mFeedData.getContentType().equals(CONTENT_TYPE_SHORT))
-            {
+            if (mFeedData.getContentType().equals(CONTENT_TYPE_SHORT)) {
                 intent.putExtra(EXTRA_SHORT_UUID, mFeedData.getUUID());
                 intent.putExtra(EXTRA_CAPTURE_UUID, mFeedData.getCollabWithUUID());
-            }
-            else if(mFeedData.getContentType().equals(CONTENT_TYPE_CAPTURE))
-            {
+            } else if (mFeedData.getContentType().equals(CONTENT_TYPE_CAPTURE)) {
                 intent.putExtra(EXTRA_SHORT_UUID, mFeedData.getCollabWithUUID());
                 intent.putExtra(EXTRA_CAPTURE_UUID, mFeedData.getUUID());
             }
@@ -319,11 +315,23 @@ public class FeedDescriptionActivity extends BaseActivity {
         Picasso.with(this).load(mFeedData.getContentImage()).into(new Target() {
             @Override
             public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
-                Intent intent = new Intent();
-                intent.setAction(Intent.ACTION_SEND);
-                intent.setType("image/*");
-                intent.putExtra(Intent.EXTRA_STREAM, getLocalBitmapUri(bitmap, FeedDescriptionActivity.this));
-                startActivity(Intent.createChooser(intent, "Share"));
+                mBitmap = bitmap;
+                //Check for Write permission
+                if (Nammu.checkPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+                    //We have permission do whatever you want to do
+                    sharePost(bitmap);
+                } else {
+                    //We do not own this permission
+                    if (Nammu.shouldShowRequestPermissionRationale(FeedDescriptionActivity.this
+                            , Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+                        //User already refused to give us this permission or removed it
+                        ViewHelper.getToast(FeedDescriptionActivity.this
+                                , getString(R.string.error_msg_share_permission_denied));
+                    } else {
+                        //First time asking for permission
+                        Nammu.askForPermission(FeedDescriptionActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE, shareWritePermission);
+                    }
+                }
                 //Log firebase event
                 setAnalytics(FIREBASE_EVENT_SHARED_FROM_FEED_DESCRIPTION);
             }
@@ -946,5 +954,35 @@ public class FeedDescriptionActivity extends BaseActivity {
                 textHatsOffCount.setText(String.valueOf(mFeedData.getHatsOffCount()));
             }
         }
+    }
+
+    /**
+     * Used to handle result of askForPermission for share
+     */
+    PermissionCallback shareWritePermission = new PermissionCallback() {
+        @Override
+        public void permissionGranted() {
+            sharePost(mBitmap);
+        }
+
+        @Override
+        public void permissionRefused() {
+            //Show error message
+            ViewHelper.getToast(FeedDescriptionActivity.this
+                    , getString(R.string.error_msg_share_permission_denied));
+        }
+    };
+
+    /**
+     * Method to create intent choose so he/she can share the post.
+     *
+     * @param bitmap Bitmap to be shared.
+     */
+    private void sharePost(Bitmap bitmap) {
+        Intent intent = new Intent();
+        intent.setAction(Intent.ACTION_SEND);
+        intent.setType("image/*");
+        intent.putExtra(Intent.EXTRA_STREAM, getLocalBitmapUri(bitmap, FeedDescriptionActivity.this));
+        startActivity(Intent.createChooser(intent, "Share"));
     }
 }

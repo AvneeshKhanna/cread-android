@@ -18,6 +18,7 @@
     //Permission denied error message
     <string name="error_msg_permission_denied">The app won\'t function properly since the permission for storage was denied.</string>
     <string name="error_msg_capture_permission_denied">Please grant storage permission from settings to upload your capture</string>
+    <string name="error_msg_share_permission_denied">Please grant storage permission from settings to share the post</string>
 
     //Other error message
     <string name="error_field_empty">cannot be empty</string>

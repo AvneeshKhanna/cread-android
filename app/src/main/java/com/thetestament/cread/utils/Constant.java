@@ -33,6 +33,7 @@ public class Constant {
     public static final String IMAGE_TYPE_USER_PROFILE_PIC = "userProfilePic";
     public static final String IMAGE_TYPE_USER_CAPTURE_PIC = "UserCapturePic";
     public static final String IMAGE_TYPE_USER_SHORT_PIC = "UserShortPic";
+    public static final String IMAGE_TYPE_USER_SHARED_PIC = "sharedPic";
 
     //Photo watermark status
     public static final String WATERMARK_STATUS_YES = "statusYes";
@@ -93,8 +94,6 @@ public class Constant {
     public static final String PAYMENT_STATUS_INVALID_TOKEN = "paymentInvalidToken";
     public static final String PAYMENT_STATUS_CONNECTION_TERMINATED = "paymentConnectionTerminated";
     public static final String PAYMENT_STATUS_SERVER_ERROR = "paymentServerError";
-
-
 
 
     //Action

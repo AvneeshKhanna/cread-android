@@ -1,5 +1,6 @@
 package com.thetestament.cread.listeners;
 
+import android.graphics.Bitmap;
 import android.graphics.Typeface;
 
 import com.thetestament.cread.models.CommentsModel;
@@ -7,7 +8,6 @@ import com.thetestament.cread.models.FBFriendsModel;
 import com.thetestament.cread.models.FeedModel;
 import com.thetestament.cread.models.FollowModel;
 
-import org.json.JSONException;
 import org.json.JSONObject;
 
 public class listener {
@@ -191,17 +191,17 @@ public class listener {
      */
     public interface OnServerRequestedListener {
         void onDeviceOffline();
+
         void onNextCalled(JSONObject jsonObject);
+
         void onErrorCalled(Throwable e);
+
         void onCompleteCalled();
     }
 
-    public interface OnRoyaltyitemClickedListener
-    {
+    public interface OnRoyaltyitemClickedListener {
         void onRoyaltyItemClicked(String entityID);
     }
-
-
 
 
     /**
@@ -213,4 +213,12 @@ public class listener {
          */
         void onFontClick(Typeface typeface, String fontType);
     }
+
+    /**
+     * Interface definition for a callback to be invoked when user click on share button.
+     */
+    public interface OnShareListener {
+        void onShareClick(Bitmap bitmap);
+    }
+
 }

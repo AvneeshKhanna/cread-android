@@ -52,4 +52,10 @@
         <!-- Custom Attr-->
         <item name="fontPath">fonts/HelveticaNeuBold.ttf</item>
     </style>
+
+    <!--HelveticaNeuBold font-->
+    <style name="ShortFont" parent="android:TextAppearance">
+        <!-- Custom Attr-->
+        <item name="fontPath">fonts/montserrat_regular.ttf</item>
+    </style>
 </resources>

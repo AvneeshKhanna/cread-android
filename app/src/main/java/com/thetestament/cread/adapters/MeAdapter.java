@@ -31,6 +31,7 @@ import com.thetestament.cread.activities.ShortActivity;
 import com.thetestament.cread.helpers.NetworkHelper;
 import com.thetestament.cread.helpers.SharedPreferenceHelper;
 import com.thetestament.cread.helpers.ViewHelper;
+import com.thetestament.cread.listeners.listener;
 import com.thetestament.cread.listeners.listener.OnContentDeleteListener;
 import com.thetestament.cread.listeners.listener.OnMeCaptureClickListener;
 import com.thetestament.cread.listeners.listener.OnUserActivityHatsOffListener;
@@ -46,7 +47,6 @@ import de.hdodenhof.circleimageview.CircleImageView;
 import static com.thetestament.cread.helpers.FeedHelper.getCollabCountText;
 import static com.thetestament.cread.helpers.FeedHelper.getCreatorText;
 import static com.thetestament.cread.helpers.FeedHelper.initializeSpannableString;
-import static com.thetestament.cread.helpers.ImageHelper.getLocalBitmapUri;
 import static com.thetestament.cread.utils.Constant.CONTENT_TYPE_CAPTURE;
 import static com.thetestament.cread.utils.Constant.CONTENT_TYPE_SHORT;
 import static com.thetestament.cread.utils.Constant.EXTRA_CAPTURE_ID;
@@ -80,6 +80,7 @@ public class MeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     private OnUserActivityHatsOffListener onHatsOffListener;
     private OnContentDeleteListener onContentDeleteListener;
     private OnMeCaptureClickListener onMeCaptureClickListener;
+    private listener.OnShareListener onShareListener;
 
     /**
      * Required constructor.
@@ -123,6 +124,13 @@ public class MeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
      */
     public void setOnMeCaptureClickListener(OnMeCaptureClickListener onMeCaptureClickListener) {
         this.onMeCaptureClickListener = onMeCaptureClickListener;
+    }
+
+    /**
+     * Register a callback to be invoked when user clicks on share button.
+     */
+    public void setOnShareListener(listener.OnShareListener onShareListener) {
+        this.onShareListener = onShareListener;
     }
 
     @Override
@@ -470,11 +478,8 @@ public class MeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                 Picasso.with(mContext).load(pictureUrl).into(new Target() {
                     @Override
                     public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
-                        Intent intent = new Intent();
-                        intent.setAction(Intent.ACTION_SEND);
-                        intent.setType("image/*");
-                        intent.putExtra(Intent.EXTRA_STREAM, getLocalBitmapUri(bitmap, mContext));
-                        mContext.startActivity(Intent.createChooser(intent, "Share"));
+                        //Set listener
+                        onShareListener.onShareClick(bitmap);
                         //Log firebase event
                         setAnalytics(FIREBASE_EVENT_SHARED_FROM_PROFILE, entityID);
                     }
