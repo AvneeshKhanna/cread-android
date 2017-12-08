@@ -38,12 +38,12 @@ public class FontsHelper {
 
     //Font list
     public static String[] fontTypes = {
-            FONT_TYPE_AMATIC_SC_REGULAR
+            FONT_TYPE_MONTSERRAT_REGULAR
+            , FONT_TYPE_AMATIC_SC_REGULAR
             , FONT_TYPE_BARLOW_CONDENSED_REGULAR
             , FONT_TYPE_CABIN_SKETCH_REGULAR
             , FONT_TYPE_HELVETICA_NEUE_MEDUIM
             , FONT_TYPE_INDIE_FLOWER
-            , FONT_TYPE_MONTSERRAT_REGULAR
             , FONT_TYPE_OSWALD_REGULAR
             , FONT_TYPE_PLAYFAIR_DISPLAY_REGULAR
             , FONT_TYPE_POIRET_ONE_REGULAR
