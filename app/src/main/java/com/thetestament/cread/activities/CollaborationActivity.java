@@ -12,6 +12,7 @@ import android.support.v4.content.ContextCompat;
 import android.support.v4.content.res.ResourcesCompat;
 import android.support.v4.widget.NestedScrollView;
 import android.support.v7.widget.AppCompatSeekBar;
+import android.support.v7.widget.AppCompatTextView;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.InputType;
@@ -67,6 +68,8 @@ import okhttp3.OkHttpClient;
 import pl.tajchert.nammu.Nammu;
 import pl.tajchert.nammu.PermissionCallback;
 
+import static com.thetestament.cread.helpers.FontsHelper.fontTypes;
+import static com.thetestament.cread.helpers.FontsHelper.getFontType;
 import static com.thetestament.cread.helpers.ImageHelper.getImageUri;
 import static com.thetestament.cread.utils.Constant.EXTRA_DATA;
 import static com.thetestament.cread.utils.Constant.EXTRA_MERCHANTABLE;
@@ -76,7 +79,6 @@ import static com.thetestament.cread.utils.Constant.IMAGE_TYPE_USER_SHORT_PIC;
 import static com.thetestament.cread.utils.Constant.WATERMARK_STATUS_ASK_ALWAYS;
 import static com.thetestament.cread.utils.Constant.WATERMARK_STATUS_NO;
 import static com.thetestament.cread.utils.Constant.WATERMARK_STATUS_YES;
-import static com.thetestament.cread.utils.Constant.fontTypes;
 
 /**
  * This class shows the preview of collaboration.
@@ -91,7 +93,7 @@ public class CollaborationActivity extends BaseActivity implements ColorChooserD
     @BindView(R.id.imageCapture)
     ImageView imageShort;
     @BindView(R.id.textShort)
-    TextView textShort;
+    AppCompatTextView textShort;
     @BindView(R.id.textSignature)
     TextView textSignature;
     @BindView(R.id.progressView)
@@ -517,17 +519,16 @@ public class CollaborationActivity extends BaseActivity implements ColorChooserD
             public void onFontClick(Typeface typeface, String fontType) {
                 //Set short text typeface
                 if (mItalicFlag == 0 && mBoldFlag == 0) {
-                    //Set typeface to bold
+                    //Set typeface to normal
                     textShort.setTypeface(typeface, Typeface.NORMAL);
                 } else if (mItalicFlag == 0 && mBoldFlag == 1) {
-                    //Set typeface to normal
+                    //Set typeface to bold
                     textShort.setTypeface(typeface, Typeface.BOLD);
-
                 } else if (mItalicFlag == 1 && mBoldFlag == 0) {
-                    //Set typeface to bold_italic
+                    //Set typeface to italic
                     textShort.setTypeface(typeface, Typeface.ITALIC);
                 } else if (mItalicFlag == 1 && mBoldFlag == 1) {
-                    //Set typeface to italic
+                    //Set typeface to bold_italic
                     textShort.setTypeface(typeface, Typeface.BOLD_ITALIC);
                 }
 
@@ -684,11 +685,44 @@ public class CollaborationActivity extends BaseActivity implements ColorChooserD
                                 String text = responseObject.getString("text");
                                 int textSize = responseObject.getInt("textsize");
                                 int textColor = (int) Long.parseLong(responseObject.getString("textcolor"), 16);
+                                String fontType = responseObject.getString("font");
+                                mBoldFlag = responseObject.getInt("bold");
+                                mItalicFlag = responseObject.getInt("italic");
 
                                 //Set textView property
                                 textShort.setText(text);
                                 textShort.setTextSize(ViewHelper.pixelsToSp(CollaborationActivity.this, textSize * factor));
                                 textShort.setTextColor(textColor);
+                                //Set short text typeface
+                                if (mItalicFlag == 0 && mBoldFlag == 0) {
+                                    //Set typeface to normal
+                                    textShort.setTypeface(getFontType(fontType, CollaborationActivity.this), Typeface.NORMAL);
+                                    //Toggle dot views visibility
+                                    dotBold.setVisibility(View.INVISIBLE);
+                                    dotItalic.setVisibility(View.INVISIBLE);
+                                } else if (mItalicFlag == 0 && mBoldFlag == 1) {
+                                    //Set typeface to bold
+                                    textShort.setTypeface(getFontType(fontType, CollaborationActivity.this), Typeface.BOLD);
+                                    //Toggle dot views visibility
+                                    dotBold.setVisibility(View.VISIBLE);
+                                    dotItalic.setVisibility(View.INVISIBLE);
+                                } else if (mItalicFlag == 1 && mBoldFlag == 0) {
+                                    //Set typeface to italic
+                                    textShort.setTypeface(getFontType(fontType, CollaborationActivity.this), Typeface.ITALIC);
+                                    //Toggle dot views visibility
+                                    dotBold.setVisibility(View.INVISIBLE);
+                                    dotItalic.setVisibility(View.VISIBLE);
+                                } else if (mItalicFlag == 1 && mBoldFlag == 1) {
+                                    //Set typeface to bold_italic
+                                    textShort.setTypeface(getFontType(fontType, CollaborationActivity.this), Typeface.BOLD_ITALIC);
+                                    //Toggle dot views visibility
+                                    dotBold.setVisibility(View.VISIBLE);
+                                    dotItalic.setVisibility(View.VISIBLE);
+                                }
+                                //set typeface
+                                mTextTypeface = getFontType(fontType, CollaborationActivity.this);
+                                //Set font type
+                                mFontType = fontType;
                             }
                         } catch (JSONException e) {
                             //Hide progress view

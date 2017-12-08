@@ -18,6 +18,7 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.res.ResourcesCompat;
 import android.support.v4.widget.NestedScrollView;
+import android.support.v7.widget.AppCompatEditText;
 import android.support.v7.widget.AppCompatSeekBar;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -28,7 +29,6 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
-import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.SeekBar;
 
@@ -76,6 +76,7 @@ import io.reactivex.disposables.Disposable;
 import io.reactivex.schedulers.Schedulers;
 import okhttp3.OkHttpClient;
 
+import static com.thetestament.cread.helpers.FontsHelper.fontTypes;
 import static com.thetestament.cread.helpers.ImageHelper.getImageUri;
 import static com.thetestament.cread.utils.Constant.EXTRA_CAPTURE_ID;
 import static com.thetestament.cread.utils.Constant.EXTRA_CAPTURE_URL;
@@ -85,7 +86,6 @@ import static com.thetestament.cread.utils.Constant.FIREBASE_EVENT_INSPIRATION_C
 import static com.thetestament.cread.utils.Constant.IMAGE_TYPE_USER_SHORT_PIC;
 import static com.thetestament.cread.utils.Constant.REQUEST_CODE_INSPIRATION_ACTIVITY;
 import static com.thetestament.cread.utils.Constant.REQUEST_CODE_WRITE_EXTERNAL_STORAGE;
-import static com.thetestament.cread.utils.Constant.fontTypes;
 
 /**
  * Here user creates his/her shorts and uploads on the server.
@@ -100,7 +100,7 @@ public class ShortActivity extends BaseActivity implements ColorChooserDialog.Co
     @BindView(R.id.imageShort)
     ImageView imageShort;
     @BindView(R.id.textShort)
-    EditText textShort;
+    AppCompatEditText textShort;
     @BindView(R.id.seekBarTextSize)
     AppCompatSeekBar seekBarTextSize;
     @BindView(R.id.dotBold)
@@ -192,7 +192,6 @@ public class ShortActivity extends BaseActivity implements ColorChooserDialog.Co
         mTextTypeface = ResourcesCompat.getFont(ShortActivity.this, R.font.ubuntu_medium);
         //initialise fontLayout bottomSheet
         initFontLayout();
-        // mTapDetector = new GestureDetector(this, new GestureTap());
     }
 
     @Override
@@ -333,7 +332,8 @@ public class ShortActivity extends BaseActivity implements ColorChooserDialog.Co
         //Toggle mode i.e edit to drag and vice versa
         if (mToggleMovement == 0) {
             //Set drag listener
-            textShort.setOnTouchListener(new OnDragTouchListener(textShort));
+            textShort.setOnTouchListener(new OnDragTouchListener(textShort, squareView));
+            //textContainer.setOnTouchListener(new OnDragTouchListener(textContainer));
             //Hide edit text cursor
             textShort.setCursorVisible(false);
             //Hide keyboard
@@ -436,7 +436,6 @@ public class ShortActivity extends BaseActivity implements ColorChooserDialog.Co
         //Show color dialog
         showColorChooserDialog();
     }
-
 
     /**
      * Bold button click functionality to set typeface to bold.

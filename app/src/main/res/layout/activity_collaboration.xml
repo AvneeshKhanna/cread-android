@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/rootView"
     android:layout_width="match_parent"
@@ -22,7 +23,7 @@
                 android:layout_height="match_parent"
                 android:scaleType="centerCrop" />
 
-            <TextView
+            <android.support.v7.widget.AppCompatTextView
                 android:id="@+id/textShort"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -31,8 +32,8 @@
                 android:layout_marginRight="10dp"
                 android:gravity="center"
                 android:inputType="textCapSentences|textMultiLine"
-                android:textAppearance="@style/ShortFont"
-                android:textSize="16sp" />
+                android:textSize="16sp"
+                app:fontFamily="@font/helvetica_neue_medium" />
 
             <FrameLayout
                 android:layout_width="wrap_content"
@@ -87,7 +88,7 @@
     </RelativeLayout>
 
     <!--Font option bottom sheet-->
-      <include layout="@layout/layout_font_bottom_sheet" />
+    <include layout="@layout/layout_font_bottom_sheet" />
 
     <include
         android:id="@+id/progressView"

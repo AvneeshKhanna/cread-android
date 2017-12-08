@@ -183,8 +183,6 @@ public class MeFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
         //For view binding
         mUnbinder = ButterKnife.bind(this, view);
-        //For smooth scrolling
-        //ViewCompat.setNestedScrollingEnabled(recyclerView, false);
         //initialize this screen
         initScreen();
     }
@@ -294,7 +292,6 @@ public class MeFragment extends Fragment {
 
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-
         if (mHelper.getUUID().equals(mRequestedUUID)) {
             inflater.inflate(R.menu.menu_fragment_me, menu);
         }
@@ -306,6 +303,7 @@ public class MeFragment extends Fragment {
         switch (item.getItemId()) {
             case R.id.action_royalties:
                 startRoyaltiesActivity();
+                return true;
             default:
                 return super.onOptionsItemSelected(item);
         }
@@ -327,7 +325,7 @@ public class MeFragment extends Fragment {
      */
     @OnClick(R.id.textUserName)
     public void onUserNameClicked() {
-
+        //If profile is editable
         if (isProfileEditable) {
             Intent intent = new Intent(getActivity(), UpdateProfileDetailsActivity.class);
             intent.putExtra(EXTRA_USER_FIRST_NAME, mFirstName);
@@ -341,7 +339,7 @@ public class MeFragment extends Fragment {
     }
 
     /**
-     * Click functionality to edit user bio
+     * Click functionality to edit user bio.
      */
     @OnClick(R.id.textBio)
     public void onUserBioClicked() {
@@ -437,8 +435,7 @@ public class MeFragment extends Fragment {
             isProfileEditable = true;
 
             // show royalties dialog if first time
-            if(mHelper.isMeFragmentFirstTime())
-            {
+            if (mHelper.isMeFragmentFirstTime()) {
                 showRoyaltiesDialog();
             }
 
@@ -1261,7 +1258,6 @@ public class MeFragment extends Fragment {
         meAdapter.setOnContentDeleteListener(new listener.OnContentDeleteListener() {
             @Override
             public void onDelete(String entityID, int position) {
-
                 // check net status
                 if (NetworkHelper.getNetConnectionStatus(getActivity())) {
                     deleteContent(entityID, position);
@@ -1280,8 +1276,6 @@ public class MeFragment extends Fragment {
      * @param itemPosition Position of current item.
      */
     private void deleteContent(String entityID, final int itemPosition) {
-
-
         //To show the progress dialog
         MaterialDialog.Builder builder = new MaterialDialog.Builder(getActivity())
                 .title("Deleting")
@@ -1302,7 +1296,6 @@ public class MeFragment extends Fragment {
             FirebaseCrash.report(e);
             dialog.dismiss();
         }
-
         Rx2AndroidNetworking.post(BuildConfig.URL + "/entity-manage/delete")
                 .addJSONObjectBody(jsonObject)
                 .build()
@@ -1331,6 +1324,9 @@ public class MeFragment extends Fragment {
                                     //Update adapter
                                     mAdapter.notifyItemRemoved(itemPosition);
                                     ViewHelper.getSnackBar(rootView, "Item deleted");
+                                    //Update user post count
+                                    mPostCount -= 1;
+                                    textPostsCount.setText(String.valueOf(mPostCount));
                                 }
                             }
                         } catch (JSONException e) {
@@ -1531,8 +1527,7 @@ public class MeFragment extends Fragment {
                 });
     }
 
-    private void startRoyaltiesActivity()
-    {
+    private void startRoyaltiesActivity() {
         getActivity().startActivityForResult(
                 new Intent(getActivity(),
                         RoyaltiesActivity.class).
@@ -1543,9 +1538,8 @@ public class MeFragment extends Fragment {
     /**
      * Method to show the royalties dialog
      */
-    private void showRoyaltiesDialog()
-    {
-       MaterialDialog dialog = new MaterialDialog.Builder(getActivity())
+    private void showRoyaltiesDialog() {
+        MaterialDialog dialog = new MaterialDialog.Builder(getActivity())
                 .customView(R.layout.dialog_generic, false)
                 .positiveText("More")
                 .onPositive(new MaterialDialog.SingleButtonCallback() {
