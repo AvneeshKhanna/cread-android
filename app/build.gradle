@@ -30,7 +30,7 @@ android {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
             //buildConfigField "String", "URL", '"http://cread-dev-remote.herokuapp.com"'
-            buildConfigField "String", "URL", '"http://e1f2071a.ngrok.io"'
+            buildConfigField "String", "URL", '"http://833f05af.ngrok.io"'
             resValue "string", "RZP_KEY", "rzp_test_Q09427lQA9Ol5g"
             resValue "bool", "FIREBASE_ANALYTICS_ENABLED", "false"
             resValue "bool", "FIREBASE_CRASHLYTICS_ENABLED", "false"
@@ -60,6 +60,7 @@ dependencies {
     compile "com.google.firebase:firebase-config:$rootProject.playServiceVersion"
     compile "com.google.firebase:firebase-crash:$rootProject.playServiceVersion"
     compile "com.google.firebase:firebase-messaging:$rootProject.playServiceVersion"
+    compile "com.google.firebase:firebase-invites:$rootProject.playServiceVersion"
 
     //Facebook
     compile 'com.facebook.android:facebook-login:[4,5)'
