@@ -120,7 +120,7 @@ public class ShortActivity extends BaseActivity implements ColorChooserDialog.Co
     private ArrayList<FontModel> mFontDataList = new ArrayList<>();
 
     @State
-    String mShortText, mCaptureUrl, mCaptureID = "", mSignatureText, mShortBgColor = "FFFFFFFF", mFontType = "helvetica_neue_medium.ttf";
+    String mShortText, mCaptureUrl, mCaptureID = "", mSignatureText, mShortBgColor = "FFFFFFFF", mFontType = "montserrat_regular.ttf";
     @State
     boolean mIsMerchantable = true, signatureStatus = false, mIsImagePresent = false;
     @State
@@ -189,7 +189,7 @@ public class ShortActivity extends BaseActivity implements ColorChooserDialog.Co
         sheetBehavior = BottomSheetBehavior.from(bottomSheetView);
         sheetBehavior.setPeekHeight(0);
         //Set default font
-        mTextTypeface = ResourcesCompat.getFont(ShortActivity.this, R.font.ubuntu_medium);
+        mTextTypeface = ResourcesCompat.getFont(ShortActivity.this, R.font.montserrat_regular);
         //initialise fontLayout bottomSheet
         initFontLayout();
     }

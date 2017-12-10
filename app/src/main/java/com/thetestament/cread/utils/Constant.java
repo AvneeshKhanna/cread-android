@@ -33,6 +33,7 @@ public class Constant {
     public static final String IMAGE_TYPE_USER_PROFILE_PIC = "userProfilePic";
     public static final String IMAGE_TYPE_USER_CAPTURE_PIC = "UserCapturePic";
     public static final String IMAGE_TYPE_USER_SHORT_PIC = "UserShortPic";
+    public static final String IMAGE_TYPE_USER_SHARED_PIC = "sharedPic";
 
     //Photo watermark status
     public static final String WATERMARK_STATUS_YES = "statusYes";
@@ -95,8 +96,6 @@ public class Constant {
     public static final String PAYMENT_STATUS_SERVER_ERROR = "paymentServerError";
 
 
-
-
     //Action
     public static final String ACTION_LOG_OUT = "com.thetestament.cread.ACTION_LOGOUT";
 
@@ -107,6 +106,8 @@ public class Constant {
     public static final String NOTIFICATION_CATEGORY_CREAD_COMMENT = "comment";
     public static final String NOTIFICATION_CATEGORY_CREAD_BUY = "buy";
     public static final String NOTIFICATION_CATEGORY_CREAD_GENERAL = "general";
+    public static final String NOTIFICATION_CATEGORY_CREAD_COMMENT_OTHER = "other-comment";
+    public static final String NOTIFICATION_CATEGORY_CREAD_TOP_POST = "top-post";
 
     //Notification id cread
     public static final int NOTIFICATION_ID_CREAD_FOLLOW = 1000;
@@ -125,7 +126,9 @@ public class Constant {
     public static final String NOTIFICATION_BUNDLE_DATA_ACTOR_ID = "actorID";
     public static final String NOTIFICATION_BUNDLE_DATA_ENTITY_ID = "entityID";
     public static final String NOTIFICATION_BUNDLE_DATA_ACTOR_IMAGE = "actorImage";
+    public static final String NOTIFICATION_BUNDLE_DATA_ENTITY_IMAGE = "entityImage";
     public static final String NOTIFICATION_BUNDLE_DATA_PERSISTABLE = "persistable";
+    public static final String NOTIFICATION_BUNDLE_DATA_OTHER_COLLABORATOR = "otherCollaborator";
 
 
     //Firebase event types

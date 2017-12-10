@@ -28,11 +28,14 @@ import com.thetestament.cread.activities.CollaborationDetailsActivity;
 import com.thetestament.cread.activities.CommentsActivity;
 import com.thetestament.cread.activities.FeedDescriptionActivity;
 import com.thetestament.cread.activities.ShortActivity;
+import com.thetestament.cread.helpers.FeedHelper;
 import com.thetestament.cread.helpers.NetworkHelper;
 import com.thetestament.cread.helpers.SharedPreferenceHelper;
 import com.thetestament.cread.helpers.ViewHelper;
+import com.thetestament.cread.listeners.listener;
 import com.thetestament.cread.listeners.listener.OnContentDeleteListener;
 import com.thetestament.cread.listeners.listener.OnMeCaptureClickListener;
+import com.thetestament.cread.listeners.listener.OnShareLinkClickedListener;
 import com.thetestament.cread.listeners.listener.OnUserActivityHatsOffListener;
 import com.thetestament.cread.listeners.listener.OnUserActivityLoadMoreListener;
 import com.thetestament.cread.models.FeedModel;
@@ -46,7 +49,6 @@ import de.hdodenhof.circleimageview.CircleImageView;
 import static com.thetestament.cread.helpers.FeedHelper.getCollabCountText;
 import static com.thetestament.cread.helpers.FeedHelper.getCreatorText;
 import static com.thetestament.cread.helpers.FeedHelper.initializeSpannableString;
-import static com.thetestament.cread.helpers.ImageHelper.getLocalBitmapUri;
 import static com.thetestament.cread.utils.Constant.CONTENT_TYPE_CAPTURE;
 import static com.thetestament.cread.utils.Constant.CONTENT_TYPE_SHORT;
 import static com.thetestament.cread.utils.Constant.EXTRA_CAPTURE_ID;
@@ -80,6 +82,8 @@ public class MeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     private OnUserActivityHatsOffListener onHatsOffListener;
     private OnContentDeleteListener onContentDeleteListener;
     private OnMeCaptureClickListener onMeCaptureClickListener;
+    private listener.OnShareListener onShareListener;
+    private OnShareLinkClickedListener onShareLinkClickedListener;
 
     /**
      * Required constructor.
@@ -123,6 +127,20 @@ public class MeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
      */
     public void setOnMeCaptureClickListener(OnMeCaptureClickListener onMeCaptureClickListener) {
         this.onMeCaptureClickListener = onMeCaptureClickListener;
+    }
+
+    /**
+     * Register a callback to be invoked when user clicks on share button.
+     */
+    public void setOnShareListener(listener.OnShareListener onShareListener) {
+        this.onShareListener = onShareListener;
+    }
+
+    /**
+     * Register a callback to be invoked when user clicks on share link button.
+     */
+    public void setOnShareLinkClickedListener(OnShareLinkClickedListener onShareLinkClickedListener) {
+        this.onShareLinkClickedListener = onShareLinkClickedListener;
     }
 
     @Override
@@ -181,7 +199,7 @@ public class MeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             //Comment click functionality
             commentOnClick(itemViewHolder.containerComment, data.getEntityID());
             //Share click functionality
-            shareOnClick(itemViewHolder.containerShare, data.getContentImage(), data.getEntityID());
+            shareOnClick(itemViewHolder.containerShare, data.getContentImage(), data.getEntityID(), data.getCreatorName());
             //Collaboration count click functionality
             collaborationCountOnClick(itemViewHolder.collabCount, data.getEntityID(), data.getContentType());
 
@@ -462,33 +480,64 @@ public class MeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
      * @param pictureUrl URL of the picture to be shared.
      * @param entityID   Entity id of content.
      */
-    private void shareOnClick(View view, final String pictureUrl, final String entityID) {
+    private void shareOnClick(View view, final String pictureUrl, final String entityID, final String creatorName) {
         view.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
 
-                Picasso.with(mContext).load(pictureUrl).into(new Target() {
-                    @Override
-                    public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
-                        Intent intent = new Intent();
-                        intent.setAction(Intent.ACTION_SEND);
-                        intent.setType("image/*");
-                        intent.putExtra(Intent.EXTRA_STREAM, getLocalBitmapUri(bitmap, mContext));
-                        mContext.startActivity(Intent.createChooser(intent, "Share"));
-                        //Log firebase event
-                        setAnalytics(FIREBASE_EVENT_SHARED_FROM_PROFILE, entityID);
-                    }
+                ShareDialogAdapter adapter = new ShareDialogAdapter(mContext);
+                final MaterialDialog dialog = new MaterialDialog.Builder(mContext)
+                        .adapter(adapter, null)
+                        .show();
 
+                adapter.setShareDialogItemClickedListener(new listener.OnShareDialogItemClickedListener() {
                     @Override
-                    public void onBitmapFailed(Drawable errorDrawable) {
-                        ViewHelper.getToast(mContext, mContext.getString(R.string.error_msg_internal));
-                    }
+                    public void onShareDialogItemClicked(int index) {
 
-                    @Override
-                    public void onPrepareLoad(Drawable placeHolderDrawable) {
+                        //dismiss dialog
+                        dialog.dismiss();
 
+                        switch (index) {
+                            case 0:
+                                // image sharing
+                                //so load image
+                                loadBitmapForSharing(pictureUrl, entityID);
+                                break;
+                            case 1:
+                                // link sharing
+                                // get deep link from server
+                                onShareLinkClickedListener.onShareLinkClicked(entityID, pictureUrl, creatorName);
+                                break;
+
+                        }
                     }
                 });
+            }
+        });
+    }
+
+
+    /**
+     * Method to load bitmap image to be shared
+     */
+    private void loadBitmapForSharing(final String pictureUrl, final String entityID) {
+
+        Picasso.with(mContext).load(pictureUrl).into(new Target() {
+            @Override
+            public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
+                //Set listener
+                onShareListener.onShareClick(bitmap);
+                //Log firebase event
+                setAnalytics(FIREBASE_EVENT_SHARED_FROM_PROFILE, entityID);
+            }
+
+            @Override
+            public void onBitmapFailed(Drawable errorDrawable) {
+                ViewHelper.getToast(mContext, mContext.getString(R.string.error_msg_internal));
+            }
+
+            @Override
+            public void onPrepareLoad(Drawable placeHolderDrawable) {
 
             }
         });

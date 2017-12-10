@@ -119,7 +119,7 @@ public class CollaborationActivity extends BaseActivity implements ColorChooserD
 
 
     @State
-    String mShortID, mIsMerchantable, mSignatureText = "", mFontType = "helvetica_neue_medium.ttf";
+    String mShortID, mIsMerchantable, mSignatureText = "", mFontType = "montserrat_regular.ttf";
 
     @State
     int mImageWidth = 650;
@@ -168,7 +168,7 @@ public class CollaborationActivity extends BaseActivity implements ColorChooserD
         sheetBehavior = BottomSheetBehavior.from(bottomSheetView);
         sheetBehavior.setPeekHeight(0);
         //Set default font
-        mTextTypeface = ResourcesCompat.getFont(CollaborationActivity.this, R.font.ubuntu_medium);
+        mTextTypeface = ResourcesCompat.getFont(CollaborationActivity.this, R.font.montserrat_regular);
         //initialise fontLayout bottomSheet
         initFontLayout();
     }

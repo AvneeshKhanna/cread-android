@@ -234,6 +234,37 @@ public class NetworkHelper {
     }
 
 
+    /**
+     * Method to return data from the server.
+     *
+     * @param serverURL URL of the server.
+     * @param uuid      UUID of the user.
+     * @param authKey   AuthKey of user.
+     * @param entityID  entityID.
+     * @param entityURL entityURL
+     */
+    public static Observable<JSONObject> getDeepLinkObservable(String serverURL, String uuid, String authKey, String entityID, String entityURL, String creatorName) {
+
+        JSONObject jsonObject = new JSONObject();
+        try {
+            jsonObject.put("uuid", uuid);
+            jsonObject.put("authkey", authKey);
+            jsonObject.put("entityid", entityID);
+            jsonObject.put("entityurl", entityURL);
+            jsonObject.put("creatorname", creatorName);
+        } catch (JSONException e) {
+            e.printStackTrace();
+            FirebaseCrash.report(e);
+        }
+        return Rx2AndroidNetworking.post(serverURL)
+                .addJSONObjectBody(jsonObject)
+                .build()
+                .getJSONObjectObservable();
+    }
+
+
+
+
 
     public static void requestServer(CompositeDisposable compositeDisposable, Observable<JSONObject> jsonObjectObservable, FragmentActivity context, final listener.OnServerRequestedListener listener)
     {

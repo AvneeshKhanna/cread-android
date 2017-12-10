@@ -16,7 +16,9 @@ import static com.thetestament.cread.database.NotificationsDBSchema.Notification
 import static com.thetestament.cread.database.NotificationsDBSchema.NotificationDBEntry.COLUMN_NAME_CATEGORY;
 import static com.thetestament.cread.database.NotificationsDBSchema.NotificationDBEntry.COLUMN_NAME_DATE;
 import static com.thetestament.cread.database.NotificationsDBSchema.NotificationDBEntry.COLUMN_NAME_ENTITY_ID;
+import static com.thetestament.cread.database.NotificationsDBSchema.NotificationDBEntry.COLUMN_NAME_ENTITY_IMAGE;
 import static com.thetestament.cread.database.NotificationsDBSchema.NotificationDBEntry.COLUMN_NAME_MESSAGE;
+import static com.thetestament.cread.database.NotificationsDBSchema.NotificationDBEntry.COLUMN_NAME_OTHER_COLLABORATOR;
 import static com.thetestament.cread.database.NotificationsDBSchema.NotificationDBEntry.COLUMN_NAME_SEEN;
 import static com.thetestament.cread.database.NotificationsDBSchema.NotificationDBEntry.COLUMN_NAME_TIME;
 import static com.thetestament.cread.database.NotificationsDBSchema.NotificationDBEntry.COLUMN_NAME_UNREAD;
@@ -27,7 +29,9 @@ import static com.thetestament.cread.utils.Constant.NOTIFICATION_BUNDLE_DATA_ACT
 import static com.thetestament.cread.utils.Constant.NOTIFICATION_BUNDLE_DATA_ACTOR_IMAGE;
 import static com.thetestament.cread.utils.Constant.NOTIFICATION_BUNDLE_DATA_CATEGORY;
 import static com.thetestament.cread.utils.Constant.NOTIFICATION_BUNDLE_DATA_ENTITY_ID;
+import static com.thetestament.cread.utils.Constant.NOTIFICATION_BUNDLE_DATA_ENTITY_IMAGE;
 import static com.thetestament.cread.utils.Constant.NOTIFICATION_BUNDLE_DATA_MESSAGE;
+import static com.thetestament.cread.utils.Constant.NOTIFICATION_BUNDLE_DATA_OTHER_COLLABORATOR;
 import static com.thetestament.cread.utils.Constant.NOTIFICATION_BUNDLE_DATA_PERSISTABLE;
 
 /**
@@ -75,7 +79,9 @@ public class NotificationDataSaver {
             String actorID = storeData.getString(NOTIFICATION_BUNDLE_DATA_ACTOR_ID);
             String entityID = storeData.getString(NOTIFICATION_BUNDLE_DATA_ENTITY_ID);
             String actorImage = storeData.getString(NOTIFICATION_BUNDLE_DATA_ACTOR_IMAGE);
+            String entityImage = storeData.getString(NOTIFICATION_BUNDLE_DATA_ENTITY_IMAGE);
             String isPersistable = storeData.getString(NOTIFICATION_BUNDLE_DATA_PERSISTABLE);
+            boolean otherCollaborators = storeData.getBoolean(NOTIFICATION_BUNDLE_DATA_OTHER_COLLABORATOR);
 
             String timeStamp = new SimpleDateFormat("hh-mma").format(new Date());
             String dateStamp = new SimpleDateFormat("dd MMM").format(new Date());
@@ -97,11 +103,14 @@ public class NotificationDataSaver {
                 contentValues.put(COLUMN_NAME_ENTITY_ID, entityID);
                 contentValues.put(COLUMN_NAME_CATEGORY, category);
                 contentValues.put(COLUMN_NAME_USER_IMAGE, actorImage);
+                contentValues.put(COLUMN_NAME_ENTITY_IMAGE, entityImage);
                 contentValues.put(COLUMN_NAME_UNREAD, "true");
                 contentValues.put(COLUMN_NAME_DATE, dateStamp);
                 contentValues.put(COLUMN_NAME_TIME, timeStamp);
                 contentValues.put(COLUMN_NAME_SEEN, "false");
                 contentValues.put(COLUMN_NAME_USER_ID, spHelper.getUUID());
+                contentValues.put(COLUMN_NAME_OTHER_COLLABORATOR, otherCollaborators);
+
                 //Getting reference
                 NotificationsDBHelper notificationsDBHelper = new NotificationsDBHelper(context);
                 // Gets the data repository in write mode

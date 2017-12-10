@@ -22,7 +22,7 @@
         android:layout_toRightOf="@+id/imageUser"
         android:paddingRight="10dp"
         android:textColor="@color/black_defined"
-        android:textSize="16sp"
+        android:textSize="14sp"
         tools:text="The Testament" />
 
     <TextView
