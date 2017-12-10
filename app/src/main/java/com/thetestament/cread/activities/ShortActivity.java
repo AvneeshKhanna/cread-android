@@ -189,7 +189,7 @@ public class ShortActivity extends BaseActivity implements ColorChooserDialog.Co
         sheetBehavior = BottomSheetBehavior.from(bottomSheetView);
         sheetBehavior.setPeekHeight(0);
         //Set default font
-        mTextTypeface = ResourcesCompat.getFont(ShortActivity.this, R.font.ubuntu_medium);
+        mTextTypeface = ResourcesCompat.getFont(ShortActivity.this, R.font.montserrat_regular);
         //initialise fontLayout bottomSheet
         initFontLayout();
     }
