@@ -107,7 +107,7 @@ public class Constant {
     public static final String NOTIFICATION_CATEGORY_CREAD_BUY = "buy";
     public static final String NOTIFICATION_CATEGORY_CREAD_GENERAL = "general";
     public static final String NOTIFICATION_CATEGORY_CREAD_COMMENT_OTHER = "other-comment";
-    public static final String NOTIFICATION_CATEGORY_CREAD_TOP_POST = "topPost";
+    public static final String NOTIFICATION_CATEGORY_CREAD_TOP_POST = "top-post";
 
     //Notification id cread
     public static final int NOTIFICATION_ID_CREAD_FOLLOW = 1000;
