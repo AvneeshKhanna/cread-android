@@ -49,7 +49,7 @@ public class ShareDialogAdapter extends RecyclerView.Adapter<ShareDialogAdapter.
                 holder.itemText.setText("Share image of the artpiece");
                 break;
             case 1:
-                holder.imageIcon.setImageDrawable(ContextCompat.getDrawable(mContext, R.drawable.ic_image_24));
+                holder.imageIcon.setImageDrawable(ContextCompat.getDrawable(mContext, R.drawable.ic_link_24));
                 holder.itemTitle.setText("Share link");
                 holder.itemText.setText("Share link of the artpiece");
                 break;
