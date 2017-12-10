@@ -14,9 +14,23 @@ import android.text.style.ClickableSpan;
 import android.view.View;
 import android.widget.TextView;
 
+import com.afollestad.materialdialogs.MaterialDialog;
+import com.afollestad.materialdialogs.simplelist.MaterialSimpleListAdapter;
+import com.afollestad.materialdialogs.simplelist.MaterialSimpleListItem;
+import com.google.firebase.crash.FirebaseCrash;
+import com.thetestament.cread.BuildConfig;
 import com.thetestament.cread.R;
 import com.thetestament.cread.activities.ProfileActivity;
+import com.thetestament.cread.listeners.listener;
+import com.thetestament.cread.listeners.listener.OnShareDialogItemClickedListener;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import io.reactivex.disposables.CompositeDisposable;
+
+import static com.thetestament.cread.helpers.NetworkHelper.getDeepLinkObservable;
+import static com.thetestament.cread.helpers.NetworkHelper.requestServer;
 import static com.thetestament.cread.utils.Constant.CONTENT_TYPE_CAPTURE;
 import static com.thetestament.cread.utils.Constant.CONTENT_TYPE_SHORT;
 import static com.thetestament.cread.utils.Constant.EXTRA_PROFILE_UUID;
@@ -26,6 +40,8 @@ import static com.thetestament.cread.utils.Constant.EXTRA_PROFILE_UUID;
  * Helper class for feeds
  */
 public class FeedHelper {
+
+    OnShareDialogItemClickedListener onShareDialogItemClickedListener;
 
 
     /**
@@ -146,6 +162,7 @@ public class FeedHelper {
      *
      * @param count the value of the count which to be checked
      * @return true if count is more than 1 else false
+     *
      */
 
     public static boolean isMultiple(long count)
@@ -153,7 +170,95 @@ public class FeedHelper {
         return count != 1;
     }
 
+    /**
+     * Method to share deep link via Intent
+     *
+     * @param context context
+     * @param link    link to share
+     */
+    public static void shareDeepLink(FragmentActivity context, String link) {
+        Intent intent = new Intent();
+        intent.setAction(Intent.ACTION_SEND);
+        intent.setType("text/plain");
+        intent.putExtra(Intent.EXTRA_TEXT, link);
+        context.startActivity(Intent.createChooser(intent, "Share Link"));
+    }
 
+    /**
+     * Method to get the deep link from server
+     *
+     * @param context
+     * @param compositeDisposable
+     * @param rootView
+     * @param uuid
+     * @param authkey
+     * @param entityID
+     * @param entityUrl
+     */
+    public static void generateDeepLink(final FragmentActivity context, CompositeDisposable compositeDisposable, final View rootView, String uuid, String authkey, String entityID, String entityUrl) {
+        final MaterialDialog dialog = new MaterialDialog.Builder(context)
+                .title(context.getString(R.string.generating_title))
+                .content(context.getString(R.string.waiting_msg))
+                .progress(true, 0)
+                .show();
+
+        requestServer(compositeDisposable, getDeepLinkObservable(BuildConfig.URL + "/entity-share-link/generate-dynamic-link",
+                uuid,
+                authkey,
+                entityID,
+                entityUrl),
+                context,
+                new listener.OnServerRequestedListener() {
+                    @Override
+                    public void onDeviceOffline() {
+
+                        dialog.dismiss();
+                        ViewHelper.getSnackBar(rootView, context.getString(R.string.error_msg_no_connection));
+
+                    }
+
+                    @Override
+                    public void onNextCalled(JSONObject jsonObject) {
+
+                        dialog.dismiss();
+
+                        try {
+                            //Token status is not valid
+                            if (jsonObject.getString("tokenstatus").equals("invalid")) {
+
+                                ViewHelper.getSnackBar(rootView, context.getString(R.string.error_msg_invalid_token));
+                            }
+                            //Token is valid
+                            else {
+                                JSONObject mainData = jsonObject.getJSONObject("data");
+                                String deepLink = mainData.getString("link");
+
+                                // share link
+                                shareDeepLink(context, deepLink);
+
+                            }
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                            FirebaseCrash.report(e);
+                            ViewHelper.getSnackBar(rootView, context.getString(R.string.error_msg_internal));
+                        }
+                    }
+
+                    @Override
+                    public void onErrorCalled(Throwable e) {
+                        e.printStackTrace();
+                        FirebaseCrash.report(e);
+                        dialog.dismiss();
+                        ViewHelper.getSnackBar(rootView, context.getString(R.string.error_msg_server));
+
+                    }
+
+                    @Override
+                    public void onCompleteCalled() {
+                        // do nothing
+                    }
+                });
+    }
 
 
 }

@@ -28,12 +28,14 @@ import com.thetestament.cread.activities.CollaborationDetailsActivity;
 import com.thetestament.cread.activities.CommentsActivity;
 import com.thetestament.cread.activities.FeedDescriptionActivity;
 import com.thetestament.cread.activities.ShortActivity;
+import com.thetestament.cread.helpers.FeedHelper;
 import com.thetestament.cread.helpers.NetworkHelper;
 import com.thetestament.cread.helpers.SharedPreferenceHelper;
 import com.thetestament.cread.helpers.ViewHelper;
 import com.thetestament.cread.listeners.listener;
 import com.thetestament.cread.listeners.listener.OnContentDeleteListener;
 import com.thetestament.cread.listeners.listener.OnMeCaptureClickListener;
+import com.thetestament.cread.listeners.listener.OnShareLinkClickedListener;
 import com.thetestament.cread.listeners.listener.OnUserActivityHatsOffListener;
 import com.thetestament.cread.listeners.listener.OnUserActivityLoadMoreListener;
 import com.thetestament.cread.models.FeedModel;
@@ -81,6 +83,7 @@ public class MeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     private OnContentDeleteListener onContentDeleteListener;
     private OnMeCaptureClickListener onMeCaptureClickListener;
     private listener.OnShareListener onShareListener;
+    private OnShareLinkClickedListener onShareLinkClickedListener;
 
     /**
      * Required constructor.
@@ -131,6 +134,13 @@ public class MeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
      */
     public void setOnShareListener(listener.OnShareListener onShareListener) {
         this.onShareListener = onShareListener;
+    }
+
+    /**
+     * Register a callback to be invoked when user clicks on share link button.
+     */
+    public void setOnShareLinkClickedListener(OnShareLinkClickedListener onShareLinkClickedListener) {
+        this.onShareLinkClickedListener = onShareLinkClickedListener;
     }
 
     @Override
@@ -475,25 +485,59 @@ public class MeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             @Override
             public void onClick(View view) {
 
-                Picasso.with(mContext).load(pictureUrl).into(new Target() {
-                    @Override
-                    public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
-                        //Set listener
-                        onShareListener.onShareClick(bitmap);
-                        //Log firebase event
-                        setAnalytics(FIREBASE_EVENT_SHARED_FROM_PROFILE, entityID);
-                    }
+                ShareDialogAdapter adapter = new ShareDialogAdapter(mContext);
+                final MaterialDialog dialog = new MaterialDialog.Builder(mContext)
+                        .adapter(adapter, null)
+                        .show();
 
+                adapter.setShareDialogItemClickedListener(new listener.OnShareDialogItemClickedListener() {
                     @Override
-                    public void onBitmapFailed(Drawable errorDrawable) {
-                        ViewHelper.getToast(mContext, mContext.getString(R.string.error_msg_internal));
-                    }
+                    public void onShareDialogItemClicked(int index) {
 
-                    @Override
-                    public void onPrepareLoad(Drawable placeHolderDrawable) {
+                        //dismiss dialog
+                        dialog.dismiss();
 
+                        switch (index) {
+                            case 0:
+                                // image sharing
+                                //so load image
+                                loadBitmapForSharing(pictureUrl, entityID);
+                                break;
+                            case 1:
+                                // link sharing
+                                // get deep link from server
+                                onShareLinkClickedListener.onShareLinkClicked(entityID, pictureUrl);
+                                break;
+
+                        }
                     }
                 });
+            }
+        });
+    }
+
+
+    /**
+     * Method to load bitmap image to be shared
+     */
+    private void loadBitmapForSharing(final String pictureUrl, final String entityID) {
+
+        Picasso.with(mContext).load(pictureUrl).into(new Target() {
+            @Override
+            public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
+                //Set listener
+                onShareListener.onShareClick(bitmap);
+                //Log firebase event
+                setAnalytics(FIREBASE_EVENT_SHARED_FROM_PROFILE, entityID);
+            }
+
+            @Override
+            public void onBitmapFailed(Drawable errorDrawable) {
+                ViewHelper.getToast(mContext, mContext.getString(R.string.error_msg_internal));
+            }
+
+            @Override
+            public void onPrepareLoad(Drawable placeHolderDrawable) {
 
             }
         });

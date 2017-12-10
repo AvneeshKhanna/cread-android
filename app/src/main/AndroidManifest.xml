@@ -75,8 +75,20 @@
             android:theme="@style/Theme.AppCompat.Light.NoActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+
+                <data
+                    android:host="http://242496ea.ngrok.io"
+                    android:scheme="http" />
+                <data
+                    android:host="http://242496ea.ngrok.io"
+                    android:scheme="https" />
             </intent-filter>
         </activity>
 
@@ -298,7 +310,8 @@
             android:name="firebase_crash_collection_enabled"
             android:value="@bool/FIREBASE_CRASHLYTICS_ENABLED" />
 
-        <activity android:name=".activities.RoyaltiesActivity"
+        <activity
+            android:name=".activities.RoyaltiesActivity"
             android:screenOrientation="portrait"
             android:theme="@style/RoyaltyActivityTheme">
             <meta-data

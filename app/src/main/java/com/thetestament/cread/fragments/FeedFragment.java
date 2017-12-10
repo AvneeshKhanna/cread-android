@@ -29,14 +29,17 @@ import com.androidnetworking.error.ANError;
 import com.androidnetworking.interfaces.JSONObjectRequestListener;
 import com.google.firebase.analytics.FirebaseAnalytics;
 import com.google.firebase.crash.FirebaseCrash;
+import com.rx2androidnetworking.Rx2AndroidNetworking;
 import com.thetestament.cread.BuildConfig;
 import com.thetestament.cread.Manifest;
 import com.thetestament.cread.R;
 import com.thetestament.cread.activities.BottomNavigationActivity;
+import com.thetestament.cread.activities.FeedDescriptionActivity;
 import com.thetestament.cread.activities.FindFBFriendsActivity;
 import com.thetestament.cread.adapters.FeedAdapter;
 import com.thetestament.cread.helpers.HatsOffHelper;
 import com.thetestament.cread.helpers.ImageHelper;
+import com.thetestament.cread.helpers.NetworkHelper;
 import com.thetestament.cread.helpers.SharedPreferenceHelper;
 import com.thetestament.cread.helpers.ViewHelper;
 import com.thetestament.cread.listeners.listener;
@@ -57,21 +60,28 @@ import butterknife.OnClick;
 import butterknife.Unbinder;
 import icepick.Icepick;
 import icepick.State;
+import io.reactivex.Observer;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.CompositeDisposable;
+import io.reactivex.disposables.Disposable;
 import io.reactivex.observers.DisposableObserver;
 import io.reactivex.schedulers.Schedulers;
 import pl.tajchert.nammu.Nammu;
 import pl.tajchert.nammu.PermissionCallback;
 
 import static android.app.Activity.RESULT_OK;
+import static com.thetestament.cread.helpers.FeedHelper.generateDeepLink;
+import static com.thetestament.cread.helpers.FeedHelper.shareDeepLink;
 import static com.thetestament.cread.helpers.ImageHelper.getImageUri;
 import static com.thetestament.cread.helpers.ImageHelper.getLocalBitmapUri;
+import static com.thetestament.cread.helpers.NetworkHelper.getDeepLinkObservable;
 import static com.thetestament.cread.helpers.NetworkHelper.getNetConnectionStatus;
 import static com.thetestament.cread.helpers.NetworkHelper.getObservableFromServer;
+import static com.thetestament.cread.helpers.NetworkHelper.requestServer;
 import static com.thetestament.cread.utils.Constant.CONTENT_TYPE_CAPTURE;
 import static com.thetestament.cread.utils.Constant.CONTENT_TYPE_SHORT;
 import static com.thetestament.cread.utils.Constant.EXTRA_DATA;
+import static com.thetestament.cread.utils.Constant.EXTRA_FEED_DESCRIPTION_DATA;
 import static com.thetestament.cread.utils.Constant.FIREBASE_EVENT_EXPLORE_CLICKED;
 import static com.thetestament.cread.utils.Constant.FIREBASE_EVENT_FIND_FRIENDS;
 import static com.thetestament.cread.utils.Constant.IMAGE_TYPE_USER_CAPTURE_PIC;
@@ -131,7 +141,11 @@ public class FeedFragment extends Fragment {
         //This screen opened for first time
         if (mHelper.isWelcomeFirstTime()) {
             //Show welcome dialog
+            // and then check deep link status
             showWelcomeMessage();
+        } else {   // not the first time
+            // so check for deep link directly
+            initDeepLink();
         }
     }
 
@@ -233,6 +247,7 @@ public class FeedFragment extends Fragment {
         initHatsOffListener(mAdapter);
         initCaptureListener(mAdapter);
         initShareListener(mAdapter);
+        initShareLinkClickedListener();
         //Load data here
         loadFeedData();
     }
@@ -688,16 +703,39 @@ public class FeedFragment extends Fragment {
     };
 
     /**
+     * Initialize share link listener.
+     */
+    private void initShareLinkClickedListener() {
+        mAdapter.setOnShareLinkClickedListener(new listener.OnShareLinkClickedListener() {
+
+
+            @Override
+            public void onShareLinkClicked(String entityID, String entityURL) {
+
+                // generates deep link
+                // and opens the share dialog
+                generateDeepLink(getActivity(),
+                        mCompositeDisposable,
+                        rootView,
+                        mHelper.getUUID(),
+                        mHelper.getAuthToken(),
+                        entityID,
+                        entityURL);
+            }
+        });
+    }
+
+    /**
      * Initialize share listener.
      */
     private void initShareListener(FeedAdapter feedAdapter) {
         feedAdapter.setOnShareListener(new listener.OnShareListener() {
             @Override
             public void onShareClick(Bitmap bitmap) {
+                mBitmap = bitmap;
                 //Check for Write permission
                 if (Nammu.checkPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
                     //We have permission do whatever you want to do
-                    mBitmap = bitmap;
                     sharePost(bitmap);
                 } else {
                     //We do not own this permission
@@ -713,6 +751,19 @@ public class FeedFragment extends Fragment {
                 }
             }
         });
+    }
+
+    private void initDeepLink() {
+        // if deep link parse it
+        if (mHelper.getDeepLink() != null) {
+            Uri deepLinkUri = Uri.parse(mHelper.getDeepLink());
+
+            String entityID = deepLinkUri.getQueryParameter("entityid");
+
+            mHelper.setDeepLink(null);
+
+            getFeedDetails(entityID);
+        }
     }
 
     /**
@@ -746,6 +797,8 @@ public class FeedFragment extends Fragment {
                         dialog.dismiss();
                         //update status
                         mHelper.updateWelcomeDialogStatus(false);
+
+                        initDeepLink();
                     }
                 })
                 .show();
@@ -806,4 +859,165 @@ public class FeedFragment extends Fragment {
         intent.putExtra(Intent.EXTRA_STREAM, getLocalBitmapUri(bitmap, getActivity()));
         startActivity(Intent.createChooser(intent, "Share"));
     }
+
+
+    /**
+     * RxJava2 implementation for retrieving feed details
+     *
+     * @param entityID
+     */
+    private void getFeedDetails(final String entityID) {
+
+        // check net status
+        if (NetworkHelper.getNetConnectionStatus(getActivity())) {
+            final boolean[] tokenError = {false};
+            final boolean[] connectionError = {false};
+
+            final FeedModel feedData = new FeedModel();
+
+
+            SharedPreferenceHelper spHelper = new SharedPreferenceHelper(getActivity());
+
+            JSONObject data = new JSONObject();
+            try {
+                data.put("uuid", spHelper.getUUID());
+                data.put("authkey", spHelper.getAuthToken());
+                data.put("entityid", entityID);
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+
+
+            Rx2AndroidNetworking.post(BuildConfig.URL + "/entity-manage/load-specific")
+                    .addJSONObjectBody(data)
+                    .build()
+                    .getJSONObjectObservable()
+                    .subscribeOn(Schedulers.io())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribeWith(new Observer<JSONObject>() {
+                        @Override
+                        public void onSubscribe(@io.reactivex.annotations.NonNull Disposable d) {
+                            mCompositeDisposable.add(d);
+                        }
+
+                        @Override
+                        public void onNext(@io.reactivex.annotations.NonNull JSONObject jsonObject) {
+
+                            try {
+                                //Token status is invalid
+                                if (jsonObject.getString("tokenstatus").equals("invalid")) {
+                                    tokenError[0] = true;
+                                } else {
+                                    JSONObject mainObject = jsonObject.getJSONObject("data");
+
+                                    JSONObject dataObj = mainObject.getJSONObject("entity");
+                                    String type = dataObj.getString("type");
+
+                                    feedData.setEntityID(entityID);
+                                    feedData.setCaptureID(dataObj.getString("captureid"));
+                                    feedData.setContentType(dataObj.getString("type"));
+                                    feedData.setUUID(dataObj.getString("uuid"));
+                                    feedData.setCreatorImage(dataObj.getString("profilepicurl"));
+                                    feedData.setCreatorName(dataObj.getString("creatorname"));
+                                    feedData.setHatsOffStatus(dataObj.getBoolean("hatsoffstatus"));
+                                    feedData.setMerchantable(dataObj.getBoolean("merchantable"));
+                                    feedData.setHatsOffCount(dataObj.getLong("hatsoffcount"));
+                                    feedData.setCommentCount(dataObj.getLong("commentcount"));
+                                    feedData.setContentImage(dataObj.getString("entityurl"));
+
+                                    feedData.setCollabCount(dataObj.getLong("collabcount"));
+
+                                    if (type.equals(CONTENT_TYPE_CAPTURE)) {
+
+                                        //Retrieve "CAPTURE_ID" if type is capture
+                                        feedData.setCaptureID(dataObj.getString("captureid"));
+                                        // if capture
+                                        // then if key cpshort exists
+                                        // not available for collaboration
+                                        if (!dataObj.isNull("cpshort")) {
+                                            JSONObject collabObject = dataObj.getJSONObject("cpshort");
+
+                                            feedData.setAvailableForCollab(false);
+                                            // set collaborator details
+                                            feedData.setCollabWithUUID(collabObject.getString("uuid"));
+                                            feedData.setCollabWithName(collabObject.getString("name"));
+
+                                        } else {
+                                            feedData.setAvailableForCollab(true);
+                                        }
+
+                                    } else if (type.equals(CONTENT_TYPE_SHORT)) {
+
+                                        //Retrieve "SHORT_ID" if type is short
+                                        feedData.setShortID(dataObj.getString("shoid"));
+
+                                        // if short
+                                        // then if key shcapture exists
+                                        // not available for collaboration
+                                        if (!dataObj.isNull("shcapture")) {
+
+                                            JSONObject collabObject = dataObj.getJSONObject("shcapture");
+
+                                            feedData.setAvailableForCollab(false);
+                                            // set collaborator details
+                                            feedData.setCollabWithUUID(collabObject.getString("uuid"));
+                                            feedData.setCollabWithName(collabObject.getString("name"));
+                                        } else {
+                                            feedData.setAvailableForCollab(true);
+                                        }
+                                    }
+
+                                }
+                            } catch (JSONException e) {
+                                e.printStackTrace();
+                                FirebaseCrash.report(e);
+                                connectionError[0] = true;
+
+                            }
+                        }
+
+                        @Override
+                        public void onError(@io.reactivex.annotations.NonNull Throwable e) {
+
+
+                            FirebaseCrash.report(e);
+                            //Server error Snack bar
+                            ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_server));
+
+                        }
+
+                        @Override
+                        public void onComplete() {
+
+                            // Token status invalid
+                            if (tokenError[0]) {
+                                ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_invalid_token));
+                            }
+                            //Error occurred
+                            else if (connectionError[0]) {
+                                ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_internal));
+
+                            } else
+
+                            {
+
+                                Bundle bundle = new Bundle();
+                                bundle.putParcelable(EXTRA_FEED_DESCRIPTION_DATA, feedData);
+                                bundle.putInt("position", -1);
+
+                                Intent intent = new Intent(getActivity(), FeedDescriptionActivity.class);
+                                intent.putExtra(EXTRA_DATA, bundle);
+                                getActivity().startActivity(intent);
+
+                                getActivity().finish();
+                            }
+                        }
+                    });
+        } else {
+            ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_no_connection));
+        }
+    }
+
+
+
 }

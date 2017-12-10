@@ -44,11 +44,14 @@
     <string name="key_buy_dialog">buyDialog</string>
     <string name="key_me_dialog">meDialog</string>
     <string name="key_royalty_dialog">royaltyDialog</string>
+    <string name="rating_status">ratingStatus</string>
+    <string name="key_deep_link">deepLink</string>
 
 
     // dialog messages
     <string name="processing_title">Processing</string>
     <string name="verif_title">Verifying</string>
+    <string name="generating_title">Generating Link</string>
     <string name="waiting_msg">Please wait</string>
     <string name="text_ok">Ok</string>
     <string name="text_yes">Yes</string>
@@ -63,7 +66,7 @@
     <string name="text_dialog_me">You can now receive royalties for every artpiece that sells. Get rewarded for your masterpiece!</string>
     <string name="title_dialog_royalty">Manage Your Royalites</string>
     <string name="text_dialog_royalty">Here\'s your bank of royalties which you earn (10%) for every artpiece that sells. View and manage orders placed by others for your art work. You can redeem your earnings into your Paytm account.</string>
-
+    <string name="title_dialog_share">Share</string>
 
     //unicodes
     <string name="Rs">\u20B9</string>
@@ -98,7 +101,7 @@
     <string name="creator_text_collab_capture_part1">added a graphic art to</string>
     <string name="creator_text_collab_capture_part2">writing</string>
 
-    <string name="rating_status">ratingStatus</string>
+
     <string name="text_rate_us">We want to bring the best opportunities for you! Please encourage us by giving a 5-star rating. It\'ll mean a lot!</string>
 
 

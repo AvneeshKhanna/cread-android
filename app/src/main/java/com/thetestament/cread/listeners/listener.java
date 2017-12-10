@@ -3,6 +3,7 @@ package com.thetestament.cread.listeners;
 import android.graphics.Bitmap;
 import android.graphics.Typeface;
 
+import com.afollestad.materialdialogs.MaterialDialog;
 import com.thetestament.cread.models.CommentsModel;
 import com.thetestament.cread.models.FBFriendsModel;
 import com.thetestament.cread.models.FeedModel;
@@ -219,6 +220,14 @@ public class listener {
      */
     public interface OnShareListener {
         void onShareClick(Bitmap bitmap);
+    }
+
+    public interface OnShareDialogItemClickedListener {
+        void onShareDialogItemClicked(int index);
+    }
+
+    public interface OnShareLinkClickedListener {
+        void onShareLinkClicked(String entityID, String entityURL);
     }
 
 }

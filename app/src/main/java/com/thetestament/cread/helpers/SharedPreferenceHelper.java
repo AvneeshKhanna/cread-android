@@ -2,6 +2,7 @@ package com.thetestament.cread.helpers;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.net.Uri;
 
 import com.thetestament.cread.R;
 
@@ -392,6 +393,19 @@ public class SharedPreferenceHelper {
     public boolean isAppRated() {
         return mSharedPreferences
                 .getBoolean(mContext.getString(R.string.rating_status), true);
+    }
+
+
+    public void setDeepLink(String deepLink) {
+        SharedPreferences.Editor editor = mSharedPreferences.edit();
+        editor.putString(mContext.getString(R.string.key_deep_link), deepLink);
+        editor.apply();
+    }
+
+    public String getDeepLink() {
+        return mSharedPreferences
+                .getString(mContext.getString(R.string.key_deep_link), null);
+
     }
 
 

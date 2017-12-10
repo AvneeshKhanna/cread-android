@@ -14,7 +14,12 @@ import com.afollestad.materialdialogs.DialogAction;
 import com.afollestad.materialdialogs.GravityEnum;
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.crash.FirebaseCrash;
+import com.google.firebase.dynamiclinks.FirebaseDynamicLinks;
+import com.google.firebase.dynamiclinks.PendingDynamicLinkData;
 import com.google.firebase.iid.FirebaseInstanceId;
 import com.google.firebase.remoteconfig.FirebaseRemoteConfig;
 import com.google.firebase.remoteconfig.FirebaseRemoteConfigSettings;
@@ -152,8 +157,8 @@ public class SplashActivity extends AppCompatActivity {
                             // Product update dialog called
                             getProductUpdateDialog();
                         } else {
-                            //load data
-                            waitScreen();
+                            // initialize deep link
+                            initDeepLink();
                         }
                     }
                 });
@@ -187,7 +192,8 @@ public class SplashActivity extends AppCompatActivity {
             MaterialDialog dialog = builder.build();
             dialog.show();
         } else {
-            waitScreen();
+            // initialize deep link
+            initDeepLink();
         }
     }
 
@@ -207,6 +213,50 @@ public class SplashActivity extends AppCompatActivity {
             startActivity(new Intent(Intent.ACTION_VIEW,
                     Uri.parse("https://play.google.com/store/apps/details?id=" + appPackageName)));
         }
+    }
+
+
+    /*
+    Method to get check for deep link
+     */
+    private void initDeepLink() {
+        final SharedPreferenceHelper spHelper = new SharedPreferenceHelper(SplashActivity.this);
+
+        FirebaseDynamicLinks.getInstance()
+                .getDynamicLink(getIntent())
+                .addOnSuccessListener(this, new OnSuccessListener<PendingDynamicLinkData>() {
+                    @Override
+                    public void onSuccess(PendingDynamicLinkData pendingDynamicLinkData) {
+
+                        Uri deepLink = null;
+                        if (pendingDynamicLinkData != null) {
+                            deepLink = pendingDynamicLinkData.getLink();
+                        }
+
+                        // saving deep link in shared preferences
+                        if (deepLink != null) {
+                            spHelper.setDeepLink(deepLink.toString());
+                        } else {
+                            spHelper.setDeepLink(null);
+                        }
+
+
+                        //load data
+                        waitScreen();
+                    }
+                })
+                .addOnFailureListener(this, new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        e.printStackTrace();
+                        FirebaseCrash.report(e);
+                        // set as null
+                        spHelper.setDeepLink(null);
+
+                        //load data
+                        waitScreen();
+                    }
+                });
     }
 
 }
