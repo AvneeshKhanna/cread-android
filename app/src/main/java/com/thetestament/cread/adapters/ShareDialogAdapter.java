@@ -45,13 +45,13 @@ public class ShareDialogAdapter extends RecyclerView.Adapter<ShareDialogAdapter.
         switch (position) {
             case 0:
                 holder.imageIcon.setImageDrawable(ContextCompat.getDrawable(mContext, R.drawable.ic_image_24));
-                holder.itemTitle.setText("Share image");
-                holder.itemText.setText("Share image of the artpiece");
+                holder.itemTitle.setText("Share As Image");
+                holder.itemText.setText("Your friends would only be able to view this post as an image");
                 break;
             case 1:
                 holder.imageIcon.setImageDrawable(ContextCompat.getDrawable(mContext, R.drawable.ic_link_24));
-                holder.itemTitle.setText("Share link");
-                holder.itemText.setText("Share link of the artpiece");
+                holder.itemTitle.setText("Share As Link");
+                holder.itemText.setText("Your friends would be redirected to this post on the Cread app");
                 break;
         }
 
@@ -83,7 +83,6 @@ public class ShareDialogAdapter extends RecyclerView.Adapter<ShareDialogAdapter.
         view.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
                 onShareDialogItemClickedListener.onShareDialogItemClicked(position);
             }
         });
