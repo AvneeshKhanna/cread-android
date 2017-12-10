@@ -18,9 +18,11 @@ import com.afollestad.materialdialogs.MaterialDialog;
 import com.squareup.picasso.Picasso;
 import com.thetestament.cread.R;
 import com.thetestament.cread.activities.ProfileActivity;
+import com.thetestament.cread.listeners.listener;
 import com.thetestament.cread.listeners.listener.OnCommentDeleteListener;
 import com.thetestament.cread.listeners.listener.OnCommentEditListener;
 import com.thetestament.cread.listeners.listener.OnCommentsLoadMoreListener;
+import com.thetestament.cread.listeners.listener.OnLoadMoreClickedListener;
 import com.thetestament.cread.models.CommentsModel;
 
 import java.util.List;
@@ -37,17 +39,17 @@ import static com.thetestament.cread.utils.Constant.EXTRA_PROFILE_UUID;
 
 public class CommentsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
-    private final int VIEW_TYPE_ITEM = 0;
-    private final int VIEW_TYPE_LOADING = 1;
+    private static final int VIEW_TYPE_HEADER = 0;
+    private static final int VIEW_TYPE_ITEM = 1;
     private List<CommentsModel> mCommentList;
     private FragmentActivity mContext;
     private String mUUID;
-    private boolean mIsLoading;
+    RecyclerView recyclerView;
 
 
-    private OnCommentsLoadMoreListener onLoadMoreListener;
     private OnCommentDeleteListener onDeleteListener;
     private OnCommentEditListener onEditListener;
+    private OnLoadMoreClickedListener onLoadMoreClickedListener;
 
 
     /**
@@ -57,18 +59,14 @@ public class CommentsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
      * @param mContext     Context to be use.
      * @param mUUID        UUID of the user.
      */
-    public CommentsAdapter(List<CommentsModel> mCommentList, FragmentActivity mContext, String mUUID) {
+    public CommentsAdapter(List<CommentsModel> mCommentList, FragmentActivity mContext, String mUUID, RecyclerView recyclerView) {
         this.mCommentList = mCommentList;
         this.mContext = mContext;
         this.mUUID = mUUID;
+
+        this.recyclerView = recyclerView;
     }
 
-    /**
-     * Register a callback to be invoked when user scrolls for more data.
-     */
-    public void setOnLoadMoreListener(OnCommentsLoadMoreListener onLoadMoreListener) {
-        this.onLoadMoreListener = onLoadMoreListener;
-    }
 
     /**
      * Register a callback to be invoked when user clicks on delete button.
@@ -84,10 +82,10 @@ public class CommentsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         this.onEditListener = onEditListener;
     }
 
-    @Override
-    public int getItemViewType(int position) {
-        return mCommentList.get(position) == null ? VIEW_TYPE_LOADING : VIEW_TYPE_ITEM;
+    public void setOnViewLoadMoreListener(OnLoadMoreClickedListener onLoadMoreClickedListener) {
+        this.onLoadMoreClickedListener = onLoadMoreClickedListener;
     }
+
 
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
@@ -95,19 +93,20 @@ public class CommentsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
             return new ItemViewHolder(LayoutInflater
                     .from(parent.getContext())
                     .inflate(R.layout.item_comment, parent, false));
-        } else if (viewType == VIEW_TYPE_LOADING) {
-            return new LoadingViewHolder(LayoutInflater
+        } else if (viewType == VIEW_TYPE_HEADER) {
+            return new HeaderViewHolder(LayoutInflater
                     .from(parent.getContext())
-                    .inflate(R.layout.item_load_more, parent, false));
+                    .inflate(R.layout.header_comments, parent, false));
         }
         return null;
     }
 
     @Override
     public void onBindViewHolder(final RecyclerView.ViewHolder holder, final int position) {
-        final CommentsModel data = mCommentList.get(position);
 
-        if (holder.getItemViewType() == VIEW_TYPE_ITEM) {
+        if (holder instanceof ItemViewHolder) {
+            final CommentsModel data = getItem(position);
+
             //Typecast viewHolder
             final ItemViewHolder itemViewHolder = (ItemViewHolder) holder;
             //Set user name
@@ -142,37 +141,55 @@ public class CommentsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
             //Open creator profile
             openCreatorProfile(itemViewHolder.textUserName, data.getUuid());
             openCreatorProfile(itemViewHolder.imageUser, data.getUuid());
+        } else if (holder instanceof HeaderViewHolder) {
+            final HeaderViewHolder headerViewHolder = (HeaderViewHolder) holder;
 
-        } else if (holder.getItemViewType() == VIEW_TYPE_LOADING) {
-            //Typecast viewHolder
-            LoadingViewHolder loadingViewHolder = (LoadingViewHolder) holder;
-            //Show progress view
-            loadingViewHolder.progressView.setVisibility(View.VISIBLE);
-        }
-
-        //If last item is visible to user and new set of data is to yet to be loaded
-        if (position == mCommentList.size() - 1 && !mIsLoading) {
-            if (onLoadMoreListener != null) {
-                //Lode more data here
-                onLoadMoreListener.onLoadMore();
-            }
-            //toggle
-            mIsLoading = true;
+            // init header click functionality
+            initLoadMoreViewClicked(headerViewHolder.loadMoreView);
         }
     }
 
     @Override
     public int getItemCount() {
-        return mCommentList == null ? 0 : mCommentList.size();
+        return mCommentList == null ? 0 : mCommentList.size() + 1;
     }
 
+    @Override
+    public int getItemViewType(int position) {
 
-    /**
-     * Method is toggle the loading status
-     */
-    public void setLoaded() {
-        mIsLoading = false;
+        if (isPositionHeader(position))
+            return VIEW_TYPE_HEADER;
+
+        return VIEW_TYPE_ITEM;
     }
+
+    private boolean isPositionHeader(int position) {
+        return position == 0;
+    }
+
+    private CommentsModel getItem(int position) {
+        return mCommentList.get(position - 1);
+    }
+
+    public void setLoadMoreViewVisibility(HeaderViewHolder holder, int visibility) {
+        holder.loadMoreView.setVisibility(visibility);
+    }
+
+    public void setLoadingIconVisibility(HeaderViewHolder holder, int visibility) {
+        holder.loadMoreViewProgress.setVisibility(visibility);
+    }
+
+    private void initLoadMoreViewClicked(LinearLayout view) {
+        view.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                onLoadMoreClickedListener.onLoadMoreClicked();
+            }
+        });
+
+    }
+
 
     /**
      * Method to load  profile picture.
@@ -303,14 +320,18 @@ public class CommentsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         }
     }
 
-    //LoadingViewHolder class
-    static class LoadingViewHolder extends RecyclerView.ViewHolder {
-        @BindView(R.id.viewProgress)
-        View progressView;
+    //ViewHolder class for header
+    public static class HeaderViewHolder extends RecyclerView.ViewHolder {
 
-        public LoadingViewHolder(View itemView) {
-            super(itemView);
-            ButterKnife.bind(this, itemView);
+        @BindView(R.id.loadMoreView)
+        LinearLayout loadMoreView;
+        @BindView(R.id.loadMoreViewProgress)
+        View loadMoreViewProgress;
+
+        public HeaderViewHolder(View headerView) {
+            super(headerView);
+            ButterKnife.bind(this, headerView);
+
         }
     }
 

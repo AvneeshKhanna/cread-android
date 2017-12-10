@@ -14,7 +14,6 @@ import android.widget.TextView;
 
 import com.squareup.picasso.Picasso;
 import com.thetestament.cread.R;
-import com.thetestament.cread.activities.BottomNavigationActivity;
 import com.thetestament.cread.activities.ProfileActivity;
 import com.thetestament.cread.database.NotificationsDBFunctions;
 import com.thetestament.cread.models.UpdatesModel;
@@ -29,10 +28,11 @@ import static com.thetestament.cread.utils.Constant.EXTRA_PROFILE_UUID;
 import static com.thetestament.cread.utils.Constant.NOTIFICATION_CATEGORY_CREAD_BUY;
 import static com.thetestament.cread.utils.Constant.NOTIFICATION_CATEGORY_CREAD_COLLABORATE;
 import static com.thetestament.cread.utils.Constant.NOTIFICATION_CATEGORY_CREAD_COMMENT;
+import static com.thetestament.cread.utils.Constant.NOTIFICATION_CATEGORY_CREAD_COMMENT_OTHER;
 import static com.thetestament.cread.utils.Constant.NOTIFICATION_CATEGORY_CREAD_FOLLOW;
 import static com.thetestament.cread.utils.Constant.NOTIFICATION_CATEGORY_CREAD_GENERAL;
 import static com.thetestament.cread.utils.Constant.NOTIFICATION_CATEGORY_CREAD_HATSOFF;
-import static com.thetestament.cread.utils.Constant.NOTIFICATION_ID_CREAD_COMMENT;
+import static com.thetestament.cread.utils.Constant.NOTIFICATION_CATEGORY_CREAD_TOP_POST;
 
 
 /*Adapter class for UpdatesFragment RecyclerView.*/
@@ -82,7 +82,12 @@ public class UpdatesAdapter extends RecyclerView.Adapter<UpdatesAdapter.ViewHold
         holder.textTimestamp.setText(updatesData.getTimeStamp());
         holder._id = updatesData.get_ID();
 
-        loadProfilePicture(updatesData.getActorImage(), holder.imgNotification);
+        // set image url depending on the notification category
+        String imageUrl = updatesData.getCategory()
+                .equals(NOTIFICATION_CATEGORY_CREAD_TOP_POST)
+                ? updatesData.getEntityImage() : updatesData.getActorImage();
+
+        loadImage(imageUrl, holder.imgNotification);
 
         //Change notification item color depending upon seen status
         if (updatesData.getSeen().equals("true")) {
@@ -178,6 +183,11 @@ public class UpdatesAdapter extends RecyclerView.Adapter<UpdatesAdapter.ViewHold
                 notificationItemClick.onNotificationClick(NOTIFICATION_CATEGORY_CREAD_COMMENT, entityID);
                 break;
 
+            case NOTIFICATION_CATEGORY_CREAD_COMMENT_OTHER:
+                //Listener
+                notificationItemClick.onNotificationClick(NOTIFICATION_CATEGORY_CREAD_COMMENT_OTHER, entityID);
+                break;
+
             case NOTIFICATION_CATEGORY_CREAD_BUY:
                 //Listener
                 notificationItemClick.onNotificationClick(NOTIFICATION_CATEGORY_CREAD_BUY, entityID);
@@ -186,18 +196,22 @@ public class UpdatesAdapter extends RecyclerView.Adapter<UpdatesAdapter.ViewHold
                 //Listener
                 // do nothing since it is not persistable and not present here
                 break;
+            case NOTIFICATION_CATEGORY_CREAD_TOP_POST:
+                //Listener
+                notificationItemClick.onNotificationClick(NOTIFICATION_CATEGORY_CREAD_TOP_POST, entityID);
+                break;
             default:
                 break;
         }
     }
 
     /**
-     * Method to load creator profile picture.
+     * Method to load item image.
      *
      * @param picUrl    picture URL.
      * @param imageView View where image to be loaded.
      */
-    private void loadProfilePicture(String picUrl, CircleImageView imageView) {
+    private void loadImage(String picUrl, CircleImageView imageView) {
         Picasso.with(mContext)
                 .load(picUrl)
                 .error(R.drawable.ic_account_circle_48)

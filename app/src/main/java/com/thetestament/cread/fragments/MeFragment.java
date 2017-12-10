@@ -84,6 +84,7 @@ import pl.tajchert.nammu.Nammu;
 import pl.tajchert.nammu.PermissionCallback;
 
 import static android.app.Activity.RESULT_OK;
+import static com.thetestament.cread.helpers.FeedHelper.generateDeepLink;
 import static com.thetestament.cread.helpers.ImageHelper.getImageUri;
 import static com.thetestament.cread.helpers.ImageHelper.getLocalBitmapUri;
 import static com.thetestament.cread.helpers.NetworkHelper.getNetConnectionStatus;
@@ -853,6 +854,7 @@ public class MeFragment extends Fragment {
         initializeDeleteListener(mAdapter);
         initCaptureListener(mAdapter);
         initShareListener(mAdapter);
+        initShareLinkClickedListener();
     }
 
     /**
@@ -1388,16 +1390,40 @@ public class MeFragment extends Fragment {
     }
 
     /**
+     * Initialize share link listener.
+     */
+    private void initShareLinkClickedListener() {
+        mAdapter.setOnShareLinkClickedListener(new listener.OnShareLinkClickedListener() {
+
+
+            @Override
+            public void onShareLinkClicked(String entityID, String entityURL, String creatorName) {
+
+                // generates deep link
+                // and opens the share dialog
+                generateDeepLink(getActivity(),
+                        mCompositeDisposable,
+                        rootView,
+                        mHelper.getUUID(),
+                        mHelper.getAuthToken(),
+                        entityID,
+                        entityURL,
+                        creatorName);
+            }
+        });
+    }
+
+    /**
      * Initialize share listener.
      */
     private void initShareListener(MeAdapter meAdapter) {
         meAdapter.setOnShareListener(new listener.OnShareListener() {
             @Override
             public void onShareClick(Bitmap bitmap) {
+                mBitmap = bitmap;
                 //Check for Write permission
                 if (Nammu.checkPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
                     //We have permission do whatever you want to do
-                    mBitmap = bitmap;
                     sharePost(bitmap);
                 } else {
                     //We do not own this permission

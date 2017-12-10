@@ -414,6 +414,7 @@ public class BottomNavigationActivity extends BaseActivity {
         startActivityForResult(intent, REQUEST_CODE_OPEN_GALLERY);
     }
 
+
     /**
      * Method to perform required operation on cropped image.
      *

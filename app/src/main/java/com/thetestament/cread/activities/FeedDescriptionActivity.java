@@ -33,11 +33,14 @@ import com.thetestament.cread.BuildConfig;
 import com.thetestament.cread.Manifest;
 import com.thetestament.cread.R;
 import com.thetestament.cread.adapters.CommentsAdapter;
+import com.thetestament.cread.adapters.ShareDialogAdapter;
+import com.thetestament.cread.helpers.FeedHelper;
 import com.thetestament.cread.helpers.HatsOffHelper;
 import com.thetestament.cread.helpers.ImageHelper;
 import com.thetestament.cread.helpers.NetworkHelper;
 import com.thetestament.cread.helpers.SharedPreferenceHelper;
 import com.thetestament.cread.helpers.ViewHelper;
+import com.thetestament.cread.listeners.listener;
 import com.thetestament.cread.models.CommentsModel;
 import com.thetestament.cread.models.FeedModel;
 import com.yalantis.ucrop.UCrop;
@@ -62,6 +65,7 @@ import io.reactivex.schedulers.Schedulers;
 import pl.tajchert.nammu.Nammu;
 import pl.tajchert.nammu.PermissionCallback;
 
+import static com.thetestament.cread.helpers.FeedHelper.generateDeepLink;
 import static com.thetestament.cread.helpers.FeedHelper.getCollabCountText;
 import static com.thetestament.cread.helpers.FeedHelper.getCreatorText;
 import static com.thetestament.cread.helpers.FeedHelper.initializeSpannableString;
@@ -312,38 +316,38 @@ public class FeedDescriptionActivity extends BaseActivity {
      */
     @OnClick(R.id.containerShares)
     void shareOnClick() {
-        Picasso.with(this).load(mFeedData.getContentImage()).into(new Target() {
+
+        ShareDialogAdapter adapter = new ShareDialogAdapter(mContext);
+        final MaterialDialog dialog = new MaterialDialog.Builder(mContext)
+                .adapter(adapter, null)
+                .show();
+        adapter.setShareDialogItemClickedListener(new listener.OnShareDialogItemClickedListener() {
             @Override
-            public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
-                mBitmap = bitmap;
-                //Check for Write permission
-                if (Nammu.checkPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
-                    //We have permission do whatever you want to do
-                    sharePost(bitmap);
-                } else {
-                    //We do not own this permission
-                    if (Nammu.shouldShowRequestPermissionRationale(FeedDescriptionActivity.this
-                            , Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
-                        //User already refused to give us this permission or removed it
-                        ViewHelper.getToast(FeedDescriptionActivity.this
-                                , getString(R.string.error_msg_share_permission_denied));
-                    } else {
-                        //First time asking for permission
-                        Nammu.askForPermission(FeedDescriptionActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE, shareWritePermission);
-                    }
+            public void onShareDialogItemClicked(int index) {
+
+                // dismiss dialog
+                dialog.dismiss();
+
+                switch (index) {
+                    case 0:
+                        // image sharing
+                        //so load image
+                        loadBitmapForSharing();
+                        break;
+                    case 1:
+                        // link sharing
+                        // get deep link from server
+                        generateDeepLink(mContext,
+                                mCompositeDisposable,
+                                rootView,
+                                mHelper.getUUID(),
+                                mHelper.getAuthToken(),
+                                mFeedData.getEntityID(),
+                                mFeedData.getContentImage(),
+                                mFeedData.getCreatorName());
+                        break;
+
                 }
-                //Log firebase event
-                setAnalytics(FIREBASE_EVENT_SHARED_FROM_FEED_DESCRIPTION);
-            }
-
-            @Override
-            public void onBitmapFailed(Drawable errorDrawable) {
-                ViewHelper.getToast(FeedDescriptionActivity.this, getString(R.string.error_msg_internal));
-            }
-
-            @Override
-            public void onPrepareLoad(Drawable placeHolderDrawable) {
-
             }
         });
     }
@@ -450,6 +454,46 @@ public class FeedDescriptionActivity extends BaseActivity {
     }
 
     /**
+     * Method to load bitmap image to be shared
+     */
+    private void loadBitmapForSharing() {
+        Picasso.with(this).load(mFeedData.getContentImage()).into(new Target() {
+            @Override
+            public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
+                mBitmap = bitmap;
+                //Check for Write permission
+                if (Nammu.checkPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+                    //We have permission do whatever you want to do
+                    sharePost(bitmap);
+                } else {
+                    //We do not own this permission
+                    if (Nammu.shouldShowRequestPermissionRationale(FeedDescriptionActivity.this
+                            , Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+                        //User already refused to give us this permission or removed it
+                        ViewHelper.getToast(FeedDescriptionActivity.this
+                                , getString(R.string.error_msg_share_permission_denied));
+                    } else {
+                        //First time asking for permission
+                        Nammu.askForPermission(FeedDescriptionActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE, shareWritePermission);
+                    }
+                }
+                //Log firebase event
+                setAnalytics(FIREBASE_EVENT_SHARED_FROM_FEED_DESCRIPTION);
+            }
+
+            @Override
+            public void onBitmapFailed(Drawable errorDrawable) {
+                ViewHelper.getToast(FeedDescriptionActivity.this, getString(R.string.error_msg_internal));
+            }
+
+            @Override
+            public void onPrepareLoad(Drawable placeHolderDrawable) {
+
+            }
+        });
+    }
+
+    /**
      * Method to toggle hats off status.
      */
     private void toggleHatsOffStatus() {
@@ -553,7 +597,7 @@ public class FeedDescriptionActivity extends BaseActivity {
                             //Set layout manager
                             recyclerView.setLayoutManager(new LinearLayoutManager(FeedDescriptionActivity.this));
                             //Set adapter
-                            recyclerView.setAdapter(new CommentsAdapter(mCommentsList, FeedDescriptionActivity.this, mHelper.getUUID()));
+                            recyclerView.setAdapter(new CommentsAdapter(mCommentsList, FeedDescriptionActivity.this, mHelper.getUUID(), recyclerView));
                         }
                     }
                 })

@@ -25,6 +25,8 @@ public class NotificationsDBSchema {
         public static final String COLUMN_NAME_ENTITY_ID = "EntityID";
         public static final String COLUMN_NAME_ACTOR_USERID = "ActorUserID";
         public static final String COLUMN_NAME_USER_IMAGE = "UserImageURL";
+        public static final String COLUMN_NAME_ENTITY_IMAGE = "EntityImageURL";
+        public static final String COLUMN_NAME_OTHER_COLLABORATOR = "otherCollaborator";
 
     }
 }

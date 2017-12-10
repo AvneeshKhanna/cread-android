@@ -7,6 +7,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.view.ViewCompat;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.LinearSmoothScroller;
@@ -30,6 +31,7 @@ import com.google.firebase.crash.FirebaseCrash;
 import com.thetestament.cread.BuildConfig;
 import com.thetestament.cread.R;
 import com.thetestament.cread.adapters.CommentsAdapter;
+import com.thetestament.cread.adapters.CommentsAdapter.HeaderViewHolder;
 import com.thetestament.cread.helpers.NetworkHelper;
 import com.thetestament.cread.helpers.SharedPreferenceHelper;
 import com.thetestament.cread.helpers.ViewHelper;
@@ -41,7 +43,10 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -73,10 +78,11 @@ public class CommentsActivity extends BaseActivity {
     EditText editTextComment;
     @BindView(R.id.buttonPost)
     ImageView buttonPost;
-    @BindView(R.id.viewProgress)
-    View viewProgress;
+    @BindView(R.id.addCommentViewProgress)
+    View addCommentViewProgress;
     @BindView(R.id.viewNoData)
     LinearLayout viewNoData;
+
 
     CompositeDisposable mCompositeDisposable = new CompositeDisposable();
 
@@ -97,6 +103,7 @@ public class CommentsActivity extends BaseActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_comments);
         ButterKnife.bind(this);
+
         //SharedPreference reference
         mHelper = new SharedPreferenceHelper(this);
         //initialize textWatcher
@@ -145,6 +152,7 @@ public class CommentsActivity extends BaseActivity {
 
     }
 
+
     /**
      * Method to set text watcher on edit text.
      */
@@ -184,43 +192,17 @@ public class CommentsActivity extends BaseActivity {
         mLayoutManager = new LinearLayoutManager(this);
         recyclerView.setLayoutManager(mLayoutManager);
         //Set adapter
-        mAdapter = new CommentsAdapter(mCommentsList, this, mHelper.getUUID());
+        mAdapter = new CommentsAdapter(mCommentsList, this, mHelper.getUUID(), recyclerView);
         recyclerView.setAdapter(mAdapter);
 
         initSwipeRefreshLayout();
 
         //Initialize listeners
-        initLoadMoreListener(mAdapter);
+        initLoadMoreCommentsListener();
         initDeleteCommentListener(mAdapter);
         initEditCommentListener(mAdapter);
     }
 
-    /**
-     * Initialize load more listener.
-     *
-     * @param adapter CommentsAdapter reference.
-     */
-    private void initLoadMoreListener(CommentsAdapter adapter) {
-        adapter.setOnLoadMoreListener(new listener.OnCommentsLoadMoreListener() {
-            @Override
-            public void onLoadMore() {
-                //if more data is available
-                if (mRequestMoreData) {
-                    new Handler()
-                            .post(new Runnable() {
-                                      @Override
-                                      public void run() {
-                                          mCommentsList.add(null);
-                                          mAdapter.notifyItemInserted(mCommentsList.size() - 1);
-                                      }
-                                  }
-                            );
-                    //Load new set of data
-                    loadMoreData();
-                }
-            }
-        });
-    }
 
     /**
      * Initialize delete comment listener.
@@ -274,24 +256,26 @@ public class CommentsActivity extends BaseActivity {
     }
 
     /**
+     * Initialize load more comments listener.
+     */
+    private void initLoadMoreCommentsListener() {
+        mAdapter.setOnViewLoadMoreListener(new listener.OnLoadMoreClickedListener() {
+            @Override
+            public void onLoadMoreClicked() {
+                loadMoreData();
+            }
+        });
+    }
+
+
+    /**
      * Method to initialize SwipeRefreshLayout
      */
     private void initSwipeRefreshLayout() {
         swipeRefreshLayout.setRefreshing(true);
         swipeRefreshLayout.setColorSchemeColors(ContextCompat.getColor(this
                 , R.color.colorPrimary));
-        swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
-            @Override
-            public void onRefresh() {
-                //Clear data
-                mCommentsList.clear();
-                mAdapter.notifyDataSetChanged();
-                mAdapter.setLoaded();
-                //Set last index key ti null
-                mLastIndexKey = null;
-                loadCommentsData();
-            }
-        });
+
         loadCommentsData();
     }
 
@@ -308,9 +292,12 @@ public class CommentsActivity extends BaseActivity {
             getCommentsData();
         } else {
             swipeRefreshLayout.setRefreshing(false);
+            swipeRefreshLayout.setEnabled(false);
             //No connection Snack bar
             ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_no_connection));
         }
+
+
     }
 
     /**
@@ -375,6 +362,7 @@ public class CommentsActivity extends BaseActivity {
                     public void onComplete() {
                         //Hide progress indicator
                         swipeRefreshLayout.setRefreshing(false);
+                        swipeRefreshLayout.setEnabled(false);
                         // Token status invalid
                         if (tokenError[0]) {
                             ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_invalid_token));
@@ -388,13 +376,18 @@ public class CommentsActivity extends BaseActivity {
                             //SHow no data layout
                             viewNoData.setVisibility(View.VISIBLE);
                         } else {
-                            //Apply 'Slide Up' animation
-                            int resId = R.anim.layout_animation_from_bottom;
-                            LayoutAnimationController animation = AnimationUtils.loadLayoutAnimation(CommentsActivity.this, resId);
-                            recyclerView.setLayoutAnimation(animation);
 
+                            // show header
+                            if (mRequestMoreData) {
+                                mAdapter.setLoadMoreViewVisibility((HeaderViewHolder) recyclerView.
+                                        findViewHolderForAdapterPosition(0), View.VISIBLE);
+
+                            }
                             //Notify for data set changes
                             mAdapter.notifyDataSetChanged();
+
+                            // scroll to last item in the recycler view
+                            recyclerView.smoothScrollToPosition(mCommentsList.size());
                         }
                     }
                 })
@@ -405,6 +398,12 @@ public class CommentsActivity extends BaseActivity {
      * Method to load next set of data from server.
      */
     private void loadMoreData() {
+
+        // hide load comments and show loading icon
+        mAdapter.setLoadMoreViewVisibility((HeaderViewHolder) recyclerView.
+                findViewHolderForAdapterPosition(0), View.GONE);
+        mAdapter.setLoadingIconVisibility((HeaderViewHolder) recyclerView.
+                findViewHolderForAdapterPosition(0), View.VISIBLE);
 
         final boolean[] tokenError = {false};
         final boolean[] connectionError = {false};
@@ -422,14 +421,15 @@ public class CommentsActivity extends BaseActivity {
                 .subscribeWith(new DisposableObserver<JSONObject>() {
                     @Override
                     public void onNext(JSONObject jsonObject) {
-                        //Remove loading item
-                        mCommentsList.remove(mCommentsList.size() - 1);
-                        mAdapter.notifyItemRemoved(mCommentsList.size());
+
                         try {
                             //Token status is invalid
                             if (jsonObject.getString("tokenstatus").equals("invalid")) {
                                 tokenError[0] = true;
                             } else {
+
+                                List<CommentsModel> tempList = new ArrayList<>();
+
                                 JSONObject mainData = jsonObject.getJSONObject("data");
                                 mRequestMoreData = mainData.getBoolean("requestmore");
                                 mLastIndexKey = mainData.getString("lastindexkey");
@@ -445,23 +445,43 @@ public class CommentsActivity extends BaseActivity {
                                     commentsData.setComment(dataObj.getString("comment"));
                                     commentsData.setCommentId(dataObj.getString("commid"));
                                     commentsData.setEdited(dataObj.getBoolean("edited"));
-                                    mCommentsList.add(commentsData);
-                                    //Notify changes
-                                    mAdapter.notifyItemInserted(mCommentsList.size() - 1);
+
+                                    tempList.add(commentsData);
+
                                 }
+
+                                mCommentsList.addAll(0, tempList);
+                                // 1 because header is present at 0
+                                mAdapter.notifyItemRangeInserted(1, tempList.size());
                             }
                         } catch (JSONException e) {
                             e.printStackTrace();
                             FirebaseCrash.report(e);
                             connectionError[0] = true;
                         }
+
+                        // hide loading icon  and show load comments image
+                        if (mRequestMoreData) {
+                            mAdapter.setLoadMoreViewVisibility((HeaderViewHolder) recyclerView.
+                                    findViewHolderForAdapterPosition(0), View.VISIBLE);
+
+                        }
+                        mAdapter.setLoadingIconVisibility((HeaderViewHolder) recyclerView.
+                                findViewHolderForAdapterPosition(0), View.GONE);
                     }
 
                     @Override
                     public void onError(Throwable e) {
-                        //Remove loading item
-                        mCommentsList.remove(mCommentsList.size() - 1);
-                        mAdapter.notifyItemRemoved(mCommentsList.size());
+
+                        // hide loading icon  and show load comments image
+                        if (mRequestMoreData) {
+                            mAdapter.setLoadMoreViewVisibility((HeaderViewHolder) recyclerView.
+                                    findViewHolderForAdapterPosition(0), View.VISIBLE);
+
+                        }
+                        mAdapter.setLoadingIconVisibility((HeaderViewHolder) recyclerView.
+                                findViewHolderForAdapterPosition(0), View.GONE);
+
                         FirebaseCrash.report(e);
                         //Server error Snack bar
                         ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_server));
@@ -469,6 +489,7 @@ public class CommentsActivity extends BaseActivity {
 
                     @Override
                     public void onComplete() {
+
                         // Token status invalid
                         if (tokenError[0]) {
                             ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_invalid_token));
@@ -477,8 +498,7 @@ public class CommentsActivity extends BaseActivity {
                         else if (connectionError[0]) {
                             ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_internal));
                         } else {
-                            //Notify changes
-                            mAdapter.setLoaded();
+
                         }
                     }
                 })
@@ -493,7 +513,31 @@ public class CommentsActivity extends BaseActivity {
      */
     private void saveComment(final String textComment) {
         //Show progress view
-        viewProgress.setVisibility(View.VISIBLE);
+        addCommentViewProgress.setVisibility(View.VISIBLE);
+
+        List<CommentsModel> otherCommentorsList = new ArrayList<>();
+
+        // if comments are more than 10
+        if (mCommentsList.size() >= 10) {
+            otherCommentorsList = mCommentsList.subList(mCommentsList.size() - 10
+                    , mCommentsList.size());
+        } else {
+            otherCommentorsList.addAll(mCommentsList);
+        }
+
+        List<String> otherCommentorsUUID = new ArrayList<>();
+
+        for (CommentsModel otherCommentors : otherCommentorsList) {
+            otherCommentorsUUID.add(otherCommentors.getUuid());
+        }
+
+        // removing all occurrences own uuid
+        otherCommentorsUUID.removeAll(Collections.singleton(mHelper.getUUID()));
+        // getting unique uuids
+        Set<String> uniqueCommentors = new HashSet<String>(otherCommentorsUUID);
+
+        JSONArray otherCommentorsJSON = new JSONArray(uniqueCommentors);
+
 
         JSONObject jsonObject = new JSONObject();
         try {
@@ -501,12 +545,13 @@ public class CommentsActivity extends BaseActivity {
             jsonObject.put("authkey", mHelper.getAuthToken());
             jsonObject.put("entityid", mEntityID);
             jsonObject.put("comment", textComment);
+            jsonObject.put("othercommenters", otherCommentorsJSON);
 
         } catch (JSONException e) {
             e.printStackTrace();
             FirebaseCrash.report(e);
             //Hide progress view
-            viewProgress.setVisibility(View.GONE);
+            addCommentViewProgress.setVisibility(View.GONE);
         }
         AndroidNetworking.post(BuildConfig.URL + "/comment/add")
                 .addJSONObjectBody(jsonObject)
@@ -515,7 +560,7 @@ public class CommentsActivity extends BaseActivity {
                     @Override
                     public void onResponse(JSONObject jsonObject) {
                         //Hide progress view
-                        viewProgress.setVisibility(View.GONE);
+                        addCommentViewProgress.setVisibility(View.GONE);
                         try {
                             //Token in not valid
                             if (jsonObject.getString("tokenstatus").equals("invalid")) {
@@ -540,18 +585,11 @@ public class CommentsActivity extends BaseActivity {
                                                       @Override
                                                       public void run() {
                                                           //Add data and notify
-                                                          mCommentsList.add(0, commentsData);
-                                                          mAdapter.notifyItemInserted(0);
+                                                          mCommentsList.add(commentsData);
+                                                          mAdapter.notifyItemInserted(mCommentsList.size());
 
-                                                          //Scroll to top
-                                                          RecyclerView.SmoothScroller smoothScroller = new LinearSmoothScroller(CommentsActivity.this) {
-                                                              @Override
-                                                              protected int getVerticalSnapPreference() {
-                                                                  return LinearSmoothScroller.SNAP_TO_START;
-                                                              }
-                                                          };
-                                                          smoothScroller.setTargetPosition(0);
-                                                          mLayoutManager.startSmoothScroll(smoothScroller);
+                                                          //Scroll to bottom
+                                                          recyclerView.smoothScrollToPosition(mCommentsList.size());
 
 
                                                       }
@@ -572,7 +610,7 @@ public class CommentsActivity extends BaseActivity {
                     @Override
                     public void onError(ANError anError) {
                         //Hide progress view
-                        viewProgress.setVisibility(View.GONE);
+                        addCommentViewProgress.setVisibility(View.GONE);
                         anError.printStackTrace();
                         FirebaseCrash.report(anError);
                         //Server error Snack bar
