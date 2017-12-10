@@ -343,7 +343,8 @@ public class FeedDescriptionActivity extends BaseActivity {
                                 mHelper.getUUID(),
                                 mHelper.getAuthToken(),
                                 mFeedData.getEntityID(),
-                                mFeedData.getContentImage());
+                                mFeedData.getContentImage(),
+                                mFeedData.getCreatorName());
                         break;
 
                 }

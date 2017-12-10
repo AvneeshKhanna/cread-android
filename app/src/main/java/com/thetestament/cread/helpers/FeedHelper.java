@@ -195,7 +195,7 @@ public class FeedHelper {
      * @param entityID
      * @param entityUrl
      */
-    public static void generateDeepLink(final FragmentActivity context, CompositeDisposable compositeDisposable, final View rootView, String uuid, String authkey, String entityID, String entityUrl) {
+    public static void generateDeepLink(final FragmentActivity context, CompositeDisposable compositeDisposable, final View rootView, String uuid, String authkey, String entityID, String entityUrl, String creatorName) {
         final MaterialDialog dialog = new MaterialDialog.Builder(context)
                 .title(context.getString(R.string.generating_title))
                 .content(context.getString(R.string.waiting_msg))
@@ -206,7 +206,8 @@ public class FeedHelper {
                 uuid,
                 authkey,
                 entityID,
-                entityUrl),
+                entityUrl,
+                creatorName),
                 context,
                 new listener.OnServerRequestedListener() {
                     @Override

@@ -199,7 +199,7 @@ public class MeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             //Comment click functionality
             commentOnClick(itemViewHolder.containerComment, data.getEntityID());
             //Share click functionality
-            shareOnClick(itemViewHolder.containerShare, data.getContentImage(), data.getEntityID());
+            shareOnClick(itemViewHolder.containerShare, data.getContentImage(), data.getEntityID(), data.getCreatorName());
             //Collaboration count click functionality
             collaborationCountOnClick(itemViewHolder.collabCount, data.getEntityID(), data.getContentType());
 
@@ -480,7 +480,7 @@ public class MeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
      * @param pictureUrl URL of the picture to be shared.
      * @param entityID   Entity id of content.
      */
-    private void shareOnClick(View view, final String pictureUrl, final String entityID) {
+    private void shareOnClick(View view, final String pictureUrl, final String entityID, final String creatorName) {
         view.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -506,7 +506,7 @@ public class MeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                             case 1:
                                 // link sharing
                                 // get deep link from server
-                                onShareLinkClickedListener.onShareLinkClicked(entityID, pictureUrl);
+                                onShareLinkClickedListener.onShareLinkClicked(entityID, pictureUrl, creatorName);
                                 break;
 
                         }

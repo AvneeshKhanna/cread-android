@@ -227,7 +227,7 @@ public class listener {
     }
 
     public interface OnShareLinkClickedListener {
-        void onShareLinkClicked(String entityID, String entityURL);
+        void onShareLinkClicked(String entityID, String entityURL, String creatorName);
     }
 
 }

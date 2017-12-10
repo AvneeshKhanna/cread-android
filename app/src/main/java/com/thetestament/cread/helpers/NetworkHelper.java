@@ -243,7 +243,7 @@ public class NetworkHelper {
      * @param entityID  entityID.
      * @param entityURL entityURL
      */
-    public static Observable<JSONObject> getDeepLinkObservable(String serverURL, String uuid, String authKey, String entityID, String entityURL) {
+    public static Observable<JSONObject> getDeepLinkObservable(String serverURL, String uuid, String authKey, String entityID, String entityURL, String creatorName) {
 
         JSONObject jsonObject = new JSONObject();
         try {
@@ -251,6 +251,7 @@ public class NetworkHelper {
             jsonObject.put("authkey", authKey);
             jsonObject.put("entityid", entityID);
             jsonObject.put("entityurl", entityURL);
+            jsonObject.put("creatorname", creatorName);
         } catch (JSONException e) {
             e.printStackTrace();
             FirebaseCrash.report(e);

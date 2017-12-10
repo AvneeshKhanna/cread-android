@@ -710,7 +710,7 @@ public class FeedFragment extends Fragment {
 
 
             @Override
-            public void onShareLinkClicked(String entityID, String entityURL) {
+            public void onShareLinkClicked(String entityID, String entityURL, String creatorName) {
 
                 // generates deep link
                 // and opens the share dialog
@@ -720,7 +720,8 @@ public class FeedFragment extends Fragment {
                         mHelper.getUUID(),
                         mHelper.getAuthToken(),
                         entityID,
-                        entityURL);
+                        entityURL,
+                        creatorName);
             }
         });
     }
