@@ -433,6 +433,17 @@ public class CommentsActivity extends BaseActivity {
                                 JSONObject mainData = jsonObject.getJSONObject("data");
                                 mRequestMoreData = mainData.getBoolean("requestmore");
                                 mLastIndexKey = mainData.getString("lastindexkey");
+
+                                // hide loading icon  and show load comments image
+                                if (mRequestMoreData) {
+                                    mAdapter.setLoadMoreViewVisibility((HeaderViewHolder) recyclerView.
+                                            findViewHolderForAdapterPosition(0), View.VISIBLE);
+
+                                }
+                                mAdapter.setLoadingIconVisibility((HeaderViewHolder) recyclerView.
+                                        findViewHolderForAdapterPosition(0), View.GONE);
+
+
                                 //Comments list
                                 JSONArray commentsArray = mainData.getJSONArray("comments");
                                 for (int i = 0; i < commentsArray.length(); i++) {
@@ -452,22 +463,13 @@ public class CommentsActivity extends BaseActivity {
 
                                 mCommentsList.addAll(0, tempList);
                                 // 1 because header is present at 0
-                                mAdapter.notifyItemRangeInserted(1, tempList.size());
+                                mAdapter.notifyItemRangeInserted(0, tempList.size());
                             }
                         } catch (JSONException e) {
                             e.printStackTrace();
                             FirebaseCrash.report(e);
                             connectionError[0] = true;
                         }
-
-                        // hide loading icon  and show load comments image
-                        if (mRequestMoreData) {
-                            mAdapter.setLoadMoreViewVisibility((HeaderViewHolder) recyclerView.
-                                    findViewHolderForAdapterPosition(0), View.VISIBLE);
-
-                        }
-                        mAdapter.setLoadingIconVisibility((HeaderViewHolder) recyclerView.
-                                findViewHolderForAdapterPosition(0), View.GONE);
                     }
 
                     @Override
