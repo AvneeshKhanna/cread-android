@@ -15,6 +15,7 @@ import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.view.ViewCompat;
+import android.support.v4.view.ViewPager;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -51,6 +52,7 @@ import com.thetestament.cread.activities.RoyaltiesActivity;
 import com.thetestament.cread.activities.UpdateProfileDetailsActivity;
 import com.thetestament.cread.activities.UpdateProfileImageActivity;
 import com.thetestament.cread.adapters.MeAdapter;
+import com.thetestament.cread.adapters.UserStatsPagerAdapter;
 import com.thetestament.cread.helpers.HatsOffHelper;
 import com.thetestament.cread.helpers.ImageHelper;
 import com.thetestament.cread.helpers.NetworkHelper;
@@ -134,12 +136,14 @@ public class MeFragment extends Fragment {
     TextView textBio;
     @BindView(R.id.buttonFollow)
     TextView buttonFollow;
-    @BindView(R.id.textPostsCount)
+    @BindView(R.id.viewPagerUserStats)
+    ViewPager viewPagerUserStats;
+    /*@BindView(R.id.textPostsCount)
     TextView textPostsCount;
     @BindView(R.id.textFollowersCount)
     TextView textFollowersCount;
     @BindView(R.id.textFollowingCount)
-    TextView textFollowingCount;
+    TextView textFollowingCount;*/
     @BindView(R.id.viewNoData)
     LinearLayout viewNoData;
     @BindView(R.id.progressView)
@@ -381,7 +385,7 @@ public class MeFragment extends Fragment {
 
     /**
      * Click functionality to launch screen where user can see list of people whom he/she is following.
-     */
+     *//*
     @OnClick(R.id.containerFollowing)
     public void onFollowingContainerClicked() {
 
@@ -395,9 +399,9 @@ public class MeFragment extends Fragment {
         }
     }
 
-    /**
+    *//**
      * Click functionality to launch followers screen.
-     */
+     *//*
     @OnClick(R.id.containerFollowers)
     public void onFollowersContainerClicked() {
         if (mFollowerCount > 0) {
@@ -410,12 +414,14 @@ public class MeFragment extends Fragment {
         }
     }
 
+    */
+
     /**
      * PostContainer click functionality.
-     */
+     *//*
     @OnClick(R.id.containerPosts)
     void onPostsContainerClicked() {
-    }
+    }*/
 
     /*
     * Create button click functionality.
@@ -457,7 +463,10 @@ public class MeFragment extends Fragment {
             //Show follow button
             buttonFollow.setVisibility(View.VISIBLE);
         }
+
+
         //initialize tab layout
+        initUserStatsPager();
         initTabLayout(tabLayout);
         initSwipeRefreshLayout();
     }
@@ -512,6 +521,13 @@ public class MeFragment extends Fragment {
                 //do nothing
             }
         });
+    }
+
+    /**
+     * Method to intitialize view pager adapter
+     */
+    private void initUserStatsPager() {
+        viewPagerUserStats.setAdapter(new UserStatsPagerAdapter(getActivity()));
     }
 
     /**
@@ -625,10 +641,10 @@ public class MeFragment extends Fragment {
                             }
 
                             //Set user activity stats
-                            textPostsCount.setText(String.valueOf(mPostCount));
+                            /*textPostsCount.setText(String.valueOf(mPostCount));
                             textFollowersCount.setText(String.valueOf(mFollowerCount));
                             textFollowingCount.setText(String.valueOf(mFollowingCount));
-
+*/
                             //If user bio present
                             if (mUserBio != null && !mUserBio.isEmpty() && !mUserBio.equals("null")) {
                                 textBio.setVisibility(View.VISIBLE);
@@ -776,12 +792,12 @@ public class MeFragment extends Fragment {
                                         //Increase count by one
                                         mFollowerCount += 1;
                                         //Set count
-                                        textFollowersCount.setText(String.valueOf(mFollowerCount));
+                                        /*textFollowersCount.setText(String.valueOf(mFollowerCount));*/
                                     } else {
                                         //Decrease count by one
                                         mFollowerCount -= 1;
                                         //Set count
-                                        textFollowersCount.setText(String.valueOf(mFollowerCount));
+                                        /*textFollowersCount.setText(String.valueOf(mFollowerCount));*/
                                     }
                                 }
                             }
@@ -1332,7 +1348,7 @@ public class MeFragment extends Fragment {
                                     ViewHelper.getSnackBar(rootView, "Item deleted");
                                     //Update user post count
                                     mPostCount -= 1;
-                                    textPostsCount.setText(String.valueOf(mPostCount));
+                                    /*textPostsCount.setText(String.valueOf(mPostCount));*/
                                 }
                             }
                         } catch (JSONException e) {
