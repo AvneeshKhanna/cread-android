@@ -84,10 +84,10 @@
                 <category android:name="android.intent.category.BROWSABLE" />
 
                 <data
-                    android:host="http://242496ea.ngrok.io"
+                    android:host="@string/DEEP_LINK_HOST"
                     android:scheme="http" />
                 <data
-                    android:host="http://242496ea.ngrok.io"
+                    android:host="@string/DEEP_LINK_HOST"
                     android:scheme="https" />
             </intent-filter>
         </activity>
