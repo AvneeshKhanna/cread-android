@@ -8,6 +8,8 @@ import com.thetestament.cread.models.CommentsModel;
 import com.thetestament.cread.models.FBFriendsModel;
 import com.thetestament.cread.models.FeedModel;
 import com.thetestament.cread.models.FollowModel;
+import com.thetestament.cread.utils.Constant;
+import com.thetestament.cread.utils.Constant.GratitudeNumbers;
 
 import org.json.JSONObject;
 
@@ -228,6 +230,11 @@ public class listener {
 
     public interface OnShareLinkClickedListener {
         void onShareLinkClicked(String entityID, String entityURL, String creatorName);
+    }
+
+
+    public interface OnUserStatsClickedListener {
+        void onUserStatsClicked(GratitudeNumbers gratitudeNumbers);
     }
 
 }

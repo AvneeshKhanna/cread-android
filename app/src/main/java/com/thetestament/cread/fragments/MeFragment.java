@@ -15,7 +15,6 @@ import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.view.ViewCompat;
-import android.support.v4.view.ViewPager;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -59,7 +58,10 @@ import com.thetestament.cread.helpers.NetworkHelper;
 import com.thetestament.cread.helpers.SharedPreferenceHelper;
 import com.thetestament.cread.helpers.ViewHelper;
 import com.thetestament.cread.listeners.listener;
+import com.thetestament.cread.listeners.listener.OnUserStatsClickedListener;
 import com.thetestament.cread.models.FeedModel;
+import com.thetestament.cread.utils.Constant;
+import com.thetestament.cread.utils.Constant.GratitudeNumbers;
 import com.thetestament.cread.utils.UserStatsViewPager;
 import com.yalantis.ucrop.UCrop;
 
@@ -108,6 +110,12 @@ import static com.thetestament.cread.utils.Constant.EXTRA_USER_IMAGE_PATH;
 import static com.thetestament.cread.utils.Constant.EXTRA_USER_LAST_NAME;
 import static com.thetestament.cread.utils.Constant.EXTRA_USER_WATER_MARK_STATUS;
 import static com.thetestament.cread.utils.Constant.FIREBASE_EVENT_FOLLOW_FROM_PROFILE;
+import static com.thetestament.cread.utils.Constant.GratitudeNumbers.COLLABORATIONS;
+import static com.thetestament.cread.utils.Constant.GratitudeNumbers.COMMENT;
+import static com.thetestament.cread.utils.Constant.GratitudeNumbers.FOLLOWERS;
+import static com.thetestament.cread.utils.Constant.GratitudeNumbers.FOLLOWING;
+import static com.thetestament.cread.utils.Constant.GratitudeNumbers.HATSOFF;
+import static com.thetestament.cread.utils.Constant.GratitudeNumbers.POSTS;
 import static com.thetestament.cread.utils.Constant.IMAGE_TYPE_USER_CAPTURE_PIC;
 import static com.thetestament.cread.utils.Constant.REQUEST_CODE_FEED_DESCRIPTION_ACTIVITY;
 import static com.thetestament.cread.utils.Constant.REQUEST_CODE_OPEN_GALLERY_FOR_CAPTURE;
@@ -156,7 +164,7 @@ public class MeFragment extends Fragment {
     @State
     String mFirstName, mLastName, mProfilePicURL, mUserBio;
     @State
-    long mPostCount, mFollowerCount, mFollowingCount;
+    long mPostCount, mFollowerCount, mFollowingCount, mHatsoffCount, mCommentsCount, mCollaborationCount;
     @State
     String mEmail, mContactNumber, mWaterMarkStatus;
     @State
@@ -391,8 +399,7 @@ public class MeFragment extends Fragment {
 
     /**
      * Click functionality to launch screen where user can see list of people whom he/she is following.
-     *//*
-    @OnClick(R.id.containerFollowing)
+     */
     public void onFollowingContainerClicked() {
 
         if (mFollowingCount > 0) {
@@ -405,10 +412,9 @@ public class MeFragment extends Fragment {
         }
     }
 
-    *//**
+    /**
      * Click functionality to launch followers screen.
-     *//*
-    @OnClick(R.id.containerFollowers)
+     */
     public void onFollowersContainerClicked() {
         if (mFollowerCount > 0) {
             Intent intent = new Intent(getActivity(), FollowActivity.class);
@@ -420,7 +426,7 @@ public class MeFragment extends Fragment {
         }
     }
 
-    */
+
 
     /**
      * PostContainer click functionality.
@@ -540,36 +546,37 @@ public class MeFragment extends Fragment {
     }
 
     /**
-     * Method to add dots  and to change the color of dots
-     *
-     * @param currentPage mGravityFlag of current page i.e 0(zero)
-     */
-    /*private void addDots(int currentPage) {
-        TextView[] dots = new TextView[mLayouts.length];
-        int[] colorsActive = getResources().getIntArray(R.array.array_dot_active_main);
-        int[] colorsInactive = getResources().getIntArray(R.array.array_dot_inactive_main);
-
-        dotsLayout.removeAllViews();
-
-        for (int i = 0; i < dots.length; i++) {
-            dots[i] = new TextView(this);
-            dots[i].setText("\u2022");   //\u2022 for dots
-            dots[i].setTextSize(35);
-            dots[i].setTextColor(colorsInactive[currentPage]);
-            dotsLayout.addView(dots[i]);
-        }
-
-        if (dots.length > 0)
-            dots[currentPage].setTextColor(colorsActive[currentPage]);
-    }*/
-
-    /**
      * Method to intitialize view pager adapter
      */
     private void initUserStatsPager() {
         initSliders();
-        viewPagerUserStats.setAdapter(new UserStatsPagerAdapter(getActivity(), mLayouts));
+        UserStatsPagerAdapter mUserStatsAdapter = new UserStatsPagerAdapter(getActivity(), mLayouts);
+        // intialize click listeners on user stats
+        initUserStatsClickedListener(mUserStatsAdapter);
+        viewPagerUserStats.setAdapter(mUserStatsAdapter);
         indicator.setViewPager(viewPagerUserStats);
+    }
+
+    /**
+     * Method to initialize listeners on the different user stats containers
+     *
+     * @param userStatsPagerAdapter adapter of view pager
+     */
+    private void initUserStatsClickedListener(UserStatsPagerAdapter userStatsPagerAdapter) {
+        userStatsPagerAdapter.setUserStatsClickedListener(new OnUserStatsClickedListener() {
+            @Override
+            public void onUserStatsClicked(GratitudeNumbers gratitudeNumbers) {
+
+                switch (gratitudeNumbers) {
+                    case FOLLOWERS:
+                        onFollowersContainerClicked();
+                        break;
+                    case FOLLOWING:
+                        onFollowingContainerClicked();
+                        break;
+                }
+            }
+        });
     }
 
     /**
@@ -639,6 +646,9 @@ public class MeFragment extends Fragment {
                                 mPostCount = mainData.getLong("postcount");
                                 mFollowerCount = mainData.getLong("followercount");
                                 mFollowingCount = mainData.getLong("followingcount");
+                                mHatsoffCount = mainData.getLong("hatsoffscount");
+                                mCommentsCount = mainData.getLong("commentscount");
+                                mCollaborationCount = mainData.getLong("collaborationscount");
                                 mEmail = mainData.getString("email");
                                 mContactNumber = mainData.getString("phone");
                                 mWaterMarkStatus = mainData.getString("watermarkstatus");
@@ -683,10 +693,14 @@ public class MeFragment extends Fragment {
                             }
 
                             //Set user activity stats
-                            /*textPostsCount.setText(String.valueOf(mPostCount));
-                            textFollowersCount.setText(String.valueOf(mFollowerCount));
-                            textFollowingCount.setText(String.valueOf(mFollowingCount));
-*/
+                            ((TextView) viewPagerUserStats.findViewWithTag(POSTS)).setText(String.valueOf(mPostCount));
+                            ((TextView) viewPagerUserStats.findViewWithTag(FOLLOWERS)).setText(String.valueOf(mFollowerCount));
+                            ((TextView) viewPagerUserStats.findViewWithTag(FOLLOWING)).setText(String.valueOf(mFollowingCount));
+                            ((TextView) viewPagerUserStats.findViewWithTag(HATSOFF)).setText(String.valueOf(mHatsoffCount));
+                            ((TextView) viewPagerUserStats.findViewWithTag(COMMENT)).setText(String.valueOf(mCommentsCount));
+                            ((TextView) viewPagerUserStats.findViewWithTag(COLLABORATIONS)).setText(String.valueOf(mCollaborationCount));
+
+
                             //If user bio present
                             if (mUserBio != null && !mUserBio.isEmpty() && !mUserBio.equals("null")) {
                                 textBio.setVisibility(View.VISIBLE);
@@ -834,12 +848,12 @@ public class MeFragment extends Fragment {
                                         //Increase count by one
                                         mFollowerCount += 1;
                                         //Set count
-                                        /*textFollowersCount.setText(String.valueOf(mFollowerCount));*/
+                                        ((TextView) viewPagerUserStats.findViewWithTag(FOLLOWERS)).setText(String.valueOf(mFollowerCount));
                                     } else {
                                         //Decrease count by one
                                         mFollowerCount -= 1;
                                         //Set count
-                                        /*textFollowersCount.setText(String.valueOf(mFollowerCount));*/
+                                        ((TextView) viewPagerUserStats.findViewWithTag(FOLLOWERS)).setText(String.valueOf(mFollowerCount));
                                     }
                                 }
                             }
@@ -1390,7 +1404,7 @@ public class MeFragment extends Fragment {
                                     ViewHelper.getSnackBar(rootView, "Item deleted");
                                     //Update user post count
                                     mPostCount -= 1;
-                                    /*textPostsCount.setText(String.valueOf(mPostCount));*/
+                                    ((TextView) viewPagerUserStats.findViewWithTag(POSTS)).setText(String.valueOf(mPostCount));
                                 }
                             }
                         } catch (JSONException e) {

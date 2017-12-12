@@ -149,4 +149,11 @@ public class Constant {
     public static final String FIREBASE_EVENT_SHARED_FROM_PROFILE = "shared_from_profile";
     public static final String FIREBASE_EVENT_RATE_US_CLICKED = "rate_us_clicked";
 
+
+    public enum GratitudeNumbers {
+        POSTS, FOLLOWERS, FOLLOWING,
+        HATSOFF, COMMENT, COLLABORATIONS
+    }
+
+
 }

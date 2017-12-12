@@ -36,7 +36,10 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
-                    android:padding="24dp">
+                    android:paddingLeft="24dp"
+                    android:paddingRight="24dp"
+                    android:paddingTop="24dp"
+                    android:paddingBottom="8dp">
 
                     <de.hdodenhof.circleimageview.CircleImageView
                         android:id="@+id/imageUser"
@@ -85,12 +88,18 @@
                     <com.thetestament.cread.utils.UserStatsViewPager
                         android:id="@+id/viewPagerUserStats"
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content" />
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="16dp"
+                        android:layout_marginBottom="4dp" />
 
                     <me.relex.circleindicator.CircleIndicator
                         android:id="@+id/indicator"
                         android:layout_width="match_parent"
-                        android:layout_height="48dp" />
+                        android:layout_height="24dp"
+                        app:ci_height="3dp"
+                        app:ci_width="3dp"
+                        app:ci_drawable="@drawable/active_dot"
+                        app:ci_drawable_unselected="@drawable/inactive_dot" />
 
 
                     <!--<LinearLayout
