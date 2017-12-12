@@ -84,6 +84,9 @@ dependencies {
     // debug database
     debugCompile "com.amitshekhar.android:debug-db:$rootProject.debugDBVersion"
 
+    // view pager dot indicator
+    compile 'me.relex:circleindicator:1.2.2@aar'
+
     //Code generator for view
     compile "com.jakewharton:butterknife:$rootProject.butterKnifeVersion"
     annotationProcessor "com.jakewharton:butterknife-compiler:$rootProject.butterKnifeVersion"

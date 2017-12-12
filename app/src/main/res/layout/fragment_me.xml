@@ -82,10 +82,16 @@
                         android:visibility="visible" />
 
 
-                    <android.support.v4.view.ViewPager
+                    <com.thetestament.cread.utils.UserStatsViewPager
                         android:id="@+id/viewPagerUserStats"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content" />
+
+                    <me.relex.circleindicator.CircleIndicator
+                        android:id="@+id/indicator"
+                        android:layout_width="match_parent"
+                        android:layout_height="48dp" />
+
 
                     <!--<LinearLayout
                         android:id="@+id/containerUserStats"

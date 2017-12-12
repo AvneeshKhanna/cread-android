@@ -16,11 +16,9 @@ public class UserStatsPagerAdapter extends PagerAdapter {
     private int[] layouts;
 
 
-    public UserStatsPagerAdapter(FragmentActivity mContext) {
+    public UserStatsPagerAdapter(FragmentActivity mContext, int[] layouts) {
         this.mContext = mContext;
-
-        layouts = new int[]{R.layout.user_stats_page1, R.layout.user_stats_page2};
-
+        this.layouts = layouts;
     }
 
 
@@ -28,7 +26,10 @@ public class UserStatsPagerAdapter extends PagerAdapter {
     @Override
     public Object instantiateItem(@NonNull ViewGroup container, int position) {
 
-        return LayoutInflater.from(mContext).inflate(layouts[position], container, false);
+        LayoutInflater layoutInflater = (LayoutInflater) mContext.getSystemService(mContext.LAYOUT_INFLATER_SERVICE);
+        View view = layoutInflater.inflate(layouts[position], container, false);
+        container.addView(view);
+        return view;
 
     }
 

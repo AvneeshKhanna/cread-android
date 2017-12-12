@@ -60,6 +60,7 @@ import com.thetestament.cread.helpers.SharedPreferenceHelper;
 import com.thetestament.cread.helpers.ViewHelper;
 import com.thetestament.cread.listeners.listener;
 import com.thetestament.cread.models.FeedModel;
+import com.thetestament.cread.utils.UserStatsViewPager;
 import com.yalantis.ucrop.UCrop;
 
 import org.json.JSONArray;
@@ -82,6 +83,7 @@ import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.observers.DisposableObserver;
 import io.reactivex.schedulers.Schedulers;
+import me.relex.circleindicator.CircleIndicator;
 import pl.tajchert.nammu.Nammu;
 import pl.tajchert.nammu.PermissionCallback;
 
@@ -137,7 +139,9 @@ public class MeFragment extends Fragment {
     @BindView(R.id.buttonFollow)
     TextView buttonFollow;
     @BindView(R.id.viewPagerUserStats)
-    ViewPager viewPagerUserStats;
+    UserStatsViewPager viewPagerUserStats;
+    @BindView(R.id.indicator)
+    CircleIndicator indicator;
     /*@BindView(R.id.textPostsCount)
     TextView textPostsCount;
     @BindView(R.id.textFollowersCount)
@@ -171,6 +175,7 @@ public class MeFragment extends Fragment {
     private SharedPreferenceHelper mHelper;
     private String mLastIndexKey;
     private boolean mRequestMoreData;
+    private int[] mLayouts;
 
 
     @Nullable
@@ -184,6 +189,7 @@ public class MeFragment extends Fragment {
         return inflater.inflate(R.layout.fragment_me
                 , container
                 , false);
+
     }
 
     @Override
@@ -524,10 +530,46 @@ public class MeFragment extends Fragment {
     }
 
     /**
+     * Method to initialize sliders for the view pager.
+     */
+    private void initSliders() {
+        mLayouts = new int[]{
+                R.layout.user_stats_page1,
+                R.layout.user_stats_page2
+        };
+    }
+
+    /**
+     * Method to add dots  and to change the color of dots
+     *
+     * @param currentPage mGravityFlag of current page i.e 0(zero)
+     */
+    /*private void addDots(int currentPage) {
+        TextView[] dots = new TextView[mLayouts.length];
+        int[] colorsActive = getResources().getIntArray(R.array.array_dot_active_main);
+        int[] colorsInactive = getResources().getIntArray(R.array.array_dot_inactive_main);
+
+        dotsLayout.removeAllViews();
+
+        for (int i = 0; i < dots.length; i++) {
+            dots[i] = new TextView(this);
+            dots[i].setText("\u2022");   //\u2022 for dots
+            dots[i].setTextSize(35);
+            dots[i].setTextColor(colorsInactive[currentPage]);
+            dotsLayout.addView(dots[i]);
+        }
+
+        if (dots.length > 0)
+            dots[currentPage].setTextColor(colorsActive[currentPage]);
+    }*/
+
+    /**
      * Method to intitialize view pager adapter
      */
     private void initUserStatsPager() {
-        viewPagerUserStats.setAdapter(new UserStatsPagerAdapter(getActivity()));
+        initSliders();
+        viewPagerUserStats.setAdapter(new UserStatsPagerAdapter(getActivity(), mLayouts));
+        indicator.setViewPager(viewPagerUserStats);
     }
 
     /**
