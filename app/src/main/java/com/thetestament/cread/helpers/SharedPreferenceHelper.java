@@ -367,6 +367,30 @@ public class SharedPreferenceHelper {
 
 
     /**
+     * Method to retrieve "Write button " tooltip status.
+     *
+     * @return True by default.
+     */
+    public boolean isGratitudeFirstTime() {
+        return mSharedPreferences
+                .getBoolean(mContext.getString(R.string.key_gratitude_scroll), true);
+    }
+
+
+    /**
+     * Method to update 'Write button' tooltip status.
+     *
+     * @param status boolean value i.e true or false
+     */
+    public void updateGratitudeScroll(boolean status) {
+        SharedPreferences.Editor editor = mSharedPreferences.edit();
+        editor.putBoolean(mContext.getString(R.string.key_gratitude_scroll), status);
+        editor.apply();
+    }
+
+
+
+    /**
      * Method to clear all key value pairs in cread shared preferences
      */
     public void clearSharedPreferences() {

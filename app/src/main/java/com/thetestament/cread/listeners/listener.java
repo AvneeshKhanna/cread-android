@@ -2,6 +2,7 @@ package com.thetestament.cread.listeners;
 
 import android.graphics.Bitmap;
 import android.graphics.Typeface;
+import android.widget.LinearLayout;
 
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.thetestament.cread.models.CommentsModel;
@@ -234,7 +235,12 @@ public class listener {
 
 
     public interface OnUserStatsClickedListener {
-        void onUserStatsClicked(GratitudeNumbers gratitudeNumbers);
+        void onUserStatsClicked(GratitudeNumbers gratitudeNumbers, LinearLayout view);
+    }
+
+
+    public interface OnCollaborationItemClickedListener {
+        void onItemClicked(String entityID);
     }
 
 }

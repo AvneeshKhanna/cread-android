@@ -30,7 +30,7 @@ android {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
             //buildConfigField "String", "URL", '"http://cread-dev-remote.herokuapp.com"'
-            buildConfigField "String", "URL", '"http://09d45de1.ngrok.io"'
+            buildConfigField "String", "URL", '"http://9a058f65.ngrok.io"'
             resValue "string", "RZP_KEY", "rzp_test_Q09427lQA9Ol5g"
             resValue "bool", "FIREBASE_ANALYTICS_ENABLED", "false"
             resValue "bool", "FIREBASE_CRASHLYTICS_ENABLED", "false"
@@ -86,6 +86,8 @@ dependencies {
 
     // view pager dot indicator
     compile 'me.relex:circleindicator:1.2.2@aar'
+
+    compile 'com.github.takusemba:multisnaprecyclerview:1.1.1'
 
     //Code generator for view
     compile "com.jakewharton:butterknife:$rootProject.butterKnifeVersion"

@@ -5,6 +5,9 @@
     <color name="colorPrimaryDark">#E53935</color>
     <color name="colorAccent">#F44336</color>
 
+    // for tooltip
+    <color name="colorToolTip">#CCF44336</color>
+
     //White variant
     <color name="white">#FFFFFF</color>
     <color name="dark_white">#D5D5D5</color>

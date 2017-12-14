@@ -13,8 +13,11 @@ import android.widget.TextView;
 import com.squareup.picasso.Picasso;
 import com.thetestament.cread.R;
 import com.thetestament.cread.activities.ProfileActivity;
+import com.thetestament.cread.listeners.listener;
 import com.thetestament.cread.listeners.listener.OnCollaborationDetailsLoadMoreListener;
+import com.thetestament.cread.listeners.listener.OnCollaborationItemClickedListener;
 import com.thetestament.cread.models.CollaborationDetailsModel;
+import com.thetestament.cread.utils.SquareView;
 
 import java.util.List;
 
@@ -34,6 +37,7 @@ public class CollaborationDetailsAdapter extends RecyclerView.Adapter<Collaborat
     private boolean mIsLoading;
 
     private OnCollaborationDetailsLoadMoreListener loadMoreListener;
+    private OnCollaborationItemClickedListener onCollaborationItemClickedListener;
 
     /**
      * Required constructor.
@@ -54,6 +58,11 @@ public class CollaborationDetailsAdapter extends RecyclerView.Adapter<Collaborat
         this.loadMoreListener = loadMoreListener;
     }
 
+
+    public void setCollaborationitemClickedListener(OnCollaborationItemClickedListener onCollaborationItemClickedListener) {
+        this.onCollaborationItemClickedListener = onCollaborationItemClickedListener;
+    }
+
     @Override
     public CollaborationDetailsAdapter.ItemViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         return new ItemViewHolder(LayoutInflater
@@ -72,6 +81,9 @@ public class CollaborationDetailsAdapter extends RecyclerView.Adapter<Collaborat
         loadContentImage(data.getEntityUrl(), holder.imageCollaboration);
         //Click functionality to launch profile of creator
         openCreatorProfile(holder.containerCreator, data.getUuid());
+
+        // init click listener
+        initItemClick(holder.entityImage, data.getEntityID());
 
         //If last item is visible to user and new set of data is to yet to be loaded
         if (position == mCollaborationList.size() - 1 && !mIsLoading) {
@@ -122,6 +134,17 @@ public class CollaborationDetailsAdapter extends RecyclerView.Adapter<Collaborat
                 .into(imageView);
     }
 
+
+    private void initItemClick(View view, final String entityID) {
+        view.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                onCollaborationItemClickedListener.onItemClicked(entityID);
+            }
+        });
+    }
+
     /**
      * Method to open creator profile.
      *
@@ -149,6 +172,8 @@ public class CollaborationDetailsAdapter extends RecyclerView.Adapter<Collaborat
         TextView textCreatorName;
         @BindView(R.id.imageCollaboration)
         ImageView imageCollaboration;
+        @BindView(R.id.imageContainer)
+        SquareView entityImage;
 
         public ItemViewHolder(View itemView) {
             super(itemView);

@@ -52,6 +52,7 @@ import com.thetestament.cread.activities.UpdateProfileDetailsActivity;
 import com.thetestament.cread.activities.UpdateProfileImageActivity;
 import com.thetestament.cread.adapters.MeAdapter;
 import com.thetestament.cread.adapters.UserStatsPagerAdapter;
+import com.thetestament.cread.helpers.FeedHelper;
 import com.thetestament.cread.helpers.HatsOffHelper;
 import com.thetestament.cread.helpers.ImageHelper;
 import com.thetestament.cread.helpers.NetworkHelper;
@@ -91,6 +92,7 @@ import pl.tajchert.nammu.PermissionCallback;
 
 import static android.app.Activity.RESULT_OK;
 import static com.thetestament.cread.helpers.FeedHelper.generateDeepLink;
+import static com.thetestament.cread.helpers.FeedHelper.isMultiple;
 import static com.thetestament.cread.helpers.ImageHelper.getImageUri;
 import static com.thetestament.cread.helpers.ImageHelper.getLocalBitmapUri;
 import static com.thetestament.cread.helpers.NetworkHelper.getNetConnectionStatus;
@@ -565,7 +567,7 @@ public class MeFragment extends Fragment {
     private void initUserStatsClickedListener(UserStatsPagerAdapter userStatsPagerAdapter) {
         userStatsPagerAdapter.setUserStatsClickedListener(new OnUserStatsClickedListener() {
             @Override
-            public void onUserStatsClicked(GratitudeNumbers gratitudeNumbers) {
+            public void onUserStatsClicked(GratitudeNumbers gratitudeNumbers, LinearLayout view) {
 
                 switch (gratitudeNumbers) {
                     case FOLLOWERS:
@@ -573,6 +575,47 @@ public class MeFragment extends Fragment {
                         break;
                     case FOLLOWING:
                         onFollowingContainerClicked();
+                        break;
+                    case HATSOFF:
+
+                        String hatsOffTooltip = isCountZero(mHatsoffCount)
+                                ? "No hats off yet"
+                                : mFirstName
+                                + " has received a total of "
+                                + mHatsoffCount
+                                + " hats off on their posts";
+
+                        ViewHelper
+                                .getToolTip(view
+                                        , hatsOffTooltip
+                                        , getActivity());
+                        break;
+
+                    case COMMENT:
+                        String commentTooltip = isCountZero(mCommentsCount)
+                                ? "No comments yet"
+                                : mFirstName
+                                + " has received a total of "
+                                + mCommentsCount
+                                + " comments on their posts";
+                        ViewHelper
+                                .getToolTip(view
+                                        , commentTooltip
+                                        , getActivity());
+                        break;
+
+                    case COLLABORATIONS:
+                        String collaborationsTooltip = isCountZero(mCollaborationCount)
+                                ? "No collaborations yet"
+                                : mCollaborationCount
+                                + " posts have been created by others using "
+                                + mFirstName
+                                + "'s"
+                                + " posts";
+                        ViewHelper
+                                .getToolTip(view
+                                        , collaborationsTooltip
+                                        , getActivity());
                         break;
                 }
             }
@@ -700,7 +743,6 @@ public class MeFragment extends Fragment {
                             ((TextView) viewPagerUserStats.findViewWithTag(COMMENT)).setText(String.valueOf(mCommentsCount));
                             ((TextView) viewPagerUserStats.findViewWithTag(COLLABORATIONS)).setText(String.valueOf(mCollaborationCount));
 
-
                             //If user bio present
                             if (mUserBio != null && !mUserBio.isEmpty() && !mUserBio.equals("null")) {
                                 textBio.setVisibility(View.VISIBLE);
@@ -717,6 +759,13 @@ public class MeFragment extends Fragment {
                             //Toggle follow button
                             toggleFollowButton(mFollowStatus, getActivity());
                             appBarLayout.setVisibility(View.VISIBLE);
+
+                            // check if screen open for first time
+                            if (mHelper.isGratitudeFirstTime()) {
+
+                                // scroll to gratitude page
+                                startGratitudeScroll();
+                            }
                         }
                     }
                 })
@@ -1726,5 +1775,21 @@ public class MeFragment extends Fragment {
         intent.setType("image/*");
         intent.putExtra(Intent.EXTRA_STREAM, getLocalBitmapUri(bitmap, getActivity()));
         startActivity(Intent.createChooser(intent, "Share"));
+    }
+
+    private void startGratitudeScroll() {
+        new Handler().postDelayed(new Runnable() {
+            @Override
+            public void run() {
+
+                viewPagerUserStats.setCurrentItem(1);
+                mHelper.updateGratitudeScroll(false);
+            }
+        }, 2000);
+    }
+
+
+    public static boolean isCountZero(long count) {
+        return count == 0;
     }
 }

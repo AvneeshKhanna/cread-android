@@ -10,6 +10,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.thetestament.cread.R;
+import com.thetestament.cread.helpers.ViewHelper;
 import com.thetestament.cread.listeners.listener;
 import com.thetestament.cread.listeners.listener.OnUserStatsClickedListener;
 import com.thetestament.cread.utils.Constant;
@@ -82,12 +83,12 @@ public class UserStatsPagerAdapter extends PagerAdapter {
         switch (position) {
             case 0:
                 // set click listener
-                LinearLayout containerPosts = view.findViewById(R.id.containerPosts);
+                final LinearLayout containerPosts = view.findViewById(R.id.containerPosts);
                 containerPosts.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
 
-                        onUserStatsClickedListener.onUserStatsClicked(POSTS);
+                        onUserStatsClickedListener.onUserStatsClicked(POSTS, containerPosts);
                     }
                 });
                 // set tag
@@ -95,12 +96,12 @@ public class UserStatsPagerAdapter extends PagerAdapter {
                 postsCount.setTag(POSTS);
 
                 // set click listener
-                LinearLayout containerFollowers = view.findViewById(R.id.containerFollowers);
+                final LinearLayout containerFollowers = view.findViewById(R.id.containerFollowers);
                 containerFollowers.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
 
-                        onUserStatsClickedListener.onUserStatsClicked(FOLLOWERS);
+                        onUserStatsClickedListener.onUserStatsClicked(FOLLOWERS, containerFollowers);
                     }
                 });
                 // set tag
@@ -108,11 +109,11 @@ public class UserStatsPagerAdapter extends PagerAdapter {
                 followersCount.setTag(FOLLOWERS);
 
                 // set click listener
-                LinearLayout containerFollowing = view.findViewById(R.id.containerFollowing);
+                final LinearLayout containerFollowing = view.findViewById(R.id.containerFollowing);
                 containerFollowing.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        onUserStatsClickedListener.onUserStatsClicked(FOLLOWING);
+                        onUserStatsClickedListener.onUserStatsClicked(FOLLOWING, containerFollowing);
                     }
                 });
                 // set tag
@@ -122,12 +123,40 @@ public class UserStatsPagerAdapter extends PagerAdapter {
 
 
             case 1:
+                //set click listener
+                final LinearLayout containerHatsOff = view.findViewById(R.id.containerHatsOff);
+                containerHatsOff.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        onUserStatsClickedListener.onUserStatsClicked(HATSOFF, containerHatsOff);
+                    }
+                });
                 // set tag for hatsoff
                 TextView hatsoffCount = view.findViewById(R.id.textHatsOffCount);
                 hatsoffCount.setTag(HATSOFF);
+
+                // click listener
+                final LinearLayout containerComments = view.findViewById(R.id.containerComments);
+                containerComments.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+
+                        onUserStatsClickedListener.onUserStatsClicked(COMMENT, containerComments);
+                    }
+                });
                 // set tag for comments
                 TextView commentsCount = view.findViewById(R.id.textCommentsCount);
                 commentsCount.setTag(COMMENT);
+
+                // click listener
+                final LinearLayout containerCollaborations = view.findViewById(R.id.containerCollaborations);
+                containerCollaborations.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+
+                        onUserStatsClickedListener.onUserStatsClicked(COLLABORATIONS, containerCollaborations);
+                    }
+                });
                 // set tag for collaborations
                 TextView collaborationsCount = view.findViewById(R.id.textCollaborationsCount);
                 collaborationsCount.setTag(COLLABORATIONS);
