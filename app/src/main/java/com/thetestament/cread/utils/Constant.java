@@ -24,6 +24,7 @@ public class Constant {
     public static final String TAG_ME_FRAGMENT = "TagMeFragment";
     public static final String TAG_UPDATES_FRAGMENT = "TagUpdatesFragment";
     public static final String TAG_ROYALTIES_FRAGMENT = "TagRoyaltiesFragment";
+    public static final String TAG_HASH_TAG_DETAILS_FRAGMENT = "TagRoyaltiesFragment";
 
     //Content Types
     public static final String CONTENT_TYPE_SHORT = "SHORT";
@@ -131,6 +132,10 @@ public class Constant {
     public static final String NOTIFICATION_BUNDLE_DATA_OTHER_COLLABORATOR = "otherCollaborator";
 
 
+    // bundle data key for hashtag
+    public static final String BUNDLE_HASHTAG_NAME = "hashTagName";
+
+
     //Firebase event types
     public static final String FIREBASE_EVENT_HAVE_CLICKED = "have_clicked";
     public static final String FIREBASE_EVENT_BUY_CLICKED = "buy_clicked";
@@ -154,6 +159,8 @@ public class Constant {
         POSTS, FOLLOWERS, FOLLOWING,
         HATSOFF, COMMENT, COLLABORATIONS
     }
+
+    public static final String URI_HASH_TAG_ACTIVITY = "content://com.thetestament.cread.hashtagdetailsactivity/";
 
 
 }

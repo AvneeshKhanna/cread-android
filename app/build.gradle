@@ -30,7 +30,7 @@ android {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
             //buildConfigField "String", "URL", '"http://cread-dev-remote.herokuapp.com"'
-            buildConfigField "String", "URL", '"http://9a058f65.ngrok.io"'
+            buildConfigField "String", "URL", '"http://09dc2af3.ngrok.io"'
             resValue "string", "RZP_KEY", "rzp_test_Q09427lQA9Ol5g"
             resValue "bool", "FIREBASE_ANALYTICS_ENABLED", "false"
             resValue "bool", "FIREBASE_CRASHLYTICS_ENABLED", "false"
@@ -39,6 +39,7 @@ android {
 }
 
 dependencies {
+    implementation 'com.android.support.constraint:constraint-layout:1.0.2'
     compile fileTree(dir: 'libs', include: ['*.jar'])
     androidTestCompile('com.android.support.test.espresso:espresso-core:2.2.2', {
         exclude group: 'com.android.support', module: 'support-annotations'

@@ -19,7 +19,6 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-
         <provider
             android:name="android.support.v4.content.FileProvider"
             android:authorities="${applicationId}.provider"
@@ -29,6 +28,10 @@
                 android:name="android.support.FILE_PROVIDER_PATHS"
                 android:resource="@xml/provider_paths" />
         </provider>
+
+        <provider
+            android:name="com.thetestament.cread.contentproviders.HashTagProvider"
+            android:authorities="com.thetestament.cread.hashtagdetailsactivity" />
 
         <!-- For facebook sdk start -->
 
@@ -75,6 +78,7 @@
             android:theme="@style/Theme.AppCompat.Light.NoActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
             <intent-filter>
@@ -319,7 +323,7 @@
                 android:value=".activities.BottomNavigationActivity" />
         </activity>
 
-        <!--For CashInActivity-->
+        <!-- For CashInActivity -->
         <activity
             android:name=".activities.CashInActivity"
             android:label="Cash In"
@@ -328,7 +332,18 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".activities.RoyaltiesActivity" />
         </activity>
-
+        <activity android:name=".activities.HashTagDetailsActivity">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".activities.FeedDescriptionActivity" />
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <data
+                    android:mimeType="vnd.android.cursor.item/vnd.cc.tag"
+                    android:scheme="content" />
+            </intent-filter>
+        </activity>
     </application>
 
 </manifest>

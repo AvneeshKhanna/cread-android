@@ -12,9 +12,15 @@ import android.support.design.widget.CoordinatorLayout;
 import android.support.v13.view.ViewCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.widget.NestedScrollView;
+import android.support.v4.widget.TextViewCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.text.Spannable;
+import android.text.SpannableString;
+import android.text.TextPaint;
+import android.text.style.URLSpan;
+import android.text.util.Linkify;
 import android.util.Log;
 import android.view.View;
 import android.view.animation.AnimationUtils;
@@ -51,6 +57,7 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Pattern;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -90,6 +97,7 @@ import static com.thetestament.cread.utils.Constant.FIREBASE_EVENT_WRITE_CLICKED
 import static com.thetestament.cread.utils.Constant.IMAGE_TYPE_USER_CAPTURE_PIC;
 import static com.thetestament.cread.utils.Constant.REQUEST_CODE_COMMENTS_ACTIVITY;
 import static com.thetestament.cread.utils.Constant.REQUEST_CODE_OPEN_GALLERY;
+import static com.thetestament.cread.utils.Constant.URI_HASH_TAG_ACTIVITY;
 
 /**
  * Class to show detailed information of explore/feed item.
@@ -104,10 +112,18 @@ public class FeedDescriptionActivity extends BaseActivity {
     TextView textCreatorName;
     @BindView(R.id.contentImage)
     ImageView image;
+    @BindView(R.id.containerCommentsCount)
+    LinearLayout containerCommentsCount;
+    @BindView(R.id.containerHatsoffCount)
+    LinearLayout containerHatsoffCount;
+    @BindView(R.id.containerCollabCount)
+    LinearLayout containerCollabCount;
     @BindView(R.id.textHatsOffCount)
-    TextView textHatsOffCount;
+    TextView textHatsoffCount;
     @BindView(R.id.textCommentsCount)
     TextView textCommentsCount;
+    @BindView(R.id.textCollabCount)
+    TextView textCollabCount;
     @BindView(R.id.imageHatsOff)
     ImageView imageHatsOff;
     @BindView(R.id.recyclerView)
@@ -124,10 +140,13 @@ public class FeedDescriptionActivity extends BaseActivity {
     View lineSeparatorBottom;
     @BindView(R.id.nestedScrollView)
     NestedScrollView nestedScrollView;
-    @BindView(R.id.collabCount)
-    TextView collabCount;
     @BindView(R.id.buttonCollaborate)
     TextView buttonCollaborate;
+    @BindView(R.id.textTitle)
+    TextView textTitle;
+    @BindView(R.id.dotSeperator)
+    TextView dotSeperator;
+
 
 
     private SharedPreferenceHelper mHelper;
@@ -220,11 +239,23 @@ public class FeedDescriptionActivity extends BaseActivity {
     /**
      * HatsOffCount click functionality to open "HatsOffActivity" screen.
      */
-    @OnClick(R.id.textHatsOffCount)
+    @OnClick(R.id.containerHatsoffCount)
     void hatsOffCountOnClick() {
         Intent intent = new Intent(this, HatsOffActivity.class);
         intent.putExtra(EXTRA_ENTITY_ID, mFeedData.getEntityID());
         startActivity(intent);
+    }
+
+
+    @OnClick(R.id.textTitle)
+    void onTitleClicked() {
+        if (TextViewCompat.getMaxLines(textTitle) == 2) {
+            // expand title
+            textTitle.setMaxLines(Integer.MAX_VALUE);
+        } else {
+            // collapse title
+            textTitle.setMaxLines(2);
+        }
     }
 
     /**
@@ -255,7 +286,7 @@ public class FeedDescriptionActivity extends BaseActivity {
     /**
      * Click functionality to open "CommentsActivity" screen.
      */
-    @OnClick({R.id.containerComment, R.id.textShowComments, R.id.textCommentsCount})
+    @OnClick({R.id.containerComment, R.id.textShowComments, R.id.containerCommentsCount})
     void onCommentsClicked() {
         Intent intent = new Intent(this, CommentsActivity.class);
         intent.putExtra(EXTRA_ENTITY_ID, mFeedData.getEntityID());
@@ -265,7 +296,7 @@ public class FeedDescriptionActivity extends BaseActivity {
     /**
      * HatsOff onClick functionality.
      */
-    @OnClick(R.id.imageHatsOff)
+    @OnClick(R.id.containerHatsOff)
     void onContainerHatsOffClicked() {
         // check net status
         if (NetworkHelper.getNetConnectionStatus(FeedDescriptionActivity.this)) {
@@ -281,13 +312,13 @@ public class FeedDescriptionActivity extends BaseActivity {
                 mFeedData.setHatsOffCount(mFeedData.getHatsOffCount() - 1);
                 //If hats off count is zero
                 if (mFeedData.getHatsOffCount() < 1) {
-                    textHatsOffCount.setVisibility(View.GONE);
+                    containerHatsoffCount.setVisibility(View.GONE);
                 }
                 //hats off count is more than zero
                 else {
                     //Change hatsOffCount i.e decrease by one
-                    textHatsOffCount.setVisibility(View.VISIBLE);
-                    textHatsOffCount.setText(String.valueOf(mFeedData.getHatsOffCount()));
+                    containerHatsoffCount.setVisibility(View.VISIBLE);
+                    textHatsoffCount.setText(String.valueOf(mFeedData.getHatsOffCount()));
                 }
 
             } else {
@@ -300,9 +331,11 @@ public class FeedDescriptionActivity extends BaseActivity {
                 //Update hatsOffCount
                 mFeedData.setHatsOffCount(mFeedData.getHatsOffCount() + 1);
                 //Change hatsOffCount i.e increase by one
-                textHatsOffCount.setVisibility(View.VISIBLE);
-                textHatsOffCount.setText(String.valueOf(mFeedData.getHatsOffCount()));
+                containerHatsoffCount.setVisibility(View.VISIBLE);
+                textHatsoffCount.setText(String.valueOf(mFeedData.getHatsOffCount()));
             }
+
+            updateDotSeperatorVisibility();
             //update hats off status on server
             updateHatsOffStatus();
 
@@ -352,16 +385,12 @@ public class FeedDescriptionActivity extends BaseActivity {
         });
     }
 
-    /**
+    /*
      * Collaboration count click functionality to launch collaborationDetailsActivity.
      *
-     * @param textView View to be clicked.
      */
-    @OnClick(R.id.collabCount)
-    void collaborationCountOnClick(TextView textView) {
-        textView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
+    @OnClick(R.id.containerCollabCount)
+    void collaborationCountOnClick() {
 
                 Bundle bundle = new Bundle();
                 bundle.putString(EXTRA_ENTITY_ID, mFeedData.getEntityID());
@@ -370,8 +399,6 @@ public class FeedDescriptionActivity extends BaseActivity {
                 Intent intent = new Intent(FeedDescriptionActivity.this, CollaborationDetailsActivity.class);
                 intent.putExtra(EXTRA_DATA, bundle);
                 startActivity(intent);
-            }
-        });
     }
 
 
@@ -402,14 +429,34 @@ public class FeedDescriptionActivity extends BaseActivity {
         Log.d("TAG", "retrieveIntentData: " + mItemPosition);
         performContentTypeSpecificOperations();
 
+        // set caption if it exists
+        // else hide the caption view
+        if (mFeedData.getCaption() != null) {
+            textTitle.setVisibility(View.VISIBLE);
+            textTitle.setText(mFeedData.getCaption());
+
+            textTitle.setLinkTextColor(ContextCompat.getColor(mContext, R.color.com_facebook_blue));
+            //Pattern to find if there's a hash tag in the message
+            //i.e. any word starting with a # and containing letter or numbers or _
+            Pattern tagMatcher = Pattern.compile("\\#\\w+", Pattern.CASE_INSENSITIVE);
+            // attach linkify to text view for click action of hash tags
+            Linkify.addLinks(textTitle, tagMatcher, URI_HASH_TAG_ACTIVITY);
+            // to remove underlines from the hashtag links
+            stripUnderlines();
+        } else {
+            textTitle.setVisibility(View.GONE);
+        }
+
+        // update dot visibility
+        updateDotSeperatorVisibility();
 
         //Check for hats of count
         if (mFeedData.getHatsOffCount() > 0) {
             //Set hatsOff count
-            textHatsOffCount.setText(String.valueOf(mFeedData.getHatsOffCount()));
+            textHatsoffCount.setText(String.valueOf(mFeedData.getHatsOffCount()));
         } else {
             //Hide hatsOff count textView
-            textHatsOffCount.setVisibility(View.GONE);
+            containerHatsoffCount.setVisibility(View.GONE);
         }
 
         //Check for comment count
@@ -419,7 +466,7 @@ public class FeedDescriptionActivity extends BaseActivity {
             //load comments
             getTopComments(mFeedData.getEntityID());
         } else {
-            textCommentsCount.setVisibility(View.GONE);
+            containerCommentsCount.setVisibility(View.GONE);
             showAllComments.setVisibility(View.GONE);
         }
 
@@ -633,11 +680,11 @@ public class FeedDescriptionActivity extends BaseActivity {
 
                 // set collab count text
                 if (mFeedData.getCollabCount() != 0) {
-                    collabCount.setText(getCollabCountText(mContext, mFeedData.getCollabCount(), mFeedData.getContentType()));
-                    collabCount.setVisibility(View.VISIBLE);
+                    textCollabCount.setText(String.valueOf(mFeedData.getCollabCount()));
+                    containerCollabCount.setVisibility(View.VISIBLE);
 
                 } else {
-                    collabCount.setVisibility(View.GONE);
+                    containerCollabCount.setVisibility(View.GONE);
                 }
 
                 if (mFeedData.isAvailableForCollab()) {
@@ -688,10 +735,10 @@ public class FeedDescriptionActivity extends BaseActivity {
 
                 // set collab count text
                 if (mFeedData.getCollabCount() != 0) {
-                    collabCount.setText(getCollabCountText(mContext, mFeedData.getCollabCount(), mFeedData.getContentType()));
-                    collabCount.setVisibility(View.VISIBLE);
+                    textCollabCount.setText(String.valueOf(mFeedData.getCollabCount()));
+                    containerCollabCount.setVisibility(View.VISIBLE);
                 } else {
-                    collabCount.setVisibility(View.GONE);
+                    containerCollabCount.setVisibility(View.GONE);
                 }
 
                 // check if available for collab
@@ -981,8 +1028,8 @@ public class FeedDescriptionActivity extends BaseActivity {
             //Update hatsOffCount
             mFeedData.setHatsOffCount(mFeedData.getHatsOffCount() + 1);
             //Set visibility on and set hatsOff count
-            textHatsOffCount.setVisibility(View.VISIBLE);
-            textHatsOffCount.setText(String.valueOf(mFeedData.getHatsOffCount()));
+            containerHatsoffCount.setVisibility(View.VISIBLE);
+            textHatsoffCount.setText(String.valueOf(mFeedData.getHatsOffCount()));
 
 
         } else {
@@ -990,14 +1037,16 @@ public class FeedDescriptionActivity extends BaseActivity {
             mFeedData.setHatsOffCount(mFeedData.getHatsOffCount() - 1);
             //If hats off count is zero
             if (mFeedData.getHatsOffCount() < 1) {
-                textHatsOffCount.setVisibility(View.GONE);
+                containerHatsoffCount.setVisibility(View.GONE);
             }
             //hats off count is more than zero
             else {
-                textHatsOffCount.setVisibility(View.VISIBLE);
-                textHatsOffCount.setText(String.valueOf(mFeedData.getHatsOffCount()));
+                containerHatsoffCount.setVisibility(View.VISIBLE);
+                textHatsoffCount.setText(String.valueOf(mFeedData.getHatsOffCount()));
             }
         }
+
+        updateDotSeperatorVisibility();
     }
 
     /**
@@ -1028,5 +1077,53 @@ public class FeedDescriptionActivity extends BaseActivity {
         intent.setType("image/*");
         intent.putExtra(Intent.EXTRA_STREAM, getLocalBitmapUri(bitmap, FeedDescriptionActivity.this));
         startActivity(Intent.createChooser(intent, "Share"));
+    }
+
+    /**
+     * Updates the visibility of the dot seperator
+     * based on the values of hatsoff and comment ount
+     */
+    private void updateDotSeperatorVisibility() {
+        long hatsoffCount = mFeedData.getHatsOffCount();
+        long commentCount = mFeedData.getCommentCount();
+
+        // if one or both the counts are zero remove the dot
+        if ((hatsoffCount == 0 && commentCount == 0)
+                || (hatsoffCount != 0 && commentCount == 0)
+                || (hatsoffCount == 0 && commentCount != 0)) {
+            dotSeperator.setVisibility(View.GONE);
+        }
+        // both are non-zero so show the dot
+        else if (hatsoffCount != 0 && commentCount != 0) {
+            dotSeperator.setVisibility(View.VISIBLE);
+        }
+    }
+
+    /**
+     * Removes the underline of the spannable texts
+     */
+    private void stripUnderlines() {
+        Spannable s = new SpannableString(textTitle.getText());
+        URLSpan[] spans = s.getSpans(0, s.length(), URLSpan.class);
+        for (URLSpan span : spans) {
+            int start = s.getSpanStart(span);
+            int end = s.getSpanEnd(span);
+            s.removeSpan(span);
+            span = new URLSpanNoUnderline(span.getURL());
+            s.setSpan(span, start, end, 0);
+        }
+        textTitle.setText(s);
+    }
+
+    private class URLSpanNoUnderline extends URLSpan {
+        public URLSpanNoUnderline(String url) {
+            super(url);
+        }
+
+        @Override
+        public void updateDrawState(TextPaint ds) {
+            super.updateDrawState(ds);
+            ds.setUnderlineText(false);
+        }
     }
 }

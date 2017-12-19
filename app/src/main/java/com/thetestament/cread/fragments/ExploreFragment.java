@@ -323,6 +323,11 @@ public class ExploreFragment extends Fragment {
                                     exploreData.setCommentCount(dataObj.getLong("commentcount"));
                                     exploreData.setContentImage(dataObj.getString("entityurl"));
                                     exploreData.setCollabCount(dataObj.getLong("collabcount"));
+                                    if (dataObj.isNull("caption")) {
+                                        exploreData.setCaption(null);
+                                    } else {
+                                        exploreData.setCaption(dataObj.getString("caption"));
+                                    }
 
 
                                     if (type.equals(CONTENT_TYPE_CAPTURE)) {
@@ -452,6 +457,11 @@ public class ExploreFragment extends Fragment {
                                     exploreData.setCommentCount(dataObj.getLong("commentcount"));
                                     exploreData.setContentImage(dataObj.getString("entityurl"));
                                     exploreData.setCollabCount(dataObj.getLong("collabcount"));
+                                    if (dataObj.isNull("caption")) {
+                                        exploreData.setCaption(null);
+                                    } else {
+                                        exploreData.setCaption(dataObj.getString("caption"));
+                                    }
 
 
                                     if (type.equals(CONTENT_TYPE_CAPTURE)) {

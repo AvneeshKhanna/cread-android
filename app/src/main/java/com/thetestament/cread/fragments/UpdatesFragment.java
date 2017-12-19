@@ -370,6 +370,11 @@ public class UpdatesFragment extends Fragment {
                                     feedData.setCommentCount(dataObj.getLong("commentcount"));
                                     feedData.setContentImage(dataObj.getString("entityurl"));
                                     feedData.setCollabCount(dataObj.getLong("collabcount"));
+                                    if (dataObj.isNull("caption")) {
+                                        feedData.setCaption(null);
+                                    } else {
+                                        feedData.setCaption(dataObj.getString("caption"));
+                                    }
 
                                     if (type.equals(CONTENT_TYPE_CAPTURE)) {
 

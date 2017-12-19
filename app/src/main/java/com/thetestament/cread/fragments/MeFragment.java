@@ -1023,6 +1023,11 @@ public class MeFragment extends Fragment {
                                     data.setCommentCount(dataObj.getLong("commentcount"));
                                     data.setContentImage(dataObj.getString("entityurl"));
                                     data.setCollabCount(dataObj.getLong("collabcount"));
+                                    if (dataObj.isNull("caption")) {
+                                        data.setCaption(null);
+                                    } else {
+                                        data.setCaption(dataObj.getString("caption"));
+                                    }
 
                                     if (type.equals(CONTENT_TYPE_CAPTURE)) {
 
@@ -1193,6 +1198,11 @@ public class MeFragment extends Fragment {
                                     data.setCommentCount(dataObj.getLong("commentcount"));
                                     data.setContentImage(dataObj.getString("entityurl"));
                                     data.setCollabCount(dataObj.getLong("collabcount"));
+                                    if (dataObj.isNull("caption")) {
+                                        data.setCaption(null);
+                                    } else {
+                                        data.setCaption(dataObj.getString("caption"));
+                                    }
 
 
                                     if (type.equals(CONTENT_TYPE_CAPTURE)) {
