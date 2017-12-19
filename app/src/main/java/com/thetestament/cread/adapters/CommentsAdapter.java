@@ -131,7 +131,7 @@ public class CommentsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                     @Override
                     public void onClick(View view) {
                         //Show dialog with options
-                        getBottomSheetDialog(position, data);
+                        getBottomSheetDialog(itemViewHolder.getAdapterPosition(), data);
                     }
                 });
             }

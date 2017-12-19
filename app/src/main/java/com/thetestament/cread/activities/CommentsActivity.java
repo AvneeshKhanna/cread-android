@@ -664,7 +664,7 @@ public class CommentsActivity extends BaseActivity {
                                 JSONObject dataObject = response.getJSONObject("data");
                                 if (dataObject.getString("status").equals("done")) {
                                     //Remove item from list
-                                    mCommentsList.remove(itemIndex);
+                                    mCommentsList.remove(itemIndex - 1);
                                     //Update adapter
                                     mAdapter.notifyItemRemoved(itemIndex);
                                     //set result ok
