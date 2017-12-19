@@ -19,6 +19,12 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
+
+        <!--Search suggestion provider-->
+        <!--<provider
+            android:name=".providers.SearchSuggestionProvider"
+            android:authorities="com.thetestament.cread.providers.SearchSuggestionProvider" />-->
+
         <provider
             android:name="android.support.v4.content.FileProvider"
             android:authorities="${applicationId}.provider"
@@ -78,7 +84,6 @@
             android:theme="@style/Theme.AppCompat.Light.NoActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
             <intent-filter>
@@ -344,6 +349,40 @@
                     android:scheme="content" />
             </intent-filter>
         </activity>
+
+        <!--SearchActivity-->
+        <activity
+            android:name=".activities.SearchActivity"
+            android:label="Search"
+            android:launchMode="singleTop"
+            android:screenOrientation="portrait"
+            android:theme="@style/SearchActivityTheme">
+            <!--Default search activity-->
+            <intent-filter>
+                <action android:name="android.intent.action.SEARCH" />
+            </intent-filter>
+            <!--Use android system framework-->
+            <meta-data
+                android:name="android.app.searchable"
+                android:resource="@xml/searchable" />
+            <!--For back navigation-->
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".activities.BottomNavigationActivity" />
+        </activity>
+
+        <!--Preview Screen-->
+        <activity
+            android:name=".activities.PreviewActivity"
+            android:label="Preview"
+            android:screenOrientation="portrait">
+            <!--For back navigation-->
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".activities.BottomNavigationActivity" />
+        </activity>
+
+
     </application>
 
 </manifest>

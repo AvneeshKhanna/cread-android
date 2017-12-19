@@ -30,7 +30,7 @@ android {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
             //buildConfigField "String", "URL", '"http://cread-dev-remote.herokuapp.com"'
-            buildConfigField "String", "URL", '"http://09dc2af3.ngrok.io"'
+            buildConfigField "String", "URL", '"https://09dc2af3.ngrok.io"'
             resValue "string", "RZP_KEY", "rzp_test_Q09427lQA9Ol5g"
             resValue "bool", "FIREBASE_ANALYTICS_ENABLED", "false"
             resValue "bool", "FIREBASE_CRASHLYTICS_ENABLED", "false"
@@ -125,8 +125,8 @@ dependencies {
     compile 'com.razorpay:checkout:1.4.1'
 
     // notification badge
-    compile 'com.mikepenz:actionitembadge:3.3.2@aar'
-    compile "com.mikepenz:iconics-core:2.9.5@aar"
+    implementation 'com.mikepenz:actionitembadge:3.3.2@aar'
+    implementation "com.mikepenz:iconics-core:2.9.5@aar"
     // dependencies for local unit tests
     testCompile "junit:junit:$rootProject.ext.junitVersion"
 }

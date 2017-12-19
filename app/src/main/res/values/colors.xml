@@ -18,6 +18,8 @@
     <color name="grey_custom">#a8a8a8</color>
     <color name="grey_light">#f0efef</color>
 
+    //Blue color variant
+    <color name="blue">#2979FF</color>
     //Black variant
     <color name="black_dark">#010101</color>
     <color name="black_overlay">#66000000</color>

@@ -4,53 +4,83 @@
     android:id="@+id/rootView"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/black_defined">
+    tools:context=".activities.CapturePreviewActivity">
 
-    <com.thetestament.cread.utils.SquareView
-        android:id="@+id/imageContainer"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:background="@color/yellow_light">
+    <android.support.v4.widget.NestedScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
 
-        <ImageView
-            android:id="@+id/imageCapture"
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:scaleType="centerCrop" />
+            android:orientation="vertical">
 
-        <View
-            android:id="@+id/lineSeparator"
-            android:layout_width="match_parent"
-            android:layout_height="0.3dp"
-            android:layout_alignParentBottom="true"
-            android:alpha="0.4"
-            android:background="@color/grey_dark" />
+            <com.thetestament.cread.utils.SquareView
+                android:id="@+id/imageContainer"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@color/yellow_light">
 
-        <FrameLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_above="@+id/viewDivider"
-            android:layout_alignParentBottom="true"
-            android:layout_alignParentLeft="true"
-            android:layout_marginBottom="5dp"
-            android:layout_marginLeft="5dp"
-            android:background="@color/black_overlay">
+                <ImageView
+                    android:id="@+id/imageCapture"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:scaleType="centerCrop" />
 
-            <TextView
-                android:id="@+id/textWaterMark"
+                <View
+                    android:id="@+id/lineSeparator"
+                    android:layout_width="match_parent"
+                    android:layout_height="0.3dp"
+                    android:layout_alignParentBottom="true"
+                    android:alpha="0.4"
+                    android:background="@color/grey_dark" />
+
+                <FrameLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_above="@+id/viewDivider"
+                    android:layout_alignParentBottom="true"
+                    android:layout_alignParentLeft="true"
+                    android:layout_marginBottom="5dp"
+                    android:layout_marginLeft="5dp"
+                    android:background="@color/black_overlay">
+
+                    <TextView
+                        android:id="@+id/textWaterMark"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:layout_alignParentBottom="true"
+                        android:paddingLeft="3dp"
+                        android:paddingRight="3dp"
+                        android:textColor="@color/white"
+                        android:textSize="12sp"
+                        tools:text="~The testament" />
+                </FrameLayout>
+
+
+            </com.thetestament.cread.utils.SquareView>
+
+            <android.support.v7.widget.AppCompatEditText
+                android:id="@+id/etCaption"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_alignParentBottom="true"
-                android:paddingLeft="3dp"
-                android:paddingRight="3dp"
-                android:textColor="@color/white"
-                android:textSize="12sp"
-                tools:text="~The testament" />
-        </FrameLayout>
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_marginBottom="20dp"
+                android:background="@null"
+                android:hint="Write your caption with #tags"
+                android:inputType="textCapSentences|textMultiLine"
+                android:minLines="5"
+                android:paddingBottom="20dp"
+                android:paddingLeft="10dp"
+                android:paddingRight="10dp"
+                android:paddingTop="10dp"
+                android:textColor="@color/grey_dark"
+                android:textSize="14sp" />
 
 
-    </com.thetestament.cread.utils.SquareView>
+        </LinearLayout>
+
+    </android.support.v4.widget.NestedScrollView>
 
 
 </android.support.design.widget.CoordinatorLayout>
