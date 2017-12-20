@@ -351,6 +351,8 @@ public class SearchActivity extends BaseActivity {
 
                     @Override
                     public void onError(Throwable e) {
+                        //Dismiss progress indicator
+                        swipeRefreshLayout.setRefreshing(false);
                         e.printStackTrace();
                         FirebaseCrash.report(e);
                         //Server error Snack bar

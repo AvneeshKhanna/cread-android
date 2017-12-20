@@ -16,6 +16,7 @@ import com.squareup.picasso.Picasso;
 import com.thetestament.cread.BuildConfig;
 import com.thetestament.cread.R;
 import com.thetestament.cread.dialog.CustomDialog;
+import com.thetestament.cread.helpers.NetworkHelper;
 import com.thetestament.cread.helpers.ViewHelper;
 
 import org.json.JSONException;
@@ -145,55 +146,11 @@ public class PreviewActivity extends BaseActivity {
      */
     @OnClick(R.id.buttonUpdate)
     void updateOnClick() {
-        /*if (TextUtils.getTrimmedLength(etCaption.getText().toString()) == 0) {
-            //Show toast message
-            ViewHelper.getToast(this, "Caption can't be empty. Please Write something.");
-        }*/ /*else {*/
-        if (mCalledFrom.equals(PREVIEW_EXTRA_CALLED_FROM_COLLABORATION)) {
-            updateData(new File(getImageUri(IMAGE_TYPE_USER_CAPTURE_PIC).getPath())
-                    , new File(getImageUri(IMAGE_TYPE_USER_SHORT_PIC).getPath())
-                    , mBundle.getString(PREVIEW_EXTRA_SHORT_ID)
-                    , mBundle.getString(PREVIEW_EXTRA_UUID)
-                    , mBundle.getString(PREVIEW_EXTRA_AUTH_KEY)
-                    , mBundle.getString(PREVIEW_EXTRA_X_POSITION)
-                    , mBundle.getString(PREVIEW_EXTRA_Y_POSITION)
-                    , mBundle.getString(PREVIEW_EXTRA_TV_WIDTH)
-                    , mBundle.getString(PREVIEW_EXTRA_TV_HEIGHT)
-                    , mBundle.getString(PREVIEW_EXTRA_TEXT)
-                    , mBundle.getString(PREVIEW_EXTRA_TEXT_SIZE)
-                    , mBundle.getString(PREVIEW_EXTRA_TEXT_COLOR)
-                    , mBundle.getString(PREVIEW_EXTRA_TEXT_GRAVITY)
-                    , mBundle.getString(PREVIEW_EXTRA_IMG_WIDTH)
-                    , mBundle.getString(PREVIEW_EXTRA_SIGNATURE)
-                    , mBundle.getString(PREVIEW_EXTRA_MERCHANTABLE)
-                    , mBundle.getString(PREVIEW_EXTRA_FONT)
-                    , mBundle.getString(PREVIEW_EXTRA_BOLD)
-                    , mBundle.getString(PREVIEW_EXTRA_ITALIC)
-                    , etCaption.getText().toString()
-            );
-        } else if (mCalledFrom.equals(PREVIEW_EXTRA_CALLED_FROM_SHORT)) {
-            updateShort(new File(getImageUri(IMAGE_TYPE_USER_SHORT_PIC).getPath())
-                    , mBundle.getString(PREVIEW_EXTRA_CAPTURE_ID)
-                    , mBundle.getString(PREVIEW_EXTRA_UUID)
-                    , mBundle.getString(PREVIEW_EXTRA_AUTH_KEY)
-                    , mBundle.getString(PREVIEW_EXTRA_X_POSITION)
-                    , mBundle.getString(PREVIEW_EXTRA_Y_POSITION)
-                    , mBundle.getString(PREVIEW_EXTRA_TV_WIDTH)
-                    , mBundle.getString(PREVIEW_EXTRA_TV_HEIGHT)
-                    , mBundle.getString(PREVIEW_EXTRA_TEXT)
-                    , mBundle.getString(PREVIEW_EXTRA_TEXT_SIZE)
-                    , mBundle.getString(PREVIEW_EXTRA_TEXT_COLOR)
-                    , mBundle.getString(PREVIEW_EXTRA_TEXT_GRAVITY)
-                    , mBundle.getString(PREVIEW_EXTRA_IMG_WIDTH)
-                    , mBundle.getString(PREVIEW_EXTRA_MERCHANTABLE)
-                    , mBundle.getString(PREVIEW_EXTRA_FONT)
-                    , mBundle.getString(PREVIEW_EXTRA_BG_COLOR)
-                    , mBundle.getString(PREVIEW_EXTRA_BOLD)
-                    , mBundle.getString(PREVIEW_EXTRA_ITALIC)
-                    , etCaption.getText().toString()
-            );
+        if (NetworkHelper.getNetConnectionStatus(PreviewActivity.this)) {
+            //Show no connection message
+            ViewHelper.getToast(this, getString(R.string.error_msg_no_connection));
         } else {
-            //do nothing
+            performUpdateOperation();
         }
     }
 
@@ -397,5 +354,57 @@ public class PreviewActivity extends BaseActivity {
                         //do nothing
                     }
                 });
+    }
+
+    /**
+     * Method to update the requested data on server.
+     */
+    private void performUpdateOperation() {
+        if (mCalledFrom.equals(PREVIEW_EXTRA_CALLED_FROM_COLLABORATION)) {
+            updateData(new File(getImageUri(IMAGE_TYPE_USER_CAPTURE_PIC).getPath())
+                    , new File(getImageUri(IMAGE_TYPE_USER_SHORT_PIC).getPath())
+                    , mBundle.getString(PREVIEW_EXTRA_SHORT_ID)
+                    , mBundle.getString(PREVIEW_EXTRA_UUID)
+                    , mBundle.getString(PREVIEW_EXTRA_AUTH_KEY)
+                    , mBundle.getString(PREVIEW_EXTRA_X_POSITION)
+                    , mBundle.getString(PREVIEW_EXTRA_Y_POSITION)
+                    , mBundle.getString(PREVIEW_EXTRA_TV_WIDTH)
+                    , mBundle.getString(PREVIEW_EXTRA_TV_HEIGHT)
+                    , mBundle.getString(PREVIEW_EXTRA_TEXT)
+                    , mBundle.getString(PREVIEW_EXTRA_TEXT_SIZE)
+                    , mBundle.getString(PREVIEW_EXTRA_TEXT_COLOR)
+                    , mBundle.getString(PREVIEW_EXTRA_TEXT_GRAVITY)
+                    , mBundle.getString(PREVIEW_EXTRA_IMG_WIDTH)
+                    , mBundle.getString(PREVIEW_EXTRA_SIGNATURE)
+                    , mBundle.getString(PREVIEW_EXTRA_MERCHANTABLE)
+                    , mBundle.getString(PREVIEW_EXTRA_FONT)
+                    , mBundle.getString(PREVIEW_EXTRA_BOLD)
+                    , mBundle.getString(PREVIEW_EXTRA_ITALIC)
+                    , etCaption.getText().toString()
+            );
+        } else if (mCalledFrom.equals(PREVIEW_EXTRA_CALLED_FROM_SHORT)) {
+            updateShort(new File(getImageUri(IMAGE_TYPE_USER_SHORT_PIC).getPath())
+                    , mBundle.getString(PREVIEW_EXTRA_CAPTURE_ID)
+                    , mBundle.getString(PREVIEW_EXTRA_UUID)
+                    , mBundle.getString(PREVIEW_EXTRA_AUTH_KEY)
+                    , mBundle.getString(PREVIEW_EXTRA_X_POSITION)
+                    , mBundle.getString(PREVIEW_EXTRA_Y_POSITION)
+                    , mBundle.getString(PREVIEW_EXTRA_TV_WIDTH)
+                    , mBundle.getString(PREVIEW_EXTRA_TV_HEIGHT)
+                    , mBundle.getString(PREVIEW_EXTRA_TEXT)
+                    , mBundle.getString(PREVIEW_EXTRA_TEXT_SIZE)
+                    , mBundle.getString(PREVIEW_EXTRA_TEXT_COLOR)
+                    , mBundle.getString(PREVIEW_EXTRA_TEXT_GRAVITY)
+                    , mBundle.getString(PREVIEW_EXTRA_IMG_WIDTH)
+                    , mBundle.getString(PREVIEW_EXTRA_MERCHANTABLE)
+                    , mBundle.getString(PREVIEW_EXTRA_FONT)
+                    , mBundle.getString(PREVIEW_EXTRA_BG_COLOR)
+                    , mBundle.getString(PREVIEW_EXTRA_BOLD)
+                    , mBundle.getString(PREVIEW_EXTRA_ITALIC)
+                    , etCaption.getText().toString()
+            );
+        } else {
+            //do nothing
+        }
     }
 }

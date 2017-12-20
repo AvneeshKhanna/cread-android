@@ -24,6 +24,7 @@ import static com.thetestament.cread.utils.Constant.EXTRA_PROFILE_UUID;
 import static com.thetestament.cread.utils.Constant.SEARCH_TYPE_HASHTAG;
 import static com.thetestament.cread.utils.Constant.SEARCH_TYPE_NO_RESULTS;
 import static com.thetestament.cread.utils.Constant.SEARCH_TYPE_PEOPLE;
+import static com.thetestament.cread.utils.Constant.URI_HASH_TAG_ACTIVITY;
 
 /**
  * Adapter class to provide a binding from data set to views that are displayed within a search RecyclerView.
@@ -200,7 +201,9 @@ public class SearchAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
         view.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                //Todo hash tag click functionality
+                Intent intent = new Intent(URI_HASH_TAG_ACTIVITY + "#" + hashTag);
+                intent.setAction(Intent.ACTION_VIEW);
+                mContext.startActivity(intent);
             }
         });
     }
