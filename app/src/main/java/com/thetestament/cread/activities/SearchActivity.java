@@ -281,9 +281,9 @@ public class SearchActivity extends BaseActivity {
                         return getDataFromServer(s, mLastIndexKey, mSearchType);
                     }
                 })
-                .subscribeOn(Schedulers.io())
+                .subscribeOn(Schedulers.single())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new Observer<JSONObject>() {
+                .subscribeWith(new Observer<JSONObject>() {
                     @Override
                     public void onSubscribe(Disposable d) {
                         //Add disposable here

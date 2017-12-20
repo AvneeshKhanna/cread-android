@@ -7,7 +7,6 @@ import android.support.design.widget.CoordinatorLayout;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.AppCompatEditText;
 import android.text.InputType;
-import android.text.TextUtils;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -37,6 +36,7 @@ import java.util.concurrent.TimeUnit;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import butterknife.OnClick;
 import icepick.Icepick;
 import icepick.State;
 import okhttp3.OkHttpClient;
@@ -93,10 +93,10 @@ public class CapturePreviewActivity extends BaseActivity {
         Icepick.restoreInstanceState(this, savedInstanceState);
     }
 
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.menu_capture_preview, menu);
-        return true;
+        return super.onCreateOptionsMenu(menu);
     }
 
     @Override
@@ -107,21 +107,6 @@ public class CapturePreviewActivity extends BaseActivity {
                 CustomDialog.getBackNavigationDialog(CapturePreviewActivity.this
                         , "Discard capture?"
                         , "If you go back now, you will loose your capture.");
-                return true;
-            case R.id.action_done:
-                // check net status
-                if (NetworkHelper.getNetConnectionStatus(CapturePreviewActivity.this)) {
-                    //Upload image on server
-                    if (!TextUtils.isEmpty(etCaption.getText().toString().trim())) {
-                        uploadCapture(new File(getImageUri(IMAGE_TYPE_USER_CAPTURE_PIC).getPath())
-                                , etCaption.getText().toString());
-                    } else {
-                        ViewHelper.getToast(CapturePreviewActivity.this, "Caption can't be empty. Please Write something.");
-                    }
-
-                } else {
-                    ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_no_connection));
-                }
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
@@ -136,6 +121,21 @@ public class CapturePreviewActivity extends BaseActivity {
         CustomDialog.getBackNavigationDialog(CapturePreviewActivity.this
                 , "Discard capture?"
                 , "If you go back now, you will loose your capture.");
+    }
+
+    /**
+     * Update button click functionality
+     */
+    @OnClick(R.id.buttonUpdate)
+    void updateOnClick() {
+        // check net status
+        if (NetworkHelper.getNetConnectionStatus(CapturePreviewActivity.this)) {
+            //Upload image on server
+            uploadCapture(new File(getImageUri(IMAGE_TYPE_USER_CAPTURE_PIC).getPath())
+                    , etCaption.getText().toString());
+        } else {
+            ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_no_connection));
+        }
     }
 
     /**
