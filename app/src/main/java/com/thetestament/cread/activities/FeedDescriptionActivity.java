@@ -435,7 +435,7 @@ public class FeedDescriptionActivity extends BaseActivity {
             textTitle.setVisibility(View.VISIBLE);
             textTitle.setText(mFeedData.getCaption());
 
-            textTitle.setLinkTextColor(ContextCompat.getColor(mContext, R.color.com_facebook_blue));
+            textTitle.setLinkTextColor(ContextCompat.getColor(mContext, R.color.blue));
             //Pattern to find if there's a hash tag in the message
             //i.e. any word starting with a # and containing letter or numbers or _
             Pattern tagMatcher = Pattern.compile("\\#\\w+", Pattern.CASE_INSENSITIVE);
