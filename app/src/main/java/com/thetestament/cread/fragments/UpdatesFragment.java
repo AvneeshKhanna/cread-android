@@ -457,8 +457,6 @@ public class UpdatesFragment extends Fragment {
                                 Intent intent = new Intent(getActivity(), FeedDescriptionActivity.class);
                                 intent.putExtra(EXTRA_DATA, bundle);
                                 getActivity().startActivity(intent);
-
-                                getActivity().finish();
                             }
                         }
                     });

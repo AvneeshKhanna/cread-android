@@ -1,14 +1,22 @@
 apply plugin: 'com.android.application'
 
 android {
+    signingConfigs {
+        config {
+            keyAlias 'cread2.0'
+            keyPassword 'creadtt'
+            storeFile file('/home/pchandna/Documents/TheTestament/cread/cread2.0/playstore-key.jks')
+            storePassword 'creadtt'
+        }
+    }
     compileSdkVersion rootProject.ext.compileSdkVersion
     buildToolsVersion rootProject.ext.buildToolsVersion
     defaultConfig {
         applicationId "com.thetestament.cread"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 12
-        versionName "1.2.4"
+        versionCode 13
+        versionName "1.3.0"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         // Enabling multi-dex support.
         multiDexEnabled true
@@ -25,6 +33,8 @@ android {
             resValue "string", "RZP_KEY", "rzp_live_R8v2wfBMmMnHVy"
             resValue "bool", "FIREBASE_ANALYTICS_ENABLED", "true"
             resValue "bool", "FIREBASE_CRASHLYTICS_ENABLED", "true"
+            resValue "string", "DEEP_LINK_HOST", '"http://cread-server-main.ap-northeast-1.elasticbeanstalk.com"'
+            signingConfig signingConfigs.config
         }
         debug {
             shrinkResources false
@@ -35,13 +45,14 @@ android {
             resValue "string", "RZP_KEY", "rzp_test_Q09427lQA9Ol5g"
             resValue "bool", "FIREBASE_ANALYTICS_ENABLED", "false"
             resValue "bool", "FIREBASE_CRASHLYTICS_ENABLED", "false"
+            resValue "string", "DEEP_LINK_HOST", '"http://cread-dev-remote.herokuapp.com"'
         }
     }
 }
 
 dependencies {
     implementation 'com.android.support.constraint:constraint-layout:1.0.2'
-    compile fileTree(dir: 'libs', include: ['*.jar'])
+    compile fileTree(include: ['*.jar'], dir: 'libs')
     androidTestCompile('com.android.support.test.espresso:espresso-core:2.2.2', {
         exclude group: 'com.android.support', module: 'support-annotations'
     })
@@ -88,7 +99,6 @@ dependencies {
 
     // view pager dot indicator
     compile 'me.relex:circleindicator:1.2.2@aar'
-
     compile 'com.github.takusemba:multisnaprecyclerview:1.1.1'
 
     //Code generator for view
@@ -96,7 +106,9 @@ dependencies {
     annotationProcessor "com.jakewharton:butterknife-compiler:$rootProject.butterKnifeVersion"
 
     //To maintain instance state
+
     //compile 'frankiesardo:icepick:3.2.0'
+
     //provided 'frankiesardo:icepick-processor:3.2.0'
     api 'frankiesardo:icepick:3.2.0'
     compileOnly 'frankiesardo:icepick-processor:3.2.0'
@@ -106,7 +118,7 @@ dependencies {
     compile 'de.hdodenhof:circleimageview:2.1.0'
 
     /*//Sectioned RecyclerView
-    compile 'com.github.zhukic:sectioned-recyclerview:0.2.2'*/
+            compile 'com.github.zhukic:sectioned-recyclerview:0.2.2'*/
 
     //Tooltip
     compile 'com.github.vihtarb:tooltip:0.1.9'
@@ -115,8 +127,10 @@ dependencies {
     compile 'com.afollestad.material-dialogs:commons:0.9.3.0'
 
     /*Image cropping*/
+
     //compile 'com.github.yalantis:ucrop:2.2.1'
     compile 'com.github.yalantis:ucrop:2.2.1-native'
+
     //compile 'com.theartofdev.edmodo:android-image-cropper:2.5.1'
 
     /*Image compression library*/
@@ -127,7 +141,8 @@ dependencies {
 
     // notification badge
     implementation 'com.mikepenz:actionitembadge:3.3.2@aar'
-    implementation "com.mikepenz:iconics-core:2.9.5@aar"
+    implementation 'com.mikepenz:iconics-core:2.9.5@aar'
+
     // dependencies for local unit tests
     testCompile "junit:junit:$rootProject.ext.junitVersion"
 }

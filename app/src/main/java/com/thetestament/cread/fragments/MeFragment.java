@@ -429,7 +429,6 @@ public class MeFragment extends Fragment {
     }
 
 
-
     /**
      * PostContainer click functionality.
      *//*
@@ -1788,14 +1787,8 @@ public class MeFragment extends Fragment {
     }
 
     private void startGratitudeScroll() {
-        new Handler().postDelayed(new Runnable() {
-            @Override
-            public void run() {
-
-                viewPagerUserStats.setCurrentItem(1);
-                mHelper.updateGratitudeScroll(false);
-            }
-        }, 2000);
+        viewPagerUserStats.setCurrentItem(1);
+        mHelper.updateGratitudeScroll(false);
     }
 
 
