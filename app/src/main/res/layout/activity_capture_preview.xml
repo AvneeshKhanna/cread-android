@@ -73,7 +73,7 @@
                     android:layout_gravity="center"
                     android:layout_marginBottom="20dp"
                     android:background="@null"
-                    android:hint="Write your caption with #tags"
+                    android:hint="@string/text_add_caption"
                     android:inputType="textCapSentences|textMultiLine"
                     android:minLines="5"
                     android:paddingBottom="20dp"

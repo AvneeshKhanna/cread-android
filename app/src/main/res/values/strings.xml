@@ -110,4 +110,7 @@
     <string name="tooltip_gratitude_comment">has received a total of 10 hats-off on their posts</string>
     <string name="tooltip_gratitude_collaboration">This is the number of posts inspired by all the posts</string>
 
+    // add caption text
+    <string name="text_add_caption">Say something about this post with #tags</string>
+
 </resources>
