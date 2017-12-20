@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/rootView"
     android:layout_width="match_parent"
@@ -132,30 +133,30 @@
                 <LinearLayout
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:gravity="center_vertical"
-                    android:layout_alignParentLeft="true">
+                    android:layout_alignParentLeft="true"
+                    android:gravity="center_vertical">
 
                     <LinearLayout
                         android:id="@+id/containerHatsoffCount"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:paddingTop="8dp"
+                        android:gravity="center_vertical"
                         android:paddingRight="7dp"
-                        android:gravity="center_vertical">
+                        android:paddingTop="8dp">
 
-                        <ImageView
+                        <android.support.v7.widget.AppCompatImageView
                             android:id="@+id/iconHatsoff"
                             android:layout_width="18dp"
                             android:layout_height="18dp"
-                            android:src="@drawable/ic_hats_off_circular" />
+                            app:srcCompat="@drawable/ic_hats_off_circular_100" />
 
                         <TextView
                             android:id="@+id/textHatsOffCount"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginLeft="5dp"
-                            android:textSize="11sp"
-                            android:text="4" />
+                            android:text="4"
+                            android:textSize="11sp" />
 
                     </LinearLayout>
 
@@ -164,33 +165,33 @@
                         android:id="@+id/dotSeperator"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="@string/bullet"
+                        android:gravity="center_vertical"
                         android:paddingRight="7dp"
                         android:paddingTop="8dp"
-                        android:textSize="12sp"
-                        android:gravity="center_vertical" />
+                        android:text="@string/bullet"
+                        android:textSize="10sp" />
 
                     <LinearLayout
                         android:id="@+id/containerCommentsCount"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:gravity="center_vertical"
                         android:paddingRight="10dp"
-                        android:paddingTop="8dp"
-                        android:gravity="center_vertical">
+                        android:paddingTop="8dp">
 
-                        <ImageView
+                        <android.support.v7.widget.AppCompatImageView
                             android:id="@+id/iconComment"
                             android:layout_width="18dp"
                             android:layout_height="18dp"
-                            android:src="@drawable/ic_comment_circular" />
+                            app:srcCompat="@drawable/ic_comment_circular_100" />
 
                         <TextView
                             android:id="@+id/textCommentsCount"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginLeft="5dp"
-                            android:textSize="11sp"
-                            android:text="4" />
+                            android:text="4"
+                            android:textSize="11sp" />
 
                     </LinearLayout>
 
@@ -202,14 +203,14 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_alignParentRight="true"
-                    android:paddingTop="8dp"
-                    android:gravity="center_vertical">
+                    android:gravity="center_vertical"
+                    android:paddingTop="8dp">
 
-                    <ImageView
+                    <android.support.v7.widget.AppCompatImageView
                         android:id="@+id/iconCollabCount"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:src="@drawable/ic_collboration_18" />
+                        app:srcCompat="@drawable/ic_collboration_18" />
 
 
                     <TextView
@@ -232,14 +233,14 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:ellipsize="end"
-                android:maxLines="2"
+                android:maxLines="3"
+                android:paddingBottom="5dp"
                 android:paddingLeft="16dp"
                 android:paddingRight="16dp"
-                android:textColor="@color/grey_dark"
-                android:textSize="14sp"
                 android:paddingTop="5dp"
-                android:paddingBottom="5dp"
-                android:text="This is my masterpiece. I hope you like it. If you don't, I don't give a shit about it. Did you get it. Yeah! That's better" />
+                android:text="This is my masterpiece. I hope you like it. If you don't, I don't give a shit about it. Did you get it. Yeah! That's better"
+                android:textColor="@color/grey_dark"
+                android:textSize="14sp" />
 
 
             <View

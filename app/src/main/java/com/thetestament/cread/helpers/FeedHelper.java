@@ -6,11 +6,14 @@ import android.graphics.Typeface;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
+import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.Spanned;
 import android.text.TextPaint;
 import android.text.method.LinkMovementMethod;
 import android.text.style.ClickableSpan;
+import android.text.style.URLSpan;
+import android.text.util.Linkify;
 import android.view.View;
 import android.widget.TextView;
 
@@ -27,6 +30,8 @@ import com.thetestament.cread.listeners.listener.OnShareDialogItemClickedListene
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.regex.Pattern;
+
 import io.reactivex.disposables.CompositeDisposable;
 
 import static com.thetestament.cread.helpers.NetworkHelper.getDeepLinkObservable;
@@ -34,6 +39,7 @@ import static com.thetestament.cread.helpers.NetworkHelper.requestServer;
 import static com.thetestament.cread.utils.Constant.CONTENT_TYPE_CAPTURE;
 import static com.thetestament.cread.utils.Constant.CONTENT_TYPE_SHORT;
 import static com.thetestament.cread.utils.Constant.EXTRA_PROFILE_UUID;
+import static com.thetestament.cread.utils.Constant.URI_HASH_TAG_ACTIVITY;
 
 
 /**
@@ -259,6 +265,51 @@ public class FeedHelper {
                         // do nothing
                     }
                 });
+    }
+
+    /**
+     * Parses the hash tags and creates them as links
+     *
+     * @param textView text view which contains the text which from which hash tags are parsed
+     * @param context  context
+     */
+    public void setHashTags(TextView textView, FragmentActivity context) {
+        textView.setLinkTextColor(ContextCompat.getColor(context, R.color.blue_dark));
+        //Pattern to find if there's a hash tag in the message
+        //i.e. any word starting with a # and containing letter or numbers or _
+        Pattern tagMatcher = Pattern.compile("\\#\\w+", Pattern.CASE_INSENSITIVE);
+        // attach linkify to text view for click action of hash tags
+        Linkify.addLinks(textView, tagMatcher, URI_HASH_TAG_ACTIVITY);
+        // to remove underlines from the hashtag links
+        stripUnderlines(textView);
+    }
+
+    /**
+     * Removes the underline of the spannable texts
+     */
+    private void stripUnderlines(TextView textView) {
+        Spannable s = new SpannableString(textView.getText());
+        URLSpan[] spans = s.getSpans(0, s.length(), URLSpan.class);
+        for (URLSpan span : spans) {
+            int start = s.getSpanStart(span);
+            int end = s.getSpanEnd(span);
+            s.removeSpan(span);
+            span = new URLSpanNoUnderline(span.getURL());
+            s.setSpan(span, start, end, 0);
+        }
+        textView.setText(s);
+    }
+
+    private class URLSpanNoUnderline extends URLSpan {
+        public URLSpanNoUnderline(String url) {
+            super(url);
+        }
+
+        @Override
+        public void updateDrawState(TextPaint ds) {
+            super.updateDrawState(ds);
+            ds.setUnderlineText(false);
+        }
     }
 
 

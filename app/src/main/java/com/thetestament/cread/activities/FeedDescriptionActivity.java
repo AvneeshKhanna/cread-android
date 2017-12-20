@@ -40,6 +40,7 @@ import com.thetestament.cread.Manifest;
 import com.thetestament.cread.R;
 import com.thetestament.cread.adapters.CommentsAdapter;
 import com.thetestament.cread.adapters.ShareDialogAdapter;
+import com.thetestament.cread.helpers.FeedHelper;
 import com.thetestament.cread.helpers.HatsOffHelper;
 import com.thetestament.cread.helpers.ImageHelper;
 import com.thetestament.cread.helpers.NetworkHelper;
@@ -432,14 +433,10 @@ public class FeedDescriptionActivity extends BaseActivity {
             textTitle.setVisibility(View.VISIBLE);
             textTitle.setText(mFeedData.getCaption());
 
-            textTitle.setLinkTextColor(ContextCompat.getColor(mContext, R.color.blue));
-            //Pattern to find if there's a hash tag in the message
-            //i.e. any word starting with a # and containing letter or numbers or _
-            Pattern tagMatcher = Pattern.compile("\\#\\w+", Pattern.CASE_INSENSITIVE);
-            // attach linkify to text view for click action of hash tags
-            Linkify.addLinks(textTitle, tagMatcher, URI_HASH_TAG_ACTIVITY);
-            // to remove underlines from the hashtag links
-            stripUnderlines();
+            // set hash tags
+            FeedHelper feedHelper = new FeedHelper();
+            feedHelper.setHashTags(textTitle, mContext);
+
         } else {
             textTitle.setVisibility(View.GONE);
         }
@@ -1096,31 +1093,4 @@ public class FeedDescriptionActivity extends BaseActivity {
         }
     }
 
-    /**
-     * Removes the underline of the spannable texts
-     */
-    private void stripUnderlines() {
-        Spannable s = new SpannableString(textTitle.getText());
-        URLSpan[] spans = s.getSpans(0, s.length(), URLSpan.class);
-        for (URLSpan span : spans) {
-            int start = s.getSpanStart(span);
-            int end = s.getSpanEnd(span);
-            s.removeSpan(span);
-            span = new URLSpanNoUnderline(span.getURL());
-            s.setSpan(span, start, end, 0);
-        }
-        textTitle.setText(s);
-    }
-
-    private class URLSpanNoUnderline extends URLSpan {
-        public URLSpanNoUnderline(String url) {
-            super(url);
-        }
-
-        @Override
-        public void updateDrawState(TextPaint ds) {
-            super.updateDrawState(ds);
-            ds.setUnderlineText(false);
-        }
-    }
 }

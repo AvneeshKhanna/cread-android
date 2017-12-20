@@ -20,6 +20,8 @@
 
     //Blue color variant
     <color name="blue">#2979FF</color>
+    <color name="blue_dark">#005C99</color>
+
     //Black variant
     <color name="black_dark">#010101</color>
     <color name="black_overlay">#66000000</color>

@@ -17,6 +17,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.AnimationUtils;
 import android.view.animation.LayoutAnimationController;
+import android.widget.TextView;
 
 import com.androidnetworking.AndroidNetworking;
 import com.androidnetworking.error.ANError;
@@ -71,6 +72,8 @@ public class HashTagDetailsFragment extends Fragment {
     SwipeRefreshLayout swipeRefreshLayout;
     @BindView(R.id.recyclerView)
     RecyclerView recyclerView;
+    @BindView(R.id.noData)
+    TextView noData;
 
     CompositeDisposable mCompositeDisposable = new CompositeDisposable();
     List<FeedModel> mDataList = new ArrayList<>();
@@ -436,6 +439,8 @@ public class HashTagDetailsFragment extends Fragment {
                         else if (connectionError[0]) {
                             ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_internal));
 
+                        } else if (mDataList.size() == 0) {
+                            noData.setVisibility(View.VISIBLE);
                         } else {
                             //Apply 'Slide Up' animation
                             int resId = R.anim.layout_animation_from_bottom;

@@ -18,6 +18,7 @@ import com.afollestad.materialdialogs.MaterialDialog;
 import com.squareup.picasso.Picasso;
 import com.thetestament.cread.R;
 import com.thetestament.cread.activities.ProfileActivity;
+import com.thetestament.cread.helpers.FeedHelper;
 import com.thetestament.cread.listeners.listener.OnCommentDeleteListener;
 import com.thetestament.cread.listeners.listener.OnCommentEditListener;
 import com.thetestament.cread.listeners.listener.OnLoadMoreClickedListener;
@@ -112,6 +113,11 @@ public class CommentsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
             itemViewHolder.textUserName.setText(data.getFirstName() + " " + data.getLastName());
             //Set comment
             itemViewHolder.textComment.setText(data.getComment());
+
+            // set hash tags on comment
+            FeedHelper feedHelper = new FeedHelper();
+            feedHelper.setHashTags(itemViewHolder.textComment, mContext);
+
             //Load profile picture
             loadProfilePic(data.getProfilePicUrl(), itemViewHolder.imageUser);
 
