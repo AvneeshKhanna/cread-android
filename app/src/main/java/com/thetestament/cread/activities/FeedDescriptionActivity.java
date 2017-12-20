@@ -40,7 +40,6 @@ import com.thetestament.cread.Manifest;
 import com.thetestament.cread.R;
 import com.thetestament.cread.adapters.CommentsAdapter;
 import com.thetestament.cread.adapters.ShareDialogAdapter;
-import com.thetestament.cread.helpers.FeedHelper;
 import com.thetestament.cread.helpers.HatsOffHelper;
 import com.thetestament.cread.helpers.ImageHelper;
 import com.thetestament.cread.helpers.NetworkHelper;
@@ -73,7 +72,6 @@ import pl.tajchert.nammu.Nammu;
 import pl.tajchert.nammu.PermissionCallback;
 
 import static com.thetestament.cread.helpers.FeedHelper.generateDeepLink;
-import static com.thetestament.cread.helpers.FeedHelper.getCollabCountText;
 import static com.thetestament.cread.helpers.FeedHelper.getCreatorText;
 import static com.thetestament.cread.helpers.FeedHelper.initializeSpannableString;
 import static com.thetestament.cread.helpers.ImageHelper.getImageUri;
@@ -146,7 +144,6 @@ public class FeedDescriptionActivity extends BaseActivity {
     TextView textTitle;
     @BindView(R.id.dotSeperator)
     TextView dotSeperator;
-
 
 
     private SharedPreferenceHelper mHelper;
@@ -392,13 +389,13 @@ public class FeedDescriptionActivity extends BaseActivity {
     @OnClick(R.id.containerCollabCount)
     void collaborationCountOnClick() {
 
-                Bundle bundle = new Bundle();
-                bundle.putString(EXTRA_ENTITY_ID, mFeedData.getEntityID());
-                bundle.putString(EXTRA_ENTITY_TYPE, mFeedData.getContentType());
+        Bundle bundle = new Bundle();
+        bundle.putString(EXTRA_ENTITY_ID, mFeedData.getEntityID());
+        bundle.putString(EXTRA_ENTITY_TYPE, mFeedData.getContentType());
 
-                Intent intent = new Intent(FeedDescriptionActivity.this, CollaborationDetailsActivity.class);
-                intent.putExtra(EXTRA_DATA, bundle);
-                startActivity(intent);
+        Intent intent = new Intent(FeedDescriptionActivity.this, CollaborationDetailsActivity.class);
+        intent.putExtra(EXTRA_DATA, bundle);
+        startActivity(intent);
     }
 
 
@@ -644,7 +641,7 @@ public class FeedDescriptionActivity extends BaseActivity {
                             //Set layout manager
                             recyclerView.setLayoutManager(new LinearLayoutManager(FeedDescriptionActivity.this));
                             //Set adapter
-                            recyclerView.setAdapter(new CommentsAdapter(mCommentsList, FeedDescriptionActivity.this, mHelper.getUUID(), recyclerView));
+                            recyclerView.setAdapter(new CommentsAdapter(mCommentsList, FeedDescriptionActivity.this, mHelper.getUUID(), false));
                         }
                     }
                 })

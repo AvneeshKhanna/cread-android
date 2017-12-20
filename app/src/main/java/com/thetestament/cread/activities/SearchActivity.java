@@ -7,8 +7,6 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.TabLayout;
-import android.support.v4.content.ContextCompat;
-import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SearchView;
@@ -57,6 +55,7 @@ import static com.thetestament.cread.helpers.ViewHelper.convertToPx;
 import static com.thetestament.cread.utils.Constant.SEARCH_TYPE_HASHTAG;
 import static com.thetestament.cread.utils.Constant.SEARCH_TYPE_NO_RESULTS;
 import static com.thetestament.cread.utils.Constant.SEARCH_TYPE_PEOPLE;
+import static com.thetestament.cread.utils.Constant.SEARCH_TYPE_PROGRESS;
 
 /**
  * AppCompatActivity class to provide search functionality.
@@ -68,8 +67,6 @@ public class SearchActivity extends BaseActivity {
     CoordinatorLayout rootView;
     @BindView(R.id.tabLayout)
     TabLayout tabLayout;
-    @BindView(R.id.swipeRefreshLayout)
-    SwipeRefreshLayout swipeRefreshLayout;
     @BindView(R.id.recyclerView)
     RecyclerView recyclerView;
 
@@ -182,10 +179,6 @@ public class SearchActivity extends BaseActivity {
      * Method to initialize views for this screen
      */
     private void initializeScreen() {
-        //Set color
-        swipeRefreshLayout.setColorSchemeColors(ContextCompat.getColor(this, R.color.colorPrimary));
-        //Disable pull to refresh
-        swipeRefreshLayout.setEnabled(false);
         //Set layout manger for recyclerView
         recyclerView.setLayoutManager(new LinearLayoutManager(SearchActivity.this));
         //Set adapter
@@ -196,7 +189,6 @@ public class SearchActivity extends BaseActivity {
         //initialize tabLayout
         initializeTabLayoutListener();
     }
-
 
     /**
      * Method to initialize tabLayout click listener.
@@ -300,8 +292,6 @@ public class SearchActivity extends BaseActivity {
 
                     @Override
                     public void onNext(JSONObject jsonObject) {
-                        //Hide progress indicator
-                        swipeRefreshLayout.setRefreshing(false);
                         //Clear data
                         mDataList.clear();
                         mAdapter.notifyDataSetChanged();
@@ -325,7 +315,6 @@ public class SearchActivity extends BaseActivity {
                                     searchData.setHashTagCount(dataObj.getLong("postcount"));
                                     searchData.setHashTagLabel(dataObj.getString("hashtag"));
                                 }
-
                                 mDataList.add(searchData);
                                 //Notify changes
                                 // mAdapter.notifyItemInserted(mDataList.size() - 1);
@@ -352,7 +341,8 @@ public class SearchActivity extends BaseActivity {
                     @Override
                     public void onError(Throwable e) {
                         //Dismiss progress indicator
-                        swipeRefreshLayout.setRefreshing(false);
+                        mDataList.clear();
+                        mAdapter.notifyDataSetChanged();
                         e.printStackTrace();
                         FirebaseCrash.report(e);
                         //Server error Snack bar
@@ -379,7 +369,14 @@ public class SearchActivity extends BaseActivity {
             @Override
             public void run() {
                 //Show progress indicator
-                swipeRefreshLayout.setRefreshing(true);
+                //Clear list
+                mDataList.clear();
+                //Add progress view
+                SearchModel searchData = new SearchModel();
+                searchData.setSearchType(SEARCH_TYPE_PROGRESS);
+                mDataList.add(searchData);
+                //Notify changes
+                mAdapter.notifyDataSetChanged();
             }
         });
 
