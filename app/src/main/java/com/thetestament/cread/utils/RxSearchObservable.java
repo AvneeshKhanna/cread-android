@@ -25,7 +25,10 @@ public class RxSearchObservable {
 
             @Override
             public boolean onQueryTextChange(String text) {
-                subject.onNext(text);
+                if (!text.isEmpty()) {
+                    subject.onNext(text);
+                }
+                //subject.onNext(text);
                 return true;
             }
         });

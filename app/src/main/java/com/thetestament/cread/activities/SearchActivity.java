@@ -283,7 +283,7 @@ public class SearchActivity extends BaseActivity {
                 })
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new Observer<JSONObject>() {
+                .subscribeWith(new Observer<JSONObject>() {
                     @Override
                     public void onSubscribe(Disposable d) {
                         //Add disposable here
