@@ -34,6 +34,7 @@ public class Constant {
     public static final String SEARCH_TYPE_PEOPLE = "USER";
     public static final String SEARCH_TYPE_HASHTAG = "HASHTAG";
     public static final String SEARCH_TYPE_NO_RESULTS = "NORESULTS";
+    public static final String SEARCH_TYPE_PROGRESS = "PROGRESS";
 
     //Image Types
     public static final String IMAGE_TYPE_USER_PROFILE_PIC = "userProfilePic";
