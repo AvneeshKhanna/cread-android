@@ -376,7 +376,8 @@ public class SearchActivity extends BaseActivity {
                 searchData.setSearchType(SEARCH_TYPE_PROGRESS);
                 mDataList.add(searchData);
                 //Notify changes
-                mAdapter.notifyDataSetChanged();
+                mAdapter.updateList(mDataList);
+                //mAdapter.notifyDataSetChanged();
             }
         });
 
