@@ -337,6 +337,8 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".activities.RoyaltiesActivity" />
         </activity>
+
+        <!--HashTagDetailsActivity-->
         <activity android:name=".activities.HashTagDetailsActivity">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"

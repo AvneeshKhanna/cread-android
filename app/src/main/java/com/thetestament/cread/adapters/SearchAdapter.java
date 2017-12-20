@@ -24,7 +24,7 @@ import static com.thetestament.cread.utils.Constant.EXTRA_PROFILE_UUID;
 import static com.thetestament.cread.utils.Constant.SEARCH_TYPE_HASHTAG;
 import static com.thetestament.cread.utils.Constant.SEARCH_TYPE_NO_RESULTS;
 import static com.thetestament.cread.utils.Constant.SEARCH_TYPE_PEOPLE;
-import static com.thetestament.cread.utils.Constant.SEARCH_TYPE_PROGRESS;
+import static com.thetestament.cread.utils.Constant.URI_HASH_TAG_ACTIVITY;
 
 /**
  * Adapter class to provide a binding from data set to views that are displayed within a search RecyclerView.
@@ -36,7 +36,6 @@ public class SearchAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
     private final int VIEW_TYPE_LOADING = 1;
     private final int VIEW_TYPE_HASHTAG = 2;
     private final int VIEW_TYPE_NO_RESULTS = 3;
-    private final int VIEW_TYPE_PROGRESS = 4;
     private List<SearchModel> mSearchDataList;
     private FragmentActivity mContext;
     private boolean mIsLoading;
@@ -74,8 +73,6 @@ public class SearchAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
                 return VIEW_TYPE_HASHTAG;
             } else if (mSearchDataList.get(position).getSearchType().equals(SEARCH_TYPE_NO_RESULTS)) {
                 return VIEW_TYPE_NO_RESULTS;
-            } else if (mSearchDataList.get(position).getSearchType().equals(SEARCH_TYPE_PROGRESS)) {
-                return VIEW_TYPE_PROGRESS;
             }
         }
         //Default view to  be loaded
@@ -100,10 +97,6 @@ public class SearchAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
             return new NoResultViewHolder(LayoutInflater
                     .from(parent.getContext())
                     .inflate(R.layout.item_no_results, parent, false));
-        } else if (viewType == VIEW_TYPE_PROGRESS) {
-            return new ProgressViewHolder(LayoutInflater
-                    .from(parent.getContext())
-                    .inflate(R.layout.item_progress, parent, false));
         }
         return null;
     }
@@ -126,7 +119,7 @@ public class SearchAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
             HashTagViewHolder hashTagViewHolder = (HashTagViewHolder) holder;
             //Set tag and count
             hashTagViewHolder.textHashTag.setText(data.getHashTagLabel());
-            hashTagViewHolder.textHashTagCount.setText(String.valueOf(data.getHashTagCount()));
+            hashTagViewHolder.textHashTagCount.setText("  \u2022  " + String.valueOf(data.getHashTagCount() + " posts"));
             //Click functionality
             hashTagItemViewOnClick(hashTagViewHolder.itemView, data.getHashTagLabel());
         } else if (holder.getItemViewType() == VIEW_TYPE_LOADING) {
@@ -134,8 +127,6 @@ public class SearchAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
             loadingViewHolder.progressView.setVisibility(View.VISIBLE);
         } else if (holder.getItemViewType() == VIEW_TYPE_NO_RESULTS) {
             NoResultViewHolder noResultViewHolder = (NoResultViewHolder) holder;
-        } else if (holder.getItemViewType() == VIEW_TYPE_PROGRESS) {
-            ProgressViewHolder progressViewHolder = (ProgressViewHolder) holder;
         }
 
 
@@ -160,6 +151,16 @@ public class SearchAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
      */
     public void setLoaded() {
         mIsLoading = false;
+    }
+
+    /**
+     * Method to update dataList and notify for changes.
+     *
+     * @param list Updated data list.
+     */
+    public void updateList(List<SearchModel> list) {
+        mSearchDataList = list;
+        notifyDataSetChanged();
     }
 
     /**
@@ -200,7 +201,9 @@ public class SearchAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
         view.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                //Todo hash tag click functionality
+                Intent intent = new Intent(URI_HASH_TAG_ACTIVITY + "#" + hashTag);
+                intent.setAction(Intent.ACTION_VIEW);
+                mContext.startActivity(intent);
             }
         });
     }
@@ -234,13 +237,6 @@ public class SearchAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
     //NoResultViewHolder
     static class NoResultViewHolder extends RecyclerView.ViewHolder {
         public NoResultViewHolder(View itemView) {
-            super(itemView);
-        }
-    }
-
-    //ProgressViewHolder
-    static class ProgressViewHolder extends RecyclerView.ViewHolder {
-        public ProgressViewHolder(View itemView) {
             super(itemView);
         }
     }

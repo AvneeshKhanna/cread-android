@@ -25,7 +25,7 @@ public class Constant {
     public static final String TAG_ME_FRAGMENT = "TagMeFragment";
     public static final String TAG_UPDATES_FRAGMENT = "TagUpdatesFragment";
     public static final String TAG_ROYALTIES_FRAGMENT = "TagRoyaltiesFragment";
-    public static final String TAG_HASH_TAG_DETAILS_FRAGMENT = "TagRoyaltiesFragment";
+    public static final String TAG_HASH_TAG_DETAILS_FRAGMENT = "HASHTagDetailsFragment";
 
     //Content Types
     public static final String CONTENT_TYPE_SHORT = "SHORT";
@@ -34,7 +34,6 @@ public class Constant {
     public static final String SEARCH_TYPE_PEOPLE = "USER";
     public static final String SEARCH_TYPE_HASHTAG = "HASHTAG";
     public static final String SEARCH_TYPE_NO_RESULTS = "NORESULTS";
-    public static final String SEARCH_TYPE_PROGRESS = "PROGRESS";
 
     //Image Types
     public static final String IMAGE_TYPE_USER_PROFILE_PIC = "userProfilePic";
