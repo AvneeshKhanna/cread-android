@@ -1,6 +1,7 @@
 package com.thetestament.cread.adapters;
 
 import android.content.Intent;
+import android.net.Uri;
 import android.support.v4.app.FragmentActivity;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -201,9 +202,14 @@ public class SearchAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
         view.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent = new Intent(URI_HASH_TAG_ACTIVITY + "#" + hashTag);
-                intent.setAction(Intent.ACTION_VIEW);
+
+                // get uri from string
+                Uri uri = Uri.parse(URI_HASH_TAG_ACTIVITY + "#" + hashTag);
+
+                // open hash tag activity
+                Intent intent = new Intent(Intent.ACTION_VIEW, uri);
                 mContext.startActivity(intent);
+
             }
         });
     }

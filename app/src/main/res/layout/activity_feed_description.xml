@@ -140,14 +140,14 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:paddingTop="8dp"
-                        android:paddingRight="10dp"
+                        android:paddingRight="7dp"
                         android:gravity="center_vertical">
 
                         <ImageView
                             android:id="@+id/iconHatsoff"
                             android:layout_width="18dp"
                             android:layout_height="18dp"
-                            android:src="@drawable/ic_hats_off" />
+                            android:src="@drawable/ic_hats_off_circular" />
 
                         <TextView
                             android:id="@+id/textHatsOffCount"
@@ -165,8 +165,9 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="@string/bullet"
-                        android:paddingRight="10dp"
+                        android:paddingRight="7dp"
                         android:paddingTop="8dp"
+                        android:textSize="12sp"
                         android:gravity="center_vertical" />
 
                     <LinearLayout
@@ -181,7 +182,7 @@
                             android:id="@+id/iconComment"
                             android:layout_width="18dp"
                             android:layout_height="18dp"
-                            android:src="@drawable/ic_comment_24" />
+                            android:src="@drawable/ic_comment_circular" />
 
                         <TextView
                             android:id="@+id/textCommentsCount"
@@ -219,7 +220,6 @@
                         android:paddingLeft="5dp"
                         android:paddingRight="2dp"
                         android:text="4"
-                        android:textAppearance="@style/TextAppearance.FontPath"
                         android:textSize="11sp" />
 
                 </LinearLayout>

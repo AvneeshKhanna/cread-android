@@ -147,10 +147,13 @@ public class PreviewActivity extends BaseActivity {
     @OnClick(R.id.buttonUpdate)
     void updateOnClick() {
         if (NetworkHelper.getNetConnectionStatus(PreviewActivity.this)) {
+
+            performUpdateOperation();
+
+        } else {
             //Show no connection message
             ViewHelper.getToast(this, getString(R.string.error_msg_no_connection));
-        } else {
-            performUpdateOperation();
+
         }
     }
 
