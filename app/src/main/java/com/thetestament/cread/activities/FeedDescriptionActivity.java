@@ -247,12 +247,12 @@ public class FeedDescriptionActivity extends BaseActivity {
 
     @OnClick(R.id.textTitle)
     void onTitleClicked() {
-        if (TextViewCompat.getMaxLines(textTitle) == 2) {
+        if (TextViewCompat.getMaxLines(textTitle) == 3) {
             // expand title
             textTitle.setMaxLines(Integer.MAX_VALUE);
         } else {
             // collapse title
-            textTitle.setMaxLines(2);
+            textTitle.setMaxLines(3);
         }
     }
 
