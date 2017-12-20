@@ -7,6 +7,8 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.TabLayout;
+import android.support.v4.content.ContextCompat;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SearchView;
@@ -66,6 +68,8 @@ public class SearchActivity extends BaseActivity {
     CoordinatorLayout rootView;
     @BindView(R.id.tabLayout)
     TabLayout tabLayout;
+    @BindView(R.id.swipeRefreshLayout)
+    SwipeRefreshLayout swipeRefreshLayout;
     @BindView(R.id.recyclerView)
     RecyclerView recyclerView;
 
@@ -92,7 +96,6 @@ public class SearchActivity extends BaseActivity {
         //initialize screen
         initializeScreen();
     }
-
 
     @Override
     protected void onNewIntent(Intent intent) {
@@ -123,11 +126,6 @@ public class SearchActivity extends BaseActivity {
     }
 
     @Override
-    public boolean onPrepareOptionsMenu(Menu menu) {
-        return super.onPrepareOptionsMenu(menu);
-    }
-
-    @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         //inflate this menu
         getMenuInflater()
@@ -149,7 +147,6 @@ public class SearchActivity extends BaseActivity {
                 return super.onOptionsItemSelected(item);
         }
     }
-
 
     /**
      * Method to set up search framework for search functionality.
@@ -185,13 +182,17 @@ public class SearchActivity extends BaseActivity {
      * Method to initialize views for this screen
      */
     private void initializeScreen() {
+        //Set color
+        swipeRefreshLayout.setColorSchemeColors(ContextCompat.getColor(this, R.color.colorPrimary));
+        //Disable pull to refresh
+        swipeRefreshLayout.setEnabled(false);
         //Set layout manger for recyclerView
         recyclerView.setLayoutManager(new LinearLayoutManager(SearchActivity.this));
         //Set adapter
         mAdapter = new SearchAdapter(mDataList, SearchActivity.this);
         recyclerView.setAdapter(mAdapter);
         //Initialize listener
-        initLoadMoreListener(mAdapter);
+        //initLoadMoreListener(mAdapter);
         //initialize tabLayout
         initializeTabLayoutListener();
     }
@@ -208,10 +209,40 @@ public class SearchActivity extends BaseActivity {
                     case 0:
                         //Set search type
                         mSearchType = SEARCH_TYPE_PEOPLE;
+                        //Update list
+                        List<SearchModel> temp = new ArrayList<>();
+                        for (SearchModel f : mDataList) {
+                            if (f.getSearchType().equals(SEARCH_TYPE_PEOPLE)) {
+                                temp.add(f);
+                            }
+                        }
+                        //If no data
+                        if (temp.size() == 0) {
+                            SearchModel searchData = new SearchModel();
+                            searchData.setSearchType(SEARCH_TYPE_NO_RESULTS);
+                            temp.add(searchData);
+                        }
+                        mAdapter.updateList(temp);
+
                         break;
                     case 1:
                         //Set search type
                         mSearchType = Constant.SEARCH_TYPE_HASHTAG;
+                        //Update list
+                        List<SearchModel> tempHash = new ArrayList<>();
+                        for (SearchModel f : mDataList) {
+                            if (f.getSearchType().equals(SEARCH_TYPE_HASHTAG)) {
+                                tempHash.add(f);
+                            }
+                        }
+                        //If no data
+                        if (tempHash.size() == 0) {
+                            SearchModel searchDataHash = new SearchModel();
+                            searchDataHash.setSearchType(SEARCH_TYPE_NO_RESULTS);
+                            tempHash.add(searchDataHash);
+                        }
+                        mAdapter.updateList(tempHash);
+
                         break;
                 }
             }
@@ -269,6 +300,8 @@ public class SearchActivity extends BaseActivity {
 
                     @Override
                     public void onNext(JSONObject jsonObject) {
+                        //Hide progress indicator
+                        swipeRefreshLayout.setRefreshing(false);
                         //Clear data
                         mDataList.clear();
                         mAdapter.notifyDataSetChanged();
@@ -295,8 +328,11 @@ public class SearchActivity extends BaseActivity {
 
                                 mDataList.add(searchData);
                                 //Notify changes
-                                mAdapter.notifyItemInserted(mDataList.size() - 1);
+                                // mAdapter.notifyItemInserted(mDataList.size() - 1);
                             }
+                            //Notify changes
+                            //mAdapter.notifyDataSetChanged();
+                            mAdapter.updateList(mDataList);
                             //If no data
                             if (mDataList.size() == 0) {
                                 SearchModel searchData = new SearchModel();
@@ -336,13 +372,14 @@ public class SearchActivity extends BaseActivity {
      * @param searchType   SearchType i.e USER or HASH TAG
      */
     private Observable<JSONObject> getDataFromServer(String queryMessage, String lastIndexKey, String searchType) {
-        //Add progress view
-        /*SearchModel searchData = new SearchModel();
-        searchData.setSearchType(SEARCH_TYPE_PROGRESS);
-        mDataList.add(searchData);
-        //Notify changes
-        mAdapter.notifyDataSetChanged();*/
 
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                //Show progress indicator
+                swipeRefreshLayout.setRefreshing(true);
+            }
+        });
 
         String inputText;
         //Replace spaces if search type is HASHTAG

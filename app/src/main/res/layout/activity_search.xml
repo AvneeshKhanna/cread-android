@@ -21,22 +21,6 @@
             app:contentScrim="@color/colorPrimary"
             app:layout_scrollFlags="scroll|exitUntilCollapsed">
 
-            <!--<android.support.v7.widget.Toolbar
-                android:id="@+id/toolBar"
-                android:layout_width="match_parent"
-                android:layout_height="?attr/actionBarSize"
-                android:background="@color/colorPrimary"
-                android:theme="@style/ThemeOverlay.AppCompat.Dark"
-                app:popupTheme="@style/Theme.AppCompat.Light">
-
-                &lt;!&ndash;<ProgressBar
-                    android:id="@+id/progressView"
-                    android:layout_width="32dp"
-                    android:layout_height="32dp"
-                    android:layout_gravity="right"
-                    android:indeterminateTint="@color/white"
-                    android:indeterminateTintMode="src_atop" />&ndash;&gt;
-            </android.support.v7.widget.Toolbar>-->
         </android.support.design.widget.CollapsingToolbarLayout>
 
 
@@ -64,7 +48,8 @@
         </android.support.design.widget.TabLayout>
     </android.support.design.widget.AppBarLayout>
 
-    <FrameLayout
+    <android.support.v4.widget.SwipeRefreshLayout
+        android:id="@+id/swipeRefreshLayout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         app:layout_behavior="@string/appbar_scrolling_view_behavior">
@@ -73,5 +58,5 @@
             android:id="@+id/recyclerView"
             android:layout_width="match_parent"
             android:layout_height="match_parent" />
-    </FrameLayout>
+    </android.support.v4.widget.SwipeRefreshLayout>
 </android.support.design.widget.CoordinatorLayout>
