@@ -33,6 +33,7 @@ import com.thetestament.cread.BuildConfig;
 import com.thetestament.cread.Manifest;
 import com.thetestament.cread.R;
 import com.thetestament.cread.activities.FindFBFriendsActivity;
+import com.thetestament.cread.activities.SearchActivity;
 import com.thetestament.cread.adapters.ExploreAdapter;
 import com.thetestament.cread.helpers.ImageHelper;
 import com.thetestament.cread.helpers.SharedPreferenceHelper;
@@ -183,17 +184,28 @@ public class ExploreFragment extends Fragment {
     }
 
     @Override
-    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+    public void onPrepareOptionsMenu(Menu menu) {
+        //Change action flag to SHOW_AS_ACTION_NEVER
+        menu.findItem(R.id.action_updates).setShowAsActionFlags(MenuItem.SHOW_AS_ACTION_NEVER);
+        super.onPrepareOptionsMenu(menu);
+    }
 
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         inflater.inflate(R.menu.menu_fragment_explore, menu);
+        super.onCreateOptionsMenu(menu, inflater);
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-
         switch (item.getItemId()) {
             case R.id.action_findfbFriends:
                 startActivity(new Intent(getActivity(), FindFBFriendsActivity.class));
+                return true;
+            case R.id.action_search:
+                //Start search activity
+                startActivity(new Intent(getActivity(), SearchActivity.class));
+                return true;
             default:
                 return super.onOptionsItemSelected(item);
         }
@@ -323,6 +335,11 @@ public class ExploreFragment extends Fragment {
                                     exploreData.setCommentCount(dataObj.getLong("commentcount"));
                                     exploreData.setContentImage(dataObj.getString("entityurl"));
                                     exploreData.setCollabCount(dataObj.getLong("collabcount"));
+                                    if (dataObj.isNull("caption")) {
+                                        exploreData.setCaption(null);
+                                    } else {
+                                        exploreData.setCaption(dataObj.getString("caption"));
+                                    }
 
 
                                     if (type.equals(CONTENT_TYPE_CAPTURE)) {
@@ -452,6 +469,11 @@ public class ExploreFragment extends Fragment {
                                     exploreData.setCommentCount(dataObj.getLong("commentcount"));
                                     exploreData.setContentImage(dataObj.getString("entityurl"));
                                     exploreData.setCollabCount(dataObj.getLong("collabcount"));
+                                    if (dataObj.isNull("caption")) {
+                                        exploreData.setCaption(null);
+                                    } else {
+                                        exploreData.setCaption(dataObj.getString("caption"));
+                                    }
 
 
                                     if (type.equals(CONTENT_TYPE_CAPTURE)) {

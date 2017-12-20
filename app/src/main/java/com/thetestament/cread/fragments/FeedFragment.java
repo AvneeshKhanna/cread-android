@@ -14,6 +14,9 @@ import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.AnimationUtils;
@@ -36,6 +39,7 @@ import com.thetestament.cread.R;
 import com.thetestament.cread.activities.BottomNavigationActivity;
 import com.thetestament.cread.activities.FeedDescriptionActivity;
 import com.thetestament.cread.activities.FindFBFriendsActivity;
+import com.thetestament.cread.activities.SearchActivity;
 import com.thetestament.cread.adapters.FeedAdapter;
 import com.thetestament.cread.helpers.HatsOffHelper;
 import com.thetestament.cread.helpers.ImageHelper;
@@ -71,13 +75,10 @@ import pl.tajchert.nammu.PermissionCallback;
 
 import static android.app.Activity.RESULT_OK;
 import static com.thetestament.cread.helpers.FeedHelper.generateDeepLink;
-import static com.thetestament.cread.helpers.FeedHelper.shareDeepLink;
 import static com.thetestament.cread.helpers.ImageHelper.getImageUri;
 import static com.thetestament.cread.helpers.ImageHelper.getLocalBitmapUri;
-import static com.thetestament.cread.helpers.NetworkHelper.getDeepLinkObservable;
 import static com.thetestament.cread.helpers.NetworkHelper.getNetConnectionStatus;
 import static com.thetestament.cread.helpers.NetworkHelper.getObservableFromServer;
-import static com.thetestament.cread.helpers.NetworkHelper.requestServer;
 import static com.thetestament.cread.utils.Constant.CONTENT_TYPE_CAPTURE;
 import static com.thetestament.cread.utils.Constant.CONTENT_TYPE_SHORT;
 import static com.thetestament.cread.utils.Constant.EXTRA_DATA;
@@ -123,6 +124,8 @@ public class FeedFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         //SharedPreference reference
         mHelper = new SharedPreferenceHelper(getContext());
+        // Its own option menu
+        setHasOptionsMenu(true);
         View view = inflater
                 .inflate(R.layout.fragment_feed
                         , container
@@ -208,6 +211,24 @@ public class FeedFragment extends Fragment {
                     mAdapter.notifyItemChanged(bundle.getInt("position"));
                 }
                 break;
+        }
+    }
+
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        inflater.inflate(R.menu.menu_fragment_feed, menu);
+        super.onCreateOptionsMenu(menu, inflater);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.action_search:
+                //Start search activity
+                startActivity(new Intent(getActivity(), SearchActivity.class));
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
         }
     }
 
@@ -341,6 +362,11 @@ public class FeedFragment extends Fragment {
                                             feedData.setCommentCount(dataObj.getLong("commentcount"));
                                             feedData.setContentImage(dataObj.getString("entityurl"));
                                             feedData.setCollabCount(dataObj.getLong("collabcount"));
+                                            if (dataObj.isNull("caption")) {
+                                                feedData.setCaption(null);
+                                            } else {
+                                                feedData.setCaption(dataObj.getString("caption"));
+                                            }
 
                                             if (type.equals(CONTENT_TYPE_CAPTURE)) {
 
@@ -474,6 +500,11 @@ public class FeedFragment extends Fragment {
                                     feedData.setCommentCount(dataObj.getLong("commentcount"));
                                     feedData.setContentImage(dataObj.getString("entityurl"));
                                     feedData.setCollabCount(dataObj.getLong("collabcount"));
+                                    if (dataObj.isNull("caption")) {
+                                        feedData.setCaption(null);
+                                    } else {
+                                        feedData.setCaption(dataObj.getString("caption"));
+                                    }
 
 
                                     if (type.equals(CONTENT_TYPE_CAPTURE)) {
@@ -928,6 +959,12 @@ public class FeedFragment extends Fragment {
 
                                     feedData.setCollabCount(dataObj.getLong("collabcount"));
 
+                                    if (dataObj.isNull("caption")) {
+                                        feedData.setCaption(null);
+                                    } else {
+                                        feedData.setCaption(dataObj.getString("caption"));
+                                    }
+
                                     if (type.equals(CONTENT_TYPE_CAPTURE)) {
 
                                         //Retrieve "CAPTURE_ID" if type is capture
@@ -1018,7 +1055,6 @@ public class FeedFragment extends Fragment {
             ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_no_connection));
         }
     }
-
 
 
 }

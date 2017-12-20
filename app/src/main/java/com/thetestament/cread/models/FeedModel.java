@@ -11,7 +11,7 @@ import android.os.Parcelable;
 public class FeedModel implements Parcelable {
 
     private String entityID, captureID, shortID;
-    private String UUID, creatorName, creatorImage, collabWithUUID, collabWithName;
+    private String UUID, creatorName, creatorImage, collabWithUUID, collabWithName, caption;
     private boolean hatsOffStatus, followStatus, merchantable, isAvailableForCollab;
     private long hatsOffCount, commentCount, collabCount;
     private String contentType;
@@ -160,6 +160,14 @@ public class FeedModel implements Parcelable {
         this.collabCount = collabCount;
     }
 
+    public String getCaption() {
+        return caption;
+    }
+
+    public void setCaption(String caption) {
+        this.caption = caption;
+    }
+
     @Override
     public int describeContents() {
         return 0;
@@ -184,6 +192,7 @@ public class FeedModel implements Parcelable {
         parcel.writeString(collabWithUUID);
         parcel.writeString(collabWithName);
         parcel.writeLong(getCollabCount());
+        parcel.writeString(caption);
     }
 
 
@@ -217,6 +226,7 @@ public class FeedModel implements Parcelable {
         collabWithUUID = in.readString();
         collabWithName = in.readString();
         collabCount = in.readLong();
+        caption = in.readString();
     }
 
 }

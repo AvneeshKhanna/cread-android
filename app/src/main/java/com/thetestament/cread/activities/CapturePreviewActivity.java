@@ -5,9 +5,11 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.v4.content.ContextCompat;
+import android.support.v7.widget.AppCompatEditText;
 import android.text.InputType;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -34,6 +36,7 @@ import java.util.concurrent.TimeUnit;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import butterknife.OnClick;
 import icepick.Icepick;
 import icepick.State;
 import okhttp3.OkHttpClient;
@@ -56,6 +59,8 @@ public class CapturePreviewActivity extends BaseActivity {
     ImageView imageCapture;
     @BindView(R.id.textWaterMark)
     TextView textWaterMark;
+    @BindView(R.id.etCaption)
+    AppCompatEditText etCaption;
 
     @State
     String mWaterMarkText = "", isMerchantable;
@@ -88,10 +93,10 @@ public class CapturePreviewActivity extends BaseActivity {
         Icepick.restoreInstanceState(this, savedInstanceState);
     }
 
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.menu_capture_preview, menu);
-        return true;
+        return super.onCreateOptionsMenu(menu);
     }
 
     @Override
@@ -102,15 +107,6 @@ public class CapturePreviewActivity extends BaseActivity {
                 CustomDialog.getBackNavigationDialog(CapturePreviewActivity.this
                         , "Discard capture?"
                         , "If you go back now, you will loose your capture.");
-                return true;
-            case R.id.action_done:
-                // check net status
-                if (NetworkHelper.getNetConnectionStatus(CapturePreviewActivity.this)) {
-                    //Upload image on server
-                    uploadCapture(new File(getImageUri(IMAGE_TYPE_USER_CAPTURE_PIC).getPath()));
-                } else {
-                    ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_no_connection));
-                }
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
@@ -125,6 +121,21 @@ public class CapturePreviewActivity extends BaseActivity {
         CustomDialog.getBackNavigationDialog(CapturePreviewActivity.this
                 , "Discard capture?"
                 , "If you go back now, you will loose your capture.");
+    }
+
+    /**
+     * Update button click functionality
+     */
+    @OnClick(R.id.buttonUpdate)
+    void updateOnClick() {
+        // check net status
+        if (NetworkHelper.getNetConnectionStatus(CapturePreviewActivity.this)) {
+            //Upload image on server
+            uploadCapture(new File(getImageUri(IMAGE_TYPE_USER_CAPTURE_PIC).getPath())
+                    , etCaption.getText().toString());
+        } else {
+            ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_no_connection));
+        }
     }
 
     /**
@@ -149,7 +160,8 @@ public class CapturePreviewActivity extends BaseActivity {
             mWaterMarkText = helper.getCaptureWaterMarkText();
             textWaterMark.setText(mWaterMarkText);
         } else if (helper.getWatermarkStatus().equals(WATERMARK_STATUS_NO)) {
-            //Do nothing
+            //Hide watermark
+            textWaterMark.setVisibility(View.GONE);
         } else if (helper.getWatermarkStatus().equals(WATERMARK_STATUS_ASK_ALWAYS)) {
             //Show watermark dialog
             getWaterWorkDialog();
@@ -187,6 +199,8 @@ public class CapturePreviewActivity extends BaseActivity {
                             //Save watermark status
                             mHelper.setWatermarkStatus(WATERMARK_STATUS_NO);
                         }
+                        //Hide watermark
+                        textWaterMark.setVisibility(View.GONE);
                         //Dismiss this dialog
                         dialog.dismiss();
                     }
@@ -214,6 +228,7 @@ public class CapturePreviewActivity extends BaseActivity {
                             dialog.dismiss();
                             mWaterMarkText = s;
                             //Set watermark
+                            textWaterMark.setVisibility(View.VISIBLE);
                             textWaterMark.setText(mWaterMarkText);
                             //Save watermark text
                             mHelper.setCaptureWaterMarkText(mWaterMarkText);
@@ -229,7 +244,7 @@ public class CapturePreviewActivity extends BaseActivity {
      *
      * @param file File to be saved i.e image file .
      */
-    private void uploadCapture(File file) {
+    private void uploadCapture(File file, String captionText) {
         //To show the progress dialog
         MaterialDialog.Builder builder = new MaterialDialog.Builder(this)
                 .title("Uploading your graphic art")
@@ -254,6 +269,7 @@ public class CapturePreviewActivity extends BaseActivity {
                 .addMultipartParameter("authkey", mHelper.getAuthToken())
                 .addMultipartParameter("watermark", mWaterMarkText)
                 .addMultipartParameter("merchantable", isMerchantable)
+                .addMultipartParameter("caption", captionText)
                 .setOkHttpClient(okHttpClient)
                 .build()
                 .getAsJSONObject(new JSONObjectRequestListener() {

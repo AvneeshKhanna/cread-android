@@ -82,7 +82,7 @@ public class RoyaltiesActivity extends BaseActivity {
 
     private void initView() {
         getSupportFragmentManager().beginTransaction()
-                .replace(R.id.royalties_container, new RoyaltiesFragment(), TAG_ROYALTIES_FRAGMENT)
+                .add(R.id.royalties_container, new RoyaltiesFragment(), TAG_ROYALTIES_FRAGMENT)
                 .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE)
                 .commit();
     }

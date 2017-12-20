@@ -47,6 +47,15 @@
         <item name="android:windowContentOverlay">@null</item>
     </style>
 
+
+    <!--SearchActivity Theme-->
+    <style name="SearchActivityTheme" parent="Theme.AppCompat.Light.DarkActionBar">
+        <item name="colorPrimary">@color/colorPrimary</item>
+        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
+        <item name="colorAccent">@color/white</item>
+    </style>
+
+
     <!--HelveticaNeuBold font-->
     <style name="TextAppearance.FontPath" parent="android:TextAppearance">
         <!-- Custom Attr-->

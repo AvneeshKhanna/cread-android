@@ -2,12 +2,14 @@ package com.thetestament.cread.listeners;
 
 import android.graphics.Bitmap;
 import android.graphics.Typeface;
+import android.widget.LinearLayout;
 
-import com.afollestad.materialdialogs.MaterialDialog;
 import com.thetestament.cread.models.CommentsModel;
 import com.thetestament.cread.models.FBFriendsModel;
 import com.thetestament.cread.models.FeedModel;
 import com.thetestament.cread.models.FollowModel;
+import com.thetestament.cread.utils.Constant;
+import com.thetestament.cread.utils.Constant.GratitudeNumbers;
 
 import org.json.JSONObject;
 
@@ -228,6 +230,22 @@ public class listener {
 
     public interface OnShareLinkClickedListener {
         void onShareLinkClicked(String entityID, String entityURL, String creatorName);
+    }
+
+    /**
+     * Interface definition for a callback to be invoked when user scroll for more data.
+     */
+    public interface OnSearchLoadMoreListener {
+        void onLoadMore();
+    }
+
+    public interface OnUserStatsClickedListener {
+        void onUserStatsClicked(GratitudeNumbers gratitudeNumbers, LinearLayout view);
+    }
+
+
+    public interface OnCollaborationItemClickedListener {
+        void onItemClicked(String entityID);
     }
 
 }

@@ -43,7 +43,7 @@ import static com.thetestament.cread.utils.Constant.IMAGE_TYPE_USER_SHORT_PIC;
 import static com.thetestament.cread.utils.Constant.REQUEST_CODE_OPEN_GALLERY_FOR_CAPTURE;
 
 /**
- * A helper class for providing utility method for profile pic related operations
+ * A helper class for providing utility method for image related operations.
  */
 
 public class ImageHelper {
@@ -311,7 +311,7 @@ public class ImageHelper {
         new MaterialDialog.Builder(context)
                 .title("Note")
                 .content("The resolution of this image is not printable. Other users won't be able to order a print version of it. Do you wish to proceed?")
-                .positiveText("Procxeed")
+                .positiveText("Proceed")
                 .negativeText("Cancel")
                 .onNegative(new MaterialDialog.SingleButtonCallback() {
                     @Override

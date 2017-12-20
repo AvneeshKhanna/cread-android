@@ -1,5 +1,6 @@
 package com.thetestament.cread.activities;
 
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Typeface;
 import android.os.Bundle;
@@ -76,6 +77,27 @@ import static com.thetestament.cread.utils.Constant.EXTRA_MERCHANTABLE;
 import static com.thetestament.cread.utils.Constant.EXTRA_SHORT_ID;
 import static com.thetestament.cread.utils.Constant.IMAGE_TYPE_USER_CAPTURE_PIC;
 import static com.thetestament.cread.utils.Constant.IMAGE_TYPE_USER_SHORT_PIC;
+import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_AUTH_KEY;
+import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_BOLD;
+import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_CALLED_FROM;
+import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_CALLED_FROM_COLLABORATION;
+import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_DATA;
+import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_FONT;
+import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_IMG_WIDTH;
+import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_ITALIC;
+import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_MERCHANTABLE;
+import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_SHORT_ID;
+import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_SIGNATURE;
+import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_TEXT;
+import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_TEXT_COLOR;
+import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_TEXT_GRAVITY;
+import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_TEXT_SIZE;
+import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_TV_HEIGHT;
+import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_TV_WIDTH;
+import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_UUID;
+import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_X_POSITION;
+import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_Y_POSITION;
+import static com.thetestament.cread.utils.Constant.REQUEST_CODE_PREVIEW_ACTIVITY;
 import static com.thetestament.cread.utils.Constant.WATERMARK_STATUS_ASK_ALWAYS;
 import static com.thetestament.cread.utils.Constant.WATERMARK_STATUS_NO;
 import static com.thetestament.cread.utils.Constant.WATERMARK_STATUS_YES;
@@ -183,6 +205,19 @@ public class CollaborationActivity extends BaseActivity implements ColorChooserD
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
         Icepick.saveInstanceState(this, outState);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        switch (requestCode) {
+            case REQUEST_CODE_PREVIEW_ACTIVITY:
+                if (resultCode == RESULT_OK) {
+                    finish();
+                }
+                break;
+            default:
+                super.onActivityResult(requestCode, resultCode, data);
+        }
     }
 
     @Override
@@ -781,7 +816,27 @@ public class CollaborationActivity extends BaseActivity implements ColorChooserD
             bitmap.compress(Bitmap.CompressFormat.JPEG, 85, out);
             out.close();
             //Show preview
-            showShortPreview(divisionFactor);
+            // showShortPreview(divisionFactor);
+            goToPreviewScreen(mHelper.getUUID()
+                    , mHelper.getAuthToken()
+                    , mShortID
+                    , String.valueOf(textShort.getX() / divisionFactor)
+                    , String.valueOf((textShort.getY() - squareView.getY()) / divisionFactor)
+                    , String.valueOf(textShort.getWidth() / divisionFactor)
+                    , String.valueOf(textShort.getHeight() / divisionFactor)
+                    , textShort.getText().toString()
+                    , String.valueOf(textShort.getTextSize() / divisionFactor)
+                    , Integer.toHexString(textShort.getCurrentTextColor())
+                    , textGravity.toString()
+                    , String.valueOf(mImageWidth)
+                    , mSignatureText
+                    , mIsMerchantable
+                    , mFontType
+                    , String.valueOf(mBoldFlag)
+                    , String.valueOf(mItalicFlag)
+                    , PREVIEW_EXTRA_CALLED_FROM_COLLABORATION
+            );
+
         } catch (IOException e) {
             e.printStackTrace();
             ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_internal));
@@ -812,7 +867,7 @@ public class CollaborationActivity extends BaseActivity implements ColorChooserD
                         if (NetworkHelper.getNetConnectionStatus(CollaborationActivity.this)) {
 
                             //Update details on server
-                            updateData(
+                           /* updateData(
                                     new File(getImageUri(IMAGE_TYPE_USER_CAPTURE_PIC).getPath())
                                     , new File(getImageUri(IMAGE_TYPE_USER_SHORT_PIC).getPath())
                                     , mShortID
@@ -828,7 +883,8 @@ public class CollaborationActivity extends BaseActivity implements ColorChooserD
                                     , mFontType
                                     , String.valueOf(mBoldFlag)
                                     , String.valueOf(mItalicFlag)
-                            );
+                            );*/
+
                         } else {
                             ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_no_connection));
                         }
@@ -845,6 +901,7 @@ public class CollaborationActivity extends BaseActivity implements ColorChooserD
                 .error(R.drawable.image_placeholder)
                 .into(imagePreview);
     }
+
 
     /**
      * Method to update capture details on server.
@@ -939,4 +996,53 @@ public class CollaborationActivity extends BaseActivity implements ColorChooserD
                 });
     }
 
+
+    /**
+     * Method to open previewActivity.
+     */
+    private void goToPreviewScreen(String uuid
+            , String authKey
+            , String shortID
+            , String xPosition
+            , String yPosition
+            , String tvWidth
+            , String tvHeight
+            , String text
+            , String textSize
+            , String textColor
+            , String textGravity
+            , String imgWidth
+            , String signature
+            , String merchantable
+            , String font
+            , String bold
+            , String italic
+            , String calledFrom) {
+
+        Intent intent = new Intent(CollaborationActivity.this, PreviewActivity.class);
+
+        Bundle bundle = new Bundle();
+
+        bundle.putString(PREVIEW_EXTRA_UUID, uuid);
+        bundle.putString(PREVIEW_EXTRA_AUTH_KEY, authKey);
+        bundle.putString(PREVIEW_EXTRA_SHORT_ID, shortID);
+        bundle.putString(PREVIEW_EXTRA_X_POSITION, xPosition);
+        bundle.putString(PREVIEW_EXTRA_Y_POSITION, yPosition);
+        bundle.putString(PREVIEW_EXTRA_TV_WIDTH, tvWidth);
+        bundle.putString(PREVIEW_EXTRA_TV_HEIGHT, tvHeight);
+        bundle.putString(PREVIEW_EXTRA_TEXT, text);
+        bundle.putString(PREVIEW_EXTRA_TEXT_SIZE, textSize);
+        bundle.putString(PREVIEW_EXTRA_TEXT_COLOR, textColor);
+        bundle.putString(PREVIEW_EXTRA_TEXT_GRAVITY, textGravity);
+        bundle.putString(PREVIEW_EXTRA_IMG_WIDTH, imgWidth);
+        bundle.putString(PREVIEW_EXTRA_SIGNATURE, signature);
+        bundle.putString(PREVIEW_EXTRA_MERCHANTABLE, merchantable);
+        bundle.putString(PREVIEW_EXTRA_FONT, font);
+        bundle.putString(PREVIEW_EXTRA_BOLD, bold);
+        bundle.putString(PREVIEW_EXTRA_ITALIC, italic);
+        bundle.putString(PREVIEW_EXTRA_CALLED_FROM, calledFrom);
+
+        intent.putExtra(PREVIEW_EXTRA_DATA, bundle);
+        startActivityForResult(intent, REQUEST_CODE_PREVIEW_ACTIVITY);
+    }
 }

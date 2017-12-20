@@ -5,6 +5,9 @@
     <color name="colorPrimaryDark">#E53935</color>
     <color name="colorAccent">#F44336</color>
 
+    // for tooltip
+    <color name="colorToolTip">#CCF44336</color>
+
     //White variant
     <color name="white">#FFFFFF</color>
     <color name="dark_white">#D5D5D5</color>
@@ -14,6 +17,10 @@
     <color name="grey_dark">#424242</color>
     <color name="grey_custom">#a8a8a8</color>
     <color name="grey_light">#f0efef</color>
+
+    //Blue color variant
+    <color name="blue">#2979FF</color>
+    <color name="blue_dark">#005C99</color>
 
     //Black variant
     <color name="black_dark">#010101</color>

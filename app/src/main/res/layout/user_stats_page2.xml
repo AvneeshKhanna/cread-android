@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout android:id="@+id/containerUserStats"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:weightSum="3"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <LinearLayout
+        android:id="@+id/containerHatsOff"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:gravity="center"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/textHatsOffCount"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@color/grey_dark"
+            android:textSize="20sp"
+            tools:text="1167" />
+
+        <TextView
+            android:id="@+id/textHatsOff"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="hatsoff"
+            android:textColor="@color/grey_dark"
+            android:textSize="12sp" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/containerComments"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:gravity="center"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/textCommentsCount"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@color/grey_dark"
+            android:textSize="20sp"
+            tools:text="396" />
+
+        <TextView
+            android:id="@+id/textComments"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="comments"
+            android:textColor="@color/grey_dark"
+            android:textSize="12sp" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/containerCollaborations"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:gravity="center"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/textCollaborationsCount"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@color/grey_dark"
+            android:textSize="20sp"
+            tools:text="485" />
+
+        <TextView
+            android:id="@+id/textCollaborations"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="collaborations"
+            android:textColor="@color/grey_dark"
+            android:textSize="12sp" />
+    </LinearLayout>
+</LinearLayout>

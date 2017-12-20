@@ -16,6 +16,7 @@ public class Constant {
     public static final int REQUEST_CODE_CASH_IN = 1008;
     public static final int REQUEST_CODE_ROYALTIES_ACTIVITY = 1009;
     public static final int REQUEST_CODE_FEED_DESCRIPTION_ACTIVITY = 1010;
+    public static final int REQUEST_CODE_PREVIEW_ACTIVITY = 1011;
 
 
     //Tag value for fragments
@@ -24,10 +25,16 @@ public class Constant {
     public static final String TAG_ME_FRAGMENT = "TagMeFragment";
     public static final String TAG_UPDATES_FRAGMENT = "TagUpdatesFragment";
     public static final String TAG_ROYALTIES_FRAGMENT = "TagRoyaltiesFragment";
+    public static final String TAG_HASH_TAG_DETAILS_FRAGMENT = "HASHTagDetailsFragment";
 
     //Content Types
     public static final String CONTENT_TYPE_SHORT = "SHORT";
     public static final String CONTENT_TYPE_CAPTURE = "CAPTURE";
+
+    public static final String SEARCH_TYPE_PEOPLE = "USER";
+    public static final String SEARCH_TYPE_HASHTAG = "HASHTAG";
+    public static final String SEARCH_TYPE_NO_RESULTS = "NORESULTS";
+    public static final String SEARCH_TYPE_PROGRESS = "PROGRESS";
 
     //Image Types
     public static final String IMAGE_TYPE_USER_PROFILE_PIC = "userProfilePic";
@@ -131,6 +138,10 @@ public class Constant {
     public static final String NOTIFICATION_BUNDLE_DATA_OTHER_COLLABORATOR = "otherCollaborator";
 
 
+    // bundle data key for hashtag
+    public static final String BUNDLE_HASHTAG_NAME = "hashTagName";
+
+
     //Firebase event types
     public static final String FIREBASE_EVENT_HAVE_CLICKED = "have_clicked";
     public static final String FIREBASE_EVENT_BUY_CLICKED = "buy_clicked";
@@ -148,5 +159,39 @@ public class Constant {
     public static final String FIREBASE_EVENT_SHARED_FROM_MAIN_FEED = "shared_from_main_feed";
     public static final String FIREBASE_EVENT_SHARED_FROM_PROFILE = "shared_from_profile";
     public static final String FIREBASE_EVENT_RATE_US_CLICKED = "rate_us_clicked";
+
+
+    public enum GratitudeNumbers {
+        POSTS, FOLLOWERS, FOLLOWING,
+        HATSOFF, COMMENT, COLLABORATIONS
+    }
+
+    public static final String URI_HASH_TAG_ACTIVITY = "content://com.thetestament.cread.hashtagdetailsactivity/";
+
+
+    //Data for preview Screen
+    public static final String PREVIEW_EXTRA_DATA = "extraData";
+    public static final String PREVIEW_EXTRA_CALLED_FROM = "calledFrom";
+    public static final String PREVIEW_EXTRA_UUID = "uuid";
+    public static final String PREVIEW_EXTRA_AUTH_KEY = "authKey";
+    public static final String PREVIEW_EXTRA_SHORT_ID = "shortID";
+    public static final String PREVIEW_EXTRA_CAPTURE_ID = "captureID";
+    public static final String PREVIEW_EXTRA_X_POSITION = "xPosition";
+    public static final String PREVIEW_EXTRA_Y_POSITION = "yPosition";
+    public static final String PREVIEW_EXTRA_TV_WIDTH = "tvWidth";
+    public static final String PREVIEW_EXTRA_TV_HEIGHT = "tvHeight";
+    public static final String PREVIEW_EXTRA_TEXT = "text";
+    public static final String PREVIEW_EXTRA_TEXT_SIZE = "textSize";
+    public static final String PREVIEW_EXTRA_TEXT_COLOR = "textColor";
+    public static final String PREVIEW_EXTRA_TEXT_GRAVITY = "textGravity";
+    public static final String PREVIEW_EXTRA_IMG_WIDTH = "imgWidth";
+    public static final String PREVIEW_EXTRA_SIGNATURE = "signature";
+    public static final String PREVIEW_EXTRA_MERCHANTABLE = "merchantable";
+    public static final String PREVIEW_EXTRA_BG_COLOR = "bgColor";
+    public static final String PREVIEW_EXTRA_FONT = "font";
+    public static final String PREVIEW_EXTRA_BOLD = "bold";
+    public static final String PREVIEW_EXTRA_ITALIC = "italic";
+    public static final String PREVIEW_EXTRA_CALLED_FROM_COLLABORATION = "collaboration";
+    public static final String PREVIEW_EXTRA_CALLED_FROM_SHORT = "short";
 
 }

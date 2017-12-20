@@ -312,7 +312,7 @@ public class RoyaltiesFragment extends Fragment {
                             } else {
 
                                 // add data to dat list
-                                parseJSONData(jsonObject);
+                                parseJSONData(jsonObject, false);
 
                                 // show header
                                 appBarLayout.setVisibility(View.VISIBLE);
@@ -407,7 +407,7 @@ public class RoyaltiesFragment extends Fragment {
                                 tokenError[0] = true;
                             } else {
                                 // add data to list
-                                parseJSONData(jsonObject);
+                                parseJSONData(jsonObject, true);
                             }
 
                         } catch (JSONException e) {
@@ -453,9 +453,10 @@ public class RoyaltiesFragment extends Fragment {
      * Method to parse JSON data returned from the server
      *
      * @param jsonObject Json object to parse
+     * @param isLoadMore true if called from laod more else false
      * @throws JSONException
      */
-    private void parseJSONData(JSONObject jsonObject) throws JSONException {
+    private void parseJSONData(JSONObject jsonObject, boolean isLoadMore) throws JSONException {
 
 
         JSONObject mainData = jsonObject.getJSONObject("data");
@@ -481,8 +482,11 @@ public class RoyaltiesFragment extends Fragment {
             royaltiesData.setRedeemStatus(dataObj.getBoolean("redeemstatus"));
 
             mDataList.add(royaltiesData);
-            //Notify item changes
-            mAdapter.notifyItemInserted(mDataList.size() - 1);
+
+            if (isLoadMore) {
+                //Notify item changes
+                mAdapter.notifyItemInserted(mDataList.size() - 1);
+            }
         }
 
         minCashAmount = mainData.getDouble("minimum_wallet_balance");
@@ -571,6 +575,11 @@ public class RoyaltiesFragment extends Fragment {
                                     feedData.setContentImage(dataObj.getString("entityurl"));
 
                                     feedData.setCollabCount(dataObj.getLong("collabcount"));
+                                    if (dataObj.isNull("caption")) {
+                                        feedData.setCaption(null);
+                                    } else {
+                                        feedData.setCaption(dataObj.getString("caption"));
+                                    }
 
                                     if (type.equals(CONTENT_TYPE_CAPTURE)) {
 

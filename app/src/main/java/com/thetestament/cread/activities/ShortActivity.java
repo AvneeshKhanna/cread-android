@@ -84,7 +84,28 @@ import static com.thetestament.cread.utils.Constant.EXTRA_DATA;
 import static com.thetestament.cread.utils.Constant.EXTRA_MERCHANTABLE;
 import static com.thetestament.cread.utils.Constant.FIREBASE_EVENT_INSPIRATION_CLICKED;
 import static com.thetestament.cread.utils.Constant.IMAGE_TYPE_USER_SHORT_PIC;
+import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_AUTH_KEY;
+import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_BG_COLOR;
+import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_BOLD;
+import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_CALLED_FROM;
+import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_CALLED_FROM_SHORT;
+import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_CAPTURE_ID;
+import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_DATA;
+import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_FONT;
+import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_IMG_WIDTH;
+import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_ITALIC;
+import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_MERCHANTABLE;
+import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_TEXT;
+import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_TEXT_COLOR;
+import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_TEXT_GRAVITY;
+import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_TEXT_SIZE;
+import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_TV_HEIGHT;
+import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_TV_WIDTH;
+import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_UUID;
+import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_X_POSITION;
+import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_Y_POSITION;
 import static com.thetestament.cread.utils.Constant.REQUEST_CODE_INSPIRATION_ACTIVITY;
+import static com.thetestament.cread.utils.Constant.REQUEST_CODE_PREVIEW_ACTIVITY;
 import static com.thetestament.cread.utils.Constant.REQUEST_CODE_WRITE_EXTERNAL_STORAGE;
 
 /**
@@ -202,7 +223,6 @@ public class ShortActivity extends BaseActivity implements ColorChooserDialog.Co
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
         switch (requestCode) {
             case REQUEST_CODE_INSPIRATION_ACTIVITY:
                 if (resultCode == RESULT_OK) {
@@ -218,6 +238,13 @@ public class ShortActivity extends BaseActivity implements ColorChooserDialog.Co
                     mIsImagePresent = true;
                 }
                 break;
+            case REQUEST_CODE_PREVIEW_ACTIVITY:
+                if (resultCode == RESULT_OK) {
+                    finish();
+                }
+                break;
+            default:
+                super.onActivityResult(requestCode, resultCode, data);
 
         }
     }
@@ -733,7 +760,35 @@ public class ShortActivity extends BaseActivity implements ColorChooserDialog.Co
             bitmap.compress(Bitmap.CompressFormat.JPEG, 85, out);
             out.close();
             //Show preview
-            showShortPreview(divisionFactor);
+            //showShortPreview(divisionFactor);
+            //Retrieve background color if its present
+            if (mIsBgColorPresent) {
+                ColorDrawable drawable = (ColorDrawable) imageShort.getBackground();
+                //Update bg color
+                mShortBgColor = Integer.toHexString(drawable.getColor());
+            }
+
+            goToPreviewScreen(mHelper.getUUID()
+                    , mHelper.getAuthToken()
+                    , mCaptureID
+                    , String.valueOf(textShort.getX() / divisionFactor)
+                    , String.valueOf((textShort.getY() - squareView.getY()) / divisionFactor)
+                    , String.valueOf(textShort.getWidth() / divisionFactor)
+                    , String.valueOf(textShort.getHeight() / divisionFactor)
+                    , textShort.getText().toString()
+                    , String.valueOf(textShort.getTextSize() / divisionFactor)
+                    , Integer.toHexString(textShort.getCurrentTextColor())
+                    , textGravity.toString()
+                    , String.valueOf(mImageWidth)
+                    , String.valueOf(mIsMerchantable)
+                    , mFontType
+                    , mShortBgColor
+                    , String.valueOf(mBoldFlag)
+                    , String.valueOf(mItalicFlag)
+                    , PREVIEW_EXTRA_CALLED_FROM_SHORT
+
+            );
+
         } catch (IOException e) {
             e.printStackTrace();
             ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_internal));
@@ -772,7 +827,7 @@ public class ShortActivity extends BaseActivity implements ColorChooserDialog.Co
                             }
 
                             //Update details on server
-                            updateShort(new File(getImageUri(IMAGE_TYPE_USER_SHORT_PIC).getPath())
+                            /*updateShort(new File(getImageUri(IMAGE_TYPE_USER_SHORT_PIC).getPath())
                                     , mCaptureID
                                     , String.valueOf(textShort.getX() / factor)
                                     , String.valueOf((textShort.getY() - squareView.getY()) / factor)
@@ -787,7 +842,9 @@ public class ShortActivity extends BaseActivity implements ColorChooserDialog.Co
                                     , mShortBgColor
                                     , String.valueOf(mBoldFlag)
                                     , String.valueOf(mItalicFlag)
-                            );
+                            );*/
+
+
                         } else {
                             ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_no_connection));
                         }
@@ -911,5 +968,55 @@ public class ShortActivity extends BaseActivity implements ColorChooserDialog.Co
                         //do nothing
                     }
                 });
+    }
+
+
+    /**
+     * Method to open previewActivity.
+     */
+    private void goToPreviewScreen(String uuid
+            , String authKey
+            , String captureID
+            , String xPosition
+            , String yPosition
+            , String tvWidth
+            , String tvHeight
+            , String text
+            , String textSize
+            , String textColor
+            , String textGravity
+            , String imgWidth
+            , String merchantable
+            , String font
+            , String bgColor
+            , String bold
+            , String italic
+            , String calledFrom) {
+
+        Intent intent = new Intent(ShortActivity.this, PreviewActivity.class);
+
+        Bundle bundle = new Bundle();
+
+        bundle.putString(PREVIEW_EXTRA_UUID, uuid);
+        bundle.putString(PREVIEW_EXTRA_AUTH_KEY, authKey);
+        bundle.putString(PREVIEW_EXTRA_CAPTURE_ID, captureID);
+        bundle.putString(PREVIEW_EXTRA_X_POSITION, xPosition);
+        bundle.putString(PREVIEW_EXTRA_Y_POSITION, yPosition);
+        bundle.putString(PREVIEW_EXTRA_TV_WIDTH, tvWidth);
+        bundle.putString(PREVIEW_EXTRA_TV_HEIGHT, tvHeight);
+        bundle.putString(PREVIEW_EXTRA_TEXT, text);
+        bundle.putString(PREVIEW_EXTRA_TEXT_SIZE, textSize);
+        bundle.putString(PREVIEW_EXTRA_TEXT_COLOR, textColor);
+        bundle.putString(PREVIEW_EXTRA_TEXT_GRAVITY, textGravity);
+        bundle.putString(PREVIEW_EXTRA_IMG_WIDTH, imgWidth);
+        bundle.putString(PREVIEW_EXTRA_MERCHANTABLE, merchantable);
+        bundle.putString(PREVIEW_EXTRA_FONT, font);
+        bundle.putString(PREVIEW_EXTRA_BG_COLOR, bgColor);
+        bundle.putString(PREVIEW_EXTRA_BOLD, bold);
+        bundle.putString(PREVIEW_EXTRA_ITALIC, italic);
+        bundle.putString(PREVIEW_EXTRA_CALLED_FROM, calledFrom);
+
+        intent.putExtra(PREVIEW_EXTRA_DATA, bundle);
+        startActivityForResult(intent, REQUEST_CODE_PREVIEW_ACTIVITY);
     }
 }

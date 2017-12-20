@@ -2,8 +2,10 @@ package com.thetestament.cread.helpers;
 
 import android.content.Context;
 import android.content.res.Resources;
+import android.graphics.Typeface;
 import android.support.design.widget.Snackbar;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.content.res.ResourcesCompat;
 import android.util.TypedValue;
 import android.view.View;
 import android.widget.Toast;
@@ -56,6 +58,9 @@ public class ViewHelper {
                 .setCancelable(true)
                 .setTextColor(ContextCompat.getColor(context, R.color.white))
                 .setBackgroundColor(ContextCompat.getColor(context, R.color.black_dark))
+                .setCornerRadius(R.dimen.tooltip_border_radius)
+                .setTypeface(ResourcesCompat.getFont(context, R.font.helvetica_neue_medium))
+                .setBackgroundColor(ContextCompat.getColor(context, R.color.grey_dark))
                 .show();
     }
 

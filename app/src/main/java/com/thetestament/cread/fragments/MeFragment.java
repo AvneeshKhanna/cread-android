@@ -51,13 +51,19 @@ import com.thetestament.cread.activities.RoyaltiesActivity;
 import com.thetestament.cread.activities.UpdateProfileDetailsActivity;
 import com.thetestament.cread.activities.UpdateProfileImageActivity;
 import com.thetestament.cread.adapters.MeAdapter;
+import com.thetestament.cread.adapters.UserStatsPagerAdapter;
+import com.thetestament.cread.helpers.FeedHelper;
 import com.thetestament.cread.helpers.HatsOffHelper;
 import com.thetestament.cread.helpers.ImageHelper;
 import com.thetestament.cread.helpers.NetworkHelper;
 import com.thetestament.cread.helpers.SharedPreferenceHelper;
 import com.thetestament.cread.helpers.ViewHelper;
 import com.thetestament.cread.listeners.listener;
+import com.thetestament.cread.listeners.listener.OnUserStatsClickedListener;
 import com.thetestament.cread.models.FeedModel;
+import com.thetestament.cread.utils.Constant;
+import com.thetestament.cread.utils.Constant.GratitudeNumbers;
+import com.thetestament.cread.utils.UserStatsViewPager;
 import com.yalantis.ucrop.UCrop;
 
 import org.json.JSONArray;
@@ -80,11 +86,13 @@ import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.observers.DisposableObserver;
 import io.reactivex.schedulers.Schedulers;
+import me.relex.circleindicator.CircleIndicator;
 import pl.tajchert.nammu.Nammu;
 import pl.tajchert.nammu.PermissionCallback;
 
 import static android.app.Activity.RESULT_OK;
 import static com.thetestament.cread.helpers.FeedHelper.generateDeepLink;
+import static com.thetestament.cread.helpers.FeedHelper.isMultiple;
 import static com.thetestament.cread.helpers.ImageHelper.getImageUri;
 import static com.thetestament.cread.helpers.ImageHelper.getLocalBitmapUri;
 import static com.thetestament.cread.helpers.NetworkHelper.getNetConnectionStatus;
@@ -104,6 +112,12 @@ import static com.thetestament.cread.utils.Constant.EXTRA_USER_IMAGE_PATH;
 import static com.thetestament.cread.utils.Constant.EXTRA_USER_LAST_NAME;
 import static com.thetestament.cread.utils.Constant.EXTRA_USER_WATER_MARK_STATUS;
 import static com.thetestament.cread.utils.Constant.FIREBASE_EVENT_FOLLOW_FROM_PROFILE;
+import static com.thetestament.cread.utils.Constant.GratitudeNumbers.COLLABORATIONS;
+import static com.thetestament.cread.utils.Constant.GratitudeNumbers.COMMENT;
+import static com.thetestament.cread.utils.Constant.GratitudeNumbers.FOLLOWERS;
+import static com.thetestament.cread.utils.Constant.GratitudeNumbers.FOLLOWING;
+import static com.thetestament.cread.utils.Constant.GratitudeNumbers.HATSOFF;
+import static com.thetestament.cread.utils.Constant.GratitudeNumbers.POSTS;
 import static com.thetestament.cread.utils.Constant.IMAGE_TYPE_USER_CAPTURE_PIC;
 import static com.thetestament.cread.utils.Constant.REQUEST_CODE_FEED_DESCRIPTION_ACTIVITY;
 import static com.thetestament.cread.utils.Constant.REQUEST_CODE_OPEN_GALLERY_FOR_CAPTURE;
@@ -134,12 +148,16 @@ public class MeFragment extends Fragment {
     TextView textBio;
     @BindView(R.id.buttonFollow)
     TextView buttonFollow;
-    @BindView(R.id.textPostsCount)
+    @BindView(R.id.viewPagerUserStats)
+    UserStatsViewPager viewPagerUserStats;
+    @BindView(R.id.indicator)
+    CircleIndicator indicator;
+    /*@BindView(R.id.textPostsCount)
     TextView textPostsCount;
     @BindView(R.id.textFollowersCount)
     TextView textFollowersCount;
     @BindView(R.id.textFollowingCount)
-    TextView textFollowingCount;
+    TextView textFollowingCount;*/
     @BindView(R.id.viewNoData)
     LinearLayout viewNoData;
     @BindView(R.id.progressView)
@@ -148,7 +166,7 @@ public class MeFragment extends Fragment {
     @State
     String mFirstName, mLastName, mProfilePicURL, mUserBio;
     @State
-    long mPostCount, mFollowerCount, mFollowingCount;
+    long mPostCount, mFollowerCount, mFollowingCount, mHatsoffCount, mCommentsCount, mCollaborationCount;
     @State
     String mEmail, mContactNumber, mWaterMarkStatus;
     @State
@@ -167,6 +185,7 @@ public class MeFragment extends Fragment {
     private SharedPreferenceHelper mHelper;
     private String mLastIndexKey;
     private boolean mRequestMoreData;
+    private int[] mLayouts;
 
 
     @Nullable
@@ -180,6 +199,7 @@ public class MeFragment extends Fragment {
         return inflater.inflate(R.layout.fragment_me
                 , container
                 , false);
+
     }
 
     @Override
@@ -382,7 +402,6 @@ public class MeFragment extends Fragment {
     /**
      * Click functionality to launch screen where user can see list of people whom he/she is following.
      */
-    @OnClick(R.id.containerFollowing)
     public void onFollowingContainerClicked() {
 
         if (mFollowingCount > 0) {
@@ -398,7 +417,6 @@ public class MeFragment extends Fragment {
     /**
      * Click functionality to launch followers screen.
      */
-    @OnClick(R.id.containerFollowers)
     public void onFollowersContainerClicked() {
         if (mFollowerCount > 0) {
             Intent intent = new Intent(getActivity(), FollowActivity.class);
@@ -410,12 +428,13 @@ public class MeFragment extends Fragment {
         }
     }
 
+
     /**
      * PostContainer click functionality.
-     */
+     *//*
     @OnClick(R.id.containerPosts)
     void onPostsContainerClicked() {
-    }
+    }*/
 
     /*
     * Create button click functionality.
@@ -457,7 +476,10 @@ public class MeFragment extends Fragment {
             //Show follow button
             buttonFollow.setVisibility(View.VISIBLE);
         }
+
+
         //initialize tab layout
+        initUserStatsPager();
         initTabLayout(tabLayout);
         initSwipeRefreshLayout();
     }
@@ -510,6 +532,91 @@ public class MeFragment extends Fragment {
             @Override
             public void onTabReselected(TabLayout.Tab tab) {
                 //do nothing
+            }
+        });
+    }
+
+    /**
+     * Method to initialize sliders for the view pager.
+     */
+    private void initSliders() {
+        mLayouts = new int[]{
+                R.layout.user_stats_page1,
+                R.layout.user_stats_page2
+        };
+    }
+
+    /**
+     * Method to intitialize view pager adapter
+     */
+    private void initUserStatsPager() {
+        initSliders();
+        UserStatsPagerAdapter mUserStatsAdapter = new UserStatsPagerAdapter(getActivity(), mLayouts);
+        // intialize click listeners on user stats
+        initUserStatsClickedListener(mUserStatsAdapter);
+        viewPagerUserStats.setAdapter(mUserStatsAdapter);
+        indicator.setViewPager(viewPagerUserStats);
+    }
+
+    /**
+     * Method to initialize listeners on the different user stats containers
+     *
+     * @param userStatsPagerAdapter adapter of view pager
+     */
+    private void initUserStatsClickedListener(UserStatsPagerAdapter userStatsPagerAdapter) {
+        userStatsPagerAdapter.setUserStatsClickedListener(new OnUserStatsClickedListener() {
+            @Override
+            public void onUserStatsClicked(GratitudeNumbers gratitudeNumbers, LinearLayout view) {
+
+                switch (gratitudeNumbers) {
+                    case FOLLOWERS:
+                        onFollowersContainerClicked();
+                        break;
+                    case FOLLOWING:
+                        onFollowingContainerClicked();
+                        break;
+                    case HATSOFF:
+
+                        String hatsOffTooltip = isCountZero(mHatsoffCount)
+                                ? "No hats off yet"
+                                : mFirstName
+                                + " has received a total of "
+                                + mHatsoffCount
+                                + " hats off on their posts";
+
+                        ViewHelper
+                                .getToolTip(view
+                                        , hatsOffTooltip
+                                        , getActivity());
+                        break;
+
+                    case COMMENT:
+                        String commentTooltip = isCountZero(mCommentsCount)
+                                ? "No comments yet"
+                                : mFirstName
+                                + " has received a total of "
+                                + mCommentsCount
+                                + " comments on their posts";
+                        ViewHelper
+                                .getToolTip(view
+                                        , commentTooltip
+                                        , getActivity());
+                        break;
+
+                    case COLLABORATIONS:
+                        String collaborationsTooltip = isCountZero(mCollaborationCount)
+                                ? "No collaborations yet"
+                                : mCollaborationCount
+                                + " posts have been created by others using "
+                                + mFirstName
+                                + "'s"
+                                + " posts";
+                        ViewHelper
+                                .getToolTip(view
+                                        , collaborationsTooltip
+                                        , getActivity());
+                        break;
+                }
             }
         });
     }
@@ -581,6 +688,9 @@ public class MeFragment extends Fragment {
                                 mPostCount = mainData.getLong("postcount");
                                 mFollowerCount = mainData.getLong("followercount");
                                 mFollowingCount = mainData.getLong("followingcount");
+                                mHatsoffCount = mainData.getLong("hatsoffscount");
+                                mCommentsCount = mainData.getLong("commentscount");
+                                mCollaborationCount = mainData.getLong("collaborationscount");
                                 mEmail = mainData.getString("email");
                                 mContactNumber = mainData.getString("phone");
                                 mWaterMarkStatus = mainData.getString("watermarkstatus");
@@ -625,9 +735,12 @@ public class MeFragment extends Fragment {
                             }
 
                             //Set user activity stats
-                            textPostsCount.setText(String.valueOf(mPostCount));
-                            textFollowersCount.setText(String.valueOf(mFollowerCount));
-                            textFollowingCount.setText(String.valueOf(mFollowingCount));
+                            ((TextView) viewPagerUserStats.findViewWithTag(POSTS)).setText(String.valueOf(mPostCount));
+                            ((TextView) viewPagerUserStats.findViewWithTag(FOLLOWERS)).setText(String.valueOf(mFollowerCount));
+                            ((TextView) viewPagerUserStats.findViewWithTag(FOLLOWING)).setText(String.valueOf(mFollowingCount));
+                            ((TextView) viewPagerUserStats.findViewWithTag(HATSOFF)).setText(String.valueOf(mHatsoffCount));
+                            ((TextView) viewPagerUserStats.findViewWithTag(COMMENT)).setText(String.valueOf(mCommentsCount));
+                            ((TextView) viewPagerUserStats.findViewWithTag(COLLABORATIONS)).setText(String.valueOf(mCollaborationCount));
 
                             //If user bio present
                             if (mUserBio != null && !mUserBio.isEmpty() && !mUserBio.equals("null")) {
@@ -645,6 +758,13 @@ public class MeFragment extends Fragment {
                             //Toggle follow button
                             toggleFollowButton(mFollowStatus, getActivity());
                             appBarLayout.setVisibility(View.VISIBLE);
+
+                            // check if screen open for first time
+                            if (mHelper.isGratitudeFirstTime()) {
+
+                                // scroll to gratitude page
+                                startGratitudeScroll();
+                            }
                         }
                     }
                 })
@@ -776,12 +896,12 @@ public class MeFragment extends Fragment {
                                         //Increase count by one
                                         mFollowerCount += 1;
                                         //Set count
-                                        textFollowersCount.setText(String.valueOf(mFollowerCount));
+                                        ((TextView) viewPagerUserStats.findViewWithTag(FOLLOWERS)).setText(String.valueOf(mFollowerCount));
                                     } else {
                                         //Decrease count by one
                                         mFollowerCount -= 1;
                                         //Set count
-                                        textFollowersCount.setText(String.valueOf(mFollowerCount));
+                                        ((TextView) viewPagerUserStats.findViewWithTag(FOLLOWERS)).setText(String.valueOf(mFollowerCount));
                                     }
                                 }
                             }
@@ -902,6 +1022,11 @@ public class MeFragment extends Fragment {
                                     data.setCommentCount(dataObj.getLong("commentcount"));
                                     data.setContentImage(dataObj.getString("entityurl"));
                                     data.setCollabCount(dataObj.getLong("collabcount"));
+                                    if (dataObj.isNull("caption")) {
+                                        data.setCaption(null);
+                                    } else {
+                                        data.setCaption(dataObj.getString("caption"));
+                                    }
 
                                     if (type.equals(CONTENT_TYPE_CAPTURE)) {
 
@@ -1072,6 +1197,11 @@ public class MeFragment extends Fragment {
                                     data.setCommentCount(dataObj.getLong("commentcount"));
                                     data.setContentImage(dataObj.getString("entityurl"));
                                     data.setCollabCount(dataObj.getLong("collabcount"));
+                                    if (dataObj.isNull("caption")) {
+                                        data.setCaption(null);
+                                    } else {
+                                        data.setCaption(dataObj.getString("caption"));
+                                    }
 
 
                                     if (type.equals(CONTENT_TYPE_CAPTURE)) {
@@ -1332,7 +1462,7 @@ public class MeFragment extends Fragment {
                                     ViewHelper.getSnackBar(rootView, "Item deleted");
                                     //Update user post count
                                     mPostCount -= 1;
-                                    textPostsCount.setText(String.valueOf(mPostCount));
+                                    ((TextView) viewPagerUserStats.findViewWithTag(POSTS)).setText(String.valueOf(mPostCount));
                                 }
                             }
                         } catch (JSONException e) {
@@ -1654,5 +1784,15 @@ public class MeFragment extends Fragment {
         intent.setType("image/*");
         intent.putExtra(Intent.EXTRA_STREAM, getLocalBitmapUri(bitmap, getActivity()));
         startActivity(Intent.createChooser(intent, "Share"));
+    }
+
+    private void startGratitudeScroll() {
+        viewPagerUserStats.setCurrentItem(1);
+        mHelper.updateGratitudeScroll(false);
+    }
+
+
+    public static boolean isCountZero(long count) {
+        return count == 0;
     }
 }

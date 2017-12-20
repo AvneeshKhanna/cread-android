@@ -13,6 +13,9 @@ import com.thetestament.cread.listeners.listener;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import io.reactivex.Observable;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.CompositeDisposable;
@@ -263,8 +266,21 @@ public class NetworkHelper {
     }
 
 
+    public static Observable<JSONObject> getHashTagDetailsObservable(String uuid, String authkey, String hashtag, String lastIndexKey) {
+        Map<String, String> queryParam = new HashMap<>();
+        queryParam.put("htag", hashtag);
+        queryParam.put("lastindexkey", lastIndexKey);
 
+        Map<String, String> headers = new HashMap<>();
+        headers.put("uuid", uuid);
+        headers.put("authkey", authkey);
 
+        return Rx2AndroidNetworking.get(BuildConfig.URL + "/hashtag/feed")
+                .addQueryParameter(queryParam)
+                .addHeaders(headers)
+                .build()
+                .getJSONObjectObservable();
+    }
 
     public static void requestServer(CompositeDisposable compositeDisposable, Observable<JSONObject> jsonObjectObservable, FragmentActivity context, final listener.OnServerRequestedListener listener)
     {

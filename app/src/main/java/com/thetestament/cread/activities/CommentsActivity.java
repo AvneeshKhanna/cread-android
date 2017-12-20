@@ -7,17 +7,13 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.v4.content.ContextCompat;
-import android.support.v4.view.ViewCompat;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.LinearSmoothScroller;
 import android.support.v7.widget.RecyclerView;
 import android.text.Editable;
 import android.text.InputType;
 import android.text.TextWatcher;
 import android.view.View;
-import android.view.animation.AnimationUtils;
-import android.view.animation.LayoutAnimationController;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -192,7 +188,7 @@ public class CommentsActivity extends BaseActivity {
         mLayoutManager = new LinearLayoutManager(this);
         recyclerView.setLayoutManager(mLayoutManager);
         //Set adapter
-        mAdapter = new CommentsAdapter(mCommentsList, this, mHelper.getUUID(), recyclerView);
+        mAdapter = new CommentsAdapter(mCommentsList, this, mHelper.getUUID(), true);
         recyclerView.setAdapter(mAdapter);
 
         initSwipeRefreshLayout();
@@ -664,7 +660,7 @@ public class CommentsActivity extends BaseActivity {
                                 JSONObject dataObject = response.getJSONObject("data");
                                 if (dataObject.getString("status").equals("done")) {
                                     //Remove item from list
-                                    mCommentsList.remove(itemIndex);
+                                    mCommentsList.remove(itemIndex - 1);
                                     //Update adapter
                                     mAdapter.notifyItemRemoved(itemIndex);
                                     //set result ok

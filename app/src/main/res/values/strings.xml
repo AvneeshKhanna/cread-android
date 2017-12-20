@@ -44,6 +44,7 @@
     <string name="key_buy_dialog">buyDialog</string>
     <string name="key_me_dialog">meDialog</string>
     <string name="key_royalty_dialog">royaltyDialog</string>
+    <string name="key_gratitude_scroll">gratitudeScroll</string>
     <string name="rating_status">ratingStatus</string>
     <string name="key_deep_link">deepLink</string>
 
@@ -104,5 +105,12 @@
 
     <string name="text_rate_us">We want to bring the best opportunities for you! Please encourage us by giving a 5-star rating. It\'ll mean a lot!</string>
 
+    // tooltips
+    <string name="tooltip_gratitude_hatsoff">has received these many  hats-off on their posts</string>
+    <string name="tooltip_gratitude_comment">has received a total of 10 hats-off on their posts</string>
+    <string name="tooltip_gratitude_collaboration">This is the number of posts inspired by all the posts</string>
+
+    // add caption text
+    <string name="text_add_caption">Say something about this post with #tags</string>
 
 </resources>

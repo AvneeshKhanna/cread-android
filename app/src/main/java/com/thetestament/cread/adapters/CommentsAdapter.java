@@ -18,10 +18,9 @@ import com.afollestad.materialdialogs.MaterialDialog;
 import com.squareup.picasso.Picasso;
 import com.thetestament.cread.R;
 import com.thetestament.cread.activities.ProfileActivity;
-import com.thetestament.cread.listeners.listener;
+import com.thetestament.cread.helpers.FeedHelper;
 import com.thetestament.cread.listeners.listener.OnCommentDeleteListener;
 import com.thetestament.cread.listeners.listener.OnCommentEditListener;
-import com.thetestament.cread.listeners.listener.OnCommentsLoadMoreListener;
 import com.thetestament.cread.listeners.listener.OnLoadMoreClickedListener;
 import com.thetestament.cread.models.CommentsModel;
 
@@ -44,7 +43,7 @@ public class CommentsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
     private List<CommentsModel> mCommentList;
     private FragmentActivity mContext;
     private String mUUID;
-    RecyclerView recyclerView;
+    private boolean mShowMoreOption;
 
 
     private OnCommentDeleteListener onDeleteListener;
@@ -55,16 +54,17 @@ public class CommentsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
     /**
      * Required constructor.
      *
-     * @param mCommentList List of Comment data.
-     * @param mContext     Context to be use.
-     * @param mUUID        UUID of the user.
+     * @param mCommentList   List of Comment data.
+     * @param mContext       Context to be use.
+     * @param mUUID          UUID of the user.
+     * @param showMoreOption If true then show more option.
      */
-    public CommentsAdapter(List<CommentsModel> mCommentList, FragmentActivity mContext, String mUUID, RecyclerView recyclerView) {
+    public CommentsAdapter(List<CommentsModel> mCommentList, FragmentActivity mContext, String mUUID, boolean showMoreOption) {
         this.mCommentList = mCommentList;
         this.mContext = mContext;
         this.mUUID = mUUID;
+        mShowMoreOption = showMoreOption;
 
-        this.recyclerView = recyclerView;
     }
 
 
@@ -113,6 +113,11 @@ public class CommentsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
             itemViewHolder.textUserName.setText(data.getFirstName() + " " + data.getLastName());
             //Set comment
             itemViewHolder.textComment.setText(data.getComment());
+
+            // set hash tags on comment
+            FeedHelper feedHelper = new FeedHelper();
+            feedHelper.setHashTags(itemViewHolder.textComment, mContext);
+
             //Load profile picture
             loadProfilePic(data.getProfilePicUrl(), itemViewHolder.imageUser);
 
@@ -124,17 +129,23 @@ public class CommentsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
             }
 
             //Check for user comments
-            if (data.getUuid().equals(mUUID)) {
-                itemViewHolder.buttonMore.setVisibility(View.VISIBLE);
-                //Long click functionality i.e edit and delete
-                itemViewHolder.buttonMore.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        //Show dialog with options
-                        getBottomSheetDialog(position, data);
-                    }
-                });
+            if (mShowMoreOption) {
+                if (data.getUuid().equals(mUUID)) {
+                    itemViewHolder.buttonMore.setVisibility(View.VISIBLE);
+                    //Long click functionality i.e edit and delete
+                    itemViewHolder.buttonMore.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View view) {
+                            //Show dialog with options
+                            getBottomSheetDialog(itemViewHolder.getAdapterPosition(), data);
+                        }
+                    });
+                }
+            } else {
+                //Hide more option
+                itemViewHolder.buttonMore.setVisibility(View.INVISIBLE);
             }
+
 
             // Expand and collapse comments.
             toggleComment(itemViewHolder.textComment);

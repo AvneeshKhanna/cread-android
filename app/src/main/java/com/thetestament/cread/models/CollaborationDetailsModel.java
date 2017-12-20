@@ -5,7 +5,7 @@ package com.thetestament.cread.models;
  */
 
 public class CollaborationDetailsModel {
-    private String userName, uuid, profilePic, entityUrl;
+    private String userName, uuid, profilePic, entityUrl, entityID;
 
 
     public String getUserName() {
@@ -38,5 +38,13 @@ public class CollaborationDetailsModel {
 
     public void setEntityUrl(String entityUrl) {
         this.entityUrl = entityUrl;
+    }
+
+    public String getEntityID() {
+        return entityID;
+    }
+
+    public void setEntityID(String entityID) {
+        this.entityID = entityID;
     }
 }
