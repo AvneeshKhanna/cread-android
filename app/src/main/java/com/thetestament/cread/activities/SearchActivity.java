@@ -294,6 +294,9 @@ public class SearchActivity extends BaseActivity {
                             }
                         });
                         mSearchKeyWord = s;
+                        //Reset last index key
+                        mLastIndexKey = "";
+
                         //Network call
                         return getDataFromServer(mSearchKeyWord, mLastIndexKey, mSearchType);
                     }
