@@ -79,7 +79,7 @@ public class SearchActivity extends BaseActivity {
     SearchAdapter mAdapter;
 
     @State
-    String mSearchType = SEARCH_TYPE_PEOPLE, mLastIndexKey = null, mSearchKeyWord;
+    String mSearchType = SEARCH_TYPE_PEOPLE, mLastIndexKey = "", mSearchKeyWord;
     @State
     boolean mRequestMoreData;
 
@@ -185,7 +185,7 @@ public class SearchActivity extends BaseActivity {
         mAdapter = new SearchAdapter(mDataList, SearchActivity.this);
         recyclerView.setAdapter(mAdapter);
         //Initialize listener
-        //initLoadMoreListener(mAdapter);
+        initLoadMoreListener(mAdapter);
         //initialize tabLayout
         initializeTabLayoutListener();
     }
@@ -254,7 +254,7 @@ public class SearchActivity extends BaseActivity {
     /**
      * Method to initialize searchView functionality.
      */
-    private void initializeSearchView(SearchView searchView) {
+    private void initializeSearchView(final SearchView searchView) {
         RxSearchObservable.fromView(searchView)
                 //Only emit an item from an Observable if a particular time span
                 // has passed without it emitting another item
@@ -277,8 +277,25 @@ public class SearchActivity extends BaseActivity {
                 .switchMap(new Function<String, ObservableSource<JSONObject>>() {
                     @Override
                     public ObservableSource<JSONObject> apply(String s) throws Exception {
+
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                //Show progress indicator
+                                //Clear list
+                                mDataList.clear();
+                                //Add progress view
+                                SearchModel searchData = new SearchModel();
+                                searchData.setSearchType(SEARCH_TYPE_PROGRESS);
+                                mDataList.add(searchData);
+                                //Notify changes
+                                mAdapter.updateList(mDataList);
+                                //mAdapter.notifyDataSetChanged();
+                            }
+                        });
+                        mSearchKeyWord = s;
                         //Network call
-                        return getDataFromServer(s, mLastIndexKey, mSearchType);
+                        return getDataFromServer(mSearchKeyWord, mLastIndexKey, mSearchType);
                     }
                 })
                 .subscribeOn(Schedulers.single())
@@ -298,8 +315,8 @@ public class SearchActivity extends BaseActivity {
                         mAdapter.setLoaded();
                         try {
                             JSONObject mainData = jsonObject.getJSONObject("data");
-                            //mRequestMoreData = mainData.getBoolean("requestmore");
-                            //mLastIndexKey = mainData.getString("lastindexkey");
+                            mRequestMoreData = mainData.getBoolean("requestmore");
+                            mLastIndexKey = mainData.getString("lastindexkey");
                             //Data list
                             JSONArray dataArray = mainData.getJSONArray("items");
                             for (int i = 0; i < dataArray.length(); i++) {
@@ -340,6 +357,7 @@ public class SearchActivity extends BaseActivity {
 
                     @Override
                     public void onError(Throwable e) {
+                        initializeSearchView(searchView);
                         //Dismiss progress indicator
                         mDataList.clear();
                         mAdapter.notifyDataSetChanged();
@@ -364,22 +382,6 @@ public class SearchActivity extends BaseActivity {
      * @param searchType   SearchType i.e USER or HASH TAG
      */
     private Observable<JSONObject> getDataFromServer(String queryMessage, String lastIndexKey, String searchType) {
-
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                //Show progress indicator
-                //Clear list
-                mDataList.clear();
-                //Add progress view
-                SearchModel searchData = new SearchModel();
-                searchData.setSearchType(SEARCH_TYPE_PROGRESS);
-                mDataList.add(searchData);
-                //Notify changes
-                mAdapter.updateList(mDataList);
-                //mAdapter.notifyDataSetChanged();
-            }
-        });
 
         String inputText;
         //Replace spaces if search type is HASHTAG
@@ -450,7 +452,7 @@ public class SearchActivity extends BaseActivity {
                             for (int i = 0; i < dataArray.length(); i++) {
                                 JSONObject dataObj = dataArray.getJSONObject(i);
                                 SearchModel searchData = new SearchModel();
-                                if (dataObj.getString("searchtype").equals(SEARCH_TYPE_PEOPLE)) {
+                                if (mainData.getString("searchtype").equals(SEARCH_TYPE_PEOPLE)) {
                                     searchData.setUserUUID(dataObj.getString("uuid"));
                                     searchData.setUserName(dataObj.getString("name"));
                                     searchData.setProfilePicUrl(dataObj.getString("profilepicurl"));
