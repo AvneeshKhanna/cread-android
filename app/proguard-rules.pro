@@ -62,3 +62,7 @@
      @icepick.* <fields>;
  }
  -keepnames class * { @icepick.State *;}
+
+
+ ########## Search View ##########
+ -keep class android.support.v7.widget.SearchView { *; }
