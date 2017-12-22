@@ -17,19 +17,53 @@ public class OnDragTouchListener implements View.OnTouchListener {
      * Parent view of the view to be dragged.
      */
     private View mParent;
-    private boolean isDragging;
-    private boolean isInitialized = false;
+
+    /**
+     * Flag to maintain width of the view to be dragged.
+     */
     private int width;
+    /**
+     * Flag to maintain height of the view to be dragged.
+     */
     private int height;
-    private float maxLeft;
-    private float maxRight;
-    private float maxTop;
-    private float maxBottom;
+
+    /**
+     * Flag to store initial x position of view to be dragged.
+     */
+    private float xWhenAttached;
+    /**
+     * Flag to store initial y position of view to be dragged.
+     */
+    private float yWhenAttached;
+
+    /**
+     * Flag to maintain x position of view to be dragged.
+     */
     private float dX;
+
+    /**
+     * Flag to maintain y position of view to be dragged.
+     */
     private float dY;
 
-    private float xWhenAttached;
-    private float yWhenAttached;
+
+    /**
+     * Flags to maintain parent view x coordinate.
+     */
+    private float maxLeft, maxRight;
+    /**
+     * Flags to maintain parent view y coordinate.
+     */
+    private float maxTop, maxBottom;
+
+
+    /**
+     * Flags to maintain view dragging status.
+     */
+    private boolean isDragging;
+
+
+    private boolean isInitialized = false;
 
 
     private OnDragActionListener mOnDragActionListener;
@@ -103,8 +137,24 @@ public class OnDragTouchListener implements View.OnTouchListener {
     }
 
 
+    /**
+     * Initialize member variables.
+     *
+     * @param view   View to be dragged.
+     * @param parent Parent view of view to be dragged.
+     */
+    void initListener(View view, View parent) {
+        mView = view;
+        mParent = parent;
+        //Initialize variables
+        isDragging = false;
+        isInitialized = false;
+    }
+
+
     @Override
     public boolean onTouch(View v, MotionEvent event) {
+        //User is dragging the view
         if (isDragging) {
             float[] bounds = new float[4];
             // LEFT
@@ -140,7 +190,9 @@ public class OnDragTouchListener implements View.OnTouchListener {
                     break;
             }
             return true;
-        } else {
+        }
+        //User is not dragging the view
+        else {
             switch (event.getAction()) {
                 case MotionEvent.ACTION_DOWN:
                     isDragging = true;
@@ -158,20 +210,6 @@ public class OnDragTouchListener implements View.OnTouchListener {
         return true;
     }
 
-
-    /**
-     * Initialize member variables.
-     *
-     * @param view   View to be dragged.
-     * @param parent Parent view of view to be dragged.
-     */
-    void initListener(View view, View parent) {
-        mView = view;
-        mParent = parent;
-        //Initialize variables
-        isDragging = false;
-        isInitialized = false;
-    }
 
     /**
      * Method to update views bounds.

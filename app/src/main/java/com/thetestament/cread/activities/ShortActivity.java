@@ -32,22 +32,15 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.ImageView;
 import android.widget.SeekBar;
 
-import com.afollestad.materialdialogs.DialogAction;
-import com.afollestad.materialdialogs.MaterialDialog;
 import com.afollestad.materialdialogs.color.ColorChooserDialog;
 import com.google.firebase.analytics.FirebaseAnalytics;
-import com.google.firebase.crash.FirebaseCrash;
-import com.rx2androidnetworking.Rx2AndroidNetworking;
 import com.squareup.picasso.Callback;
-import com.squareup.picasso.MemoryPolicy;
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Target;
-import com.thetestament.cread.BuildConfig;
 import com.thetestament.cread.Manifest;
 import com.thetestament.cread.R;
 import com.thetestament.cread.adapters.FontAdapter;
 import com.thetestament.cread.dialog.CustomDialog;
-import com.thetestament.cread.helpers.NetworkHelper;
 import com.thetestament.cread.helpers.SharedPreferenceHelper;
 import com.thetestament.cread.helpers.ViewHelper;
 import com.thetestament.cread.listeners.OnDragTouchListener;
@@ -55,35 +48,24 @@ import com.thetestament.cread.listeners.listener;
 import com.thetestament.cread.models.FontModel;
 import com.thetestament.cread.utils.SquareView;
 
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.concurrent.TimeUnit;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import icepick.Icepick;
 import icepick.State;
-import io.reactivex.Observer;
-import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.CompositeDisposable;
-import io.reactivex.disposables.Disposable;
-import io.reactivex.schedulers.Schedulers;
-import okhttp3.OkHttpClient;
 
 import static com.thetestament.cread.helpers.FontsHelper.fontTypes;
-import static com.thetestament.cread.helpers.ImageHelper.getImageUri;
 import static com.thetestament.cread.utils.Constant.EXTRA_CAPTURE_ID;
 import static com.thetestament.cread.utils.Constant.EXTRA_CAPTURE_URL;
 import static com.thetestament.cread.utils.Constant.EXTRA_DATA;
 import static com.thetestament.cread.utils.Constant.EXTRA_MERCHANTABLE;
 import static com.thetestament.cread.utils.Constant.FIREBASE_EVENT_INSPIRATION_CLICKED;
-import static com.thetestament.cread.utils.Constant.IMAGE_TYPE_USER_SHORT_PIC;
 import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_AUTH_KEY;
 import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_BG_COLOR;
 import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_BOLD;
@@ -141,13 +123,28 @@ public class ShortActivity extends BaseActivity implements ColorChooserDialog.Co
     private ArrayList<FontModel> mFontDataList = new ArrayList<>();
 
     @State
-    String mShortText, mCaptureUrl, mCaptureID = "", mSignatureText, mShortBgColor = "FFFFFFFF", mFontType = "montserrat_regular.ttf";
-    @State
-    boolean mIsMerchantable = true, signatureStatus = false, mIsImagePresent = false;
+    String mCaptureUrl, mCaptureID = "", mSignatureText, mShortBgColor = "FFFFFFFF", mFontType = "montserrat_regular.ttf";
+
     @State
     int mImageWidth = 650;
 
 
+    /**
+     * Flag to maintain merchantable status i.e true if merchantable is present false otherwise.
+     */
+    @State
+    boolean mIsMerchantable = true;
+
+    /**
+     * Flag to maintain user signature status i.e true if user signature is present false otherwise.
+     */
+    @State
+    boolean signatureStatus = false;
+    /**
+     * Flag to maintain background image status i.e true if background image is present false otherwise.
+     */
+    @State
+    boolean mIsImagePresent = false;
     /**
      * Flag to maintain image background color status i.e true if background color is present false otherwise.
      */
@@ -233,13 +230,14 @@ public class ShortActivity extends BaseActivity implements ColorChooserDialog.Co
                     mIsMerchantable = bundle.getBoolean(EXTRA_MERCHANTABLE);
                     //Load inspiration/capture image
                     loadCapture(imageShort, mCaptureUrl);
-                    //Update flag
+                    //Update flags
                     mIsBgColorPresent = false;
                     mIsImagePresent = true;
                 }
                 break;
             case REQUEST_CODE_PREVIEW_ACTIVITY:
                 if (resultCode == RESULT_OK) {
+                    //Finish this screen
                     finish();
                 }
                 break;
@@ -335,13 +333,15 @@ public class ShortActivity extends BaseActivity implements ColorChooserDialog.Co
 
     @Override
     public void onBackPressed() {
-        // super.onBackPressed();
         //Show prompt dialog
         CustomDialog.getBackNavigationDialog(ShortActivity.this
                 , "Discard changes?"
                 , "If you go back now, you will loose your changes.");
     }
 
+    /**
+     * Click functionality to hide bottom sheet.
+     */
     @OnClick(R.id.rootView)
     void rootViewOnClick() {
         //Collapse bottomSheet if its expanded
@@ -448,7 +448,6 @@ public class ShortActivity extends BaseActivity implements ColorChooserDialog.Co
             //Set type
             mColorChooserType = "backGroundColor";
             //Show color dialog
-
             showColorChooserDialog();
         }
     }
@@ -621,7 +620,7 @@ public class ShortActivity extends BaseActivity implements ColorChooserDialog.Co
     }
 
     /**
-     * Method to initialize font bottom sheet
+     * Method to initialize font bottom sheet.
      */
     private void initFontLayout() {
         //initialize font data list
@@ -759,15 +758,14 @@ public class ShortActivity extends BaseActivity implements ColorChooserDialog.Co
             FileOutputStream out = new FileOutputStream(file);
             bitmap.compress(Bitmap.CompressFormat.JPEG, 85, out);
             out.close();
-            //Show preview
-            //showShortPreview(divisionFactor);
+
             //Retrieve background color if its present
             if (mIsBgColorPresent) {
                 ColorDrawable drawable = (ColorDrawable) imageShort.getBackground();
                 //Update bg color
                 mShortBgColor = Integer.toHexString(drawable.getColor());
             }
-
+            //Open next screen
             goToPreviewScreen(mHelper.getUUID()
                     , mHelper.getAuthToken()
                     , mCaptureID
@@ -800,198 +798,15 @@ public class ShortActivity extends BaseActivity implements ColorChooserDialog.Co
 
     }
 
-    /**
-     * Method to show preview of generated image.
-     */
-    private void showShortPreview(final float factor) {
-
-
-        final MaterialDialog dialog = new MaterialDialog.Builder(this)
-                .customView(R.layout.dialog_short_preview, false)
-                .title("Preview")
-                .positiveText("Upload")
-                .onPositive(new MaterialDialog.SingleButtonCallback() {
-                    @Override
-                    public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
-
-                        // check net status
-                        if (NetworkHelper.getNetConnectionStatus(ShortActivity.this)) {
-                            dialog.dismiss();
-
-
-                            //Retrieve background color if its present
-                            if (mIsBgColorPresent) {
-                                ColorDrawable drawable = (ColorDrawable) imageShort.getBackground();
-                                //Update bg color
-                                mShortBgColor = Integer.toHexString(drawable.getColor());
-                            }
-
-                            //Update details on server
-                            /*updateShort(new File(getImageUri(IMAGE_TYPE_USER_SHORT_PIC).getPath())
-                                    , mCaptureID
-                                    , String.valueOf(textShort.getX() / factor)
-                                    , String.valueOf((textShort.getY() - squareView.getY()) / factor)
-                                    , String.valueOf(textShort.getWidth() / factor)
-                                    , String.valueOf(textShort.getHeight() / factor)
-                                    , textShort.getText().toString()
-                                    , String.valueOf(textShort.getTextSize() / factor)
-                                    , Integer.toHexString(textShort.getCurrentTextColor())
-                                    , textGravity.toString()
-                                    , String.valueOf(mImageWidth)
-                                    , mFontType
-                                    , mShortBgColor
-                                    , String.valueOf(mBoldFlag)
-                                    , String.valueOf(mItalicFlag)
-                            );*/
-
-
-                        } else {
-                            ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_no_connection));
-                        }
-                    }
-                })
-                .show();
-
-
-        ImageView imagePreview = dialog.getCustomView().findViewById(R.id.imageShortPreview);
-        // TextView buttonUpload = dialog.getCustomView().findViewById(R.id.buttonUpload);
-        //Click listener
-        /*buttonUpload.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-
-            }
-        });*/
-        //Load preview image
-        Picasso.with(this)
-                .load(getImageUri(IMAGE_TYPE_USER_SHORT_PIC))
-                .error(R.drawable.image_placeholder)
-                .memoryPolicy(MemoryPolicy.NO_CACHE)
-                .into(imagePreview);
-    }
-
-    /**
-     * Update short image and other details on server.
-     */
-    private void updateShort(File file, String captureID, String xPosition, String yPosition, String tvWidth, String tvHeight, String text, String textSize, String textColor, String textGravity, String imgWidth, String font, String bgColor, String bold, String italic) {
-
-        int merchantable;
-        if (mIsMerchantable) {
-            merchantable = 1;
-        } else {
-            merchantable = 0;
-        }
-
-        //Configure OkHttpClient for time out
-        OkHttpClient okHttpClient = new OkHttpClient().newBuilder()
-                .connectTimeout(20, TimeUnit.MINUTES)
-                .readTimeout(20, TimeUnit.MINUTES)
-                .writeTimeout(20, TimeUnit.MINUTES)
-                .build();
-
-        //To show the progress dialog
-        MaterialDialog.Builder builder = new MaterialDialog.Builder(this)
-                .title("Uploading your writing")
-                .content("Please wait...")
-                .autoDismiss(false)
-                .cancelable(false)
-                .progress(true, 0);
-
-        final MaterialDialog dialog = builder.build();
-        dialog.show();
-
-
-        Rx2AndroidNetworking.upload(BuildConfig.URL + "/short-upload")
-                .setOkHttpClient(okHttpClient)
-                .addMultipartFile("short-image", file)
-                .addMultipartParameter("captureid", captureID)
-                .addMultipartParameter("uuid", mHelper.getUUID())
-                .addMultipartParameter("authkey", mHelper.getAuthToken())
-                .addMultipartParameter("dx", xPosition)
-                .addMultipartParameter("dy", yPosition)
-                .addMultipartParameter("txt_width", tvWidth)
-                .addMultipartParameter("txt_height", tvHeight)
-                .addMultipartParameter("img_width", imgWidth)
-                .addMultipartParameter("img_height", imgWidth)
-                .addMultipartParameter("text", text)
-                .addMultipartParameter("textsize", textSize)
-                .addMultipartParameter("textcolor", textColor)
-                .addMultipartParameter("textgravity", textGravity)
-                .addMultipartParameter("merchantable", String.valueOf(merchantable))
-                .addMultipartParameter("font", font)
-                .addMultipartParameter("bgcolor", bgColor)
-                .addMultipartParameter("bold", bold)
-                .addMultipartParameter("italic", italic)
-                .build()
-                .getJSONObjectObservable()
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new Observer<JSONObject>() {
-                    @Override
-                    public void onSubscribe(@io.reactivex.annotations.NonNull Disposable d) {
-                        //Add disposable
-                        mCompositeDisposable.add(d);
-                    }
-
-                    @Override
-                    public void onNext(@io.reactivex.annotations.NonNull JSONObject jsonObject) {
-                        dialog.dismiss();
-                        try {
-                            //if token status is not invalid
-                            if (jsonObject.getString("tokenstatus").equals("invalid")) {
-                                ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_invalid_token));
-                            } else {
-                                JSONObject dataObject = jsonObject.getJSONObject("data");
-                                if (dataObject.getString("status").equals("done")) {
-                                    ViewHelper.getToast(ShortActivity.this, "Writing uploaded successfully.");
-                                    //Navigate back to previous market
-                                    finish();
-                                }
-                            }
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                            FirebaseCrash.report(e);
-                            ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_internal));
-                        }
-                    }
-
-                    @Override
-                    public void onError(@io.reactivex.annotations.NonNull Throwable e) {
-                        dialog.dismiss();
-                        e.printStackTrace();
-                        FirebaseCrash.report(e);
-                        ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_server));
-                    }
-
-                    @Override
-                    public void onComplete() {
-                        //do nothing
-                    }
-                });
-    }
-
 
     /**
      * Method to open previewActivity.
      */
-    private void goToPreviewScreen(String uuid
-            , String authKey
-            , String captureID
-            , String xPosition
-            , String yPosition
-            , String tvWidth
-            , String tvHeight
-            , String text
-            , String textSize
-            , String textColor
-            , String textGravity
-            , String imgWidth
-            , String merchantable
-            , String font
-            , String bgColor
-            , String bold
-            , String italic
-            , String calledFrom) {
+    private void goToPreviewScreen(String uuid, String authKey, String captureID
+            , String xPosition, String yPosition, String tvWidth, String tvHeight
+            , String text, String textSize, String textColor, String textGravity
+            , String imgWidth, String merchantable, String font, String bgColor
+            , String bold, String italic, String calledFrom) {
 
         Intent intent = new Intent(ShortActivity.this, PreviewActivity.class);
 
