@@ -114,7 +114,7 @@ public class BottomNavigationActivity extends BaseActivity {
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-       // super.onActivityResult(requestCode, resultCode, data);
+        // super.onActivityResult(requestCode, resultCode, data);
         switch (requestCode) {
             case REQUEST_CODE_OPEN_GALLERY:
                 if (resultCode == RESULT_OK) {
@@ -136,9 +136,8 @@ public class BottomNavigationActivity extends BaseActivity {
                 }
                 break;
 
-            case REQUEST_CODE_ROYALTIES_ACTIVITY :
-                if(resultCode == RESULT_OK)
-                {
+            case REQUEST_CODE_ROYALTIES_ACTIVITY:
+                if (resultCode == RESULT_OK) {
                     // open bottom sheet
                     getAddContentBottomSheetDialog();
                 }
@@ -591,7 +590,6 @@ public class BottomNavigationActivity extends BaseActivity {
                 })
                 .show();
     }
-
 
     public void activateBottomNavigationItem(int id) {
         navigationView.setSelectedItemId(id);
