@@ -18,7 +18,6 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.res.ResourcesCompat;
 import android.support.v4.widget.NestedScrollView;
-import android.support.v7.widget.AppCompatEditText;
 import android.support.v7.widget.AppCompatSeekBar;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -46,6 +45,8 @@ import com.thetestament.cread.helpers.ViewHelper;
 import com.thetestament.cread.listeners.OnDragTouchListener;
 import com.thetestament.cread.listeners.listener;
 import com.thetestament.cread.models.FontModel;
+import com.thetestament.cread.utils.CustomEditText;
+import com.thetestament.cread.utils.CustomEditText.OnEditTextBackListener;
 import com.thetestament.cread.utils.SquareView;
 
 import java.io.File;
@@ -94,7 +95,7 @@ import static com.thetestament.cread.utils.Constant.REQUEST_CODE_WRITE_EXTERNAL_
  * Here user creates his/her shorts and uploads on the server.
  */
 
-public class ShortActivity extends BaseActivity implements ColorChooserDialog.ColorCallback {
+public class ShortActivity extends BaseActivity implements ColorChooserDialog.ColorCallback, OnEditTextBackListener {
 
     @BindView(R.id.rootView)
     CoordinatorLayout rootView;
@@ -103,7 +104,7 @@ public class ShortActivity extends BaseActivity implements ColorChooserDialog.Co
     @BindView(R.id.imageShort)
     ImageView imageShort;
     @BindView(R.id.textShort)
-    AppCompatEditText textShort;
+    CustomEditText textShort;
     @BindView(R.id.seekBarTextSize)
     AppCompatSeekBar seekBarTextSize;
     @BindView(R.id.dotBold)
@@ -174,6 +175,7 @@ public class ShortActivity extends BaseActivity implements ColorChooserDialog.Co
     @State
     int mGravityFlag = 0;
 
+
     //ENUM for text gravity
     private enum TextGravity {
         Center, East, West
@@ -181,11 +183,7 @@ public class ShortActivity extends BaseActivity implements ColorChooserDialog.Co
 
     //Initially text gravity is "CENTER"
     TextGravity textGravity = TextGravity.Center;
-    /**
-     * Flag for switching b/w edit mode and drag mode.
-     * 0 for edit mode and 1 for drag mode.
-     */
-    int mToggleMovement = 0;
+
 
     CompositeDisposable mCompositeDisposable = new CompositeDisposable();
     SharedPreferenceHelper mHelper;
@@ -198,6 +196,9 @@ public class ShortActivity extends BaseActivity implements ColorChooserDialog.Co
         setContentView(R.layout.activity_short);
         //ButterKnife view binding
         ButterKnife.bind(this);
+        //set listener
+        textShort.setOnEditTextBackListener(this);
+
         mHelper = new SharedPreferenceHelper(this);
         //initialize screen
         initScreen();
@@ -210,6 +211,8 @@ public class ShortActivity extends BaseActivity implements ColorChooserDialog.Co
         mTextTypeface = ResourcesCompat.getFont(ShortActivity.this, R.font.montserrat_regular);
         //initialise fontLayout bottomSheet
         initFontLayout();
+        //initialize listener
+        initDragListener();
     }
 
     @Override
@@ -340,6 +343,15 @@ public class ShortActivity extends BaseActivity implements ColorChooserDialog.Co
     }
 
     /**
+     * Edit text back listener
+     */
+    @Override
+    public void onBack() {
+        //initialize listener
+        initDragListener();
+    }
+
+    /**
      * Click functionality to hide bottom sheet.
      */
     @OnClick(R.id.rootView)
@@ -356,29 +368,14 @@ public class ShortActivity extends BaseActivity implements ColorChooserDialog.Co
         if (sheetBehavior.getState() == BottomSheetBehavior.STATE_EXPANDED) {
             sheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
         }
-        //Toggle mode i.e edit to drag and vice versa
-        if (mToggleMovement == 0) {
-            //Set drag listener
-            textShort.setOnTouchListener(new OnDragTouchListener(textShort, squareView));
-            //textContainer.setOnTouchListener(new OnDragTouchListener(textContainer));
-            //Hide edit text cursor
-            textShort.setCursorVisible(false);
-            //Hide keyboard
-            InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-            imm.hideSoftInputFromWindow(textShort.getWindowToken(), 0);
-            //Change flag
-            mToggleMovement = 1;
-        } else {
-            //Remove drag listener
-            textShort.setOnTouchListener(null);
-            //Shoe edit text cursor
-            textShort.setCursorVisible(true);
-            //Show keyboard
-            InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-            imm.showSoftInput(textShort, 0);
-            //Change flag
-            mToggleMovement = 0;
-        }
+        //Hide edit text cursor
+        textShort.setCursorVisible(false);
+        //Hide keyboard
+        InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+        imm.hideSoftInputFromWindow(textShort.getWindowToken(), 0);
+
+        //initialize listener
+        initDragListener();
     }
 
     /**
@@ -666,6 +663,30 @@ public class ShortActivity extends BaseActivity implements ColorChooserDialog.Co
     }
 
     /**
+     * Method to initialize  edit text drag listener.
+     */
+    private void initDragListener() {
+        textShort.setOnTouchListener(new OnDragTouchListener(textShort, squareView, new OnDragTouchListener.OnDragActionListener() {
+            @Override
+            public void onDragStart(View view) {
+                //Hide edit text cursor
+                textShort.setCursorVisible(false);
+            }
+
+            @Override
+            public void onDragEnd(View view) {
+                //Shoe edit text cursor
+                textShort.setCursorVisible(true);
+                //Show keyboard
+                InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                imm.showSoftInput(textShort, 0);
+                //Remove listener
+                textShort.setOnTouchListener(null);
+            }
+        }));
+    }
+
+    /**
      * Method to load capture image.
      *
      * @param imageView View where image will be loaded.
@@ -797,7 +818,6 @@ public class ShortActivity extends BaseActivity implements ColorChooserDialog.Co
         squareView.destroyDrawingCache();
 
     }
-
 
     /**
      * Method to open previewActivity.

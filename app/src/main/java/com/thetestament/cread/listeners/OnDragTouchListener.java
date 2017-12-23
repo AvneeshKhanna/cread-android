@@ -37,6 +37,14 @@ public class OnDragTouchListener implements View.OnTouchListener {
     private float yWhenAttached;
 
     /**
+     * Flag to store initial last x position of view to be dragged.
+     */
+    private float xWhenDeAttached;
+    /**
+     * Flag to store last y position of view to be dragged.
+     */
+    private float yWhenDeAttached;
+    /**
      * Flag to maintain x position of view to be dragged.
      */
     private float dX;
@@ -46,7 +54,6 @@ public class OnDragTouchListener implements View.OnTouchListener {
      */
     private float dY;
 
-
     /**
      * Flags to maintain parent view x coordinate.
      */
@@ -55,7 +62,6 @@ public class OnDragTouchListener implements View.OnTouchListener {
      * Flags to maintain parent view y coordinate.
      */
     private float maxTop, maxBottom;
-
 
     /**
      * Flags to maintain view dragging status.
@@ -67,6 +73,7 @@ public class OnDragTouchListener implements View.OnTouchListener {
 
 
     private OnDragActionListener mOnDragActionListener;
+
 
     /**
      * Interface definition for a callback to be invoked when user drag or stop dragging.
@@ -227,10 +234,12 @@ public class OnDragTouchListener implements View.OnTouchListener {
     void updateViewBounds() {
         width = mView.getWidth();
         xWhenAttached = mView.getX();
+        xWhenDeAttached = xWhenAttached;
         dX = 0;
 
         height = mView.getHeight();
         yWhenAttached = mView.getY();
+        yWhenDeAttached = yWhenAttached;
         dY = 0;
     }
 
@@ -249,19 +258,19 @@ public class OnDragTouchListener implements View.OnTouchListener {
      * Method to reset variables when view dragging finished.
      */
     private void onDragFinish() {
-        if (mOnDragActionListener != null) {
-            //Drag listener
-            mOnDragActionListener.onDragEnd(mView);
-        }
         //Reset variables
         dX = 0;
         dY = 0;
         isDragging = false;
 
-        //Disable touchListener
-        /*if (endDrag) {
-            mView.setOnTouchListener(null);
-        }*/
+
+        if (mOnDragActionListener != null) {
+            //Drag listener
+            if (xWhenDeAttached == mView.getX() && yWhenDeAttached == mView.getY())
+                mOnDragActionListener.onDragEnd(mView);
+            xWhenDeAttached = mView.getX();
+            yWhenDeAttached = mView.getY();
+        }
     }
 
 
