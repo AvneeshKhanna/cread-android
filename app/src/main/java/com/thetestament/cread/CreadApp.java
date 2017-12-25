@@ -1,6 +1,7 @@
 package com.thetestament.cread;
 
 import android.support.multidex.MultiDexApplication;
+import android.support.v7.app.AppCompatDelegate;
 
 import com.androidnetworking.AndroidNetworking;
 
@@ -29,6 +30,9 @@ public class CreadApp extends MultiDexApplication {
         AndroidNetworking.initialize(getApplicationContext());
         //Permission helper library initialization
         Nammu.init(getApplicationContext());
+        //For vector drawable
+        AppCompatDelegate.setCompatVectorFromResourcesEnabled(true);
+
     }
 
     /**
