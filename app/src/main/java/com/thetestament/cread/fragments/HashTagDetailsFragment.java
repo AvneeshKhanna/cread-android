@@ -388,7 +388,7 @@ public class HashTagDetailsFragment extends Fragment {
                                 hashTag,
                                 mLastIndexKey),
                 getActivity(),
-                new OnServerRequestedListener() {
+                new OnServerRequestedListener<JSONObject>() {
                     @Override
                     public void onDeviceOffline() {
 
@@ -466,7 +466,7 @@ public class HashTagDetailsFragment extends Fragment {
                                 hashTag,
                                 mLastIndexKey),
                 getActivity(),
-                new OnServerRequestedListener() {
+                new OnServerRequestedListener<JSONObject>() {
                     @Override
                     public void onDeviceOffline() {
 

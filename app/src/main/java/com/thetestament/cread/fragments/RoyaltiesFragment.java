@@ -58,7 +58,7 @@ import io.reactivex.disposables.Disposable;
 import io.reactivex.schedulers.Schedulers;
 
 import static android.app.Activity.RESULT_OK;
-import static com.thetestament.cread.helpers.NetworkHelper.getRoyaltiesObersvable;
+import static com.thetestament.cread.helpers.NetworkHelper.getRoyaltiesObservable;
 import static com.thetestament.cread.helpers.NetworkHelper.requestServer;
 import static com.thetestament.cread.utils.Constant.CONTENT_TYPE_CAPTURE;
 import static com.thetestament.cread.utils.Constant.CONTENT_TYPE_SHORT;
@@ -286,14 +286,14 @@ public class RoyaltiesFragment extends Fragment {
         swipeRefreshLayout.setRefreshing(true);
 
         requestServer(mCompositeDisposable,
-                getRoyaltiesObersvable
+                getRoyaltiesObservable
                         (BuildConfig.URL + "/sell/load",
                                 mHelper.getUUID(),
                                 mHelper.getAuthToken(),
                                 mLastIndexKey,
                                 mRequestRoyaltiesData),
                 getActivity(),
-                new OnServerRequestedListener() {
+                new OnServerRequestedListener<JSONObject>() {
                     @Override
                     public void onDeviceOffline() {
 
@@ -381,14 +381,14 @@ public class RoyaltiesFragment extends Fragment {
         final boolean[] connectionError = {false};
 
         requestServer(mCompositeDisposable,
-                getRoyaltiesObersvable
+                getRoyaltiesObservable
                         (BuildConfig.URL + "/sell/load",
                                 mHelper.getUUID(),
                                 mHelper.getAuthToken(),
                                 mLastIndexKey,
                                 mRequestRoyaltiesData),
                 getActivity(),
-                new OnServerRequestedListener() {
+                new OnServerRequestedListener<JSONObject>() {
                     @Override
                     public void onDeviceOffline() {
 

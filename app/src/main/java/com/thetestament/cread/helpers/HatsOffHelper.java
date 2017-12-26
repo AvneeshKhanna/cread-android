@@ -15,6 +15,10 @@ import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.schedulers.Schedulers;
 
+import static com.thetestament.cread.CreadApp.GET_RESPONSE_FROM_NETWORK_EXPLORE;
+import static com.thetestament.cread.CreadApp.GET_RESPONSE_FROM_NETWORK_MAIN;
+import static com.thetestament.cread.CreadApp.GET_RESPONSE_FROM_NETWORK_ME;
+
 /**
  * Helper class to update HatsOff status.
  */
@@ -106,6 +110,13 @@ public class HatsOffHelper {
                             else {
                                 JSONObject mainData = jsonObject.getJSONObject("data");
                                 if (mainData.getString("status").equals("done")) {
+
+                                    // set feeds data to be loaded from network
+                                    // instead of cached data
+                                    GET_RESPONSE_FROM_NETWORK_MAIN = true;
+                                    GET_RESPONSE_FROM_NETWORK_EXPLORE = true;
+                                    GET_RESPONSE_FROM_NETWORK_ME = true;
+
                                     //Set listener
                                     onHatsOffSuccessListener.onSuccess();
                                 }

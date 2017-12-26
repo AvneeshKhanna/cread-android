@@ -12,6 +12,12 @@ public class CreadApp extends MultiDexApplication {
 
     private static CreadApp singleTone;
 
+    public static boolean GET_RESPONSE_FROM_NETWORK_MAIN = false;
+    public static boolean GET_RESPONSE_FROM_NETWORK_EXPLORE = false;
+    public static boolean GET_RESPONSE_FROM_NETWORK_ME = false;
+    public static boolean GET_RESPONSE_FROM_NETWORK_FIND_FRIENDS = false;
+    public static boolean GET_RESPONSE_FROM_NETWORK_FOLLOWING = false;
+
     /**
      * Method to return singleton instance of this class.
      */

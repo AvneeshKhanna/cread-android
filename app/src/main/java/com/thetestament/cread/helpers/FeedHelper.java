@@ -25,6 +25,7 @@ import com.thetestament.cread.BuildConfig;
 import com.thetestament.cread.R;
 import com.thetestament.cread.activities.ProfileActivity;
 import com.thetestament.cread.listeners.listener;
+import com.thetestament.cread.listeners.listener.OnServerRequestedListener;
 import com.thetestament.cread.listeners.listener.OnShareDialogItemClickedListener;
 
 import org.json.JSONException;
@@ -215,7 +216,7 @@ public class FeedHelper {
                 entityUrl,
                 creatorName),
                 context,
-                new listener.OnServerRequestedListener() {
+                new OnServerRequestedListener<JSONObject>() {
                     @Override
                     public void onDeviceOffline() {
 

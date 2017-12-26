@@ -72,6 +72,9 @@ import io.reactivex.schedulers.Schedulers;
 import pl.tajchert.nammu.Nammu;
 import pl.tajchert.nammu.PermissionCallback;
 
+import static com.thetestament.cread.CreadApp.GET_RESPONSE_FROM_NETWORK_EXPLORE;
+import static com.thetestament.cread.CreadApp.GET_RESPONSE_FROM_NETWORK_MAIN;
+import static com.thetestament.cread.CreadApp.GET_RESPONSE_FROM_NETWORK_ME;
 import static com.thetestament.cread.helpers.FeedHelper.generateDeepLink;
 import static com.thetestament.cread.helpers.FeedHelper.getCreatorText;
 import static com.thetestament.cread.helpers.FeedHelper.initializeSpannableString;
@@ -998,6 +1001,7 @@ public class FeedDescriptionActivity extends BaseActivity {
                 bundle.putBoolean("hatsOffStatus", mFeedData.getHatsOffStatus());
                 Intent resultIntent = new Intent();
                 resultIntent.putExtra(EXTRA_DATA, bundle);
+
                 //Return result ok
                 setResult(RESULT_OK, resultIntent);
             }

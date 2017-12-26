@@ -28,7 +28,9 @@ import android.widget.TextView;
 import com.afollestad.materialdialogs.DialogAction;
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.google.firebase.analytics.FirebaseAnalytics;
+import com.google.firebase.crash.FirebaseCrash;
 import com.mikepenz.actionitembadge.library.ActionItemBadge;
+import com.thetestament.cread.BuildConfig;
 import com.thetestament.cread.Manifest;
 import com.thetestament.cread.R;
 import com.thetestament.cread.database.NotificationsDBFunctions;
@@ -38,16 +40,21 @@ import com.thetestament.cread.fragments.MeFragment;
 import com.thetestament.cread.helpers.BottomNavigationViewHelper;
 import com.thetestament.cread.helpers.SharedPreferenceHelper;
 import com.thetestament.cread.helpers.ViewHelper;
+import com.thetestament.cread.listeners.listener;
+import com.thetestament.cread.listeners.listener.OnServerRequestedListener;
 import com.yalantis.ucrop.UCrop;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import icepick.Icepick;
 import icepick.State;
+import io.reactivex.disposables.CompositeDisposable;
 
 import static com.thetestament.cread.helpers.ImageHelper.compressCroppedImg;
 import static com.thetestament.cread.helpers.ImageHelper.getImageUri;
 import static com.thetestament.cread.helpers.ImageHelper.startImageCropping;
+import static com.thetestament.cread.helpers.NetworkHelper.getRestartHerokuObservable;
+import static com.thetestament.cread.helpers.NetworkHelper.requestServer;
 import static com.thetestament.cread.utils.Constant.FIREBASE_EVENT_EXPLORE_CLICKED;
 import static com.thetestament.cread.utils.Constant.FIREBASE_EVENT_FEED_CLICKED;
 import static com.thetestament.cread.utils.Constant.FIREBASE_EVENT_NOTIFICATION_CLICKED;
@@ -84,6 +91,7 @@ public class BottomNavigationActivity extends BaseActivity {
 
     private FirebaseAnalytics mFirebaseAnalytics;
     private SharedPreferenceHelper mHelper;
+    private CompositeDisposable mCompositeDisposable = new CompositeDisposable();
 
     @Override
 
@@ -149,6 +157,12 @@ public class BottomNavigationActivity extends BaseActivity {
     }
 
     @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        mCompositeDisposable.dispose();
+    }
+
+    @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         if (requestCode == REQUEST_CODE_WRITE_EXTERNAL_STORAGE) {
@@ -187,6 +201,10 @@ public class BottomNavigationActivity extends BaseActivity {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu_cread, menu);
+
+        // set visibility of restart heroku option according to build config
+        menu.findItem(R.id.action_restart_heroku).setVisible(BuildConfig.VISIBILITY_RESTART_HEROKU_OPTION);
+
         super.onCreateOptionsMenu(menu);
         return true;
     }
@@ -224,6 +242,10 @@ public class BottomNavigationActivity extends BaseActivity {
             case R.id.action_settings:
                 //Launch settings activity
                 startActivity(new Intent(this, SettingsActivity.class));
+                return true;
+
+            case R.id.action_restart_heroku:
+                restartHerokuServer();
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
@@ -595,6 +617,39 @@ public class BottomNavigationActivity extends BaseActivity {
 
     public void activateBottomNavigationItem(int id) {
         navigationView.setSelectedItemId(id);
+    }
+
+
+    private void restartHerokuServer() {
+        requestServer(mCompositeDisposable,
+                getRestartHerokuObservable(),
+                this,
+                new OnServerRequestedListener<String>() {
+                    @Override
+                    public void onDeviceOffline() {
+
+                        ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_no_connection));
+                    }
+
+                    @Override
+                    public void onNextCalled(String response) {
+
+                        ViewHelper.getSnackBar(rootView, response);
+                    }
+
+                    @Override
+                    public void onErrorCalled(Throwable e) {
+                        e.printStackTrace();
+                        FirebaseCrash.report(e);
+
+                        ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_server));
+                    }
+
+                    @Override
+                    public void onCompleteCalled() {
+
+                    }
+                });
     }
 
 

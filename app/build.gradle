@@ -15,7 +15,7 @@ android {
         applicationId "com.thetestament.cread"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 13
+        versionCode 14
         versionName "1.3.0"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         // Enabling multi-dex support.
@@ -30,6 +30,7 @@ android {
             minifyEnabled true
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
             buildConfigField "String", "URL", '"http://cread-server-main.ap-northeast-1.elasticbeanstalk.com"'
+            buildConfigField "boolean", "VISIBILITY_RESTART_HEROKU_OPTION", "false"
             resValue "string", "RZP_KEY", "rzp_live_R8v2wfBMmMnHVy"
             resValue "bool", "FIREBASE_ANALYTICS_ENABLED", "true"
             resValue "bool", "FIREBASE_CRASHLYTICS_ENABLED", "true"
@@ -41,7 +42,8 @@ android {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
             //buildConfigField "String", "URL", '"http://cread-dev-remote.herokuapp.com"'
-            buildConfigField "String", "URL", '"http://0f6fe2f0.ngrok.io"'
+            buildConfigField "String", "URL", '"https://39150063.ngrok.io"'
+            buildConfigField "boolean", "VISIBILITY_RESTART_HEROKU_OPTION", "true"
             resValue "string", "RZP_KEY", "rzp_test_Q09427lQA9Ol5g"
             resValue "bool", "FIREBASE_ANALYTICS_ENABLED", "false"
             resValue "bool", "FIREBASE_CRASHLYTICS_ENABLED", "false"

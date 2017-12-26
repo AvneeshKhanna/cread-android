@@ -62,6 +62,11 @@ import pl.tajchert.nammu.Nammu;
 import pl.tajchert.nammu.PermissionCallback;
 
 import static android.app.Activity.RESULT_OK;
+import static com.thetestament.cread.CreadApp.GET_RESPONSE_FROM_NETWORK_EXPLORE;
+import static com.thetestament.cread.CreadApp.GET_RESPONSE_FROM_NETWORK_FIND_FRIENDS;
+import static com.thetestament.cread.CreadApp.GET_RESPONSE_FROM_NETWORK_FOLLOWING;
+import static com.thetestament.cread.CreadApp.GET_RESPONSE_FROM_NETWORK_MAIN;
+import static com.thetestament.cread.CreadApp.GET_RESPONSE_FROM_NETWORK_ME;
 import static com.thetestament.cread.helpers.ImageHelper.getImageUri;
 import static com.thetestament.cread.helpers.NetworkHelper.getNetConnectionStatus;
 import static com.thetestament.cread.helpers.NetworkHelper.getObservableFromServer;
@@ -185,8 +190,8 @@ public class ExploreFragment extends Fragment {
 
     @Override
     public void onPrepareOptionsMenu(Menu menu) {
-        //Change action flag to SHOW_AS_ACTION_NEVER
-        menu.findItem(R.id.action_updates).setShowAsActionFlags(MenuItem.SHOW_AS_ACTION_NEVER);
+        //Change action flag to SHOW_AS_ACTION_IF_ROOM
+        menu.findItem(R.id.action_updates).setShowAsActionFlags(MenuItem.SHOW_AS_ACTION_IF_ROOM);
         super.onPrepareOptionsMenu(menu);
     }
 
@@ -619,6 +624,14 @@ public class ExploreFragment extends Fragment {
                                         }
                                     }
                                     mAdapter.notifyDataSetChanged();
+
+                                    // set feeds data to be loaded from network
+                                    // instead of cached data
+                                    GET_RESPONSE_FROM_NETWORK_MAIN = true;
+                                    GET_RESPONSE_FROM_NETWORK_EXPLORE = true;
+                                    GET_RESPONSE_FROM_NETWORK_ME = true;
+                                    GET_RESPONSE_FROM_NETWORK_FIND_FRIENDS = true;
+                                    GET_RESPONSE_FROM_NETWORK_FOLLOWING = true;
                                 }
                             }
                         } catch (JSONException e) {

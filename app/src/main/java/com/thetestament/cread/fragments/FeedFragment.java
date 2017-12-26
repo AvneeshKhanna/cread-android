@@ -47,6 +47,7 @@ import com.thetestament.cread.helpers.NetworkHelper;
 import com.thetestament.cread.helpers.SharedPreferenceHelper;
 import com.thetestament.cread.helpers.ViewHelper;
 import com.thetestament.cread.listeners.listener;
+import com.thetestament.cread.listeners.listener.OnFeedCaptureClickListener;
 import com.thetestament.cread.models.FeedModel;
 import com.thetestament.cread.utils.Constant;
 import com.yalantis.ucrop.UCrop;
@@ -74,6 +75,9 @@ import pl.tajchert.nammu.Nammu;
 import pl.tajchert.nammu.PermissionCallback;
 
 import static android.app.Activity.RESULT_OK;
+import static com.thetestament.cread.CreadApp.GET_RESPONSE_FROM_NETWORK_EXPLORE;
+import static com.thetestament.cread.CreadApp.GET_RESPONSE_FROM_NETWORK_MAIN;
+import static com.thetestament.cread.CreadApp.GET_RESPONSE_FROM_NETWORK_ME;
 import static com.thetestament.cread.helpers.FeedHelper.generateDeepLink;
 import static com.thetestament.cread.helpers.ImageHelper.getImageUri;
 import static com.thetestament.cread.helpers.ImageHelper.getLocalBitmapUri;
@@ -430,6 +434,8 @@ public class FeedFragment extends Fragment {
                             public void onComplete() {
                                 //Dismiss progress indicator
                                 swipeRefreshLayout.setRefreshing(false);
+                                // set to false
+                                GET_RESPONSE_FROM_NETWORK_MAIN = false;
                                 // Token status invalid
                                 if (tokenError[0]) {
                                     ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_invalid_token));
@@ -605,7 +611,6 @@ public class FeedFragment extends Fragment {
                 hatsOffHelper.setOnHatsOffSuccessListener(new HatsOffHelper.OnHatsOffSuccessListener() {
                     @Override
                     public void onSuccess() {
-                        // do nothing
                     }
                 });
                 // On hatsOffSuccessListener
@@ -690,7 +695,7 @@ public class FeedFragment extends Fragment {
      * @param feedAdapter FeedAdapter reference
      */
     private void initCaptureListener(FeedAdapter feedAdapter) {
-        feedAdapter.setOnFeedCaptureClickListener(new listener.OnFeedCaptureClickListener() {
+        feedAdapter.setOnFeedCaptureClickListener(new OnFeedCaptureClickListener() {
             @Override
             public void onClick(String shortId) {
                 //Set entity id
