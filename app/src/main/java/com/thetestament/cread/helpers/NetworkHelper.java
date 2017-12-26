@@ -5,11 +5,13 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.support.v4.app.FragmentActivity;
 
+import com.androidnetworking.common.Priority;
 import com.google.firebase.crash.FirebaseCrash;
 import com.rx2androidnetworking.Rx2ANRequest;
 import com.rx2androidnetworking.Rx2AndroidNetworking;
 import com.thetestament.cread.BuildConfig;
 import com.thetestament.cread.listeners.listener;
+import com.thetestament.cread.utils.Constant;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -323,6 +325,31 @@ public class NetworkHelper {
         } else {
             listener.onDeviceOffline();
         }
+    }
+
+    /**
+     * Method to return requested data from the server.
+     *
+     * @param queryMessage Search text entered by the user.
+     * @param lastIndexKey Url of next page.
+     * @param searchType   SearchType i.e USER or HASH TAG
+     */
+    public static Observable<JSONObject> getSearchObservableServer(String queryMessage, String lastIndexKey, String searchType) {
+
+        String inputText;
+        //Replace spaces if search type is HASHTAG
+        if (searchType.equals(Constant.SEARCH_TYPE_HASHTAG)) {
+            inputText = queryMessage.replaceAll("\\s+", "");
+        } else {
+            inputText = queryMessage;
+        }
+        return Rx2AndroidNetworking.get(BuildConfig.URL + "/search/load")
+                .addQueryParameter("keyword", inputText)
+                .addQueryParameter("lastindexkey", lastIndexKey)
+                .addQueryParameter("searchtype", searchType)
+                .setPriority(Priority.HIGH)
+                .build()
+                .getJSONObjectObservable();
     }
 
 }

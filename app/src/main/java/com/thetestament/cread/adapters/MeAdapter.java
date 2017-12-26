@@ -28,7 +28,6 @@ import com.thetestament.cread.activities.CollaborationDetailsActivity;
 import com.thetestament.cread.activities.CommentsActivity;
 import com.thetestament.cread.activities.FeedDescriptionActivity;
 import com.thetestament.cread.activities.ShortActivity;
-import com.thetestament.cread.helpers.FeedHelper;
 import com.thetestament.cread.helpers.NetworkHelper;
 import com.thetestament.cread.helpers.SharedPreferenceHelper;
 import com.thetestament.cread.helpers.ViewHelper;
@@ -236,27 +235,6 @@ public class MeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                 .load(picUrl)
                 .error(R.drawable.ic_account_circle_48)
                 .into(imageView);
-    }
-
-    /**
-     * Method to set content image depending upon its type.
-     *
-     * @param contentType      Type of content.
-     * @param imageContentType Content imageView.
-     */
-    private void setContentType(String contentType, ImageView imageContentType, ImageView composeButton) {
-        //Check for content type
-        switch (contentType) {
-            case CONTENT_TYPE_CAPTURE:
-                imageContentType.setImageDrawable(ContextCompat.getDrawable(mContext, R.drawable.ic_camera_alt_24));
-                composeButton.setVisibility(View.VISIBLE);
-                break;
-            case CONTENT_TYPE_SHORT:
-                imageContentType.setImageDrawable(ContextCompat.getDrawable(mContext, R.drawable.ic_create_24));
-                composeButton.setVisibility(View.GONE);
-                break;
-            default:
-        }
     }
 
 

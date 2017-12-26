@@ -25,7 +25,9 @@ public class Constant {
     public static final String TAG_ME_FRAGMENT = "TagMeFragment";
     public static final String TAG_UPDATES_FRAGMENT = "TagUpdatesFragment";
     public static final String TAG_ROYALTIES_FRAGMENT = "TagRoyaltiesFragment";
-    public static final String TAG_HASH_TAG_DETAILS_FRAGMENT = "HASHTagDetailsFragment";
+    public static final String TAG_HASH_TAG_DETAILS_FRAGMENT = "HashTagDetailsFragment";
+    public static final String TAG_SEARCH_PEOPLE_FRAGMENT = "SearchPeopleFragment";
+    public static final String TAG_SEARCH_HASH_TAG_FRAGMENT = "SearchHashTagFragment";
 
     //Content Types
     public static final String CONTENT_TYPE_SHORT = "SHORT";

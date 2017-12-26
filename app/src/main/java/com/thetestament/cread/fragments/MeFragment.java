@@ -52,7 +52,6 @@ import com.thetestament.cread.activities.UpdateProfileDetailsActivity;
 import com.thetestament.cread.activities.UpdateProfileImageActivity;
 import com.thetestament.cread.adapters.MeAdapter;
 import com.thetestament.cread.adapters.UserStatsPagerAdapter;
-import com.thetestament.cread.helpers.FeedHelper;
 import com.thetestament.cread.helpers.HatsOffHelper;
 import com.thetestament.cread.helpers.ImageHelper;
 import com.thetestament.cread.helpers.NetworkHelper;
@@ -61,7 +60,6 @@ import com.thetestament.cread.helpers.ViewHelper;
 import com.thetestament.cread.listeners.listener;
 import com.thetestament.cread.listeners.listener.OnUserStatsClickedListener;
 import com.thetestament.cread.models.FeedModel;
-import com.thetestament.cread.utils.Constant;
 import com.thetestament.cread.utils.Constant.GratitudeNumbers;
 import com.thetestament.cread.utils.UserStatsViewPager;
 import com.yalantis.ucrop.UCrop;
@@ -97,7 +95,6 @@ import static com.thetestament.cread.CreadApp.GET_RESPONSE_FROM_NETWORK_FOLLOWIN
 import static com.thetestament.cread.CreadApp.GET_RESPONSE_FROM_NETWORK_MAIN;
 import static com.thetestament.cread.CreadApp.GET_RESPONSE_FROM_NETWORK_ME;
 import static com.thetestament.cread.helpers.FeedHelper.generateDeepLink;
-import static com.thetestament.cread.helpers.FeedHelper.isMultiple;
 import static com.thetestament.cread.helpers.ImageHelper.getImageUri;
 import static com.thetestament.cread.helpers.ImageHelper.getLocalBitmapUri;
 import static com.thetestament.cread.helpers.NetworkHelper.getNetConnectionStatus;
@@ -633,9 +630,9 @@ public class MeFragment extends Fragment {
      */
     private void setUpTabs(TabLayout tabLayout) {
         //Add tab items
-        tabLayout.addTab(tabLayout.newTab().setIcon(R.drawable.ic_apps_24));
-        tabLayout.addTab(tabLayout.newTab().setIcon(R.drawable.ic_short_tab_24));
-        tabLayout.addTab(tabLayout.newTab().setIcon(R.drawable.ic_camera_tab_24));
+        tabLayout.addTab(tabLayout.newTab().setIcon(R.drawable.ic_me_all_tab));
+        tabLayout.addTab(tabLayout.newTab().setIcon(R.drawable.ic_me_write_tab));
+        tabLayout.addTab(tabLayout.newTab().setIcon(R.drawable.ic_me_photo_tab));
         //initialize tabs icon tint
         tabLayout.getTabAt(0).getIcon().setColorFilter(ContextCompat.getColor(getActivity(), R.color.colorPrimary), PorterDuff.Mode.SRC_IN);
         tabLayout.getTabAt(1).getIcon().setColorFilter(ContextCompat.getColor(getActivity(), R.color.grey_custom), PorterDuff.Mode.SRC_IN);

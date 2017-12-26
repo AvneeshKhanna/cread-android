@@ -9,17 +9,17 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentLeft="true"
-        android:layout_marginLeft="5dp"
         android:layout_centerInParent="true"
+        android:layout_marginLeft="5dp"
         android:src="@drawable/ic_camera_alt_24" />
 
     <LinearLayout
         android:id="@+id/containerText"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_toRightOf="@+id/itemIcon"
-        android:layout_marginLeft="10dp"
         android:layout_centerVertical="true"
+        android:layout_marginLeft="10dp"
+        android:layout_toRightOf="@+id/itemIcon"
         android:orientation="vertical">
 
         <TextView
@@ -28,14 +28,14 @@
             android:layout_height="wrap_content"
             android:text="share Image "
             android:textColor="@color/black_defined"
-            android:textSize="16sp"/>
+            android:textSize="16sp" />
 
         <TextView
             android:id="@+id/itemText"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Share image"
             android:layout_marginTop="3dp"
+            android:text="Share image"
             android:textSize="12sp" />
 
     </LinearLayout>

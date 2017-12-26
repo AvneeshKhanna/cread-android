@@ -109,7 +109,7 @@
                     android:layout_width="32dp"
                     android:layout_height="32dp"
                     android:padding="4dp"
-                    android:src="@drawable/ic_comment_24" />
+                    app:srcCompat="@drawable/ic_comment" />
 
                 <TextView
                     android:id="@+id/textComment"
@@ -134,7 +134,7 @@
                     android:id="@+id/imageShare"
                     android:layout_width="32dp"
                     android:layout_height="32dp"
-                    android:src="@drawable/ic_share_24" />
+                    app:srcCompat="@drawable/ic_share" />
 
                 <TextView
                     android:id="@+id/textShare"

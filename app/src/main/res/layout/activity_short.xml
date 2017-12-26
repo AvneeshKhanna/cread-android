@@ -1,8 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/rootView"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    tools:context=".activities.ShortActivity">
 
     <RelativeLayout
         android:layout_width="match_parent"
@@ -21,7 +23,7 @@
                 android:layout_height="match_parent"
                 android:scaleType="centerCrop" />
 
-            <android.support.v7.widget.AppCompatEditText
+            <com.thetestament.cread.utils.CustomEditText
                 android:id="@+id/textShort"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -48,6 +50,7 @@
 
         </com.thetestament.cread.utils.SquareView>
 
+        <!--todo change note text-->
         <TextView
             android:id="@+id/textNote"
             android:layout_width="match_parent"

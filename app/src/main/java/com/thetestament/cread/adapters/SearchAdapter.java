@@ -165,16 +165,6 @@ public class SearchAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
     }
 
     /**
-     * Method to update dataList and notify for changes.
-     *
-     * @param list Updated data list.
-     */
-    public void updateList(List<SearchModel> list) {
-        mSearchDataList = list;
-        notifyDataSetChanged();
-    }
-
-    /**
      * Method to load profile picture.
      *
      * @param picUrl    picture URL.
