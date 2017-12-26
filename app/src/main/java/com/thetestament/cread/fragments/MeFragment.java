@@ -52,7 +52,6 @@ import com.thetestament.cread.activities.UpdateProfileDetailsActivity;
 import com.thetestament.cread.activities.UpdateProfileImageActivity;
 import com.thetestament.cread.adapters.MeAdapter;
 import com.thetestament.cread.adapters.UserStatsPagerAdapter;
-import com.thetestament.cread.helpers.FeedHelper;
 import com.thetestament.cread.helpers.HatsOffHelper;
 import com.thetestament.cread.helpers.ImageHelper;
 import com.thetestament.cread.helpers.NetworkHelper;
@@ -61,7 +60,6 @@ import com.thetestament.cread.helpers.ViewHelper;
 import com.thetestament.cread.listeners.listener;
 import com.thetestament.cread.listeners.listener.OnUserStatsClickedListener;
 import com.thetestament.cread.models.FeedModel;
-import com.thetestament.cread.utils.Constant;
 import com.thetestament.cread.utils.Constant.GratitudeNumbers;
 import com.thetestament.cread.utils.UserStatsViewPager;
 import com.yalantis.ucrop.UCrop;
@@ -91,8 +89,12 @@ import pl.tajchert.nammu.Nammu;
 import pl.tajchert.nammu.PermissionCallback;
 
 import static android.app.Activity.RESULT_OK;
+import static com.thetestament.cread.CreadApp.GET_RESPONSE_FROM_NETWORK_EXPLORE;
+import static com.thetestament.cread.CreadApp.GET_RESPONSE_FROM_NETWORK_FIND_FRIENDS;
+import static com.thetestament.cread.CreadApp.GET_RESPONSE_FROM_NETWORK_FOLLOWING;
+import static com.thetestament.cread.CreadApp.GET_RESPONSE_FROM_NETWORK_MAIN;
+import static com.thetestament.cread.CreadApp.GET_RESPONSE_FROM_NETWORK_ME;
 import static com.thetestament.cread.helpers.FeedHelper.generateDeepLink;
-import static com.thetestament.cread.helpers.FeedHelper.isMultiple;
 import static com.thetestament.cread.helpers.ImageHelper.getImageUri;
 import static com.thetestament.cread.helpers.ImageHelper.getLocalBitmapUri;
 import static com.thetestament.cread.helpers.NetworkHelper.getNetConnectionStatus;
@@ -628,9 +630,9 @@ public class MeFragment extends Fragment {
      */
     private void setUpTabs(TabLayout tabLayout) {
         //Add tab items
-        tabLayout.addTab(tabLayout.newTab().setIcon(R.drawable.ic_apps_24));
-        tabLayout.addTab(tabLayout.newTab().setIcon(R.drawable.ic_short_tab_24));
-        tabLayout.addTab(tabLayout.newTab().setIcon(R.drawable.ic_camera_tab_24));
+        tabLayout.addTab(tabLayout.newTab().setIcon(R.drawable.ic_me_all_tab));
+        tabLayout.addTab(tabLayout.newTab().setIcon(R.drawable.ic_me_write_tab));
+        tabLayout.addTab(tabLayout.newTab().setIcon(R.drawable.ic_me_photo_tab));
         //initialize tabs icon tint
         tabLayout.getTabAt(0).getIcon().setColorFilter(ContextCompat.getColor(getActivity(), R.color.colorPrimary), PorterDuff.Mode.SRC_IN);
         tabLayout.getTabAt(1).getIcon().setColorFilter(ContextCompat.getColor(getActivity(), R.color.grey_custom), PorterDuff.Mode.SRC_IN);
@@ -714,6 +716,8 @@ public class MeFragment extends Fragment {
                     public void onComplete() {
                         //Dismiss progress indicator
                         swipeToRefreshLayout.setRefreshing(false);
+                        // set to false
+                        GET_RESPONSE_FROM_NETWORK_ME = false;
                         // Token status invalid
                         if (tokenError[0]) {
                             ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_invalid_token));
@@ -903,6 +907,14 @@ public class MeFragment extends Fragment {
                                         //Set count
                                         ((TextView) viewPagerUserStats.findViewWithTag(FOLLOWERS)).setText(String.valueOf(mFollowerCount));
                                     }
+
+                                    // set feeds data to be loaded from network
+                                    // instead of cached data
+                                    GET_RESPONSE_FROM_NETWORK_MAIN = true;
+                                    GET_RESPONSE_FROM_NETWORK_EXPLORE = true;
+                                    GET_RESPONSE_FROM_NETWORK_ME = true;
+                                    GET_RESPONSE_FROM_NETWORK_FIND_FRIENDS = true;
+                                    GET_RESPONSE_FROM_NETWORK_FOLLOWING = true;
                                 }
                             }
                         } catch (JSONException e) {
@@ -1091,6 +1103,8 @@ public class MeFragment extends Fragment {
                     @Override
                     public void onComplete() {
                         swipeToRefreshLayout.setRefreshing(false);
+                        // set to false
+                        GET_RESPONSE_FROM_NETWORK_ME = false;
                         // Token status invalid
                         if (tokenError[0]) {
                             ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_invalid_token));
@@ -1463,6 +1477,8 @@ public class MeFragment extends Fragment {
                                     //Update user post count
                                     mPostCount -= 1;
                                     ((TextView) viewPagerUserStats.findViewWithTag(POSTS)).setText(String.valueOf(mPostCount));
+                                    // update response flag
+                                    GET_RESPONSE_FROM_NETWORK_ME = true;
                                 }
                             }
                         } catch (JSONException e) {

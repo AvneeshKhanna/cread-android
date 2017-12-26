@@ -7,6 +7,7 @@
     android:background="@color/white"
     android:orientation="vertical"
     app:layout_behavior="android.support.design.widget.BottomSheetBehavior">
+
     <LinearLayout
         android:id="@+id/button_edit"
         android:layout_width="match_parent"
@@ -20,8 +21,8 @@
         <ImageView
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
-            android:src="@drawable/ic_edit_24"
-            android:tint="@color/grey_custom" />
+            android:tint="@color/grey_custom"
+            app:srcCompat="@drawable/ic_add_write" />
 
         <TextView
             android:layout_width="wrap_content"
@@ -45,7 +46,7 @@
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:tint="@color/grey_custom"
-            app:srcCompat="@drawable/ic_delete_24" />
+            app:srcCompat="@drawable/ic_delete" />
 
         <TextView
             android:layout_width="wrap_content"

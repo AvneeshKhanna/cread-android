@@ -23,6 +23,7 @@ import com.androidnetworking.interfaces.JSONObjectRequestListener;
 import com.facebook.AccessToken;
 import com.facebook.CallbackManager;
 import com.google.firebase.crash.FirebaseCrash;
+import com.rx2androidnetworking.Rx2ANRequest;
 import com.rx2androidnetworking.Rx2AndroidNetworking;
 import com.thetestament.cread.BuildConfig;
 import com.thetestament.cread.R;
@@ -38,7 +39,9 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -48,6 +51,12 @@ import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.observers.DisposableObserver;
 import io.reactivex.schedulers.Schedulers;
+
+import static com.thetestament.cread.CreadApp.GET_RESPONSE_FROM_NETWORK_EXPLORE;
+import static com.thetestament.cread.CreadApp.GET_RESPONSE_FROM_NETWORK_FIND_FRIENDS;
+import static com.thetestament.cread.CreadApp.GET_RESPONSE_FROM_NETWORK_FOLLOWING;
+import static com.thetestament.cread.CreadApp.GET_RESPONSE_FROM_NETWORK_MAIN;
+import static com.thetestament.cread.CreadApp.GET_RESPONSE_FROM_NETWORK_ME;
 
 public class FindFBFriendsActivity extends BaseActivity {
 
@@ -253,6 +262,9 @@ public class FindFBFriendsActivity extends BaseActivity {
                             @Override
                             public void onComplete() {
 
+                                // set to false
+                                GET_RESPONSE_FROM_NETWORK_FIND_FRIENDS = false;
+
                                 // Token status invalid
                                 if (tokenError[0]) {
                                     ViewHelper.getSnackBar(rootView
@@ -389,7 +401,16 @@ public class FindFBFriendsActivity extends BaseActivity {
                             else {
                                 JSONObject mainData = response.getJSONObject("data");
                                 if (mainData.getString("status").equals("done")) {
-                                    //Do nothing
+
+                                    // set feeds data to be loaded from network
+                                    // instead of cached data
+                                    GET_RESPONSE_FROM_NETWORK_MAIN = true;
+                                    GET_RESPONSE_FROM_NETWORK_EXPLORE = true;
+                                    GET_RESPONSE_FROM_NETWORK_ME = true;
+                                    GET_RESPONSE_FROM_NETWORK_FIND_FRIENDS = true;
+                                    GET_RESPONSE_FROM_NETWORK_FOLLOWING = true;
+
+
                                 } else {
                                     //set status to true if its false and vice versa
                                     mFollowStatus = !mFollowStatus;
@@ -437,21 +458,25 @@ public class FindFBFriendsActivity extends BaseActivity {
      */
     private Observable<JSONObject> getObservableFromServer(String serverURL) {
 
-        JSONObject jsonObject = new JSONObject();
-        try {
-            SharedPreferenceHelper spHelper = new SharedPreferenceHelper(FindFBFriendsActivity.this);
+        Map<String, String> headers = new HashMap<>();
+        headers.put("uuid", spHelper.getUUID());
+        headers.put("authkey", spHelper.getAuthToken());
 
-            jsonObject.put("uuid", spHelper.getUUID());
-            jsonObject.put("authkey", spHelper.getAuthToken());
-            jsonObject.put("fbaccesstoken", AccessToken.getCurrentAccessToken().getToken());
-            jsonObject.put("fbid", AccessToken.getCurrentAccessToken().getUserId());
-            jsonObject.put("nexturl", mNextUrl);
-        } catch (JSONException e) {
-            e.printStackTrace();
-            FirebaseCrash.report(e);
+        Map<String, String> queryParam = new HashMap<>();
+        queryParam.put("fbaccesstoken", AccessToken.getCurrentAccessToken().getToken());
+        queryParam.put("fbid", AccessToken.getCurrentAccessToken().getUserId());
+        queryParam.put("nexturl", mNextUrl);
+
+
+        Rx2ANRequest.GetRequestBuilder requestBuilder = Rx2AndroidNetworking.get(serverURL)
+                .addHeaders(headers)
+                .addQueryParameter(queryParam);
+
+        if (GET_RESPONSE_FROM_NETWORK_FIND_FRIENDS) {
+            requestBuilder.getResponseOnlyFromNetwork();
         }
-        return Rx2AndroidNetworking.post(serverURL)
-                .addJSONObjectBody(jsonObject)
+
+        return requestBuilder
                 .build()
                 .getJSONObjectObservable();
     }
@@ -595,6 +620,15 @@ public class FindFBFriendsActivity extends BaseActivity {
                                         }
                                         mAdapter.notifyDataSetChanged();
                                         ViewHelper.getSnackBar(rootView, "All friends followed");
+
+                                        // set feeds data to be loaded from network
+                                        // instead of cached data
+                                        GET_RESPONSE_FROM_NETWORK_MAIN = true;
+                                        GET_RESPONSE_FROM_NETWORK_EXPLORE = true;
+                                        GET_RESPONSE_FROM_NETWORK_ME = true;
+                                        GET_RESPONSE_FROM_NETWORK_FIND_FRIENDS = true;
+                                        GET_RESPONSE_FROM_NETWORK_FOLLOWING = true;
+
                                     } else {
                                         ViewHelper.getSnackBar(rootView
                                                 , getString(R.string.error_msg_internal));

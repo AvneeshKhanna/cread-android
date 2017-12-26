@@ -95,7 +95,7 @@
             android:layout_width="100dp"
             android:layout_height="100dp"
             android:layout_gravity="center"
-            android:src="@drawable/ic_comment_100" />
+            app:srcCompat="@drawable/ic_comment" />
 
         <TextView
             android:layout_width="wrap_content"

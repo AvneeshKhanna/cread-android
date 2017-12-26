@@ -28,7 +28,9 @@ import android.widget.TextView;
 import com.afollestad.materialdialogs.DialogAction;
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.google.firebase.analytics.FirebaseAnalytics;
+import com.google.firebase.crash.FirebaseCrash;
 import com.mikepenz.actionitembadge.library.ActionItemBadge;
+import com.thetestament.cread.BuildConfig;
 import com.thetestament.cread.Manifest;
 import com.thetestament.cread.R;
 import com.thetestament.cread.database.NotificationsDBFunctions;
@@ -38,16 +40,21 @@ import com.thetestament.cread.fragments.MeFragment;
 import com.thetestament.cread.helpers.BottomNavigationViewHelper;
 import com.thetestament.cread.helpers.SharedPreferenceHelper;
 import com.thetestament.cread.helpers.ViewHelper;
+import com.thetestament.cread.listeners.listener;
+import com.thetestament.cread.listeners.listener.OnServerRequestedListener;
 import com.yalantis.ucrop.UCrop;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import icepick.Icepick;
 import icepick.State;
+import io.reactivex.disposables.CompositeDisposable;
 
 import static com.thetestament.cread.helpers.ImageHelper.compressCroppedImg;
 import static com.thetestament.cread.helpers.ImageHelper.getImageUri;
 import static com.thetestament.cread.helpers.ImageHelper.startImageCropping;
+import static com.thetestament.cread.helpers.NetworkHelper.getRestartHerokuObservable;
+import static com.thetestament.cread.helpers.NetworkHelper.requestServer;
 import static com.thetestament.cread.utils.Constant.FIREBASE_EVENT_EXPLORE_CLICKED;
 import static com.thetestament.cread.utils.Constant.FIREBASE_EVENT_FEED_CLICKED;
 import static com.thetestament.cread.utils.Constant.FIREBASE_EVENT_NOTIFICATION_CLICKED;
@@ -84,6 +91,7 @@ public class BottomNavigationActivity extends BaseActivity {
 
     private FirebaseAnalytics mFirebaseAnalytics;
     private SharedPreferenceHelper mHelper;
+    private CompositeDisposable mCompositeDisposable = new CompositeDisposable();
 
     @Override
 
@@ -114,7 +122,7 @@ public class BottomNavigationActivity extends BaseActivity {
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-       // super.onActivityResult(requestCode, resultCode, data);
+        // super.onActivityResult(requestCode, resultCode, data);
         switch (requestCode) {
             case REQUEST_CODE_OPEN_GALLERY:
                 if (resultCode == RESULT_OK) {
@@ -136,9 +144,8 @@ public class BottomNavigationActivity extends BaseActivity {
                 }
                 break;
 
-            case REQUEST_CODE_ROYALTIES_ACTIVITY :
-                if(resultCode == RESULT_OK)
-                {
+            case REQUEST_CODE_ROYALTIES_ACTIVITY:
+                if (resultCode == RESULT_OK) {
                     // open bottom sheet
                     getAddContentBottomSheetDialog();
                 }
@@ -146,6 +153,12 @@ public class BottomNavigationActivity extends BaseActivity {
             default:
                 super.onActivityResult(requestCode, resultCode, data);
         }
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        mCompositeDisposable.dispose();
     }
 
     @Override
@@ -187,6 +200,10 @@ public class BottomNavigationActivity extends BaseActivity {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu_cread, menu);
+
+        // set visibility of restart heroku option according to build config
+        menu.findItem(R.id.action_restart_heroku).setVisible(BuildConfig.VISIBILITY_RESTART_HEROKU_OPTION);
+
         super.onCreateOptionsMenu(menu);
         return true;
     }
@@ -199,7 +216,7 @@ public class BottomNavigationActivity extends BaseActivity {
                 mUnreadCount = 0;
                 ActionItemBadge.update(BottomNavigationActivity.this
                         , item
-                        , ContextCompat.getDrawable(BottomNavigationActivity.this, R.drawable.ic_notifications_24)
+                        , ContextCompat.getDrawable(BottomNavigationActivity.this, R.drawable.ic_menu_updates_solid)
                         , ActionItemBadge.BadgeStyles.DARK_GREY, null);
 
                 Thread thread = new Thread(
@@ -224,6 +241,10 @@ public class BottomNavigationActivity extends BaseActivity {
             case R.id.action_settings:
                 //Launch settings activity
                 startActivity(new Intent(this, SettingsActivity.class));
+                return true;
+
+            case R.id.action_restart_heroku:
+                restartHerokuServer();
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
@@ -465,12 +486,12 @@ public class BottomNavigationActivity extends BaseActivity {
 
             //you can add some logic (hide it if the count == 0)
             if (mUnreadCount > 0) {
-                ActionItemBadge.update(BottomNavigationActivity.this, menu.findItem(R.id.action_updates), ContextCompat.getDrawable(BottomNavigationActivity.this, R.drawable.ic_notifications_24)/*FontAwesome.Icon.faw_android*/, ActionItemBadge.BadgeStyles.DARK_GREY, mUnreadCount);
+                ActionItemBadge.update(BottomNavigationActivity.this, menu.findItem(R.id.action_updates), ContextCompat.getDrawable(BottomNavigationActivity.this, R.drawable.ic_menu_updates_solid)/*FontAwesome.Icon.faw_android*/, ActionItemBadge.BadgeStyles.DARK_GREY, mUnreadCount);
 
             } else {
 
                 // setting badge count parameter as null to hide the badge
-                ActionItemBadge.update(BottomNavigationActivity.this, menu.findItem(R.id.action_updates), ContextCompat.getDrawable(BottomNavigationActivity.this, R.drawable.ic_notifications_24)/*FontAwesome.Icon.faw_android*/, ActionItemBadge.BadgeStyles.DARK_GREY, null);
+                ActionItemBadge.update(BottomNavigationActivity.this, menu.findItem(R.id.action_updates), ContextCompat.getDrawable(BottomNavigationActivity.this, R.drawable.ic_menu_updates_solid)/*FontAwesome.Icon.faw_android*/, ActionItemBadge.BadgeStyles.DARK_GREY, null);
 
             }
 
@@ -592,9 +613,41 @@ public class BottomNavigationActivity extends BaseActivity {
                 .show();
     }
 
-
     public void activateBottomNavigationItem(int id) {
         navigationView.setSelectedItemId(id);
+    }
+
+
+    private void restartHerokuServer() {
+        requestServer(mCompositeDisposable,
+                getRestartHerokuObservable(),
+                this,
+                new OnServerRequestedListener<String>() {
+                    @Override
+                    public void onDeviceOffline() {
+
+                        ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_no_connection));
+                    }
+
+                    @Override
+                    public void onNextCalled(String response) {
+
+                        ViewHelper.getSnackBar(rootView, response);
+                    }
+
+                    @Override
+                    public void onErrorCalled(Throwable e) {
+                        e.printStackTrace();
+                        FirebaseCrash.report(e);
+
+                        ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_server));
+                    }
+
+                    @Override
+                    public void onCompleteCalled() {
+
+                    }
+                });
     }
 
 

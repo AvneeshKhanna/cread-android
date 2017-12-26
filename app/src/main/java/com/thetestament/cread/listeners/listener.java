@@ -192,10 +192,10 @@ public class listener {
     /**
      * Interface definition for a callback to be invoked when user scroll for more data.
      */
-    public interface OnServerRequestedListener {
+    public interface OnServerRequestedListener<T> {
         void onDeviceOffline();
 
-        void onNextCalled(JSONObject jsonObject);
+        void onNextCalled(T jsonObject);
 
         void onErrorCalled(Throwable e);
 

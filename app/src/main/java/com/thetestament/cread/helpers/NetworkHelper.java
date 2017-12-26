@@ -5,10 +5,13 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.support.v4.app.FragmentActivity;
 
+import com.androidnetworking.common.Priority;
 import com.google.firebase.crash.FirebaseCrash;
+import com.rx2androidnetworking.Rx2ANRequest;
 import com.rx2androidnetworking.Rx2AndroidNetworking;
 import com.thetestament.cread.BuildConfig;
 import com.thetestament.cread.listeners.listener;
+import com.thetestament.cread.utils.Constant;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -21,6 +24,15 @@ import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.observers.DisposableObserver;
 import io.reactivex.schedulers.Schedulers;
+
+import static com.thetestament.cread.CreadApp.GET_RESPONSE_FROM_NETWORK_COMMENTS;
+import static com.thetestament.cread.CreadApp.GET_RESPONSE_FROM_NETWORK_ENTITY_SPECIFIC;
+import static com.thetestament.cread.CreadApp.GET_RESPONSE_FROM_NETWORK_EXPLORE;
+import static com.thetestament.cread.CreadApp.GET_RESPONSE_FROM_NETWORK_FOLLOWING;
+import static com.thetestament.cread.CreadApp.GET_RESPONSE_FROM_NETWORK_HATSOFF;
+import static com.thetestament.cread.CreadApp.GET_RESPONSE_FROM_NETWORK_INSPIRATION;
+import static com.thetestament.cread.CreadApp.GET_RESPONSE_FROM_NETWORK_MAIN;
+import static com.thetestament.cread.CreadApp.GET_RESPONSE_FROM_NETWORK_ME;
 
 /**
  * A helper class for providing utility method for network related operations.
@@ -56,18 +68,26 @@ public class NetworkHelper {
      */
     public static Observable<JSONObject> getObservableFromServer(String serverURL, String uuid, String authKey, String requestedUUID, String lastIndexKey) {
 
-        JSONObject jsonObject = new JSONObject();
-        try {
-            jsonObject.put("uuid", uuid);
-            jsonObject.put("authkey", authKey);
-            jsonObject.put("requesteduuid", requestedUUID);
-            jsonObject.put("lastindexkey", lastIndexKey);
-        } catch (JSONException e) {
-            e.printStackTrace();
-            FirebaseCrash.report(e);
+        // used in follow activity and me fragment
+
+
+        Map<String, String> headers = new HashMap<>();
+        headers.put("uuid", uuid);
+        headers.put("authkey", authKey);
+
+        Map<String, String> queryParams = new HashMap<>();
+        queryParams.put("requesteduuid", requestedUUID);
+        queryParams.put("lastindexkey", lastIndexKey);
+
+        Rx2ANRequest.GetRequestBuilder requestBuilder = Rx2AndroidNetworking.get(serverURL)
+                .addHeaders(headers)
+                .addQueryParameter(queryParams);
+
+        if (GET_RESPONSE_FROM_NETWORK_ME || GET_RESPONSE_FROM_NETWORK_FOLLOWING) {
+            requestBuilder.getResponseOnlyFromNetwork();
         }
-        return Rx2AndroidNetworking.post(serverURL)
-                .addJSONObjectBody(jsonObject)
+
+        return requestBuilder
                 .build()
                 .getJSONObjectObservable();
     }
@@ -82,19 +102,23 @@ public class NetworkHelper {
      * @param lastIndexKey Last index key
      */
     public static Observable<JSONObject> getObservableFromServer(String serverURL, String uuid, String authKey, String lastIndexKey) {
-        JSONObject jsonObject = new JSONObject();
-        try {
-            jsonObject.put("uuid", uuid);
-            jsonObject.put("authkey", authKey);
-            jsonObject.put("lastindexkey", lastIndexKey);
-        } catch (JSONException e) {
-            e.printStackTrace();
-            FirebaseCrash.report(e);
+
+        // used in feed fragemnt, explore fragment and inspiration activity
+
+        Map<String, String> header = new HashMap<>();
+        header.put("uuid", uuid);
+        header.put("authkey", authKey);
+
+        Rx2ANRequest.GetRequestBuilder requestBuilder = Rx2AndroidNetworking.get(serverURL)
+                .addHeaders(header)
+                .addQueryParameter("lastindexkey", lastIndexKey);
+
+        if (GET_RESPONSE_FROM_NETWORK_MAIN || GET_RESPONSE_FROM_NETWORK_EXPLORE
+                || GET_RESPONSE_FROM_NETWORK_INSPIRATION) {
+            requestBuilder.getResponseOnlyFromNetwork();
         }
-        return Rx2AndroidNetworking.post(serverURL)
-                .addJSONObjectBody(jsonObject)
-                .build()
-                .getJSONObjectObservable();
+
+        return requestBuilder.build().getJSONObjectObservable();
     }
 
 
@@ -107,18 +131,20 @@ public class NetworkHelper {
      * @param requestedUUID UUID of user whose profile data to be loaded.
      */
     public static Observable<JSONObject> getUserDataObservableFromServer(String serverURL, String uuid, String authKey, String requestedUUID) {
-        JSONObject jsonObject = new JSONObject();
-        try {
-            jsonObject.put("uuid", uuid);
-            jsonObject.put("authkey", authKey);
-            jsonObject.put("requesteduuid", requestedUUID);
-        } catch (JSONException e) {
-            e.printStackTrace();
-            FirebaseCrash.report(e);
+
+        Map<String, String> header = new HashMap<>();
+        header.put("uuid", uuid);
+        header.put("authkey", authKey);
+
+        Rx2ANRequest.GetRequestBuilder requestBuilder = Rx2AndroidNetworking.get(serverURL)
+                .addHeaders(header)
+                .addQueryParameter("requesteduuid", requestedUUID);
+
+        if (GET_RESPONSE_FROM_NETWORK_ME) {
+            requestBuilder.getResponseOnlyFromNetwork();
         }
-        return Rx2AndroidNetworking.post(serverURL)
-                .addJSONObjectBody(jsonObject)
-                .build()
+
+        return requestBuilder.build()
                 .getJSONObjectObservable();
     }
 
@@ -134,18 +160,25 @@ public class NetworkHelper {
      */
     public static Observable<JSONObject> getHatsOffObservableFromServer(String serverURL, String entityID, String uuid, String authKey, String lastIndexKey) {
 
-        JSONObject jsonObject = new JSONObject();
-        try {
-            jsonObject.put("uuid", uuid);
-            jsonObject.put("authkey", authKey);
-            jsonObject.put("entityid", entityID);
-            jsonObject.put("lastindexkey", lastIndexKey);
-        } catch (JSONException e) {
-            e.printStackTrace();
-            FirebaseCrash.report(e);
+
+        Map<String, String> headers = new HashMap<>();
+        headers.put("uuid", uuid);
+        headers.put("authkey", authKey);
+
+        Map<String, String> queryParams = new HashMap<>();
+        queryParams.put("entityid", entityID);
+        queryParams.put("lastindexkey", lastIndexKey);
+
+        Rx2ANRequest.GetRequestBuilder requestBuilder = Rx2AndroidNetworking.get(serverURL)
+                .addHeaders(headers)
+                .addQueryParameter(queryParams);
+
+
+        if (GET_RESPONSE_FROM_NETWORK_HATSOFF) {
+            requestBuilder.getResponseOnlyFromNetwork();
         }
-        return Rx2AndroidNetworking.post(serverURL)
-                .addJSONObjectBody(jsonObject)
+
+        return requestBuilder
                 .build()
                 .getJSONObjectObservable();
     }
@@ -163,19 +196,25 @@ public class NetworkHelper {
      */
     public static Observable<JSONObject> getCommentObservableFromServer(String serverURL, String uuid, String authKey, String entityID, String lastIndexKey, boolean loadAll) {
 
-        JSONObject jsonObject = new JSONObject();
-        try {
-            jsonObject.put("uuid", uuid);
-            jsonObject.put("authkey", authKey);
-            jsonObject.put("entityid", entityID);
-            jsonObject.put("lastindexkey", lastIndexKey);
-            jsonObject.put("loadall", loadAll);
-        } catch (JSONException e) {
-            e.printStackTrace();
-            FirebaseCrash.report(e);
+        Map<String, String> headers = new HashMap<>();
+        headers.put("uuid", uuid);
+        headers.put("authkey", authKey);
+
+        Map<String, Object> queryParams = new HashMap<>();
+        queryParams.put("entityid", entityID);
+        queryParams.put("lastindexkey", lastIndexKey);
+        queryParams.put("loadall", loadAll);
+
+
+        Rx2ANRequest.GetRequestBuilder requestBuilder = Rx2AndroidNetworking.get(serverURL)
+                .addQueryParameter(queryParams)
+                .addHeaders(headers);
+
+        if (GET_RESPONSE_FROM_NETWORK_COMMENTS) {
+            requestBuilder.getResponseOnlyFromNetwork();
         }
-        return Rx2AndroidNetworking.post(serverURL)
-                .addJSONObjectBody(jsonObject)
+
+        return requestBuilder
                 .build()
                 .getJSONObjectObservable();
     }
@@ -192,25 +231,25 @@ public class NetworkHelper {
      */
     public static Observable<JSONObject> getCollaborationDetailsObservableFromServer(String serverURL, String entityID, String entityType, String uuid, String authKey, String lastIndexKey) {
 
-        JSONObject jsonObject = new JSONObject();
-        try {
-            jsonObject.put("uuid", uuid);
-            jsonObject.put("authkey", authKey);
-            jsonObject.put("entityid", entityID);
-            jsonObject.put("entitytype", entityType);
-            jsonObject.put("lastindexkey", lastIndexKey);
-        } catch (JSONException e) {
-            e.printStackTrace();
-            FirebaseCrash.report(e);
-        }
-        return Rx2AndroidNetworking.post(serverURL)
-                .addJSONObjectBody(jsonObject)
+        Map<String, String> headers = new HashMap<>();
+        headers.put("uuid", uuid);
+        headers.put("authkey", authKey);
+
+
+        Map<String, String> queryParams = new HashMap<>();
+        queryParams.put("entityid", entityID);
+        queryParams.put("lastindexkey", lastIndexKey);
+        queryParams.put("entitytype", entityType);
+
+        return Rx2AndroidNetworking.get(serverURL)
+                .addQueryParameter(queryParams)
+                .addHeaders(headers)
                 .build()
                 .getJSONObjectObservable();
     }
 
 
-  /**
+    /**
      * Method to return data from the server.
      *
      * @param serverURL    URL of the server.
@@ -218,20 +257,20 @@ public class NetworkHelper {
      * @param authKey      AuthKey of user.
      * @param lastIndexKey Last index key.
      */
-    public static Observable<JSONObject> getRoyaltiesObersvable(String serverURL, String uuid, String authKey, String lastIndexKey, boolean requestRoyaltiesData) {
+    public static Observable<JSONObject> getRoyaltiesObservable(String serverURL, String uuid, String authKey, String lastIndexKey, boolean requestRoyaltiesData) {
 
-        JSONObject jsonObject = new JSONObject();
-        try {
-            jsonObject.put("uuid", uuid);
-            jsonObject.put("authkey", authKey);
-            jsonObject.put("lastindexkey", lastIndexKey);
-            jsonObject.put("toloadtotal", requestRoyaltiesData);
-        } catch (JSONException e) {
-            e.printStackTrace();
-            FirebaseCrash.report(e);
-        }
-        return Rx2AndroidNetworking.post(serverURL)
-                .addJSONObjectBody(jsonObject)
+        Map<String, String> headers = new HashMap<>();
+        headers.put("uuid", uuid);
+        headers.put("authkey", authKey);
+
+        Map<String, Object> queryParams = new HashMap<>();
+        queryParams.put("lastindexkey", lastIndexKey);
+        queryParams.put("toloadtotal", requestRoyaltiesData);
+
+
+        return Rx2AndroidNetworking.get(serverURL)
+                .addHeaders(headers)
+                .addQueryParameter(queryParams)
                 .build()
                 .getJSONObjectObservable();
     }
@@ -282,19 +321,23 @@ public class NetworkHelper {
                 .getJSONObjectObservable();
     }
 
-    public static void requestServer(CompositeDisposable compositeDisposable, Observable<JSONObject> jsonObjectObservable, FragmentActivity context, final listener.OnServerRequestedListener listener)
-    {
-        if(getNetConnectionStatus(context))
-        {
-            compositeDisposable.add(jsonObjectObservable
+    public static Observable<String> getRestartHerokuObservable() {
+        return Rx2AndroidNetworking.get("http://cread-server-main.ap-northeast-1.elasticbeanstalk.com/dev-utils/restart-heroku")
+                .build()
+                .getStringObservable();
+    }
+
+    public static <T> void requestServer(CompositeDisposable compositeDisposable, final Observable<T> observableObject, FragmentActivity context, final listener.OnServerRequestedListener listener) {
+
+        if (getNetConnectionStatus(context)) {
+            compositeDisposable.add(observableObject
                     //Run on a background thread
                     .subscribeOn(Schedulers.io())
                     //Be notified on the main thread
                     .observeOn(AndroidSchedulers.mainThread())
-                    .subscribeWith(new DisposableObserver<JSONObject>()
-                    {
+                    .subscribeWith(new DisposableObserver<T>() {
                         @Override
-                        public void onNext(JSONObject jsonObject) {
+                        public void onNext(T jsonObject) {
                             listener.onNextCalled(jsonObject);
                         }
 
@@ -311,12 +354,54 @@ public class NetworkHelper {
 
             );
 
-        }
-
-        else
-        {
+        } else {
             listener.onDeviceOffline();
         }
+    }
+
+    /**
+     * Method to return requested data from the server.
+     *
+     * @param queryMessage Search text entered by the user.
+     * @param lastIndexKey Url of next page.
+     * @param searchType   SearchType i.e USER or HASH TAG
+     */
+    public static Observable<JSONObject> getSearchObservableServer(String queryMessage, String lastIndexKey, String searchType) {
+
+        String inputText;
+        //Replace spaces if search type is HASHTAG
+        if (searchType.equals(Constant.SEARCH_TYPE_HASHTAG)) {
+            inputText = queryMessage.replaceAll("\\s+", "");
+        } else {
+            inputText = queryMessage;
+        }
+        return Rx2AndroidNetworking.get(BuildConfig.URL + "/search/load")
+                .addQueryParameter("keyword", inputText)
+                .addQueryParameter("lastindexkey", lastIndexKey)
+                .addQueryParameter("searchtype", searchType)
+                .setPriority(Priority.HIGH)
+                .build()
+                .getJSONObjectObservable();
+    }
+
+
+    public static Observable<JSONObject> getEntitySpecificObservable(String uuid, String authkey, String entityID) {
+
+        Map<String, String> headers = new HashMap<>();
+        headers.put("uuid", uuid);
+        headers.put("authkey", authkey);
+
+        Rx2ANRequest.GetRequestBuilder requestBuilder = Rx2AndroidNetworking.get(BuildConfig.URL + "/entity-manage/load-specific")
+                .addHeaders(headers)
+                .addQueryParameter("entityid", entityID);
+
+        if (GET_RESPONSE_FROM_NETWORK_ENTITY_SPECIFIC) {
+            requestBuilder.getResponseOnlyFromNetwork();
+        }
+
+        return requestBuilder
+                .build()
+                .getJSONObjectObservable();
     }
 
 }

@@ -2,6 +2,7 @@ package com.thetestament.cread.adapters;
 
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -28,7 +29,6 @@ import com.thetestament.cread.activities.CollaborationDetailsActivity;
 import com.thetestament.cread.activities.CommentsActivity;
 import com.thetestament.cread.activities.FeedDescriptionActivity;
 import com.thetestament.cread.activities.ShortActivity;
-import com.thetestament.cread.helpers.FeedHelper;
 import com.thetestament.cread.helpers.NetworkHelper;
 import com.thetestament.cread.helpers.SharedPreferenceHelper;
 import com.thetestament.cread.helpers.ViewHelper;
@@ -238,27 +238,6 @@ public class MeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                 .into(imageView);
     }
 
-    /**
-     * Method to set content image depending upon its type.
-     *
-     * @param contentType      Type of content.
-     * @param imageContentType Content imageView.
-     */
-    private void setContentType(String contentType, ImageView imageContentType, ImageView composeButton) {
-        //Check for content type
-        switch (contentType) {
-            case CONTENT_TYPE_CAPTURE:
-                imageContentType.setImageDrawable(ContextCompat.getDrawable(mContext, R.drawable.ic_camera_alt_24));
-                composeButton.setVisibility(View.VISIBLE);
-                break;
-            case CONTENT_TYPE_SHORT:
-                imageContentType.setImageDrawable(ContextCompat.getDrawable(mContext, R.drawable.ic_create_24));
-                composeButton.setVisibility(View.GONE);
-                break;
-            default:
-        }
-    }
-
 
     /**
      * Method to setVisibility on delete button and initialize delete button functionality.
@@ -407,7 +386,7 @@ public class MeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             itemViewHolder.imageHatsOff.startAnimation(AnimationUtils.loadAnimation(mContext, R.anim.rotate_animation_hats_off_fast));
             itemViewHolder.mIsHatsOff = true;
         } else {
-            itemViewHolder.imageHatsOff.setColorFilter(ContextCompat.getColor(mContext, R.color.grey));
+            itemViewHolder.imageHatsOff.setColorFilter(Color.TRANSPARENT);
             itemViewHolder.mIsHatsOff = false;
         }
     }
@@ -431,7 +410,7 @@ public class MeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                         //Animation for hats off
                         itemViewHolder.imageHatsOff.startAnimation(AnimationUtils.loadAnimation(mContext, R.anim.reverse_rotate_animation_hats_off));
                         //Toggle hatsOff tint
-                        itemViewHolder.imageHatsOff.setColorFilter(ContextCompat.getColor(mContext, R.color.grey));
+                        itemViewHolder.imageHatsOff.setColorFilter(Color.TRANSPARENT);
                         //Update hats of count i.e decrease by one
                         data.setHatsOffCount(data.getHatsOffCount() - 1);
                     } else {

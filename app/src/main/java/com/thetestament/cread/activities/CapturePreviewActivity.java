@@ -41,6 +41,10 @@ import icepick.Icepick;
 import icepick.State;
 import okhttp3.OkHttpClient;
 
+import static com.thetestament.cread.CreadApp.GET_RESPONSE_FROM_NETWORK_EXPLORE;
+import static com.thetestament.cread.CreadApp.GET_RESPONSE_FROM_NETWORK_INSPIRATION;
+import static com.thetestament.cread.CreadApp.GET_RESPONSE_FROM_NETWORK_MAIN;
+import static com.thetestament.cread.CreadApp.GET_RESPONSE_FROM_NETWORK_ME;
 import static com.thetestament.cread.helpers.ImageHelper.getImageUri;
 import static com.thetestament.cread.utils.Constant.IMAGE_TYPE_USER_CAPTURE_PIC;
 import static com.thetestament.cread.utils.Constant.WATERMARK_STATUS_ASK_ALWAYS;
@@ -285,6 +289,15 @@ public class CapturePreviewActivity extends BaseActivity {
                                 JSONObject dataObject = response.getJSONObject("data");
                                 if (dataObject.getString("status").equals("done")) {
                                     ViewHelper.getToast(CapturePreviewActivity.this, "Graphic art uploaded successfully");
+
+                                    // set feeds data to be loaded from network
+                                    // instead of cached data
+                                    GET_RESPONSE_FROM_NETWORK_MAIN = true;
+                                    GET_RESPONSE_FROM_NETWORK_EXPLORE = true;
+                                    GET_RESPONSE_FROM_NETWORK_ME = true;
+                                    GET_RESPONSE_FROM_NETWORK_INSPIRATION = true;
+
+
                                     //finish this activity
                                     finish();
                                 }

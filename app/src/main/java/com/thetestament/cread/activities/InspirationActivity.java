@@ -37,6 +37,7 @@ import io.reactivex.schedulers.Schedulers;
 
 import static com.thetestament.cread.helpers.NetworkHelper.getNetConnectionStatus;
 import static com.thetestament.cread.helpers.NetworkHelper.getObservableFromServer;
+import static com.thetestament.cread.CreadApp.GET_RESPONSE_FROM_NETWORK_INSPIRATION;
 
 public class InspirationActivity extends BaseActivity {
 
@@ -219,6 +220,8 @@ public class InspirationActivity extends BaseActivity {
                     public void onComplete() {
                         //Dismiss progress indicator
                         swipeRefreshLayout.setRefreshing(false);
+                        // set to false
+                        GET_RESPONSE_FROM_NETWORK_INSPIRATION = false;
                         // Token status invalid
                         if (tokenError[0]) {
                             ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_invalid_token));

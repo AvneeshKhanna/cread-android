@@ -13,4 +13,10 @@
         android:title="Settings"
         app:showAsAction="never" />
 
+    <item
+        android:id="@+id/action_restart_heroku"
+        android:title="Restart Heroku"
+        app:showAsAction="never" />
+
+
 </menu>

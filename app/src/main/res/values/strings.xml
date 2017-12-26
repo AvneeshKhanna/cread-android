@@ -113,4 +113,5 @@
     // add caption text
     <string name="text_add_caption">Say something about this post with #tags</string>
 
+
 </resources>
