@@ -37,6 +37,8 @@ import io.reactivex.disposables.Disposable;
 import io.reactivex.schedulers.Schedulers;
 import okhttp3.OkHttpClient;
 
+import static com.thetestament.cread.CreadApp.GET_RESPONSE_FROM_NETWORK_COLLABORATION_DETAILS;
+import static com.thetestament.cread.CreadApp.GET_RESPONSE_FROM_NETWORK_ENTITY_SPECIFIC;
 import static com.thetestament.cread.CreadApp.GET_RESPONSE_FROM_NETWORK_EXPLORE;
 import static com.thetestament.cread.CreadApp.GET_RESPONSE_FROM_NETWORK_MAIN;
 import static com.thetestament.cread.CreadApp.GET_RESPONSE_FROM_NETWORK_ME;
@@ -247,7 +249,8 @@ public class PreviewActivity extends BaseActivity {
                                     GET_RESPONSE_FROM_NETWORK_MAIN = true;
                                     GET_RESPONSE_FROM_NETWORK_EXPLORE = true;
                                     GET_RESPONSE_FROM_NETWORK_ME = true;
-
+                                    GET_RESPONSE_FROM_NETWORK_ENTITY_SPECIFIC = true;
+                                    GET_RESPONSE_FROM_NETWORK_COLLABORATION_DETAILS = true;
 
                                     //Navigate back to previous market
                                     finish();

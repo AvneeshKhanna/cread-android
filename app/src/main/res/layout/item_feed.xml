@@ -82,7 +82,7 @@
                     android:id="@+id/imageHatsOff"
                     android:layout_width="32dp"
                     android:layout_height="32dp"
-                    android:src="@drawable/ic_hats_off" />
+                    app:srcCompat="@drawable/ic_hats_off" />
 
                 <TextView
                     android:id="@+id/textHatsOff"

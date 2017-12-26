@@ -42,6 +42,7 @@ import icepick.State;
 import okhttp3.OkHttpClient;
 
 import static com.thetestament.cread.CreadApp.GET_RESPONSE_FROM_NETWORK_EXPLORE;
+import static com.thetestament.cread.CreadApp.GET_RESPONSE_FROM_NETWORK_INSPIRATION;
 import static com.thetestament.cread.CreadApp.GET_RESPONSE_FROM_NETWORK_MAIN;
 import static com.thetestament.cread.CreadApp.GET_RESPONSE_FROM_NETWORK_ME;
 import static com.thetestament.cread.helpers.ImageHelper.getImageUri;
@@ -294,6 +295,7 @@ public class CapturePreviewActivity extends BaseActivity {
                                     GET_RESPONSE_FROM_NETWORK_MAIN = true;
                                     GET_RESPONSE_FROM_NETWORK_EXPLORE = true;
                                     GET_RESPONSE_FROM_NETWORK_ME = true;
+                                    GET_RESPONSE_FROM_NETWORK_INSPIRATION = true;
 
 
                                     //finish this activity

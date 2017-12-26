@@ -13,11 +13,18 @@ public class CreadApp extends MultiDexApplication {
 
     private static CreadApp singleTone;
 
+    // to determine whether data for the following screens
+    // is to be restored from cache or from network
     public static boolean GET_RESPONSE_FROM_NETWORK_MAIN = false;
     public static boolean GET_RESPONSE_FROM_NETWORK_EXPLORE = false;
     public static boolean GET_RESPONSE_FROM_NETWORK_ME = false;
     public static boolean GET_RESPONSE_FROM_NETWORK_FIND_FRIENDS = false;
     public static boolean GET_RESPONSE_FROM_NETWORK_FOLLOWING = false;
+    public static boolean GET_RESPONSE_FROM_NETWORK_HATSOFF = false;
+    public static boolean GET_RESPONSE_FROM_NETWORK_INSPIRATION = false;
+    public static boolean GET_RESPONSE_FROM_NETWORK_ENTITY_SPECIFIC = false;
+    public static boolean GET_RESPONSE_FROM_NETWORK_COLLABORATION_DETAILS = false;
+    public static boolean GET_RESPONSE_FROM_NETWORK_COMMENTS = false;
 
     /**
      * Method to return singleton instance of this class.

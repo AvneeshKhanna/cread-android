@@ -3,6 +3,7 @@ package com.thetestament.cread.activities;
 
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
@@ -306,7 +307,7 @@ public class FeedDescriptionActivity extends BaseActivity {
                 //Animation for hats off
                 imageHatsOff.startAnimation(AnimationUtils.loadAnimation(this, R.anim.reverse_rotate_animation_hats_off));
                 //Toggle hatsOff tint
-                imageHatsOff.setColorFilter(ContextCompat.getColor(this, R.color.grey));
+                imageHatsOff.setColorFilter(Color.TRANSPARENT);
                 //Toggle hatsOff status
                 mFeedData.setHatsOffStatus(!mFeedData.getHatsOffStatus());
                 //Update hatsOffCount
@@ -546,7 +547,7 @@ public class FeedDescriptionActivity extends BaseActivity {
             //Animation for hats off
             imageHatsOff.startAnimation(AnimationUtils.loadAnimation(this, R.anim.rotate_animation_hats_off_fast));
         } else {
-            imageHatsOff.setColorFilter(ContextCompat.getColor(this, R.color.grey));
+            imageHatsOff.setColorFilter(Color.TRANSPARENT);
             //Animation for hats off
             imageHatsOff.startAnimation(AnimationUtils.loadAnimation(this, R.anim.reverse_rotate_animation_hats_off));
         }

@@ -27,6 +27,7 @@ import com.thetestament.cread.activities.ProfileActivity;
 import com.thetestament.cread.listeners.listener;
 import com.thetestament.cread.listeners.listener.OnServerRequestedListener;
 import com.thetestament.cread.listeners.listener.OnShareDialogItemClickedListener;
+import com.thetestament.cread.models.FeedModel;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -313,5 +314,74 @@ public class FeedHelper {
         }
     }
 
+
+    public static FeedModel parseEntitySpecificJSON(JSONObject jsonObject, String entityID) throws JSONException {
+
+        FeedModel feedData = new FeedModel();
+
+        JSONObject mainObject = jsonObject.getJSONObject("data");
+
+        JSONObject dataObj = mainObject.getJSONObject("entity");
+        String type = dataObj.getString("type");
+
+        feedData.setEntityID(entityID);
+        feedData.setCaptureID(dataObj.getString("captureid"));
+        feedData.setContentType(dataObj.getString("type"));
+        feedData.setUUID(dataObj.getString("uuid"));
+        feedData.setCreatorImage(dataObj.getString("profilepicurl"));
+        feedData.setCreatorName(dataObj.getString("creatorname"));
+        feedData.setHatsOffStatus(dataObj.getBoolean("hatsoffstatus"));
+        feedData.setMerchantable(dataObj.getBoolean("merchantable"));
+        feedData.setHatsOffCount(dataObj.getLong("hatsoffcount"));
+        feedData.setCommentCount(dataObj.getLong("commentcount"));
+        feedData.setContentImage(dataObj.getString("entityurl"));
+        feedData.setCollabCount(dataObj.getLong("collabcount"));
+        if (dataObj.isNull("caption")) {
+            feedData.setCaption(null);
+        } else {
+            feedData.setCaption(dataObj.getString("caption"));
+        }
+
+        if (type.equals(CONTENT_TYPE_CAPTURE)) {
+
+            //Retrieve "CAPTURE_ID" if type is capture
+            feedData.setCaptureID(dataObj.getString("captureid"));
+            // if capture
+            // then if key cpshort exists
+            // not available for collaboration
+            if (!dataObj.isNull("cpshort")) {
+                JSONObject collabObject = dataObj.getJSONObject("cpshort");
+
+                feedData.setAvailableForCollab(false);
+                // set collaborator details
+                feedData.setCollabWithUUID(collabObject.getString("uuid"));
+                feedData.setCollabWithName(collabObject.getString("name"));
+
+            } else {
+                feedData.setAvailableForCollab(true);
+            }
+
+        } else if (type.equals(CONTENT_TYPE_SHORT)) {
+
+            //Retrieve "SHORT_ID" if type is short
+            feedData.setShortID(dataObj.getString("shoid"));
+
+            // if short
+            // then if key shcapture exists
+            // not available for collaboration
+            if (!dataObj.isNull("shcapture")) {
+
+                JSONObject collabObject = dataObj.getJSONObject("shcapture");
+
+                feedData.setAvailableForCollab(false);
+                // set collaborator details
+                feedData.setCollabWithUUID(collabObject.getString("uuid"));
+                feedData.setCollabWithName(collabObject.getString("name"));
+            } else {
+                feedData.setAvailableForCollab(true);
+            }
+        }
+        return feedData;
+    }
 
 }

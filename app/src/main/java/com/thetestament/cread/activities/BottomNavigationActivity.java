@@ -216,7 +216,7 @@ public class BottomNavigationActivity extends BaseActivity {
                 mUnreadCount = 0;
                 ActionItemBadge.update(BottomNavigationActivity.this
                         , item
-                        , ContextCompat.getDrawable(BottomNavigationActivity.this, R.drawable.ic_menu_updates)
+                        , ContextCompat.getDrawable(BottomNavigationActivity.this, R.drawable.ic_menu_updates_solid)
                         , ActionItemBadge.BadgeStyles.DARK_GREY, null);
 
                 Thread thread = new Thread(
@@ -486,12 +486,12 @@ public class BottomNavigationActivity extends BaseActivity {
 
             //you can add some logic (hide it if the count == 0)
             if (mUnreadCount > 0) {
-                ActionItemBadge.update(BottomNavigationActivity.this, menu.findItem(R.id.action_updates), ContextCompat.getDrawable(BottomNavigationActivity.this, R.drawable.ic_menu_updates)/*FontAwesome.Icon.faw_android*/, ActionItemBadge.BadgeStyles.DARK_GREY, mUnreadCount);
+                ActionItemBadge.update(BottomNavigationActivity.this, menu.findItem(R.id.action_updates), ContextCompat.getDrawable(BottomNavigationActivity.this, R.drawable.ic_menu_updates_solid)/*FontAwesome.Icon.faw_android*/, ActionItemBadge.BadgeStyles.DARK_GREY, mUnreadCount);
 
             } else {
 
                 // setting badge count parameter as null to hide the badge
-                ActionItemBadge.update(BottomNavigationActivity.this, menu.findItem(R.id.action_updates), ContextCompat.getDrawable(BottomNavigationActivity.this, R.drawable.ic_menu_updates)/*FontAwesome.Icon.faw_android*/, ActionItemBadge.BadgeStyles.DARK_GREY, null);
+                ActionItemBadge.update(BottomNavigationActivity.this, menu.findItem(R.id.action_updates), ContextCompat.getDrawable(BottomNavigationActivity.this, R.drawable.ic_menu_updates_solid)/*FontAwesome.Icon.faw_android*/, ActionItemBadge.BadgeStyles.DARK_GREY, null);
 
             }
 

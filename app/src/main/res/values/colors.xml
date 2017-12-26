@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <!--App Color Palette-->
-    <color name="colorPrimary">#F44336</color>
-    <color name="colorPrimaryDark">#E53935</color>
-    <color name="colorAccent">#F44336</color>
+    <!--#FF7468-->
+    <color name="colorPrimary">#FF5252</color>
+    <color name="colorPrimaryDark">#f24d4d</color>
+    <color name="colorAccent">#FF5252</color>
 
     // for tooltip
     <color name="colorToolTip">#CCF44336</color>

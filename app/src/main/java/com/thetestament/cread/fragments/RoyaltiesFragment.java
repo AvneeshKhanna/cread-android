@@ -58,6 +58,9 @@ import io.reactivex.disposables.Disposable;
 import io.reactivex.schedulers.Schedulers;
 
 import static android.app.Activity.RESULT_OK;
+import static com.thetestament.cread.CreadApp.GET_RESPONSE_FROM_NETWORK_ENTITY_SPECIFIC;
+import static com.thetestament.cread.helpers.FeedHelper.parseEntitySpecificJSON;
+import static com.thetestament.cread.helpers.NetworkHelper.getEntitySpecificObservable;
 import static com.thetestament.cread.helpers.NetworkHelper.getRoyaltiesObservable;
 import static com.thetestament.cread.helpers.NetworkHelper.requestServer;
 import static com.thetestament.cread.utils.Constant.CONTENT_TYPE_CAPTURE;
@@ -108,6 +111,8 @@ public class RoyaltiesFragment extends Fragment {
     private boolean mRequestRoyaltiesData = true;
     private double minCashAmount;
     private double redeemAmount;
+
+    FeedModel entitySpecificData;
 
     @Nullable
     @Override
@@ -507,168 +512,85 @@ public class RoyaltiesFragment extends Fragment {
         royaltiesAmt.setText(getActivity().getString(R.string.Rs) + " " + String.valueOf(totalRoyalty));
     }
 
+
     /**
      * RxJava2 implementation for retrieving feed details
      *
      * @param entityID
      */
     private void getFeedDetails(final String entityID) {
+        progressBar.setVisibility(View.VISIBLE);
 
-        // check net status
-        if (NetworkHelper.getNetConnectionStatus(getActivity())) {
-            final boolean[] tokenError = {false};
-            final boolean[] connectionError = {false};
+        final boolean[] tokenError = {false};
+        final boolean[] connectionError = {false};
 
-            final FeedModel feedData = new FeedModel();
+        SharedPreferenceHelper spHelper = new SharedPreferenceHelper(getActivity());
 
-            progressBar.setVisibility(View.VISIBLE);
+        requestServer(mCompositeDisposable,
+                getEntitySpecificObservable(spHelper.getUUID(),
+                        spHelper.getAuthToken(),
+                        entityID),
+                getActivity(),
+                new OnServerRequestedListener<JSONObject>() {
+                    @Override
+                    public void onDeviceOffline() {
 
-            SharedPreferenceHelper spHelper = new SharedPreferenceHelper(getActivity());
+                        progressBar.setVisibility(View.GONE);
+                        ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_no_connection));
+                    }
 
-            JSONObject data = new JSONObject();
-            try {
-                data.put("uuid", spHelper.getUUID());
-                data.put("authkey", spHelper.getAuthToken());
-                data.put("entityid", entityID);
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
+                    @Override
+                    public void onNextCalled(JSONObject jsonObject) {
 
+                        progressBar.setVisibility(View.GONE);
 
-            Rx2AndroidNetworking.post(BuildConfig.URL + "/entity-manage/load-specific")
-                    .addJSONObjectBody(data)
-                    .build()
-                    .getJSONObjectObservable()
-                    .subscribeOn(Schedulers.io())
-                    .observeOn(AndroidSchedulers.mainThread())
-                    .subscribeWith(new Observer<JSONObject>() {
-                        @Override
-                        public void onSubscribe(@NonNull Disposable d) {
-                            mCompositeDisposable.add(d);
-                        }
-
-                        @Override
-                        public void onNext(@NonNull JSONObject jsonObject) {
-
-                            progressBar.setVisibility(View.GONE);
-
-                            try {
-                                //Token status is invalid
-                                if (jsonObject.getString("tokenstatus").equals("invalid")) {
-                                    tokenError[0] = true;
-                                } else {
-                                    JSONObject mainObject = jsonObject.getJSONObject("data");
-
-                                    JSONObject dataObj = mainObject.getJSONObject("entity");
-                                    String type = dataObj.getString("type");
-
-                                    feedData.setEntityID(entityID);
-                                    feedData.setCaptureID(dataObj.getString("captureid"));
-                                    feedData.setContentType(dataObj.getString("type"));
-                                    feedData.setUUID(dataObj.getString("uuid"));
-                                    feedData.setCreatorImage(dataObj.getString("profilepicurl"));
-                                    feedData.setCreatorName(dataObj.getString("creatorname"));
-                                    feedData.setHatsOffStatus(dataObj.getBoolean("hatsoffstatus"));
-                                    feedData.setMerchantable(dataObj.getBoolean("merchantable"));
-                                    feedData.setHatsOffCount(dataObj.getLong("hatsoffcount"));
-                                    feedData.setCommentCount(dataObj.getLong("commentcount"));
-                                    feedData.setContentImage(dataObj.getString("entityurl"));
-
-                                    feedData.setCollabCount(dataObj.getLong("collabcount"));
-                                    if (dataObj.isNull("caption")) {
-                                        feedData.setCaption(null);
-                                    } else {
-                                        feedData.setCaption(dataObj.getString("caption"));
-                                    }
-
-                                    if (type.equals(CONTENT_TYPE_CAPTURE)) {
-
-                                        //Retrieve "CAPTURE_ID" if type is capture
-                                        feedData.setCaptureID(dataObj.getString("captureid"));
-                                        // if capture
-                                        // then if key cpshort exists
-                                        // not available for collaboration
-                                        if (!dataObj.isNull("cpshort")) {
-                                            JSONObject collabObject = dataObj.getJSONObject("cpshort");
-
-                                            feedData.setAvailableForCollab(false);
-                                            // set collaborator details
-                                            feedData.setCollabWithUUID(collabObject.getString("uuid"));
-                                            feedData.setCollabWithName(collabObject.getString("name"));
-
-                                        } else {
-                                            feedData.setAvailableForCollab(true);
-                                        }
-
-                                    } else if (type.equals(CONTENT_TYPE_SHORT)) {
-
-                                        //Retrieve "SHORT_ID" if type is short
-                                        feedData.setShortID(dataObj.getString("shoid"));
-
-                                        // if short
-                                        // then if key shcapture exists
-                                        // not available for collaboration
-                                        if (!dataObj.isNull("shcapture")) {
-
-                                            JSONObject collabObject = dataObj.getJSONObject("shcapture");
-
-                                            feedData.setAvailableForCollab(false);
-                                            // set collaborator details
-                                            feedData.setCollabWithUUID(collabObject.getString("uuid"));
-                                            feedData.setCollabWithName(collabObject.getString("name"));
-                                        } else {
-                                            feedData.setAvailableForCollab(true);
-                                        }
-                                    }
-
-                                }
-                            } catch (JSONException e) {
-                                e.printStackTrace();
-                                FirebaseCrash.report(e);
-                                connectionError[0] = true;
-
+                        try {
+                            //Token status is invalid
+                            if (jsonObject.getString("tokenstatus").equals("invalid")) {
+                                tokenError[0] = true;
+                            } else {
+                                entitySpecificData = parseEntitySpecificJSON(jsonObject, entityID);
                             }
-                        }
-
-                        @Override
-                        public void onError(@NonNull Throwable e) {
-
-                            progressBar.setVisibility(View.GONE);
+                        } catch (JSONException e) {
+                            e.printStackTrace();
                             FirebaseCrash.report(e);
-                            //Server error Snack bar
-                            ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_server));
-
+                            connectionError[0] = true;
                         }
+                    }
 
-                        @Override
-                        public void onComplete() {
+                    @Override
+                    public void onErrorCalled(Throwable e) {
 
-                            // Token status invalid
-                            if (tokenError[0]) {
-                                ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_invalid_token));
-                            }
-                            //Error occurred
-                            else if (connectionError[0]) {
-                                ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_internal));
+                        progressBar.setVisibility(View.GONE);
+                        FirebaseCrash.report(e);
+                        //Server error Snack bar
+                        ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_server));
+                    }
 
-                            } else
+                    @Override
+                    public void onCompleteCalled() {
 
-                            {
-                                Bundle bundle = new Bundle();
-                                bundle.putParcelable(EXTRA_FEED_DESCRIPTION_DATA, feedData);
-                                bundle.putInt("position", -1);
+                        GET_RESPONSE_FROM_NETWORK_ENTITY_SPECIFIC = false;
 
-                                Intent intent = new Intent(getActivity(), FeedDescriptionActivity.class);
-                                intent.putExtra(EXTRA_DATA, bundle);
-                                getActivity().startActivity(intent);
-
-                                getActivity().finish();
-                            }
+                        // Token status invalid
+                        if (tokenError[0]) {
+                            ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_invalid_token));
                         }
-                    });
-        } else {
-            ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_no_connection));
-        }
+                        //Error occurred
+                        else if (connectionError[0]) {
+                            ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_internal));
+
+                        } else {
+                            Bundle bundle = new Bundle();
+                            bundle.putParcelable(EXTRA_FEED_DESCRIPTION_DATA, entitySpecificData);
+                            bundle.putInt("position", -1);
+
+                            Intent intent = new Intent(getActivity(), FeedDescriptionActivity.class);
+                            intent.putExtra(EXTRA_DATA, bundle);
+                            getActivity().startActivity(intent);
+                        }
+                    }
+                });
     }
 
 

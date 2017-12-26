@@ -408,6 +408,8 @@ public class ExploreFragment extends Fragment {
                     public void onComplete() {
                         //Dismiss progress indicator
                         swipeRefreshLayout.setRefreshing(false);
+                        // set to false
+                        GET_RESPONSE_FROM_NETWORK_EXPLORE = false;
                         // Token status invalid
                         if (tokenError[0]) {
                             ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_invalid_token));

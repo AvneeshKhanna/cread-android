@@ -23,6 +23,7 @@ import com.androidnetworking.interfaces.JSONObjectRequestListener;
 import com.facebook.AccessToken;
 import com.facebook.CallbackManager;
 import com.google.firebase.crash.FirebaseCrash;
+import com.rx2androidnetworking.Rx2ANRequest;
 import com.rx2androidnetworking.Rx2AndroidNetworking;
 import com.thetestament.cread.BuildConfig;
 import com.thetestament.cread.R;
@@ -261,6 +262,9 @@ public class FindFBFriendsActivity extends BaseActivity {
                             @Override
                             public void onComplete() {
 
+                                // set to false
+                                GET_RESPONSE_FROM_NETWORK_FIND_FRIENDS = false;
+
                                 // Token status invalid
                                 if (tokenError[0]) {
                                     ViewHelper.getSnackBar(rootView
@@ -464,9 +468,15 @@ public class FindFBFriendsActivity extends BaseActivity {
         queryParam.put("nexturl", mNextUrl);
 
 
-        return Rx2AndroidNetworking.get(serverURL)
+        Rx2ANRequest.GetRequestBuilder requestBuilder = Rx2AndroidNetworking.get(serverURL)
                 .addHeaders(headers)
-                .addQueryParameter(queryParam)
+                .addQueryParameter(queryParam);
+
+        if (GET_RESPONSE_FROM_NETWORK_FIND_FRIENDS) {
+            requestBuilder.getResponseOnlyFromNetwork();
+        }
+
+        return requestBuilder
                 .build()
                 .getJSONObjectObservable();
     }

@@ -2,6 +2,7 @@ package com.thetestament.cread.adapters;
 
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -385,7 +386,7 @@ public class MeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             itemViewHolder.imageHatsOff.startAnimation(AnimationUtils.loadAnimation(mContext, R.anim.rotate_animation_hats_off_fast));
             itemViewHolder.mIsHatsOff = true;
         } else {
-            itemViewHolder.imageHatsOff.setColorFilter(ContextCompat.getColor(mContext, R.color.grey));
+            itemViewHolder.imageHatsOff.setColorFilter(Color.TRANSPARENT);
             itemViewHolder.mIsHatsOff = false;
         }
     }
@@ -409,7 +410,7 @@ public class MeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                         //Animation for hats off
                         itemViewHolder.imageHatsOff.startAnimation(AnimationUtils.loadAnimation(mContext, R.anim.reverse_rotate_animation_hats_off));
                         //Toggle hatsOff tint
-                        itemViewHolder.imageHatsOff.setColorFilter(ContextCompat.getColor(mContext, R.color.grey));
+                        itemViewHolder.imageHatsOff.setColorFilter(Color.TRANSPARENT);
                         //Update hats of count i.e decrease by one
                         data.setHatsOffCount(data.getHatsOffCount() - 1);
                     } else {

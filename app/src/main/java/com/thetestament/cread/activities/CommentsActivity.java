@@ -54,6 +54,7 @@ import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.observers.DisposableObserver;
 import io.reactivex.schedulers.Schedulers;
 
+import static com.thetestament.cread.CreadApp.GET_RESPONSE_FROM_NETWORK_COMMENTS;
 import static com.thetestament.cread.helpers.NetworkHelper.getCommentObservableFromServer;
 import static com.thetestament.cread.helpers.NetworkHelper.getNetConnectionStatus;
 import static com.thetestament.cread.utils.Constant.EXTRA_ENTITY_ID;
@@ -359,6 +360,9 @@ public class CommentsActivity extends BaseActivity {
                         //Hide progress indicator
                         swipeRefreshLayout.setRefreshing(false);
                         swipeRefreshLayout.setEnabled(false);
+                        // set to false
+                        GET_RESPONSE_FROM_NETWORK_COMMENTS = false;
+
                         // Token status invalid
                         if (tokenError[0]) {
                             ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_invalid_token));
@@ -594,6 +598,10 @@ public class CommentsActivity extends BaseActivity {
                                                   }
                                             );
 
+                                    //set response flag
+                                    GET_RESPONSE_FROM_NETWORK_COMMENTS = true;
+
+
                                     //set result ok
                                     setResult(RESULT_OK);
                                 }
@@ -663,6 +671,10 @@ public class CommentsActivity extends BaseActivity {
                                     mCommentsList.remove(itemIndex - 1);
                                     //Update adapter
                                     mAdapter.notifyItemRemoved(itemIndex);
+
+                                    //set response flag
+                                    GET_RESPONSE_FROM_NETWORK_COMMENTS = true;
+
                                     //set result ok
                                     setResult(RESULT_OK);
                                 }
@@ -735,6 +747,10 @@ public class CommentsActivity extends BaseActivity {
                                     commentsModel.setComment(textComment);
                                     //Notify changes
                                     mAdapter.notifyItemChanged(itemIndex);
+
+                                    //set response flag
+                                    GET_RESPONSE_FROM_NETWORK_COMMENTS = true;
+
                                     //set result ok
                                     setResult(RESULT_OK);
                                 } else {

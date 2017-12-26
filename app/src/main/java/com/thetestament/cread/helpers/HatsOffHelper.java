@@ -15,7 +15,9 @@ import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.schedulers.Schedulers;
 
+import static com.thetestament.cread.CreadApp.GET_RESPONSE_FROM_NETWORK_ENTITY_SPECIFIC;
 import static com.thetestament.cread.CreadApp.GET_RESPONSE_FROM_NETWORK_EXPLORE;
+import static com.thetestament.cread.CreadApp.GET_RESPONSE_FROM_NETWORK_HATSOFF;
 import static com.thetestament.cread.CreadApp.GET_RESPONSE_FROM_NETWORK_MAIN;
 import static com.thetestament.cread.CreadApp.GET_RESPONSE_FROM_NETWORK_ME;
 
@@ -116,6 +118,8 @@ public class HatsOffHelper {
                                     GET_RESPONSE_FROM_NETWORK_MAIN = true;
                                     GET_RESPONSE_FROM_NETWORK_EXPLORE = true;
                                     GET_RESPONSE_FROM_NETWORK_ME = true;
+                                    GET_RESPONSE_FROM_NETWORK_HATSOFF = true;
+                                    GET_RESPONSE_FROM_NETWORK_ENTITY_SPECIFIC = true;
 
                                     //Set listener
                                     onHatsOffSuccessListener.onSuccess();

@@ -4,13 +4,13 @@
 
     <item
         android:id="@+id/action_findfbFriends"
-        android:icon="@drawable/ic_menu_find_friends"
+        android:icon="@drawable/ic_menu_find_friends_solid"
         android:title="Find Friends"
         app:showAsAction="always" />
 
     <item
         android:id="@+id/action_search"
-        android:icon="@drawable/ic_menu_search"
+        android:icon="@drawable/ic_menu_search_solid"
         android:title="Search people"
         app:showAsAction="always" />
 

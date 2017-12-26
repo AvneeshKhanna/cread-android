@@ -25,6 +25,12 @@ import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.observers.DisposableObserver;
 import io.reactivex.schedulers.Schedulers;
 
+import static com.thetestament.cread.CreadApp.GET_RESPONSE_FROM_NETWORK_COMMENTS;
+import static com.thetestament.cread.CreadApp.GET_RESPONSE_FROM_NETWORK_ENTITY_SPECIFIC;
+import static com.thetestament.cread.CreadApp.GET_RESPONSE_FROM_NETWORK_EXPLORE;
+import static com.thetestament.cread.CreadApp.GET_RESPONSE_FROM_NETWORK_FOLLOWING;
+import static com.thetestament.cread.CreadApp.GET_RESPONSE_FROM_NETWORK_HATSOFF;
+import static com.thetestament.cread.CreadApp.GET_RESPONSE_FROM_NETWORK_INSPIRATION;
 import static com.thetestament.cread.CreadApp.GET_RESPONSE_FROM_NETWORK_MAIN;
 import static com.thetestament.cread.CreadApp.GET_RESPONSE_FROM_NETWORK_ME;
 
@@ -62,6 +68,9 @@ public class NetworkHelper {
      */
     public static Observable<JSONObject> getObservableFromServer(String serverURL, String uuid, String authKey, String requestedUUID, String lastIndexKey) {
 
+        // used in follow activity and me fragment
+
+
         Map<String, String> headers = new HashMap<>();
         headers.put("uuid", uuid);
         headers.put("authkey", authKey);
@@ -70,9 +79,15 @@ public class NetworkHelper {
         queryParams.put("requesteduuid", requestedUUID);
         queryParams.put("lastindexkey", lastIndexKey);
 
-        return Rx2AndroidNetworking.get(serverURL)
+        Rx2ANRequest.GetRequestBuilder requestBuilder = Rx2AndroidNetworking.get(serverURL)
                 .addHeaders(headers)
-                .addQueryParameter(queryParams)
+                .addQueryParameter(queryParams);
+
+        if (GET_RESPONSE_FROM_NETWORK_ME || GET_RESPONSE_FROM_NETWORK_FOLLOWING) {
+            requestBuilder.getResponseOnlyFromNetwork();
+        }
+
+        return requestBuilder
                 .build()
                 .getJSONObjectObservable();
     }
@@ -87,6 +102,9 @@ public class NetworkHelper {
      * @param lastIndexKey Last index key
      */
     public static Observable<JSONObject> getObservableFromServer(String serverURL, String uuid, String authKey, String lastIndexKey) {
+
+        // used in feed fragemnt, explore fragment and inspiration activity
+
         Map<String, String> header = new HashMap<>();
         header.put("uuid", uuid);
         header.put("authkey", authKey);
@@ -95,7 +113,8 @@ public class NetworkHelper {
                 .addHeaders(header)
                 .addQueryParameter("lastindexkey", lastIndexKey);
 
-        if (GET_RESPONSE_FROM_NETWORK_MAIN) {
+        if (GET_RESPONSE_FROM_NETWORK_MAIN || GET_RESPONSE_FROM_NETWORK_EXPLORE
+                || GET_RESPONSE_FROM_NETWORK_INSPIRATION) {
             requestBuilder.getResponseOnlyFromNetwork();
         }
 
@@ -150,9 +169,16 @@ public class NetworkHelper {
         queryParams.put("entityid", entityID);
         queryParams.put("lastindexkey", lastIndexKey);
 
-        return Rx2AndroidNetworking.get(serverURL)
+        Rx2ANRequest.GetRequestBuilder requestBuilder = Rx2AndroidNetworking.get(serverURL)
                 .addHeaders(headers)
-                .addQueryParameter(queryParams)
+                .addQueryParameter(queryParams);
+
+
+        if (GET_RESPONSE_FROM_NETWORK_HATSOFF) {
+            requestBuilder.getResponseOnlyFromNetwork();
+        }
+
+        return requestBuilder
                 .build()
                 .getJSONObjectObservable();
     }
@@ -180,9 +206,15 @@ public class NetworkHelper {
         queryParams.put("loadall", loadAll);
 
 
-        return Rx2AndroidNetworking.get(serverURL)
+        Rx2ANRequest.GetRequestBuilder requestBuilder = Rx2AndroidNetworking.get(serverURL)
                 .addQueryParameter(queryParams)
-                .addHeaders(headers)
+                .addHeaders(headers);
+
+        if (GET_RESPONSE_FROM_NETWORK_COMMENTS) {
+            requestBuilder.getResponseOnlyFromNetwork();
+        }
+
+        return requestBuilder
                 .build()
                 .getJSONObjectObservable();
     }
@@ -348,6 +380,26 @@ public class NetworkHelper {
                 .addQueryParameter("lastindexkey", lastIndexKey)
                 .addQueryParameter("searchtype", searchType)
                 .setPriority(Priority.HIGH)
+                .build()
+                .getJSONObjectObservable();
+    }
+
+
+    public static Observable<JSONObject> getEntitySpecificObservable(String uuid, String authkey, String entityID) {
+
+        Map<String, String> headers = new HashMap<>();
+        headers.put("uuid", uuid);
+        headers.put("authkey", authkey);
+
+        Rx2ANRequest.GetRequestBuilder requestBuilder = Rx2AndroidNetworking.get(BuildConfig.URL + "/entity-manage/load-specific")
+                .addHeaders(headers)
+                .addQueryParameter("entityid", entityID);
+
+        if (GET_RESPONSE_FROM_NETWORK_ENTITY_SPECIFIC) {
+            requestBuilder.getResponseOnlyFromNetwork();
+        }
+
+        return requestBuilder
                 .build()
                 .getJSONObjectObservable();
     }

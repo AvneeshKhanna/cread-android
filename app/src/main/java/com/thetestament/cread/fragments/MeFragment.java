@@ -716,6 +716,8 @@ public class MeFragment extends Fragment {
                     public void onComplete() {
                         //Dismiss progress indicator
                         swipeToRefreshLayout.setRefreshing(false);
+                        // set to false
+                        GET_RESPONSE_FROM_NETWORK_ME = false;
                         // Token status invalid
                         if (tokenError[0]) {
                             ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_invalid_token));
@@ -1101,6 +1103,8 @@ public class MeFragment extends Fragment {
                     @Override
                     public void onComplete() {
                         swipeToRefreshLayout.setRefreshing(false);
+                        // set to false
+                        GET_RESPONSE_FROM_NETWORK_ME = false;
                         // Token status invalid
                         if (tokenError[0]) {
                             ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_invalid_token));
@@ -1473,6 +1477,8 @@ public class MeFragment extends Fragment {
                                     //Update user post count
                                     mPostCount -= 1;
                                     ((TextView) viewPagerUserStats.findViewWithTag(POSTS)).setText(String.valueOf(mPostCount));
+                                    // update response flag
+                                    GET_RESPONSE_FROM_NETWORK_ME = true;
                                 }
                             }
                         } catch (JSONException e) {
