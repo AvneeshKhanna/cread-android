@@ -347,6 +347,16 @@ public class PreviewActivity extends BaseActivity {
                                 if (dataObject.getString("status").equals("done")) {
                                     ViewHelper.getToast(PreviewActivity.this, "Writing uploaded successfully.");
                                     setResult(RESULT_OK);
+
+                                    // set feeds data to be loaded from network
+                                    // instead of cached data
+                                    GET_RESPONSE_FROM_NETWORK_MAIN = true;
+                                    GET_RESPONSE_FROM_NETWORK_EXPLORE = true;
+                                    GET_RESPONSE_FROM_NETWORK_ME = true;
+                                    GET_RESPONSE_FROM_NETWORK_ENTITY_SPECIFIC = true;
+                                    GET_RESPONSE_FROM_NETWORK_COLLABORATION_DETAILS = true;
+
+
                                     //Navigate back to previous market
                                     finish();
                                 }

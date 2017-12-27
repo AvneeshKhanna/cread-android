@@ -336,6 +336,7 @@ public class FeedFragment extends Fragment {
                 , mHelper.getUUID()
                 , mHelper.getAuthToken()
                 , mLastIndexKey
+                , GET_RESPONSE_FROM_NETWORK_MAIN
                 )
                         //Run on a background thread
                         .subscribeOn(Schedulers.io())
@@ -472,7 +473,8 @@ public class FeedFragment extends Fragment {
         mCompositeDisposable.add(getObservableFromServer(BuildConfig.URL + "/feed/load"
                 , mHelper.getUUID()
                 , mHelper.getAuthToken()
-                , mLastIndexKey)
+                , mLastIndexKey
+                , GET_RESPONSE_FROM_NETWORK_MAIN)
                 //Run on a background thread
                 .subscribeOn(Schedulers.io())
                 //Be notified on the main thread

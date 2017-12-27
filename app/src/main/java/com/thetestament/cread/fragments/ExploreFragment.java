@@ -305,7 +305,8 @@ public class ExploreFragment extends Fragment {
         mCompositeDisposable.add(getObservableFromServer(BuildConfig.URL + "/explore-feed/load"
                 , mHelper.getUUID()
                 , mHelper.getAuthToken()
-                , mLastIndexKey)
+                , mLastIndexKey
+                , GET_RESPONSE_FROM_NETWORK_EXPLORE)
                 //Run on a background thread
                 .subscribeOn(Schedulers.io())
                 //Be notified on the main thread
@@ -438,7 +439,8 @@ public class ExploreFragment extends Fragment {
         mCompositeDisposable.add(getObservableFromServer(BuildConfig.URL + "/explore-feed/load"
                 , mHelper.getUUID()
                 , mHelper.getAuthToken()
-                , mLastIndexKey)
+                , mLastIndexKey
+                , GET_RESPONSE_FROM_NETWORK_EXPLORE)
                 //Run on a background thread
                 .subscribeOn(Schedulers.io())
                 //Be notified on the main thread

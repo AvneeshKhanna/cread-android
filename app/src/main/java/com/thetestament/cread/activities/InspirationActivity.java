@@ -170,7 +170,8 @@ public class InspirationActivity extends BaseActivity {
         mCompositeDisposable.add(getObservableFromServer(BuildConfig.URL + "/inspiration-feed/load"
                 , mHelper.getUUID()
                 , mHelper.getAuthToken()
-                , mLastIndexKey)
+                , mLastIndexKey
+                , GET_RESPONSE_FROM_NETWORK_INSPIRATION)
                 //Run on a background thread
                 .subscribeOn(Schedulers.io())
                 //Be notified on the main thread
@@ -254,7 +255,8 @@ public class InspirationActivity extends BaseActivity {
         mCompositeDisposable.add(getObservableFromServer(BuildConfig.URL + "/inspiration-feed/load"
                 , mHelper.getUUID()
                 , mHelper.getAuthToken()
-                , mLastIndexKey)
+                , mLastIndexKey
+                , GET_RESPONSE_FROM_NETWORK_INSPIRATION)
                 //Run on a background thread
                 .subscribeOn(Schedulers.io())
                 //Be notified on the main thread

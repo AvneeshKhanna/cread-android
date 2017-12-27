@@ -1000,7 +1000,8 @@ public class MeFragment extends Fragment {
                 , mHelper.getUUID()
                 , mHelper.getAuthToken()
                 , mRequestedUUID
-                , mLastIndexKey)
+                , mLastIndexKey
+                , GET_RESPONSE_FROM_NETWORK_ME)
                 //Run on a background thread
                 .subscribeOn(Schedulers.io())
                 //Be notified on the main thread
@@ -1173,7 +1174,8 @@ public class MeFragment extends Fragment {
                 , mHelper.getUUID()
                 , mHelper.getAuthToken()
                 , mRequestedUUID
-                , mLastIndexKey)
+                , mLastIndexKey
+                , GET_RESPONSE_FROM_NETWORK_ME)
                 //Run on a background thread
                 .subscribeOn(Schedulers.io())
                 //Be notified on the main thread
