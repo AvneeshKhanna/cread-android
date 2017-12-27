@@ -23,7 +23,7 @@
                 android:layout_height="match_parent"
                 android:scaleType="centerCrop" />
 
-            <com.thetestament.cread.utils.CustomEditText
+            <com.thetestament.cread.widgets.CustomEditText
                 android:id="@+id/textShort"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -50,24 +50,13 @@
 
         </com.thetestament.cread.utils.SquareView>
 
-        <!--todo change note text-->
-        <TextView
-            android:id="@+id/textNote"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_below="@+id/imageContainer"
-            android:layout_centerHorizontal="true"
-            android:gravity="center"
-            android:paddingTop="10sp"
-            android:text="Tap outside to switch between drag and edit mode"
-            android:textSize="12sp" />
 
         <FrameLayout
             android:id="@+id/containerPostButton"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_above="@+id/btnFormatTextSize"
-            android:layout_below="@+id/textNote">
+            android:layout_below="@+id/imageContainer">
 
             <TextView
                 android:id="@+id/btnInspireMe"

@@ -45,9 +45,9 @@ import com.thetestament.cread.helpers.ViewHelper;
 import com.thetestament.cread.listeners.OnDragTouchListener;
 import com.thetestament.cread.listeners.listener;
 import com.thetestament.cread.models.FontModel;
-import com.thetestament.cread.utils.CustomEditText;
-import com.thetestament.cread.utils.CustomEditText.OnEditTextBackListener;
 import com.thetestament.cread.utils.SquareView;
+import com.thetestament.cread.widgets.CustomEditText;
+import com.thetestament.cread.widgets.CustomEditText.OnEditTextBackListener;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -306,6 +306,9 @@ public class ShortActivity extends BaseActivity implements ColorChooserDialog.Co
                     //Show toast message
                     ViewHelper.getToast(this, "Short can't be empty. Please Write something.");
                 } else {
+                    //Remove underline
+                    textShort.clearComposingText();
+
                     getRuntimePermission();
                 }
                 return true;
