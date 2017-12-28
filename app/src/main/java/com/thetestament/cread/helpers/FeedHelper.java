@@ -24,14 +24,19 @@ import com.google.firebase.crash.FirebaseCrash;
 import com.thetestament.cread.BuildConfig;
 import com.thetestament.cread.R;
 import com.thetestament.cread.activities.ProfileActivity;
+import com.thetestament.cread.adapters.ShareDialogAdapter;
 import com.thetestament.cread.listeners.listener;
 import com.thetestament.cread.listeners.listener.OnServerRequestedListener;
 import com.thetestament.cread.listeners.listener.OnShareDialogItemClickedListener;
 import com.thetestament.cread.models.FeedModel;
+import com.thetestament.cread.models.ListItemsDialogModel;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.regex.Pattern;
 
 import io.reactivex.disposables.CompositeDisposable;
@@ -147,18 +152,30 @@ public class FeedHelper {
      * @param contentType capture or short
      * @return
      */
-    public static String getCollabCountText(FragmentActivity context, long count, String contentType)
+    public static String getCollabCountText(FragmentActivity context, long count, String contentType, boolean isAvailableForCollab)
     {
         String text = null;
 
         switch (contentType)
         {
             case CONTENT_TYPE_CAPTURE :
-                text = isMultiple(count) ? String.valueOf(count) + " " + context.getString(R.string.collab_short_count_text_multiple): String.valueOf(count) + " " + context.getString(R.string.collab_short_count_text_single);
+
+                if (!isAvailableForCollab) {
+                    text = isMultiple(count) ? String.valueOf(count) + " " + context.getString(R.string.collab_short_count_text_multiple) : String.valueOf(count) + " " + context.getString(R.string.collab_short_count_text_single);
+                } else {
+                    text = isMultiple(count) ? String.valueOf(count) + " " + context.getString(R.string.collab_general_count_text_multiple) : String.valueOf(count) + " " + context.getString(R.string.collab_general_count_text_single);
+                }
+
                 break;
 
             case CONTENT_TYPE_SHORT :
-                text =  isMultiple(count) ? String.valueOf(count) + " " + context.getString(R.string.collab_capture_count_text_multiple): String.valueOf(count) + " " + context.getString(R.string.collab_capture_count_text_single);
+
+                if (!isAvailableForCollab) {
+                    text = isMultiple(count) ? String.valueOf(count) + " " + context.getString(R.string.collab_capture_count_text_multiple) : String.valueOf(count) + " " + context.getString(R.string.collab_capture_count_text_single);
+                } else {
+                    text = isMultiple(count) ? String.valueOf(count) + " " + context.getString(R.string.collab_general_count_text_multiple) : String.valueOf(count) + " " + context.getString(R.string.collab_general_count_text_single);
+                }
+
                 break;
         }
 
@@ -383,5 +400,93 @@ public class FeedHelper {
         }
         return feedData;
     }
+
+    public static List<ListItemsDialogModel> initializeItemsDialog(String[] titles, String[] bylines, int[] drawables) {
+        List<ListItemsDialogModel> list = new ArrayList<>();
+
+
+        for (int i = 0; i < titles.length; i++) {
+            ListItemsDialogModel model = new ListItemsDialogModel();
+
+            model.setTitle(titles[i]);
+            model.setContent(bylines[i]);
+            model.setDrawableResource(drawables[i]);
+
+            list.add(model);
+
+        }
+
+        return list;
+    }
+
+    public static List<ListItemsDialogModel> initializeShareDialog(FragmentActivity context) {
+        String[] titles = context.getResources()
+                .getStringArray
+                        (R.array.share_dialog_titles);
+
+        String[] bylines = context.getResources()
+                .getStringArray
+                        (R.array.share_dialog_texts);
+
+
+        int[] drawables = {R.drawable.ic_image_24, R.drawable.ic_link_24};
+
+
+        return initializeItemsDialog(titles, bylines, drawables);
+    }
+
+    public static List<ListItemsDialogModel> initializeCollaborateDialog(FragmentActivity context) {
+        String[] titles = context.getResources()
+                .getStringArray
+                        (R.array.collaborate_dialog_titles);
+
+        String[] bylines = context.getResources()
+                .getStringArray
+                        (R.array.collaborate_dialog_texts);
+
+
+        int[] drawables = {R.drawable.ic_image_24, R.drawable.ic_link_24};
+
+
+        return initializeItemsDialog(titles, bylines, drawables);
+    }
+
+
+    public static void collabOnOneForm(View view, final FragmentActivity context) {
+        view.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                ShareDialogAdapter adapter = new ShareDialogAdapter
+                        (context, initializeCollaborateDialog(context));
+
+                final MaterialDialog dialog = new MaterialDialog.Builder(context)
+                        .adapter(adapter, null)
+                        .show();
+
+                adapter.setShareDialogItemClickedListener(new OnShareDialogItemClickedListener() {
+                    @Override
+                    public void onShareDialogItemClicked(int index) {
+
+                        switch (index)
+
+                        {
+                            case 0:
+                                // TODO listener
+                                break;
+
+                            case 1:
+                                // TODO listener
+                                break;
+                        }
+                    }
+                });
+
+
+            }
+        });
+    }
+
+
 
 }

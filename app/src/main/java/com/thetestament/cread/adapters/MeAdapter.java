@@ -46,8 +46,10 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import de.hdodenhof.circleimageview.CircleImageView;
 
+import static com.thetestament.cread.helpers.FeedHelper.collabOnOneForm;
 import static com.thetestament.cread.helpers.FeedHelper.getCollabCountText;
 import static com.thetestament.cread.helpers.FeedHelper.getCreatorText;
+import static com.thetestament.cread.helpers.FeedHelper.initializeShareDialog;
 import static com.thetestament.cread.helpers.FeedHelper.initializeSpannableString;
 import static com.thetestament.cread.utils.Constant.CONTENT_TYPE_CAPTURE;
 import static com.thetestament.cread.utils.Constant.CONTENT_TYPE_SHORT;
@@ -464,7 +466,7 @@ public class MeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             @Override
             public void onClick(View view) {
 
-                ShareDialogAdapter adapter = new ShareDialogAdapter(mContext);
+                ShareDialogAdapter adapter = new ShareDialogAdapter(mContext, initializeShareDialog(mContext));
                 final MaterialDialog dialog = new MaterialDialog.Builder(mContext)
                         .adapter(adapter, null)
                         .show();
@@ -541,7 +543,7 @@ public class MeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
                 // set collab count text
                 if (data.getCollabCount() != 0) {
-                    itemViewHolder.collabCount.setText(getCollabCountText(mContext, data.getCollabCount(), data.getContentType()));
+                    itemViewHolder.collabCount.setText(getCollabCountText(mContext, data.getCollabCount(), data.getContentType(), data.isAvailableForCollab()));
                     itemViewHolder.collabCount.setVisibility(View.VISIBLE);
                     itemViewHolder.lineSepartor.setVisibility(View.VISIBLE);
 
@@ -574,8 +576,10 @@ public class MeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
                 } else {
 
-                    // hiding collaborate button
-                    itemViewHolder.buttonCollaborate.setVisibility(View.GONE);
+                    // showing collaborate button
+                    itemViewHolder.buttonCollaborate.setVisibility(View.VISIBLE);
+
+                    collabOnOneForm(itemViewHolder.buttonCollaborate, mContext);
 
                     //String text = data.getCreatorName() + " added a capture to " + data.getCollabWithName() + "'s short";
 
@@ -597,7 +601,7 @@ public class MeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
                 // set collab count text
                 if (data.getCollabCount() != 0) {
-                    itemViewHolder.collabCount.setText(getCollabCountText(mContext, data.getCollabCount(), data.getContentType()));
+                    itemViewHolder.collabCount.setText(getCollabCountText(mContext, data.getCollabCount(), data.getContentType(), data.isAvailableForCollab()));
                     itemViewHolder.collabCount.setVisibility(View.VISIBLE);
                     itemViewHolder.lineSepartor.setVisibility(View.VISIBLE);
 
@@ -630,8 +634,10 @@ public class MeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
 
                 } else {
-                    // hiding collaborate button
-                    itemViewHolder.buttonCollaborate.setVisibility(View.GONE);
+                    // showing collaborate button
+                    itemViewHolder.buttonCollaborate.setVisibility(View.VISIBLE);
+
+                    collabOnOneForm(itemViewHolder.buttonCollaborate, mContext);
 
                     //String text = data.getCreatorName() + " wrote a short on " + data.getCollabWithName() + "'s capture";
 

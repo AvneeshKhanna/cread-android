@@ -76,8 +76,10 @@ import pl.tajchert.nammu.PermissionCallback;
 import static com.thetestament.cread.CreadApp.GET_RESPONSE_FROM_NETWORK_EXPLORE;
 import static com.thetestament.cread.CreadApp.GET_RESPONSE_FROM_NETWORK_MAIN;
 import static com.thetestament.cread.CreadApp.GET_RESPONSE_FROM_NETWORK_ME;
+import static com.thetestament.cread.helpers.FeedHelper.collabOnOneForm;
 import static com.thetestament.cread.helpers.FeedHelper.generateDeepLink;
 import static com.thetestament.cread.helpers.FeedHelper.getCreatorText;
+import static com.thetestament.cread.helpers.FeedHelper.initializeShareDialog;
 import static com.thetestament.cread.helpers.FeedHelper.initializeSpannableString;
 import static com.thetestament.cread.helpers.ImageHelper.getImageUri;
 import static com.thetestament.cread.helpers.ImageHelper.getLocalBitmapUri;
@@ -352,7 +354,7 @@ public class FeedDescriptionActivity extends BaseActivity {
     @OnClick(R.id.containerShares)
     void shareOnClick() {
 
-        ShareDialogAdapter adapter = new ShareDialogAdapter(mContext);
+        ShareDialogAdapter adapter = new ShareDialogAdapter(mContext, initializeShareDialog(mContext));
         final MaterialDialog dialog = new MaterialDialog.Builder(mContext)
                 .adapter(adapter, null)
                 .show();
@@ -710,8 +712,10 @@ public class FeedDescriptionActivity extends BaseActivity {
 
                 } else {
 
-                    // hiding collaborate button
-                    buttonCollaborate.setVisibility(View.GONE);
+                    // showing collaborate button
+                    buttonCollaborate.setVisibility(View.VISIBLE);
+
+                    collabOnOneForm(buttonCollaborate, mContext);
 
                     //String text = mFeedData.getCreatorName() + " added a capture to " + mFeedData.getCollabWithName() + "'s short";
 
@@ -763,8 +767,10 @@ public class FeedDescriptionActivity extends BaseActivity {
 
 
                 } else {
-                    // hiding collaborate button
-                    buttonCollaborate.setVisibility(View.GONE);
+                    // showing collaborate button
+                    buttonCollaborate.setVisibility(View.VISIBLE);
+
+                    collabOnOneForm(buttonCollaborate, mContext);
 
                     //String text = mFeedData.getCreatorName() + " wrote a short on " + mFeedData.getCollabWithName() + "'s capture";
 

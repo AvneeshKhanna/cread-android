@@ -93,6 +93,8 @@
     <string name="collab_capture_count_text_single">person added a graphic art to it</string>
     <string name="collab_short_count_text_multiple">people wrote on it</string>
     <string name="collab_capture_count_text_multiple">people added a graphic art to it</string>
+    <string name="collab_general_count_text_single">person created an art using this</string>
+    <string name="collab_general_count_text_multiple">people created art using this</string>
 
     // creator text
     <string name="creator_text_standalone_short">wrote this</string>
@@ -112,6 +114,27 @@
 
     // add caption text
     <string name="text_add_caption">Say something about this post with #tags</string>
+
+    <string-array name="share_dialog_titles">
+        <item>Share As Image</item>
+        <item>Share As Link</item>
+    </string-array>
+
+    <string-array name="share_dialog_texts">
+        <item>"Your friends would only be able to view this post as an image"</item>
+        <item>Your friends would be redirected to this post on the Cread app</item>
+    </string-array>
+
+
+    <string-array name="collaborate_dialog_titles">
+        <item>Collaborate As Image</item>
+        <item>Collaborate As Text</item>
+    </string-array>
+
+    <string-array name="collaborate_dialog_texts">
+        <item>"Your friends would only be able to view this post as an image"</item>
+        <item>Your friends would be redirected to this post on the Cread app</item>
+    </string-array>
 
 
 </resources>

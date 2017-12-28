@@ -11,6 +11,9 @@ import android.widget.TextView;
 
 import com.thetestament.cread.R;
 import com.thetestament.cread.listeners.listener;
+import com.thetestament.cread.models.ListItemsDialogModel;
+
+import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -19,9 +22,11 @@ public class ShareDialogAdapter extends RecyclerView.Adapter<ShareDialogAdapter.
 
     private FragmentActivity mContext;
     listener.OnShareDialogItemClickedListener onShareDialogItemClickedListener;
+    private List<ListItemsDialogModel> mDataList;
 
-    public ShareDialogAdapter(FragmentActivity mContext) {
+    public ShareDialogAdapter(FragmentActivity mContext, List<ListItemsDialogModel> mDataList) {
         this.mContext = mContext;
+        this.mDataList = mDataList;
     }
 
     public void setShareDialogItemClickedListener(listener.OnShareDialogItemClickedListener onShareDialogItemClickedListener) {
@@ -35,15 +40,13 @@ public class ShareDialogAdapter extends RecyclerView.Adapter<ShareDialogAdapter.
                 .from(parent.getContext())
                 .inflate(R.layout.item_share_dialog, parent, false)) {
         };
-
-
     }
 
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
 
         switch (position) {
-            case 0:
+            /*case 0:
                 holder.imageIcon.setImageDrawable(ContextCompat.getDrawable(mContext, R.drawable.ic_image_24));
                 holder.itemTitle.setText("Share As Image");
                 holder.itemText.setText("Your friends would only be able to view this post as an image");
@@ -52,15 +55,23 @@ public class ShareDialogAdapter extends RecyclerView.Adapter<ShareDialogAdapter.
                 holder.imageIcon.setImageDrawable(ContextCompat.getDrawable(mContext, R.drawable.ic_link_24));
                 holder.itemTitle.setText("Share As Link");
                 holder.itemText.setText("Your friends would be redirected to this post on the Cread app");
-                break;
+                break;*/
+
+
         }
+
+        ListItemsDialogModel data = mDataList.get(position);
+
+        holder.imageIcon.setImageDrawable(ContextCompat.getDrawable(mContext, data.getDrawableResource()));
+        holder.itemTitle.setText(data.getTitle());
+        holder.itemText.setText(data.getContent());
 
         initItemClick(holder.itemView, position);
     }
 
     @Override
     public int getItemCount() {
-        return 2;
+        return mDataList.size();
     }
 
     static class ViewHolder extends RecyclerView.ViewHolder {

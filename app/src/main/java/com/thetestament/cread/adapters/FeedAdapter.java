@@ -48,8 +48,12 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import de.hdodenhof.circleimageview.CircleImageView;
 
+import static com.thetestament.cread.helpers.FeedHelper.collabOnOneForm;
 import static com.thetestament.cread.helpers.FeedHelper.getCollabCountText;
 import static com.thetestament.cread.helpers.FeedHelper.getCreatorText;
+import static com.thetestament.cread.helpers.FeedHelper.initializeCollaborateDialog;
+import static com.thetestament.cread.helpers.FeedHelper.initializeItemsDialog;
+import static com.thetestament.cread.helpers.FeedHelper.initializeShareDialog;
 import static com.thetestament.cread.helpers.FeedHelper.initializeSpannableString;
 import static com.thetestament.cread.utils.Constant.CONTENT_TYPE_CAPTURE;
 import static com.thetestament.cread.utils.Constant.CONTENT_TYPE_SHORT;
@@ -262,7 +266,7 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
                 // set Collaboration count text
                 if (data.getCollabCount() != 0) {
-                    itemViewHolder.collabCount.setText(getCollabCountText(mContext, data.getCollabCount(), data.getContentType()));
+                    itemViewHolder.collabCount.setText(getCollabCountText(mContext, data.getCollabCount(), data.getContentType(), data.isAvailableForCollab()));
                     itemViewHolder.collabCount.setVisibility(View.VISIBLE);
                     itemViewHolder.lineSepartor.setVisibility(View.VISIBLE);
 
@@ -288,8 +292,10 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
                 } else {
 
-                    // hiding collaborate button
-                    itemViewHolder.buttonCollaborate.setVisibility(View.GONE);
+                    // showing collaborate button
+                    itemViewHolder.buttonCollaborate.setVisibility(View.VISIBLE);
+
+                    collabOnOneForm(itemViewHolder.buttonCollaborate, mContext);
 
                     // get text indexes
                     int creatorStartPos = text.indexOf(data.getCreatorName());
@@ -307,7 +313,7 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
                 // Set collaboration count text
                 if (data.getCollabCount() != 0) {
-                    itemViewHolder.collabCount.setText(getCollabCountText(mContext, data.getCollabCount(), data.getContentType()));
+                    itemViewHolder.collabCount.setText(getCollabCountText(mContext, data.getCollabCount(), data.getContentType(), data.isAvailableForCollab()));
                     itemViewHolder.collabCount.setVisibility(View.VISIBLE);
                     itemViewHolder.lineSepartor.setVisibility(View.VISIBLE);
 
@@ -332,8 +338,10 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                     initializeSpannableString(mContext, itemViewHolder.textCreatorName, false, text, creatorStartPos, creatorEndPos, collabWithStartPos, collabWithEndPos, data.getUUID(), data.getCollabWithUUID());
 
                 } else {
-                    // Hiding collaborate button
-                    itemViewHolder.buttonCollaborate.setVisibility(View.GONE);
+                    // showing collaborate button
+                    itemViewHolder.buttonCollaborate.setVisibility(View.VISIBLE);
+
+                    collabOnOneForm(itemViewHolder.buttonCollaborate, mContext);
 
                     // get text indexes
                     int creatorStartPos = text.indexOf(data.getCreatorName());
@@ -440,6 +448,7 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         });
     }
 
+
     /**
      * Compose onClick functionality.
      *
@@ -468,7 +477,7 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             @Override
             public void onClick(View view) {
 
-                ShareDialogAdapter adapter = new ShareDialogAdapter(mContext);
+                ShareDialogAdapter adapter = new ShareDialogAdapter(mContext, initializeShareDialog(mContext));
                 final MaterialDialog dialog = new MaterialDialog.Builder(mContext)
                         .adapter(adapter, null)
                         .show();
