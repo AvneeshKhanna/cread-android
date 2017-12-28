@@ -310,6 +310,8 @@ public class ShortActivity extends BaseActivity implements ColorChooserDialog.Co
                 } else {
                     //Remove underline
                     textShort.clearComposingText();
+                    //Remove tint to imageView
+                    imageShort.clearColorFilter();
 
                     getRuntimePermission();
                 }
@@ -354,6 +356,8 @@ public class ShortActivity extends BaseActivity implements ColorChooserDialog.Co
     public void onBack() {
         //initialize listener
         initDragListener();
+        //Remove tint to imageView
+        imageShort.clearColorFilter();
     }
 
     /**
@@ -375,6 +379,8 @@ public class ShortActivity extends BaseActivity implements ColorChooserDialog.Co
         }
         //Hide edit text cursor
         textShort.setCursorVisible(false);
+        //Remove tint to imageView
+        imageShort.clearColorFilter();
         //Hide keyboard
         InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
         imm.hideSoftInputFromWindow(textShort.getWindowToken(), 0);
@@ -680,13 +686,16 @@ public class ShortActivity extends BaseActivity implements ColorChooserDialog.Co
 
             @Override
             public void onDragEnd(View view) {
-                //Shoe edit text cursor
+                //Show edit text cursor
                 textShort.setCursorVisible(true);
+                //Add tint to imageView
+                imageShort.setColorFilter(ContextCompat.getColor(ShortActivity.this, R.color.black_overlay));
                 //Show keyboard
                 InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
                 imm.showSoftInput(textShort, 0);
                 //Remove listener
                 textShort.setOnTouchListener(null);
+
             }
         }));
     }
@@ -709,7 +718,7 @@ public class ShortActivity extends BaseActivity implements ColorChooserDialog.Co
                                 //Get image width
                                 mImageWidth = bitmap.getWidth();
 
-                                 // Generate palette asynchronously and use it on a different
+                                // Generate palette asynchronously and use it on a different
                                 // thread using onGenerated()
                                 Palette.from(bitmap)
                                         .generate(new Palette.PaletteAsyncListener() {
