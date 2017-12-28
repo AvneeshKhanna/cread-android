@@ -55,7 +55,7 @@
             android:id="@+id/containerPostButton"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_above="@+id/btnFormatTextSize"
+            android:layout_above="@+id/containerSeekBar"
             android:layout_below="@+id/imageContainer">
 
             <TextView
@@ -72,36 +72,53 @@
                 android:textColor="@color/white" />
         </FrameLayout>
 
-        <ImageView
-            android:id="@+id/btnFormatTextSize"
-            android:layout_width="25dp"
-            android:layout_height="25dp"
-            android:layout_above="@+id/containerFormatOptions"
-            android:layout_marginBottom="15dp"
-            android:layout_marginLeft="15dp"
-            android:src="@drawable/ic_format_size_plus_32" />
-
-        <android.support.v7.widget.AppCompatSeekBar
-            android:id="@+id/seekBarTextSize"
+        <!--Container seek bar-->
+        <RelativeLayout
+            android:id="@+id/containerSeekBar"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_alignBottom="@+id/btnFormatTextSize"
-            android:layout_alignTop="@+id/btnFormatTextSize"
-            android:layout_marginLeft="5dp"
-            android:layout_marginRight="10dp"
-            android:layout_toRightOf="@+id/btnFormatTextSize" />
+            android:layout_above="@+id/containerFormatOptions"
+            android:layout_marginBottom="15dp">
+
+            <ImageView
+                android:id="@+id/btnFormatTextSize"
+                android:layout_width="25dp"
+                android:layout_height="25dp"
+                android:layout_marginLeft="15dp"
+                android:src="@drawable/ic_format_size_plus_32"
+                android:visibility="gone" />
+
+            <android.support.v7.widget.AppCompatSeekBar
+                android:id="@+id/seekBarTextSize"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_alignBottom="@+id/btnFormatTextSize"
+                android:layout_alignTop="@+id/btnFormatTextSize"
+                android:layout_marginLeft="5dp"
+                android:layout_marginRight="10dp"
+                android:layout_toRightOf="@+id/btnFormatTextSize"
+                android:visibility="gone" />
+        </RelativeLayout>
 
         <!--Format options-->
-        <include
+        <FrameLayout
             android:id="@+id/containerFormatOptions"
-            layout="@layout/layout_format_option"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_alignParentBottom="true"
-            android:orientation="horizontal" />
+            android:layout_alignParentBottom="true">
+
+            <include
+                android:id="@+id/formatOptions"
+                layout="@layout/layout_format_option"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:visibility="gone" />
+        </FrameLayout>
+
+
     </RelativeLayout>
 
     <!--Font option bottom sheet-->
-    <include layout="@layout/layout_font_bottom_sheet" />
+      <include layout="@layout/layout_font_bottom_sheet" />
 
 </android.support.design.widget.CoordinatorLayout>

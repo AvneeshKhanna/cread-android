@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
+import android.graphics.Color;
 import android.graphics.Typeface;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
@@ -18,6 +19,7 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.res.ResourcesCompat;
 import android.support.v4.widget.NestedScrollView;
+import android.support.v7.graphics.Palette;
 import android.support.v7.widget.AppCompatSeekBar;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -111,6 +113,11 @@ public class ShortActivity extends BaseActivity implements ColorChooserDialog.Co
     View dotBold;
     @BindView(R.id.dotItalic)
     View dotItalic;
+    @BindView(R.id.btnFormatTextSize)
+    View viewFormatTextSize;
+    @BindView(R.id.formatOptions)
+    View formatOptions;
+
 
     @BindView(R.id.bottomSheetView)
     NestedScrollView bottomSheetView;
@@ -308,6 +315,8 @@ public class ShortActivity extends BaseActivity implements ColorChooserDialog.Co
                 } else {
                     //Remove underline
                     textShort.clearComposingText();
+                    //Remove tint to imageView
+                    imageShort.clearColorFilter();
 
                     getRuntimePermission();
                 }
@@ -352,6 +361,12 @@ public class ShortActivity extends BaseActivity implements ColorChooserDialog.Co
     public void onBack() {
         //initialize listener
         initDragListener();
+        //Remove tint to imageView
+        imageShort.clearColorFilter();
+        //Toggle visibility
+        formatOptions.setVisibility(View.VISIBLE);
+        seekBarTextSize.setVisibility(View.VISIBLE);
+        viewFormatTextSize.setVisibility(View.VISIBLE);
     }
 
     /**
@@ -373,12 +388,19 @@ public class ShortActivity extends BaseActivity implements ColorChooserDialog.Co
         }
         //Hide edit text cursor
         textShort.setCursorVisible(false);
+        //Remove tint to imageView
+        imageShort.clearColorFilter();
         //Hide keyboard
         InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
         imm.hideSoftInputFromWindow(textShort.getWindowToken(), 0);
 
         //initialize listener
         initDragListener();
+
+        //Toggle visibility
+        formatOptions.setVisibility(View.VISIBLE);
+        seekBarTextSize.setVisibility(View.VISIBLE);
+        viewFormatTextSize.setVisibility(View.VISIBLE);
     }
 
     /**
@@ -678,13 +700,19 @@ public class ShortActivity extends BaseActivity implements ColorChooserDialog.Co
 
             @Override
             public void onDragEnd(View view) {
-                //Shoe edit text cursor
+                //Show edit text cursor
                 textShort.setCursorVisible(true);
+                //Add tint to imageView
+                imageShort.setColorFilter(ContextCompat.getColor(ShortActivity.this, R.color.black_overlay));
                 //Show keyboard
                 InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
                 imm.showSoftInput(textShort, 0);
                 //Remove listener
                 textShort.setOnTouchListener(null);
+                //Toggle visibility
+                formatOptions.setVisibility(View.GONE);
+                seekBarTextSize.setVisibility(View.GONE);
+                viewFormatTextSize.setVisibility(View.GONE);
             }
         }));
     }
@@ -706,6 +734,41 @@ public class ShortActivity extends BaseActivity implements ColorChooserDialog.Co
                             public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
                                 //Get image width
                                 mImageWidth = bitmap.getWidth();
+
+                                // Generate palette asynchronously and use it on a different
+                                // thread using onGenerated()
+                                Palette.from(bitmap)
+                                        .generate(new Palette.PaletteAsyncListener() {
+                                            @Override
+                                            public void onGenerated(Palette palette) {
+                                                Palette.Swatch swatch = palette.getDominantSwatch();
+                                                if (swatch != null) {
+                                                    String hexColorWithAlpha = Integer.toHexString(swatch.getBodyTextColor());
+                                                    String hexColorWithoutAlpha = "#" + hexColorWithAlpha.substring(2, 8);
+                                                    //set text color
+                                                    textShort.setTextColor(Color.parseColor(hexColorWithoutAlpha));
+                                                }
+                                                /*Palette.Swatch swatchVibrant = palette.getLightVibrantSwatch();
+                                                Palette.Swatch swatchDarkVibrant = palette.getDarkVibrantSwatch();
+
+                                                Palette.Swatch swatchMuted = palette.getLightMutedSwatch();
+                                                Palette.Swatch swatchDarkMuted = palette.getDarkMutedSwatch();
+
+                                                if (swatchVibrant != null && swatchDarkVibrant != null) {
+                                                    if (swatchVibrant.getPopulation() > swatchDarkVibrant.getPopulation()) {
+                                                        textShort.setTextColor(swatchVibrant.getBodyTextColor());
+                                                    } else {
+                                                        textShort.setTextColor(swatchDarkVibrant.getBodyTextColor());
+                                                    }
+                                                } else if (swatchMuted != null && swatchDarkMuted != null) {
+                                                    if (swatchMuted.getPopulation() > swatchDarkMuted.getPopulation()) {
+                                                        textShort.setTextColor(swatchMuted.getBodyTextColor());
+                                                    } else {
+                                                        textShort.setTextColor(swatchDarkMuted.getBodyTextColor());
+                                                    }
+                                                }*/
+                                            }
+                                        });
                             }
 
                             @Override
@@ -856,5 +919,15 @@ public class ShortActivity extends BaseActivity implements ColorChooserDialog.Co
 
         intent.putExtra(PREVIEW_EXTRA_DATA, bundle);
         startActivityForResult(intent, REQUEST_CODE_PREVIEW_ACTIVITY);
+    }
+
+
+    public int getBlackWhiteColor(int color) {
+        double darkness = 1 - (0.299 * Color.red(color) + 0.587 * Color.green(color) + 0.114 * Color.blue(color)) / 255;
+        if (darkness >= 0.5) {
+            return Color.WHITE;
+        } else {
+            return Color.BLACK;
+        }
     }
 }
