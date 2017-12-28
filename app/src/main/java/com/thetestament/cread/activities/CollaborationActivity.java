@@ -2,6 +2,7 @@ package com.thetestament.cread.activities;
 
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.Color;
 import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
@@ -599,9 +600,10 @@ public class CollaborationActivity extends BaseActivity implements ColorChooserD
                                                     public void onGenerated(Palette palette) {
                                                         Palette.Swatch swatch = palette.getDominantSwatch();
                                                         if (swatch != null) {
+                                                            String hexColorWithAlpha = Integer.toHexString(swatch.getBodyTextColor());
+                                                            String hexColorWithoutAlpha = "#" + hexColorWithAlpha.substring(2, 8);
                                                             //set text color
-                                                            textShort.setTextColor(swatch.getBodyTextColor());
-                                                            //todo remove alpha
+                                                            textShort.setTextColor(Color.parseColor(hexColorWithoutAlpha));
                                                         }
                                                     }
                                                 });

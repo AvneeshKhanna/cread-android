@@ -113,6 +113,11 @@ public class ShortActivity extends BaseActivity implements ColorChooserDialog.Co
     View dotBold;
     @BindView(R.id.dotItalic)
     View dotItalic;
+    @BindView(R.id.btnFormatTextSize)
+    View viewFormatTextSize;
+    @BindView(R.id.formatOptions)
+    View formatOptions;
+
 
     @BindView(R.id.bottomSheetView)
     NestedScrollView bottomSheetView;
@@ -358,6 +363,10 @@ public class ShortActivity extends BaseActivity implements ColorChooserDialog.Co
         initDragListener();
         //Remove tint to imageView
         imageShort.clearColorFilter();
+        //Toggle visibility
+        formatOptions.setVisibility(View.VISIBLE);
+        seekBarTextSize.setVisibility(View.VISIBLE);
+        viewFormatTextSize.setVisibility(View.VISIBLE);
     }
 
     /**
@@ -387,6 +396,11 @@ public class ShortActivity extends BaseActivity implements ColorChooserDialog.Co
 
         //initialize listener
         initDragListener();
+
+        //Toggle visibility
+        formatOptions.setVisibility(View.VISIBLE);
+        seekBarTextSize.setVisibility(View.VISIBLE);
+        viewFormatTextSize.setVisibility(View.VISIBLE);
     }
 
     /**
@@ -695,7 +709,10 @@ public class ShortActivity extends BaseActivity implements ColorChooserDialog.Co
                 imm.showSoftInput(textShort, 0);
                 //Remove listener
                 textShort.setOnTouchListener(null);
-
+                //Toggle visibility
+                formatOptions.setVisibility(View.GONE);
+                seekBarTextSize.setVisibility(View.GONE);
+                viewFormatTextSize.setVisibility(View.GONE);
             }
         }));
     }
@@ -726,9 +743,10 @@ public class ShortActivity extends BaseActivity implements ColorChooserDialog.Co
                                             public void onGenerated(Palette palette) {
                                                 Palette.Swatch swatch = palette.getDominantSwatch();
                                                 if (swatch != null) {
+                                                    String hexColorWithAlpha = Integer.toHexString(swatch.getBodyTextColor());
+                                                    String hexColorWithoutAlpha = "#" + hexColorWithAlpha.substring(2, 8);
                                                     //set text color
-                                                    textShort.setTextColor(swatch.getBodyTextColor());
-                                                    //todo remove alpha
+                                                    textShort.setTextColor(Color.parseColor(hexColorWithoutAlpha));
                                                 }
                                                 /*Palette.Swatch swatchVibrant = palette.getLightVibrantSwatch();
                                                 Palette.Swatch swatchDarkVibrant = palette.getDarkVibrantSwatch();
