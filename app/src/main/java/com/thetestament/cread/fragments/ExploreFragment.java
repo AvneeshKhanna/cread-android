@@ -35,6 +35,7 @@ import com.thetestament.cread.R;
 import com.thetestament.cread.activities.FindFBFriendsActivity;
 import com.thetestament.cread.activities.SearchActivity;
 import com.thetestament.cread.adapters.ExploreAdapter;
+import com.thetestament.cread.helpers.FeedHelper;
 import com.thetestament.cread.helpers.ImageHelper;
 import com.thetestament.cread.helpers.SharedPreferenceHelper;
 import com.thetestament.cread.helpers.ViewHelper;
@@ -78,7 +79,7 @@ import static com.thetestament.cread.utils.Constant.REQUEST_CODE_FEED_DESCRIPTIO
 import static com.thetestament.cread.utils.Constant.REQUEST_CODE_OPEN_GALLERY_FOR_CAPTURE;
 
 
-public class ExploreFragment extends Fragment {
+public class ExploreFragment extends Fragment implements listener.OnCollaborationListener {
 
     @BindView(R.id.rootView)
     CoordinatorLayout rootView;
@@ -117,12 +118,19 @@ public class ExploreFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
         //ButterKnife view binding
         mUnbinder = ButterKnife.bind(this, view);
-        initScreen();
 
+        initScreen();
         //Explore screen open for first time
         if (mHelper.isExploreIntroFirstTime()) {
             getExploreIntroDialog();
         }
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        //Set Listener
+        new FeedHelper().setOnCaptureClickListener(this);
     }
 
     @Override
@@ -711,7 +719,6 @@ public class ExploreFragment extends Fragment {
         }
     };
 
-
     /**
      * Method to show intro dialog when user land on this screen for the first time.
      */
@@ -739,6 +746,33 @@ public class ExploreFragment extends Fragment {
         textTitle.setText("You complete art.");
         //Set description text
         textDesc.setText("And the reverse is true as well. Appreciating art is perhaps the greatest of all arts; we hope you find yourself mastering it here. ");
+    }
+
+    @Override
+    public void collaborationOnGraphic() {
+
+    }
+
+    @Override
+    public void collaborationOnWriting(String shortId) {
+        //Set entity id
+        mShortId = shortId;
+        //Check for Write permission
+        if (Nammu.checkPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+            //We have permission do whatever you want to do
+            ImageHelper.chooseImageFromGallery(ExploreFragment.this);
+        } else {
+            //We do not own this permission
+            if (Nammu.shouldShowRequestPermissionRationale(ExploreFragment.this
+                    , Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+                //User already refused to give us this permission or removed it
+                ViewHelper.getToast(getActivity()
+                        , getString(R.string.error_msg_capture_permission_denied));
+            } else {
+                //First time asking for permission
+                Nammu.askForPermission(ExploreFragment.this, Manifest.permission.WRITE_EXTERNAL_STORAGE, captureWritePermission);
+            }
+        }
     }
 
 }

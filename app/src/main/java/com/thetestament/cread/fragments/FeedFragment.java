@@ -27,12 +27,8 @@ import android.widget.TextView;
 
 import com.afollestad.materialdialogs.DialogAction;
 import com.afollestad.materialdialogs.MaterialDialog;
-import com.androidnetworking.AndroidNetworking;
-import com.androidnetworking.error.ANError;
-import com.androidnetworking.interfaces.JSONObjectRequestListener;
 import com.google.firebase.analytics.FirebaseAnalytics;
 import com.google.firebase.crash.FirebaseCrash;
-import com.rx2androidnetworking.Rx2AndroidNetworking;
 import com.thetestament.cread.BuildConfig;
 import com.thetestament.cread.Manifest;
 import com.thetestament.cread.R;
@@ -41,9 +37,9 @@ import com.thetestament.cread.activities.FeedDescriptionActivity;
 import com.thetestament.cread.activities.FindFBFriendsActivity;
 import com.thetestament.cread.activities.SearchActivity;
 import com.thetestament.cread.adapters.FeedAdapter;
+import com.thetestament.cread.helpers.FeedHelper;
 import com.thetestament.cread.helpers.HatsOffHelper;
 import com.thetestament.cread.helpers.ImageHelper;
-import com.thetestament.cread.helpers.NetworkHelper;
 import com.thetestament.cread.helpers.SharedPreferenceHelper;
 import com.thetestament.cread.helpers.ViewHelper;
 import com.thetestament.cread.listeners.listener;
@@ -65,10 +61,8 @@ import butterknife.OnClick;
 import butterknife.Unbinder;
 import icepick.Icepick;
 import icepick.State;
-import io.reactivex.Observer;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.CompositeDisposable;
-import io.reactivex.disposables.Disposable;
 import io.reactivex.observers.DisposableObserver;
 import io.reactivex.schedulers.Schedulers;
 import pl.tajchert.nammu.Nammu;
@@ -76,9 +70,7 @@ import pl.tajchert.nammu.PermissionCallback;
 
 import static android.app.Activity.RESULT_OK;
 import static com.thetestament.cread.CreadApp.GET_RESPONSE_FROM_NETWORK_ENTITY_SPECIFIC;
-import static com.thetestament.cread.CreadApp.GET_RESPONSE_FROM_NETWORK_EXPLORE;
 import static com.thetestament.cread.CreadApp.GET_RESPONSE_FROM_NETWORK_MAIN;
-import static com.thetestament.cread.CreadApp.GET_RESPONSE_FROM_NETWORK_ME;
 import static com.thetestament.cread.helpers.FeedHelper.generateDeepLink;
 import static com.thetestament.cread.helpers.FeedHelper.parseEntitySpecificJSON;
 import static com.thetestament.cread.helpers.ImageHelper.getImageUri;
@@ -98,7 +90,7 @@ import static com.thetestament.cread.utils.Constant.REQUEST_CODE_FEED_DESCRIPTIO
 import static com.thetestament.cread.utils.Constant.REQUEST_CODE_OPEN_GALLERY_FOR_CAPTURE;
 
 
-public class FeedFragment extends Fragment {
+public class FeedFragment extends Fragment implements listener.OnCollaborationListener {
 
     @BindView(R.id.rootView)
     CoordinatorLayout rootView;
@@ -159,6 +151,13 @@ public class FeedFragment extends Fragment {
             // so check for deep link directly
             initDeepLink();
         }
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        //Set Listener
+        new FeedHelper().setOnCaptureClickListener(this);
     }
 
     @Override
@@ -636,67 +635,6 @@ public class FeedFragment extends Fragment {
     }
 
     /**
-     * Method to update hats off status of campaign.
-     *
-     * @param feedData     Model of current item
-     * @param itemPosition Position of current item i.e integer
-     */
-    private void updateHatsOffStatus(final FeedModel feedData, final int itemPosition) {
-        final JSONObject jsonObject = new JSONObject();
-        try {
-            jsonObject.put("uuid", mHelper.getUUID());
-            jsonObject.put("authkey", mHelper.getAuthToken());
-            jsonObject.put("entityid", feedData.getEntityID());
-            jsonObject.put("register", feedData.getHatsOffStatus());
-        } catch (JSONException e) {
-            e.printStackTrace();
-            FirebaseCrash.report(e);
-        }
-        AndroidNetworking.post(BuildConfig.URL + "/hatsoff/on-click")
-                .addJSONObjectBody(jsonObject)
-                .build()
-                .getAsJSONObject(new JSONObjectRequestListener() {
-                    @Override
-                    public void onResponse(JSONObject response) {
-                        try {
-                            //Token status is not valid
-                            if (response.getString("tokenstatus").equals("invalid")) {
-                                //set status to true if its false and vice versa
-                                feedData.setHatsOffStatus(!feedData.getHatsOffStatus());
-                                //notify changes
-                                mAdapter.notifyItemChanged(itemPosition);
-                                ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_invalid_token));
-                            }
-                            //Token is valid
-                            else {
-                                JSONObject mainData = response.getJSONObject("data");
-                                if (mainData.getString("status").equals("done")) {
-                                    //Do nothing
-                                }
-                            }
-                        } catch (JSONException e) {
-                            //set status to true if its false and vice versa
-                            feedData.setHatsOffStatus(!feedData.getHatsOffStatus());
-                            //notify changes
-                            mAdapter.notifyItemChanged(itemPosition);
-                            e.printStackTrace();
-                            FirebaseCrash.report(e);
-                            ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_internal));
-                        }
-                    }
-
-                    @Override
-                    public void onError(ANError anError) {
-                        //set status to true if its false and vice versa
-                        feedData.setHatsOffStatus(!feedData.getHatsOffStatus());
-                        //notify changes
-                        mAdapter.notifyItemChanged(itemPosition);
-                        ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_server));
-                    }
-                });
-    }
-
-    /**
      * Initialize capture listener.
      *
      * @param feedAdapter FeedAdapter reference
@@ -980,5 +918,33 @@ public class FeedFragment extends Fragment {
                         }
                     }
                 });
+    }
+
+
+
+    @Override
+    public void collaborationOnGraphic() {
+
+    }
+
+    @Override
+    public void collaborationOnWriting(String shortID) {
+        mShortId = shortID;
+        //Check for Write permission
+        if (Nammu.checkPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+            //We have permission do whatever you want to do
+            ImageHelper.chooseImageFromGallery(FeedFragment.this);
+        } else {
+            //We do not own this permission
+            if (Nammu.shouldShowRequestPermissionRationale(FeedFragment.this
+                    , Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+                //User already refused to give us this permission or removed it
+                ViewHelper.getToast(getActivity()
+                        , getString(R.string.error_msg_capture_permission_denied));
+            } else {
+                //First time asking for permission
+                Nammu.askForPermission(FeedFragment.this, Manifest.permission.WRITE_EXTERNAL_STORAGE, captureWritePermission);
+            }
+        }
     }
 }

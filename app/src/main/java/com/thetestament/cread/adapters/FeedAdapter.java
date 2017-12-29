@@ -33,7 +33,6 @@ import com.thetestament.cread.helpers.FeedHelper;
 import com.thetestament.cread.helpers.NetworkHelper;
 import com.thetestament.cread.helpers.SharedPreferenceHelper;
 import com.thetestament.cread.helpers.ViewHelper;
-import com.thetestament.cread.listeners.listener;
 import com.thetestament.cread.listeners.listener.OnFeedCaptureClickListener;
 import com.thetestament.cread.listeners.listener.OnFeedLoadMoreListener;
 import com.thetestament.cread.listeners.listener.OnHatsOffListener;
@@ -48,11 +47,9 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import de.hdodenhof.circleimageview.CircleImageView;
 
-import static com.thetestament.cread.helpers.FeedHelper.collabOnOneForm;
+import static com.thetestament.cread.helpers.FeedHelper.collabOnCollab;
 import static com.thetestament.cread.helpers.FeedHelper.getCollabCountText;
 import static com.thetestament.cread.helpers.FeedHelper.getCreatorText;
-import static com.thetestament.cread.helpers.FeedHelper.initializeCollaborateDialog;
-import static com.thetestament.cread.helpers.FeedHelper.initializeItemsDialog;
 import static com.thetestament.cread.helpers.FeedHelper.initializeShareDialog;
 import static com.thetestament.cread.helpers.FeedHelper.initializeSpannableString;
 import static com.thetestament.cread.utils.Constant.CONTENT_TYPE_CAPTURE;
@@ -173,19 +170,26 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             loadFeedImage(data.getContentImage(), itemViewHolder.imageFeed);
 
             // set text and click actions acc. to content type
-            performContentTypeSpecificOperations(itemViewHolder, data);
+            //performContentTypeSpecificOperations(itemViewHolder, data);
+            FeedHelper.performContentTypeSpecificOperations(mContext
+                    , data
+                    , itemViewHolder.collabCount
+                    , itemViewHolder.collabCount
+                    , itemViewHolder.buttonCollaborate
+                    , itemViewHolder.textCreatorName
+                    , data.getCaptureID(), data.getContentImage(), data.isMerchantable());
 
             //Check whether user has given hats off to this campaign or not
             checkHatsOffStatus(data.getHatsOffStatus(), itemViewHolder);
 
-            //ItemView onClick functionality
+            //ItemView collabOnWritingClick functionality
             itemViewOnClick(itemViewHolder.itemView, data, position);
 
             //Comment click functionality
             commentOnClick(itemViewHolder.containerComment, data.getEntityID());
             //Share click functionality
             shareOnClick(itemViewHolder.containerShare, data.getContentImage(), data.getEntityID(), data.getCreatorName());
-            //HatsOff onClick functionality
+            //HatsOff collabOnWritingClick functionality
             hatsOffOnClick(itemViewHolder, data, position);
             //Collaboration count click functionality
             collaborationCountOnClick(itemViewHolder.collabCount, data.getEntityID(), data.getContentType());
@@ -295,7 +299,8 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                     // showing collaborate button
                     itemViewHolder.buttonCollaborate.setVisibility(View.VISIBLE);
 
-                    collabOnOneForm(itemViewHolder.buttonCollaborate, mContext);
+
+                    collabOnCollab(itemViewHolder.buttonCollaborate, mContext, data.getShortID(), data.getCaptureID(), data.getContentImage(), data.isMerchantable());
 
                     // get text indexes
                     int creatorStartPos = text.indexOf(data.getCreatorName());
@@ -341,8 +346,7 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                     // showing collaborate button
                     itemViewHolder.buttonCollaborate.setVisibility(View.VISIBLE);
 
-                    collabOnOneForm(itemViewHolder.buttonCollaborate, mContext);
-
+                    collabOnCollab(itemViewHolder.buttonCollaborate, mContext, data.getShortID(), data.getCaptureID(), data.getContentImage(), data.isMerchantable());
                     // get text indexes
                     int creatorStartPos = text.indexOf(data.getCreatorName());
                     int creatorEndPos = creatorStartPos + data.getCreatorName().length();
@@ -376,7 +380,7 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
 
     /**
-     * ItemView onClick functionality.
+     * ItemView collabOnWritingClick functionality.
      *
      * @param view      View to be clicked.
      * @param feedModel Data set for current item
@@ -397,7 +401,7 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     }
 
     /**
-     * write onClick functionality.
+     * write collabOnWritingClick functionality.
      *
      * @param view       View to be clicked.
      * @param captureID  CaptureID of image.
@@ -427,7 +431,7 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     }
 
     /**
-     * capture onClick functionality.
+     * capture collabOnWritingClick functionality.
      *
      * @param view View to be clicked.
      */
@@ -450,7 +454,7 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
 
     /**
-     * Compose onClick functionality.
+     * Compose collabOnWritingClick functionality.
      *
      * @param view     View to be clicked.
      * @param entityID Entity ID
@@ -467,7 +471,7 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     }
 
     /**
-     * Share onClick functionality.
+     * Share collabOnWritingClick functionality.
      *
      * @param view       View to be clicked.
      * @param pictureUrl URL of the picture to be shared.
@@ -510,7 +514,7 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     }
 
     /**
-     * HatsOff onClick functionality.
+     * HatsOff collabOnWritingClick functionality.
      *
      * @param itemViewHolder ViewHolder for items.
      * @param data           Data for current item.

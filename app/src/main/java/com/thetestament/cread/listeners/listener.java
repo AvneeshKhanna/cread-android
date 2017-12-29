@@ -8,10 +8,7 @@ import com.thetestament.cread.models.CommentsModel;
 import com.thetestament.cread.models.FBFriendsModel;
 import com.thetestament.cread.models.FeedModel;
 import com.thetestament.cread.models.FollowModel;
-import com.thetestament.cread.utils.Constant;
 import com.thetestament.cread.utils.Constant.GratitudeNumbers;
-
-import org.json.JSONObject;
 
 public class listener {
 
@@ -248,4 +245,12 @@ public class listener {
         void onItemClicked(String entityID);
     }
 
+    /**
+     * Interface definition for callback to be invoked when user clicks on capture button for collaboration.
+     */
+    public interface OnCollaborationListener {
+        void collaborationOnGraphic();
+
+        void collaborationOnWriting(String shortID);
+    }
 }

@@ -18,7 +18,6 @@ public class FeedModel implements Parcelable {
     private String contentImage;
 
 
-
     //Required constructor
     public FeedModel() {
     }

@@ -1,6 +1,5 @@
 package com.thetestament.cread.adapters;
 
-import android.content.Context;
 import android.content.Intent;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.content.ContextCompat;
@@ -9,18 +8,14 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.TextView;
 
 import com.squareup.picasso.Picasso;
 import com.thetestament.cread.R;
 import com.thetestament.cread.activities.ProfileActivity;
-import com.thetestament.cread.listeners.listener;
 import com.thetestament.cread.listeners.listener.OnFollowFriendsClickedListener;
 import com.thetestament.cread.listeners.listener.OnFriendsLoadMoreListener;
 import com.thetestament.cread.models.FBFriendsModel;
-
-import org.w3c.dom.Text;
 
 import java.util.List;
 
@@ -28,7 +23,6 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import de.hdodenhof.circleimageview.CircleImageView;
 
-import static com.thetestament.cread.R.id.buttonFollow;
 import static com.thetestament.cread.utils.Constant.EXTRA_PROFILE_UUID;
 
 public class FBFriendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {

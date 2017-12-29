@@ -17,11 +17,6 @@ import android.support.v4.widget.TextViewCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.text.Spannable;
-import android.text.SpannableString;
-import android.text.TextPaint;
-import android.text.style.URLSpan;
-import android.text.util.Linkify;
 import android.util.Log;
 import android.view.View;
 import android.view.animation.AnimationUtils;
@@ -58,7 +53,6 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.regex.Pattern;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -73,10 +67,7 @@ import io.reactivex.schedulers.Schedulers;
 import pl.tajchert.nammu.Nammu;
 import pl.tajchert.nammu.PermissionCallback;
 
-import static com.thetestament.cread.CreadApp.GET_RESPONSE_FROM_NETWORK_EXPLORE;
-import static com.thetestament.cread.CreadApp.GET_RESPONSE_FROM_NETWORK_MAIN;
-import static com.thetestament.cread.CreadApp.GET_RESPONSE_FROM_NETWORK_ME;
-import static com.thetestament.cread.helpers.FeedHelper.collabOnOneForm;
+import static com.thetestament.cread.helpers.FeedHelper.collabOnCollab;
 import static com.thetestament.cread.helpers.FeedHelper.generateDeepLink;
 import static com.thetestament.cread.helpers.FeedHelper.getCreatorText;
 import static com.thetestament.cread.helpers.FeedHelper.initializeShareDialog;
@@ -102,12 +93,11 @@ import static com.thetestament.cread.utils.Constant.FIREBASE_EVENT_WRITE_CLICKED
 import static com.thetestament.cread.utils.Constant.IMAGE_TYPE_USER_CAPTURE_PIC;
 import static com.thetestament.cread.utils.Constant.REQUEST_CODE_COMMENTS_ACTIVITY;
 import static com.thetestament.cread.utils.Constant.REQUEST_CODE_OPEN_GALLERY;
-import static com.thetestament.cread.utils.Constant.URI_HASH_TAG_ACTIVITY;
 
 /**
  * Class to show detailed information of explore/feed item.
  */
-public class FeedDescriptionActivity extends BaseActivity {
+public class FeedDescriptionActivity extends BaseActivity implements listener.OnCollaborationListener {
 
     @BindView(R.id.rootView)
     CoordinatorLayout rootView;
@@ -120,7 +110,7 @@ public class FeedDescriptionActivity extends BaseActivity {
     @BindView(R.id.containerCommentsCount)
     LinearLayout containerCommentsCount;
     @BindView(R.id.containerHatsoffCount)
-    LinearLayout containerHatsoffCount;
+    LinearLayout containerHatsOffCount;
     @BindView(R.id.containerCollabCount)
     LinearLayout containerCollabCount;
     @BindView(R.id.textHatsOffCount)
@@ -171,13 +161,20 @@ public class FeedDescriptionActivity extends BaseActivity {
 
         //Obtain reference of this activity
         mContext = this;
-
         //ShredPreference reference
         mHelper = new SharedPreferenceHelper(this);
         // Obtain the FirebaseAnalytics instance.
         mFirebaseAnalytics = FirebaseAnalytics.getInstance(this);
         //initialize views
         initViews();
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        //Set listener
+        FeedHelper feedHelper = new FeedHelper();
+        feedHelper.setOnCaptureClickListener(this);
     }
 
     @Override
@@ -298,7 +295,7 @@ public class FeedDescriptionActivity extends BaseActivity {
     }
 
     /**
-     * HatsOff onClick functionality.
+     * HatsOff collabOnWritingClick functionality.
      */
     @OnClick(R.id.containerHatsOff)
     void onContainerHatsOffClicked() {
@@ -316,12 +313,12 @@ public class FeedDescriptionActivity extends BaseActivity {
                 mFeedData.setHatsOffCount(mFeedData.getHatsOffCount() - 1);
                 //If hats off count is zero
                 if (mFeedData.getHatsOffCount() < 1) {
-                    containerHatsoffCount.setVisibility(View.GONE);
+                    containerHatsOffCount.setVisibility(View.GONE);
                 }
                 //hats off count is more than zero
                 else {
                     //Change hatsOffCount i.e decrease by one
-                    containerHatsoffCount.setVisibility(View.VISIBLE);
+                    containerHatsOffCount.setVisibility(View.VISIBLE);
                     textHatsoffCount.setText(String.valueOf(mFeedData.getHatsOffCount()));
                 }
 
@@ -335,7 +332,7 @@ public class FeedDescriptionActivity extends BaseActivity {
                 //Update hatsOffCount
                 mFeedData.setHatsOffCount(mFeedData.getHatsOffCount() + 1);
                 //Change hatsOffCount i.e increase by one
-                containerHatsoffCount.setVisibility(View.VISIBLE);
+                containerHatsOffCount.setVisibility(View.VISIBLE);
                 textHatsoffCount.setText(String.valueOf(mFeedData.getHatsOffCount()));
             }
 
@@ -431,7 +428,14 @@ public class FeedDescriptionActivity extends BaseActivity {
         mFeedData = bundle.getParcelable(EXTRA_FEED_DESCRIPTION_DATA);
         mItemPosition = bundle.getInt("position");
         Log.d("TAG", "retrieveIntentData: " + mItemPosition);
-        performContentTypeSpecificOperations();
+        // performContentTypeSpecificOperations();
+        FeedHelper.performContentTypeSpecificOperations(mContext
+                , mFeedData
+                , textCollabCount
+                , containerCollabCount
+                , buttonCollaborate
+                , textCreatorName
+                , mFeedData.getCaptureID(), mFeedData.getContentImage(), mFeedData.isMerchantable());
 
         // set caption if it exists
         // else hide the caption view
@@ -456,7 +460,7 @@ public class FeedDescriptionActivity extends BaseActivity {
             textHatsoffCount.setText(String.valueOf(mFeedData.getHatsOffCount()));
         } else {
             //Hide hatsOff count textView
-            containerHatsoffCount.setVisibility(View.GONE);
+            containerHatsOffCount.setVisibility(View.GONE);
         }
 
         //Check for comment count
@@ -670,35 +674,25 @@ public class FeedDescriptionActivity extends BaseActivity {
      */
 
     private void performContentTypeSpecificOperations() {
-
         // initialize text
         String text = getCreatorText(mContext, mFeedData.getContentType(), mFeedData.isAvailableForCollab(), mFeedData.getCreatorName(), mFeedData.getCollabWithName());
 
         //Check for content type
         switch (mFeedData.getContentType()) {
             case CONTENT_TYPE_CAPTURE:
-
-                // set collab count text
+                // set collaboration count text
                 if (mFeedData.getCollabCount() != 0) {
                     textCollabCount.setText(String.valueOf(mFeedData.getCollabCount()));
                     containerCollabCount.setVisibility(View.VISIBLE);
-
                 } else {
                     containerCollabCount.setVisibility(View.GONE);
                 }
 
                 if (mFeedData.isAvailableForCollab()) {
-
                     // for stand alone capture
-
                     buttonCollaborate.setVisibility(View.VISIBLE);
-                    // set text
-                    //buttonCollaborate.setText("Write");
-
                     //write click functionality on capture
                     writeOnClick(buttonCollaborate, mFeedData.getCaptureID(), mFeedData.getContentImage(), mFeedData.isMerchantable());
-
-                    //String text = mFeedData.getCreatorName() + " added a capture ";
 
                     // get text indexes
                     int creatorStartPos = text.indexOf(mFeedData.getCreatorName());
@@ -708,16 +702,12 @@ public class FeedDescriptionActivity extends BaseActivity {
 
                     // get clickable text;
                     initializeSpannableString(mContext, textCreatorName, false, text, creatorStartPos, creatorEndPos, collabWithStartPos, collabWithEndPos, mFeedData.getUUID(), mFeedData.getCollabWithUUID());
-
-
                 } else {
 
                     // showing collaborate button
                     buttonCollaborate.setVisibility(View.VISIBLE);
 
-                    collabOnOneForm(buttonCollaborate, mContext);
-
-                    //String text = mFeedData.getCreatorName() + " added a capture to " + mFeedData.getCollabWithName() + "'s short";
+                    collabOnCollab(buttonCollaborate, mContext, mFeedData.getShortID(), mFeedData.getCaptureID(), mFeedData.getContentImage(), mFeedData.isMerchantable());
 
                     // get text indexes
                     int creatorStartPos = text.indexOf(mFeedData.getCreatorName());
@@ -727,8 +717,6 @@ public class FeedDescriptionActivity extends BaseActivity {
 
                     // get clickable text
                     initializeSpannableString(mContext, textCreatorName, true, text, creatorStartPos, creatorEndPos, collabWithStartPos, collabWithEndPos, mFeedData.getUUID(), mFeedData.getCollabWithUUID());
-
-
                 }
 
                 break;
@@ -770,7 +758,8 @@ public class FeedDescriptionActivity extends BaseActivity {
                     // showing collaborate button
                     buttonCollaborate.setVisibility(View.VISIBLE);
 
-                    collabOnOneForm(buttonCollaborate, mContext);
+                    collabOnCollab(buttonCollaborate, mContext, mFeedData.getShortID(), mFeedData.getCaptureID(), mFeedData.getContentImage(), mFeedData.isMerchantable());
+
 
                     //String text = mFeedData.getCreatorName() + " wrote a short on " + mFeedData.getCollabWithName() + "'s capture";
 
@@ -792,7 +781,7 @@ public class FeedDescriptionActivity extends BaseActivity {
     }
 
     /**
-     * write onClick functionality.
+     * write collabOnWritingClick functionality.
      *
      * @param view       View to be clicked.
      * @param captureID  CaptureID of image.
@@ -821,7 +810,7 @@ public class FeedDescriptionActivity extends BaseActivity {
     }
 
     /**
-     * capture onClick functionality.
+     * capture collabOnWritingClick functionality.
      *
      * @param view View to be clicked.
      */
@@ -1033,7 +1022,7 @@ public class FeedDescriptionActivity extends BaseActivity {
             //Update hatsOffCount
             mFeedData.setHatsOffCount(mFeedData.getHatsOffCount() + 1);
             //Set visibility on and set hatsOff count
-            containerHatsoffCount.setVisibility(View.VISIBLE);
+            containerHatsOffCount.setVisibility(View.VISIBLE);
             textHatsoffCount.setText(String.valueOf(mFeedData.getHatsOffCount()));
 
 
@@ -1042,11 +1031,11 @@ public class FeedDescriptionActivity extends BaseActivity {
             mFeedData.setHatsOffCount(mFeedData.getHatsOffCount() - 1);
             //If hats off count is zero
             if (mFeedData.getHatsOffCount() < 1) {
-                containerHatsoffCount.setVisibility(View.GONE);
+                containerHatsOffCount.setVisibility(View.GONE);
             }
             //hats off count is more than zero
             else {
-                containerHatsoffCount.setVisibility(View.VISIBLE);
+                containerHatsOffCount.setVisibility(View.VISIBLE);
                 textHatsoffCount.setText(String.valueOf(mFeedData.getHatsOffCount()));
             }
         }
@@ -1101,6 +1090,31 @@ public class FeedDescriptionActivity extends BaseActivity {
         // both are non-zero so show the dot
         else if (hatsoffCount != 0 && commentCount != 0) {
             dotSeperator.setVisibility(View.VISIBLE);
+        }
+    }
+
+    @Override
+    public void collaborationOnGraphic() {
+
+    }
+
+    @Override
+    public void collaborationOnWriting(String shortId) {
+        //Check for Write permission
+        if (Nammu.checkPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+            //We have permission do whatever you want to do
+            chooseImageFromGallery();
+        } else {
+            //We do not own this permission
+            if (Nammu.shouldShowRequestPermissionRationale(this
+                    , Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+                //User already refused to give us this permission or removed it
+                ViewHelper.getToast(this
+                        , getString(R.string.error_msg_capture_permission_denied));
+            } else {
+                //First time asking for permission
+                Nammu.askForPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE, captureWritePermission);
+            }
         }
     }
 

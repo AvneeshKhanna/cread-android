@@ -29,6 +29,7 @@ import com.thetestament.cread.activities.CollaborationDetailsActivity;
 import com.thetestament.cread.activities.CommentsActivity;
 import com.thetestament.cread.activities.FeedDescriptionActivity;
 import com.thetestament.cread.activities.ShortActivity;
+import com.thetestament.cread.helpers.FeedHelper;
 import com.thetestament.cread.helpers.NetworkHelper;
 import com.thetestament.cread.helpers.SharedPreferenceHelper;
 import com.thetestament.cread.helpers.ViewHelper;
@@ -46,7 +47,7 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import de.hdodenhof.circleimageview.CircleImageView;
 
-import static com.thetestament.cread.helpers.FeedHelper.collabOnOneForm;
+import static com.thetestament.cread.helpers.FeedHelper.collabOnCollab;
 import static com.thetestament.cread.helpers.FeedHelper.getCollabCountText;
 import static com.thetestament.cread.helpers.FeedHelper.getCreatorText;
 import static com.thetestament.cread.helpers.FeedHelper.initializeShareDialog;
@@ -176,11 +177,16 @@ public class MeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             loadContentImage(data.getContentImage(), itemViewHolder.imageContent);
 
             // set text and click actions acc. to content type
-            performContentTypeSpecificOperations(itemViewHolder, data);
+            //performContentTypeSpecificOperations(itemViewHolder, data);
+            FeedHelper.performContentTypeSpecificOperations(mContext
+                    , data
+                    , itemViewHolder.collabCount
+                    , itemViewHolder.collabCount
+                    , itemViewHolder.buttonCollaborate
+                    , itemViewHolder.textCreatorName
+                    , data.getCaptureID(), data.getContentImage(), data.isMerchantable());
 
-            //Set content type drawable
-            //setContentType(data.getContentType(), itemViewHolder.imageWorkType, itemViewHolder.buttonCompose);
-            //Initialize menu button
+            //Initialize context menu button
             initializeMenuButton(itemViewHolder.buttonMenu, data.getUUID());
 
             //open bottom sheet on clicking of 3 dots
@@ -191,12 +197,12 @@ public class MeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                 }
             });
 
-            //ItemView onClick functionality
+            //ItemView collabOnWritingClick functionality
             itemViewOnClick(itemViewHolder.itemView, data, position);
 
             //Check whether user has given hats off to this campaign or not
             checkHatsOffStatus(data.getHatsOffStatus(), itemViewHolder);
-            //HatsOff onClick functionality
+            //HatsOff collabOnWritingClick functionality
             hatsOffOnClick(itemViewHolder, data, position);
             //Comment click functionality
             commentOnClick(itemViewHolder.containerComment, data.getEntityID());
@@ -300,7 +306,7 @@ public class MeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
 
     /**
-     * ItemView onClick functionality.
+     * ItemView collabOnWritingClick functionality.
      *
      * @param view      View to be clicked.
      * @param feedModel Data set for current item.
@@ -323,7 +329,7 @@ public class MeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     }
 
     /**
-     * write onClick functionality.
+     * write collabOnWritingClick functionality.
      *
      * @param view       View to be clicked.
      * @param captureID  CaptureID of image.
@@ -352,7 +358,7 @@ public class MeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     }
 
     /**
-     * capture onClick functionality.
+     * capture collabOnWritingClick functionality.
      *
      * @param view View to be clicked.
      */
@@ -395,7 +401,7 @@ public class MeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
 
     /**
-     * HatsOff onClick functionality.
+     * HatsOff collabOnWritingClick functionality.
      *
      * @param itemViewHolder ViewHolder for items.
      * @param data           Data for current item.
@@ -438,7 +444,7 @@ public class MeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     }
 
     /**
-     * Compose onClick functionality.
+     * Compose collabOnWritingClick functionality.
      *
      * @param view     View to be clicked.
      * @param entityID Entity ID.
@@ -455,7 +461,7 @@ public class MeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     }
 
     /**
-     * Share onClick functionality.
+     * Share collabOnWritingClick functionality.
      *
      * @param view       View to be clicked.x
      * @param pictureUrl URL of the picture to be shared.
@@ -579,7 +585,8 @@ public class MeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                     // showing collaborate button
                     itemViewHolder.buttonCollaborate.setVisibility(View.VISIBLE);
 
-                    collabOnOneForm(itemViewHolder.buttonCollaborate, mContext);
+
+                    collabOnCollab(itemViewHolder.buttonCollaborate, mContext, data.getShortID(), data.getCaptureID(), data.getContentImage(), data.isMerchantable());
 
                     //String text = data.getCreatorName() + " added a capture to " + data.getCollabWithName() + "'s short";
 
@@ -637,7 +644,7 @@ public class MeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                     // showing collaborate button
                     itemViewHolder.buttonCollaborate.setVisibility(View.VISIBLE);
 
-                    collabOnOneForm(itemViewHolder.buttonCollaborate, mContext);
+                    collabOnCollab(itemViewHolder.buttonCollaborate, mContext, data.getShortID(), data.getCaptureID(), data.getContentImage(), data.isMerchantable());
 
                     //String text = data.getCreatorName() + " wrote a short on " + data.getCollabWithName() + "'s capture";
 
@@ -649,7 +656,6 @@ public class MeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
                     // get clickable text
                     initializeSpannableString(mContext, itemViewHolder.textCreatorName, true, text, creatorStartPos, creatorEndPos, collabWithStartPos, collabWithEndPos, data.getUUID(), data.getCollabWithUUID());
-
                 }
 
                 break;

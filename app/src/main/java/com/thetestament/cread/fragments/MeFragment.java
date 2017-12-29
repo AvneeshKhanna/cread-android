@@ -52,6 +52,7 @@ import com.thetestament.cread.activities.UpdateProfileDetailsActivity;
 import com.thetestament.cread.activities.UpdateProfileImageActivity;
 import com.thetestament.cread.adapters.MeAdapter;
 import com.thetestament.cread.adapters.UserStatsPagerAdapter;
+import com.thetestament.cread.helpers.FeedHelper;
 import com.thetestament.cread.helpers.HatsOffHelper;
 import com.thetestament.cread.helpers.ImageHelper;
 import com.thetestament.cread.helpers.NetworkHelper;
@@ -130,7 +131,7 @@ import static com.thetestament.cread.utils.Constant.REQUEST_CODE_UPDATE_PROFILE_
 /**
  * Fragment class to load user profile details and his/her recent activity.
  */
-public class MeFragment extends Fragment {
+public class MeFragment extends Fragment implements listener.OnCollaborationListener {
 
     @BindView(R.id.rootView)
     CoordinatorLayout rootView;
@@ -211,6 +212,13 @@ public class MeFragment extends Fragment {
         mUnbinder = ButterKnife.bind(this, view);
         //initialize this screen
         initScreen();
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        //Set Listener
+        new FeedHelper().setOnCaptureClickListener(this);
     }
 
     @Override
@@ -1812,5 +1820,33 @@ public class MeFragment extends Fragment {
 
     public static boolean isCountZero(long count) {
         return count == 0;
+    }
+
+
+    @Override
+    public void collaborationOnGraphic() {
+
+    }
+
+    @Override
+    public void collaborationOnWriting(String shortID) {
+//Set entity id
+        mShortID = shortID;
+        //Check for Write permission
+        if (Nammu.checkPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+            //We have permission do whatever you want to do
+            ImageHelper.chooseImageFromGallery(MeFragment.this);
+        } else {
+            //We do not own this permission
+            if (Nammu.shouldShowRequestPermissionRationale(MeFragment.this
+                    , Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+                //User already refused to give us this permission or removed it
+                ViewHelper.getToast(getActivity()
+                        , getString(R.string.error_msg_capture_permission_denied));
+            } else {
+                //First time asking for permission
+                Nammu.askForPermission(MeFragment.this, Manifest.permission.WRITE_EXTERNAL_STORAGE, captureWritePermission);
+            }
+        }
     }
 }

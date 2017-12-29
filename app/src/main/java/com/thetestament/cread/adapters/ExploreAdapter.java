@@ -24,6 +24,7 @@ import com.thetestament.cread.activities.CollaborationDetailsActivity;
 import com.thetestament.cread.activities.FeedDescriptionActivity;
 import com.thetestament.cread.activities.ProfileActivity;
 import com.thetestament.cread.activities.ShortActivity;
+import com.thetestament.cread.helpers.FeedHelper;
 import com.thetestament.cread.helpers.NetworkHelper;
 import com.thetestament.cread.helpers.SharedPreferenceHelper;
 import com.thetestament.cread.helpers.ViewHelper;
@@ -38,7 +39,7 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import de.hdodenhof.circleimageview.CircleImageView;
 
-import static com.thetestament.cread.helpers.FeedHelper.collabOnOneForm;
+import static com.thetestament.cread.helpers.FeedHelper.collabOnCollab;
 import static com.thetestament.cread.helpers.FeedHelper.getCollabCountText;
 import static com.thetestament.cread.helpers.FeedHelper.getCreatorText;
 import static com.thetestament.cread.helpers.FeedHelper.initializeSpannableString;
@@ -145,7 +146,14 @@ public class ExploreAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
             //itemViewHolder.textCreatorName.setText(data.getCreatorName());
 
             // set text and click actions according to content type
-            performContentTypeSpecificOperations(itemViewHolder, data);
+            //performContentTypeSpecificOperations(itemViewHolder, data);
+            FeedHelper.performContentTypeSpecificOperations(mContext
+                    , data
+                    , itemViewHolder.collabCount
+                    , itemViewHolder.collabCount
+                    , itemViewHolder.buttonCollaborate
+                    , itemViewHolder.textCreatorName
+                    , data.getCaptureID(), data.getContentImage(), data.isMerchantable());
 
             //Check follow status
             checkFollowStatus(data, itemViewHolder);
@@ -156,7 +164,7 @@ public class ExploreAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
 
             //Follow button click functionality
             followOnClick(position, data, itemViewHolder.buttonFollow);
-            //ItemView onClick functionality
+            //ItemView collabOnWritingClick functionality
             itemViewOnClick(itemViewHolder.itemView, data, position);
             //Collaboration count click functionality
             collaborationCountOnClick(itemViewHolder.collabCount, data.getEntityID(), data.getContentType());
@@ -235,7 +243,7 @@ public class ExploreAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
     }
 
     /**
-     * Follow button onClick functionality
+     * Follow button collabOnWritingClick functionality
      *
      * @param itemPosition index  of the item.
      * @param data         Model for current item.
@@ -266,7 +274,7 @@ public class ExploreAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
     }
 
     /**
-     * write onClick functionality.
+     * write collabOnWritingClick functionality.
      *
      * @param view       View to be clicked.
      * @param captureID  CaptureID of image.
@@ -295,7 +303,7 @@ public class ExploreAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
     }
 
     /**
-     * capture onClick functionality.
+     * capture collabOnWritingClick functionality.
      *
      * @param view View to be clicked.
      *             * @param shoid    short ID
@@ -390,7 +398,7 @@ public class ExploreAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
                     // showing collaborate button
                     itemViewHolder.buttonCollaborate.setVisibility(View.VISIBLE);
 
-                    collabOnOneForm(itemViewHolder.buttonCollaborate, mContext);
+                    collabOnCollab(itemViewHolder.buttonCollaborate, mContext, data.getShortID(), data.getCaptureID(), data.getContentImage(), data.isMerchantable());
 
                     //String text = data.getCreatorName() + " added a capture to " + data.getCollabWithName() + "'s short";
 
@@ -445,8 +453,7 @@ public class ExploreAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
                     // showing collaborate button
                     itemViewHolder.buttonCollaborate.setVisibility(View.VISIBLE);
 
-                    collabOnOneForm(itemViewHolder.buttonCollaborate, mContext);
-
+                    collabOnCollab(itemViewHolder.buttonCollaborate, mContext, data.getShortID(), data.getCaptureID(), data.getContentImage(), data.isMerchantable());
                     //String text = data.getCreatorName() + " wrote a short on " + data.getCollabWithName() + "'s capture";
 
                     // get text indexes
