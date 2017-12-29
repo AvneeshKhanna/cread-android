@@ -45,6 +45,7 @@ import static com.thetestament.cread.utils.Constant.EXTRA_WEB_VIEW_TITLE;
 import static com.thetestament.cread.utils.Constant.EXTRA_WEB_VIEW_URL;
 import static com.thetestament.cread.utils.Constant.FIREBASE_EVENT_FIND_FRIENDS;
 import static com.thetestament.cread.utils.Constant.FIREBASE_EVENT_RATE_US_CLICKED;
+import static com.thetestament.cread.helpers.FeedHelper.inviteFriends;
 
 public class SettingsFragment extends PreferenceFragmentCompat {
 
@@ -82,6 +83,15 @@ public class SettingsFragment extends PreferenceFragmentCompat {
                 startActivity(new Intent(getActivity(), FindFBFriendsActivity.class));
                 //Log firebase event
                 setAnalytics(FIREBASE_EVENT_FIND_FRIENDS);
+                return false;
+            }
+        });
+
+        final Preference inviteFriends = findPreference("settings_inviteFriends_key");
+        inviteFriends.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+            @Override
+            public boolean onPreferenceClick(Preference preference) {
+                inviteFriends(getActivity());
                 return false;
             }
         });

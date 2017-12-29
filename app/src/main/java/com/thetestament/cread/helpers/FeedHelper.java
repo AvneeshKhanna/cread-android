@@ -464,7 +464,7 @@ public class FeedHelper {
                         (R.array.collaborate_dialog_texts);
 
 
-        int[] drawables = {R.drawable.ic_image_24, R.drawable.ic_link_24};
+        int[] drawables = {R.drawable.ic_add_write, R.drawable.ic_add_photo};
 
 
         return initializeItemsDialog(titles, bylines, drawables);

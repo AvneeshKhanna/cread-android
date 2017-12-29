@@ -229,6 +229,8 @@ public class FindFBFriendsActivity extends BaseActivity {
                                             friendsModel.setFollowStatus(dataObj.getBoolean("followstatus"));
                                             mDataList.add(friendsModel);
                                         }
+
+                                        mDataList.clear();
                                     }
                                 } catch (JSONException e) {
                                     e.printStackTrace();

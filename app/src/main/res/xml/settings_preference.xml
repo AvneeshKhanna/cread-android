@@ -17,6 +17,14 @@
         android:title="Find Facebook Friends" />
 
 
+    <android.support.v7.preference.Preference
+        android:id="@+id/inviteFriends"
+        android:defaultValue="true"
+        android:icon="@drawable/ic_invite"
+        android:key="settings_inviteFriends_key"
+        android:title="Invite Friends" />
+
+
     <android.support.v7.preference.SwitchPreferenceCompat
         android:defaultValue="true"
         android:icon="@drawable/ic_menu_notification"

@@ -127,17 +127,17 @@
 
 
     <string-array name="collaborate_dialog_titles">
-        <item>Collaborate As Image</item>
-        <item>Collaborate As Text</item>
+        <item>Write on this graphic art</item>
+        <item>Add a graphic art to this writing</item>
     </string-array>
 
     <string-array name="collaborate_dialog_texts">
-        <item>"Your friends would only be able to view this post as an image"</item>
-        <item>Your friends would be redirected to this post on the Cread app</item>
+        <item>"Pick the image from this art piece and write on it"</item>
+        <item>"Pick the writing from this art piece and add a graphic art to it</item>
     </string-array>
 
 
     // invite friends text
-    <string name="text_invite_friends">Hey! Check out this app where graphical artists collaborate with writers and make beautifull stuff! And if that\'s not enough, they get royalties for every artpiece that sells.\nGet your art on Cread now. It's fun! \n https://goo.gl/UbdygB</string>
+    <string name="text_invite_friends">Hey! Check out this app where graphical artists collaborate with writers and make beautiful stuff! And if that\'s not enough, they get royalties for every artpiece that sells.\n\nGet your art on Cread now. It\'s fun! \n\n https://goo.gl/Q7zJ1n</string>
 
 </resources>
