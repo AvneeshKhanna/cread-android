@@ -57,6 +57,7 @@ import static com.thetestament.cread.CreadApp.GET_RESPONSE_FROM_NETWORK_FIND_FRI
 import static com.thetestament.cread.CreadApp.GET_RESPONSE_FROM_NETWORK_FOLLOWING;
 import static com.thetestament.cread.CreadApp.GET_RESPONSE_FROM_NETWORK_MAIN;
 import static com.thetestament.cread.CreadApp.GET_RESPONSE_FROM_NETWORK_ME;
+import static com.thetestament.cread.helpers.FeedHelper.inviteFriends;
 
 public class FindFBFriendsActivity extends BaseActivity {
 
@@ -67,7 +68,9 @@ public class FindFBFriendsActivity extends BaseActivity {
     @BindView(R.id.swipeRefreshLayout)
     SwipeRefreshLayout swipeRefreshLayout;
     @BindView(R.id.header_ff)
-    RelativeLayout header;
+    LinearLayout header;
+    @BindView(R.id.containerInviteFriends)
+    RelativeLayout containerInviteFriends;
     @BindView(R.id.buttonFollowAll)
     TextView buttonFollowAll;
     @BindView(R.id.placeholder)
@@ -152,6 +155,7 @@ public class FindFBFriendsActivity extends BaseActivity {
             public void onRefresh() {
 
                 header.setVisibility(View.GONE);
+                containerInviteFriends.setVisibility(View.GONE);
 
                 //Clear data
                 mDataList.clear();
@@ -280,6 +284,7 @@ public class FindFBFriendsActivity extends BaseActivity {
                                 } else {
 
                                     header.setVisibility(View.VISIBLE);
+                                    containerInviteFriends.setVisibility(View.VISIBLE);
 
                                     if (mDataList.size() == 0) {
                                         scrollView.setVisibility(View.GONE);
@@ -667,5 +672,13 @@ public class FindFBFriendsActivity extends BaseActivity {
             ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_no_connection));
         }
 
+    }
+
+    /**
+     * Invite friends button click functionality
+     */
+    @OnClick({R.id.buttonInviteFriends, R.id.noDataInvite})
+    public void onInviteClicked() {
+        inviteFriends(this);
     }
 }

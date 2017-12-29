@@ -219,6 +219,15 @@ public class FeedHelper {
         context.startActivity(Intent.createChooser(intent, "Share Link"));
     }
 
+
+    public static void inviteFriends(FragmentActivity context) {
+        Intent intent = new Intent();
+        intent.setAction(Intent.ACTION_SEND);
+        intent.setType("text/plain");
+        intent.putExtra(Intent.EXTRA_TEXT, context.getString(R.string.text_invite_friends));
+        context.startActivity(Intent.createChooser(intent, "Invite Friends"));
+    }
+
     /**
      * Method to get the deep link from server
      *
@@ -520,7 +529,7 @@ public class FeedHelper {
 
             if (showCountAsText) {
                 // showing count as text
-                getCollabCountText(context, feedData.getCollabCount(), feedData.getContentType(), feedData.isAvailableForCollab());
+                textCollabCount.setText(getCollabCountText(context, feedData.getCollabCount(), feedData.getContentType(), feedData.isAvailableForCollab()));
             } else {   // showing count as number
                 textCollabCount.setText(String.valueOf(feedData.getCollabCount()));
             }
@@ -796,4 +805,6 @@ public class FeedHelper {
                     }
                 });
     }
+
+
 }
