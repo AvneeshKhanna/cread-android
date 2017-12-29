@@ -57,6 +57,8 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -75,8 +77,9 @@ import static com.thetestament.cread.helpers.FontsHelper.fontTypes;
 import static com.thetestament.cread.helpers.FontsHelper.getFontType;
 import static com.thetestament.cread.helpers.ImageHelper.getImageUri;
 import static com.thetestament.cread.utils.Constant.EXTRA_DATA;
+import static com.thetestament.cread.utils.Constant.EXTRA_ENTITY_ID;
+import static com.thetestament.cread.utils.Constant.EXTRA_ENTITY_TYPE;
 import static com.thetestament.cread.utils.Constant.EXTRA_MERCHANTABLE;
-import static com.thetestament.cread.utils.Constant.EXTRA_SHORT_ID;
 import static com.thetestament.cread.utils.Constant.IMAGE_TYPE_USER_CAPTURE_PIC;
 import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_AUTH_KEY;
 import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_BOLD;
@@ -142,8 +145,10 @@ public class CollaborationActivity extends BaseActivity implements ColorChooserD
 
 
     @State
-    String mShortID, mIsMerchantable, mSignatureText = "", mFontType = "montserrat_regular.ttf";
+    String mEntityID, mShortID, mIsMerchantable, mSignatureText = "", mFontType = "montserrat_regular.ttf";
 
+    @State
+    String mEntityType;
     @State
     int mImageWidth = 650;
 
@@ -494,7 +499,8 @@ public class CollaborationActivity extends BaseActivity implements ColorChooserD
     private void initScreen() {
         //Retrieve data from intent
         Bundle data = getIntent().getBundleExtra(EXTRA_DATA);
-        mShortID = data.getString(EXTRA_SHORT_ID);
+        mEntityID = data.getString(EXTRA_ENTITY_ID);
+        mEntityType = data.getString(EXTRA_ENTITY_TYPE);
         mIsMerchantable = data.getString(EXTRA_MERCHANTABLE);
         //Load capture pic
         loadCaptureImage(imageShort);
@@ -725,17 +731,16 @@ public class CollaborationActivity extends BaseActivity implements ColorChooserD
         //Show progress view
         viewProgress.setVisibility(View.VISIBLE);
 
-        final JSONObject requestObject = new JSONObject();
-        try {
-            requestObject.put("uuid", mHelper.getUUID());
-            requestObject.put("authkey", mHelper.getAuthToken());
-            requestObject.put("shoid", mShortID);
-        } catch (JSONException e) {
-            e.printStackTrace();
-            //Hide progress view
-        }
-        Rx2AndroidNetworking.post(BuildConfig.URL + "/manage-short/load-specific")
-                .addJSONObjectBody(requestObject)
+        //Map for request data
+        Map<String, String> requestMap = new HashMap<>();
+        requestMap.put("uuid", mHelper.getUUID());
+        requestMap.put("authkey", mHelper.getAuthToken());
+        requestMap.put("entityid", mEntityID);
+        requestMap.put("type", mEntityType);
+
+
+        Rx2AndroidNetworking.get(BuildConfig.URL + "/manage-short/load-specific")
+                .addHeaders(requestMap)
                 .build()
                 .getJSONObjectObservable()
                 .observeOn(AndroidSchedulers.mainThread())
@@ -759,6 +764,7 @@ public class CollaborationActivity extends BaseActivity implements ColorChooserD
                             else {
                                 JSONObject responseObject = jsonObject.getJSONObject("data");
                                 //Retrieve data from server response
+                                mShortID = responseObject.getString("shoid");
                                 String text = responseObject.getString("text");
                                 int textSize = responseObject.getInt("textsize");
                                 int textColor = (int) Long.parseLong(responseObject.getString("textcolor"), 16);

@@ -302,7 +302,7 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                     itemViewHolder.buttonCollaborate.setVisibility(View.VISIBLE);
 
 
-                    collabOnCollab(itemViewHolder.buttonCollaborate, mContext, data.getShortID(), data.getCaptureID(), data.getContentImage(), data.isMerchantable());
+                    collabOnCollab(itemViewHolder.buttonCollaborate, mContext, data.getEntityID(), data.isMerchantable());
 
                     // get text indexes
                     int creatorStartPos = text.indexOf(data.getCreatorName());
@@ -348,7 +348,7 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                     // showing collaborate button
                     itemViewHolder.buttonCollaborate.setVisibility(View.VISIBLE);
 
-                    collabOnCollab(itemViewHolder.buttonCollaborate, mContext, data.getShortID(), data.getCaptureID(), data.getContentImage(), data.isMerchantable());
+                    collabOnCollab(itemViewHolder.buttonCollaborate, mContext, data.getEntityID(), data.isMerchantable());
                     // get text indexes
                     int creatorStartPos = text.indexOf(data.getCreatorName());
                     int creatorEndPos = creatorStartPos + data.getCreatorName().length();

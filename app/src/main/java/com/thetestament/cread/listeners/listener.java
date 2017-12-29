@@ -251,6 +251,6 @@ public class listener {
     public interface OnCollaborationListener {
         void collaborationOnGraphic();
 
-        void collaborationOnWriting(String shortID);
+        void collaborationOnWriting(String entityID);
     }
 }

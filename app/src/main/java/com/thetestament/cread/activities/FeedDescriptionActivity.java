@@ -709,7 +709,7 @@ public class FeedDescriptionActivity extends BaseActivity implements listener.On
                     // showing collaborate button
                     buttonCollaborate.setVisibility(View.VISIBLE);
 
-                    collabOnCollab(buttonCollaborate, mContext, mFeedData.getShortID(), mFeedData.getCaptureID(), mFeedData.getContentImage(), mFeedData.isMerchantable());
+                    collabOnCollab(buttonCollaborate, mContext, mFeedData.getEntityID(), mFeedData.isMerchantable());
 
                     // get text indexes
                     int creatorStartPos = text.indexOf(mFeedData.getCreatorName());
@@ -760,7 +760,7 @@ public class FeedDescriptionActivity extends BaseActivity implements listener.On
                     // showing collaborate button
                     buttonCollaborate.setVisibility(View.VISIBLE);
 
-                    collabOnCollab(buttonCollaborate, mContext, mFeedData.getShortID(), mFeedData.getCaptureID(), mFeedData.getContentImage(), mFeedData.isMerchantable());
+                    collabOnCollab(buttonCollaborate, mContext, mFeedData.getEntityID(), mFeedData.isMerchantable());
 
 
                     //String text = mFeedData.getCreatorName() + " wrote a short on " + mFeedData.getCollabWithName() + "'s capture";

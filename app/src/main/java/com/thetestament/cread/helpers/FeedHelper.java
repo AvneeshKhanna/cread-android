@@ -18,11 +18,13 @@ import android.text.style.URLSpan;
 import android.text.util.Linkify;
 import android.view.View;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.afollestad.materialdialogs.DialogAction;
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.google.firebase.crash.FirebaseCrash;
+import com.rx2androidnetworking.Rx2AndroidNetworking;
 import com.thetestament.cread.BuildConfig;
 import com.thetestament.cread.R;
 import com.thetestament.cread.activities.ProfileActivity;
@@ -41,7 +43,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
 
+import io.reactivex.Observer;
+import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.CompositeDisposable;
+import io.reactivex.disposables.Disposable;
+import io.reactivex.schedulers.Schedulers;
 
 import static com.thetestament.cread.helpers.NetworkHelper.getDeepLinkObservable;
 import static com.thetestament.cread.helpers.NetworkHelper.requestServer;
@@ -459,14 +465,11 @@ public class FeedHelper {
     /**
      * Method to show dialog with options when user click on collaboration button.
      *
-     * @param view         View to be clicked.
-     * @param context      Context to use.
-     * @param shortId      Short ID of writing.
-     * @param captureID    capture ID of graphics art.
-     * @param captureURL   Url of graphics art
-     * @param merchantable true or false.
+     * @param view     View to be clicked.
+     * @param context  Context to use.
+     * @param entityId entity ID of writing.
      */
-    public static void collabOnCollab(View view, final FragmentActivity context, final String shortId, final String captureID, final String captureURL, final boolean merchantable) {
+    public static void collabOnCollab(View view, final FragmentActivity context, final String entityId, final boolean merchantable) {
         view.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -483,20 +486,14 @@ public class FeedHelper {
                         switch (index) {
                             //Add photo/graphic art on writing
                             case 0:
-                                Bundle bundle = new Bundle();
-                                bundle.putString(EXTRA_CAPTURE_ID, captureID);
-                                bundle.putString(EXTRA_CAPTURE_URL, captureURL);
-                                bundle.putBoolean(EXTRA_MERCHANTABLE, merchantable);
-                                Intent intent = new Intent(context, ShortActivity.class);
-                                intent.putExtra(EXTRA_DATA, bundle);
-                                context.startActivity(intent);
+                                loadCollaborationData(context, entityId, merchantable);
                                 //Dismiss dialog
                                 dialog.dismiss();
                                 break;
                             //Write on photo/graphics art
                             case 1:
                                 //Set listener
-                                onCollaborationListener.collaborationOnWriting(shortId);
+                                onCollaborationListener.collaborationOnWriting(entityId);
                                 //Dismiss dialog
                                 dialog.dismiss();
                                 break;
@@ -563,12 +560,12 @@ public class FeedHelper {
 
                             if (new SharedPreferenceHelper(context).isCaptureIconTooltipFirstTime()) {
 
-                                getShortOnClickDialog(context, captureID, captureURL, merchantable);
+                                getShortOnClickDialog(context, feedData.getCaptureID(), feedData.getContentImage(), feedData.isMerchantable());
                             } else {
                                 Bundle bundle = new Bundle();
-                                bundle.putString(EXTRA_CAPTURE_ID, captureID);
-                                bundle.putString(EXTRA_CAPTURE_URL, captureURL);
-                                bundle.putBoolean(EXTRA_MERCHANTABLE, merchantable);
+                                bundle.putString(EXTRA_CAPTURE_ID, feedData.getCaptureID());
+                                bundle.putString(EXTRA_CAPTURE_URL, feedData.getContentImage());
+                                bundle.putBoolean(EXTRA_MERCHANTABLE, feedData.isMerchantable());
                                 Intent intent = new Intent(context, ShortActivity.class);
                                 intent.putExtra(EXTRA_DATA, bundle);
                                 context.startActivity(intent);
@@ -590,7 +587,7 @@ public class FeedHelper {
                     // showing collaborate button
                     buttonCollaborate.setVisibility(View.VISIBLE);
 
-                    collabOnCollab(buttonCollaborate, context, feedData.getShortID(), feedData.getCaptureID(), feedData.getContentImage(), feedData.isMerchantable());
+                    collabOnCollab(buttonCollaborate, context, feedData.getEntityID(), feedData.isMerchantable());
 
                     // get text indexes
                     int creatorStartPos = text.indexOf(feedData.getCreatorName());
@@ -648,8 +645,8 @@ public class FeedHelper {
                     // showing collaborate button
                     buttonCollaborate.setVisibility(View.VISIBLE);
 
-                    collabOnCollab(buttonCollaborate, context, feedData.getShortID(), feedData.getCaptureID(), feedData.getContentImage(), feedData.isMerchantable());
 
+                    collabOnCollab(buttonCollaborate, context, feedData.getEntityID(), feedData.isMerchantable());
 
                     //String text = mFeedData.getCreatorName() + " wrote a short on " + mFeedData.getCollabWithName() + "'s capture";
 
@@ -749,4 +746,54 @@ public class FeedHelper {
         textDesc.setText(context.getString(R.string.text_dialog_collab_capture));
     }
 
+    private static void loadCollaborationData(final FragmentActivity context, String entityID, final boolean merchantable) {
+        final ProgressBar progressBar = new ProgressBar(context);
+        Rx2AndroidNetworking.get(BuildConfig.URL + "/entity-manage/load-captureid")
+                .addQueryParameter("entityid", entityID)
+                .build()
+                .getJSONObjectObservable()
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribeOn(Schedulers.io())
+                .subscribeWith(new Observer<JSONObject>() {
+                    @Override
+                    public void onSubscribe(Disposable d) {
+                    }
+
+                    @Override
+                    public void onNext(JSONObject jsonObject) {
+                        try {
+                            JSONObject responseObject = jsonObject.getJSONObject("data");
+                            //Retrieve data from server response
+                            Bundle bundle = new Bundle();
+                            bundle.putString(EXTRA_CAPTURE_ID, responseObject.getString("capid"));
+                            bundle.putString(EXTRA_CAPTURE_URL, responseObject.getString("entityurl"));
+                            bundle.putBoolean(EXTRA_MERCHANTABLE, merchantable);
+                            Intent intent = new Intent(context, ShortActivity.class);
+                            intent.putExtra(EXTRA_DATA, bundle);
+                            context.startActivity(intent);
+
+                        } catch (JSONException e) {
+                            //Hide progress view
+                            progressBar.setVisibility(View.GONE);
+                            e.printStackTrace();
+                            FirebaseCrash.report(e);
+                            ViewHelper.getToast(context, context.getString(R.string.error_msg_internal));
+                        }
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        e.printStackTrace();
+                        FirebaseCrash.report(e);
+                        ViewHelper.getToast(context, context.getString(R.string.error_msg_server));
+                        //Hide progress view
+                        progressBar.setVisibility(View.GONE);
+                    }
+
+                    @Override
+                    public void onComplete() {
+                        //Hide progress view
+                    }
+                });
+    }
 }
