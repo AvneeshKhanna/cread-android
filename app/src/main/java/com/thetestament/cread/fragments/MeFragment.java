@@ -1529,9 +1529,9 @@ public class MeFragment extends Fragment implements listener.OnCollaborationList
     private void initCaptureListener(MeAdapter meAdapter) {
         meAdapter.setOnMeCaptureClickListener(new listener.OnMeCaptureClickListener() {
             @Override
-            public void onClick(String shortID) {
+            public void onClick(String entityID) {
                 //Set entity id
-                mEntityID = shortID;
+                mEntityID = entityID;
                 //Check for Write permission
                 if (Nammu.checkPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
                     //We have permission do whatever you want to do
@@ -1838,7 +1838,7 @@ public class MeFragment extends Fragment implements listener.OnCollaborationList
     public void collaborationOnWriting(String entityID, String entityType) {
         //Set entity id
         mEntityID = entityID;
-        mEntityID = entityType;
+        mEntityType = entityType;
         //Check for Write permission
         if (Nammu.checkPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
             //We have permission do whatever you want to do
