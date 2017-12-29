@@ -5,6 +5,7 @@ import android.graphics.Color;
 import android.graphics.Typeface;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.content.ContextCompat;
 import android.text.Spannable;
@@ -508,7 +509,7 @@ public class FeedHelper {
     }
 
 
-    public static void performContentTypeSpecificOperations(final FragmentActivity context, final FeedModel feedData, TextView textCollabCount, View containerCollabCount, TextView buttonCollaborate, TextView textCreatorName, boolean showCountAsText) {
+    public static void performContentTypeSpecificOperations(final FragmentActivity context, final FeedModel feedData, TextView textCollabCount, View containerCollabCount, TextView buttonCollaborate, TextView textCreatorName, boolean showCountAsText, boolean shouldToggleVisibility, @Nullable View view) {
         // initialize text
         String text = getCreatorText(context
                 , feedData.getContentType()
@@ -527,9 +528,23 @@ public class FeedHelper {
                 textCollabCount.setText(String.valueOf(feedData.getCollabCount()));
             }
 
+            // check if some view's visibility has to be toggled
+            // true for me and main feed
+            // the view concerned is the line seperator
+            if (shouldToggleVisibility) {
+                view.setVisibility(View.VISIBLE);
+            }
+
             containerCollabCount.setVisibility(View.VISIBLE);
         } else {
             containerCollabCount.setVisibility(View.GONE);
+
+            // check if some view's visibility has to be toggled
+            // true for me and main feed
+            // the view concerned is the line seperator
+            if (shouldToggleVisibility) {
+                view.setVisibility(View.GONE);
+            }
         }
 
         //Check for content type

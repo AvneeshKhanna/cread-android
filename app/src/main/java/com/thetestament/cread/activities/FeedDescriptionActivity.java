@@ -435,7 +435,9 @@ public class FeedDescriptionActivity extends BaseActivity implements listener.On
                 , containerCollabCount
                 , buttonCollaborate
                 , textCreatorName
-                , false);
+                , false
+                , false
+                , null);
 
         // set caption if it exists
         // else hide the caption view
