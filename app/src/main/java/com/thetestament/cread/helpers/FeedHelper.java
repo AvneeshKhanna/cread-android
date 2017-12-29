@@ -480,7 +480,7 @@ public class FeedHelper {
      * @param context  Context to use.
      * @param entityId entity ID of writing.
      */
-    public static void collabOnCollab(View view, final FragmentActivity context, final String entityId, final boolean merchantable, final String entityType) {
+    public static void collabOnCollab(View view, final FragmentActivity context, final String entityId, final boolean merchantable, final String entityType, final String collaboWithEntityID) {
         view.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -497,7 +497,12 @@ public class FeedHelper {
                         switch (index) {
                             //Write on photo/graphics art
                             case 0:
-                                loadCollaborationData(context, entityId, merchantable);
+                                if (entityType.equals(CONTENT_TYPE_CAPTURE)) {
+                                    loadCollaborationData(context, entityId, merchantable);
+                                } else {
+                                    loadCollaborationData(context, collaboWithEntityID, merchantable);
+                                }
+
                                 //Dismiss dialog
                                 dialog.dismiss();
                                 break;
@@ -598,7 +603,7 @@ public class FeedHelper {
                     // showing collaborate button
                     buttonCollaborate.setVisibility(View.VISIBLE);
 
-                    collabOnCollab(buttonCollaborate, context, feedData.getEntityID(), feedData.isMerchantable(), feedData.getContentType());
+                    collabOnCollab(buttonCollaborate, context, feedData.getEntityID(), feedData.isMerchantable(), feedData.getContentType(), feedData.getCollaboWithEntityID());
 
                     // get text indexes
                     int creatorStartPos = text.indexOf(feedData.getCreatorName());
@@ -657,7 +662,7 @@ public class FeedHelper {
                     buttonCollaborate.setVisibility(View.VISIBLE);
 
 
-                    collabOnCollab(buttonCollaborate, context, feedData.getCollaboWithEntityID(), feedData.isMerchantable(), feedData.getContentType());
+                    collabOnCollab(buttonCollaborate, context, feedData.getEntityID(), feedData.isMerchantable(), feedData.getContentType(), feedData.getCollaboWithEntityID());
 
                     //String text = mFeedData.getCreatorName() + " wrote a short on " + mFeedData.getCollabWithName() + "'s capture";
 

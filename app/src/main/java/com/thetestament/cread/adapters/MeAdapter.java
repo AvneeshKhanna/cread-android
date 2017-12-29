@@ -47,7 +47,6 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import de.hdodenhof.circleimageview.CircleImageView;
 
-import static com.thetestament.cread.helpers.FeedHelper.collabOnCollab;
 import static com.thetestament.cread.helpers.FeedHelper.getCollabCountText;
 import static com.thetestament.cread.helpers.FeedHelper.getCreatorText;
 import static com.thetestament.cread.helpers.FeedHelper.initializeShareDialog;
@@ -587,7 +586,7 @@ public class MeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                     // showing collaborate button
                     itemViewHolder.buttonCollaborate.setVisibility(View.VISIBLE);
 
-                    collabOnCollab(itemViewHolder.buttonCollaborate, mContext, data.getEntityID(), data.isMerchantable(), data.getContentType());
+                   // collabOnCollab(itemViewHolder.buttonCollaborate, mContext, data.getEntityID(), data.isMerchantable(), data.getContentType());
 
                     //String text = data.getCreatorName() + " added a capture to " + data.getCollabWithName() + "'s short";
 
@@ -645,7 +644,7 @@ public class MeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                     // showing collaborate button
                     itemViewHolder.buttonCollaborate.setVisibility(View.VISIBLE);
 
-                    collabOnCollab(itemViewHolder.buttonCollaborate, mContext, data.getEntityID(), data.isMerchantable(), data.getContentType());
+                   // collabOnCollab(itemViewHolder.buttonCollaborate, mContext, data.getEntityID(), data.isMerchantable(), data.getContentType());
                     //String text = data.getCreatorName() + " wrote a short on " + data.getCollabWithName() + "'s capture";
 
                     // get text indexes

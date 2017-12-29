@@ -67,7 +67,6 @@ import io.reactivex.schedulers.Schedulers;
 import pl.tajchert.nammu.Nammu;
 import pl.tajchert.nammu.PermissionCallback;
 
-import static com.thetestament.cread.helpers.FeedHelper.collabOnCollab;
 import static com.thetestament.cread.helpers.FeedHelper.generateDeepLink;
 import static com.thetestament.cread.helpers.FeedHelper.getCreatorText;
 import static com.thetestament.cread.helpers.FeedHelper.initializeShareDialog;
@@ -709,7 +708,7 @@ public class FeedDescriptionActivity extends BaseActivity implements listener.On
                     // showing collaborate button
                     buttonCollaborate.setVisibility(View.VISIBLE);
 
-                    collabOnCollab(buttonCollaborate, mContext, mFeedData.getEntityID(), mFeedData.isMerchantable(), mFeedData.getContentType());
+                    // collabOnCollab(buttonCollaborate, mContext, mFeedData.getEntityID(), mFeedData.isMerchantable(), mFeedData.getContentType());
 
                     // get text indexes
                     int creatorStartPos = text.indexOf(mFeedData.getCreatorName());
@@ -760,7 +759,7 @@ public class FeedDescriptionActivity extends BaseActivity implements listener.On
                     // showing collaborate button
                     buttonCollaborate.setVisibility(View.VISIBLE);
 
-                    collabOnCollab(buttonCollaborate, mContext, mFeedData.getEntityID(), mFeedData.isMerchantable(), mFeedData.getContentType());
+                    // collabOnCollab(buttonCollaborate, mContext, mFeedData.getEntityID(), mFeedData.isMerchantable(), mFeedData.getContentType());
 
 
                     //String text = mFeedData.getCreatorName() + " wrote a short on " + mFeedData.getCollabWithName() + "'s capture";
@@ -1101,7 +1100,7 @@ public class FeedDescriptionActivity extends BaseActivity implements listener.On
     }
 
     @Override
-    public void collaborationOnWriting(String shortId, String entityType) {
+    public void collaborationOnWriting(String entityID, String entityType) {
         //Check for Write permission
         if (Nammu.checkPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
             //We have permission do whatever you want to do
