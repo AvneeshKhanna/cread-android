@@ -153,7 +153,7 @@ public class ExploreAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
                     , itemViewHolder.collabCount
                     , itemViewHolder.buttonCollaborate
                     , itemViewHolder.textCreatorName
-                    , data.getCaptureID(), data.getContentImage(), data.isMerchantable());
+                    , true);
 
             //Check follow status
             checkFollowStatus(data, itemViewHolder);

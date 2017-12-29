@@ -93,6 +93,7 @@ import static android.app.Activity.RESULT_OK;
 import static com.thetestament.cread.CreadApp.GET_RESPONSE_FROM_NETWORK_EXPLORE;
 import static com.thetestament.cread.CreadApp.GET_RESPONSE_FROM_NETWORK_FIND_FRIENDS;
 import static com.thetestament.cread.CreadApp.GET_RESPONSE_FROM_NETWORK_FOLLOWING;
+import static com.thetestament.cread.CreadApp.GET_RESPONSE_FROM_NETWORK_INSPIRATION;
 import static com.thetestament.cread.CreadApp.GET_RESPONSE_FROM_NETWORK_MAIN;
 import static com.thetestament.cread.CreadApp.GET_RESPONSE_FROM_NETWORK_ME;
 import static com.thetestament.cread.helpers.FeedHelper.generateDeepLink;
@@ -1489,6 +1490,8 @@ public class MeFragment extends Fragment implements listener.OnCollaborationList
                                     ((TextView) viewPagerUserStats.findViewWithTag(POSTS)).setText(String.valueOf(mPostCount));
                                     // update response flag
                                     GET_RESPONSE_FROM_NETWORK_ME = true;
+                                    GET_RESPONSE_FROM_NETWORK_EXPLORE = true;
+                                    GET_RESPONSE_FROM_NETWORK_INSPIRATION = true;
                                 }
                             }
                         } catch (JSONException e) {

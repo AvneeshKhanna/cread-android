@@ -435,7 +435,7 @@ public class FeedDescriptionActivity extends BaseActivity implements listener.On
                 , containerCollabCount
                 , buttonCollaborate
                 , textCreatorName
-                , mFeedData.getCaptureID(), mFeedData.getContentImage(), mFeedData.isMerchantable());
+                , false);
 
         // set caption if it exists
         // else hide the caption view

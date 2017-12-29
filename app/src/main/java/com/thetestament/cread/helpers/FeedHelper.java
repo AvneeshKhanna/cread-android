@@ -166,7 +166,7 @@ public class FeedHelper {
         switch (contentType) {
             case CONTENT_TYPE_CAPTURE:
 
-                if (!isAvailableForCollab) {
+                if (isAvailableForCollab) {
                     text = isMultiple(count) ? String.valueOf(count) + " " + context.getString(R.string.collab_short_count_text_multiple) : String.valueOf(count) + " " + context.getString(R.string.collab_short_count_text_single);
                 } else {
                     text = isMultiple(count) ? String.valueOf(count) + " " + context.getString(R.string.collab_general_count_text_multiple) : String.valueOf(count) + " " + context.getString(R.string.collab_general_count_text_single);
@@ -176,7 +176,7 @@ public class FeedHelper {
 
             case CONTENT_TYPE_SHORT:
 
-                if (!isAvailableForCollab) {
+                if (isAvailableForCollab) {
                     text = isMultiple(count) ? String.valueOf(count) + " " + context.getString(R.string.collab_capture_count_text_multiple) : String.valueOf(count) + " " + context.getString(R.string.collab_capture_count_text_single);
                 } else {
                     text = isMultiple(count) ? String.valueOf(count) + " " + context.getString(R.string.collab_general_count_text_multiple) : String.valueOf(count) + " " + context.getString(R.string.collab_general_count_text_single);
@@ -508,7 +508,7 @@ public class FeedHelper {
     }
 
 
-    public static void performContentTypeSpecificOperations(final FragmentActivity context, final FeedModel feedData, TextView textCollabCount, View containerCollabCount, TextView buttonCollaborate, TextView textCreatorName, final String captureID, final String captureURL, final boolean merchantable) {
+    public static void performContentTypeSpecificOperations(final FragmentActivity context, final FeedModel feedData, TextView textCollabCount, View containerCollabCount, TextView buttonCollaborate, TextView textCreatorName, boolean showCountAsText) {
         // initialize text
         String text = getCreatorText(context
                 , feedData.getContentType()
@@ -516,16 +516,25 @@ public class FeedHelper {
                 , feedData.getCreatorName()
                 , feedData.getCollabWithName());
 
+        // set collaboration count text
+
+        if (feedData.getCollabCount() != 0) {
+
+            if (showCountAsText) {
+                // showing count as text
+                getCollabCountText(context, feedData.getCollabCount(), feedData.getContentType(), feedData.isAvailableForCollab());
+            } else {   // showing count as number
+                textCollabCount.setText(String.valueOf(feedData.getCollabCount()));
+            }
+
+            containerCollabCount.setVisibility(View.VISIBLE);
+        } else {
+            containerCollabCount.setVisibility(View.GONE);
+        }
+
         //Check for content type
         switch (feedData.getContentType()) {
             case CONTENT_TYPE_CAPTURE:
-                // set collaboration count text
-                if (feedData.getCollabCount() != 0) {
-                    textCollabCount.setText(String.valueOf(feedData.getCollabCount()));
-                    containerCollabCount.setVisibility(View.VISIBLE);
-                } else {
-                    containerCollabCount.setVisibility(View.GONE);
-                }
 
                 if (feedData.isAvailableForCollab()) {
                     // for stand alone capture
@@ -581,14 +590,6 @@ public class FeedHelper {
                 break;
 
             case CONTENT_TYPE_SHORT:
-
-                // set collab count text
-                if (feedData.getCollabCount() != 0) {
-                    textCollabCount.setText(String.valueOf(feedData.getCollabCount()));
-                    containerCollabCount.setVisibility(View.VISIBLE);
-                } else {
-                    containerCollabCount.setVisibility(View.GONE);
-                }
 
                 // check if available for collab
                 if (feedData.isAvailableForCollab()) {

@@ -184,7 +184,7 @@ public class MeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                     , itemViewHolder.collabCount
                     , itemViewHolder.buttonCollaborate
                     , itemViewHolder.textCreatorName
-                    , data.getCaptureID(), data.getContentImage(), data.isMerchantable());
+                    , true);
 
             //Initialize context menu button
             initializeMenuButton(itemViewHolder.buttonMenu, data.getUUID());

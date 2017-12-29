@@ -125,6 +125,8 @@ public class Constant {
     public static final int NOTIFICATION_ID_CREAD_COMMENT = 1003;
     public static final int NOTIFICATION_ID_CREAD_BUY = 1004;
     public static final int NOTIFICATION_ID_CREAD_GENERAL = 1005;
+    public static final int NOTIFICATION_ID_CREAD_COMMENT_OTHER = 1006;
+    public static final int NOTIFICATION_ID_CREAD_TOP_POST = 1007;
 
     public static final String NOTIFICATION_CHANNEL_GENERAL = "generalNotificationChannel";
 

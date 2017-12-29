@@ -177,7 +177,7 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                     , itemViewHolder.collabCount
                     , itemViewHolder.buttonCollaborate
                     , itemViewHolder.textCreatorName
-                    , data.getCaptureID(), data.getContentImage(), data.isMerchantable());
+                    , true);
 
             //Check whether user has given hats off to this campaign or not
             checkHatsOffStatus(data.getHatsOffStatus(), itemViewHolder);

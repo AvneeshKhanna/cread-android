@@ -29,6 +29,15 @@ import com.thetestament.cread.utils.NotificationDataSaver.OnCompleteListener;
 import java.util.Map;
 
 import static android.support.v4.app.NotificationManagerCompat.IMPORTANCE_HIGH;
+import static com.thetestament.cread.CreadApp.GET_RESPONSE_FROM_NETWORK_COLLABORATION_DETAILS;
+import static com.thetestament.cread.CreadApp.GET_RESPONSE_FROM_NETWORK_COMMENTS;
+import static com.thetestament.cread.CreadApp.GET_RESPONSE_FROM_NETWORK_ENTITY_SPECIFIC;
+import static com.thetestament.cread.CreadApp.GET_RESPONSE_FROM_NETWORK_EXPLORE;
+import static com.thetestament.cread.CreadApp.GET_RESPONSE_FROM_NETWORK_FIND_FRIENDS;
+import static com.thetestament.cread.CreadApp.GET_RESPONSE_FROM_NETWORK_HATSOFF;
+import static com.thetestament.cread.CreadApp.GET_RESPONSE_FROM_NETWORK_INSPIRATION;
+import static com.thetestament.cread.CreadApp.GET_RESPONSE_FROM_NETWORK_MAIN;
+import static com.thetestament.cread.CreadApp.GET_RESPONSE_FROM_NETWORK_ME;
 import static com.thetestament.cread.utils.Constant.NOTIFICATION_BUNDLE_DATA_ACTOR_ID;
 import static com.thetestament.cread.utils.Constant.NOTIFICATION_BUNDLE_DATA_ACTOR_IMAGE;
 import static com.thetestament.cread.utils.Constant.NOTIFICATION_BUNDLE_DATA_CATEGORY;
@@ -48,9 +57,12 @@ import static com.thetestament.cread.utils.Constant.NOTIFICATION_CHANNEL_GENERAL
 import static com.thetestament.cread.utils.Constant.NOTIFICATION_ID_CREAD_BUY;
 import static com.thetestament.cread.utils.Constant.NOTIFICATION_ID_CREAD_COLLABORATE;
 import static com.thetestament.cread.utils.Constant.NOTIFICATION_ID_CREAD_COMMENT;
+import static com.thetestament.cread.utils.Constant.NOTIFICATION_ID_CREAD_COMMENT_OTHER;
 import static com.thetestament.cread.utils.Constant.NOTIFICATION_ID_CREAD_FOLLOW;
 import static com.thetestament.cread.utils.Constant.NOTIFICATION_ID_CREAD_GENERAL;
 import static com.thetestament.cread.utils.Constant.NOTIFICATION_ID_CREAD_HATSOFF;
+import static com.thetestament.cread.utils.Constant.NOTIFICATION_ID_CREAD_TOP_POST;
+import static com.thetestament.cread.CreadApp.GET_RESPONSE_FROM_NETWORK_FOLLOWING;
 
 public class MyFirebaseMessagingService extends FirebaseMessagingService {
 
@@ -93,6 +105,9 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
                 resId = R.drawable.ic_cread_notification_general;
                 intent = new Intent(this, UpdatesActivity.class);
                 intent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
+                GET_RESPONSE_FROM_NETWORK_FOLLOWING = true;
+                GET_RESPONSE_FROM_NETWORK_FIND_FRIENDS = true;
+                GET_RESPONSE_FROM_NETWORK_ME = true;
                 break;
             case NOTIFICATION_CATEGORY_CREAD_COLLABORATE:
                 mId = NOTIFICATION_ID_CREAD_COLLABORATE;
@@ -101,6 +116,11 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
                 resId = R.drawable.ic_cread_notification_general;
                 intent = new Intent(this, UpdatesActivity.class);
                 intent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
+                GET_RESPONSE_FROM_NETWORK_ME = true;
+                GET_RESPONSE_FROM_NETWORK_INSPIRATION = true;
+                GET_RESPONSE_FROM_NETWORK_EXPLORE = true;
+                GET_RESPONSE_FROM_NETWORK_COLLABORATION_DETAILS = true;
+                GET_RESPONSE_FROM_NETWORK_MAIN = true;
                 break;
             case NOTIFICATION_CATEGORY_CREAD_HATSOFF:
                 mId = NOTIFICATION_ID_CREAD_HATSOFF;
@@ -110,6 +130,11 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
                 resId = R.drawable.ic_cread_notification_general;
                 intent = new Intent(this, UpdatesActivity.class);
                 intent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
+                GET_RESPONSE_FROM_NETWORK_HATSOFF = true;
+                GET_RESPONSE_FROM_NETWORK_ENTITY_SPECIFIC = true;
+                GET_RESPONSE_FROM_NETWORK_EXPLORE = true;
+                GET_RESPONSE_FROM_NETWORK_ME = true;
+                GET_RESPONSE_FROM_NETWORK_MAIN = true;
                 break;
             case NOTIFICATION_CATEGORY_CREAD_COMMENT:
                 mId = NOTIFICATION_ID_CREAD_COMMENT;
@@ -119,6 +144,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
                 resId = R.drawable.ic_cread_notification_general;
                 intent = new Intent(this, UpdatesActivity.class);
                 intent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
+                GET_RESPONSE_FROM_NETWORK_COMMENTS = true;
                 break;
             case NOTIFICATION_CATEGORY_CREAD_BUY:
                 mId = NOTIFICATION_ID_CREAD_BUY;
@@ -136,15 +162,16 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
                 intent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
                 break;
             case NOTIFICATION_CATEGORY_CREAD_COMMENT_OTHER:
-                mId = NOTIFICATION_ID_CREAD_COMMENT;
+                mId = NOTIFICATION_ID_CREAD_COMMENT_OTHER;
                 entityID = data.get("entityid");
                 actorUserImage = data.get("actorimage");
                 resId = R.drawable.ic_cread_notification_general;
                 intent = new Intent(this, UpdatesActivity.class);
                 intent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
+                GET_RESPONSE_FROM_NETWORK_COMMENTS = true;
                 break;
             case NOTIFICATION_CATEGORY_CREAD_TOP_POST:
-                mId = NOTIFICATION_ID_CREAD_COMMENT;
+                mId = NOTIFICATION_ID_CREAD_TOP_POST;
                 entityID = data.get("entityid");
                 entityImage = data.get("entityimage");
                 resId = R.drawable.ic_cread_notification_general;
