@@ -27,6 +27,7 @@ import com.thetestament.cread.BuildConfig;
 import com.thetestament.cread.Manifest;
 import com.thetestament.cread.R;
 import com.thetestament.cread.adapters.ExploreAdapter;
+import com.thetestament.cread.helpers.FeedHelper;
 import com.thetestament.cread.helpers.ImageHelper;
 import com.thetestament.cread.helpers.SharedPreferenceHelper;
 import com.thetestament.cread.helpers.ViewHelper;
@@ -64,7 +65,7 @@ import static com.thetestament.cread.utils.Constant.REQUEST_CODE_FEED_DESCRIPTIO
 import static com.thetestament.cread.utils.Constant.REQUEST_CODE_OPEN_GALLERY_FOR_CAPTURE;
 
 
-public class HashTagDetailsFragment extends Fragment {
+public class HashTagDetailsFragment extends Fragment implements listener.OnCollaborationListener {
 
     @BindView(R.id.rootView)
     CoordinatorLayout rootView;
@@ -85,6 +86,9 @@ public class HashTagDetailsFragment extends Fragment {
 
     @State
     String mShortId, hashTag;
+
+    @State
+    String mEntityID, mEntityType;
 
 
     @Nullable
@@ -110,6 +114,13 @@ public class HashTagDetailsFragment extends Fragment {
         mUnbinder = ButterKnife.bind(this, view);
         initScreen();
 
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        //Set Listener
+        new FeedHelper().setOnCaptureClickListener(this);
     }
 
     @Override
@@ -156,7 +167,7 @@ public class HashTagDetailsFragment extends Fragment {
                 if (resultCode == RESULT_OK) {
                     //Get cropped image Uri
                     Uri mCroppedImgUri = UCrop.getOutput(data);
-                    ImageHelper.processCroppedImage(mCroppedImgUri, getActivity(), rootView, mShortId);
+                    ImageHelper.processCroppedImage(mCroppedImgUri, getActivity(), rootView, mEntityID, mEntityType);
 
                 } else if (resultCode == UCrop.RESULT_ERROR) {
                     ViewHelper.getSnackBar(rootView, "Image could not be cropped due to some error");
@@ -579,6 +590,7 @@ public class HashTagDetailsFragment extends Fragment {
                     // set collaborator details
                     exploreData.setCollabWithUUID(collabObject.getString("uuid"));
                     exploreData.setCollabWithName(collabObject.getString("name"));
+                    exploreData.setCollaboWithEntityID(collabObject.getString("entityid"));
 
                 } else {
                     exploreData.setAvailableForCollab(true);
@@ -600,6 +612,7 @@ public class HashTagDetailsFragment extends Fragment {
                     // set collaborator details
                     exploreData.setCollabWithUUID(collabObject.getString("uuid"));
                     exploreData.setCollabWithName(collabObject.getString("name"));
+                    exploreData.setCollaboWithEntityID(collabObject.getString("entityid"));
                 } else {
                     exploreData.setAvailableForCollab(true);
                 }
@@ -614,4 +627,31 @@ public class HashTagDetailsFragment extends Fragment {
         }
     }
 
+    @Override
+    public void collaborationOnGraphic() {
+
+    }
+
+    @Override
+    public void collaborationOnWriting(String entityID, String entityType) {
+        //Set entity id
+        mEntityID = entityID;
+        mEntityType = entityType;
+        //Check for Write permission
+        if (Nammu.checkPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+            //We have permission do whatever you want to do
+            ImageHelper.chooseImageFromGallery(HashTagDetailsFragment.this);
+        } else {
+            //We do not own this permission
+            if (Nammu.shouldShowRequestPermissionRationale(HashTagDetailsFragment.this
+                    , Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+                //User already refused to give us this permission or removed it
+                ViewHelper.getToast(getActivity()
+                        , getString(R.string.error_msg_capture_permission_denied));
+            } else {
+                //First time asking for permission
+                Nammu.askForPermission(HashTagDetailsFragment.this, Manifest.permission.WRITE_EXTERNAL_STORAGE, captureWritePermission);
+            }
+        }
+    }
 }

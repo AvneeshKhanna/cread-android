@@ -392,6 +392,7 @@ public class FeedHelper {
                 // set collaborator details
                 feedData.setCollabWithUUID(collabObject.getString("uuid"));
                 feedData.setCollabWithName(collabObject.getString("name"));
+                feedData.setCollaboWithEntityID(collabObject.getString("entityid"));
 
             } else {
                 feedData.setAvailableForCollab(true);
@@ -413,6 +414,7 @@ public class FeedHelper {
                 // set collaborator details
                 feedData.setCollabWithUUID(collabObject.getString("uuid"));
                 feedData.setCollabWithName(collabObject.getString("name"));
+                feedData.setCollaboWithEntityID(collabObject.getString("entityid"));
             } else {
                 feedData.setAvailableForCollab(true);
             }
@@ -478,7 +480,7 @@ public class FeedHelper {
      * @param context  Context to use.
      * @param entityId entity ID of writing.
      */
-    public static void collabOnCollab(View view, final FragmentActivity context, final String entityId, final boolean merchantable) {
+    public static void collabOnCollab(View view, final FragmentActivity context, final String entityId, final boolean merchantable, final String entityType) {
         view.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -493,16 +495,16 @@ public class FeedHelper {
                     @Override
                     public void onShareDialogItemClicked(int index) {
                         switch (index) {
-                            //Add photo/graphic art on writing
+                            //Write on photo/graphics art
                             case 0:
                                 loadCollaborationData(context, entityId, merchantable);
                                 //Dismiss dialog
                                 dialog.dismiss();
                                 break;
-                            //Write on photo/graphics art
+                            //Add photo/graphic art on writing
                             case 1:
                                 //Set listener
-                                onCollaborationListener.collaborationOnWriting(entityId);
+                                onCollaborationListener.collaborationOnWriting(entityId, entityType);
                                 //Dismiss dialog
                                 dialog.dismiss();
                                 break;
@@ -596,7 +598,7 @@ public class FeedHelper {
                     // showing collaborate button
                     buttonCollaborate.setVisibility(View.VISIBLE);
 
-                    collabOnCollab(buttonCollaborate, context, feedData.getEntityID(), feedData.isMerchantable());
+                    collabOnCollab(buttonCollaborate, context, feedData.getEntityID(), feedData.isMerchantable(), feedData.getContentType());
 
                     // get text indexes
                     int creatorStartPos = text.indexOf(feedData.getCreatorName());
@@ -629,9 +631,9 @@ public class FeedHelper {
 
                             if (new SharedPreferenceHelper(context).isWriteIconTooltipFirstTime()) {
                                 // open dialog
-                                getCaptureOnClickDialog(context, feedData.getShortID());
+                                getCaptureOnClickDialog(context, feedData.getEntityID(), feedData.getContentType());
                             } else {
-                                onCollaborationListener.collaborationOnWriting(feedData.getShortID());
+                                onCollaborationListener.collaborationOnWriting(feedData.getEntityID(), feedData.getContentType());
                             }
                             //Log Firebase event
                             // setAnalytics(FIREBASE_EVENT_CAPTURE_CLICKED);
@@ -655,7 +657,7 @@ public class FeedHelper {
                     buttonCollaborate.setVisibility(View.VISIBLE);
 
 
-                    collabOnCollab(buttonCollaborate, context, feedData.getEntityID(), feedData.isMerchantable());
+                    collabOnCollab(buttonCollaborate, context, feedData.getCollaboWithEntityID(), feedData.isMerchantable(), feedData.getContentType());
 
                     //String text = mFeedData.getCreatorName() + " wrote a short on " + mFeedData.getCollabWithName() + "'s capture";
 
@@ -725,7 +727,7 @@ public class FeedHelper {
     /**
      * Method to show intro dialog when user collaborated by clicking on capture
      */
-    private static void getCaptureOnClickDialog(final FragmentActivity context, final String shortID) {
+    private static void getCaptureOnClickDialog(final FragmentActivity context, final String entityID, final String entityType) {
         MaterialDialog dialog = new MaterialDialog.Builder(context)
                 .customView(R.layout.dialog_generic, false)
                 .positiveText(context.getString(R.string.text_ok))
@@ -733,7 +735,7 @@ public class FeedHelper {
                     @Override
                     public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
                         //Open capture functionality
-                        onCollaborationListener.collaborationOnWriting(shortID);
+                        onCollaborationListener.collaborationOnWriting(entityID, entityType);
 
                         dialog.dismiss();
                         //update status
@@ -755,6 +757,13 @@ public class FeedHelper {
         textDesc.setText(context.getString(R.string.text_dialog_collab_capture));
     }
 
+    /**
+     * Method to retrieve capture data from the server.
+     *
+     * @param context      FragmentActivity context.
+     * @param entityID     Entity ID of content.
+     * @param merchantable Merchantable status.
+     */
     private static void loadCollaborationData(final FragmentActivity context, String entityID, final boolean merchantable) {
         final ProgressBar progressBar = new ProgressBar(context);
         Rx2AndroidNetworking.get(BuildConfig.URL + "/entity-manage/load-captureid")

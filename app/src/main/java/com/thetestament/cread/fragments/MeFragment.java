@@ -179,7 +179,7 @@ public class MeFragment extends Fragment implements listener.OnCollaborationList
     String mRequestedUUID;
 
     @State
-    String mShortID;
+    String mEntityID, mEntityType;
     Bitmap mBitmap;
 
     private List<FeedModel> mUserActivityDataList = new ArrayList<>();
@@ -267,7 +267,7 @@ public class MeFragment extends Fragment implements listener.OnCollaborationList
                 if (resultCode == RESULT_OK) {
                     //Get cropped image Uri
                     Uri mCroppedImgUri = UCrop.getOutput(data);
-                    ImageHelper.processCroppedImage(mCroppedImgUri, getActivity(), rootView, mShortID);
+                    ImageHelper.processCroppedImage(mCroppedImgUri, getActivity(), rootView, mEntityID, mEntityType);
 
                 } else if (resultCode == UCrop.RESULT_ERROR) {
                     ViewHelper.getSnackBar(rootView, "Image could not be cropped due to some error");
@@ -1064,6 +1064,7 @@ public class MeFragment extends Fragment implements listener.OnCollaborationList
                                             // set collaborator details
                                             data.setCollabWithUUID(collabObject.getString("uuid"));
                                             data.setCollabWithName(collabObject.getString("name"));
+                                            data.setCollaboWithEntityID(collabObject.getString("entityid"));
 
                                         } else {
                                             data.setAvailableForCollab(true);
@@ -1085,6 +1086,7 @@ public class MeFragment extends Fragment implements listener.OnCollaborationList
                                             // set collaborator details
                                             data.setCollabWithUUID(collabObject.getString("uuid"));
                                             data.setCollabWithName(collabObject.getString("name"));
+                                            data.setCollaboWithEntityID(collabObject.getString("entityid"));
                                         } else {
                                             data.setAvailableForCollab(true);
                                         }
@@ -1243,6 +1245,7 @@ public class MeFragment extends Fragment implements listener.OnCollaborationList
                                             // set collaborator details
                                             data.setCollabWithUUID(collabObject.getString("uuid"));
                                             data.setCollabWithName(collabObject.getString("name"));
+                                            data.setCollaboWithEntityID(collabObject.getString("entityid"));
 
                                         } else {
                                             data.setAvailableForCollab(true);
@@ -1263,6 +1266,7 @@ public class MeFragment extends Fragment implements listener.OnCollaborationList
                                             // set collaborator details
                                             data.setCollabWithUUID(collabObject.getString("uuid"));
                                             data.setCollabWithName(collabObject.getString("name"));
+                                            data.setCollaboWithEntityID(collabObject.getString("entityid"));
                                         } else {
                                             data.setAvailableForCollab(true);
                                         }
@@ -1527,7 +1531,7 @@ public class MeFragment extends Fragment implements listener.OnCollaborationList
             @Override
             public void onClick(String shortID) {
                 //Set entity id
-                mShortID = shortID;
+                mEntityID = shortID;
                 //Check for Write permission
                 if (Nammu.checkPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
                     //We have permission do whatever you want to do
@@ -1825,16 +1829,16 @@ public class MeFragment extends Fragment implements listener.OnCollaborationList
         return count == 0;
     }
 
-
     @Override
     public void collaborationOnGraphic() {
 
     }
 
     @Override
-    public void collaborationOnWriting(String shortID) {
-//Set entity id
-        mShortID = shortID;
+    public void collaborationOnWriting(String entityID, String entityType) {
+        //Set entity id
+        mEntityID = entityID;
+        mEntityID = entityType;
         //Check for Write permission
         if (Nammu.checkPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
             //We have permission do whatever you want to do

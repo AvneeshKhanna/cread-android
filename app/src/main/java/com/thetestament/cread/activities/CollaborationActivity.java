@@ -733,14 +733,14 @@ public class CollaborationActivity extends BaseActivity implements ColorChooserD
 
         //Map for request data
         Map<String, String> requestMap = new HashMap<>();
-        requestMap.put("uuid", mHelper.getUUID());
-        requestMap.put("authkey", mHelper.getAuthToken());
         requestMap.put("entityid", mEntityID);
         requestMap.put("type", mEntityType);
 
 
         Rx2AndroidNetworking.get(BuildConfig.URL + "/manage-short/load-specific")
-                .addHeaders(requestMap)
+                .addHeaders("uuid", mHelper.getUUID())
+                .addHeaders("authkey", mHelper.getAuthToken())
+                .addQueryParameter(requestMap)
                 .build()
                 .getJSONObjectObservable()
                 .observeOn(AndroidSchedulers.mainThread())

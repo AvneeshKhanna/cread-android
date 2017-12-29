@@ -115,7 +115,7 @@ public class FeedFragment extends Fragment implements listener.OnCollaborationLi
     private boolean mRequestMoreData;
 
     @State
-    String mShortId;
+    String mEntityID, mEntityType;
     Bitmap mBitmap;
     FeedModel entitySpecificData;
 
@@ -204,7 +204,7 @@ public class FeedFragment extends Fragment implements listener.OnCollaborationLi
                 if (resultCode == RESULT_OK) {
                     //Get cropped image Uri
                     Uri mCroppedImgUri = UCrop.getOutput(data);
-                    ImageHelper.processCroppedImage(mCroppedImgUri, getActivity(), rootView, mShortId);
+                    ImageHelper.processCroppedImage(mCroppedImgUri, getActivity(), rootView, mEntityID, mEntityType);
                 } else if (resultCode == UCrop.RESULT_ERROR) {
                     ViewHelper.getSnackBar(rootView, "Image could not be cropped due to some error");
                 }
@@ -391,6 +391,7 @@ public class FeedFragment extends Fragment implements listener.OnCollaborationLi
                                                     // set collaborator details
                                                     feedData.setCollabWithUUID(collabObject.getString("uuid"));
                                                     feedData.setCollabWithName(collabObject.getString("name"));
+                                                    feedData.setCollaboWithEntityID(collabObject.getString("entityid"));
 
                                                 } else {
                                                     feedData.setAvailableForCollab(true);
@@ -412,6 +413,7 @@ public class FeedFragment extends Fragment implements listener.OnCollaborationLi
                                                     // set collaborator details
                                                     feedData.setCollabWithUUID(collabObject.getString("uuid"));
                                                     feedData.setCollabWithName(collabObject.getString("name"));
+                                                    feedData.setCollaboWithEntityID(collabObject.getString("entityid"));
                                                 } else {
                                                     feedData.setAvailableForCollab(true);
                                                 }
@@ -533,6 +535,7 @@ public class FeedFragment extends Fragment implements listener.OnCollaborationLi
                                             // set collaborator details
                                             feedData.setCollabWithUUID(collabObject.getString("uuid"));
                                             feedData.setCollabWithName(collabObject.getString("name"));
+                                            feedData.setCollaboWithEntityID(collabObject.getString("entityid"));
 
                                         } else {
                                             feedData.setAvailableForCollab(true);
@@ -553,6 +556,7 @@ public class FeedFragment extends Fragment implements listener.OnCollaborationLi
                                             // set collaborator details
                                             feedData.setCollabWithUUID(collabObject.getString("uuid"));
                                             feedData.setCollabWithName(collabObject.getString("name"));
+                                            feedData.setCollaboWithEntityID(collabObject.getString("entityid"));
                                         } else {
                                             feedData.setAvailableForCollab(true);
                                         }
@@ -644,7 +648,7 @@ public class FeedFragment extends Fragment implements listener.OnCollaborationLi
             @Override
             public void onClick(String shortId) {
                 //Set entity id
-                mShortId = shortId;
+                mEntityID = shortId;
                 //Check for Write permission
                 if (Nammu.checkPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
                     //We have permission do whatever you want to do
@@ -921,15 +925,15 @@ public class FeedFragment extends Fragment implements listener.OnCollaborationLi
     }
 
 
-
     @Override
     public void collaborationOnGraphic() {
 
     }
 
     @Override
-    public void collaborationOnWriting(String shortID) {
-        mShortId = shortID;
+    public void collaborationOnWriting(String entityID, String entityType) {
+        mEntityID = entityID;
+        mEntityType = entityType;
         //Check for Write permission
         if (Nammu.checkPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
             //We have permission do whatever you want to do

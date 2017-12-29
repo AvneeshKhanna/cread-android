@@ -97,7 +97,7 @@ public class ExploreFragment extends Fragment implements listener.OnCollaboratio
     private boolean mRequestMoreData;
 
     @State
-    String mShortId;
+    String mEntityID, mEntityType;
 
     @Nullable
     @Override
@@ -177,7 +177,7 @@ public class ExploreFragment extends Fragment implements listener.OnCollaboratio
                 if (resultCode == RESULT_OK) {
                     //Get cropped image Uri
                     Uri mCroppedImgUri = UCrop.getOutput(data);
-                    ImageHelper.processCroppedImage(mCroppedImgUri, getActivity(), rootView, mShortId);
+                    ImageHelper.processCroppedImage(mCroppedImgUri, getActivity(), rootView, mEntityID, mEntityType);
 
                 } else if (resultCode == UCrop.RESULT_ERROR) {
                     ViewHelper.getSnackBar(rootView, "Image could not be cropped due to some error");
@@ -370,6 +370,7 @@ public class ExploreFragment extends Fragment implements listener.OnCollaboratio
                                             // set collaborator details
                                             exploreData.setCollabWithUUID(collabObject.getString("uuid"));
                                             exploreData.setCollabWithName(collabObject.getString("name"));
+                                            exploreData.setCollaboWithEntityID(collabObject.getString("entityid"));
 
                                         } else {
                                             exploreData.setAvailableForCollab(true);
@@ -391,6 +392,7 @@ public class ExploreFragment extends Fragment implements listener.OnCollaboratio
                                             // set collaborator details
                                             exploreData.setCollabWithUUID(collabObject.getString("uuid"));
                                             exploreData.setCollabWithName(collabObject.getString("name"));
+                                            exploreData.setCollaboWithEntityID(collabObject.getString("entityid"));
                                         } else {
                                             exploreData.setAvailableForCollab(true);
                                         }
@@ -507,6 +509,7 @@ public class ExploreFragment extends Fragment implements listener.OnCollaboratio
                                             // set collaborator details
                                             exploreData.setCollabWithUUID(collabObject.getString("uuid"));
                                             exploreData.setCollabWithName(collabObject.getString("name"));
+                                            exploreData.setCollaboWithEntityID(collabObject.getString("entityid"));
 
                                         } else {
                                             exploreData.setAvailableForCollab(true);
@@ -528,6 +531,7 @@ public class ExploreFragment extends Fragment implements listener.OnCollaboratio
                                             // set collaborator details
                                             exploreData.setCollabWithUUID(collabObject.getString("uuid"));
                                             exploreData.setCollabWithName(collabObject.getString("name"));
+                                            exploreData.setCollaboWithEntityID(collabObject.getString("entityid"));
                                         } else {
                                             exploreData.setAvailableForCollab(true);
                                         }
@@ -680,7 +684,7 @@ public class ExploreFragment extends Fragment implements listener.OnCollaboratio
             @Override
             public void onClick(String shortId) {
                 //Set entity id
-                mShortId = shortId;
+                mEntityID = shortId;
                 //Check for Write permission
                 if (Nammu.checkPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
                     //We have permission do whatever you want to do
@@ -754,9 +758,10 @@ public class ExploreFragment extends Fragment implements listener.OnCollaboratio
     }
 
     @Override
-    public void collaborationOnWriting(String shortId) {
+    public void collaborationOnWriting(String entityID, String entityType) {
         //Set entity id
-        mShortId = shortId;
+        mEntityID = entityID;
+        mEntityType = entityType;
         //Check for Write permission
         if (Nammu.checkPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
             //We have permission do whatever you want to do

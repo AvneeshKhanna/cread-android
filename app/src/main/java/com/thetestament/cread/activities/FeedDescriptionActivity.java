@@ -208,7 +208,7 @@ public class FeedDescriptionActivity extends BaseActivity implements listener.On
                 if (resultCode == RESULT_OK) {
                     //Get cropped image Uri
                     Uri mCroppedImgUri = UCrop.getOutput(data);
-                    ImageHelper.processCroppedImage(mCroppedImgUri, FeedDescriptionActivity.this, rootView, mFeedData.getShortID());
+                    ImageHelper.processCroppedImage(mCroppedImgUri, FeedDescriptionActivity.this, rootView, mFeedData.getEntityID(), mFeedData.getContentType());
 
                 } else if (resultCode == UCrop.RESULT_ERROR) {
                     ViewHelper.getSnackBar(rootView, "Image could not be cropped due to some error");
@@ -709,7 +709,7 @@ public class FeedDescriptionActivity extends BaseActivity implements listener.On
                     // showing collaborate button
                     buttonCollaborate.setVisibility(View.VISIBLE);
 
-                    collabOnCollab(buttonCollaborate, mContext, mFeedData.getEntityID(), mFeedData.isMerchantable());
+                    collabOnCollab(buttonCollaborate, mContext, mFeedData.getEntityID(), mFeedData.isMerchantable(), mFeedData.getContentType());
 
                     // get text indexes
                     int creatorStartPos = text.indexOf(mFeedData.getCreatorName());
@@ -760,7 +760,7 @@ public class FeedDescriptionActivity extends BaseActivity implements listener.On
                     // showing collaborate button
                     buttonCollaborate.setVisibility(View.VISIBLE);
 
-                    collabOnCollab(buttonCollaborate, mContext, mFeedData.getEntityID(), mFeedData.isMerchantable());
+                    collabOnCollab(buttonCollaborate, mContext, mFeedData.getEntityID(), mFeedData.isMerchantable(), mFeedData.getContentType());
 
 
                     //String text = mFeedData.getCreatorName() + " wrote a short on " + mFeedData.getCollabWithName() + "'s capture";
@@ -1101,7 +1101,7 @@ public class FeedDescriptionActivity extends BaseActivity implements listener.On
     }
 
     @Override
-    public void collaborationOnWriting(String shortId) {
+    public void collaborationOnWriting(String shortId, String entityType) {
         //Check for Write permission
         if (Nammu.checkPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
             //We have permission do whatever you want to do

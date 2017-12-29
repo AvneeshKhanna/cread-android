@@ -16,6 +16,7 @@ public class FeedModel implements Parcelable {
     private long hatsOffCount, commentCount, collabCount;
     private String contentType;
     private String contentImage;
+    private String collaboWithEntityID;
 
 
     //Required constructor
@@ -167,6 +168,14 @@ public class FeedModel implements Parcelable {
         this.caption = caption;
     }
 
+    public String getCollaboWithEntityID() {
+        return collaboWithEntityID;
+    }
+
+    public void setCollaboWithEntityID(String collaboWithEntityID) {
+        this.collaboWithEntityID = collaboWithEntityID;
+    }
+
     @Override
     public int describeContents() {
         return 0;
@@ -192,6 +201,7 @@ public class FeedModel implements Parcelable {
         parcel.writeString(collabWithName);
         parcel.writeLong(getCollabCount());
         parcel.writeString(caption);
+        parcel.writeString(collaboWithEntityID);
     }
 
 
@@ -226,6 +236,7 @@ public class FeedModel implements Parcelable {
         collabWithName = in.readString();
         collabCount = in.readLong();
         caption = in.readString();
+        collaboWithEntityID = in.readString();
     }
 
 }

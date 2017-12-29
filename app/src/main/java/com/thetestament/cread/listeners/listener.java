@@ -251,6 +251,10 @@ public class listener {
     public interface OnCollaborationListener {
         void collaborationOnGraphic();
 
-        void collaborationOnWriting(String entityID);
+        /**
+         * @param entityID   entity ID of content.
+         * @param entityType entity type of content.
+         */
+        void collaborationOnWriting(String entityID, String entityType);
     }
 }
