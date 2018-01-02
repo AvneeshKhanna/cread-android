@@ -47,7 +47,14 @@
                 android:alpha="0.4"
                 android:background="@color/grey_dark" />
 
-
+            <!--Image loading progress view-->
+            <include
+                android:id="@+id/imageProgressView"
+                layout="@layout/layout_progress_bar"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerInParent="true"
+                android:visibility="gone" />
         </com.thetestament.cread.utils.SquareView>
 
 
@@ -119,6 +126,6 @@
     </RelativeLayout>
 
     <!--Font option bottom sheet-->
-      <include layout="@layout/layout_font_bottom_sheet" />
+    <include layout="@layout/layout_font_bottom_sheet" />
 
 </android.support.design.widget.CoordinatorLayout>

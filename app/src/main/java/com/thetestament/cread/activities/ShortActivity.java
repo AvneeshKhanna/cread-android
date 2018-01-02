@@ -117,6 +117,8 @@ public class ShortActivity extends BaseActivity implements ColorChooserDialog.Co
     View viewFormatTextSize;
     @BindView(R.id.formatOptions)
     View formatOptions;
+    @BindView(R.id.imageProgressView)
+    View imageProgressView;
 
 
     @BindView(R.id.bottomSheetView)
@@ -703,7 +705,7 @@ public class ShortActivity extends BaseActivity implements ColorChooserDialog.Co
                 //Show edit text cursor
                 textShort.setCursorVisible(true);
                 //Add tint to imageView
-                imageShort.setColorFilter(ContextCompat.getColor(ShortActivity.this, R.color.black_overlay));
+                imageShort.setColorFilter(ContextCompat.getColor(ShortActivity.this, R.color.transparent));
                 //Show keyboard
                 InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
                 imm.showSoftInput(textShort, 0);
@@ -724,11 +726,15 @@ public class ShortActivity extends BaseActivity implements ColorChooserDialog.Co
      * @param imageUrl  URL of image to be loaded.
      */
     private void loadCapture(ImageView imageView, final String imageUrl) {
+        //Show progress indicator
+        imageProgressView.setVisibility(View.VISIBLE);
         Picasso.with(this)
                 .load(imageUrl)
                 .into(imageView, new Callback() {
                     @Override
                     public void onSuccess() {
+                        //Hide progress indicator
+                        imageProgressView.setVisibility(View.GONE);
                         Picasso.with(ShortActivity.this).load(imageUrl).into(new Target() {
                             @Override
                             public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
@@ -785,7 +791,8 @@ public class ShortActivity extends BaseActivity implements ColorChooserDialog.Co
 
                     @Override
                     public void onError() {
-
+                        //Hide progress indicator
+                        imageProgressView.setVisibility(View.GONE);
                     }
                 });
     }
