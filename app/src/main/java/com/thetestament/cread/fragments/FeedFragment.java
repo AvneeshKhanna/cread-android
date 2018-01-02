@@ -43,7 +43,6 @@ import com.thetestament.cread.helpers.ImageHelper;
 import com.thetestament.cread.helpers.SharedPreferenceHelper;
 import com.thetestament.cread.helpers.ViewHelper;
 import com.thetestament.cread.listeners.listener;
-import com.thetestament.cread.listeners.listener.OnFeedCaptureClickListener;
 import com.thetestament.cread.models.FeedModel;
 import com.thetestament.cread.utils.Constant;
 import com.yalantis.ucrop.UCrop;
@@ -274,7 +273,6 @@ public class FeedFragment extends Fragment implements listener.OnCollaborationLi
         //Initialize listeners
         initLoadMoreListener(mAdapter);
         initHatsOffListener(mAdapter);
-        initCaptureListener(mAdapter);
         initShareListener(mAdapter);
         initShareLinkClickedListener();
         //Load data here
@@ -638,36 +636,6 @@ public class FeedFragment extends Fragment implements listener.OnCollaborationLi
         });
     }
 
-    /**
-     * Initialize capture listener.
-     *
-     * @param feedAdapter FeedAdapter reference
-     */
-    private void initCaptureListener(FeedAdapter feedAdapter) {
-        feedAdapter.setOnFeedCaptureClickListener(new OnFeedCaptureClickListener() {
-            @Override
-            public void onClick(String shortId) {
-                //Set entity id
-                mEntityID = shortId;
-                //Check for Write permission
-                if (Nammu.checkPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
-                    //We have permission do whatever you want to do
-                    ImageHelper.chooseImageFromGallery(FeedFragment.this);
-                } else {
-                    //We do not own this permission
-                    if (Nammu.shouldShowRequestPermissionRationale(FeedFragment.this
-                            , Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
-                        //User already refused to give us this permission or removed it
-                        ViewHelper.getToast(getActivity()
-                                , getString(R.string.error_msg_capture_permission_denied));
-                    } else {
-                        //First time asking for permission
-                        Nammu.askForPermission(FeedFragment.this, Manifest.permission.WRITE_EXTERNAL_STORAGE, captureWritePermission);
-                    }
-                }
-            }
-        });
-    }
 
     /**
      * Used to handle result of askForPermission for capture.

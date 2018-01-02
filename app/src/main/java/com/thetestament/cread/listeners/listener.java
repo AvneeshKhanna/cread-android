@@ -151,12 +151,6 @@ public class listener {
         void onDelete(String entityID, int position);
     }
 
-    /**
-     * Interface definition for callback to be invoked when user clicks on capture button for collaboration(MeFragment).
-     */
-    public interface OnMeCaptureClickListener {
-        void onClick(String shortId);
-    }
 
     /**
      * Interface definition for callback to be invoked when user clicks on capture button for collaboration(ExploreFragment).
@@ -165,12 +159,6 @@ public class listener {
         void onClick(String shortId);
     }
 
-    /**
-     * Interface definition for callback to be invoked when user clicks on capture button for collaboration(FeedFragment).
-     */
-    public interface OnFeedCaptureClickListener {
-        void onClick(String shortId);
-    }
 
     /**
      * Interface definition for a callback to be invoked when user scroll for more data.

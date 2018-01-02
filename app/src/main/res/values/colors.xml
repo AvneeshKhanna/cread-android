@@ -53,9 +53,9 @@
     <color name="green">#0cba6a</color>
 
     <!--Transparent  color with -->
-    <color name="transparent">#B3000000</color>
+    <color name="transparent">#80000000</color>
 
-    <!-- Color transparency 
+    <!-- Color transparency
     100% — FF
     95% — F2
     90% — E6

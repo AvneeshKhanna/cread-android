@@ -1013,7 +1013,6 @@ public class MeFragment extends Fragment implements listener.OnCollaborationList
         initLoadMoreListener(mAdapter);
         initHatsOffListener(mAdapter);
         initializeDeleteListener(mAdapter);
-        initCaptureListener(mAdapter);
         initShareListener(mAdapter);
         initShareLinkClickedListener();
     }
@@ -1541,36 +1540,6 @@ public class MeFragment extends Fragment implements listener.OnCollaborationList
                 });
     }
 
-    /**
-     * Initialize capture listener.
-     *
-     * @param meAdapter MeAdapter reference
-     */
-    private void initCaptureListener(MeAdapter meAdapter) {
-        meAdapter.setOnMeCaptureClickListener(new listener.OnMeCaptureClickListener() {
-            @Override
-            public void onClick(String entityID) {
-                //Set entity id
-                mEntityID = entityID;
-                //Check for Write permission
-                if (Nammu.checkPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
-                    //We have permission do whatever you want to do
-                    ImageHelper.chooseImageFromGallery(MeFragment.this);
-                } else {
-                    //We do not own this permission
-                    if (Nammu.shouldShowRequestPermissionRationale(MeFragment.this
-                            , Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
-                        //User already refused to give us this permission or removed it
-                        ViewHelper.getToast(getActivity()
-                                , getString(R.string.error_msg_capture_permission_denied));
-                    } else {
-                        //First time asking for permission
-                        Nammu.askForPermission(MeFragment.this, Manifest.permission.WRITE_EXTERNAL_STORAGE, captureWritePermission);
-                    }
-                }
-            }
-        });
-    }
 
     /**
      * Initialize share link listener.

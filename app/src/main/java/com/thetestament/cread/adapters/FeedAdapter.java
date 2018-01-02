@@ -5,7 +5,6 @@ import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.content.ContextCompat;
@@ -19,7 +18,6 @@ import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
-import com.afollestad.materialdialogs.DialogAction;
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.google.firebase.analytics.FirebaseAnalytics;
 import com.squareup.picasso.Picasso;
@@ -28,12 +26,10 @@ import com.thetestament.cread.R;
 import com.thetestament.cread.activities.CollaborationDetailsActivity;
 import com.thetestament.cread.activities.CommentsActivity;
 import com.thetestament.cread.activities.FeedDescriptionActivity;
-import com.thetestament.cread.activities.ShortActivity;
 import com.thetestament.cread.helpers.FeedHelper;
 import com.thetestament.cread.helpers.NetworkHelper;
 import com.thetestament.cread.helpers.SharedPreferenceHelper;
 import com.thetestament.cread.helpers.ViewHelper;
-import com.thetestament.cread.listeners.listener.OnFeedCaptureClickListener;
 import com.thetestament.cread.listeners.listener.OnFeedLoadMoreListener;
 import com.thetestament.cread.listeners.listener.OnHatsOffListener;
 import com.thetestament.cread.listeners.listener.OnShareDialogItemClickedListener;
@@ -47,19 +43,11 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import de.hdodenhof.circleimageview.CircleImageView;
 
-import static com.thetestament.cread.helpers.FeedHelper.getCollabCountText;
-import static com.thetestament.cread.helpers.FeedHelper.getCreatorText;
 import static com.thetestament.cread.helpers.FeedHelper.initializeShareDialog;
-import static com.thetestament.cread.helpers.FeedHelper.initializeSpannableString;
-import static com.thetestament.cread.utils.Constant.CONTENT_TYPE_CAPTURE;
-import static com.thetestament.cread.utils.Constant.CONTENT_TYPE_SHORT;
-import static com.thetestament.cread.utils.Constant.EXTRA_CAPTURE_ID;
-import static com.thetestament.cread.utils.Constant.EXTRA_CAPTURE_URL;
 import static com.thetestament.cread.utils.Constant.EXTRA_DATA;
 import static com.thetestament.cread.utils.Constant.EXTRA_ENTITY_ID;
 import static com.thetestament.cread.utils.Constant.EXTRA_ENTITY_TYPE;
 import static com.thetestament.cread.utils.Constant.EXTRA_FEED_DESCRIPTION_DATA;
-import static com.thetestament.cread.utils.Constant.EXTRA_MERCHANTABLE;
 import static com.thetestament.cread.utils.Constant.FIREBASE_EVENT_CAPTURE_CLICKED;
 import static com.thetestament.cread.utils.Constant.FIREBASE_EVENT_SHARED_FROM_MAIN_FEED;
 import static com.thetestament.cread.utils.Constant.FIREBASE_EVENT_WRITE_CLICKED;
@@ -82,7 +70,6 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
     private OnFeedLoadMoreListener onFeedLoadMoreListener;
     private OnHatsOffListener onHatsOffListener;
-    private OnFeedCaptureClickListener onFeedCaptureClickListener;
     private OnShareListener onShareListener;
     private OnShareLinkClickedListener onShareLinkClickedListener;
 
@@ -116,12 +103,6 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         this.onHatsOffListener = onHatsOffListener;
     }
 
-    /**
-     * Register a callback to be invoked when user clicks on capture button.
-     */
-    public void setOnFeedCaptureClickListener(OnFeedCaptureClickListener onFeedCaptureClickListener) {
-        this.onFeedCaptureClickListener = onFeedCaptureClickListener;
-    }
 
     /**
      * Register a callback to be invoked when user clicks on share button.
@@ -162,14 +143,12 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
         if (holder.getItemViewType() == VIEW_TYPE_ITEM) {
             final ItemViewHolder itemViewHolder = (ItemViewHolder) holder;
-
             //Load creator profile picture
             loadCreatorPic(data.getCreatorImage(), itemViewHolder.imageCreator);
             //Load feed image
             loadFeedImage(data.getContentImage(), itemViewHolder.imageFeed);
 
             // set text and click actions acc. to content type
-            //performContentTypeSpecificOperations(itemViewHolder, data);
             FeedHelper.performContentTypeSpecificOperations(mContext
                     , data
                     , itemViewHolder.collabCount
@@ -253,121 +232,12 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                 .into(imageView);
     }
 
-    /**
-     * Method that performs operations according to content type and collaboration functionality
-     *
-     * @param itemViewHolder item view holder
-     * @param data           data
-     */
-
-    private void performContentTypeSpecificOperations(FeedAdapter.ItemViewHolder itemViewHolder, FeedModel data) {
-
-        // initialize text
-        String text = getCreatorText(mContext, data.getContentType(), data.isAvailableForCollab(), data.getCreatorName(), data.getCollabWithName());
-
-        //Check for content type
-        switch (data.getContentType()) {
-            case CONTENT_TYPE_CAPTURE:
-
-                // set Collaboration count text
-                if (data.getCollabCount() != 0) {
-                    itemViewHolder.collabCount.setText(getCollabCountText(mContext, data.getCollabCount(), data.getContentType(), data.isAvailableForCollab()));
-                    itemViewHolder.collabCount.setVisibility(View.VISIBLE);
-                    itemViewHolder.lineSepartor.setVisibility(View.VISIBLE);
-
-                } else {
-                    itemViewHolder.collabCount.setVisibility(View.GONE);
-                    itemViewHolder.lineSepartor.setVisibility(View.GONE);
-                }
-
-                if (data.isAvailableForCollab()) {
-                    // For stand alone capture
-                    itemViewHolder.buttonCollaborate.setVisibility(View.VISIBLE);
-                    //write click functionality on capture
-                    writeOnClick(itemViewHolder.buttonCollaborate, data.getCaptureID(), data.getContentImage(), data.getEntityID(), data.isMerchantable());
-
-                    // get text indexes
-                    int creatorStartPos = text.indexOf(data.getCreatorName());
-                    int creatorEndPos = creatorStartPos + data.getCreatorName().length();
-                    int collabWithStartPos = -1;
-                    int collabWithEndPos = -1;
-
-                    // get clickable text;
-                    initializeSpannableString(mContext, itemViewHolder.textCreatorName, false, text, creatorStartPos, creatorEndPos, collabWithStartPos, collabWithEndPos, data.getUUID(), data.getCollabWithUUID());
-
-                } else {
-
-                    // showing collaborate button
-                    itemViewHolder.buttonCollaborate.setVisibility(View.VISIBLE);
-
-
-                   // collabOnCollab(itemViewHolder.buttonCollaborate, mContext, data.getEntityID(), data.isMerchantable(), data.getContentType());
-
-                    // get text indexes
-                    int creatorStartPos = text.indexOf(data.getCreatorName());
-                    int creatorEndPos = creatorStartPos + data.getCreatorName().length();
-                    int collabWithStartPos = text.indexOf(data.getCollabWithName());
-                    int collabWithEndPos = collabWithStartPos + data.getCollabWithName().length() + 2; // +2 for 's
-
-                    // get clickable text
-                    initializeSpannableString(mContext, itemViewHolder.textCreatorName, true, text, creatorStartPos, creatorEndPos, collabWithStartPos, collabWithEndPos, data.getUUID(), data.getCollabWithUUID());
-                }
-
-                break;
-
-            case CONTENT_TYPE_SHORT:
-
-                // Set collaboration count text
-                if (data.getCollabCount() != 0) {
-                    itemViewHolder.collabCount.setText(getCollabCountText(mContext, data.getCollabCount(), data.getContentType(), data.isAvailableForCollab()));
-                    itemViewHolder.collabCount.setVisibility(View.VISIBLE);
-                    itemViewHolder.lineSepartor.setVisibility(View.VISIBLE);
-
-                } else {
-                    itemViewHolder.collabCount.setVisibility(View.GONE);
-                    itemViewHolder.lineSepartor.setVisibility(View.GONE);
-                }
-
-                // check if available for collaboration
-                if (data.isAvailableForCollab()) {
-                    // for stand alone short
-                    itemViewHolder.buttonCollaborate.setVisibility(View.VISIBLE);
-                    // capture click functionality on short
-                    captureOnClick(itemViewHolder.buttonCollaborate, data.getEntityID(), data.getShortID());
-
-                    // get text indexes
-                    int creatorStartPos = text.indexOf(data.getCreatorName());
-                    int creatorEndPos = creatorStartPos + data.getCreatorName().length();
-                    int collabWithStartPos = -1; // since no collabwith
-                    int collabWithEndPos = -1; // since no collabwith
-
-                    initializeSpannableString(mContext, itemViewHolder.textCreatorName, false, text, creatorStartPos, creatorEndPos, collabWithStartPos, collabWithEndPos, data.getUUID(), data.getCollabWithUUID());
-
-                } else {
-                    // showing collaborate button
-                    itemViewHolder.buttonCollaborate.setVisibility(View.VISIBLE);
-
-                   // collabOnCollab(itemViewHolder.buttonCollaborate, mContext, data.getEntityID(), data.isMerchantable(), data.getContentType());
-                    // get text indexes
-                    int creatorStartPos = text.indexOf(data.getCreatorName());
-                    int creatorEndPos = creatorStartPos + data.getCreatorName().length();
-                    int collabWithStartPos = text.indexOf(data.getCollabWithName());
-                    int collabWithEndPos = collabWithStartPos + data.getCollabWithName().length() + 2; // +2 to incorporate 's
-                    // get clickable text
-                    initializeSpannableString(mContext, itemViewHolder.textCreatorName, true, text, creatorStartPos, creatorEndPos, collabWithStartPos, collabWithEndPos, data.getUUID(), data.getCollabWithUUID());
-                }
-
-                break;
-            default:
-        }
-
-    }
-
 
     /**
      * Method to check hatsOff status and perform operation accordingly.
      */
     private void checkHatsOffStatus(boolean hatsOffStatus, ItemViewHolder itemViewHolder) {
+        //fixme
         if (hatsOffStatus) {
             itemViewHolder.imageHatsOff.setColorFilter(ContextCompat.getColor(mContext, R.color.colorPrimary));
             //Animation for hats off
@@ -381,7 +251,7 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
 
     /**
-     * ItemView collabOnWritingClick functionality.
+     * ItemView onClick functionality.
      *
      * @param view      View to be clicked.
      * @param feedModel Data set for current item
@@ -400,59 +270,6 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             }
         });
     }
-
-    /**
-     * write collabOnWritingClick functionality.
-     *
-     * @param view       View to be clicked.
-     * @param captureID  CaptureID of image.
-     * @param captureURL Capture image url.
-     */
-    private void writeOnClick(View view, final String captureID, final String captureURL, final String entityID, final boolean merchantable) {
-        view.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-
-                if (mHelper.isCaptureIconTooltipFirstTime()) {
-                    getShortOnClickDialog(captureID, captureURL, merchantable);
-                } else {
-                    Bundle bundle = new Bundle();
-                    bundle.putString(EXTRA_CAPTURE_ID, captureID);
-                    bundle.putString(EXTRA_CAPTURE_URL, captureURL);
-                    bundle.putBoolean(EXTRA_MERCHANTABLE, merchantable);
-
-                    Intent intent = new Intent(mContext, ShortActivity.class);
-                    intent.putExtra(EXTRA_DATA, bundle);
-                    mContext.startActivity(intent);
-                }
-                //Log Firebase event
-                setAnalytics(FIREBASE_EVENT_WRITE_CLICKED, entityID);
-            }
-        });
-    }
-
-    /**
-     * capture collabOnWritingClick functionality.
-     *
-     * @param view View to be clicked.
-     */
-    private void captureOnClick(View view, final String entityID, final String shoID) {
-        view.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-
-                if (mHelper.isWriteIconTooltipFirstTime()) {
-                    // open dialog
-                    getCaptureOnClickDialog(shoID);
-                } else {
-                    onFeedCaptureClickListener.onClick(shoID);
-                }
-                //Log Firebase event
-                setAnalytics(FIREBASE_EVENT_CAPTURE_CLICKED, entityID);
-            }
-        });
-    }
-
 
     /**
      * Compose collabOnWritingClick functionality.
@@ -557,86 +374,6 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         });
     }
 
-
-    /**
-     * Method to show intro dialog when user collaborated by clicking on capture
-     *
-     * @param shoID short ID on which user is collaborating
-     */
-    private void getCaptureOnClickDialog(final String shoID) {
-        MaterialDialog dialog = new MaterialDialog.Builder(mContext)
-                .customView(R.layout.dialog_generic, false)
-                .positiveText(mContext.getString(R.string.text_ok))
-                .onPositive(new MaterialDialog.SingleButtonCallback() {
-                    @Override
-                    public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
-                        //Open capture functionality
-
-                        onFeedCaptureClickListener.onClick(shoID);
-
-                        dialog.dismiss();
-                        //update status
-                        mHelper.updateWriteIconToolTipStatus(false);
-                    }
-                })
-                .show();
-        //Obtain views reference
-        ImageView fillerImage = dialog.getCustomView().findViewById(R.id.viewFiller);
-        TextView textTitle = dialog.getCustomView().findViewById(R.id.textTitle);
-        TextView textDesc = dialog.getCustomView().findViewById(R.id.textDesc);
-
-
-        ///Set filler image
-        fillerImage.setImageDrawable(ContextCompat.getDrawable(mContext, R.drawable.img_collab_intro));
-        //Set title text
-        textTitle.setText(mContext.getString(R.string.title_dialog_collab_capture));
-        //Set description text
-        textDesc.setText(mContext.getString(R.string.text_dialog_collab_capture));
-    }
-
-    /**
-     * Method to show intro dialog when user collaborated by clicking on capture
-     *
-     * @param captureID    capture ID
-     * @param captureURL   capture URl
-     * @param merchantable merchantable true or false
-     */
-    private void getShortOnClickDialog(final String captureID, final String captureURL, final boolean merchantable) {
-        MaterialDialog dialog = new MaterialDialog.Builder(mContext)
-                .customView(R.layout.dialog_generic, false)
-                .positiveText(mContext.getString(R.string.text_ok))
-                .onPositive(new MaterialDialog.SingleButtonCallback() {
-                    @Override
-                    public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
-                        //Open short functionality
-
-                        Bundle bundle = new Bundle();
-                        bundle.putString(EXTRA_CAPTURE_ID, captureID);
-                        bundle.putString(EXTRA_CAPTURE_URL, captureURL);
-                        bundle.putBoolean(EXTRA_MERCHANTABLE, merchantable);
-                        Intent intent = new Intent(mContext, ShortActivity.class);
-                        intent.putExtra(EXTRA_DATA, bundle);
-                        mContext.startActivity(intent);
-
-                        dialog.dismiss();
-                        //update status
-                        mHelper.updateCaptureIconToolTipStatus(false);
-                    }
-                })
-                .show();
-        //Obtain views reference
-        ImageView fillerImage = dialog.getCustomView().findViewById(R.id.viewFiller);
-        TextView textTitle = dialog.getCustomView().findViewById(R.id.textTitle);
-        TextView textDesc = dialog.getCustomView().findViewById(R.id.textDesc);
-
-
-        //Set filler image
-        fillerImage.setImageDrawable(ContextCompat.getDrawable(mContext, R.drawable.img_collab_intro));
-        //Set title text
-        textTitle.setText(mContext.getString(R.string.title_dialog_collab_short));
-        //Set description text
-        textDesc.setText(mContext.getString(R.string.text_dialog_collab_short));
-    }
 
     /**
      * Collaboration count click functionality to launch collaborationDetailsActivity.
