@@ -156,12 +156,6 @@ public class MeFragment extends Fragment implements listener.OnCollaborationList
     UserStatsViewPager viewPagerUserStats;
     @BindView(R.id.indicator)
     CircleIndicator indicator;
-    /*@BindView(R.id.textPostsCount)
-    TextView textPostsCount;
-    @BindView(R.id.textFollowersCount)
-    TextView textFollowersCount;
-    @BindView(R.id.textFollowingCount)
-    TextView textFollowingCount;*/
     @BindView(R.id.viewNoData)
     LinearLayout viewNoData;
     @BindView(R.id.progressView)
@@ -256,7 +250,10 @@ public class MeFragment extends Fragment implements listener.OnCollaborationList
             case REQUEST_CODE_OPEN_GALLERY_FOR_CAPTURE:
                 if (resultCode == RESULT_OK) {
                     // To crop the selected image
-                    ImageHelper.startImageCropping(getContext(), this, data.getData(), getImageUri(IMAGE_TYPE_USER_CAPTURE_PIC));
+                    ImageHelper.startImageCropping(getContext()
+                            , this
+                            , data.getData()
+                            , getImageUri(IMAGE_TYPE_USER_CAPTURE_PIC));
 
                 } else {
                     ViewHelper.getSnackBar(rootView, "Image from gallery was not attached");
@@ -267,7 +264,9 @@ public class MeFragment extends Fragment implements listener.OnCollaborationList
                 if (resultCode == RESULT_OK) {
                     //Get cropped image Uri
                     Uri mCroppedImgUri = UCrop.getOutput(data);
-                    ImageHelper.processCroppedImage(mCroppedImgUri, getActivity(), rootView, mEntityID, mEntityType);
+                    ImageHelper.processCroppedImage(mCroppedImgUri
+                            , getActivity()
+                            , rootView, mEntityID, mEntityType);
 
                 } else if (resultCode == UCrop.RESULT_ERROR) {
                     ViewHelper.getSnackBar(rootView, "Image could not be cropped due to some error");
@@ -303,7 +302,9 @@ public class MeFragment extends Fragment implements listener.OnCollaborationList
                         textBio.setText(mUserBio);
                     } else {
                         //Set user bio
-                        textBio.setText("Write what describes you");
+                        mUserBio = "";
+                        //textBio.setText("Write what describes you");
+                        textBio.setHint("Write what describes you");
                     }
 
                     //Retrieve email and watermark status
@@ -341,6 +342,34 @@ public class MeFragment extends Fragment implements listener.OnCollaborationList
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
+        }
+    }
+
+    @Override
+    public void collaborationOnGraphic() {
+
+    }
+
+    @Override
+    public void collaborationOnWriting(String entityID, String entityType) {
+        //Set entity id
+        mEntityID = entityID;
+        mEntityType = entityType;
+        //Check for Write permission
+        if (Nammu.checkPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+            //We have permission do whatever you want to do
+            ImageHelper.chooseImageFromGallery(MeFragment.this);
+        } else {
+            //We do not own this permission
+            if (Nammu.shouldShowRequestPermissionRationale(MeFragment.this
+                    , Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+                //User already refused to give us this permission or removed it
+                ViewHelper.getToast(getActivity()
+                        , getString(R.string.error_msg_capture_permission_denied));
+            } else {
+                //First time asking for permission
+                Nammu.askForPermission(MeFragment.this, Manifest.permission.WRITE_EXTERNAL_STORAGE, captureWritePermission);
+            }
         }
     }
 
@@ -382,7 +411,6 @@ public class MeFragment extends Fragment implements listener.OnCollaborationList
             showBioInputDialog();
         }
     }
-
 
     /**
      * Follow button click functionality to follow or un-follow.
@@ -438,14 +466,6 @@ public class MeFragment extends Fragment implements listener.OnCollaborationList
             ViewHelper.getSnackBar(rootView, "No followers");
         }
     }
-
-
-    /**
-     * PostContainer click functionality.
-     *//*
-    @OnClick(R.id.containerPosts)
-    void onPostsContainerClicked() {
-    }*/
 
     /*
     * Create button click functionality.
@@ -558,19 +578,19 @@ public class MeFragment extends Fragment implements listener.OnCollaborationList
     }
 
     /**
-     * Method to intitialize view pager adapter
+     * Method to initialize view pager adapter.
      */
     private void initUserStatsPager() {
         initSliders();
         UserStatsPagerAdapter mUserStatsAdapter = new UserStatsPagerAdapter(getActivity(), mLayouts);
-        // intialize click listeners on user stats
+        // initialize click listeners on user stats
         initUserStatsClickedListener(mUserStatsAdapter);
         viewPagerUserStats.setAdapter(mUserStatsAdapter);
         indicator.setViewPager(viewPagerUserStats);
     }
 
     /**
-     * Method to initialize listeners on the different user stats containers
+     * Method to initialize listeners on the different user stats containers.
      *
      * @param userStatsPagerAdapter adapter of view pager
      */
@@ -761,7 +781,7 @@ public class MeFragment extends Fragment implements listener.OnCollaborationList
                                 //Set user bio
                                 textBio.setText(mUserBio);
                             } else {
-                                mUserBio = "Write what describes you";
+                                //mUserBio = "Write what describes you";
                                 //Hide for other users
                                 if (!isProfileEditable) {
                                     textBio.setVisibility(View.GONE);
@@ -1824,36 +1844,7 @@ public class MeFragment extends Fragment implements listener.OnCollaborationList
         mHelper.updateGratitudeScroll(false);
     }
 
-
     public static boolean isCountZero(long count) {
         return count == 0;
-    }
-
-    @Override
-    public void collaborationOnGraphic() {
-
-    }
-
-    @Override
-    public void collaborationOnWriting(String entityID, String entityType) {
-        //Set entity id
-        mEntityID = entityID;
-        mEntityType = entityType;
-        //Check for Write permission
-        if (Nammu.checkPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
-            //We have permission do whatever you want to do
-            ImageHelper.chooseImageFromGallery(MeFragment.this);
-        } else {
-            //We do not own this permission
-            if (Nammu.shouldShowRequestPermissionRationale(MeFragment.this
-                    , Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
-                //User already refused to give us this permission or removed it
-                ViewHelper.getToast(getActivity()
-                        , getString(R.string.error_msg_capture_permission_denied));
-            } else {
-                //First time asking for permission
-                Nammu.askForPermission(MeFragment.this, Manifest.permission.WRITE_EXTERNAL_STORAGE, captureWritePermission);
-            }
-        }
     }
 }
