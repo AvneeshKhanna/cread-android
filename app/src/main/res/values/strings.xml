@@ -93,12 +93,16 @@
     <string name="collab_capture_count_text_single">person added a graphic art to it</string>
     <string name="collab_short_count_text_multiple">people wrote on it</string>
     <string name="collab_capture_count_text_multiple">people added a graphic art to it</string>
+    <string name="collab_general_count_text_single">person created an art using this</string>
+    <string name="collab_general_count_text_multiple">people created art using this</string>
 
     // creator text
     <string name="creator_text_standalone_short">wrote this</string>
     <string name="creator_text_standalone_capture">added a graphic art</string>
+    <string name="creator_text_collab_short_self">wrote on their graphic art</string>
     <string name="creator_text_collab_short_part1">wrote on</string>
     <string name="creator_text_collab_short_part2">graphic art</string>
+    <string name="creator_text_collab_capture_self">added a graphic art to their writing</string>
     <string name="creator_text_collab_capture_part1">added a graphic art to</string>
     <string name="creator_text_collab_capture_part2">writing</string>
 
@@ -113,5 +117,29 @@
     // add caption text
     <string name="text_add_caption">Say something about this post with #tags</string>
 
+    <string-array name="share_dialog_titles">
+        <item>Share As Image</item>
+        <item>Share As Link</item>
+    </string-array>
+
+    <string-array name="share_dialog_texts">
+        <item>"Your friends would only be able to view this post as an image"</item>
+        <item>Your friends would be redirected to this post on the Cread app</item>
+    </string-array>
+
+
+    <string-array name="collaborate_dialog_titles">
+        <item>Write on this graphic art</item>
+        <item>Add a graphic art to this writing</item>
+    </string-array>
+
+    <string-array name="collaborate_dialog_texts">
+        <item>"Picks the image from this art piece and allows you to write on it"</item>
+        <item>"Picks the writing from this art piece and allows you to add a graphic art to it</item>
+    </string-array>
+
+
+    // invite friends text
+    <string name="text_invite_friends">Hey! Check out this app where graphic artists collaborate with writers and make beautiful stuff! And if that\'s not enough, they get royalties for every artpiece that sells.\n\nGet your art on Cread now. It\'s fun! \n\n https://goo.gl/Q7zJ1n</string>
 
 </resources>

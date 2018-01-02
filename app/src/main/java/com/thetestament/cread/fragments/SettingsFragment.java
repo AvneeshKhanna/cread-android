@@ -3,7 +3,6 @@ package com.thetestament.cread.fragments;
 import android.app.NotificationManager;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.hardware.display.VirtualDisplay;
 import android.net.Uri;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
@@ -42,11 +41,11 @@ import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.schedulers.Schedulers;
 
-import static com.thetestament.cread.utils.Constant.ACTION_LOG_OUT;
 import static com.thetestament.cread.utils.Constant.EXTRA_WEB_VIEW_TITLE;
 import static com.thetestament.cread.utils.Constant.EXTRA_WEB_VIEW_URL;
 import static com.thetestament.cread.utils.Constant.FIREBASE_EVENT_FIND_FRIENDS;
 import static com.thetestament.cread.utils.Constant.FIREBASE_EVENT_RATE_US_CLICKED;
+import static com.thetestament.cread.helpers.FeedHelper.inviteFriends;
 
 public class SettingsFragment extends PreferenceFragmentCompat {
 
@@ -84,6 +83,15 @@ public class SettingsFragment extends PreferenceFragmentCompat {
                 startActivity(new Intent(getActivity(), FindFBFriendsActivity.class));
                 //Log firebase event
                 setAnalytics(FIREBASE_EVENT_FIND_FRIENDS);
+                return false;
+            }
+        });
+
+        final Preference inviteFriends = findPreference("settings_inviteFriends_key");
+        inviteFriends.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+            @Override
+            public boolean onPreferenceClick(Preference preference) {
+                inviteFriends(getActivity());
                 return false;
             }
         });

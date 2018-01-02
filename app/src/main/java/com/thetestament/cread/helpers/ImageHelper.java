@@ -34,8 +34,9 @@ import java.io.IOException;
 import id.zelory.compressor.Compressor;
 
 import static com.thetestament.cread.utils.Constant.EXTRA_DATA;
+import static com.thetestament.cread.utils.Constant.EXTRA_ENTITY_ID;
+import static com.thetestament.cread.utils.Constant.EXTRA_ENTITY_TYPE;
 import static com.thetestament.cread.utils.Constant.EXTRA_MERCHANTABLE;
-import static com.thetestament.cread.utils.Constant.EXTRA_SHORT_ID;
 import static com.thetestament.cread.utils.Constant.IMAGE_TYPE_USER_CAPTURE_PIC;
 import static com.thetestament.cread.utils.Constant.IMAGE_TYPE_USER_PROFILE_PIC;
 import static com.thetestament.cread.utils.Constant.IMAGE_TYPE_USER_SHARED_PIC;
@@ -275,9 +276,9 @@ public class ImageHelper {
      * @param uri      Uri of cropped image.
      * @param context  Context of use.
      * @param rootView Layout parent view reference.
-     * @param shortID  Short id if the content.
+     * @param entityID entity id of content.
      */
-    public static void processCroppedImage(Uri uri, Context context, View rootView, String shortID) {
+    public static void processCroppedImage(Uri uri, Context context, View rootView, String entityID, String entityType) {
         try {
             //Decode image file
             Bitmap bitmap = BitmapFactory.decodeFile(uri.getPath());
@@ -286,14 +287,15 @@ public class ImageHelper {
                 //Compress image
                 compressCroppedImg(uri, context, IMAGE_TYPE_USER_CAPTURE_PIC);
                 Bundle bundle = new Bundle();
-                bundle.putString(EXTRA_SHORT_ID, shortID);
+                bundle.putString(EXTRA_ENTITY_ID, entityID);
+                bundle.putString(EXTRA_ENTITY_TYPE, entityType);
                 bundle.putString(EXTRA_MERCHANTABLE, "1");
                 //Open preview screen
                 Intent intent = new Intent(context, CollaborationActivity.class);
                 intent.putExtra(EXTRA_DATA, bundle);
                 context.startActivity(intent);
             } else {
-                getMerchantableDialog(context, shortID);
+                getMerchantableDialog(context, entityID, entityType);
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -304,10 +306,10 @@ public class ImageHelper {
     /**
      * Method to show dialog when user uploads low resolution image.
      *
-     * @param context Context of use.
-     * @param shortID Short id if the content.
+     * @param context  Context of use.
+     * @param entityID entity id of content.
      */
-    private static void getMerchantableDialog(final Context context, final String shortID) {
+    private static void getMerchantableDialog(final Context context, final String entityID, final String entityType) {
         new MaterialDialog.Builder(context)
                 .title("Note")
                 .content("The resolution of this image is not printable. Other users won't be able to order a print version of it. Do you wish to proceed?")
@@ -323,7 +325,8 @@ public class ImageHelper {
                     @Override
                     public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
                         Bundle bundle = new Bundle();
-                        bundle.putString(EXTRA_SHORT_ID, shortID);
+                        bundle.putString(EXTRA_ENTITY_ID, entityID);
+                        bundle.putString(EXTRA_ENTITY_TYPE, entityType);
                         bundle.putString(EXTRA_MERCHANTABLE, "1");
                         //open preview screen
                         Intent intent = new Intent(context, CollaborationActivity.class);

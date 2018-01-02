@@ -23,7 +23,7 @@
                 android:layout_height="match_parent"
                 android:scaleType="centerCrop" />
 
-            <com.thetestament.cread.utils.CustomEditText
+            <com.thetestament.cread.widgets.CustomEditText
                 android:id="@+id/textShort"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -47,27 +47,23 @@
                 android:alpha="0.4"
                 android:background="@color/grey_dark" />
 
-
+            <!--Image loading progress view-->
+            <include
+                android:id="@+id/imageProgressView"
+                layout="@layout/layout_progress_bar"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerInParent="true"
+                android:visibility="gone" />
         </com.thetestament.cread.utils.SquareView>
 
-        <!--todo change note text-->
-        <TextView
-            android:id="@+id/textNote"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_below="@+id/imageContainer"
-            android:layout_centerHorizontal="true"
-            android:gravity="center"
-            android:paddingTop="10sp"
-            android:text="Tap outside to switch between drag and edit mode"
-            android:textSize="12sp" />
 
         <FrameLayout
             android:id="@+id/containerPostButton"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_above="@+id/btnFormatTextSize"
-            android:layout_below="@+id/textNote">
+            android:layout_above="@+id/containerSeekBar"
+            android:layout_below="@+id/imageContainer">
 
             <TextView
                 android:id="@+id/btnInspireMe"
@@ -83,33 +79,50 @@
                 android:textColor="@color/white" />
         </FrameLayout>
 
-        <ImageView
-            android:id="@+id/btnFormatTextSize"
-            android:layout_width="25dp"
-            android:layout_height="25dp"
-            android:layout_above="@+id/containerFormatOptions"
-            android:layout_marginBottom="15dp"
-            android:layout_marginLeft="15dp"
-            android:src="@drawable/ic_format_size_plus_32" />
-
-        <android.support.v7.widget.AppCompatSeekBar
-            android:id="@+id/seekBarTextSize"
+        <!--Container seek bar-->
+        <RelativeLayout
+            android:id="@+id/containerSeekBar"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_alignBottom="@+id/btnFormatTextSize"
-            android:layout_alignTop="@+id/btnFormatTextSize"
-            android:layout_marginLeft="5dp"
-            android:layout_marginRight="10dp"
-            android:layout_toRightOf="@+id/btnFormatTextSize" />
+            android:layout_above="@+id/containerFormatOptions"
+            android:layout_marginBottom="15dp">
+
+            <ImageView
+                android:id="@+id/btnFormatTextSize"
+                android:layout_width="25dp"
+                android:layout_height="25dp"
+                android:layout_marginLeft="15dp"
+                android:src="@drawable/ic_format_size_plus_32"
+                android:visibility="gone" />
+
+            <android.support.v7.widget.AppCompatSeekBar
+                android:id="@+id/seekBarTextSize"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_alignBottom="@+id/btnFormatTextSize"
+                android:layout_alignTop="@+id/btnFormatTextSize"
+                android:layout_marginLeft="5dp"
+                android:layout_marginRight="10dp"
+                android:layout_toRightOf="@+id/btnFormatTextSize"
+                android:visibility="gone" />
+        </RelativeLayout>
 
         <!--Format options-->
-        <include
+        <FrameLayout
             android:id="@+id/containerFormatOptions"
-            layout="@layout/layout_format_option"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_alignParentBottom="true"
-            android:orientation="horizontal" />
+            android:layout_alignParentBottom="true">
+
+            <include
+                android:id="@+id/formatOptions"
+                layout="@layout/layout_format_option"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:visibility="gone" />
+        </FrameLayout>
+
+
     </RelativeLayout>
 
     <!--Font option bottom sheet-->

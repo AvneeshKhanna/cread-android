@@ -178,7 +178,7 @@ public class SearchAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
     }
 
     /**
-     * ItemView onClick functionality.
+     * ItemView collabOnWritingClick functionality.
      *
      * @param uuid unique ID of the person whose profile to be opened.
      */
@@ -194,7 +194,7 @@ public class SearchAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
     }
 
     /**
-     * ItemView onClick functionality.
+     * ItemView collabOnWritingClick functionality.
      *
      * @param hashTag HashTag.
      */

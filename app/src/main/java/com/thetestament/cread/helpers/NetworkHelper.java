@@ -66,7 +66,7 @@ public class NetworkHelper {
      * @param requestedUUID UUID of user whose profile data to be loaded.
      * @param lastIndexKey  Last index key.
      */
-    public static Observable<JSONObject> getObservableFromServer(String serverURL, String uuid, String authKey, String requestedUUID, String lastIndexKey) {
+    public static Observable<JSONObject> getObservableFromServer(String serverURL, String uuid, String authKey, String requestedUUID, String lastIndexKey, boolean getResponseFromNetwork) {
 
         // used in follow activity and me fragment
 
@@ -83,7 +83,7 @@ public class NetworkHelper {
                 .addHeaders(headers)
                 .addQueryParameter(queryParams);
 
-        if (GET_RESPONSE_FROM_NETWORK_ME || GET_RESPONSE_FROM_NETWORK_FOLLOWING) {
+        if (getResponseFromNetwork) {
             requestBuilder.getResponseOnlyFromNetwork();
         }
 
@@ -101,7 +101,7 @@ public class NetworkHelper {
      * @param authKey      AuthKey of user i.e String.*
      * @param lastIndexKey Last index key
      */
-    public static Observable<JSONObject> getObservableFromServer(String serverURL, String uuid, String authKey, String lastIndexKey) {
+    public static Observable<JSONObject> getObservableFromServer(String serverURL, String uuid, String authKey, String lastIndexKey, boolean getResponseFromNetwork) {
 
         // used in feed fragemnt, explore fragment and inspiration activity
 
@@ -113,8 +113,7 @@ public class NetworkHelper {
                 .addHeaders(header)
                 .addQueryParameter("lastindexkey", lastIndexKey);
 
-        if (GET_RESPONSE_FROM_NETWORK_MAIN || GET_RESPONSE_FROM_NETWORK_EXPLORE
-                || GET_RESPONSE_FROM_NETWORK_INSPIRATION) {
+        if (getResponseFromNetwork) {
             requestBuilder.getResponseOnlyFromNetwork();
         }
 

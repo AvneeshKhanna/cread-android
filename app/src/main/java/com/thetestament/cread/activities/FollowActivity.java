@@ -175,7 +175,8 @@ public class FollowActivity extends BaseActivity {
                 , mHelper.getUUID()
                 , mHelper.getAuthToken()
                 , mRequestedUUID
-                , mLastIndexKey)
+                , mLastIndexKey
+                , GET_RESPONSE_FROM_NETWORK_FOLLOWING)
 
                 //Run on a background thread
                 .subscribeOn(Schedulers.io())
@@ -286,7 +287,8 @@ public class FollowActivity extends BaseActivity {
                 , mHelper.getUUID()
                 , mHelper.getAuthToken()
                 , mRequestedUUID
-                , mLastIndexKey)
+                , mLastIndexKey
+                , GET_RESPONSE_FROM_NETWORK_FOLLOWING)
 
                 //Run on a background thread
                 .subscribeOn(Schedulers.io())

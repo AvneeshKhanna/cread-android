@@ -52,6 +52,7 @@ import com.thetestament.cread.activities.UpdateProfileDetailsActivity;
 import com.thetestament.cread.activities.UpdateProfileImageActivity;
 import com.thetestament.cread.adapters.MeAdapter;
 import com.thetestament.cread.adapters.UserStatsPagerAdapter;
+import com.thetestament.cread.helpers.FeedHelper;
 import com.thetestament.cread.helpers.HatsOffHelper;
 import com.thetestament.cread.helpers.ImageHelper;
 import com.thetestament.cread.helpers.NetworkHelper;
@@ -92,6 +93,7 @@ import static android.app.Activity.RESULT_OK;
 import static com.thetestament.cread.CreadApp.GET_RESPONSE_FROM_NETWORK_EXPLORE;
 import static com.thetestament.cread.CreadApp.GET_RESPONSE_FROM_NETWORK_FIND_FRIENDS;
 import static com.thetestament.cread.CreadApp.GET_RESPONSE_FROM_NETWORK_FOLLOWING;
+import static com.thetestament.cread.CreadApp.GET_RESPONSE_FROM_NETWORK_INSPIRATION;
 import static com.thetestament.cread.CreadApp.GET_RESPONSE_FROM_NETWORK_MAIN;
 import static com.thetestament.cread.CreadApp.GET_RESPONSE_FROM_NETWORK_ME;
 import static com.thetestament.cread.helpers.FeedHelper.generateDeepLink;
@@ -130,7 +132,7 @@ import static com.thetestament.cread.utils.Constant.REQUEST_CODE_UPDATE_PROFILE_
 /**
  * Fragment class to load user profile details and his/her recent activity.
  */
-public class MeFragment extends Fragment {
+public class MeFragment extends Fragment implements listener.OnCollaborationListener {
 
     @BindView(R.id.rootView)
     CoordinatorLayout rootView;
@@ -154,12 +156,6 @@ public class MeFragment extends Fragment {
     UserStatsViewPager viewPagerUserStats;
     @BindView(R.id.indicator)
     CircleIndicator indicator;
-    /*@BindView(R.id.textPostsCount)
-    TextView textPostsCount;
-    @BindView(R.id.textFollowersCount)
-    TextView textFollowersCount;
-    @BindView(R.id.textFollowingCount)
-    TextView textFollowingCount;*/
     @BindView(R.id.viewNoData)
     LinearLayout viewNoData;
     @BindView(R.id.progressView)
@@ -177,7 +173,7 @@ public class MeFragment extends Fragment {
     String mRequestedUUID;
 
     @State
-    String mShortID;
+    String mEntityID, mEntityType;
     Bitmap mBitmap;
 
     private List<FeedModel> mUserActivityDataList = new ArrayList<>();
@@ -214,6 +210,13 @@ public class MeFragment extends Fragment {
     }
 
     @Override
+    public void onStart() {
+        super.onStart();
+        //Set Listener
+        new FeedHelper().setOnCaptureClickListener(this);
+    }
+
+    @Override
     public void onDestroyView() {
         super.onDestroyView();
         mUnbinder.unbind();
@@ -247,7 +250,10 @@ public class MeFragment extends Fragment {
             case REQUEST_CODE_OPEN_GALLERY_FOR_CAPTURE:
                 if (resultCode == RESULT_OK) {
                     // To crop the selected image
-                    ImageHelper.startImageCropping(getContext(), this, data.getData(), getImageUri(IMAGE_TYPE_USER_CAPTURE_PIC));
+                    ImageHelper.startImageCropping(getContext()
+                            , this
+                            , data.getData()
+                            , getImageUri(IMAGE_TYPE_USER_CAPTURE_PIC));
 
                 } else {
                     ViewHelper.getSnackBar(rootView, "Image from gallery was not attached");
@@ -258,7 +264,9 @@ public class MeFragment extends Fragment {
                 if (resultCode == RESULT_OK) {
                     //Get cropped image Uri
                     Uri mCroppedImgUri = UCrop.getOutput(data);
-                    ImageHelper.processCroppedImage(mCroppedImgUri, getActivity(), rootView, mShortID);
+                    ImageHelper.processCroppedImage(mCroppedImgUri
+                            , getActivity()
+                            , rootView, mEntityID, mEntityType);
 
                 } else if (resultCode == UCrop.RESULT_ERROR) {
                     ViewHelper.getSnackBar(rootView, "Image could not be cropped due to some error");
@@ -294,7 +302,9 @@ public class MeFragment extends Fragment {
                         textBio.setText(mUserBio);
                     } else {
                         //Set user bio
-                        textBio.setText("Write what describes you");
+                        mUserBio = "";
+                        //textBio.setText("Write what describes you");
+                        textBio.setHint("Write what describes you");
                     }
 
                     //Retrieve email and watermark status
@@ -332,6 +342,34 @@ public class MeFragment extends Fragment {
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
+        }
+    }
+
+    @Override
+    public void collaborationOnGraphic() {
+
+    }
+
+    @Override
+    public void collaborationOnWriting(String entityID, String entityType) {
+        //Set entity id
+        mEntityID = entityID;
+        mEntityType = entityType;
+        //Check for Write permission
+        if (Nammu.checkPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+            //We have permission do whatever you want to do
+            ImageHelper.chooseImageFromGallery(MeFragment.this);
+        } else {
+            //We do not own this permission
+            if (Nammu.shouldShowRequestPermissionRationale(MeFragment.this
+                    , Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+                //User already refused to give us this permission or removed it
+                ViewHelper.getToast(getActivity()
+                        , getString(R.string.error_msg_capture_permission_denied));
+            } else {
+                //First time asking for permission
+                Nammu.askForPermission(MeFragment.this, Manifest.permission.WRITE_EXTERNAL_STORAGE, captureWritePermission);
+            }
         }
     }
 
@@ -373,7 +411,6 @@ public class MeFragment extends Fragment {
             showBioInputDialog();
         }
     }
-
 
     /**
      * Follow button click functionality to follow or un-follow.
@@ -429,14 +466,6 @@ public class MeFragment extends Fragment {
             ViewHelper.getSnackBar(rootView, "No followers");
         }
     }
-
-
-    /**
-     * PostContainer click functionality.
-     *//*
-    @OnClick(R.id.containerPosts)
-    void onPostsContainerClicked() {
-    }*/
 
     /*
     * Create button click functionality.
@@ -549,19 +578,19 @@ public class MeFragment extends Fragment {
     }
 
     /**
-     * Method to intitialize view pager adapter
+     * Method to initialize view pager adapter.
      */
     private void initUserStatsPager() {
         initSliders();
         UserStatsPagerAdapter mUserStatsAdapter = new UserStatsPagerAdapter(getActivity(), mLayouts);
-        // intialize click listeners on user stats
+        // initialize click listeners on user stats
         initUserStatsClickedListener(mUserStatsAdapter);
         viewPagerUserStats.setAdapter(mUserStatsAdapter);
         indicator.setViewPager(viewPagerUserStats);
     }
 
     /**
-     * Method to initialize listeners on the different user stats containers
+     * Method to initialize listeners on the different user stats containers.
      *
      * @param userStatsPagerAdapter adapter of view pager
      */
@@ -752,7 +781,7 @@ public class MeFragment extends Fragment {
                                 //Set user bio
                                 textBio.setText(mUserBio);
                             } else {
-                                mUserBio = "Write what describes you";
+                                //mUserBio = "Write what describes you";
                                 //Hide for other users
                                 if (!isProfileEditable) {
                                     textBio.setVisibility(View.GONE);
@@ -984,7 +1013,6 @@ public class MeFragment extends Fragment {
         initLoadMoreListener(mAdapter);
         initHatsOffListener(mAdapter);
         initializeDeleteListener(mAdapter);
-        initCaptureListener(mAdapter);
         initShareListener(mAdapter);
         initShareLinkClickedListener();
     }
@@ -1000,7 +1028,8 @@ public class MeFragment extends Fragment {
                 , mHelper.getUUID()
                 , mHelper.getAuthToken()
                 , mRequestedUUID
-                , mLastIndexKey)
+                , mLastIndexKey
+                , GET_RESPONSE_FROM_NETWORK_ME)
                 //Run on a background thread
                 .subscribeOn(Schedulers.io())
                 //Be notified on the main thread
@@ -1054,6 +1083,7 @@ public class MeFragment extends Fragment {
                                             // set collaborator details
                                             data.setCollabWithUUID(collabObject.getString("uuid"));
                                             data.setCollabWithName(collabObject.getString("name"));
+                                            data.setCollaboWithEntityID(collabObject.getString("entityid"));
 
                                         } else {
                                             data.setAvailableForCollab(true);
@@ -1075,6 +1105,7 @@ public class MeFragment extends Fragment {
                                             // set collaborator details
                                             data.setCollabWithUUID(collabObject.getString("uuid"));
                                             data.setCollabWithName(collabObject.getString("name"));
+                                            data.setCollaboWithEntityID(collabObject.getString("entityid"));
                                         } else {
                                             data.setAvailableForCollab(true);
                                         }
@@ -1173,7 +1204,8 @@ public class MeFragment extends Fragment {
                 , mHelper.getUUID()
                 , mHelper.getAuthToken()
                 , mRequestedUUID
-                , mLastIndexKey)
+                , mLastIndexKey
+                , GET_RESPONSE_FROM_NETWORK_ME)
                 //Run on a background thread
                 .subscribeOn(Schedulers.io())
                 //Be notified on the main thread
@@ -1232,6 +1264,7 @@ public class MeFragment extends Fragment {
                                             // set collaborator details
                                             data.setCollabWithUUID(collabObject.getString("uuid"));
                                             data.setCollabWithName(collabObject.getString("name"));
+                                            data.setCollaboWithEntityID(collabObject.getString("entityid"));
 
                                         } else {
                                             data.setAvailableForCollab(true);
@@ -1252,6 +1285,7 @@ public class MeFragment extends Fragment {
                                             // set collaborator details
                                             data.setCollabWithUUID(collabObject.getString("uuid"));
                                             data.setCollabWithName(collabObject.getString("name"));
+                                            data.setCollaboWithEntityID(collabObject.getString("entityid"));
                                         } else {
                                             data.setAvailableForCollab(true);
                                         }
@@ -1479,6 +1513,8 @@ public class MeFragment extends Fragment {
                                     ((TextView) viewPagerUserStats.findViewWithTag(POSTS)).setText(String.valueOf(mPostCount));
                                     // update response flag
                                     GET_RESPONSE_FROM_NETWORK_ME = true;
+                                    GET_RESPONSE_FROM_NETWORK_EXPLORE = true;
+                                    GET_RESPONSE_FROM_NETWORK_INSPIRATION = true;
                                 }
                             }
                         } catch (JSONException e) {
@@ -1504,36 +1540,6 @@ public class MeFragment extends Fragment {
                 });
     }
 
-    /**
-     * Initialize capture listener.
-     *
-     * @param meAdapter MeAdapter reference
-     */
-    private void initCaptureListener(MeAdapter meAdapter) {
-        meAdapter.setOnMeCaptureClickListener(new listener.OnMeCaptureClickListener() {
-            @Override
-            public void onClick(String shortID) {
-                //Set entity id
-                mShortID = shortID;
-                //Check for Write permission
-                if (Nammu.checkPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
-                    //We have permission do whatever you want to do
-                    ImageHelper.chooseImageFromGallery(MeFragment.this);
-                } else {
-                    //We do not own this permission
-                    if (Nammu.shouldShowRequestPermissionRationale(MeFragment.this
-                            , Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
-                        //User already refused to give us this permission or removed it
-                        ViewHelper.getToast(getActivity()
-                                , getString(R.string.error_msg_capture_permission_denied));
-                    } else {
-                        //First time asking for permission
-                        Nammu.askForPermission(MeFragment.this, Manifest.permission.WRITE_EXTERNAL_STORAGE, captureWritePermission);
-                    }
-                }
-            }
-        });
-    }
 
     /**
      * Initialize share link listener.
@@ -1806,7 +1812,6 @@ public class MeFragment extends Fragment {
         viewPagerUserStats.setCurrentItem(1);
         mHelper.updateGratitudeScroll(false);
     }
-
 
     public static boolean isCountZero(long count) {
         return count == 0;

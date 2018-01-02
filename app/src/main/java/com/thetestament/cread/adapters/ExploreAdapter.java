@@ -24,6 +24,7 @@ import com.thetestament.cread.activities.CollaborationDetailsActivity;
 import com.thetestament.cread.activities.FeedDescriptionActivity;
 import com.thetestament.cread.activities.ProfileActivity;
 import com.thetestament.cread.activities.ShortActivity;
+import com.thetestament.cread.helpers.FeedHelper;
 import com.thetestament.cread.helpers.NetworkHelper;
 import com.thetestament.cread.helpers.SharedPreferenceHelper;
 import com.thetestament.cread.helpers.ViewHelper;
@@ -144,7 +145,16 @@ public class ExploreAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
             //itemViewHolder.textCreatorName.setText(data.getCreatorName());
 
             // set text and click actions according to content type
-            performContentTypeSpecificOperations(itemViewHolder, data);
+            //performContentTypeSpecificOperations(itemViewHolder, data);
+            FeedHelper.performContentTypeSpecificOperations(mContext
+                    , data
+                    , itemViewHolder.collabCount
+                    , itemViewHolder.collabCount
+                    , itemViewHolder.buttonCollaborate
+                    , itemViewHolder.textCreatorName
+                    , true
+                    , false
+                    , null);
 
             //Check follow status
             checkFollowStatus(data, itemViewHolder);
@@ -155,7 +165,7 @@ public class ExploreAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
 
             //Follow button click functionality
             followOnClick(position, data, itemViewHolder.buttonFollow);
-            //ItemView onClick functionality
+            //ItemView collabOnWritingClick functionality
             itemViewOnClick(itemViewHolder.itemView, data, position);
             //Collaboration count click functionality
             collaborationCountOnClick(itemViewHolder.collabCount, data.getEntityID(), data.getContentType());
@@ -234,7 +244,7 @@ public class ExploreAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
     }
 
     /**
-     * Follow button onClick functionality
+     * Follow button collabOnWritingClick functionality
      *
      * @param itemPosition index  of the item.
      * @param data         Model for current item.
@@ -265,7 +275,7 @@ public class ExploreAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
     }
 
     /**
-     * write onClick functionality.
+     * write collabOnWritingClick functionality.
      *
      * @param view       View to be clicked.
      * @param captureID  CaptureID of image.
@@ -294,7 +304,7 @@ public class ExploreAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
     }
 
     /**
-     * capture onClick functionality.
+     * capture collabOnWritingClick functionality.
      *
      * @param view View to be clicked.
      *             * @param shoid    short ID
@@ -335,132 +345,6 @@ public class ExploreAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
             }
         });
     }
-
-    /**
-     * Method that performs operations according to content type and collaboration functionality
-     *
-     * @param itemViewHolder item view holder
-     * @param data           data
-     */
-
-    private void performContentTypeSpecificOperations(ExploreAdapter.ItemViewHolder itemViewHolder, FeedModel data) {
-
-        // initialize text
-        String text = getCreatorText(mContext, data.getContentType(), data.isAvailableForCollab(), data.getCreatorName(), data.getCollabWithName());
-
-        //Check for content type
-        switch (data.getContentType()) {
-            case CONTENT_TYPE_CAPTURE:
-
-                // set collab count text
-                if (data.getCollabCount() != 0) {
-                    itemViewHolder.collabCount.setText(getCollabCountText(mContext, data.getCollabCount(), data.getContentType()));
-                    itemViewHolder.collabCount.setVisibility(View.VISIBLE);
-
-
-                } else {
-                    itemViewHolder.collabCount.setVisibility(View.GONE);
-                }
-
-                if (data.isAvailableForCollab()) {
-
-                    // for stand alone capture
-
-                    itemViewHolder.buttonCollaborate.setVisibility(View.VISIBLE);
-                    // set text
-                    //itemViewHolder.buttonCollaborate.setText("Write");
-
-                    //write click functionality on capture
-                    writeOnClick(itemViewHolder.buttonCollaborate, data.getCaptureID(), data.getContentImage(), data.isMerchantable());
-
-                    //String text = data.getCreatorName() + " added a capture ";
-
-                    // get text indexes
-                    int creatorStartPos = text.indexOf(data.getCreatorName());
-                    int creatorEndPos = creatorStartPos + data.getCreatorName().length();
-                    int collabWithStartPos = -1;
-                    int collabWithEndPos = -1;
-
-                    // get clickable text;
-                    initializeSpannableString(mContext, itemViewHolder.textCreatorName, false, text, creatorStartPos, creatorEndPos, collabWithStartPos, collabWithEndPos, data.getUUID(), data.getCollabWithUUID());
-
-                } else {
-
-                    // hiding collaborate button
-                    itemViewHolder.buttonCollaborate.setVisibility(View.GONE);
-
-                    //String text = data.getCreatorName() + " added a capture to " + data.getCollabWithName() + "'s short";
-
-                    // get text indexes
-                    int creatorStartPos = text.indexOf(data.getCreatorName());
-                    int creatorEndPos = creatorStartPos + data.getCreatorName().length();
-                    int collabWithStartPos = text.indexOf(data.getCollabWithName());
-                    int collabWithEndPos = collabWithStartPos + data.getCollabWithName().length() + 2; // +2 for 's
-
-                    // get clickable text
-                    initializeSpannableString(mContext, itemViewHolder.textCreatorName, true, text, creatorStartPos, creatorEndPos, collabWithStartPos, collabWithEndPos, data.getUUID(), data.getCollabWithUUID());
-
-
-                }
-
-                break;
-
-            case CONTENT_TYPE_SHORT:
-
-                // set collab count text
-                if (data.getCollabCount() != 0) {
-                    itemViewHolder.collabCount.setText(getCollabCountText(mContext, data.getCollabCount(), data.getContentType()));
-                    itemViewHolder.collabCount.setVisibility(View.VISIBLE);
-                } else {
-                    itemViewHolder.collabCount.setVisibility(View.GONE);
-                }
-
-                // check if available for collab
-                if (data.isAvailableForCollab()) {
-
-                    // for stand alone short
-
-                    itemViewHolder.buttonCollaborate.setVisibility(View.VISIBLE);
-                    // set text
-                    //itemViewHolder.buttonCollaborate.setText("Capture");
-
-                    // capture click functionality on short
-                    captureOnClick(itemViewHolder.buttonCollaborate, data.getShortID());
-
-                    //String text = data.getCreatorName() + " wrote a short ";
-
-                    // get text indexes
-                    int creatorStartPos = text.indexOf(data.getCreatorName());
-                    int creatorEndPos = creatorStartPos + data.getCreatorName().length();
-                    int collabWithStartPos = -1; // since no collabwith
-                    int collabWithEndPos = -1; // since no collabwith
-
-                    initializeSpannableString(mContext, itemViewHolder.textCreatorName, false, text, creatorStartPos, creatorEndPos, collabWithStartPos, collabWithEndPos, data.getUUID(), data.getCollabWithUUID());
-
-
-                } else {
-                    // hiding collaborate button
-                    itemViewHolder.buttonCollaborate.setVisibility(View.GONE);
-
-                    //String text = data.getCreatorName() + " wrote a short on " + data.getCollabWithName() + "'s capture";
-
-                    // get text indexes
-                    int creatorStartPos = text.indexOf(data.getCreatorName());
-                    int creatorEndPos = creatorStartPos + data.getCreatorName().length();
-                    int collabWithStartPos = text.indexOf(data.getCollabWithName());
-                    int collabWithEndPos = collabWithStartPos + data.getCollabWithName().length() + 2; // +2 to incorporate 's
-
-                    // get clickable text
-                    initializeSpannableString(mContext, itemViewHolder.textCreatorName, true, text, creatorStartPos, creatorEndPos, collabWithStartPos, collabWithEndPos, data.getUUID(), data.getCollabWithUUID());
-
-                }
-
-                break;
-            default:
-        }
-
-    }
-
 
     /**
      * Method to toggle follow.

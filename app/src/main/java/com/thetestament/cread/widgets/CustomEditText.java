@@ -1,4 +1,4 @@
-package com.thetestament.cread.utils;
+package com.thetestament.cread.widgets;
 
 import android.content.Context;
 import android.util.AttributeSet;

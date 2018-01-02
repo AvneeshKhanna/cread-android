@@ -8,10 +8,7 @@ import com.thetestament.cread.models.CommentsModel;
 import com.thetestament.cread.models.FBFriendsModel;
 import com.thetestament.cread.models.FeedModel;
 import com.thetestament.cread.models.FollowModel;
-import com.thetestament.cread.utils.Constant;
 import com.thetestament.cread.utils.Constant.GratitudeNumbers;
-
-import org.json.JSONObject;
 
 public class listener {
 
@@ -154,12 +151,6 @@ public class listener {
         void onDelete(String entityID, int position);
     }
 
-    /**
-     * Interface definition for callback to be invoked when user clicks on capture button for collaboration(MeFragment).
-     */
-    public interface OnMeCaptureClickListener {
-        void onClick(String shortId);
-    }
 
     /**
      * Interface definition for callback to be invoked when user clicks on capture button for collaboration(ExploreFragment).
@@ -168,12 +159,6 @@ public class listener {
         void onClick(String shortId);
     }
 
-    /**
-     * Interface definition for callback to be invoked when user clicks on capture button for collaboration(FeedFragment).
-     */
-    public interface OnFeedCaptureClickListener {
-        void onClick(String shortId);
-    }
 
     /**
      * Interface definition for a callback to be invoked when user scroll for more data.
@@ -248,4 +233,16 @@ public class listener {
         void onItemClicked(String entityID);
     }
 
+    /**
+     * Interface definition for callback to be invoked when user clicks on capture button for collaboration.
+     */
+    public interface OnCollaborationListener {
+        void collaborationOnGraphic();
+
+        /**
+         * @param entityID   entity ID of content.
+         * @param entityType entity type of content.
+         */
+        void collaborationOnWriting(String entityID, String entityType);
+    }
 }

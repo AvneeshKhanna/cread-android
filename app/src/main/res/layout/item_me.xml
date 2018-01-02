@@ -15,60 +15,8 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
-        <!--<RelativeLayout
-            android:id="@+id/containerCreator"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="8dp"
-            android:layout_marginTop="8dp">
 
-            <de.hdodenhof.circleimageview.CircleImageView
-                android:id="@+id/imageCreator"
-                android:layout_width="30dp"
-                android:layout_height="30dp"
-                android:layout_centerVertical="true"
-                android:layout_marginLeft="8dp"
-                android:scaleType="centerCrop"
-                app:civ_border_color="@color/black_defined"
-                tools:src="@drawable/ic_account_circle_48" />
-
-            <TextView
-                android:id="@+id/textCreatorName"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_centerVertical="true"
-                android:layout_toRightOf="@+id/imageCreator"
-                android:gravity="center_vertical"
-                android:paddingLeft="8dp"
-                android:paddingRight="8dp"
-                android:textColor="@color/grey_dark"
-                android:textSize="16sp"
-                tools:text="The Cread" />
-
-            <ImageView
-                android:id="@+id/imageWorkType"
-                android:layout_width="18dp"
-                android:layout_height="18dp"
-                android:layout_centerVertical="true"
-                android:layout_toRightOf="@+id/textCreatorName"
-                android:src="@drawable/ic_camera_alt_24" />
-
-            <ImageView
-                android:id="@+id/buttonDelete"
-                android:layout_width="20dp"
-                android:layout_height="20dp"
-                android:layout_alignParentRight="true"
-                android:layout_centerVertical="true"
-                android:layout_marginRight="5dp"
-                android:src="@drawable/ic_delete_24"
-                android:tint="@color/grey_custom"
-                android:visibility="visible" />
-
-        </RelativeLayout>-->
-
-        <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-            xmlns:app="http://schemas.android.com/apk/res-auto"
-            xmlns:tools="http://schemas.android.com/tools"
+        <RelativeLayout
             android:id="@+id/containerCreator"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
