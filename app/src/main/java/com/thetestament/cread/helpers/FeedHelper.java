@@ -85,7 +85,7 @@ public class FeedHelper {
      * @param creatorUUID        creator userid
      * @param collabWithUUID     collaborate with uuid
      */
-    public static void initializeSpannableString(final FragmentActivity context, TextView textView, boolean hasTwoClicks, String text, int creatorStartPos, int creatorEndPos, int collabWithStartPos, int collabWithEndPos, final String creatorUUID, final String collabWithUUID) {
+    public static void initializeSpannableString(final FragmentActivity context, TextView textView, boolean hasTwoClicks, String text, int creatorStartPos, int creatorEndPos, int collabWithStartPos, int collabWithEndPos, final String creatorUUID, final String collabWithUUID, boolean isCreatorCollaborator) {
         SpannableString ss = new SpannableString(text);
         ClickableSpan collaboratorSpan = new ClickableSpan() {
             @Override
@@ -103,7 +103,7 @@ public class FeedHelper {
         };
         ss.setSpan(collaboratorSpan, creatorStartPos, creatorEndPos, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
 
-        if (hasTwoClicks) {
+        if (hasTwoClicks && !isCreatorCollaborator) {
             ClickableSpan collaboratedWithSpan = new ClickableSpan() {
                 @Override
                 public void onClick(View textView) {
@@ -136,23 +136,34 @@ public class FeedHelper {
      * @param collaboratorName
      * @return
      */
-    public static String getCreatorText(FragmentActivity context, String contentType, boolean isAvailableforCollab, String creatorName, String collaboratorName) {
+    public static String getCreatorText(FragmentActivity context, String contentType, boolean isAvailableforCollab, String creatorName, String collaboratorName, boolean isCreatorCollaborator) {
         String text = null;
 
         switch (contentType) {
             case CONTENT_TYPE_CAPTURE:
 
-                text = isAvailableforCollab ? creatorName + " " + context.getString(R.string.creator_text_standalone_capture)
-                        : (creatorName + " " + context.getString(R.string.creator_text_collab_capture_part1) + " "
-                        + collaboratorName + "'s " + context.getString(R.string.creator_text_collab_capture_part2));
+                if (isCreatorCollaborator) {
+                    text = creatorName + " " + context.getString(R.string.creator_text_collab_capture_self);
+                } else {
+                    text = isAvailableforCollab ? creatorName + " " + context.getString(R.string.creator_text_standalone_capture)
+                            : (creatorName + " " + context.getString(R.string.creator_text_collab_capture_part1) + " "
+                            + collaboratorName + "'s " + context.getString(R.string.creator_text_collab_capture_part2));
+                }
 
                 break;
 
             case CONTENT_TYPE_SHORT:
 
-                text = isAvailableforCollab ? creatorName + " " + context.getString(R.string.creator_text_standalone_short)
-                        : (creatorName + " " + context.getString(R.string.creator_text_collab_short_part1) + " "
-                        + collaboratorName + "'s " + context.getString(R.string.creator_text_collab_short_part2));
+                if (isCreatorCollaborator) {
+                    text = creatorName + " " + context.getString(R.string.creator_text_collab_short_self);
+                } else {
+
+                    text = isAvailableforCollab ? creatorName + " " + context.getString(R.string.creator_text_standalone_short)
+                            : (creatorName + " " + context.getString(R.string.creator_text_collab_short_part1) + " "
+                            + collaboratorName + "'s " + context.getString(R.string.creator_text_collab_short_part2));
+
+                }
+
                 break;
         }
 
@@ -523,12 +534,16 @@ public class FeedHelper {
 
 
     public static void performContentTypeSpecificOperations(final FragmentActivity context, final FeedModel feedData, TextView textCollabCount, View containerCollabCount, TextView buttonCollaborate, TextView textCreatorName, boolean showCountAsText, boolean shouldToggleVisibility, @Nullable View view) {
+
+        boolean isCreatorCollaborator = feedData.getUUID().equals(feedData.getCollabWithUUID());
+
         // initialize text
         String text = getCreatorText(context
                 , feedData.getContentType()
                 , feedData.isAvailableForCollab()
                 , feedData.getCreatorName()
-                , feedData.getCollabWithName());
+                , feedData.getCollabWithName()
+                , isCreatorCollaborator);
 
         // set collaboration count text
 
@@ -597,7 +612,7 @@ public class FeedHelper {
                     int collabWithEndPos = -1;
 
                     // get clickable text;
-                    initializeSpannableString(context, textCreatorName, false, text, creatorStartPos, creatorEndPos, collabWithStartPos, collabWithEndPos, feedData.getUUID(), feedData.getCollabWithUUID());
+                    initializeSpannableString(context, textCreatorName, false, text, creatorStartPos, creatorEndPos, collabWithStartPos, collabWithEndPos, feedData.getUUID(), feedData.getCollabWithUUID(), isCreatorCollaborator);
                 } else {
 
                     // showing collaborate button
@@ -612,7 +627,7 @@ public class FeedHelper {
                     int collabWithEndPos = collabWithStartPos + feedData.getCollabWithName().length() + 2; // +2 for 's
 
                     // get clickable text
-                    initializeSpannableString(context, textCreatorName, true, text, creatorStartPos, creatorEndPos, collabWithStartPos, collabWithEndPos, feedData.getUUID(), feedData.getCollabWithUUID());
+                    initializeSpannableString(context, textCreatorName, true, text, creatorStartPos, creatorEndPos, collabWithStartPos, collabWithEndPos, feedData.getUUID(), feedData.getCollabWithUUID(), isCreatorCollaborator);
                 }
 
                 break;
@@ -654,7 +669,7 @@ public class FeedHelper {
                     int collabWithStartPos = -1; // since no collabwith
                     int collabWithEndPos = -1; // since no collabwith
 
-                    initializeSpannableString(context, textCreatorName, false, text, creatorStartPos, creatorEndPos, collabWithStartPos, collabWithEndPos, feedData.getUUID(), feedData.getCollabWithUUID());
+                    initializeSpannableString(context, textCreatorName, false, text, creatorStartPos, creatorEndPos, collabWithStartPos, collabWithEndPos, feedData.getUUID(), feedData.getCollabWithUUID(), isCreatorCollaborator);
 
 
                 } else {
@@ -673,7 +688,7 @@ public class FeedHelper {
                     int collabWithEndPos = collabWithStartPos + feedData.getCollabWithName().length() + 2; // +2 to incorporate 's
 
                     // get clickable text
-                    initializeSpannableString(context, textCreatorName, true, text, creatorStartPos, creatorEndPos, collabWithStartPos, collabWithEndPos, feedData.getUUID(), feedData.getCollabWithUUID());
+                    initializeSpannableString(context, textCreatorName, true, text, creatorStartPos, creatorEndPos, collabWithStartPos, collabWithEndPos, feedData.getUUID(), feedData.getCollabWithUUID(), isCreatorCollaborator);
 
                 }
 

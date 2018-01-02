@@ -6,7 +6,7 @@
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/colorAccent</item>
-        <item name="preferenceTheme">@style/PreferenceThemeOverlay</item>
+        <item name="preferenceTheme">@style/SettingsTheme</item>
         <!--To change the material dialog font-family-->
         <!-- <item name="md_medium_font">@string/app_font_family_bold</item>
          <item name="md_regular_font">@string/app_font_family_normal</item>-->
@@ -67,4 +67,10 @@
         <!-- Custom Attr-->
         <item name="fontPath">fonts/montserrat_regular.ttf</item>
     </style>
+
+
+    <style name="SettingsTheme" parent="PreferenceThemeOverlay">
+        <item name="android:textSize">14sp</item>
+    </style>
+
 </resources>

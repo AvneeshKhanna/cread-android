@@ -342,9 +342,9 @@ public class MeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         //fixme
         if (hatsOffStatus) {
             //itemViewHolder.imageHatsOff.setImageDrawable(ContextCompat.getDrawable(mContext, R.drawable.ic_hats_off_on));
-            itemViewHolder.imageHatsOff.setColorFilter(ContextCompat.getColor(mContext, R.color.colorPrimary));
+            //itemViewHolder.imageHatsOff.setColorFilter(ContextCompat.getColor(mContext, R.color.colorPrimary));
             //Animation for hats off
-            //itemViewHolder.imageHatsOff.startAnimation(AnimationUtils.loadAnimation(mContext, R.anim.rotate_animation_hats_off_fast));
+            itemViewHolder.imageHatsOff.startAnimation(AnimationUtils.loadAnimation(mContext, R.anim.rotate_animation_hats_off_fast));
             itemViewHolder.mIsHatsOff = true;
 
             itemViewHolder.imageHatsOff.setRotation(30);
@@ -354,7 +354,7 @@ public class MeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             itemViewHolder.imageHatsOff.setColorFilter(Color.TRANSPARENT);
             itemViewHolder.mIsHatsOff = false;
 //            itemViewHolder.setIsRecyclable(true);
-            itemViewHolder.imageHatsOff.setRotation(0);
+            //itemViewHolder.imageHatsOff.setRotation(0);
 
         }
     }

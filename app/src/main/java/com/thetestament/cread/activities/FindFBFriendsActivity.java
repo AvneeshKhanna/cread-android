@@ -230,7 +230,6 @@ public class FindFBFriendsActivity extends BaseActivity {
                                             mDataList.add(friendsModel);
                                         }
 
-                                        mDataList.clear();
                                     }
                                 } catch (JSONException e) {
                                     e.printStackTrace();
