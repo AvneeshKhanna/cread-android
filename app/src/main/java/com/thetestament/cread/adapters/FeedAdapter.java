@@ -162,14 +162,14 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             //Check whether user has given hats off to this campaign or not
             checkHatsOffStatus(data.getHatsOffStatus(), itemViewHolder);
 
-            //ItemView collabOnWritingClick functionality
+            //ItemView onClick functionality
             itemViewOnClick(itemViewHolder.itemView, data, position);
 
             //Comment click functionality
             commentOnClick(itemViewHolder.containerComment, data.getEntityID());
             //Share click functionality
             shareOnClick(itemViewHolder.containerShare, data.getContentImage(), data.getEntityID(), data.getCreatorName());
-            //HatsOff collabOnWritingClick functionality
+            //HatsOff onClick functionality
             hatsOffOnClick(itemViewHolder, data, position);
             //Collaboration count click functionality
             collaborationCountOnClick(itemViewHolder.collabCount, data.getEntityID(), data.getContentType());
@@ -237,15 +237,22 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
      * Method to check hatsOff status and perform operation accordingly.
      */
     private void checkHatsOffStatus(boolean hatsOffStatus, ItemViewHolder itemViewHolder) {
-        //fixme
         if (hatsOffStatus) {
+            //Change color
             itemViewHolder.imageHatsOff.setColorFilter(ContextCompat.getColor(mContext, R.color.colorPrimary));
-            //Animation for hats off
-            itemViewHolder.imageHatsOff.startAnimation(AnimationUtils.loadAnimation(mContext, R.anim.rotate_animation_hats_off_fast));
+            //Set rotation to 30
+            itemViewHolder.imageHatsOff.setRotation(30);
+            //update flags
             itemViewHolder.mIsHatsOff = true;
+            itemViewHolder.mIsRotated = true;
         } else {
+            //Change color to transparent
             itemViewHolder.imageHatsOff.setColorFilter(Color.TRANSPARENT);
+            //Set rotation to 0
+            itemViewHolder.imageHatsOff.setRotation(0);
+            //update flags
             itemViewHolder.mIsHatsOff = false;
+            itemViewHolder.mIsRotated = false;
         }
     }
 
@@ -272,7 +279,7 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     }
 
     /**
-     * Compose collabOnWritingClick functionality.
+     * Compose onClick functionality.
      *
      * @param view     View to be clicked.
      * @param entityID Entity ID
@@ -289,7 +296,7 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     }
 
     /**
-     * Share collabOnWritingClick functionality.
+     * Share onClick functionality.
      *
      * @param view       View to be clicked.
      * @param pictureUrl URL of the picture to be shared.
@@ -332,7 +339,7 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     }
 
     /**
-     * HatsOff collabOnWritingClick functionality.
+     * HatsOff onClick functionality.
      *
      * @param itemViewHolder ViewHolder for items.
      * @param data           Data for current item.
@@ -346,14 +353,22 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                     //User has already given the hats off
                     if (itemViewHolder.mIsHatsOff) {
                         //Animation for hats off
-                        itemViewHolder.imageHatsOff.startAnimation(AnimationUtils.loadAnimation(mContext, R.anim.reverse_rotate_animation_hats_off));
+                        if (itemViewHolder.mIsRotated) {
+                            itemViewHolder.imageHatsOff.startAnimation(AnimationUtils.loadAnimation(mContext, R.anim.reverse_rotate_animation_hats_off_60_degree));
+                        } else {
+                            itemViewHolder.imageHatsOff.startAnimation(AnimationUtils.loadAnimation(mContext, R.anim.reverse_rotate_animation_hats_off_30_degree));
+                        }
                         //Toggle hatsOff tint
                         itemViewHolder.imageHatsOff.setColorFilter(Color.TRANSPARENT);
                         //Update hats of count i.e decrease by one
                         data.setHatsOffCount(data.getHatsOffCount() - 1);
                     } else {
                         //Animation for hats off
-                        itemViewHolder.imageHatsOff.startAnimation(AnimationUtils.loadAnimation(mContext, R.anim.rotate_animation_hats_off));
+                        if (itemViewHolder.mIsRotated) {
+                            itemViewHolder.imageHatsOff.startAnimation(AnimationUtils.loadAnimation(mContext, R.anim.rotate_animation_hats_off_0_degree));
+                        } else {
+                            itemViewHolder.imageHatsOff.startAnimation(AnimationUtils.loadAnimation(mContext, R.anim.rotate_animation_hats_off_30_degree));
+                        }
                         //Toggle hatsOff tint
                         itemViewHolder.imageHatsOff.setColorFilter(ContextCompat.getColor(mContext, R.color.colorPrimary));
                         //Change hatsOffCount i.e increase by one
@@ -451,6 +466,8 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
         //Variable to maintain hats off status
         private boolean mIsHatsOff = false;
+        //Variable to maintain  hats off view rotation status
+        private boolean mIsRotated = false;
 
         public ItemViewHolder(View itemView) {
             super(itemView);

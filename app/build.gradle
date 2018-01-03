@@ -32,9 +32,10 @@ android {
             buildConfigField "String", "URL", '"http://cread-server-main.ap-northeast-1.elasticbeanstalk.com"'
             buildConfigField "boolean", "VISIBILITY_RESTART_HEROKU_OPTION", "false"
             resValue "string", "RZP_KEY", "rzp_live_R8v2wfBMmMnHVy"
-            resValue "string", "DEEP_LINK_HOST", '"http://cread-server-main.ap-northeast-1.elasticbeanstalk.com"'
             resValue "bool", "FIREBASE_ANALYTICS_ENABLED", "true"
             resValue "bool", "FIREBASE_CRASHLYTICS_ENABLED", "true"
+            resValue "string", "DEEP_LINK_HOST", '"http://cread-server-main.ap-northeast-1.elasticbeanstalk.com"'
+            signingConfig signingConfigs.config
         }
         debug {
             shrinkResources false
@@ -46,9 +47,9 @@ android {
             buildConfigField "String", "URL", '"http://e21ab775.ngrok.io"'
             buildConfigField "boolean", "VISIBILITY_RESTART_HEROKU_OPTION", "true"
             resValue "string", "RZP_KEY", "rzp_test_Q09427lQA9Ol5g"
-            resValue "string", "DEEP_LINK_HOST", '"http://cread-dev-remote.herokuapp.com"'
             resValue "bool", "FIREBASE_ANALYTICS_ENABLED", "false"
             resValue "bool", "FIREBASE_CRASHLYTICS_ENABLED", "false"
+            resValue "string", "DEEP_LINK_HOST", '"http://cread-dev-remote.herokuapp.com"'
         }
     }
 }
