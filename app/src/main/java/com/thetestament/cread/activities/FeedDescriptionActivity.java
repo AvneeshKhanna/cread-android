@@ -68,9 +68,7 @@ import pl.tajchert.nammu.Nammu;
 import pl.tajchert.nammu.PermissionCallback;
 
 import static com.thetestament.cread.helpers.FeedHelper.generateDeepLink;
-import static com.thetestament.cread.helpers.FeedHelper.getCreatorText;
 import static com.thetestament.cread.helpers.FeedHelper.initializeShareDialog;
-import static com.thetestament.cread.helpers.FeedHelper.initializeSpannableString;
 import static com.thetestament.cread.helpers.ImageHelper.getImageUri;
 import static com.thetestament.cread.helpers.ImageHelper.getLocalBitmapUri;
 import static com.thetestament.cread.helpers.NetworkHelper.getCommentObservableFromServer;
@@ -303,7 +301,7 @@ public class FeedDescriptionActivity extends BaseActivity implements listener.On
             //User has already given hats off
             if (mFeedData.getHatsOffStatus()) {
                 //Animation for hats off
-                imageHatsOff.startAnimation(AnimationUtils.loadAnimation(this, R.anim.reverse_rotate_animation_hats_off));
+                imageHatsOff.startAnimation(AnimationUtils.loadAnimation(this, R.anim.reverse_rotate_animation_hats_off_30_degree));
                 //Toggle hatsOff tint
                 imageHatsOff.setColorFilter(Color.TRANSPARENT);
                 //Toggle hatsOff status
@@ -323,7 +321,7 @@ public class FeedDescriptionActivity extends BaseActivity implements listener.On
 
             } else {
                 //Animation for hats off
-                imageHatsOff.startAnimation(AnimationUtils.loadAnimation(this, R.anim.rotate_animation_hats_off));
+                imageHatsOff.startAnimation(AnimationUtils.loadAnimation(this, R.anim.rotate_animation_hats_off_30_degree));
                 //Toggle hatsOff tint
                 imageHatsOff.setColorFilter(ContextCompat.getColor(this, R.color.colorPrimary));
                 //Toggle hatsOff status
@@ -556,7 +554,7 @@ public class FeedDescriptionActivity extends BaseActivity implements listener.On
         } else {
             imageHatsOff.setColorFilter(Color.TRANSPARENT);
             //Animation for hats off
-            imageHatsOff.startAnimation(AnimationUtils.loadAnimation(this, R.anim.reverse_rotate_animation_hats_off));
+            imageHatsOff.startAnimation(AnimationUtils.loadAnimation(this, R.anim.reverse_rotate_animation_hats_off_30_degree));
         }
     }
 

@@ -339,23 +339,23 @@ public class MeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
      * @param itemViewHolder ViewHolder object.
      */
     private void checkHatsOffStatus(boolean hatsOffStatus, ItemViewHolder itemViewHolder) {
-        //fixme
         if (hatsOffStatus) {
-            //itemViewHolder.imageHatsOff.setImageDrawable(ContextCompat.getDrawable(mContext, R.drawable.ic_hats_off_on));
-            //itemViewHolder.imageHatsOff.setColorFilter(ContextCompat.getColor(mContext, R.color.colorPrimary));
-            //Animation for hats off
-            itemViewHolder.imageHatsOff.startAnimation(AnimationUtils.loadAnimation(mContext, R.anim.rotate_animation_hats_off_fast));
-            itemViewHolder.mIsHatsOff = true;
-
+            //Change color
+            itemViewHolder.imageHatsOff.setColorFilter(ContextCompat.getColor(mContext, R.color.colorPrimary));
+            //Set rotation to 30
             itemViewHolder.imageHatsOff.setRotation(30);
-            //itemViewHolder.setIsRecyclable(false);
-        } else {
-            itemViewHolder.imageHatsOff.setImageDrawable(ContextCompat.getDrawable(mContext, R.drawable.ic_hats_off));
-            itemViewHolder.imageHatsOff.setColorFilter(Color.TRANSPARENT);
-            itemViewHolder.mIsHatsOff = false;
-//            itemViewHolder.setIsRecyclable(true);
-            //itemViewHolder.imageHatsOff.setRotation(0);
+            //update flags
+            itemViewHolder.mIsHatsOff = true;
+            itemViewHolder.mIsRotated = true;
 
+        } else {
+            //Change color to transparent
+            itemViewHolder.imageHatsOff.setColorFilter(Color.TRANSPARENT);
+            //Set rotation to 0
+            itemViewHolder.imageHatsOff.setRotation(0);
+            //update flags
+            itemViewHolder.mIsHatsOff = false;
+            itemViewHolder.mIsRotated = false;
         }
     }
 
@@ -376,52 +376,22 @@ public class MeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                     //User has already given the hats off
                     if (itemViewHolder.mIsHatsOff) {
                         //Animation for hats off
-                        /*Animation animation = AnimationUtils.loadAnimation(mContext, R.anim.reverse_rotate_animation_hats_off);
-                        itemViewHolder.imageHatsOff.startAnimation(animation);
-                        animation.setAnimationListener(new Animation.AnimationListener() {
-                            @Override
-                            public void onAnimationStart(Animation animation) {
-
-                            }
-
-                            @Override
-                            public void onAnimationEnd(Animation animation) {
-                                itemViewHolder.imageHatsOff.setRotation(0);
-                            }
-
-                            @Override
-                            public void onAnimationRepeat(Animation animation) {
-
-                            }
-                        });*/
-                        itemViewHolder.imageHatsOff.startAnimation(AnimationUtils.loadAnimation(mContext, R.anim.reverse_rotate_animation_hats_off));
-                        //itemViewHolder.imageHatsOff.setRotation(0);
+                        if (itemViewHolder.mIsRotated) {
+                            itemViewHolder.imageHatsOff.startAnimation(AnimationUtils.loadAnimation(mContext, R.anim.reverse_rotate_animation_hats_off_60_degree));
+                        } else {
+                            itemViewHolder.imageHatsOff.startAnimation(AnimationUtils.loadAnimation(mContext, R.anim.reverse_rotate_animation_hats_off_30_degree));
+                        }
                         //Toggle hatsOff tint
                         itemViewHolder.imageHatsOff.setColorFilter(Color.TRANSPARENT);
                         //Update hats of count i.e decrease by one
                         data.setHatsOffCount(data.getHatsOffCount() - 1);
                     } else {
-                        /*Animation animation = AnimationUtils.loadAnimation(mContext, R.anim.rotate_animation_hats_off);
-                        itemViewHolder.imageHatsOff.startAnimation(animation);
-                        animation.setAnimationListener(new Animation.AnimationListener() {
-                            @Override
-                            public void onAnimationStart(Animation animation) {
-
-                            }
-
-                            @Override
-                            public void onAnimationEnd(Animation animation) {
-                                itemViewHolder.imageHatsOff.setRotation(30);
-                            }
-
-                            @Override
-                            public void onAnimationRepeat(Animation animation) {
-
-                            }
-                        });*/
                         //Animation for hats off
-                        itemViewHolder.imageHatsOff.startAnimation(AnimationUtils.loadAnimation(mContext, R.anim.rotate_animation_hats_off));
-                       // itemViewHolder.imageHatsOff.setRotation(30);
+                        if (itemViewHolder.mIsRotated) {
+                            itemViewHolder.imageHatsOff.startAnimation(AnimationUtils.loadAnimation(mContext, R.anim.rotate_animation_hats_off_0_degree));
+                        } else {
+                            itemViewHolder.imageHatsOff.startAnimation(AnimationUtils.loadAnimation(mContext, R.anim.rotate_animation_hats_off_30_degree));
+                        }
                         //Toggle hatsOff tint
                         itemViewHolder.imageHatsOff.setColorFilter(ContextCompat.getColor(mContext, R.color.colorPrimary));
                         //Change hatsOffCount i.e increase by one
@@ -429,6 +399,7 @@ public class MeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                     }
                     //Toggle hatsOff status
                     itemViewHolder.mIsHatsOff = !itemViewHolder.mIsHatsOff;
+                    //itemViewHolder.mIsRotated = !itemViewHolder.mIsRotated;
                     //Update hats off here
                     data.setHatsOffStatus(itemViewHolder.mIsHatsOff);
                     //Listener
@@ -623,6 +594,8 @@ public class MeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
         //Variable to maintain hats off status
         private boolean mIsHatsOff = false;
+        //Variable to maintain  hats off view rotation status
+        private boolean mIsRotated = false;
 
         public ItemViewHolder(View itemView) {
             super(itemView);
