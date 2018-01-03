@@ -66,3 +66,8 @@
 
  ########## Search View ##########
  -keep class android.support.v7.widget.SearchView { *; }
+
+ ######### Facebook SDK #########
+ -keep class com.facebook.** {
+    *;
+ }
