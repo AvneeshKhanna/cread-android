@@ -735,6 +735,8 @@ public class ShortActivity extends BaseActivity implements ColorChooserDialog.Co
                     public void onSuccess() {
                         //Hide progress indicator
                         imageProgressView.setVisibility(View.GONE);
+                        //Add tint to imageView
+                        imageShort.setColorFilter(ContextCompat.getColor(ShortActivity.this, R.color.transparent));
                         Picasso.with(ShortActivity.this).load(imageUrl).into(new Target() {
                             @Override
                             public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
