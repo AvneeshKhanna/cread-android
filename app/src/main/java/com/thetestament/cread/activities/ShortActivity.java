@@ -753,26 +753,9 @@ public class ShortActivity extends BaseActivity implements ColorChooserDialog.Co
                                                     String hexColorWithoutAlpha = "#" + hexColorWithAlpha.substring(2, 8);
                                                     //set text color
                                                     textShort.setTextColor(Color.parseColor(hexColorWithoutAlpha));
+                                                    //set hint color
+                                                    textShort.setHintTextColor(Color.parseColor(hexColorWithoutAlpha));
                                                 }
-                                                /*Palette.Swatch swatchVibrant = palette.getLightVibrantSwatch();
-                                                Palette.Swatch swatchDarkVibrant = palette.getDarkVibrantSwatch();
-
-                                                Palette.Swatch swatchMuted = palette.getLightMutedSwatch();
-                                                Palette.Swatch swatchDarkMuted = palette.getDarkMutedSwatch();
-
-                                                if (swatchVibrant != null && swatchDarkVibrant != null) {
-                                                    if (swatchVibrant.getPopulation() > swatchDarkVibrant.getPopulation()) {
-                                                        textShort.setTextColor(swatchVibrant.getBodyTextColor());
-                                                    } else {
-                                                        textShort.setTextColor(swatchDarkVibrant.getBodyTextColor());
-                                                    }
-                                                } else if (swatchMuted != null && swatchDarkMuted != null) {
-                                                    if (swatchMuted.getPopulation() > swatchDarkMuted.getPopulation()) {
-                                                        textShort.setTextColor(swatchMuted.getBodyTextColor());
-                                                    } else {
-                                                        textShort.setTextColor(swatchDarkMuted.getBodyTextColor());
-                                                    }
-                                                }*/
                                             }
                                         });
                             }
@@ -928,13 +911,4 @@ public class ShortActivity extends BaseActivity implements ColorChooserDialog.Co
         startActivityForResult(intent, REQUEST_CODE_PREVIEW_ACTIVITY);
     }
 
-
-    public int getBlackWhiteColor(int color) {
-        double darkness = 1 - (0.299 * Color.red(color) + 0.587 * Color.green(color) + 0.114 * Color.blue(color)) / 255;
-        if (darkness >= 0.5) {
-            return Color.WHITE;
-        } else {
-            return Color.BLACK;
-        }
-    }
 }

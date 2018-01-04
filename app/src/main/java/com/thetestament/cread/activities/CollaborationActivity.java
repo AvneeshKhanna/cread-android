@@ -610,6 +610,8 @@ public class CollaborationActivity extends BaseActivity implements ColorChooserD
                                                             String hexColorWithoutAlpha = "#" + hexColorWithAlpha.substring(2, 8);
                                                             //set text color
                                                             textShort.setTextColor(Color.parseColor(hexColorWithoutAlpha));
+                                                            //set hint color
+                                                            textShort.setHintTextColor(Color.parseColor(hexColorWithoutAlpha));
                                                         }
                                                     }
                                                 });
