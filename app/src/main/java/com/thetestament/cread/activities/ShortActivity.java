@@ -10,7 +10,6 @@ import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Environment;
-import android.support.annotation.ColorInt;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.BottomSheetBehavior;
@@ -33,19 +32,22 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.ImageView;
 import android.widget.SeekBar;
 
-import com.afollestad.materialdialogs.color.ColorChooserDialog;
 import com.google.firebase.analytics.FirebaseAnalytics;
 import com.squareup.picasso.Callback;
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Target;
 import com.thetestament.cread.Manifest;
 import com.thetestament.cread.R;
+import com.thetestament.cread.adapters.ColorAdapter;
 import com.thetestament.cread.adapters.FontAdapter;
 import com.thetestament.cread.dialog.CustomDialog;
+import com.thetestament.cread.helpers.ColorHelper;
+import com.thetestament.cread.helpers.FontsHelper;
 import com.thetestament.cread.helpers.SharedPreferenceHelper;
 import com.thetestament.cread.helpers.ViewHelper;
 import com.thetestament.cread.listeners.OnDragTouchListener;
 import com.thetestament.cread.listeners.listener;
+import com.thetestament.cread.models.ColorModel;
 import com.thetestament.cread.models.FontModel;
 import com.thetestament.cread.utils.SquareView;
 import com.thetestament.cread.widgets.CustomEditText;
@@ -63,7 +65,6 @@ import icepick.Icepick;
 import icepick.State;
 import io.reactivex.disposables.CompositeDisposable;
 
-import static com.thetestament.cread.helpers.FontsHelper.fontTypes;
 import static com.thetestament.cread.utils.Constant.EXTRA_CAPTURE_ID;
 import static com.thetestament.cread.utils.Constant.EXTRA_CAPTURE_URL;
 import static com.thetestament.cread.utils.Constant.EXTRA_DATA;
@@ -97,7 +98,7 @@ import static com.thetestament.cread.utils.Constant.REQUEST_CODE_WRITE_EXTERNAL_
  * Here user creates his/her shorts and uploads on the server.
  */
 
-public class ShortActivity extends BaseActivity implements ColorChooserDialog.ColorCallback, OnEditTextBackListener {
+public class ShortActivity extends BaseActivity implements OnEditTextBackListener {
 
     @BindView(R.id.rootView)
     CoordinatorLayout rootView;
@@ -120,17 +121,22 @@ public class ShortActivity extends BaseActivity implements ColorChooserDialog.Co
     @BindView(R.id.imageProgressView)
     View imageProgressView;
 
-
+    //Font bottom sheet
     @BindView(R.id.bottomSheetView)
     NestedScrollView bottomSheetView;
     @BindView(R.id.recyclerView)
     RecyclerView recyclerView;
+    //Color bottom sheet
+    @BindView(R.id.colorBottomSheetView)
+    NestedScrollView colorBottomSheetView;
+    @BindView(R.id.colorRecyclerView)
+    RecyclerView colorRecyclerView;
 
-    private BottomSheetBehavior sheetBehavior;
+
+    private BottomSheetBehavior sheetBehavior, colorSheetBehaviour;
     //Define font typeface
     private Typeface mTextTypeface;
 
-    private ArrayList<FontModel> mFontDataList = new ArrayList<>();
 
     @State
     String mCaptureUrl, mCaptureID = "", mSignatureText, mShortBgColor = "FFFFFFFF", mFontType = "montserrat_regular.ttf";
@@ -140,7 +146,7 @@ public class ShortActivity extends BaseActivity implements ColorChooserDialog.Co
 
 
     /**
-     * Flag to maintain merchantable status i.e true if merchantable is present false otherwise.
+     * Flag to maintain merchantable status i.e true if merchantable false otherwise.
      */
     @State
     boolean mIsMerchantable = true;
@@ -197,7 +203,6 @@ public class ShortActivity extends BaseActivity implements ColorChooserDialog.Co
     CompositeDisposable mCompositeDisposable = new CompositeDisposable();
     SharedPreferenceHelper mHelper;
 
-
     @Override
 
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -205,23 +210,8 @@ public class ShortActivity extends BaseActivity implements ColorChooserDialog.Co
         setContentView(R.layout.activity_short);
         //ButterKnife view binding
         ButterKnife.bind(this);
-        //set listener
-        textShort.setOnEditTextBackListener(this);
-
-        mHelper = new SharedPreferenceHelper(this);
-        //initialize screen
+        //initialize for screen
         initScreen();
-        //initialize seek bar
-        initSeekBar(seekBarTextSize);
-        //For bottomSheet
-        sheetBehavior = BottomSheetBehavior.from(bottomSheetView);
-        sheetBehavior.setPeekHeight(0);
-        //Set default font
-        mTextTypeface = ResourcesCompat.getFont(ShortActivity.this, R.font.montserrat_regular);
-        //initialise fontLayout bottomSheet
-        initFontLayout();
-        //initialize listener
-        initDragListener();
     }
 
     @Override
@@ -330,25 +320,6 @@ public class ShortActivity extends BaseActivity implements ColorChooserDialog.Co
     }
 
     @Override
-    public void onColorSelection(@NonNull ColorChooserDialog dialog, @ColorInt int selectedColor) {
-        if (mColorChooserType.equals("texColor")) {
-            //Change short text color
-            textShort.setTextColor(selectedColor);
-        } else if (mColorChooserType.equals("backGroundColor")) {
-            //Change backgroundColor
-            imageShort.setBackgroundColor(selectedColor);
-            //Update flag
-            mIsBgColorPresent = true;
-        }
-
-    }
-
-    @Override
-    public void onColorChooserDismissed(@NonNull ColorChooserDialog dialog) {
-        //do nothing
-    }
-
-    @Override
     public void onBackPressed() {
         //Show prompt dialog
         CustomDialog.getBackNavigationDialog(ShortActivity.this
@@ -372,22 +343,19 @@ public class ShortActivity extends BaseActivity implements ColorChooserDialog.Co
     }
 
     /**
-     * Click functionality to hide bottom sheet.
+     * Root view click functionality.
      */
     @OnClick(R.id.rootView)
     void rootViewOnClick() {
-        //Collapse bottomSheet if its expanded
-        if (sheetBehavior.getState() == BottomSheetBehavior.STATE_EXPANDED) {
-            sheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
-        }
+        //Method call
+        hideBottomSheets();
     }
 
     @OnClick(R.id.imageContainer)
     void onContainerClick() {
-        //Collapse bottomSheet if its expanded
-        if (sheetBehavior.getState() == BottomSheetBehavior.STATE_EXPANDED) {
-            sheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
-        }
+        //Method call
+        hideBottomSheets();
+
         //Hide edit text cursor
         textShort.setCursorVisible(false);
         //Remove tint to imageView
@@ -451,16 +419,16 @@ public class ShortActivity extends BaseActivity implements ColorChooserDialog.Co
     }
 
     /**
-     * Functionality to change font type.
+     * Functionality to show bottom sheet with font options .
      */
     @OnClick(R.id.btnFont)
     void onFontClicked() {
-        //Show bottomSheet
+        //Show font bottomSheet
         sheetBehavior.setState(BottomSheetBehavior.STATE_EXPANDED);
     }
 
     /**
-     * Functionality to change canvas bac
+     * Functionality to change canvas background
      */
     @OnClick(R.id.btnFormatBg)
     void changeBgColor() {
@@ -471,8 +439,8 @@ public class ShortActivity extends BaseActivity implements ColorChooserDialog.Co
         } else {
             //Set type
             mColorChooserType = "backGroundColor";
-            //Show color dialog
-            showColorChooserDialog();
+            //Show color bottomSheet
+            colorSheetBehaviour.setState(BottomSheetBehavior.STATE_EXPANDED);
         }
     }
 
@@ -483,8 +451,8 @@ public class ShortActivity extends BaseActivity implements ColorChooserDialog.Co
     void onBtnFormatTextColorClicked() {
         //Set type
         mColorChooserType = "texColor";
-        //Show color dialog
-        showColorChooserDialog();
+        //Show color bottomSheet
+        colorSheetBehaviour.setState(BottomSheetBehavior.STATE_EXPANDED);
     }
 
     /**
@@ -570,39 +538,49 @@ public class ShortActivity extends BaseActivity implements ColorChooserDialog.Co
     }
 
     /**
-     * Close button click functionality to hide bottom sheet.
+     * Font bottom sheet close button click functionality to hide bottom sheet.
      */
     @OnClick(R.id.buttonClose)
     void onCloseBtnClick() {
-        //Hide bottom sheet
+        //Hide font bottom sheet
         sheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
     }
 
     /**
-     * Method to show color chooser dialog.
+     * Method to initialize view for this screen.
      */
-    private void showColorChooserDialog() {
-        // Pass a context, along with the title of the dialog
-        new ColorChooserDialog.Builder(this, R.string.text_color)
-                // title of dialog when viewing shades of a color
-                .titleSub(R.string.text_color)
-                // when true, will display accent palette instead of primary palette
-                .accentMode(false)
-                // changes label of the done button
-                .doneButton(R.string.md_done_label)
-                // changes label of the cancel button
-                .cancelButton(R.string.md_cancel_label)
-                // changes label of the back button
-                .backButton(R.string.md_back_label)
-                // defaults to true, false will disable changing action buttons' color to currently selected color
-                .dynamicButtonColor(true)
-                .show(); // an AppCompatActivity which implements ColorCallback
+    private void initScreen() {
+        //obtain shared preference reference
+        mHelper = new SharedPreferenceHelper(this);
+
+        //retrieve data
+        retrieveData();
+
+        //Set default font
+        mTextTypeface = ResourcesCompat.getFont(ShortActivity.this, R.font.montserrat_regular);
+
+        //set listener
+        textShort.setOnEditTextBackListener(this);
+        //initialize seek bar
+        initSeekBar(seekBarTextSize);
+
+        //setup bottom sheets
+        sheetBehavior = BottomSheetBehavior.from(bottomSheetView);
+        sheetBehavior.setPeekHeight(0);
+        colorSheetBehaviour = BottomSheetBehavior.from(colorBottomSheetView);
+        colorSheetBehaviour.setPeekHeight(0);
+
+        //initialise font, color bottomSheet
+        initFontLayout();
+        initColorLayout();
+        //initialize listener
+        initDragListener();
     }
 
     /**
      * Method to retrieve data from intent and initialize this screen.
      */
-    private void initScreen() {
+    private void retrieveData() {
         if (getIntent().hasExtra(EXTRA_DATA)) {
             Bundle bundle = getIntent().getBundleExtra(EXTRA_DATA);
             //Retrieve data
@@ -647,8 +625,9 @@ public class ShortActivity extends BaseActivity implements ColorChooserDialog.Co
      * Method to initialize font bottom sheet.
      */
     private void initFontLayout() {
+        ArrayList<FontModel> mFontDataList = new ArrayList<>();
         //initialize font data list
-        for (String fontName : fontTypes) {
+        for (String fontName : FontsHelper.fontTypes) {
             FontModel data = new FontModel();
             data.setFontName(fontName);
             mFontDataList.add(data);
@@ -690,6 +669,40 @@ public class ShortActivity extends BaseActivity implements ColorChooserDialog.Co
     }
 
     /**
+     * Method to initialize color bottom sheet.
+     */
+    private void initColorLayout() {
+        ArrayList<ColorModel> colorList = new ArrayList<>();
+        //initialize color data list
+        for (String colorValue : ColorHelper.colorList) {
+            ColorModel data = new ColorModel();
+            data.setColorValue(colorValue);
+            colorList.add(data);
+        }
+        //Set layout manager
+        colorRecyclerView.setLayoutManager(new LinearLayoutManager(ShortActivity.this, LinearLayoutManager.HORIZONTAL, false));
+        //Set adapter
+        ColorAdapter colorAdapter = new ColorAdapter(colorList, ShortActivity.this);
+        colorRecyclerView.setAdapter(colorAdapter);
+
+        //Font click listener
+        colorAdapter.setColorSelectListener(new listener.OnColorSelectListener() {
+            @Override
+            public void onColorSelected(int selectedColor) {
+                if (mColorChooserType.equals("texColor")) {
+                    //Change short text color
+                    textShort.setTextColor(selectedColor);
+                } else if (mColorChooserType.equals("backGroundColor")) {
+                    //Change backgroundColor
+                    imageShort.setBackgroundColor(selectedColor);
+                    //Update flag
+                    mIsBgColorPresent = true;
+                }
+            }
+        });
+    }
+
+    /**
      * Method to initialize  edit text drag listener.
      */
     private void initDragListener() {
@@ -715,6 +728,9 @@ public class ShortActivity extends BaseActivity implements ColorChooserDialog.Co
                 formatOptions.setVisibility(View.GONE);
                 seekBarTextSize.setVisibility(View.GONE);
                 viewFormatTextSize.setVisibility(View.GONE);
+
+                //Method call
+                hideBottomSheets();
             }
         }));
     }
@@ -913,4 +929,18 @@ public class ShortActivity extends BaseActivity implements ColorChooserDialog.Co
         startActivityForResult(intent, REQUEST_CODE_PREVIEW_ACTIVITY);
     }
 
+
+    /**
+     * Method to hide bottom sheets if they are expanded.
+     */
+    private void hideBottomSheets() {
+        //Collapse font bottomSheet if its expanded
+        if (sheetBehavior.getState() == BottomSheetBehavior.STATE_EXPANDED) {
+            sheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
+        }
+        //Collapse color bottomSheet if its expanded
+        if (colorSheetBehaviour.getState() == BottomSheetBehavior.STATE_EXPANDED) {
+            colorSheetBehaviour.setState(BottomSheetBehavior.STATE_COLLAPSED);
+        }
+    }
 }

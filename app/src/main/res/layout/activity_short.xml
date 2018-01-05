@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/rootView"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -93,8 +93,8 @@
                 android:layout_width="25dp"
                 android:layout_height="25dp"
                 android:layout_marginLeft="15dp"
-                app:srcCompat="@drawable/ic_format_size_32"
-                android:visibility="gone" />
+                android:visibility="gone"
+                app:srcCompat="@drawable/ic_format_size_32" />
 
             <android.support.v7.widget.AppCompatSeekBar
                 android:id="@+id/seekBarTextSize"
@@ -128,5 +128,7 @@
 
     <!--Font option bottom sheet-->
     <include layout="@layout/layout_font_bottom_sheet" />
+    <!--Color option bottom sheet-->
+    <include layout="@layout/layout_color_bottom_sheet" />
 
 </android.support.design.widget.CoordinatorLayout>

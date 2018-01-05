@@ -245,4 +245,11 @@ public class listener {
          */
         void collaborationOnWriting(String entityID, String entityType);
     }
+
+    /**
+     * Interface definition for a callback to be invoked when user selects color from bottom sheet.
+     */
+    public interface OnColorSelectListener {
+        void onColorSelected(int selectedColor);
+    }
 }
