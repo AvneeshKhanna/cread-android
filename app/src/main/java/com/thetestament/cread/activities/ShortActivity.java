@@ -692,6 +692,7 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
                 if (mColorChooserType.equals("texColor")) {
                     //Change short text color
                     textShort.setTextColor(selectedColor);
+                    textShort.setHintTextColor(selectedColor);
                 } else if (mColorChooserType.equals("backGroundColor")) {
                     //Change backgroundColor
                     imageShort.setBackgroundColor(selectedColor);
