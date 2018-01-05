@@ -34,6 +34,7 @@ import com.thetestament.cread.helpers.ViewHelper;
 import com.thetestament.cread.listeners.listener;
 import com.thetestament.cread.listeners.listener.OnServerRequestedListener;
 import com.thetestament.cread.models.FeedModel;
+import com.thetestament.cread.utils.Constant;
 import com.yalantis.ucrop.UCrop;
 
 import org.json.JSONArray;
@@ -193,7 +194,7 @@ public class HashTagDetailsFragment extends Fragment implements listener.OnColla
         //Set layout manger for recyclerView
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
         //Set adapter
-        mAdapter = new ExploreAdapter(mDataList, getActivity(), mHelper.getUUID(), HashTagDetailsFragment.this);
+        mAdapter = new ExploreAdapter(mDataList, getActivity(), mHelper.getUUID(), HashTagDetailsFragment.this, Constant.ITEM_TYPES.LIST);
         recyclerView.setAdapter(mAdapter);
 
         swipeRefreshLayout.setRefreshing(true);

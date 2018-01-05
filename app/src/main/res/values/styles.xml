@@ -37,7 +37,7 @@
 
 
     <!-- RoyaltiesActivity theme. -->
-    <style name="RoyaltyActivityTheme" parent="AppTheme">
+    <style name="ZeroElevationActivityTheme" parent="AppTheme">
         <!-- Customize your theme here. -->
         <!-- remove shadow below action bar -->
         <item name="android:elevation">0dp</item>

@@ -99,7 +99,7 @@
         </RelativeLayout>
 
 
-        <com.thetestament.cread.utils.SquareView
+        <com.thetestament.cread.widgets.SquareView
             android:id="@+id/imageContainer"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -110,7 +110,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:scaleType="centerCrop" />
-        </com.thetestament.cread.utils.SquareView>
+        </com.thetestament.cread.widgets.SquareView>
 
 
         <TextView

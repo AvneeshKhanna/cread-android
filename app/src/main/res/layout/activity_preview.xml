@@ -19,7 +19,7 @@
                 android:layout_height="match_parent"
                 android:orientation="vertical">
 
-                <com.thetestament.cread.utils.SquareView
+                <com.thetestament.cread.widgets.SquareView
                     android:id="@+id/imageContainer"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -32,7 +32,7 @@
                         android:scaleType="centerCrop" />
 
 
-                </com.thetestament.cread.utils.SquareView>
+                </com.thetestament.cread.widgets.SquareView>
 
                 <android.support.v7.widget.AppCompatEditText
                     android:id="@+id/etCaption"

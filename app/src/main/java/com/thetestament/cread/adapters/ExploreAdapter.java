@@ -12,6 +12,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
@@ -32,6 +33,8 @@ import com.thetestament.cread.listeners.listener.OnExploreCaptureClickListener;
 import com.thetestament.cread.listeners.listener.OnExploreFollowListener;
 import com.thetestament.cread.listeners.listener.OnExploreLoadMoreListener;
 import com.thetestament.cread.models.FeedModel;
+import com.thetestament.cread.utils.Constant;
+import com.thetestament.cread.utils.Constant.ITEM_TYPES;
 
 import java.util.List;
 
@@ -42,6 +45,7 @@ import de.hdodenhof.circleimageview.CircleImageView;
 import static com.thetestament.cread.helpers.FeedHelper.getCollabCountText;
 import static com.thetestament.cread.helpers.FeedHelper.getCreatorText;
 import static com.thetestament.cread.helpers.FeedHelper.initializeSpannableString;
+import static com.thetestament.cread.helpers.ViewHelper.convertToPx;
 import static com.thetestament.cread.utils.Constant.CONTENT_TYPE_CAPTURE;
 import static com.thetestament.cread.utils.Constant.CONTENT_TYPE_SHORT;
 import static com.thetestament.cread.utils.Constant.EXTRA_CAPTURE_ID;
@@ -63,14 +67,16 @@ import static com.thetestament.cread.utils.Constant.REQUEST_CODE_FEED_DESCRIPTIO
 
 public class ExploreAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
-    private final int VIEW_TYPE_ITEM = 0;
-    private final int VIEW_TYPE_LOADING = 1;
+    private final int VIEW_TYPE_ITEM_LIST = 0;
+    private final int VIEW_TYPE_ITEM_GRID = 1;
+    private final int VIEW_TYPE_LOADING = 2;
     private List<FeedModel> mExploreList;
     private FragmentActivity mContext;
     private Fragment mExploreFragment;
     private boolean mIsLoading;
     private String mUUID;
     private SharedPreferenceHelper mHelper;
+    private Enum mItemType;
 
 
     private OnExploreLoadMoreListener onExploreLoadMoreListener;
@@ -85,11 +91,12 @@ public class ExploreAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
      * @param mContext     Context to be use.
      * @param mUUID        UUID of user.
      */
-    public ExploreAdapter(List<FeedModel> mExploreList, FragmentActivity mContext, String mUUID, Fragment mExploreFragment) {
+    public ExploreAdapter(List<FeedModel> mExploreList, FragmentActivity mContext, String mUUID, Fragment mExploreFragment, ITEM_TYPES mItemType) {
         this.mExploreList = mExploreList;
         this.mContext = mContext;
         this.mUUID = mUUID;
         this.mExploreFragment = mExploreFragment;
+        this.mItemType = mItemType;
 
         mHelper = new SharedPreferenceHelper(mContext);
     }
@@ -117,15 +124,28 @@ public class ExploreAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
 
     @Override
     public int getItemViewType(int position) {
-        return mExploreList.get(position) == null ? VIEW_TYPE_LOADING : VIEW_TYPE_ITEM;
+
+        if (mExploreList.get(position) == null) {
+            return VIEW_TYPE_LOADING;
+        } else if (mItemType == ITEM_TYPES.LIST) {
+            return VIEW_TYPE_ITEM_LIST;
+        } else if (mItemType == ITEM_TYPES.GRID) {
+            return VIEW_TYPE_ITEM_GRID;
+        }
+
+        return -1;
     }
 
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        if (viewType == VIEW_TYPE_ITEM) {
-            return new ItemViewHolder(LayoutInflater
+        if (viewType == VIEW_TYPE_ITEM_LIST) {
+            return new ListItemViewHolder(LayoutInflater
                     .from(parent.getContext())
                     .inflate(R.layout.item_explore, parent, false));
+        } else if (viewType == VIEW_TYPE_ITEM_GRID) {
+            return new GridItemViewHolder(LayoutInflater
+                    .from(parent.getContext())
+                    .inflate(R.layout.item_explore_grid, parent, false));
         } else if (viewType == VIEW_TYPE_LOADING) {
             return new LoadingViewHolder(LayoutInflater
                     .from(parent.getContext())
@@ -137,8 +157,8 @@ public class ExploreAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
     @Override
     public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
         FeedModel data = mExploreList.get(position);
-        if (holder.getItemViewType() == VIEW_TYPE_ITEM) {
-            final ItemViewHolder itemViewHolder = (ItemViewHolder) holder;
+        if (holder.getItemViewType() == VIEW_TYPE_ITEM_LIST) {
+            final ListItemViewHolder itemViewHolder = (ListItemViewHolder) holder;
             //Load creator profile picture
             loadCreatorPic(data.getCreatorImage(), itemViewHolder.imageCreator);
             //Set creator name
@@ -170,6 +190,15 @@ public class ExploreAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
             //Collaboration count click functionality
             collaborationCountOnClick(itemViewHolder.collabCount, data.getEntityID(), data.getContentType());
 
+        } else if (holder.getItemViewType() == VIEW_TYPE_ITEM_GRID) {
+            final GridItemViewHolder itemViewHolder = (GridItemViewHolder) holder;
+            //Load explore feed image
+
+            setGridItemMargins(position, itemViewHolder.imageExplore);
+
+            loadFeedImage(data.getContentImage(), itemViewHolder.imageExplore);
+
+            itemViewOnClick(itemViewHolder.itemView, data, position);
         } else if (holder.getItemViewType() == VIEW_TYPE_LOADING) {
             LoadingViewHolder loadingViewHolder = (LoadingViewHolder) holder;
             loadingViewHolder.progressView.setVisibility(View.VISIBLE);
@@ -409,7 +438,7 @@ public class ExploreAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
      * @param data data
      *             * @param itemViewHolder item view holder
      */
-    private void checkFollowStatus(FeedModel data, ExploreAdapter.ItemViewHolder itemViewHolder) {
+    private void checkFollowStatus(FeedModel data, ExploreAdapter.ListItemViewHolder itemViewHolder) {
         if (data.getFollowStatus() || mUUID.equals(data.getUUID())) {
             /*ViewCompat.setBackground(buttonFollow
                     , ContextCompat.getDrawable(context
@@ -541,8 +570,31 @@ public class ExploreAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
         });
     }
 
-    //ItemViewHolder class
-    static class ItemViewHolder extends RecyclerView.ViewHolder {
+    /**
+     * Method to set Margins for grid view items
+     *
+     * @param position position of the item
+     * @param image    Image View
+     */
+    private void setGridItemMargins(int position, ImageView image) {
+        RelativeLayout.LayoutParams params = new
+                RelativeLayout
+                        .LayoutParams(image
+                .getLayoutParams());
+
+        int px = convertToPx(mContext, 1);
+
+        if (position % 2 == 0) {
+            params.setMargins(0, px, px, px);
+        } else {
+            params.setMargins(px, px, 0, px);
+        }
+
+        image.setLayoutParams(params);
+    }
+
+    //ListItemViewHolder class
+    static class ListItemViewHolder extends RecyclerView.ViewHolder {
         @BindView(R.id.imageCreator)
         CircleImageView imageCreator;
         @BindView(R.id.textCreatorName)
@@ -558,7 +610,19 @@ public class ExploreAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
         @BindView(R.id.collabCount)
         TextView collabCount;
 
-        public ItemViewHolder(View itemView) {
+        public ListItemViewHolder(View itemView) {
+            super(itemView);
+            ButterKnife.bind(this, itemView);
+        }
+    }
+
+    //GridItemViewHolder class
+    static class GridItemViewHolder extends RecyclerView.ViewHolder {
+
+        @BindView(R.id.imageExplore)
+        ImageView imageExplore;
+
+        public GridItemViewHolder(View itemView) {
             super(itemView);
             ButterKnife.bind(this, itemView);
         }

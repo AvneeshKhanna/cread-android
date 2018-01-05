@@ -47,7 +47,7 @@ import com.thetestament.cread.helpers.ViewHelper;
 import com.thetestament.cread.listeners.OnDragTouchListener;
 import com.thetestament.cread.listeners.listener;
 import com.thetestament.cread.models.FontModel;
-import com.thetestament.cread.utils.SquareView;
+import com.thetestament.cread.widgets.SquareView;
 import com.thetestament.cread.widgets.CustomEditText;
 import com.thetestament.cread.widgets.CustomEditText.OnEditTextBackListener;
 

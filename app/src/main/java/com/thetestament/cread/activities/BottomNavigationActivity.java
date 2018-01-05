@@ -12,6 +12,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.BottomNavigationView;
 import android.support.design.widget.BottomSheetDialog;
+import android.support.design.widget.CoordinatorLayout;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
@@ -55,6 +56,7 @@ import static com.thetestament.cread.helpers.ImageHelper.getImageUri;
 import static com.thetestament.cread.helpers.ImageHelper.startImageCropping;
 import static com.thetestament.cread.helpers.NetworkHelper.getRestartHerokuObservable;
 import static com.thetestament.cread.helpers.NetworkHelper.requestServer;
+import static com.thetestament.cread.helpers.ViewHelper.convertToPx;
 import static com.thetestament.cread.utils.Constant.FIREBASE_EVENT_EXPLORE_CLICKED;
 import static com.thetestament.cread.utils.Constant.FIREBASE_EVENT_FEED_CLICKED;
 import static com.thetestament.cread.utils.Constant.FIREBASE_EVENT_NOTIFICATION_CLICKED;
@@ -74,7 +76,7 @@ import static com.thetestament.cread.utils.Constant.TAG_ME_FRAGMENT;
 public class BottomNavigationActivity extends BaseActivity {
 
     @BindView(R.id.rootView)
-    RelativeLayout rootView;
+    CoordinatorLayout rootView;
     @BindView(R.id.toolBar)
     Toolbar toolbar;
     @BindView(R.id.bottomNavigation)
@@ -283,6 +285,9 @@ public class BottomNavigationActivity extends BaseActivity {
                     case R.id.action_feed:
                         //Set title
                         setTitle("Cread");
+                        getSupportActionBar().setElevation(
+                                convertToPx(BottomNavigationActivity.this, 4));
+                        setTheme(R.style.BottomNavigationActivityTheme);
                         mCurrentFragment = new FeedFragment();
                         //set fragment tag
                         mFragmentTag = TAG_FEED_FRAGMENT;
@@ -296,6 +301,8 @@ public class BottomNavigationActivity extends BaseActivity {
                     case R.id.action_explore:
                         //Set title
                         setTitle("Explore");
+                        getSupportActionBar().setElevation(0);
+                        setTheme(R.style.ZeroElevationActivityTheme);
                         mCurrentFragment = new ExploreFragment();
                         //Set fragment tag
                         mFragmentTag = TAG_EXPLORE_FRAGMENT;
@@ -315,6 +322,9 @@ public class BottomNavigationActivity extends BaseActivity {
                     case R.id.action_me:
                         //Set title
                         setTitle("Me");
+                        getSupportActionBar().setElevation(
+                                convertToPx(BottomNavigationActivity.this, 4));
+                        setTheme(R.style.BottomNavigationActivityTheme);
                         Bundle meBundle = new Bundle();
                         meBundle.putString("calledFrom", "BottomNavigationActivity");
                         mCurrentFragment = new MeFragment();

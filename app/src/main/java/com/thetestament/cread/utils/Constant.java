@@ -170,6 +170,10 @@ public class Constant {
         HATSOFF, COMMENT, COLLABORATIONS
     }
 
+    public enum ITEM_TYPES {
+        LIST, GRID
+    }
+
     public static final String URI_HASH_TAG_ACTIVITY = "content://com.thetestament.cread.hashtagdetailsactivity/";
 
 
