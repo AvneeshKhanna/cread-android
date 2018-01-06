@@ -34,7 +34,7 @@
                 android:background="@null"
                 android:gravity="center"
                 android:hint="Express yourself"
-                android:inputType="textCapSentences|textMultiLine"
+                android:inputType="textCapSentences|textMultiLine|textNoSuggestions"
                 android:paddingRight="5dp"
                 android:textAppearance="@style/ShortFont"
                 android:textCursorDrawable="@drawable/cursor_edit_text"
