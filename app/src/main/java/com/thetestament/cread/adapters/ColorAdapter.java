@@ -1,7 +1,6 @@
 package com.thetestament.cread.adapters;
 
 import android.support.v4.app.FragmentActivity;
-import android.support.v7.widget.AppCompatImageView;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -16,6 +15,7 @@ import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import de.hdodenhof.circleimageview.CircleImageView;
 
 /**
  * Adapter class to provide a binding from data set to views that are displayed within a color RecyclerView.
@@ -76,7 +76,7 @@ public class ColorAdapter extends RecyclerView.Adapter<ColorAdapter.ItemViewHold
     //Item view holder
     static class ItemViewHolder extends RecyclerView.ViewHolder {
         @BindView(R.id.view)
-        AppCompatImageView colorView;
+        CircleImageView colorView;
 
         public ItemViewHolder(View itemView) {
             super(itemView);
