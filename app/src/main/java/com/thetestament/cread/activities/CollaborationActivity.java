@@ -31,7 +31,6 @@ import android.widget.TextView;
 
 import com.afollestad.materialdialogs.DialogAction;
 import com.afollestad.materialdialogs.MaterialDialog;
-import com.afollestad.materialdialogs.color.ColorChooserDialog;
 import com.google.firebase.crash.FirebaseCrash;
 import com.rx2androidnetworking.Rx2AndroidNetworking;
 import com.squareup.picasso.Callback;
@@ -41,12 +40,15 @@ import com.squareup.picasso.Target;
 import com.thetestament.cread.BuildConfig;
 import com.thetestament.cread.Manifest;
 import com.thetestament.cread.R;
+import com.thetestament.cread.adapters.ColorAdapter;
 import com.thetestament.cread.adapters.FontAdapter;
 import com.thetestament.cread.dialog.CustomDialog;
+import com.thetestament.cread.helpers.ColorHelper;
 import com.thetestament.cread.helpers.SharedPreferenceHelper;
 import com.thetestament.cread.helpers.ViewHelper;
 import com.thetestament.cread.listeners.OnDragTouchListener;
 import com.thetestament.cread.listeners.listener;
+import com.thetestament.cread.models.ColorModel;
 import com.thetestament.cread.models.FontModel;
 import com.thetestament.cread.widgets.SquareView;
 
@@ -110,7 +112,7 @@ import static com.thetestament.cread.utils.Constant.WATERMARK_STATUS_YES;
  * This class shows the preview of collaboration.
  */
 
-public class CollaborationActivity extends BaseActivity implements ColorChooserDialog.ColorCallback {
+public class CollaborationActivity extends BaseActivity {
 
     @BindView(R.id.rootView)
     CoordinatorLayout rootView;
@@ -131,17 +133,20 @@ public class CollaborationActivity extends BaseActivity implements ColorChooserD
     @BindView(R.id.dotItalic)
     View dotItalic;
 
-
+    //Font bottom sheet
     @BindView(R.id.bottomSheetView)
     NestedScrollView bottomSheetView;
     @BindView(R.id.recyclerView)
     RecyclerView recyclerView;
+    //Color bottom sheet
+    @BindView(R.id.colorBottomSheetView)
+    NestedScrollView colorBottomSheetView;
+    @BindView(R.id.colorRecyclerView)
+    RecyclerView colorRecyclerView;
 
-    private BottomSheetBehavior sheetBehavior;
+    private BottomSheetBehavior sheetBehavior, colorSheetBehaviour;
     //Define font typeface
     private Typeface mTextTypeface;
-
-    private ArrayList<FontModel> mFontDataList = new ArrayList<>();
 
 
     @State
@@ -195,10 +200,13 @@ public class CollaborationActivity extends BaseActivity implements ColorChooserD
         //For bottomSheet
         sheetBehavior = BottomSheetBehavior.from(bottomSheetView);
         sheetBehavior.setPeekHeight(0);
+        colorSheetBehaviour = BottomSheetBehavior.from(colorBottomSheetView);
+        colorSheetBehaviour.setPeekHeight(0);
         //Set default font
         mTextTypeface = ResourcesCompat.getFont(CollaborationActivity.this, R.font.montserrat_regular);
-        //initialise fontLayout bottomSheet
+        //initialise font , color bottomSheet
         initFontLayout();
+        initColorLayout();
     }
 
     @Override
@@ -277,17 +285,6 @@ public class CollaborationActivity extends BaseActivity implements ColorChooserD
     }
 
     @Override
-    public void onColorSelection(@NonNull ColorChooserDialog dialog, int selectedColor) {
-        //Change short text color
-        textShort.setTextColor(selectedColor);
-    }
-
-    @Override
-    public void onColorChooserDismissed(@NonNull ColorChooserDialog dialog) {
-        //Do nothing
-    }
-
-    @Override
     public void onBackPressed() {
         //super.onBackPressed();
         //Show prompt dialog
@@ -298,10 +295,8 @@ public class CollaborationActivity extends BaseActivity implements ColorChooserD
 
     @OnClick(R.id.rootView)
     void rootViewOnClick() {
-        //Collapse bottomSheet if its expanded
-        if (sheetBehavior.getState() == BottomSheetBehavior.STATE_EXPANDED) {
-            sheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
-        }
+        //Method call
+        hideBottomSheets();
     }
 
     /**
@@ -346,7 +341,7 @@ public class CollaborationActivity extends BaseActivity implements ColorChooserD
     }
 
     /**
-     * Functionality to  show toast.
+     * Functionality to show toast.
      */
     @OnClick(R.id.btnFormatBg)
     void changeBgColor() {
@@ -359,8 +354,8 @@ public class CollaborationActivity extends BaseActivity implements ColorChooserD
      */
     @OnClick(R.id.btnFormatTextColor)
     void onBtnFormatTextColorClicked() {
-        //Show color dialog
-        showColorChooserDialog();
+        //Show color bottomSheet
+        colorSheetBehaviour.setState(BottomSheetBehavior.STATE_EXPANDED);
     }
 
 
@@ -455,27 +450,6 @@ public class CollaborationActivity extends BaseActivity implements ColorChooserD
         sheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
     }
 
-    /**
-     * Method to show color chooser dialog.
-     */
-    private void showColorChooserDialog() {
-        // Pass a context, along with the title of the dialog
-        new ColorChooserDialog.Builder(this, R.string.text_color)
-                // title of dialog when viewing shades of a color
-                .titleSub(R.string.text_color)
-                // when true, will display accent palette instead of primary palette
-                .accentMode(false)
-                // changes label of the done button
-                .doneButton(R.string.md_done_label)
-                // changes label of the cancel button
-                .cancelButton(R.string.md_cancel_label)
-                // changes label of the back button
-                .backButton(R.string.md_back_label)
-                // defaults to true, false will disable changing action buttons' color to currently selected color
-                .dynamicButtonColor(true)
-                .show(); // an AppCompatActivity which implements ColorCallback
-    }
-
 
     /**
      * Used to handle result of askForPermission for capture.
@@ -542,6 +516,7 @@ public class CollaborationActivity extends BaseActivity implements ColorChooserD
      * Method to initialize font bottom sheet
      */
     private void initFontLayout() {
+        ArrayList<FontModel> mFontDataList = new ArrayList<>();
         //initialize font data list
         for (String fontName : fontTypes) {
             FontModel data = new FontModel();
@@ -583,6 +558,33 @@ public class CollaborationActivity extends BaseActivity implements ColorChooserD
     }
 
     /**
+     * Method to initialize color bottom sheet.
+     */
+    private void initColorLayout() {
+        ArrayList<ColorModel> colorList = new ArrayList<>();
+        //initialize color data list
+        for (String colorValue : ColorHelper.colorList) {
+            ColorModel data = new ColorModel();
+            data.setColorValue(colorValue);
+            colorList.add(data);
+        }
+        //Set layout manager
+        colorRecyclerView.setLayoutManager(new LinearLayoutManager(CollaborationActivity.this, LinearLayoutManager.HORIZONTAL, false));
+        //Set adapter
+        ColorAdapter colorAdapter = new ColorAdapter(colorList, CollaborationActivity.this);
+        colorRecyclerView.setAdapter(colorAdapter);
+
+        //Font click listener
+        colorAdapter.setColorSelectListener(new listener.OnColorSelectListener() {
+            @Override
+            public void onColorSelected(int selectedColor) {
+                //Change short text color
+                textShort.setTextColor(selectedColor);
+            }
+        });
+    }
+
+    /**
      * Method to load capture image for preview.
      */
     private void loadCaptureImage(ImageView imageView) {
@@ -610,6 +612,8 @@ public class CollaborationActivity extends BaseActivity implements ColorChooserD
                                                             String hexColorWithoutAlpha = "#" + hexColorWithAlpha.substring(2, 8);
                                                             //set text color
                                                             textShort.setTextColor(Color.parseColor(hexColorWithoutAlpha));
+                                                            //set hint color
+                                                            textShort.setHintTextColor(Color.parseColor(hexColorWithoutAlpha));
                                                         }
                                                     }
                                                 });
@@ -896,7 +900,6 @@ public class CollaborationActivity extends BaseActivity implements ColorChooserD
 
     }
 
-
     /**
      * Method to open previewActivity.
      */
@@ -931,5 +934,19 @@ public class CollaborationActivity extends BaseActivity implements ColorChooserD
 
         intent.putExtra(PREVIEW_EXTRA_DATA, bundle);
         startActivityForResult(intent, REQUEST_CODE_PREVIEW_ACTIVITY);
+    }
+
+    /**
+     * Method to hide bottom sheets if they are expanded.
+     */
+    private void hideBottomSheets() {
+        //Collapse font bottomSheet if its expanded
+        if (sheetBehavior.getState() == BottomSheetBehavior.STATE_EXPANDED) {
+            sheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
+        }
+        //Collapse color bottomSheet if its expanded
+        if (colorSheetBehaviour.getState() == BottomSheetBehavior.STATE_EXPANDED) {
+            colorSheetBehaviour.setState(BottomSheetBehavior.STATE_COLLAPSED);
+        }
     }
 }

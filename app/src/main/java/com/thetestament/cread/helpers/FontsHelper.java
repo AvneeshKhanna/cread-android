@@ -15,7 +15,7 @@ public class FontsHelper {
     public static final String FONT_TYPE_AMATIC_SC_REGULAR = "amatic_sc_regular.ttf";
     public static final String FONT_TYPE_BARLOW_CONDENSED_REGULAR = "barlow_condensed_regular.ttf";
     public static final String FONT_TYPE_CABIN_SKETCH_REGULAR = "cabin_sketch_regular.ttf";
-    public static final String FONT_TYPE_HELVETICA_NEUE_MEDUIM = "helvetica_neue_medium.ttf";
+    public static final String FONT_TYPE_HELVETICA_NEUE_MEDIUM = "helvetica_neue_medium.ttf";
     public static final String FONT_TYPE_INDIE_FLOWER = "indie_flower.ttf";
     public static final String FONT_TYPE_MONTSERRAT_REGULAR = "montserrat_regular.ttf";
     public static final String FONT_TYPE_OSWALD_REGULAR = "oswald_regular.ttf";
@@ -42,7 +42,7 @@ public class FontsHelper {
             , FONT_TYPE_AMATIC_SC_REGULAR
             , FONT_TYPE_BARLOW_CONDENSED_REGULAR
             , FONT_TYPE_CABIN_SKETCH_REGULAR
-            , FONT_TYPE_HELVETICA_NEUE_MEDUIM
+            , FONT_TYPE_HELVETICA_NEUE_MEDIUM
             , FONT_TYPE_INDIE_FLOWER
             , FONT_TYPE_OSWALD_REGULAR
             , FONT_TYPE_PLAYFAIR_DISPLAY_REGULAR
@@ -77,7 +77,7 @@ public class FontsHelper {
                 return ResourcesCompat.getFont(context, R.font.barlow_condensed_regular);
             case FONT_TYPE_CABIN_SKETCH_REGULAR:
                 return ResourcesCompat.getFont(context, R.font.cabin_sketch_regular);
-            case FONT_TYPE_HELVETICA_NEUE_MEDUIM:
+            case FONT_TYPE_HELVETICA_NEUE_MEDIUM:
                 return ResourcesCompat.getFont(context, R.font.helvetica_neue_medium);
             case FONT_TYPE_INDIE_FLOWER:
                 return ResourcesCompat.getFont(context, R.font.indie_flower);

@@ -193,7 +193,12 @@ public class OnDragTouchListener implements View.OnTouchListener {
                     onDragFinish();
                     break;
                 case MotionEvent.ACTION_MOVE:
-                    mView.animate().x(bounds[0]).y(bounds[1]).setDuration(0).start();
+                    //mView.animate().x(bounds[0]).y(bounds[1]).setDuration(0).start();
+                    mView.animate()
+                            .x(event.getRawX() + dX)
+                            .y(event.getRawY() + dY)
+                            .setDuration(0)
+                            .start();
                     break;
             }
             return true;
