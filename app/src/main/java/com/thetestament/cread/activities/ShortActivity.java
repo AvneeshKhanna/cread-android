@@ -46,6 +46,7 @@ import com.thetestament.cread.helpers.FontsHelper;
 import com.thetestament.cread.helpers.SharedPreferenceHelper;
 import com.thetestament.cread.helpers.ViewHelper;
 import com.thetestament.cread.listeners.OnDragTouchListener;
+import com.thetestament.cread.listeners.OnSwipeGestureListener;
 import com.thetestament.cread.listeners.listener;
 import com.thetestament.cread.models.ColorModel;
 import com.thetestament.cread.models.FontModel;
@@ -100,6 +101,7 @@ import static com.thetestament.cread.utils.Constant.REQUEST_CODE_WRITE_EXTERNAL_
 
 public class ShortActivity extends BaseActivity implements OnEditTextBackListener {
 
+    //region :Views binding with butter knife
     @BindView(R.id.rootView)
     CoordinatorLayout rootView;
     @BindView(R.id.imageContainer)
@@ -131,7 +133,7 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
     NestedScrollView colorBottomSheetView;
     @BindView(R.id.colorRecyclerView)
     RecyclerView colorRecyclerView;
-
+    //endregion
 
     private BottomSheetBehavior sheetBehavior, colorSheetBehaviour;
     //Define font typeface
@@ -200,6 +202,14 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
     TextGravity textGravity = TextGravity.Center;
 
 
+    int mImageTint = 0;
+
+    private enum ImageTint {
+        Transparent_50, Transparent_60, Transparent_70
+    }
+
+    ImageTint imageTint = ImageTint.Transparent_50;
+
     CompositeDisposable mCompositeDisposable = new CompositeDisposable();
     SharedPreferenceHelper mHelper;
 
@@ -212,6 +222,7 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
         ButterKnife.bind(this);
         //initialize for screen
         initScreen();
+
     }
 
     @Override
@@ -575,6 +586,7 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
         initColorLayout();
         //initialize listener
         initDragListener();
+        //initSwipeListener();
     }
 
     /**
@@ -719,7 +731,7 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
                 //Show edit text cursor
                 textShort.setCursorVisible(true);
                 //Add tint to imageView
-                imageShort.setColorFilter(ContextCompat.getColor(ShortActivity.this, R.color.transparent));
+                imageShort.setColorFilter(ContextCompat.getColor(ShortActivity.this, R.color.transparent_50));
                 //Show keyboard
                 InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
                 imm.showSoftInput(textShort, 0);
@@ -734,6 +746,90 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
                 hideBottomSheets();
             }
         }));
+    }
+
+    /**
+     * Method to initialize swipe listener on squareView.
+     */
+    private void initSwipeListener() {
+
+        squareView.setOnTouchListener(new OnSwipeGestureListener(this) {
+            @Override
+            public void onSwipeRight() {
+
+                switch (mImageTint) {
+                    case 0:
+                        //Change  flag
+                        imageShort.setColorFilter(ContextCompat.getColor(ShortActivity.this, R.color.transparent_70));
+                        mImageTint = 1;
+                        break;
+                    case 1:
+                        //Change  flag
+                        imageShort.setColorFilter(ContextCompat.getColor(ShortActivity.this, R.color.transparent_60));
+                        mImageTint = 2;
+                        break;
+                    case 2:
+                        imageShort.setColorFilter(ContextCompat.getColor(ShortActivity.this, R.color.transparent_50));
+                        //Change  flag
+                        mImageTint = 3;
+                        break;
+                    case 3:
+                        imageShort.clearColorFilter();
+                        //Change  flag
+                        mImageTint = 0;
+                        break;
+                }
+            }
+
+            @Override
+            public void onSwipeLeft() {
+
+                switch (mImageTint) {
+                    case 0:
+                        //Change  flag
+                        //imageShort.setColorFilter(ContextCompat.getColor(ShortActivity.this, R.color.transparent_50));
+                        mImageTint = 1;
+                        break;
+                    case 1:
+                        //Change  flag
+                        imageShort.setColorFilter(ContextCompat.getColor(ShortActivity.this, R.color.transparent_60));
+                        mImageTint = 2;
+                        break;
+                    case 2:
+                        imageShort.setColorFilter(ContextCompat.getColor(ShortActivity.this, R.color.transparent_70));
+                        //Change  flag
+                        mImageTint = 3;
+                        break;
+                    case 3:
+                        imageShort.clearColorFilter();
+                        //Change  flag
+                        mImageTint = 0;
+                        break;
+                }
+            }
+
+            @Override
+            public void onClick() {
+                //Method call
+                hideBottomSheets();
+
+                //Hide edit text cursor
+                textShort.setCursorVisible(false);
+                //Remove tint to imageView
+                imageShort.clearColorFilter();
+                //Hide keyboard
+                InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                imm.hideSoftInputFromWindow(textShort.getWindowToken(), 0);
+
+                //initialize listener
+                initDragListener();
+
+                //Toggle visibility
+                formatOptions.setVisibility(View.VISIBLE);
+                seekBarTextSize.setVisibility(View.VISIBLE);
+                viewFormatTextSize.setVisibility(View.VISIBLE);
+            }
+        });
     }
 
     /**
@@ -753,7 +849,7 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
                         //Hide progress indicator
                         imageProgressView.setVisibility(View.GONE);
                         //Add tint to imageView
-                        imageShort.setColorFilter(ContextCompat.getColor(ShortActivity.this, R.color.transparent));
+                        imageShort.setColorFilter(ContextCompat.getColor(ShortActivity.this, R.color.transparent_50));
                         Picasso.with(ShortActivity.this).load(imageUrl).into(new Target() {
                             @Override
                             public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {

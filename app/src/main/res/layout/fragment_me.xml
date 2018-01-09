@@ -36,16 +36,17 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
+                    android:paddingBottom="8dp"
                     android:paddingLeft="24dp"
                     android:paddingRight="24dp"
-                    android:paddingTop="24dp"
-                    android:paddingBottom="8dp">
+                    android:paddingTop="24dp">
 
                     <de.hdodenhof.circleimageview.CircleImageView
                         android:id="@+id/imageUser"
                         android:layout_width="88dp"
                         android:layout_height="88dp"
                         android:layout_gravity="center"
+                        android:transitionName="@string/shared_transition_profile_pic"
                         tools:src="@drawable/ic_account_circle_48" />
 
                     <TextView
@@ -89,17 +90,17 @@
                         android:id="@+id/viewPagerUserStats"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="16dp"
-                        android:layout_marginBottom="4dp" />
+                        android:layout_marginBottom="4dp"
+                        android:layout_marginTop="16dp" />
 
                     <me.relex.circleindicator.CircleIndicator
                         android:id="@+id/indicator"
                         android:layout_width="match_parent"
                         android:layout_height="24dp"
-                        app:ci_height="3dp"
-                        app:ci_width="3dp"
                         app:ci_drawable="@drawable/active_dot"
-                        app:ci_drawable_unselected="@drawable/inactive_dot" />
+                        app:ci_drawable_unselected="@drawable/inactive_dot"
+                        app:ci_height="3dp"
+                        app:ci_width="3dp" />
 
 
                     <!--<LinearLayout

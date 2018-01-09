@@ -142,4 +142,7 @@
     // invite friends text
     <string name="text_invite_friends">Hey! Check out this app where graphic artists collaborate with writers and make beautiful stuff! And if that\'s not enough, they get royalties for every artpiece that sells.\n\nGet your art on Cread now. It\'s fun! \n\n https://goo.gl/Q7zJ1n</string>
 
+   //Transition Shared
+    <string name="shared_transition_profile_pic">profilePic</string>
+
 </resources>

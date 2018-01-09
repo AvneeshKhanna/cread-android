@@ -7,6 +7,10 @@
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/colorAccent</item>
         <item name="preferenceTheme">@style/SettingsTheme</item>
+
+        <!--For shared element transition-->
+        <item name="android:windowContentTransitions">true</item>
+
         <!--To change the material dialog font-family-->
         <!-- <item name="md_medium_font">@string/app_font_family_bold</item>
          <item name="md_regular_font">@string/app_font_family_normal</item>-->
