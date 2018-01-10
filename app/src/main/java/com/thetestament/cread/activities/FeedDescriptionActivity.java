@@ -11,6 +11,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.v13.view.ViewCompat;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.widget.NestedScrollView;
 import android.support.v4.widget.TextViewCompat;
@@ -18,6 +19,8 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.animation.AnimationUtils;
 import android.view.animation.LayoutAnimationController;
@@ -29,6 +32,7 @@ import com.afollestad.materialdialogs.DialogAction;
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.google.firebase.analytics.FirebaseAnalytics;
 import com.google.firebase.crash.FirebaseCrash;
+import com.squareup.picasso.Callback;
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Target;
 import com.thetestament.cread.BuildConfig;
@@ -235,6 +239,21 @@ public class FeedDescriptionActivity extends BaseActivity implements listener.On
         Icepick.restoreInstanceState(this, savedInstanceState);
     }
 
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                supportFinishAfterTransition();
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
 
     /**
      * HatsOffCount click functionality to open "HatsOffActivity" screen.
@@ -469,6 +488,13 @@ public class FeedDescriptionActivity extends BaseActivity implements listener.On
 
         //Show tooltip on have button
         showTooltip();
+
+        //If API is greater than LOLLIPOP
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
+            //For shared transition
+            image.setTransitionName(mFeedData.getEntityID());
+            ActivityCompat.postponeEnterTransition(this);
+        }
     }
 
     /**
@@ -481,7 +507,17 @@ public class FeedDescriptionActivity extends BaseActivity implements listener.On
         Picasso.with(this)
                 .load(imgLink)
                 .error(R.drawable.image_placeholder)
-                .into(image);
+                .into(image, new Callback() {
+                    @Override
+                    public void onSuccess() {
+                        ActivityCompat.startPostponedEnterTransition(FeedDescriptionActivity.this);
+                    }
+
+                    @Override
+                    public void onError() {
+                        ActivityCompat.startPostponedEnterTransition(FeedDescriptionActivity.this);
+                    }
+                });
     }
 
     /**
@@ -661,7 +697,6 @@ public class FeedDescriptionActivity extends BaseActivity implements listener.On
         //Update status
         mHelper.updateHaveButtonToolTipStatus(false);
     }
-
 
 
     /**

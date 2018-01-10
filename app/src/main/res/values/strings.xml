@@ -146,6 +146,6 @@
     <string name="shared_transition_profile_pic">profilePic</string>
 
     //Info text
-    <string name="note_text_short_creation">Double tap to add image tint</string>
+    <string name="note_text_short_creation">Double tap outside text to add image tint</string>
 
 </resources>

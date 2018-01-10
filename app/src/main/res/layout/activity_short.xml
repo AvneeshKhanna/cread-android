@@ -67,6 +67,7 @@
             android:layout_centerHorizontal="true"
             android:gravity="center"
             android:paddingTop="10sp"
+            android:visibility="invisible"
             android:text="@string/note_text_short_creation"
             android:textSize="12sp" />
 
