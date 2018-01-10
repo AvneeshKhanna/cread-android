@@ -47,6 +47,7 @@ import com.thetestament.cread.helpers.ColorHelper;
 import com.thetestament.cread.helpers.SharedPreferenceHelper;
 import com.thetestament.cread.helpers.ViewHelper;
 import com.thetestament.cread.listeners.OnDragTouchListener;
+import com.thetestament.cread.listeners.OnSwipeGestureListener;
 import com.thetestament.cread.listeners.listener;
 import com.thetestament.cread.models.ColorModel;
 import com.thetestament.cread.models.FontModel;
@@ -89,6 +90,7 @@ import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_CALLED_FROM;
 import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_CALLED_FROM_COLLABORATION;
 import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_DATA;
 import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_FONT;
+import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_IMAGE_TINT_COLOR;
 import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_IMG_WIDTH;
 import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_ITALIC;
 import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_MERCHANTABLE;
@@ -180,6 +182,19 @@ public class CollaborationActivity extends BaseActivity {
         Center, East, West
     }
 
+    /**
+     * Flag to maintain image tint status. 0(Zero) for default.
+     */
+    @State
+    int mImageTintFlag = 0;
+
+    /**
+     * Flag to store image tint color
+     */
+    @State
+    String mImageTintColor = "";
+
+
     //Initially text gravity is "CENTER"
     TextGravity textGravity = TextGravity.Center;
 
@@ -207,6 +222,8 @@ public class CollaborationActivity extends BaseActivity {
         //initialise font , color bottomSheet
         initFontLayout();
         initColorLayout();
+        //initialize listener
+        initSwipeListener();
     }
 
     @Override
@@ -585,6 +602,53 @@ public class CollaborationActivity extends BaseActivity {
     }
 
     /**
+     * Method to initialize swipe listener on squareView.
+     */
+    private void initSwipeListener() {
+
+        squareView.setOnTouchListener(new OnSwipeGestureListener(this) {
+
+            @Override
+            public void onDoubleClick() {
+                switch (mImageTintFlag) {
+                    case 0:
+                        //Apply tint
+                        imageShort.setColorFilter(ContextCompat.getColor(CollaborationActivity.this, R.color.transparent_50));
+                        //Update flag
+                        mImageTintFlag = 1;
+                        //set tint color
+                        mImageTintColor = "80000000";
+                        break;
+                    case 1:
+                        //Apply tint
+                        imageShort.setColorFilter(ContextCompat.getColor(CollaborationActivity.this, R.color.transparent_60));
+                        //Update flag
+                        mImageTintFlag = 2;
+                        //set tint color
+                        mImageTintColor = "99000000";
+                        break;
+                    case 2:
+                        //Apply tint
+                        imageShort.setColorFilter(ContextCompat.getColor(CollaborationActivity.this, R.color.transparent_70));
+                        //Update flag
+                        mImageTintFlag = 3;
+                        //set tint color
+                        mImageTintColor = "B3000000";
+                        break;
+                    case 3:
+                        //Clear filter
+                        imageShort.clearColorFilter();
+                        //Update flag
+                        mImageTintFlag = 0;
+                        //set tint color
+                        mImageTintColor = "";
+                        break;
+                }
+            }
+        });
+    }
+
+    /**
      * Method to load capture image for preview.
      */
     private void loadCaptureImage(ImageView imageView) {
@@ -886,6 +950,7 @@ public class CollaborationActivity extends BaseActivity {
                     , mFontType
                     , String.valueOf(mBoldFlag)
                     , String.valueOf(mItalicFlag)
+                    , mImageTintColor
                     , PREVIEW_EXTRA_CALLED_FROM_COLLABORATION
             );
 
@@ -907,7 +972,7 @@ public class CollaborationActivity extends BaseActivity {
             , String xPosition, String yPosition, String tvWidth, String tvHeight
             , String text, String textSize, String textColor, String textGravity
             , String imgWidth, String signature, String merchantable, String font
-            , String bold, String italic, String calledFrom) {
+            , String bold, String italic, String imageTintColor, String calledFrom) {
 
         Intent intent = new Intent(CollaborationActivity.this, PreviewActivity.class);
 
@@ -930,6 +995,7 @@ public class CollaborationActivity extends BaseActivity {
         bundle.putString(PREVIEW_EXTRA_FONT, font);
         bundle.putString(PREVIEW_EXTRA_BOLD, bold);
         bundle.putString(PREVIEW_EXTRA_ITALIC, italic);
+        bundle.putString(PREVIEW_EXTRA_IMAGE_TINT_COLOR, imageTintColor);
         bundle.putString(PREVIEW_EXTRA_CALLED_FROM, calledFrom);
 
         intent.putExtra(PREVIEW_EXTRA_DATA, bundle);

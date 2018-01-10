@@ -903,11 +903,12 @@ public class MeFragment extends Fragment implements listener.OnCollaborationList
         //Obtain views reference
         ImageView previewImage = dialog.getCustomView().findViewById(R.id.imageProfilePreview);
 
-        // FIXME: change placeholder
         //Load profile picture
         Picasso.with(getActivity())
                 .load(mProfilePicURL)
-                .error(R.drawable.image_placeholder)
+                .networkPolicy(NetworkPolicy.NO_CACHE)
+                .memoryPolicy(MemoryPolicy.NO_CACHE)
+                .error(R.drawable.ic_person_56)
                 .into(previewImage);
     }
 

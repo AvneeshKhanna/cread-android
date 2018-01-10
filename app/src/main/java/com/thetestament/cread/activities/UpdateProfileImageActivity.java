@@ -16,6 +16,8 @@ import com.androidnetworking.error.ANError;
 import com.androidnetworking.interfaces.JSONObjectRequestListener;
 import com.google.firebase.crash.FirebaseCrash;
 import com.squareup.picasso.Callback;
+import com.squareup.picasso.MemoryPolicy;
+import com.squareup.picasso.NetworkPolicy;
 import com.squareup.picasso.Picasso;
 import com.thetestament.cread.BuildConfig;
 import com.thetestament.cread.R;
@@ -130,7 +132,7 @@ public class UpdateProfileImageActivity extends BaseActivity {
         switch (item.getItemId()) {
             case android.R.id.home:
                 //Navigate back from this screen
-               supportFinishAfterTransition();
+                supportFinishAfterTransition();
 
                 return true;
             case R.id.action_edit:
@@ -150,6 +152,8 @@ public class UpdateProfileImageActivity extends BaseActivity {
     private void loadProfileImage(String imageURL) {
         Picasso.with(this)
                 .load(imageURL)
+                .networkPolicy(NetworkPolicy.NO_CACHE)
+                .memoryPolicy(MemoryPolicy.NO_CACHE)
                 .error(R.drawable.ic_account_circle_48)
                 .into(imageProfile, new Callback() {
                     @Override

@@ -195,6 +195,7 @@ public class Constant {
     public static final String PREVIEW_EXTRA_FONT = "font";
     public static final String PREVIEW_EXTRA_BOLD = "bold";
     public static final String PREVIEW_EXTRA_ITALIC = "italic";
+    public static final String PREVIEW_EXTRA_IMAGE_TINT_COLOR = "imageTintColor";
     public static final String PREVIEW_EXTRA_CALLED_FROM_COLLABORATION = "collaboration";
     public static final String PREVIEW_EXTRA_CALLED_FROM_SHORT = "short";
 
