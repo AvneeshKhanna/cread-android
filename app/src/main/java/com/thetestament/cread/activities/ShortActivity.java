@@ -31,6 +31,7 @@ import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.ImageView;
 import android.widget.SeekBar;
+import android.widget.TextView;
 
 import com.google.firebase.analytics.FirebaseAnalytics;
 import com.squareup.picasso.Callback;
@@ -123,6 +124,8 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
     View formatOptions;
     @BindView(R.id.imageProgressView)
     View imageProgressView;
+    @BindView(R.id.textNote)
+    TextView textNote;
 
     //Font bottom sheet
     @BindView(R.id.bottomSheetView)
@@ -256,6 +259,8 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
                     //Update flags
                     mIsBgColorPresent = false;
                     mIsImagePresent = true;
+                    //show note text
+                    textNote.setVisibility(View.VISIBLE);
                 }
                 break;
             case REQUEST_CODE_PREVIEW_ACTIVITY:
@@ -618,6 +623,8 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
             loadCapture(imageShort, mCaptureUrl);
             //Update flag
             mIsImagePresent = true;
+            //show note text
+            textNote.setVisibility(View.VISIBLE);
         }
         //Set water mark text
         mSignatureText = "- " + mHelper.getFirstName() + " " + mHelper.getLastName();

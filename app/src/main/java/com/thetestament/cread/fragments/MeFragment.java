@@ -58,12 +58,12 @@ import com.thetestament.cread.helpers.FeedHelper;
 import com.thetestament.cread.helpers.HatsOffHelper;
 import com.thetestament.cread.helpers.ImageHelper;
 import com.thetestament.cread.helpers.NetworkHelper;
+import com.thetestament.cread.helpers.ShareHelper;
 import com.thetestament.cread.helpers.SharedPreferenceHelper;
 import com.thetestament.cread.helpers.ViewHelper;
 import com.thetestament.cread.listeners.listener;
 import com.thetestament.cread.listeners.listener.OnUserStatsClickedListener;
 import com.thetestament.cread.models.FeedModel;
-import com.thetestament.cread.utils.Constant;
 import com.thetestament.cread.utils.Constant.GratitudeNumbers;
 import com.thetestament.cread.utils.Constant.ITEM_TYPES;
 import com.thetestament.cread.utils.UserStatsViewPager;
@@ -103,7 +103,6 @@ import static com.thetestament.cread.CreadApp.GET_RESPONSE_FROM_NETWORK_ME;
 import static com.thetestament.cread.fragments.ExploreFragment.defaultItemType;
 import static com.thetestament.cread.helpers.FeedHelper.generateDeepLink;
 import static com.thetestament.cread.helpers.ImageHelper.getImageUri;
-import static com.thetestament.cread.helpers.ImageHelper.getLocalBitmapUri;
 import static com.thetestament.cread.helpers.NetworkHelper.getNetConnectionStatus;
 import static com.thetestament.cread.helpers.NetworkHelper.getObservableFromServer;
 import static com.thetestament.cread.helpers.NetworkHelper.getUserDataObservableFromServer;
@@ -184,6 +183,8 @@ public class MeFragment extends Fragment implements listener.OnCollaborationList
     @State
     String mEntityID, mEntityType;
     Bitmap mBitmap;
+
+    FeedModel mFeedData;
 
     private List<FeedModel> mUserActivityDataList = new ArrayList<>();
     private List<FeedModel> mCollabList = new ArrayList<>();
@@ -1973,12 +1974,13 @@ public class MeFragment extends Fragment implements listener.OnCollaborationList
     private void initShareListener(MeAdapter meAdapter) {
         meAdapter.setOnShareListener(new listener.OnShareListener() {
             @Override
-            public void onShareClick(Bitmap bitmap) {
+            public void onShareClick(Bitmap bitmap, FeedModel data) {
                 mBitmap = bitmap;
+                mFeedData = data;
                 //Check for Write permission
                 if (Nammu.checkPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
                     //We have permission do whatever you want to do
-                    sharePost(bitmap);
+                    ShareHelper.sharePost(bitmap, getContext(), data);
                 } else {
                     //We do not own this permission
                     if (Nammu.shouldShowRequestPermissionRationale(MeFragment.this
@@ -2001,7 +2003,7 @@ public class MeFragment extends Fragment implements listener.OnCollaborationList
     PermissionCallback shareWritePermission = new PermissionCallback() {
         @Override
         public void permissionGranted() {
-            sharePost(mBitmap);
+            ShareHelper.sharePost(mBitmap, getContext(), mFeedData);
         }
 
         @Override
@@ -2197,18 +2199,6 @@ public class MeFragment extends Fragment implements listener.OnCollaborationList
 
     }
 
-    /**
-     * Method to create intent choose so he/she can share the post.
-     *
-     * @param bitmap Bitmap to be shared.
-     */
-    private void sharePost(Bitmap bitmap) {
-        Intent intent = new Intent();
-        intent.setAction(Intent.ACTION_SEND);
-        intent.setType("image/*");
-        intent.putExtra(Intent.EXTRA_STREAM, getLocalBitmapUri(bitmap, getActivity()));
-        startActivity(Intent.createChooser(intent, "Share"));
-    }
 
     private void startGratitudeScroll() {
         viewPagerUserStats.setCurrentItem(1);

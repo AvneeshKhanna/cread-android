@@ -1,12 +1,14 @@
 package com.thetestament.cread.adapters;
 
 
+import android.app.ActivityOptions;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.view.ViewCompat;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -41,7 +43,6 @@ import butterknife.ButterKnife;
 import de.hdodenhof.circleimageview.CircleImageView;
 
 import static com.thetestament.cread.helpers.FeedHelper.setGridItemMargins;
-import static com.thetestament.cread.helpers.ViewHelper.convertToPx;
 import static com.thetestament.cread.utils.Constant.EXTRA_CAPTURE_ID;
 import static com.thetestament.cread.utils.Constant.EXTRA_CAPTURE_URL;
 import static com.thetestament.cread.utils.Constant.EXTRA_DATA;
@@ -180,7 +181,7 @@ public class ExploreAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
             //Follow button click functionality
             followOnClick(position, data, itemViewHolder.buttonFollow);
             //ItemView collabOnWritingClick functionality
-            itemViewOnClick(itemViewHolder.itemView, data, position);
+            itemViewOnClick(itemViewHolder.itemView, data, position, false);
             //Collaboration count click functionality
             collaborationCountOnClick(itemViewHolder.collabCount, data.getEntityID(), data.getContentType());
 
@@ -193,7 +194,7 @@ public class ExploreAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
 
             loadFeedImage(data.getContentImage(), itemViewHolder.imageExplore);
 
-            itemViewOnClick(itemViewHolder.itemView, data, position);
+            itemViewOnClick(itemViewHolder.itemView, data, position, true);
         } else if (holder.getItemViewType() == VIEW_TYPE_LOADING) {
             LoadingViewHolder loadingViewHolder = (LoadingViewHolder) holder;
             loadingViewHolder.progressView.setVisibility(View.VISIBLE);
@@ -355,17 +356,31 @@ public class ExploreAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
     /**
      * ItemView click functionality.
      */
-    private void itemViewOnClick(View view, final FeedModel feedModel, final int position) {
+    private void itemViewOnClick(View view, final FeedModel feedModel, final int position, final boolean showSharedTransition) {
         view.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                //Set transition name
+                ViewCompat.setTransitionName(view, feedModel.getEntityID());
+
                 Bundle bundle = new Bundle();
                 bundle.putParcelable(EXTRA_FEED_DESCRIPTION_DATA, feedModel);
                 bundle.putInt("position", position);
 
                 Intent intent = new Intent(mContext, FeedDescriptionActivity.class);
                 intent.putExtra(EXTRA_DATA, bundle);
-                mExploreFragment.startActivityForResult(intent, REQUEST_CODE_FEED_DESCRIPTION_ACTIVITY);
+
+                //If API is greater than LOLLIPOP and content is of grid type
+                if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP && showSharedTransition) {
+                    ActivityOptions transitionActivityOptions = ActivityOptions
+                            .makeSceneTransitionAnimation(mContext, view, ViewCompat.getTransitionName(view));
+                    //start activity result
+                    mExploreFragment.startActivityForResult(intent
+                            , REQUEST_CODE_FEED_DESCRIPTION_ACTIVITY
+                            , transitionActivityOptions.toBundle());
+                } else {
+                    mExploreFragment.startActivityForResult(intent, REQUEST_CODE_FEED_DESCRIPTION_ACTIVITY);
+                }
             }
         });
     }
@@ -564,7 +579,6 @@ public class ExploreAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
             }
         });
     }
-
 
 
     //ListItemViewHolder class

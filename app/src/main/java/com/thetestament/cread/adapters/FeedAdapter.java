@@ -174,7 +174,7 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             //Comment click functionality
             commentOnClick(itemViewHolder.containerComment, data.getEntityID());
             //Share click functionality
-            shareOnClick(itemViewHolder.containerShare, data.getContentImage(), data.getEntityID(), data.getCreatorName());
+            shareOnClick(itemViewHolder.containerShare, data.getContentImage(), data.getEntityID(), data.getCreatorName(), data);
             //HatsOff onClick functionality
             hatsOffOnClick(itemViewHolder, data, position);
             //Collaboration count click functionality
@@ -326,7 +326,7 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
      * @param view       View to be clicked.
      * @param pictureUrl URL of the picture to be shared.
      */
-    private void shareOnClick(View view, final String pictureUrl, final String entityID, final String creatorName) {
+    private void shareOnClick(View view, final String pictureUrl, final String entityID, final String creatorName, final FeedModel data) {
         view.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -346,7 +346,7 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                             case 0:
                                 // image sharing
                                 //so load image
-                                loadBitmapForSharing(pictureUrl, entityID);
+                                loadBitmapForSharing(data);
                                 break;
                             case 1:
                                 // link sharing
@@ -433,8 +433,8 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
      * Collaboration count click functionality to launch collaborationDetailsActivity.
      *
      * @param linearLayout
-     * @param entityID   Entity id of the content.
-     * @param entityType Type of content i.e CAPTURE or SHORT
+     * @param entityID     Entity id of the content.
+     * @param entityType   Type of content i.e CAPTURE or SHORT
      */
     private void collaborationContainerOnClick(LinearLayout linearLayout, final String entityID, final String entityType) {
         linearLayout.setOnClickListener(new View.OnClickListener() {
@@ -528,14 +528,14 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     /**
      * Method to load bitmap image to be shared
      */
-    private void loadBitmapForSharing(final String pictureUrl, final String entityID) {
-        Picasso.with(mContext).load(pictureUrl).into(new Target() {
+    private void loadBitmapForSharing(final FeedModel data) {
+        Picasso.with(mContext).load(data.getContentImage()).into(new Target() {
             @Override
             public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
                 //Set Listener
-                onShareListener.onShareClick(bitmap);
+                onShareListener.onShareClick(bitmap, data);
                 //Log firebase event
-                setAnalytics(FIREBASE_EVENT_SHARED_FROM_MAIN_FEED, entityID);
+                setAnalytics(FIREBASE_EVENT_SHARED_FROM_MAIN_FEED, data.getEntityID());
             }
 
             @Override

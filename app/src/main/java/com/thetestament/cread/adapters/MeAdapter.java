@@ -1,5 +1,6 @@
 package com.thetestament.cread.adapters;
 
+import android.app.ActivityOptions;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Color;
@@ -10,6 +11,7 @@ import android.support.design.widget.BottomSheetDialog;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.view.ViewCompat;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -38,7 +40,6 @@ import com.thetestament.cread.listeners.listener.OnShareLinkClickedListener;
 import com.thetestament.cread.listeners.listener.OnUserActivityHatsOffListener;
 import com.thetestament.cread.listeners.listener.OnUserActivityLoadMoreListener;
 import com.thetestament.cread.models.FeedModel;
-import com.thetestament.cread.utils.Constant;
 import com.thetestament.cread.utils.Constant.ITEM_TYPES;
 
 import java.util.List;
@@ -184,7 +185,7 @@ public class MeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
             loadContentImage(data.getContentImage(), itemViewHolder.imageMe);
 
-            itemViewOnClick(itemViewHolder.itemView, data, position);
+            itemViewOnClick(itemViewHolder.itemView, data, position, true);
         } else if (holder.getItemViewType() == VIEW_TYPE_LOADING) {
             LoadingViewHolder loadingViewHolder = (LoadingViewHolder) holder;
             loadingViewHolder.progressView.setVisibility(View.VISIBLE);
@@ -305,14 +306,17 @@ public class MeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     /**
      * ItemView onClick functionality.
      *
-     * @param view      View to be clicked.
-     * @param feedModel Data set for current item.
-     * @param position  Position of item
+     * @param view                 View to be clicked.
+     * @param feedModel            Data set for current item.
+     * @param position             Position of item
+     * @param showSharedTransition show transition if its true
      */
-    private void itemViewOnClick(View view, final FeedModel feedModel, final int position) {
+    private void itemViewOnClick(View view, final FeedModel feedModel, final int position, final boolean showSharedTransition) {
         view.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                //Set transition name
+                ViewCompat.setTransitionName(view, feedModel.getEntityID());
 
                 Bundle bundle = new Bundle();
                 bundle.putParcelable(EXTRA_FEED_DESCRIPTION_DATA, feedModel);
@@ -320,7 +324,19 @@ public class MeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
                 Intent intent = new Intent(mContext, FeedDescriptionActivity.class);
                 intent.putExtra(EXTRA_DATA, bundle);
-                mMeFragment.startActivityForResult(intent, REQUEST_CODE_FEED_DESCRIPTION_ACTIVITY);
+
+
+                //If API is greater than LOLLIPOP
+                if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP && showSharedTransition) {
+                    ActivityOptions transitionActivityOptions = ActivityOptions
+                            .makeSceneTransitionAnimation(mContext, view, ViewCompat.getTransitionName(view));
+                    //start activity result
+                    mMeFragment.startActivityForResult(intent
+                            , REQUEST_CODE_FEED_DESCRIPTION_ACTIVITY
+                            , transitionActivityOptions.toBundle());
+                } else {
+                    mMeFragment.startActivityForResult(intent, REQUEST_CODE_FEED_DESCRIPTION_ACTIVITY);
+                }
             }
         });
     }
@@ -429,7 +445,7 @@ public class MeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
      * @param pictureUrl URL of the picture to be shared.
      * @param entityID   Entity id of content.
      */
-    private void shareOnClick(View view, final String pictureUrl, final String entityID, final String creatorName) {
+    private void shareOnClick(View view, final String pictureUrl, final String entityID, final String creatorName, final FeedModel data) {
         view.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -450,7 +466,7 @@ public class MeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                             case 0:
                                 // image sharing
                                 //so load image
-                                loadBitmapForSharing(pictureUrl, entityID);
+                                loadBitmapForSharing(data);
                                 break;
                             case 1:
                                 // link sharing
@@ -468,15 +484,15 @@ public class MeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     /**
      * Method to load bitmap image to be shared
      */
-    private void loadBitmapForSharing(final String pictureUrl, final String entityID) {
+    private void loadBitmapForSharing(final FeedModel data) {
 
-        Picasso.with(mContext).load(pictureUrl).into(new Target() {
+        Picasso.with(mContext).load(data.getContentImage()).into(new Target() {
             @Override
             public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
                 //Set listener
-                onShareListener.onShareClick(bitmap);
+                onShareListener.onShareClick(bitmap, data);
                 //Log firebase event
-                setAnalytics(FIREBASE_EVENT_SHARED_FROM_PROFILE, entityID);
+                setAnalytics(FIREBASE_EVENT_SHARED_FROM_PROFILE, data.getEntityID());
             }
 
             @Override
@@ -527,7 +543,7 @@ public class MeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         });
 
         //ItemView onClick functionality
-        itemViewOnClick(itemViewHolder.itemView, data, position);
+        itemViewOnClick(itemViewHolder.itemView, data, position, false);
 
         //Check whether user has given hats off to this campaign or not
         checkHatsOffStatus(data.getHatsOffStatus(), itemViewHolder);
@@ -536,7 +552,7 @@ public class MeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         //Comment click functionality
         commentOnClick(itemViewHolder.containerComment, data.getEntityID());
         //Share click functionality
-        shareOnClick(itemViewHolder.containerShare, data.getContentImage(), data.getEntityID(), data.getCreatorName());
+        shareOnClick(itemViewHolder.containerShare, data.getContentImage(), data.getEntityID(), data.getCreatorName(), data);
         //Collaboration count click functionality
         collaborationCountOnClick(itemViewHolder.collabCount, data.getEntityID(), data.getContentType());
     }
