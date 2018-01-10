@@ -171,7 +171,16 @@ public class Constant {
     }
 
     public enum ITEM_TYPES {
-        LIST, GRID, COLLABLIST
+        LIST, GRID, COLLABLIST;
+
+        public static ITEM_TYPES toItemType(String myEnumString) {
+            try {
+                return valueOf(myEnumString);
+            } catch (Exception ex) {
+                // For error cases
+                return GRID;
+            }
+        }
     }
 
     public static final String URI_HASH_TAG_ACTIVITY = "content://com.thetestament.cread.hashtagdetailsactivity/";

@@ -100,6 +100,7 @@ import static com.thetestament.cread.CreadApp.GET_RESPONSE_FROM_NETWORK_FOLLOWIN
 import static com.thetestament.cread.CreadApp.GET_RESPONSE_FROM_NETWORK_INSPIRATION;
 import static com.thetestament.cread.CreadApp.GET_RESPONSE_FROM_NETWORK_MAIN;
 import static com.thetestament.cread.CreadApp.GET_RESPONSE_FROM_NETWORK_ME;
+import static com.thetestament.cread.fragments.ExploreFragment.defaultItemType;
 import static com.thetestament.cread.helpers.FeedHelper.generateDeepLink;
 import static com.thetestament.cread.helpers.ImageHelper.getImageUri;
 import static com.thetestament.cread.helpers.ImageHelper.getLocalBitmapUri;
@@ -129,6 +130,7 @@ import static com.thetestament.cread.utils.Constant.GratitudeNumbers.HATSOFF;
 import static com.thetestament.cread.utils.Constant.GratitudeNumbers.POSTS;
 import static com.thetestament.cread.utils.Constant.IMAGE_TYPE_USER_CAPTURE_PIC;
 import static com.thetestament.cread.utils.Constant.ITEM_TYPES.COLLABLIST;
+import static com.thetestament.cread.utils.Constant.ITEM_TYPES.GRID;
 import static com.thetestament.cread.utils.Constant.ITEM_TYPES.LIST;
 import static com.thetestament.cread.utils.Constant.REQUEST_CODE_FEED_DESCRIPTION_ACTIVITY;
 import static com.thetestament.cread.utils.Constant.REQUEST_CODE_OPEN_GALLERY_FOR_CAPTURE;
@@ -524,8 +526,8 @@ public class MeFragment extends Fragment implements listener.OnCollaborationList
 
         //initialize tab layout
         initUserStatsPager();
-        initTabLayout(tabLayout);
         initSwipeRefreshLayout();
+        initTabLayout(tabLayout);
     }
 
     /**
@@ -548,6 +550,8 @@ public class MeFragment extends Fragment implements listener.OnCollaborationList
 
                 switch (tab.getPosition()) {
                     case 0:
+                        // setting pref
+                        mHelper.setFeedItemType(GRID);
                         // grid layout for all data
                         GridLayoutManager gridLayoutManager = new GridLayoutManager(getActivity(), spanCount);
                         recyclerView.setLayoutManager(gridLayoutManager);
@@ -557,6 +561,8 @@ public class MeFragment extends Fragment implements listener.OnCollaborationList
                         initListeners(LIST);
                         break;
                     case 1:
+                        // setting pref
+                        mHelper.setFeedItemType(LIST);
                         // list layout for all data
                         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
                         mAdapter = new MeAdapter(mUserActivityDataList, getActivity(), mHelper.getUUID(), MeFragment.this, LIST);
@@ -682,11 +688,39 @@ public class MeFragment extends Fragment implements listener.OnCollaborationList
         //Add tab items
         tabLayout.addTab(tabLayout.newTab().setIcon(R.drawable.ic_me_all_tab));
         tabLayout.addTab(tabLayout.newTab().setIcon(R.drawable.ic_list));
-        tabLayout.addTab(tabLayout.newTab().setIcon(R.drawable.ic_collboration_18));
+        tabLayout.addTab(tabLayout.newTab().setIcon(R.drawable.ic_collab));
         //initialize tabs icon tint
-        tabLayout.getTabAt(0).getIcon().setColorFilter(ContextCompat.getColor(getActivity(), R.color.colorPrimary), PorterDuff.Mode.SRC_IN);
-        tabLayout.getTabAt(1).getIcon().setColorFilter(ContextCompat.getColor(getActivity(), R.color.grey_custom), PorterDuff.Mode.SRC_IN);
-        tabLayout.getTabAt(2).getIcon().setColorFilter(ContextCompat.getColor(getActivity(), R.color.grey_custom), PorterDuff.Mode.SRC_IN);
+
+        //initialize tabs icon tint
+        if (defaultItemType == GRID) {
+            tabLayout.getTabAt(0).select();
+
+            tabLayout.getTabAt(0).getIcon().setColorFilter(ContextCompat.getColor(getActivity(), R.color.colorPrimary), PorterDuff.Mode.SRC_IN);
+            tabLayout.getTabAt(1).getIcon().setColorFilter(ContextCompat.getColor(getActivity(), R.color.grey_custom), PorterDuff.Mode.SRC_IN);
+            tabLayout.getTabAt(2).getIcon().setColorFilter(ContextCompat.getColor(getActivity(), R.color.grey_custom), PorterDuff.Mode.SRC_IN);
+        } else if (defaultItemType == LIST) {
+            tabLayout.getTabAt(1).select();
+
+            tabLayout.getTabAt(1).getIcon().setColorFilter(ContextCompat.getColor(getActivity(), R.color.colorPrimary), PorterDuff.Mode.SRC_IN);
+            tabLayout.getTabAt(0).getIcon().setColorFilter(ContextCompat.getColor(getActivity(), R.color.grey_custom), PorterDuff.Mode.SRC_IN);
+            tabLayout.getTabAt(2).getIcon().setColorFilter(ContextCompat.getColor(getActivity(), R.color.grey_custom), PorterDuff.Mode.SRC_IN);
+        }
+    }
+
+    private void initItemTypePreference() {
+        defaultItemType = mHelper.getFeedItemType();
+
+        if (defaultItemType == GRID) {
+            //Set layout manger for recyclerView
+            GridLayoutManager gridLayoutManager = new GridLayoutManager(getActivity(), spanCount);
+            recyclerView.setLayoutManager(gridLayoutManager);
+        } else if (mHelper.getFeedItemType() == LIST) {
+            recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
+        }
+
+        //Set adapter
+        mAdapter = new MeAdapter(mUserActivityDataList, getActivity(), mHelper.getUUID(), MeFragment.this, defaultItemType);
+        recyclerView.setAdapter(mAdapter);
     }
 
     /**
@@ -1035,12 +1069,9 @@ public class MeFragment extends Fragment implements listener.OnCollaborationList
      * Method to initialize swipe to refresh view and user timeline view .
      */
     private void initSwipeRefreshLayout() {
-        //Set layout manger for recyclerView
-        recyclerView.setLayoutManager(new GridLayoutManager(getActivity(), spanCount));
-        //Set adapter
-        mAdapter = new MeAdapter(mUserActivityDataList, getActivity(), mHelper.getUUID(), MeFragment.this, ITEM_TYPES.GRID);
-        //  mAdapter.setUserActivityType(USER_ACTIVITY_TYPE_ALL);
-        recyclerView.setAdapter(mAdapter);
+
+        // show list items or grid items from pref
+        initItemTypePreference();
 
         swipeToRefreshLayout.setRefreshing(true);
         swipeToRefreshLayout.setColorSchemeColors(ContextCompat.getColor(getActivity()

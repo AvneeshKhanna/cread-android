@@ -5,6 +5,7 @@ import android.content.SharedPreferences;
 import android.net.Uri;
 
 import com.thetestament.cread.R;
+import com.thetestament.cread.utils.Constant;
 
 import static com.thetestament.cread.utils.Constant.WATERMARK_STATUS_ASK_ALWAYS;
 
@@ -432,5 +433,17 @@ public class SharedPreferenceHelper {
 
     }
 
+    public void setFeedItemType(Constant.ITEM_TYPES itemType) {
+        SharedPreferences.Editor editor = mSharedPreferences.edit();
+        editor.putString(mContext.getString(R.string.key_feed_item_type), itemType.toString());
+        editor.apply();
+    }
+
+    public Constant.ITEM_TYPES getFeedItemType() {
+        String enumString = mSharedPreferences
+                .getString(mContext.getString(R.string.key_feed_item_type), Constant.ITEM_TYPES.GRID.toString());
+
+        return Constant.ITEM_TYPES.toItemType(enumString);
+    }
 
 }

@@ -80,6 +80,8 @@ import static com.thetestament.cread.utils.Constant.CONTENT_TYPE_CAPTURE;
 import static com.thetestament.cread.utils.Constant.CONTENT_TYPE_SHORT;
 import static com.thetestament.cread.utils.Constant.EXTRA_DATA;
 import static com.thetestament.cread.utils.Constant.IMAGE_TYPE_USER_CAPTURE_PIC;
+import static com.thetestament.cread.utils.Constant.ITEM_TYPES.GRID;
+import static com.thetestament.cread.utils.Constant.ITEM_TYPES.LIST;
 import static com.thetestament.cread.utils.Constant.REQUEST_CODE_FEED_DESCRIPTION_ACTIVITY;
 import static com.thetestament.cread.utils.Constant.REQUEST_CODE_OPEN_GALLERY_FOR_CAPTURE;
 
@@ -103,6 +105,7 @@ public class ExploreFragment extends Fragment implements listener.OnCollaboratio
     private String mLastIndexKey;
     private boolean mRequestMoreData;
     private int spanCount = 2;
+    public static Constant.ITEM_TYPES defaultItemType;
 
     @State
     String mEntityID, mEntityType;
@@ -236,12 +239,9 @@ public class ExploreFragment extends Fragment implements listener.OnCollaboratio
      * Method to initialize swipe refresh layout.
      */
     private void initScreen() {
-        //Set layout manger for recyclerView
-        GridLayoutManager gridLayoutManager = new GridLayoutManager(getActivity(), spanCount);
-        recyclerView.setLayoutManager(gridLayoutManager);
-        //Set adapter
-        mAdapter = new ExploreAdapter(mExploreDataList, getActivity(), mHelper.getUUID(), ExploreFragment.this, Constant.ITEM_TYPES.GRID);
-        recyclerView.setAdapter(mAdapter);
+
+        //initializes grid view or list view from preferences
+        initItemTypePreference();
 
         swipeRefreshLayout.setRefreshing(true);
         swipeRefreshLayout.setColorSchemeColors(ContextCompat.getColor(getActivity()
@@ -268,14 +268,41 @@ public class ExploreFragment extends Fragment implements listener.OnCollaboratio
         loadExploreData();
     }
 
+    private void initItemTypePreference() {
+        defaultItemType = mHelper.getFeedItemType();
+
+        if (defaultItemType == GRID) {
+            //Set layout manger for recyclerView
+            GridLayoutManager gridLayoutManager = new GridLayoutManager(getActivity(), spanCount);
+            recyclerView.setLayoutManager(gridLayoutManager);
+        } else if (mHelper.getFeedItemType() == LIST) {
+            recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
+        }
+
+        //Set adapter
+        mAdapter = new ExploreAdapter(mExploreDataList, getActivity(), mHelper.getUUID(), ExploreFragment.this, defaultItemType);
+        recyclerView.setAdapter(mAdapter);
+    }
+
     /**
      * Method to initialize tab layout.
      */
     private void initTabLayout() {
 
         //initialize tabs icon tint
-        tabLayout.getTabAt(0).getIcon().setColorFilter(ContextCompat.getColor(getActivity(), R.color.colorPrimary), PorterDuff.Mode.SRC_IN);
-        tabLayout.getTabAt(1).getIcon().setColorFilter(ContextCompat.getColor(getActivity(), R.color.grey_custom), PorterDuff.Mode.SRC_IN);
+        if (defaultItemType == GRID) {
+            tabLayout.getTabAt(0).select();
+
+            tabLayout.getTabAt(0).getIcon().setColorFilter(ContextCompat.getColor(getActivity(), R.color.colorPrimary), PorterDuff.Mode.SRC_IN);
+            tabLayout.getTabAt(1).getIcon().setColorFilter(ContextCompat.getColor(getActivity(), R.color.grey_custom), PorterDuff.Mode.SRC_IN);
+
+        } else if (defaultItemType == LIST) {
+            tabLayout.getTabAt(1).select();
+
+            tabLayout.getTabAt(1).getIcon().setColorFilter(ContextCompat.getColor(getActivity(), R.color.colorPrimary), PorterDuff.Mode.SRC_IN);
+            tabLayout.getTabAt(0).getIcon().setColorFilter(ContextCompat.getColor(getActivity(), R.color.grey_custom), PorterDuff.Mode.SRC_IN);
+
+        }
 
         tabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
             @Override
@@ -288,23 +315,26 @@ public class ExploreFragment extends Fragment implements listener.OnCollaboratio
 
 
                     case 0:
-
+                        // setting pref
+                        mHelper.setFeedItemType(GRID);
+                        // setting layout manager
                         GridLayoutManager gridLayoutManager = new GridLayoutManager(getActivity(), spanCount);
                         recyclerView.setLayoutManager(gridLayoutManager);
 
-                        mAdapter = new ExploreAdapter(mExploreDataList, getActivity(), mHelper.getUUID(), ExploreFragment.this, Constant.ITEM_TYPES.GRID);
+                        mAdapter = new ExploreAdapter(mExploreDataList, getActivity(), mHelper.getUUID(), ExploreFragment.this, GRID);
                         recyclerView.setAdapter(mAdapter);
                         initListeners();
                         break;
 
                     case 1:
+                        // setting pref
+                        mHelper.setFeedItemType(Constant.ITEM_TYPES.LIST);
+                        // setting layout manager
                         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
                         mAdapter = new ExploreAdapter(mExploreDataList, getActivity(), mHelper.getUUID(), ExploreFragment.this, Constant.ITEM_TYPES.LIST);
                         recyclerView.setAdapter(mAdapter);
                         initListeners();
                         break;
-
-
                 }
 
             }
