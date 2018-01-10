@@ -68,7 +68,9 @@ import pl.tajchert.nammu.Nammu;
 import pl.tajchert.nammu.PermissionCallback;
 
 import static com.thetestament.cread.helpers.FeedHelper.generateDeepLink;
+import static com.thetestament.cread.helpers.FeedHelper.initCaption;
 import static com.thetestament.cread.helpers.FeedHelper.initializeShareDialog;
+import static com.thetestament.cread.helpers.FeedHelper.updateDotSeperatorVisibility;
 import static com.thetestament.cread.helpers.ImageHelper.getImageUri;
 import static com.thetestament.cread.helpers.ImageHelper.getLocalBitmapUri;
 import static com.thetestament.cread.helpers.NetworkHelper.getCommentObservableFromServer;
@@ -333,7 +335,7 @@ public class FeedDescriptionActivity extends BaseActivity implements listener.On
                 textHatsoffCount.setText(String.valueOf(mFeedData.getHatsOffCount()));
             }
 
-            updateDotSeperatorVisibility();
+            updateDotSeperatorVisibility(mFeedData, dotSeperator);
             //update hats off status on server
             updateHatsOffStatus();
 
@@ -438,20 +440,12 @@ public class FeedDescriptionActivity extends BaseActivity implements listener.On
 
         // set caption if it exists
         // else hide the caption view
-        if (mFeedData.getCaption() != null) {
-            textTitle.setVisibility(View.VISIBLE);
-            textTitle.setText(mFeedData.getCaption());
 
-            // set hash tags
-            FeedHelper feedHelper = new FeedHelper();
-            feedHelper.setHashTags(textTitle, mContext);
-
-        } else {
-            textTitle.setVisibility(View.GONE);
-        }
+        // initialize caption
+        initCaption(mContext, mFeedData, textTitle);
 
         // update dot visibility
-        updateDotSeperatorVisibility();
+        updateDotSeperatorVisibility(mFeedData, dotSeperator);
 
         //Check for hats of count
         if (mFeedData.getHatsOffCount() > 0) {
@@ -930,7 +924,7 @@ public class FeedDescriptionActivity extends BaseActivity implements listener.On
             }
         }
 
-        updateDotSeperatorVisibility();
+        updateDotSeperatorVisibility(mFeedData, dotSeperator);
     }
 
     /**
@@ -961,26 +955,6 @@ public class FeedDescriptionActivity extends BaseActivity implements listener.On
         intent.setType("image/*");
         intent.putExtra(Intent.EXTRA_STREAM, getLocalBitmapUri(bitmap, FeedDescriptionActivity.this));
         startActivity(Intent.createChooser(intent, "Share"));
-    }
-
-    /**
-     * Updates the visibility of the dot seperator
-     * based on the values of hatsoff and comment ount
-     */
-    private void updateDotSeperatorVisibility() {
-        long hatsoffCount = mFeedData.getHatsOffCount();
-        long commentCount = mFeedData.getCommentCount();
-
-        // if one or both the counts are zero remove the dot
-        if ((hatsoffCount == 0 && commentCount == 0)
-                || (hatsoffCount != 0 && commentCount == 0)
-                || (hatsoffCount == 0 && commentCount != 0)) {
-            dotSeperator.setVisibility(View.GONE);
-        }
-        // both are non-zero so show the dot
-        else if (hatsoffCount != 0 && commentCount != 0) {
-            dotSeperator.setVisibility(View.VISIBLE);
-        }
     }
 
     @Override

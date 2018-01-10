@@ -102,6 +102,7 @@ public class ExploreFragment extends Fragment implements listener.OnCollaboratio
     private Unbinder mUnbinder;
     private String mLastIndexKey;
     private boolean mRequestMoreData;
+    private int spanCount = 2;
 
     @State
     String mEntityID, mEntityType;
@@ -236,7 +237,6 @@ public class ExploreFragment extends Fragment implements listener.OnCollaboratio
      */
     private void initScreen() {
         //Set layout manger for recyclerView
-        int spanCount = 2;
         GridLayoutManager gridLayoutManager = new GridLayoutManager(getActivity(), spanCount);
         recyclerView.setLayoutManager(gridLayoutManager);
         //Set adapter
@@ -288,7 +288,7 @@ public class ExploreFragment extends Fragment implements listener.OnCollaboratio
 
 
                     case 0:
-                        int spanCount = 2;
+
                         GridLayoutManager gridLayoutManager = new GridLayoutManager(getActivity(), spanCount);
                         recyclerView.setLayoutManager(gridLayoutManager);
 

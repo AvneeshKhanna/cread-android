@@ -12,7 +12,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
@@ -33,7 +32,6 @@ import com.thetestament.cread.listeners.listener.OnExploreCaptureClickListener;
 import com.thetestament.cread.listeners.listener.OnExploreFollowListener;
 import com.thetestament.cread.listeners.listener.OnExploreLoadMoreListener;
 import com.thetestament.cread.models.FeedModel;
-import com.thetestament.cread.utils.Constant;
 import com.thetestament.cread.utils.Constant.ITEM_TYPES;
 
 import java.util.List;
@@ -42,12 +40,8 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import de.hdodenhof.circleimageview.CircleImageView;
 
-import static com.thetestament.cread.helpers.FeedHelper.getCollabCountText;
-import static com.thetestament.cread.helpers.FeedHelper.getCreatorText;
-import static com.thetestament.cread.helpers.FeedHelper.initializeSpannableString;
+import static com.thetestament.cread.helpers.FeedHelper.setGridItemMargins;
 import static com.thetestament.cread.helpers.ViewHelper.convertToPx;
-import static com.thetestament.cread.utils.Constant.CONTENT_TYPE_CAPTURE;
-import static com.thetestament.cread.utils.Constant.CONTENT_TYPE_SHORT;
 import static com.thetestament.cread.utils.Constant.EXTRA_CAPTURE_ID;
 import static com.thetestament.cread.utils.Constant.EXTRA_CAPTURE_URL;
 import static com.thetestament.cread.utils.Constant.EXTRA_DATA;
@@ -76,7 +70,7 @@ public class ExploreAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
     private boolean mIsLoading;
     private String mUUID;
     private SharedPreferenceHelper mHelper;
-    private Enum mItemType;
+    private ITEM_TYPES mItemType;
 
 
     private OnExploreLoadMoreListener onExploreLoadMoreListener;
@@ -145,7 +139,7 @@ public class ExploreAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
         } else if (viewType == VIEW_TYPE_ITEM_GRID) {
             return new GridItemViewHolder(LayoutInflater
                     .from(parent.getContext())
-                    .inflate(R.layout.item_explore_grid, parent, false));
+                    .inflate(R.layout.item_grid, parent, false));
         } else if (viewType == VIEW_TYPE_LOADING) {
             return new LoadingViewHolder(LayoutInflater
                     .from(parent.getContext())
@@ -194,7 +188,8 @@ public class ExploreAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
             final GridItemViewHolder itemViewHolder = (GridItemViewHolder) holder;
             //Load explore feed image
 
-            setGridItemMargins(position, itemViewHolder.imageExplore);
+            // set margins
+            setGridItemMargins(mContext, position, itemViewHolder.imageExplore);
 
             loadFeedImage(data.getContentImage(), itemViewHolder.imageExplore);
 
@@ -570,28 +565,7 @@ public class ExploreAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
         });
     }
 
-    /**
-     * Method to set Margins for grid view items
-     *
-     * @param position position of the item
-     * @param image    Image View
-     */
-    private void setGridItemMargins(int position, ImageView image) {
-        RelativeLayout.LayoutParams params = new
-                RelativeLayout
-                        .LayoutParams(image
-                .getLayoutParams());
 
-        int px = convertToPx(mContext, 1);
-
-        if (position % 2 == 0) {
-            params.setMargins(0, px, px, px);
-        } else {
-            params.setMargins(px, px, 0, px);
-        }
-
-        image.setLayoutParams(params);
-    }
 
     //ListItemViewHolder class
     static class ListItemViewHolder extends RecyclerView.ViewHolder {
@@ -619,7 +593,7 @@ public class ExploreAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
     //GridItemViewHolder class
     static class GridItemViewHolder extends RecyclerView.ViewHolder {
 
-        @BindView(R.id.imageExplore)
+        @BindView(R.id.imageGrid)
         ImageView imageExplore;
 
         public GridItemViewHolder(View itemView) {

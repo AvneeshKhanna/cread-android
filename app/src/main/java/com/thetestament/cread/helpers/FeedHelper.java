@@ -1,5 +1,6 @@
 package com.thetestament.cread.helpers;
 
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.Typeface;
@@ -18,7 +19,9 @@ import android.text.style.URLSpan;
 import android.text.util.Linkify;
 import android.view.View;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ProgressBar;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.afollestad.materialdialogs.DialogAction;
@@ -51,6 +54,7 @@ import io.reactivex.schedulers.Schedulers;
 
 import static com.thetestament.cread.helpers.NetworkHelper.getDeepLinkObservable;
 import static com.thetestament.cread.helpers.NetworkHelper.requestServer;
+import static com.thetestament.cread.helpers.ViewHelper.convertToPx;
 import static com.thetestament.cread.utils.Constant.CONTENT_TYPE_CAPTURE;
 import static com.thetestament.cread.utils.Constant.CONTENT_TYPE_SHORT;
 import static com.thetestament.cread.utils.Constant.EXTRA_CAPTURE_ID;
@@ -319,7 +323,7 @@ public class FeedHelper {
     /**
      * Parses the hash tags and creates them as links
      *
-     * @param textView text view which contains the text which from which hash tags are parsed
+     * @param textView text view which contains the text from which hash tags are parsed
      * @param context  context
      */
     public void setHashTags(TextView textView, FragmentActivity context) {
@@ -833,6 +837,106 @@ public class FeedHelper {
                         //Hide progress view
                     }
                 });
+    }
+
+
+    /**
+     * Method to set Margins for grid view items
+     *
+     * @param context  context
+     * @param position position of the item
+     * @param image    Image View
+     */
+    public static void setGridItemMargins(FragmentActivity context, int position, ImageView image) {
+        RelativeLayout.LayoutParams params = new
+                RelativeLayout
+                        .LayoutParams(image
+                .getLayoutParams());
+
+        int px = convertToPx(context, 1);
+
+        if (position % 2 == 0) {
+            params.setMargins(0, px, px, px);
+        } else {
+            params.setMargins(px, px, 0, px);
+        }
+
+        image.setLayoutParams(params);
+    }
+
+
+    /**
+     * Sets the caption and processes the hashtags and their click actions
+     *
+     * @param context
+     * @param data
+     * @param textView
+     */
+    public static void initCaption(FragmentActivity context, FeedModel data, TextView textView) {
+        if (data.getCaption() != null) {
+            textView.setVisibility(View.VISIBLE);
+            textView.setText(data.getCaption());
+
+            // set hash tags
+            FeedHelper feedHelper = new FeedHelper();
+            feedHelper.setHashTags(textView, context);
+
+        } else {
+            textView.setVisibility(View.GONE);
+        }
+    }
+
+
+    public static void initSocialActionsCount(FragmentActivity context,
+                                              FeedModel data,
+                                              LinearLayout hatsoffContainer,
+                                              TextView hatsoffCount,
+                                              LinearLayout commentContainer,
+                                              TextView commentCount,
+                                              TextView dotSeperator) {
+
+        updateDotSeperatorVisibility(data, dotSeperator);
+
+        //Check for hats of count
+        if (data.getHatsOffCount() > 0) {
+            //Set hatsOff count
+            hatsoffContainer.setVisibility(View.VISIBLE);
+            hatsoffCount.setText(String.valueOf(data.getHatsOffCount()));
+        } else {
+            //Hide hatsOff count textView
+            hatsoffContainer.setVisibility(View.GONE);
+        }
+
+        //Check for comment count
+        if (data.getCommentCount() > 0) {
+            commentContainer.setVisibility(View.VISIBLE);
+            //Set comment count
+            commentCount.setText(String.valueOf(data.getCommentCount()));
+        } else {
+            commentContainer.setVisibility(View.GONE);
+        }
+
+    }
+
+
+    /**
+     * Updates the visibility of the dot seperator
+     * based on the values of hatsoff and comment ount
+     */
+    public static void updateDotSeperatorVisibility(FeedModel data, TextView dotSeperator) {
+        long hatsoffCount = data.getHatsOffCount();
+        long commentCount = data.getCommentCount();
+
+        // if one or both the counts are zero remove the dot
+        if ((hatsoffCount == 0 && commentCount == 0)
+                || (hatsoffCount != 0 && commentCount == 0)
+                || (hatsoffCount == 0 && commentCount != 0)) {
+            dotSeperator.setVisibility(View.GONE);
+        }
+        // both are non-zero so show the dot
+        else if (hatsoffCount != 0 && commentCount != 0) {
+            dotSeperator.setVisibility(View.VISIBLE);
+        }
     }
 
 

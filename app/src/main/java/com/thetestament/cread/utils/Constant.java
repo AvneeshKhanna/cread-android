@@ -171,7 +171,7 @@ public class Constant {
     }
 
     public enum ITEM_TYPES {
-        LIST, GRID
+        LIST, GRID, COLLABLIST
     }
 
     public static final String URI_HASH_TAG_ACTIVITY = "content://com.thetestament.cread.hashtagdetailsactivity/";

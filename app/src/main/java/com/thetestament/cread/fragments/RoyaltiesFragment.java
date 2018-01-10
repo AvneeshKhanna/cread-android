@@ -420,7 +420,6 @@ public class RoyaltiesFragment extends Fragment {
                             FirebaseCrash.report(e);
                             connectionError[0] = true;
                         }
-
                     }
 
                     @Override
@@ -462,7 +461,6 @@ public class RoyaltiesFragment extends Fragment {
      * @throws JSONException
      */
     private void parseJSONData(JSONObject jsonObject, boolean isLoadMore) throws JSONException {
-
 
         JSONObject mainData = jsonObject.getJSONObject("data");
         mRequestMoreData = mainData.getBoolean("requestmore");
