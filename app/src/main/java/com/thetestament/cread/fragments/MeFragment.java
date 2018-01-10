@@ -1,5 +1,6 @@
 package com.thetestament.cread.fragments;
 
+import android.app.ActivityOptions;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -391,6 +392,8 @@ public class MeFragment extends Fragment implements listener.OnCollaborationList
         //If profile is editable
         if (isProfileEditable) {
             getRuntimePermission();
+        } else {
+            openProfilePreview();
         }
     }
 
@@ -893,8 +896,40 @@ public class MeFragment extends Fragment implements listener.OnCollaborationList
     private void openUpdateImageScreen() {
         Intent intent = new Intent(getActivity(), UpdateProfileImageActivity.class);
         intent.putExtra(EXTRA_USER_IMAGE_PATH, mProfilePicURL);
-        startActivityForResult(intent, REQUEST_CODE_UPDATE_PROFILE_PIC);
+
+        //If API is greater than LOLLIPOP
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
+            ActivityOptions transitionActivityOptions = ActivityOptions
+                    .makeSceneTransitionAnimation(getActivity(), imageUser, ViewCompat.getTransitionName(imageUser));
+            //start activity result
+            startActivityForResult(intent
+                    , REQUEST_CODE_UPDATE_PROFILE_PIC
+                    , transitionActivityOptions.toBundle());
+        } else {
+            startActivityForResult(intent, REQUEST_CODE_UPDATE_PROFILE_PIC);
+        }
     }
+
+    /**
+     * Open ProfilePreview screen.
+     */
+    private void openProfilePreview() {
+
+        MaterialDialog dialog = new MaterialDialog.Builder(getActivity())
+                .customView(R.layout.dialog_profile_preview, false)
+                .show();
+        //Obtain views reference
+        ImageView previewImage = dialog.getCustomView().findViewById(R.id.imageProfilePreview);
+
+        //Load profile picture
+        Picasso.with(getActivity())
+                .load(mProfilePicURL)
+                .networkPolicy(NetworkPolicy.NO_CACHE)
+                .memoryPolicy(MemoryPolicy.NO_CACHE)
+                .error(R.drawable.ic_person_56)
+                .into(previewImage);
+    }
+
 
     /**
      * Method to update follow status.

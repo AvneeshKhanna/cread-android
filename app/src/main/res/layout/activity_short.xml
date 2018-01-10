@@ -22,7 +22,8 @@
                 android:id="@+id/imageShort"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:scaleType="centerCrop" />
+                android:scaleType="centerCrop"
+                android:src="@color/white" />
 
             <com.thetestament.cread.widgets.CustomEditText
                 android:id="@+id/textShort"
@@ -58,13 +59,23 @@
                 android:visibility="gone" />
         </com.thetestament.cread.widgets.SquareView>
 
+        <TextView
+            android:id="@+id/textNote"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/imageContainer"
+            android:layout_centerHorizontal="true"
+            android:gravity="center"
+            android:paddingTop="10sp"
+            android:text="@string/note_text_short_creation"
+            android:textSize="12sp" />
 
         <FrameLayout
             android:id="@+id/containerPostButton"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_above="@+id/containerSeekBar"
-            android:layout_below="@+id/imageContainer">
+            android:layout_below="@+id/textNote">
 
             <TextView
                 android:id="@+id/btnInspireMe"
@@ -126,9 +137,9 @@
 
     </RelativeLayout>
 
-    <!--Font option bottom sheet-->
-    <include layout="@layout/layout_font_bottom_sheet" />
-    <!--Color option bottom sheet-->
-    <include layout="@layout/layout_color_bottom_sheet" />
+      <!--Font option bottom sheet-->
+      <include layout="@layout/layout_font_bottom_sheet" />
+      <!--Color option bottom sheet-->
+      <include layout="@layout/layout_color_bottom_sheet" />
 
 </android.support.design.widget.CoordinatorLayout>

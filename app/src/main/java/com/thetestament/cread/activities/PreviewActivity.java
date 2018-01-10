@@ -54,6 +54,7 @@ import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_CALLED_FROM_SH
 import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_CAPTURE_ID;
 import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_DATA;
 import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_FONT;
+import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_IMAGE_TINT_COLOR;
 import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_IMG_WIDTH;
 import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_ITALIC;
 import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_MERCHANTABLE;
@@ -177,7 +178,7 @@ public class PreviewActivity extends BaseActivity {
     /**
      * Method to update capture/collaboration details on server.
      */
-    private void updateData(File imgHighRes, File imgLowRes, String shortID, String uuid, String authToken, String xPosition, String yPosition, String tvWidth, String tvHeight, String text, String textSize, String textColor, String textGravity, String imgWidth, String signature, String merchantable, String font, String bold, String italic, String captionText) {
+    private void updateData(File imgHighRes, File imgLowRes, String shortID, String uuid, String authToken, String xPosition, String yPosition, String tvWidth, String tvHeight, String text, String textSize, String textColor, String textGravity, String imgWidth, String signature, String merchantable, String font, String bold, String italic, String captionText, String imageTintColor) {
         //Configure OkHttpClient for time out
         OkHttpClient okHttpClient = new OkHttpClient().newBuilder()
                 .connectTimeout(20, TimeUnit.MINUTES)
@@ -220,6 +221,7 @@ public class PreviewActivity extends BaseActivity {
                 .addMultipartParameter("bold", bold)
                 .addMultipartParameter("italic", italic)
                 .addMultipartParameter("caption", captionText)
+                .addMultipartParameter("imgtintcolor", imageTintColor)
                 .build()
                 .getJSONObjectObservable()
                 .subscribeOn(Schedulers.io())
@@ -281,7 +283,7 @@ public class PreviewActivity extends BaseActivity {
     /**
      * Update short image and other details on server.
      */
-    private void updateShort(File file, String captureID, String uuid, String authToken, String xPosition, String yPosition, String tvWidth, String tvHeight, String text, String textSize, String textColor, String textGravity, String imgWidth, String merchantable, String font, String bgColor, String bold, String italic, String captionText) {
+    private void updateShort(File file, String captureID, String uuid, String authToken, String xPosition, String yPosition, String tvWidth, String tvHeight, String text, String textSize, String textColor, String textGravity, String imgWidth, String merchantable, String font, String bgColor, String bold, String italic, String captionText, String imageTintColor) {
 
         //Configure OkHttpClient for time out
         OkHttpClient okHttpClient = new OkHttpClient().newBuilder()
@@ -324,6 +326,7 @@ public class PreviewActivity extends BaseActivity {
                 .addMultipartParameter("bold", bold)
                 .addMultipartParameter("italic", italic)
                 .addMultipartParameter("caption", captionText)
+                .addMultipartParameter("imgtintcolor", imageTintColor)
                 .build()
                 .getJSONObjectObservable()
                 .subscribeOn(Schedulers.io())
@@ -408,6 +411,7 @@ public class PreviewActivity extends BaseActivity {
                     , mBundle.getString(PREVIEW_EXTRA_BOLD)
                     , mBundle.getString(PREVIEW_EXTRA_ITALIC)
                     , etCaption.getText().toString()
+                    , mBundle.getString(PREVIEW_EXTRA_IMAGE_TINT_COLOR)
             );
         } else if (mCalledFrom.equals(PREVIEW_EXTRA_CALLED_FROM_SHORT)) {
             updateShort(new File(getImageUri(IMAGE_TYPE_USER_SHORT_PIC).getPath())
@@ -429,6 +433,7 @@ public class PreviewActivity extends BaseActivity {
                     , mBundle.getString(PREVIEW_EXTRA_BOLD)
                     , mBundle.getString(PREVIEW_EXTRA_ITALIC)
                     , etCaption.getText().toString()
+                    , mBundle.getString(PREVIEW_EXTRA_IMAGE_TINT_COLOR)
             );
         } else {
             //do nothing

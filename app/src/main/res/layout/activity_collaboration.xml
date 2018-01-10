@@ -58,6 +58,17 @@
             </FrameLayout>
         </com.thetestament.cread.widgets.SquareView>
 
+        <TextView
+            android:id="@+id/textNote"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/imageContainer"
+            android:layout_centerHorizontal="true"
+            android:gravity="center"
+            android:paddingTop="10sp"
+            android:text="@string/note_text_short_creation"
+            android:textSize="12sp" />
+
         <ImageView
             android:id="@+id/btnFormatTextSize"
             android:layout_width="25dp"
@@ -87,10 +98,10 @@
             android:layout_alignParentBottom="true" />
     </RelativeLayout>
 
-    <!--Font option bottom sheet-->
-    <include layout="@layout/layout_font_bottom_sheet" />
-    <!--Color option bottom sheet-->
-    <include layout="@layout/layout_color_bottom_sheet" />
+     <!--Font option bottom sheet-->
+     <include layout="@layout/layout_font_bottom_sheet" />
+     <!--Color option bottom sheet-->
+     <include layout="@layout/layout_color_bottom_sheet" />
     <include
         android:id="@+id/progressView"
         layout="@layout/layout_progress_bar"

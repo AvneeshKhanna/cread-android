@@ -53,7 +53,9 @@
     <color name="green">#0cba6a</color>
 
     <!--Transparent  color with -->
-    <color name="transparent">#80000000</color>
+    <color name="transparent_50">#80000000</color>
+    <color name="transparent_60">#99000000</color>
+    <color name="transparent_70">#B3000000</color>
 
     <!-- Color transparency
     100% — FF

@@ -46,6 +46,7 @@
                         android:layout_width="88dp"
                         android:layout_height="88dp"
                         android:layout_gravity="center"
+                        android:transitionName="@string/shared_transition_profile_pic"
                         tools:src="@drawable/ic_account_circle_48" />
 
                     <TextView

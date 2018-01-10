@@ -46,6 +46,7 @@ import com.thetestament.cread.helpers.FontsHelper;
 import com.thetestament.cread.helpers.SharedPreferenceHelper;
 import com.thetestament.cread.helpers.ViewHelper;
 import com.thetestament.cread.listeners.OnDragTouchListener;
+import com.thetestament.cread.listeners.OnSwipeGestureListener;
 import com.thetestament.cread.listeners.listener;
 import com.thetestament.cread.models.ColorModel;
 import com.thetestament.cread.models.FontModel;
@@ -78,6 +79,7 @@ import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_CALLED_FROM_SH
 import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_CAPTURE_ID;
 import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_DATA;
 import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_FONT;
+import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_IMAGE_TINT_COLOR;
 import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_IMG_WIDTH;
 import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_ITALIC;
 import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_MERCHANTABLE;
@@ -100,6 +102,7 @@ import static com.thetestament.cread.utils.Constant.REQUEST_CODE_WRITE_EXTERNAL_
 
 public class ShortActivity extends BaseActivity implements OnEditTextBackListener {
 
+    //region :Views binding with butter knife
     @BindView(R.id.rootView)
     CoordinatorLayout rootView;
     @BindView(R.id.imageContainer)
@@ -131,8 +134,9 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
     NestedScrollView colorBottomSheetView;
     @BindView(R.id.colorRecyclerView)
     RecyclerView colorRecyclerView;
+    //endregion
 
-
+    //region :Fields and constants
     private BottomSheetBehavior sheetBehavior, colorSheetBehaviour;
     //Define font typeface
     private Typeface mTextTypeface;
@@ -141,6 +145,9 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
     @State
     String mCaptureUrl, mCaptureID = "", mSignatureText, mShortBgColor = "FFFFFFFF", mFontType = "montserrat_regular.ttf";
 
+    /**
+     * Flag to maintain imageWidth
+     */
     @State
     int mImageWidth = 650;
 
@@ -200,11 +207,25 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
     TextGravity textGravity = TextGravity.Center;
 
 
+    /**
+     * Flag to maintain image tint status. 0(Zero) for default.
+     */
+    @State
+    int mImageTintFlag = 0;
+
+    /**
+     * Flag to store image tint color
+     */
+    @State
+    String mImageTintColor = "";
+
+
     CompositeDisposable mCompositeDisposable = new CompositeDisposable();
     SharedPreferenceHelper mHelper;
+    //endregion
 
+    //region :Overridden methods
     @Override
-
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_short);
@@ -307,9 +328,8 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
                 } else {
                     //Remove underline
                     textShort.clearComposingText();
-                    //Remove tint to imageView
-                    imageShort.clearColorFilter();
-
+                    //Remove tint from imageView
+                    removeImageTint();
                     getRuntimePermission();
                 }
                 return true;
@@ -335,12 +355,16 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
         //initialize listener
         initDragListener();
         //Remove tint to imageView
-        imageShort.clearColorFilter();
+        removeImageTint();
         //Toggle visibility
         formatOptions.setVisibility(View.VISIBLE);
         seekBarTextSize.setVisibility(View.VISIBLE);
         viewFormatTextSize.setVisibility(View.VISIBLE);
     }
+
+    //endregion
+
+    //region :Click functionality
 
     /**
      * Root view click functionality.
@@ -355,11 +379,10 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
     void onContainerClick() {
         //Method call
         hideBottomSheets();
-
         //Hide edit text cursor
         textShort.setCursorVisible(false);
         //Remove tint to imageView
-        imageShort.clearColorFilter();
+        removeImageTint();
         //Hide keyboard
         InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
         imm.hideSoftInputFromWindow(textShort.getWindowToken(), 0);
@@ -545,6 +568,9 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
         //Hide font bottom sheet
         sheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
     }
+    //endregion
+
+    //region Private methods
 
     /**
      * Method to initialize view for this screen.
@@ -575,6 +601,7 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
         initColorLayout();
         //initialize listener
         initDragListener();
+        initSwipeListener();
     }
 
     /**
@@ -719,7 +746,7 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
                 //Show edit text cursor
                 textShort.setCursorVisible(true);
                 //Add tint to imageView
-                imageShort.setColorFilter(ContextCompat.getColor(ShortActivity.this, R.color.transparent));
+                imageShort.setColorFilter(ContextCompat.getColor(ShortActivity.this, R.color.transparent_50));
                 //Show keyboard
                 InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
                 imm.showSoftInput(textShort, 0);
@@ -734,6 +761,75 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
                 hideBottomSheets();
             }
         }));
+    }
+
+    /**
+     * Method to initialize swipe listener on squareView.
+     */
+    private void initSwipeListener() {
+
+        squareView.setOnTouchListener(new OnSwipeGestureListener(this) {
+
+            @Override
+            public void onDoubleClick() {
+                switch (mImageTintFlag) {
+                    case 0:
+                        //Apply tint
+                        imageShort.setColorFilter(ContextCompat.getColor(ShortActivity.this, R.color.transparent_50));
+                        //Update flag
+                        mImageTintFlag = 1;
+                        //set tint color
+                        mImageTintColor = "80000000";
+                        break;
+                    case 1:
+                        //Apply tint
+                        imageShort.setColorFilter(ContextCompat.getColor(ShortActivity.this, R.color.transparent_60));
+                        //Update flag
+                        mImageTintFlag = 2;
+                        //set tint color
+                        mImageTintColor = "99000000";
+                        break;
+                    case 2:
+                        //Apply tint
+                        imageShort.setColorFilter(ContextCompat.getColor(ShortActivity.this, R.color.transparent_70));
+                        //Update flag
+                        mImageTintFlag = 3;
+                        //set tint color
+                        mImageTintColor = "B3000000";
+                        break;
+                    case 3:
+                        //Clear filter
+                        imageShort.clearColorFilter();
+                        //Update flag
+                        mImageTintFlag = 0;
+                        //set tint color
+                        mImageTintColor = "";
+                        break;
+                }
+            }
+
+            @Override
+            public void onClick() {
+                //Method call
+                hideBottomSheets();
+
+                //Hide edit text cursor
+                textShort.setCursorVisible(false);
+                //Remove tint to imageView
+                removeImageTint();
+                //Hide keyboard
+                InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                imm.hideSoftInputFromWindow(textShort.getWindowToken(), 0);
+
+                //initialize listener
+                initDragListener();
+
+                //Toggle visibility
+                formatOptions.setVisibility(View.VISIBLE);
+                seekBarTextSize.setVisibility(View.VISIBLE);
+                viewFormatTextSize.setVisibility(View.VISIBLE);
+            }
+        });
     }
 
     /**
@@ -753,7 +849,7 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
                         //Hide progress indicator
                         imageProgressView.setVisibility(View.GONE);
                         //Add tint to imageView
-                        imageShort.setColorFilter(ContextCompat.getColor(ShortActivity.this, R.color.transparent));
+                        imageShort.setColorFilter(ContextCompat.getColor(ShortActivity.this, R.color.transparent_50));
                         Picasso.with(ShortActivity.this).load(imageUrl).into(new Target() {
                             @Override
                             public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
@@ -879,6 +975,7 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
                     , mShortBgColor
                     , String.valueOf(mBoldFlag)
                     , String.valueOf(mItalicFlag)
+                    , mImageTintColor
                     , PREVIEW_EXTRA_CALLED_FROM_SHORT
 
             );
@@ -901,7 +998,7 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
             , String xPosition, String yPosition, String tvWidth, String tvHeight
             , String text, String textSize, String textColor, String textGravity
             , String imgWidth, String merchantable, String font, String bgColor
-            , String bold, String italic, String calledFrom) {
+            , String bold, String italic, String imageTintColor, String calledFrom) {
 
         Intent intent = new Intent(ShortActivity.this, PreviewActivity.class);
 
@@ -924,7 +1021,9 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
         bundle.putString(PREVIEW_EXTRA_BG_COLOR, bgColor);
         bundle.putString(PREVIEW_EXTRA_BOLD, bold);
         bundle.putString(PREVIEW_EXTRA_ITALIC, italic);
+        bundle.putString(PREVIEW_EXTRA_IMAGE_TINT_COLOR, imageTintColor);
         bundle.putString(PREVIEW_EXTRA_CALLED_FROM, calledFrom);
+
 
         intent.putExtra(PREVIEW_EXTRA_DATA, bundle);
         startActivityForResult(intent, REQUEST_CODE_PREVIEW_ACTIVITY);
@@ -944,4 +1043,14 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
             colorSheetBehaviour.setState(BottomSheetBehavior.STATE_COLLAPSED);
         }
     }
+
+    /**
+     * Method to clear image tint if it its not added explicitly.
+     */
+    private void removeImageTint() {
+        if (mImageTintFlag == 0) {
+            imageShort.clearColorFilter();
+        }
+    }
+    //endregion
 }

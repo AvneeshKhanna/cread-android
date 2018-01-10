@@ -5,6 +5,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.design.widget.CoordinatorLayout;
+import android.support.v4.app.ActivityCompat;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.ImageView;
@@ -14,6 +15,7 @@ import com.androidnetworking.AndroidNetworking;
 import com.androidnetworking.error.ANError;
 import com.androidnetworking.interfaces.JSONObjectRequestListener;
 import com.google.firebase.crash.FirebaseCrash;
+import com.squareup.picasso.Callback;
 import com.squareup.picasso.MemoryPolicy;
 import com.squareup.picasso.NetworkPolicy;
 import com.squareup.picasso.Picasso;
@@ -67,6 +69,7 @@ public class UpdateProfileImageActivity extends BaseActivity {
         ButterKnife.bind(this);
         //Get data from intent
         String imageURL = getIntent().getStringExtra(EXTRA_USER_IMAGE_PATH);
+        ActivityCompat.postponeEnterTransition(this);
         //To load profile image
         loadProfileImage(imageURL);
     }
@@ -129,7 +132,8 @@ public class UpdateProfileImageActivity extends BaseActivity {
         switch (item.getItemId()) {
             case android.R.id.home:
                 //Navigate back from this screen
-                finish();
+                supportFinishAfterTransition();
+
                 return true;
             case R.id.action_edit:
                 //Launch gallery
@@ -148,10 +152,21 @@ public class UpdateProfileImageActivity extends BaseActivity {
     private void loadProfileImage(String imageURL) {
         Picasso.with(this)
                 .load(imageURL)
-                .memoryPolicy(MemoryPolicy.NO_CACHE)
                 .networkPolicy(NetworkPolicy.NO_CACHE)
+                .memoryPolicy(MemoryPolicy.NO_CACHE)
                 .error(R.drawable.ic_account_circle_48)
-                .into(imageProfile);
+                .into(imageProfile, new Callback() {
+                    @Override
+                    public void onSuccess() {
+                        ActivityCompat.startPostponedEnterTransition(UpdateProfileImageActivity.this);
+
+                    }
+
+                    @Override
+                    public void onError() {
+                        ActivityCompat.startPostponedEnterTransition(UpdateProfileImageActivity.this);
+                    }
+                });
     }
 
     /**
