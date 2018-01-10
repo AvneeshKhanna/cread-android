@@ -206,7 +206,7 @@ public class listener {
      * Interface definition for a callback to be invoked when user click on share button.
      */
     public interface OnShareListener {
-        void onShareClick(Bitmap bitmap);
+        void onShareClick(Bitmap bitmap, FeedModel model);
     }
 
     public interface OnShareDialogItemClickedListener {

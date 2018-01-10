@@ -44,6 +44,7 @@ import com.thetestament.cread.helpers.FeedHelper;
 import com.thetestament.cread.helpers.HatsOffHelper;
 import com.thetestament.cread.helpers.ImageHelper;
 import com.thetestament.cread.helpers.NetworkHelper;
+import com.thetestament.cread.helpers.ShareHelper;
 import com.thetestament.cread.helpers.SharedPreferenceHelper;
 import com.thetestament.cread.helpers.ViewHelper;
 import com.thetestament.cread.listeners.listener;
@@ -76,7 +77,6 @@ import static com.thetestament.cread.helpers.FeedHelper.initCaption;
 import static com.thetestament.cread.helpers.FeedHelper.initializeShareDialog;
 import static com.thetestament.cread.helpers.FeedHelper.updateDotSeperatorVisibility;
 import static com.thetestament.cread.helpers.ImageHelper.getImageUri;
-import static com.thetestament.cread.helpers.ImageHelper.getLocalBitmapUri;
 import static com.thetestament.cread.helpers.NetworkHelper.getCommentObservableFromServer;
 import static com.thetestament.cread.utils.Constant.CONTENT_TYPE_CAPTURE;
 import static com.thetestament.cread.utils.Constant.CONTENT_TYPE_SHORT;
@@ -544,7 +544,8 @@ public class FeedDescriptionActivity extends BaseActivity implements listener.On
                 //Check for Write permission
                 if (Nammu.checkPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
                     //We have permission do whatever you want to do
-                    sharePost(bitmap);
+                    //sharePost(bitmap);
+                    ShareHelper.sharePost(bitmap, FeedDescriptionActivity.this, mFeedData);
                 } else {
                     //We do not own this permission
                     if (Nammu.shouldShowRequestPermissionRationale(FeedDescriptionActivity.this
@@ -968,7 +969,8 @@ public class FeedDescriptionActivity extends BaseActivity implements listener.On
     PermissionCallback shareWritePermission = new PermissionCallback() {
         @Override
         public void permissionGranted() {
-            sharePost(mBitmap);
+            //sharePost(mBitmap);
+            ShareHelper.sharePost(mBitmap, mContext, mFeedData);
         }
 
         @Override
@@ -979,18 +981,6 @@ public class FeedDescriptionActivity extends BaseActivity implements listener.On
         }
     };
 
-    /**
-     * Method to create intent choose so he/she can share the post.
-     *
-     * @param bitmap Bitmap to be shared.
-     */
-    private void sharePost(Bitmap bitmap) {
-        Intent intent = new Intent();
-        intent.setAction(Intent.ACTION_SEND);
-        intent.setType("image/*");
-        intent.putExtra(Intent.EXTRA_STREAM, getLocalBitmapUri(bitmap, FeedDescriptionActivity.this));
-        startActivity(Intent.createChooser(intent, "Share"));
-    }
 
     @Override
     public void collaborationOnGraphic() {

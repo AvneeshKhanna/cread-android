@@ -445,7 +445,7 @@ public class MeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
      * @param pictureUrl URL of the picture to be shared.
      * @param entityID   Entity id of content.
      */
-    private void shareOnClick(View view, final String pictureUrl, final String entityID, final String creatorName) {
+    private void shareOnClick(View view, final String pictureUrl, final String entityID, final String creatorName, final FeedModel data) {
         view.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -466,7 +466,7 @@ public class MeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                             case 0:
                                 // image sharing
                                 //so load image
-                                loadBitmapForSharing(pictureUrl, entityID);
+                                loadBitmapForSharing(data);
                                 break;
                             case 1:
                                 // link sharing
@@ -484,15 +484,15 @@ public class MeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     /**
      * Method to load bitmap image to be shared
      */
-    private void loadBitmapForSharing(final String pictureUrl, final String entityID) {
+    private void loadBitmapForSharing(final FeedModel data) {
 
-        Picasso.with(mContext).load(pictureUrl).into(new Target() {
+        Picasso.with(mContext).load(data.getContentImage()).into(new Target() {
             @Override
             public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
                 //Set listener
-                onShareListener.onShareClick(bitmap);
+                onShareListener.onShareClick(bitmap, data);
                 //Log firebase event
-                setAnalytics(FIREBASE_EVENT_SHARED_FROM_PROFILE, entityID);
+                setAnalytics(FIREBASE_EVENT_SHARED_FROM_PROFILE, data.getEntityID());
             }
 
             @Override
@@ -552,7 +552,7 @@ public class MeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         //Comment click functionality
         commentOnClick(itemViewHolder.containerComment, data.getEntityID());
         //Share click functionality
-        shareOnClick(itemViewHolder.containerShare, data.getContentImage(), data.getEntityID(), data.getCreatorName());
+        shareOnClick(itemViewHolder.containerShare, data.getContentImage(), data.getEntityID(), data.getCreatorName(), data);
         //Collaboration count click functionality
         collaborationCountOnClick(itemViewHolder.collabCount, data.getEntityID(), data.getContentType());
     }
