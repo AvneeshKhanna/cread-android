@@ -8,6 +8,7 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.widget.TextViewCompat;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -25,7 +26,8 @@ import com.squareup.picasso.Target;
 import com.thetestament.cread.R;
 import com.thetestament.cread.activities.CollaborationDetailsActivity;
 import com.thetestament.cread.activities.CommentsActivity;
-import com.thetestament.cread.activities.FeedDescriptionActivity;
+import com.thetestament.cread.activities.HatsOffActivity;
+import com.thetestament.cread.activities.MerchandisingProductsActivity;
 import com.thetestament.cread.helpers.FeedHelper;
 import com.thetestament.cread.helpers.NetworkHelper;
 import com.thetestament.cread.helpers.SharedPreferenceHelper;
@@ -43,15 +45,22 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import de.hdodenhof.circleimageview.CircleImageView;
 
+import static com.thetestament.cread.helpers.FeedHelper.initCaption;
+import static com.thetestament.cread.helpers.FeedHelper.initSocialActionsCount;
 import static com.thetestament.cread.helpers.FeedHelper.initializeShareDialog;
+import static com.thetestament.cread.helpers.FeedHelper.updateDotSeperatorVisibility;
+import static com.thetestament.cread.utils.Constant.CONTENT_TYPE_CAPTURE;
+import static com.thetestament.cread.utils.Constant.CONTENT_TYPE_SHORT;
+import static com.thetestament.cread.utils.Constant.EXTRA_CAPTURE_URL;
+import static com.thetestament.cread.utils.Constant.EXTRA_CAPTURE_UUID;
 import static com.thetestament.cread.utils.Constant.EXTRA_DATA;
 import static com.thetestament.cread.utils.Constant.EXTRA_ENTITY_ID;
 import static com.thetestament.cread.utils.Constant.EXTRA_ENTITY_TYPE;
-import static com.thetestament.cread.utils.Constant.EXTRA_FEED_DESCRIPTION_DATA;
+import static com.thetestament.cread.utils.Constant.EXTRA_SHORT_UUID;
 import static com.thetestament.cread.utils.Constant.FIREBASE_EVENT_CAPTURE_CLICKED;
+import static com.thetestament.cread.utils.Constant.FIREBASE_EVENT_HAVE_CLICKED;
 import static com.thetestament.cread.utils.Constant.FIREBASE_EVENT_SHARED_FROM_MAIN_FEED;
 import static com.thetestament.cread.utils.Constant.FIREBASE_EVENT_WRITE_CLICKED;
-import static com.thetestament.cread.utils.Constant.REQUEST_CODE_FEED_DESCRIPTION_ACTIVITY;
 
 /**
  * Adapter class to provide a binding from data set to views that are displayed within a Feed RecyclerView.
@@ -151,28 +160,44 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             // set text and click actions acc. to content type
             FeedHelper.performContentTypeSpecificOperations(mContext
                     , data
-                    , itemViewHolder.collabCount
-                    , itemViewHolder.collabCount
+                    , itemViewHolder.textCollabCount
+                    , itemViewHolder.containerCollabCount
                     , itemViewHolder.buttonCollaborate
                     , itemViewHolder.textCreatorName
-                    , true
-                    , true
-                    , itemViewHolder.lineSepartor);
+                    , false
+                    , false
+                    , null);
 
             //Check whether user has given hats off to this campaign or not
             checkHatsOffStatus(data.getHatsOffStatus(), itemViewHolder);
 
-            //ItemView onClick functionality
-            itemViewOnClick(itemViewHolder.itemView, data, position);
-
             //Comment click functionality
             commentOnClick(itemViewHolder.containerComment, data.getEntityID());
             //Share click functionality
-            shareOnClick(itemViewHolder.containerShare, data.getContentImage(), data.getEntityID(), data.getCreatorName());
+            shareOnClick(itemViewHolder.containerShare, data.getContentImage(), data.getEntityID(), data.getCreatorName(), data);
             //HatsOff onClick functionality
             hatsOffOnClick(itemViewHolder, data, position);
             //Collaboration count click functionality
-            collaborationCountOnClick(itemViewHolder.collabCount, data.getEntityID(), data.getContentType());
+            collaborationContainerOnClick(itemViewHolder.containerCollabCount, data.getEntityID(), data.getContentType());
+            //have button click
+            onHaveViewClicked(data, itemViewHolder);
+            // caption on click
+            onTitleClicked(itemViewHolder.textTitle);
+            // on hatsoff count click
+            hatsOffCountOnClick(itemViewHolder, data);
+            //Comment count click functionality
+            commentOnClick(itemViewHolder.containerCommentCount, data.getEntityID());
+            // initialize hatsoff and comment count
+            initSocialActionsCount(mContext,
+                    data,
+                    itemViewHolder.containerHatsOffCount,
+                    itemViewHolder.textHatsoffCount,
+                    itemViewHolder.containerCommentCount,
+                    itemViewHolder.textCommentsCount,
+                    itemViewHolder.dotSeperator);
+
+            // initialize caption
+            initCaption(mContext, data, itemViewHolder.textTitle);
 
 
         } else if (holder.getItemViewType() == VIEW_TYPE_LOADING) {
@@ -262,7 +287,7 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
      *
      * @param view      View to be clicked.
      * @param feedModel Data set for current item
-     */
+     *//*
     private void itemViewOnClick(View view, final FeedModel feedModel, final int position) {
         view.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -276,7 +301,7 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                 mFeedFragment.startActivityForResult(intent, REQUEST_CODE_FEED_DESCRIPTION_ACTIVITY);
             }
         });
-    }
+    }*/
 
     /**
      * Compose onClick functionality.
@@ -301,7 +326,7 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
      * @param view       View to be clicked.
      * @param pictureUrl URL of the picture to be shared.
      */
-    private void shareOnClick(View view, final String pictureUrl, final String entityID, final String creatorName) {
+    private void shareOnClick(View view, final String pictureUrl, final String entityID, final String creatorName, final FeedModel data) {
         view.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -321,7 +346,7 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                             case 0:
                                 // image sharing
                                 //so load image
-                                loadBitmapForSharing(pictureUrl, entityID);
+                                loadBitmapForSharing(data);
                                 break;
                             case 1:
                                 // link sharing
@@ -362,6 +387,16 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                         itemViewHolder.imageHatsOff.setColorFilter(Color.TRANSPARENT);
                         //Update hats of count i.e decrease by one
                         data.setHatsOffCount(data.getHatsOffCount() - 1);
+                        //If hats off count is zero
+                        if (data.getHatsOffCount() < 1) {
+                            itemViewHolder.containerHatsOffCount.setVisibility(View.GONE);
+                        }
+                        //hats off count is more than zero
+                        else {
+                            //Change hatsOffCount i.e decrease by one
+                            itemViewHolder.containerHatsOffCount.setVisibility(View.VISIBLE);
+                            itemViewHolder.textHatsoffCount.setText(String.valueOf(data.getHatsOffCount()));
+                        }
                     } else {
                         //Animation for hats off
                         if (itemViewHolder.mIsRotated) {
@@ -373,7 +408,13 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                         itemViewHolder.imageHatsOff.setColorFilter(ContextCompat.getColor(mContext, R.color.colorPrimary));
                         //Change hatsOffCount i.e increase by one
                         data.setHatsOffCount(data.getHatsOffCount() + 1);
+                        //Change hatsOffCount i.e increase by one
+                        itemViewHolder.containerHatsOffCount.setVisibility(View.VISIBLE);
+                        itemViewHolder.textHatsoffCount.setText(String.valueOf(data.getHatsOffCount()));
                     }
+
+                    updateDotSeperatorVisibility(data, itemViewHolder.dotSeperator);
+
                     //Toggle hatsOff status
                     itemViewHolder.mIsHatsOff = !itemViewHolder.mIsHatsOff;
                     //Update hats off here
@@ -383,8 +424,6 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                 } else {
                     ViewHelper.getToast(mContext, mContext.getString(R.string.error_msg_no_connection));
                 }
-
-
             }
         });
     }
@@ -393,12 +432,12 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     /**
      * Collaboration count click functionality to launch collaborationDetailsActivity.
      *
-     * @param textView   View to be clicked
-     * @param entityID   Entity id of the content.
-     * @param entityType Type of content i.e CAPTURE or SHORT
+     * @param linearLayout
+     * @param entityID     Entity id of the content.
+     * @param entityType   Type of content i.e CAPTURE or SHORT
      */
-    private void collaborationCountOnClick(TextView textView, final String entityID, final String entityType) {
-        textView.setOnClickListener(new View.OnClickListener() {
+    private void collaborationContainerOnClick(LinearLayout linearLayout, final String entityID, final String entityType) {
+        linearLayout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
 
@@ -413,17 +452,90 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         });
     }
 
+
+    /**
+     * Caption click listner
+     */
+    void onTitleClicked(final TextView textTitle) {
+
+        textTitle.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                if (TextViewCompat.getMaxLines(textTitle) == 3) {
+                    // expand title
+                    textTitle.setMaxLines(Integer.MAX_VALUE);
+                } else {
+                    // collapse title
+                    textTitle.setMaxLines(3);
+                }
+            }
+        });
+
+    }
+
+    /**
+     * Have button click functionality.
+     */
+
+    public void onHaveViewClicked(final FeedModel data, final ItemViewHolder itemViewHolder) {
+
+        itemViewHolder.buttonHave.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                if (data.isMerchantable()) {
+                    Intent intent = new Intent(mContext, MerchandisingProductsActivity.class);
+                    intent.putExtra(EXTRA_ENTITY_ID, data.getEntityID());
+                    intent.putExtra(EXTRA_CAPTURE_URL, data.getContentImage());
+                    // getting short uuid and capture uuid
+                    if (data.getContentType().equals(CONTENT_TYPE_SHORT)) {
+                        intent.putExtra(EXTRA_SHORT_UUID, data.getUUID());
+                        intent.putExtra(EXTRA_CAPTURE_UUID, data.getCollabWithUUID());
+                    } else if (data.getContentType().equals(CONTENT_TYPE_CAPTURE)) {
+                        intent.putExtra(EXTRA_SHORT_UUID, data.getCollabWithUUID());
+                        intent.putExtra(EXTRA_CAPTURE_UUID, data.getUUID());
+                    }
+                    mContext.startActivity(intent);
+                } else {
+                    ViewHelper.getSnackBar(itemViewHolder.itemView, "Due to low resolution this image is not available for purchase.");
+                }
+                //Log firebase event
+                setAnalytics(FIREBASE_EVENT_HAVE_CLICKED, data.getEntityID());
+            }
+        });
+
+
+    }
+
+    /**
+     * HatsOffCount click functionality to open "HatsOffActivity" screen.
+     */
+
+    void hatsOffCountOnClick(ItemViewHolder itemViewHolder, final FeedModel data) {
+
+        itemViewHolder.containerHatsOffCount.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(mContext, HatsOffActivity.class);
+                intent.putExtra(EXTRA_ENTITY_ID, data.getEntityID());
+                mContext.startActivity(intent);
+            }
+        });
+    }
+
+
     /**
      * Method to load bitmap image to be shared
      */
-    private void loadBitmapForSharing(final String pictureUrl, final String entityID) {
-        Picasso.with(mContext).load(pictureUrl).into(new Target() {
+    private void loadBitmapForSharing(final FeedModel data) {
+        Picasso.with(mContext).load(data.getContentImage()).into(new Target() {
             @Override
             public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
                 //Set Listener
-                onShareListener.onShareClick(bitmap);
+                onShareListener.onShareClick(bitmap, data);
                 //Log firebase event
-                setAnalytics(FIREBASE_EVENT_SHARED_FROM_MAIN_FEED, entityID);
+                setAnalytics(FIREBASE_EVENT_SHARED_FROM_MAIN_FEED, data.getEntityID());
             }
 
             @Override
@@ -459,10 +571,27 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         LinearLayout containerComment;
         @BindView(R.id.containerShare)
         LinearLayout containerShare;
-        @BindView(R.id.collabCount)
-        TextView collabCount;
+        @BindView(R.id.textCollabCount)
+        TextView textCollabCount;
         @BindView(R.id.lineSeparatorTop)
         View lineSepartor;
+        @BindView(R.id.containerCollabCount)
+        LinearLayout containerCollabCount;
+        @BindView(R.id.textTitle)
+        TextView textTitle;
+        @BindView(R.id.buttonHave)
+        LinearLayout buttonHave;
+        @BindView(R.id.containerHatsoffCount)
+        LinearLayout containerHatsOffCount;
+        @BindView(R.id.containerCommentsCount)
+        LinearLayout containerCommentCount;
+        @BindView(R.id.textHatsOffCount)
+        TextView textHatsoffCount;
+        @BindView(R.id.textCommentsCount)
+        TextView textCommentsCount;
+        @BindView(R.id.dotSeperator)
+        TextView dotSeperator;
+
 
         //Variable to maintain hats off status
         private boolean mIsHatsOff = false;

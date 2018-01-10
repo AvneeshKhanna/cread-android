@@ -11,6 +11,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.v13.view.ViewCompat;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.widget.NestedScrollView;
 import android.support.v4.widget.TextViewCompat;
@@ -18,6 +19,8 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.animation.AnimationUtils;
 import android.view.animation.LayoutAnimationController;
@@ -29,6 +32,7 @@ import com.afollestad.materialdialogs.DialogAction;
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.google.firebase.analytics.FirebaseAnalytics;
 import com.google.firebase.crash.FirebaseCrash;
+import com.squareup.picasso.Callback;
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Target;
 import com.thetestament.cread.BuildConfig;
@@ -40,6 +44,7 @@ import com.thetestament.cread.helpers.FeedHelper;
 import com.thetestament.cread.helpers.HatsOffHelper;
 import com.thetestament.cread.helpers.ImageHelper;
 import com.thetestament.cread.helpers.NetworkHelper;
+import com.thetestament.cread.helpers.ShareHelper;
 import com.thetestament.cread.helpers.SharedPreferenceHelper;
 import com.thetestament.cread.helpers.ViewHelper;
 import com.thetestament.cread.listeners.listener;
@@ -68,9 +73,10 @@ import pl.tajchert.nammu.Nammu;
 import pl.tajchert.nammu.PermissionCallback;
 
 import static com.thetestament.cread.helpers.FeedHelper.generateDeepLink;
+import static com.thetestament.cread.helpers.FeedHelper.initCaption;
 import static com.thetestament.cread.helpers.FeedHelper.initializeShareDialog;
+import static com.thetestament.cread.helpers.FeedHelper.updateDotSeperatorVisibility;
 import static com.thetestament.cread.helpers.ImageHelper.getImageUri;
-import static com.thetestament.cread.helpers.ImageHelper.getLocalBitmapUri;
 import static com.thetestament.cread.helpers.NetworkHelper.getCommentObservableFromServer;
 import static com.thetestament.cread.utils.Constant.CONTENT_TYPE_CAPTURE;
 import static com.thetestament.cread.utils.Constant.CONTENT_TYPE_SHORT;
@@ -233,6 +239,21 @@ public class FeedDescriptionActivity extends BaseActivity implements listener.On
         Icepick.restoreInstanceState(this, savedInstanceState);
     }
 
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                supportFinishAfterTransition();
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
 
     /**
      * HatsOffCount click functionality to open "HatsOffActivity" screen.
@@ -333,7 +354,7 @@ public class FeedDescriptionActivity extends BaseActivity implements listener.On
                 textHatsoffCount.setText(String.valueOf(mFeedData.getHatsOffCount()));
             }
 
-            updateDotSeperatorVisibility();
+            updateDotSeperatorVisibility(mFeedData, dotSeperator);
             //update hats off status on server
             updateHatsOffStatus();
 
@@ -438,20 +459,12 @@ public class FeedDescriptionActivity extends BaseActivity implements listener.On
 
         // set caption if it exists
         // else hide the caption view
-        if (mFeedData.getCaption() != null) {
-            textTitle.setVisibility(View.VISIBLE);
-            textTitle.setText(mFeedData.getCaption());
 
-            // set hash tags
-            FeedHelper feedHelper = new FeedHelper();
-            feedHelper.setHashTags(textTitle, mContext);
-
-        } else {
-            textTitle.setVisibility(View.GONE);
-        }
+        // initialize caption
+        initCaption(mContext, mFeedData, textTitle);
 
         // update dot visibility
-        updateDotSeperatorVisibility();
+        updateDotSeperatorVisibility(mFeedData, dotSeperator);
 
         //Check for hats of count
         if (mFeedData.getHatsOffCount() > 0) {
@@ -475,6 +488,13 @@ public class FeedDescriptionActivity extends BaseActivity implements listener.On
 
         //Show tooltip on have button
         showTooltip();
+
+        //If API is greater than LOLLIPOP
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
+            //For shared transition
+            image.setTransitionName(mFeedData.getEntityID());
+            ActivityCompat.postponeEnterTransition(this);
+        }
     }
 
     /**
@@ -487,7 +507,17 @@ public class FeedDescriptionActivity extends BaseActivity implements listener.On
         Picasso.with(this)
                 .load(imgLink)
                 .error(R.drawable.image_placeholder)
-                .into(image);
+                .into(image, new Callback() {
+                    @Override
+                    public void onSuccess() {
+                        ActivityCompat.startPostponedEnterTransition(FeedDescriptionActivity.this);
+                    }
+
+                    @Override
+                    public void onError() {
+                        ActivityCompat.startPostponedEnterTransition(FeedDescriptionActivity.this);
+                    }
+                });
     }
 
     /**
@@ -514,7 +544,8 @@ public class FeedDescriptionActivity extends BaseActivity implements listener.On
                 //Check for Write permission
                 if (Nammu.checkPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
                     //We have permission do whatever you want to do
-                    sharePost(bitmap);
+                    //sharePost(bitmap);
+                    ShareHelper.sharePost(bitmap, FeedDescriptionActivity.this, mFeedData);
                 } else {
                     //We do not own this permission
                     if (Nammu.shouldShowRequestPermissionRationale(FeedDescriptionActivity.this
@@ -667,7 +698,6 @@ public class FeedDescriptionActivity extends BaseActivity implements listener.On
         //Update status
         mHelper.updateHaveButtonToolTipStatus(false);
     }
-
 
 
     /**
@@ -930,7 +960,7 @@ public class FeedDescriptionActivity extends BaseActivity implements listener.On
             }
         }
 
-        updateDotSeperatorVisibility();
+        updateDotSeperatorVisibility(mFeedData, dotSeperator);
     }
 
     /**
@@ -939,7 +969,8 @@ public class FeedDescriptionActivity extends BaseActivity implements listener.On
     PermissionCallback shareWritePermission = new PermissionCallback() {
         @Override
         public void permissionGranted() {
-            sharePost(mBitmap);
+            //sharePost(mBitmap);
+            ShareHelper.sharePost(mBitmap, mContext, mFeedData);
         }
 
         @Override
@@ -950,38 +981,6 @@ public class FeedDescriptionActivity extends BaseActivity implements listener.On
         }
     };
 
-    /**
-     * Method to create intent choose so he/she can share the post.
-     *
-     * @param bitmap Bitmap to be shared.
-     */
-    private void sharePost(Bitmap bitmap) {
-        Intent intent = new Intent();
-        intent.setAction(Intent.ACTION_SEND);
-        intent.setType("image/*");
-        intent.putExtra(Intent.EXTRA_STREAM, getLocalBitmapUri(bitmap, FeedDescriptionActivity.this));
-        startActivity(Intent.createChooser(intent, "Share"));
-    }
-
-    /**
-     * Updates the visibility of the dot seperator
-     * based on the values of hatsoff and comment ount
-     */
-    private void updateDotSeperatorVisibility() {
-        long hatsoffCount = mFeedData.getHatsOffCount();
-        long commentCount = mFeedData.getCommentCount();
-
-        // if one or both the counts are zero remove the dot
-        if ((hatsoffCount == 0 && commentCount == 0)
-                || (hatsoffCount != 0 && commentCount == 0)
-                || (hatsoffCount == 0 && commentCount != 0)) {
-            dotSeperator.setVisibility(View.GONE);
-        }
-        // both are non-zero so show the dot
-        else if (hatsoffCount != 0 && commentCount != 0) {
-            dotSeperator.setVisibility(View.VISIBLE);
-        }
-    }
 
     @Override
     public void collaborationOnGraphic() {

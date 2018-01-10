@@ -1,5 +1,6 @@
 package com.thetestament.cread.fragments;
 
+import android.app.ActivityOptions;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -16,6 +17,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.view.ViewCompat;
 import android.support.v4.widget.SwipeRefreshLayout;
+import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.InputType;
@@ -56,12 +58,14 @@ import com.thetestament.cread.helpers.FeedHelper;
 import com.thetestament.cread.helpers.HatsOffHelper;
 import com.thetestament.cread.helpers.ImageHelper;
 import com.thetestament.cread.helpers.NetworkHelper;
+import com.thetestament.cread.helpers.ShareHelper;
 import com.thetestament.cread.helpers.SharedPreferenceHelper;
 import com.thetestament.cread.helpers.ViewHelper;
 import com.thetestament.cread.listeners.listener;
 import com.thetestament.cread.listeners.listener.OnUserStatsClickedListener;
 import com.thetestament.cread.models.FeedModel;
 import com.thetestament.cread.utils.Constant.GratitudeNumbers;
+import com.thetestament.cread.utils.Constant.ITEM_TYPES;
 import com.thetestament.cread.utils.UserStatsViewPager;
 import com.yalantis.ucrop.UCrop;
 
@@ -96,12 +100,13 @@ import static com.thetestament.cread.CreadApp.GET_RESPONSE_FROM_NETWORK_FOLLOWIN
 import static com.thetestament.cread.CreadApp.GET_RESPONSE_FROM_NETWORK_INSPIRATION;
 import static com.thetestament.cread.CreadApp.GET_RESPONSE_FROM_NETWORK_MAIN;
 import static com.thetestament.cread.CreadApp.GET_RESPONSE_FROM_NETWORK_ME;
+import static com.thetestament.cread.fragments.ExploreFragment.defaultItemType;
 import static com.thetestament.cread.helpers.FeedHelper.generateDeepLink;
 import static com.thetestament.cread.helpers.ImageHelper.getImageUri;
-import static com.thetestament.cread.helpers.ImageHelper.getLocalBitmapUri;
 import static com.thetestament.cread.helpers.NetworkHelper.getNetConnectionStatus;
 import static com.thetestament.cread.helpers.NetworkHelper.getObservableFromServer;
 import static com.thetestament.cread.helpers.NetworkHelper.getUserDataObservableFromServer;
+import static com.thetestament.cread.helpers.NetworkHelper.requestServer;
 import static com.thetestament.cread.utils.Constant.CONTENT_TYPE_CAPTURE;
 import static com.thetestament.cread.utils.Constant.CONTENT_TYPE_SHORT;
 import static com.thetestament.cread.utils.Constant.EXTRA_DATA;
@@ -123,6 +128,9 @@ import static com.thetestament.cread.utils.Constant.GratitudeNumbers.FOLLOWING;
 import static com.thetestament.cread.utils.Constant.GratitudeNumbers.HATSOFF;
 import static com.thetestament.cread.utils.Constant.GratitudeNumbers.POSTS;
 import static com.thetestament.cread.utils.Constant.IMAGE_TYPE_USER_CAPTURE_PIC;
+import static com.thetestament.cread.utils.Constant.ITEM_TYPES.COLLABLIST;
+import static com.thetestament.cread.utils.Constant.ITEM_TYPES.GRID;
+import static com.thetestament.cread.utils.Constant.ITEM_TYPES.LIST;
 import static com.thetestament.cread.utils.Constant.REQUEST_CODE_FEED_DESCRIPTION_ACTIVITY;
 import static com.thetestament.cread.utils.Constant.REQUEST_CODE_OPEN_GALLERY_FOR_CAPTURE;
 import static com.thetestament.cread.utils.Constant.REQUEST_CODE_ROYALTIES_ACTIVITY;
@@ -176,14 +184,20 @@ public class MeFragment extends Fragment implements listener.OnCollaborationList
     String mEntityID, mEntityType;
     Bitmap mBitmap;
 
+    FeedModel mFeedData;
+
     private List<FeedModel> mUserActivityDataList = new ArrayList<>();
+    private List<FeedModel> mCollabList = new ArrayList<>();
     private MeAdapter mAdapter;
     private Unbinder mUnbinder;
     private CompositeDisposable mCompositeDisposable = new CompositeDisposable();
     private SharedPreferenceHelper mHelper;
     private String mLastIndexKey;
+    private String mCollabLastIndexKey;
+    private boolean mCollabRequestMoreData;
     private boolean mRequestMoreData;
     private int[] mLayouts;
+    private int spanCount = 2;
 
 
     @Nullable
@@ -381,6 +395,8 @@ public class MeFragment extends Fragment implements listener.OnCollaborationList
         //If profile is editable
         if (isProfileEditable) {
             getRuntimePermission();
+        } else {
+            openProfilePreview();
         }
     }
 
@@ -511,8 +527,8 @@ public class MeFragment extends Fragment implements listener.OnCollaborationList
 
         //initialize tab layout
         initUserStatsPager();
-        initTabLayout(tabLayout);
         initSwipeRefreshLayout();
+        initTabLayout(tabLayout);
     }
 
     /**
@@ -529,27 +545,39 @@ public class MeFragment extends Fragment implements listener.OnCollaborationList
             public void onTabSelected(TabLayout.Tab tab) {
                 //To change tab icon color from grey to primary color
                 tab.getIcon().setColorFilter(ContextCompat.getColor(getActivity(), R.color.colorPrimary), PorterDuff.Mode.SRC_IN);
+
+                // hide no data view if it's visible
+                viewNoData.setVisibility(View.GONE);
+
                 switch (tab.getPosition()) {
                     case 0:
-                        mAdapter.updateList(mUserActivityDataList);
+                        // setting pref
+                        mHelper.setFeedItemType(GRID);
+                        // grid layout for all data
+                        GridLayoutManager gridLayoutManager = new GridLayoutManager(getActivity(), spanCount);
+                        recyclerView.setLayoutManager(gridLayoutManager);
+
+                        mAdapter = new MeAdapter(mUserActivityDataList, getActivity(), mHelper.getUUID(), MeFragment.this, ITEM_TYPES.GRID);
+                        recyclerView.setAdapter(mAdapter);
+                        initListeners(LIST);
                         break;
                     case 1:
-                        List<FeedModel> temp = new ArrayList<>();
-                        for (FeedModel f : mUserActivityDataList) {
-                            if (f.getContentType().equals(CONTENT_TYPE_SHORT)) {
-                                temp.add(f);
-                            }
-                        }
-                        mAdapter.updateList(temp);
+                        // setting pref
+                        mHelper.setFeedItemType(LIST);
+                        // list layout for all data
+                        recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
+                        mAdapter = new MeAdapter(mUserActivityDataList, getActivity(), mHelper.getUUID(), MeFragment.this, LIST);
+                        recyclerView.setAdapter(mAdapter);
+                        initListeners(LIST);
                         break;
                     case 2:
-                        List<FeedModel> temp1 = new ArrayList<>();
-                        for (FeedModel f : mUserActivityDataList) {
-                            if (f.getContentType().equals(CONTENT_TYPE_CAPTURE)) {
-                                temp1.add(f);
-                            }
-                        }
-                        mAdapter.updateList(temp1);
+                        // list layout for collab data
+                        mCollabLastIndexKey = null;
+                        recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
+                        mAdapter = new MeAdapter(mCollabList, getActivity(), mHelper.getUUID(), MeFragment.this, ITEM_TYPES.COLLABLIST);
+                        recyclerView.setAdapter(mAdapter);
+                        initListeners(COLLABLIST);
+                        getCollabData();
                         break;
                 }
             }
@@ -660,12 +688,40 @@ public class MeFragment extends Fragment implements listener.OnCollaborationList
     private void setUpTabs(TabLayout tabLayout) {
         //Add tab items
         tabLayout.addTab(tabLayout.newTab().setIcon(R.drawable.ic_me_all_tab));
-        tabLayout.addTab(tabLayout.newTab().setIcon(R.drawable.ic_me_write_tab));
-        tabLayout.addTab(tabLayout.newTab().setIcon(R.drawable.ic_me_photo_tab));
+        tabLayout.addTab(tabLayout.newTab().setIcon(R.drawable.ic_list));
+        tabLayout.addTab(tabLayout.newTab().setIcon(R.drawable.ic_collab));
         //initialize tabs icon tint
-        tabLayout.getTabAt(0).getIcon().setColorFilter(ContextCompat.getColor(getActivity(), R.color.colorPrimary), PorterDuff.Mode.SRC_IN);
-        tabLayout.getTabAt(1).getIcon().setColorFilter(ContextCompat.getColor(getActivity(), R.color.grey_custom), PorterDuff.Mode.SRC_IN);
-        tabLayout.getTabAt(2).getIcon().setColorFilter(ContextCompat.getColor(getActivity(), R.color.grey_custom), PorterDuff.Mode.SRC_IN);
+
+        //initialize tabs icon tint
+        if (defaultItemType == GRID) {
+            tabLayout.getTabAt(0).select();
+
+            tabLayout.getTabAt(0).getIcon().setColorFilter(ContextCompat.getColor(getActivity(), R.color.colorPrimary), PorterDuff.Mode.SRC_IN);
+            tabLayout.getTabAt(1).getIcon().setColorFilter(ContextCompat.getColor(getActivity(), R.color.grey_custom), PorterDuff.Mode.SRC_IN);
+            tabLayout.getTabAt(2).getIcon().setColorFilter(ContextCompat.getColor(getActivity(), R.color.grey_custom), PorterDuff.Mode.SRC_IN);
+        } else if (defaultItemType == LIST) {
+            tabLayout.getTabAt(1).select();
+
+            tabLayout.getTabAt(1).getIcon().setColorFilter(ContextCompat.getColor(getActivity(), R.color.colorPrimary), PorterDuff.Mode.SRC_IN);
+            tabLayout.getTabAt(0).getIcon().setColorFilter(ContextCompat.getColor(getActivity(), R.color.grey_custom), PorterDuff.Mode.SRC_IN);
+            tabLayout.getTabAt(2).getIcon().setColorFilter(ContextCompat.getColor(getActivity(), R.color.grey_custom), PorterDuff.Mode.SRC_IN);
+        }
+    }
+
+    private void initItemTypePreference() {
+        defaultItemType = mHelper.getFeedItemType();
+
+        if (defaultItemType == GRID) {
+            //Set layout manger for recyclerView
+            GridLayoutManager gridLayoutManager = new GridLayoutManager(getActivity(), spanCount);
+            recyclerView.setLayoutManager(gridLayoutManager);
+        } else if (mHelper.getFeedItemType() == LIST) {
+            recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
+        }
+
+        //Set adapter
+        mAdapter = new MeAdapter(mUserActivityDataList, getActivity(), mHelper.getUUID(), MeFragment.this, defaultItemType);
+        recyclerView.setAdapter(mAdapter);
     }
 
     /**
@@ -875,8 +931,40 @@ public class MeFragment extends Fragment implements listener.OnCollaborationList
     private void openUpdateImageScreen() {
         Intent intent = new Intent(getActivity(), UpdateProfileImageActivity.class);
         intent.putExtra(EXTRA_USER_IMAGE_PATH, mProfilePicURL);
-        startActivityForResult(intent, REQUEST_CODE_UPDATE_PROFILE_PIC);
+
+        //If API is greater than LOLLIPOP
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
+            ActivityOptions transitionActivityOptions = ActivityOptions
+                    .makeSceneTransitionAnimation(getActivity(), imageUser, ViewCompat.getTransitionName(imageUser));
+            //start activity result
+            startActivityForResult(intent
+                    , REQUEST_CODE_UPDATE_PROFILE_PIC
+                    , transitionActivityOptions.toBundle());
+        } else {
+            startActivityForResult(intent, REQUEST_CODE_UPDATE_PROFILE_PIC);
+        }
     }
+
+    /**
+     * Open ProfilePreview screen.
+     */
+    private void openProfilePreview() {
+
+        MaterialDialog dialog = new MaterialDialog.Builder(getActivity())
+                .customView(R.layout.dialog_profile_preview, false)
+                .show();
+        //Obtain views reference
+        ImageView previewImage = dialog.getCustomView().findViewById(R.id.imageProfilePreview);
+
+        //Load profile picture
+        Picasso.with(getActivity())
+                .load(mProfilePicURL)
+                //.networkPolicy(NetworkPolicy.NO_CACHE)
+                //.memoryPolicy(MemoryPolicy.NO_CACHE)
+                .error(R.drawable.ic_person_56)
+                .into(previewImage);
+    }
+
 
     /**
      * Method to update follow status.
@@ -982,39 +1070,63 @@ public class MeFragment extends Fragment implements listener.OnCollaborationList
      * Method to initialize swipe to refresh view and user timeline view .
      */
     private void initSwipeRefreshLayout() {
-        //Set layout manger for recyclerView
-        recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
-        //Set adapter
-        mAdapter = new MeAdapter(mUserActivityDataList, getActivity(), mHelper.getUUID(), MeFragment.this);
-        //  mAdapter.setUserActivityType(USER_ACTIVITY_TYPE_ALL);
-        recyclerView.setAdapter(mAdapter);
+
+        // show list items or grid items from pref
+        initItemTypePreference();
 
         swipeToRefreshLayout.setRefreshing(true);
         swipeToRefreshLayout.setColorSchemeColors(ContextCompat.getColor(getActivity()
                 , R.color.colorPrimary));
+
+        //Load profile data
+        loadProfileData();
+        //Initialize listeners for normal list
+        initListeners(LIST);
+    }
+
+    /**
+     * Initializes the swipe refresh listener based on the item type
+     *
+     * @param itemType itemType
+     */
+    private void initOnSwipeRefreshListener(final ITEM_TYPES itemType) {
+
         swipeToRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
-                //Clear data
-                mUserActivityDataList.clear();
 
-                //Notify for changes
-                mAdapter.notifyDataSetChanged();
-                mAdapter.setLoaded();
-                //set last index key to null
-                mLastIndexKey = null;
-                //Load data here
-                getUserTimeLineData();
+                switch (itemType) {
+                    case LIST:
+                        //Clear data
+                        mUserActivityDataList.clear();
+
+                        //Notify for changes
+                        mAdapter.notifyDataSetChanged();
+                        mAdapter.setLoaded();
+                        //set last index key to null
+                        mLastIndexKey = null;
+                        //Load data here
+                        getUserTimeLineData();
+                        break;
+
+                    case COLLABLIST:
+                        //Clear data
+                        mCollabList.clear();
+
+                        //Notify for changes
+                        mAdapter.notifyDataSetChanged();
+                        mAdapter.setLoaded();
+                        //set last index key to null
+                        mCollabLastIndexKey = null;
+                        //Load data here
+                        getCollabData();
+
+                }
+
             }
         });
-        //Load profile data
-        loadProfileData();
-        //Initialize listeners
-        initLoadMoreListener(mAdapter);
-        initHatsOffListener(mAdapter);
-        initializeDeleteListener(mAdapter);
-        initShareListener(mAdapter);
-        initShareLinkClickedListener();
+
+
     }
 
     /**
@@ -1167,28 +1279,319 @@ public class MeFragment extends Fragment implements listener.OnCollaborationList
     }
 
     /**
+     * Loads the collaboration data
+     */
+    private void getCollabData() {
+        final boolean[] tokenError = {false};
+        final boolean[] connectionError = {false};
+
+        swipeToRefreshLayout.setRefreshing(true);
+
+        requestServer(mCompositeDisposable,
+                getObservableFromServer(BuildConfig.URL + "/user-profile/load-collab-timeline",
+                        mHelper.getUUID(),
+                        mHelper.getAuthToken(),
+                        mRequestedUUID,
+                        mCollabLastIndexKey,
+                        GET_RESPONSE_FROM_NETWORK_ME),
+                getActivity(),
+                new listener.OnServerRequestedListener<JSONObject>() {
+                    @Override
+                    public void onDeviceOffline() {
+
+                        ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_no_connection));
+                        swipeToRefreshLayout.setRefreshing(false);
+                    }
+
+                    @Override
+                    public void onNextCalled(JSONObject jsonObject) {
+                        try {
+                            //Token status is invalid
+                            if (jsonObject.getString("tokenstatus").equals("invalid")) {
+                                tokenError[0] = true;
+                            } else {
+                                parseCollabData(jsonObject, false);
+                            }
+
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                            FirebaseCrash.report(e);
+                            connectionError[0] = true;
+                        }
+                    }
+
+                    @Override
+                    public void onErrorCalled(Throwable e) {
+
+                        e.printStackTrace();
+                        FirebaseCrash.report(e);
+
+                        swipeToRefreshLayout.setRefreshing(false);
+
+                        //Server error Snack bar
+                        ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_server));
+
+                    }
+
+                    @Override
+                    public void onCompleteCalled() {
+
+                        swipeToRefreshLayout.setRefreshing(false);
+
+                        // Token status invalid
+                        if (tokenError[0]) {
+                            ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_invalid_token));
+                        }
+                        //Error occurred
+                        else if (connectionError[0]) {
+                            ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_internal));
+                        } else if (mCollabList.size() == 0) {
+                            //Show no data view
+                            // TODO change this
+                            viewNoData.setVisibility(View.VISIBLE);
+                        } else {
+                            // Token status invalid
+                            if (tokenError[0]) {
+                                ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_invalid_token));
+                            }
+                            //Error occurred
+                            else if (connectionError[0]) {
+                                ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_internal));
+                            } else {
+
+                                //Apply 'Slide Up' animation
+                                int resId = R.anim.layout_animation_from_bottom;
+                                LayoutAnimationController animation = AnimationUtils.loadLayoutAnimation(getActivity(), resId);
+                                recyclerView.setLayoutAnimation(animation);
+                                mAdapter.notifyDataSetChanged();
+
+                                //Hide no data view
+                                viewNoData.setVisibility(View.GONE);
+                            }
+                        }
+                    }
+                });
+
+    }
+
+    /**
+     * Loads the next set of collab data
+     */
+    private void getNextCollabData() {
+        final boolean[] tokenError = {false};
+        final boolean[] connectionError = {false};
+
+
+        requestServer(mCompositeDisposable,
+                getObservableFromServer(BuildConfig.URL + "/user-profile/load-collab-timeline",
+                        mHelper.getUUID(),
+                        mHelper.getAuthToken(),
+                        mRequestedUUID,
+                        mCollabLastIndexKey,
+                        GET_RESPONSE_FROM_NETWORK_ME),
+                getActivity(),
+                new listener.OnServerRequestedListener<JSONObject>() {
+                    @Override
+                    public void onDeviceOffline() {
+                        ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_no_connection));
+                    }
+
+                    @Override
+                    public void onNextCalled(JSONObject jsonObject) {
+                        try {
+                            //Remove loading item
+                            mCollabList.remove(mCollabList.size() - 1);
+                            //Notify changes
+                            mAdapter.notifyItemRemoved(mCollabList.size());
+
+                            //Token status is invalid
+                            if (jsonObject.getString("tokenstatus").equals("invalid")) {
+                                tokenError[0] = true;
+                            } else {
+
+                                parseCollabData(jsonObject, true);
+                            }
+
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                            FirebaseCrash.report(e);
+                            connectionError[0] = true;
+                        }
+                    }
+
+                    @Override
+                    public void onErrorCalled(Throwable e) {
+
+                        //Remove loading item
+                        mCollabList.remove(mCollabList.size() - 1);
+                        //Notify changes
+                        mAdapter.notifyItemRemoved(mCollabList.size());
+                        FirebaseCrash.report(e);
+                        //Server error Snack bar
+                        ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_server));
+
+                    }
+
+                    @Override
+                    public void onCompleteCalled() {
+
+                        // Token status invalid
+                        if (tokenError[0]) {
+                            ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_invalid_token));
+                        }
+                        //Error occurred
+                        else if (connectionError[0]) {
+                            ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_internal));
+                        } else if (mCollabList.size() == 0) {
+                            //Show no data view
+                            // TODO change this
+                            viewNoData.setVisibility(View.VISIBLE);
+                        } else {
+                            //Notify changes
+                            mAdapter.setLoaded();
+                        }
+
+                    }
+                });
+    }
+
+    private void parseCollabData(JSONObject jsonObject, boolean isLoadMore) throws JSONException {
+
+        JSONObject mainData = jsonObject.getJSONObject("data");
+        mCollabRequestMoreData = mainData.getBoolean("requestmore");
+        mCollabLastIndexKey = mainData.getString("lastindexkey");
+        //Collab array list
+        JSONArray collabArray = mainData.getJSONArray("items");
+        for (int i = 0; i < collabArray.length(); i++) {
+            JSONObject dataObj = collabArray.getJSONObject(i);
+
+            String type = dataObj.getString("type");
+
+            FeedModel data = new FeedModel();
+            data.setEntityID(dataObj.getString("entityid"));
+            data.setContentType(dataObj.getString("type"));
+            data.setUUID(dataObj.getString("uuid"));
+            data.setCreatorImage(dataObj.getString("profilepicurl"));
+            data.setCreatorName(dataObj.getString("creatorname"));
+            data.setHatsOffStatus(dataObj.getBoolean("hatsoffstatus"));
+            data.setMerchantable(dataObj.getBoolean("merchantable"));
+            data.setHatsOffCount(dataObj.getLong("hatsoffcount"));
+            data.setCommentCount(dataObj.getLong("commentcount"));
+            data.setContentImage(dataObj.getString("entityurl"));
+            data.setCollabCount(dataObj.getLong("collabcount"));
+            if (dataObj.isNull("caption")) {
+                data.setCaption(null);
+            } else {
+                data.setCaption(dataObj.getString("caption"));
+            }
+
+            if (type.equals(CONTENT_TYPE_CAPTURE)) {
+
+                //Retrieve "CAPTURE_ID" if type is capture
+                data.setCaptureID(dataObj.getString("captureid"));
+                // if capture
+                // then if key cpshort exists
+                // not available for collaboration
+                if (!dataObj.isNull("cpshort")) {
+                    JSONObject collabObject = dataObj.getJSONObject("cpshort");
+
+                    data.setAvailableForCollab(false);
+                    // set collaborator details
+                    data.setCollabWithUUID(collabObject.getString("uuid"));
+                    data.setCollabWithName(collabObject.getString("name"));
+                    data.setCollaboWithEntityID(collabObject.getString("entityid"));
+
+                } else {
+                    data.setAvailableForCollab(true);
+                }
+
+            } else if (type.equals(CONTENT_TYPE_SHORT)) {
+
+                //Retrieve "SHORT_ID" if type is short
+                data.setShortID(dataObj.getString("shoid"));
+
+                // if short
+                // then if key shcapture exists
+                // not available for collaboration
+                if (!dataObj.isNull("shcapture")) {
+
+                    JSONObject collabObject = dataObj.getJSONObject("shcapture");
+
+                    data.setAvailableForCollab(false);
+                    // set collaborator details
+                    data.setCollabWithUUID(collabObject.getString("uuid"));
+                    data.setCollabWithName(collabObject.getString("name"));
+                    data.setCollaboWithEntityID(collabObject.getString("entityid"));
+                } else {
+                    data.setAvailableForCollab(true);
+                }
+            }
+
+            mCollabList.add(data);
+
+            if (isLoadMore) {
+                //Notify item changes
+                mAdapter.notifyItemInserted(mCollabList.size() - 1);
+            }
+        }
+    }
+
+    private void initListeners(ITEM_TYPES itemType) {
+        initLoadMoreListener(itemType);
+        initHatsOffListener(mAdapter);
+        initializeDeleteListener(mAdapter);
+        initShareListener(mAdapter);
+        initShareLinkClickedListener();
+
+        // init swipe refresh listener for list
+        initOnSwipeRefreshListener(itemType);
+    }
+
+    /**
      * Initialize load more listener.
      *
-     * @param adapter FeedAdapter reference.
+     * @param itemType
      */
-    private void initLoadMoreListener(MeAdapter adapter) {
+    private void initLoadMoreListener(final ITEM_TYPES itemType) {
 
-        adapter.setUserActivityLoadMoreListener(new listener.OnUserActivityLoadMoreListener() {
+        mAdapter.setUserActivityLoadMoreListener(new listener.OnUserActivityLoadMoreListener() {
             @Override
             public void onLoadMore() {
-                if (mRequestMoreData) {
 
-                    new Handler().post(new Runnable() {
-                                           @Override
-                                           public void run() {
-                                               mUserActivityDataList.add(null);
-                                               mAdapter.notifyItemInserted(mUserActivityDataList.size() - 1);
-                                           }
-                                       }
-                    );
-                    //Load new set of data
-                    getUserTimeLineNextData();
+                switch (itemType) {
+                    case LIST:
+                        if (mRequestMoreData) {
+
+                            new Handler().post(new Runnable() {
+                                                   @Override
+                                                   public void run() {
+                                                       mUserActivityDataList.add(null);
+                                                       mAdapter.notifyItemInserted(mUserActivityDataList.size() - 1);
+                                                   }
+                                               }
+                            );
+                            //Load new set of data
+                            getUserTimeLineNextData();
+                        }
+
+                        break;
+
+                    case COLLABLIST:
+                        if (mCollabRequestMoreData) {
+                            new Handler().post(new Runnable() {
+                                                   @Override
+                                                   public void run() {
+                                                       mCollabList.add(null);
+                                                       mAdapter.notifyItemInserted(mCollabList.size() - 1);
+                                                   }
+                                               }
+                            );
+                            //Load new set of data
+                            getNextCollabData();
+                        }
                 }
+
+
             }
         });
     }
@@ -1571,12 +1974,13 @@ public class MeFragment extends Fragment implements listener.OnCollaborationList
     private void initShareListener(MeAdapter meAdapter) {
         meAdapter.setOnShareListener(new listener.OnShareListener() {
             @Override
-            public void onShareClick(Bitmap bitmap) {
+            public void onShareClick(Bitmap bitmap, FeedModel data) {
                 mBitmap = bitmap;
+                mFeedData = data;
                 //Check for Write permission
                 if (Nammu.checkPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
                     //We have permission do whatever you want to do
-                    sharePost(bitmap);
+                    ShareHelper.sharePost(bitmap, getContext(), data);
                 } else {
                     //We do not own this permission
                     if (Nammu.shouldShowRequestPermissionRationale(MeFragment.this
@@ -1599,7 +2003,7 @@ public class MeFragment extends Fragment implements listener.OnCollaborationList
     PermissionCallback shareWritePermission = new PermissionCallback() {
         @Override
         public void permissionGranted() {
-            sharePost(mBitmap);
+            ShareHelper.sharePost(mBitmap, getContext(), mFeedData);
         }
 
         @Override
@@ -1795,18 +2199,6 @@ public class MeFragment extends Fragment implements listener.OnCollaborationList
 
     }
 
-    /**
-     * Method to create intent choose so he/she can share the post.
-     *
-     * @param bitmap Bitmap to be shared.
-     */
-    private void sharePost(Bitmap bitmap) {
-        Intent intent = new Intent();
-        intent.setAction(Intent.ACTION_SEND);
-        intent.setType("image/*");
-        intent.putExtra(Intent.EXTRA_STREAM, getLocalBitmapUri(bitmap, getActivity()));
-        startActivity(Intent.createChooser(intent, "Share"));
-    }
 
     private void startGratitudeScroll() {
         viewPagerUserStats.setCurrentItem(1);

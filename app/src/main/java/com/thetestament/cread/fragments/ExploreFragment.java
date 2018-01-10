@@ -1,15 +1,19 @@
 package com.thetestament.cread.fragments;
 
 import android.content.Intent;
+import android.graphics.PorterDuff;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.CoordinatorLayout;
+import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.widget.SwipeRefreshLayout;
+import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -41,6 +45,7 @@ import com.thetestament.cread.helpers.SharedPreferenceHelper;
 import com.thetestament.cread.helpers.ViewHelper;
 import com.thetestament.cread.listeners.listener;
 import com.thetestament.cread.models.FeedModel;
+import com.thetestament.cread.utils.Constant;
 import com.yalantis.ucrop.UCrop;
 
 import org.json.JSONArray;
@@ -75,6 +80,8 @@ import static com.thetestament.cread.utils.Constant.CONTENT_TYPE_CAPTURE;
 import static com.thetestament.cread.utils.Constant.CONTENT_TYPE_SHORT;
 import static com.thetestament.cread.utils.Constant.EXTRA_DATA;
 import static com.thetestament.cread.utils.Constant.IMAGE_TYPE_USER_CAPTURE_PIC;
+import static com.thetestament.cread.utils.Constant.ITEM_TYPES.GRID;
+import static com.thetestament.cread.utils.Constant.ITEM_TYPES.LIST;
 import static com.thetestament.cread.utils.Constant.REQUEST_CODE_FEED_DESCRIPTION_ACTIVITY;
 import static com.thetestament.cread.utils.Constant.REQUEST_CODE_OPEN_GALLERY_FOR_CAPTURE;
 
@@ -87,6 +94,8 @@ public class ExploreFragment extends Fragment implements listener.OnCollaboratio
     SwipeRefreshLayout swipeRefreshLayout;
     @BindView(R.id.recyclerView)
     RecyclerView recyclerView;
+    @BindView(R.id.tabLayout)
+    TabLayout tabLayout;
 
     CompositeDisposable mCompositeDisposable = new CompositeDisposable();
     List<FeedModel> mExploreDataList = new ArrayList<>();
@@ -95,6 +104,8 @@ public class ExploreFragment extends Fragment implements listener.OnCollaboratio
     private Unbinder mUnbinder;
     private String mLastIndexKey;
     private boolean mRequestMoreData;
+    private int spanCount = 2;
+    public static Constant.ITEM_TYPES defaultItemType;
 
     @State
     String mEntityID, mEntityType;
@@ -228,11 +239,9 @@ public class ExploreFragment extends Fragment implements listener.OnCollaboratio
      * Method to initialize swipe refresh layout.
      */
     private void initScreen() {
-        //Set layout manger for recyclerView
-        recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
-        //Set adapter
-        mAdapter = new ExploreAdapter(mExploreDataList, getActivity(), mHelper.getUUID(), ExploreFragment.this);
-        recyclerView.setAdapter(mAdapter);
+
+        //initializes grid view or list view from preferences
+        initItemTypePreference();
 
         swipeRefreshLayout.setRefreshing(true);
         swipeRefreshLayout.setColorSchemeColors(ContextCompat.getColor(getActivity()
@@ -252,22 +261,110 @@ public class ExploreFragment extends Fragment implements listener.OnCollaboratio
             }
         });
 
-        //Initialize listeners
-        initLoadMoreListener(mAdapter);
-        initFollowListener(mAdapter);
-        initCaptureListener(mAdapter);
+
+        initTabLayout();
+        initListeners();
         //Load data here
         loadExploreData();
+    }
+
+    private void initItemTypePreference() {
+        defaultItemType = mHelper.getFeedItemType();
+
+        if (defaultItemType == GRID) {
+            //Set layout manger for recyclerView
+            GridLayoutManager gridLayoutManager = new GridLayoutManager(getActivity(), spanCount);
+            recyclerView.setLayoutManager(gridLayoutManager);
+        } else if (mHelper.getFeedItemType() == LIST) {
+            recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
+        }
+
+        //Set adapter
+        mAdapter = new ExploreAdapter(mExploreDataList, getActivity(), mHelper.getUUID(), ExploreFragment.this, defaultItemType);
+        recyclerView.setAdapter(mAdapter);
+    }
+
+    /**
+     * Method to initialize tab layout.
+     */
+    private void initTabLayout() {
+
+        //initialize tabs icon tint
+        if (defaultItemType == GRID) {
+            tabLayout.getTabAt(0).select();
+
+            tabLayout.getTabAt(0).getIcon().setColorFilter(ContextCompat.getColor(getActivity(), R.color.colorPrimary), PorterDuff.Mode.SRC_IN);
+            tabLayout.getTabAt(1).getIcon().setColorFilter(ContextCompat.getColor(getActivity(), R.color.grey_custom), PorterDuff.Mode.SRC_IN);
+
+        } else if (defaultItemType == LIST) {
+            tabLayout.getTabAt(1).select();
+
+            tabLayout.getTabAt(1).getIcon().setColorFilter(ContextCompat.getColor(getActivity(), R.color.colorPrimary), PorterDuff.Mode.SRC_IN);
+            tabLayout.getTabAt(0).getIcon().setColorFilter(ContextCompat.getColor(getActivity(), R.color.grey_custom), PorterDuff.Mode.SRC_IN);
+
+        }
+
+        tabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
+            @Override
+            public void onTabSelected(TabLayout.Tab tab) {
+
+                //To change tab icon color from grey to white
+                tab.getIcon().setColorFilter(ContextCompat.getColor(getActivity(), R.color.colorPrimary), PorterDuff.Mode.SRC_IN);
+
+                switch (tab.getPosition()) {
+
+
+                    case 0:
+                        // setting pref
+                        mHelper.setFeedItemType(GRID);
+                        // setting layout manager
+                        GridLayoutManager gridLayoutManager = new GridLayoutManager(getActivity(), spanCount);
+                        recyclerView.setLayoutManager(gridLayoutManager);
+
+                        mAdapter = new ExploreAdapter(mExploreDataList, getActivity(), mHelper.getUUID(), ExploreFragment.this, GRID);
+                        recyclerView.setAdapter(mAdapter);
+                        initListeners();
+                        break;
+
+                    case 1:
+                        // setting pref
+                        mHelper.setFeedItemType(Constant.ITEM_TYPES.LIST);
+                        // setting layout manager
+                        recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
+                        mAdapter = new ExploreAdapter(mExploreDataList, getActivity(), mHelper.getUUID(), ExploreFragment.this, Constant.ITEM_TYPES.LIST);
+                        recyclerView.setAdapter(mAdapter);
+                        initListeners();
+                        break;
+                }
+
+            }
+
+            @Override
+            public void onTabUnselected(TabLayout.Tab tab) {
+
+                //To change tab icon color from white color to grey
+                tab.getIcon().setColorFilter(ContextCompat.getColor(getActivity(), R.color.grey_custom), PorterDuff.Mode.SRC_IN);
+            }
+
+            @Override
+            public void onTabReselected(TabLayout.Tab tab) {
+            }
+        });
+    }
+
+    private void initListeners() {
+        initLoadMoreListener();
+        initCaptureListener();
+        initFollowListener();
     }
 
     /**
      * Initialize load more listener.
      *
-     * @param adapter ExploreAdapter reference.
      */
-    private void initLoadMoreListener(ExploreAdapter adapter) {
+    private void initLoadMoreListener() {
 
-        adapter.setOnExploreLoadMoreListener(new listener.OnExploreLoadMoreListener() {
+        mAdapter.setOnExploreLoadMoreListener(new listener.OnExploreLoadMoreListener() {
             @Override
             public void onLoadMore() {
                 //If next set of data available
@@ -582,10 +679,9 @@ public class ExploreFragment extends Fragment implements listener.OnCollaboratio
     /**
      * Initialize follow listener.
      *
-     * @param adapter ExploreAdapter reference.
      */
-    private void initFollowListener(ExploreAdapter adapter) {
-        adapter.setOnExploreFollowListener(new listener.OnExploreFollowListener() {
+    private void initFollowListener() {
+        mAdapter.setOnExploreFollowListener(new listener.OnExploreFollowListener() {
             @Override
             public void onFollowClick(FeedModel exploreData, int itemPosition) {
                 updateFollowStatus(exploreData, itemPosition);
@@ -677,10 +773,9 @@ public class ExploreFragment extends Fragment implements listener.OnCollaboratio
     /**
      * Initialize capture listener.
      *
-     * @param exploreAdapter ExploreAdapter reference
      */
-    private void initCaptureListener(ExploreAdapter exploreAdapter) {
-        exploreAdapter.setOnExploreCaptureClickListener(new listener.OnExploreCaptureClickListener() {
+    private void initCaptureListener() {
+        mAdapter.setOnExploreCaptureClickListener(new listener.OnExploreCaptureClickListener() {
             @Override
             public void onClick(String shortId) {
                 //Set entity id

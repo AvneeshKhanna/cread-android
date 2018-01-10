@@ -1,4 +1,4 @@
-package com.thetestament.cread.utils;
+package com.thetestament.cread.widgets;
 
 import android.annotation.TargetApi;
 import android.content.Context;

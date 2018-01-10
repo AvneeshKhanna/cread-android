@@ -170,6 +170,19 @@ public class Constant {
         HATSOFF, COMMENT, COLLABORATIONS
     }
 
+    public enum ITEM_TYPES {
+        LIST, GRID, COLLABLIST;
+
+        public static ITEM_TYPES toItemType(String myEnumString) {
+            try {
+                return valueOf(myEnumString);
+            } catch (Exception ex) {
+                // For error cases
+                return GRID;
+            }
+        }
+    }
+
     public static final String URI_HASH_TAG_ACTIVITY = "content://com.thetestament.cread.hashtagdetailsactivity/";
 
 
@@ -195,6 +208,7 @@ public class Constant {
     public static final String PREVIEW_EXTRA_FONT = "font";
     public static final String PREVIEW_EXTRA_BOLD = "bold";
     public static final String PREVIEW_EXTRA_ITALIC = "italic";
+    public static final String PREVIEW_EXTRA_IMAGE_TINT_COLOR = "imageTintColor";
     public static final String PREVIEW_EXTRA_CALLED_FROM_COLLABORATION = "collaboration";
     public static final String PREVIEW_EXTRA_CALLED_FROM_SHORT = "short";
 

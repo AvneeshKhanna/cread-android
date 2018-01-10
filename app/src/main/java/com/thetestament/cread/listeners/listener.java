@@ -206,7 +206,7 @@ public class listener {
      * Interface definition for a callback to be invoked when user click on share button.
      */
     public interface OnShareListener {
-        void onShareClick(Bitmap bitmap);
+        void onShareClick(Bitmap bitmap, FeedModel model);
     }
 
     public interface OnShareDialogItemClickedListener {
@@ -244,5 +244,12 @@ public class listener {
          * @param entityType entity type of content.
          */
         void collaborationOnWriting(String entityID, String entityType);
+    }
+
+    /**
+     * Interface definition for a callback to be invoked when user selects color from bottom sheet.
+     */
+    public interface OnColorSelectListener {
+        void onColorSelected(int selectedColor);
     }
 }

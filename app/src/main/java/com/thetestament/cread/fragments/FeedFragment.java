@@ -40,6 +40,7 @@ import com.thetestament.cread.adapters.FeedAdapter;
 import com.thetestament.cread.helpers.FeedHelper;
 import com.thetestament.cread.helpers.HatsOffHelper;
 import com.thetestament.cread.helpers.ImageHelper;
+import com.thetestament.cread.helpers.ShareHelper;
 import com.thetestament.cread.helpers.SharedPreferenceHelper;
 import com.thetestament.cread.helpers.ViewHelper;
 import com.thetestament.cread.listeners.listener;
@@ -73,7 +74,6 @@ import static com.thetestament.cread.CreadApp.GET_RESPONSE_FROM_NETWORK_MAIN;
 import static com.thetestament.cread.helpers.FeedHelper.generateDeepLink;
 import static com.thetestament.cread.helpers.FeedHelper.parseEntitySpecificJSON;
 import static com.thetestament.cread.helpers.ImageHelper.getImageUri;
-import static com.thetestament.cread.helpers.ImageHelper.getLocalBitmapUri;
 import static com.thetestament.cread.helpers.NetworkHelper.getEntitySpecificObservable;
 import static com.thetestament.cread.helpers.NetworkHelper.getNetConnectionStatus;
 import static com.thetestament.cread.helpers.NetworkHelper.getObservableFromServer;
@@ -685,12 +685,13 @@ public class FeedFragment extends Fragment implements listener.OnCollaborationLi
     private void initShareListener(FeedAdapter feedAdapter) {
         feedAdapter.setOnShareListener(new listener.OnShareListener() {
             @Override
-            public void onShareClick(Bitmap bitmap) {
+            public void onShareClick(Bitmap bitmap, FeedModel data) {
                 mBitmap = bitmap;
+                entitySpecificData = data;
                 //Check for Write permission
                 if (Nammu.checkPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
                     //We have permission do whatever you want to do
-                    sharePost(bitmap);
+                    ShareHelper.sharePost(bitmap, getContext(), entitySpecificData);
                 } else {
                     //We do not own this permission
                     if (Nammu.shouldShowRequestPermissionRationale(FeedFragment.this
@@ -726,7 +727,7 @@ public class FeedFragment extends Fragment implements listener.OnCollaborationLi
     PermissionCallback shareWritePermission = new PermissionCallback() {
         @Override
         public void permissionGranted() {
-            sharePost(mBitmap);
+            ShareHelper.sharePost(mBitmap, getContext(), entitySpecificData);
         }
 
         @Override
@@ -799,19 +800,6 @@ public class FeedFragment extends Fragment implements listener.OnCollaborationLi
             FirebaseAnalytics.getInstance(getActivity()).logEvent(FIREBASE_EVENT_EXPLORE_CLICKED, bundle);
         }
 
-    }
-
-    /**
-     * Method to create intent choose so he/she can share the post.
-     *
-     * @param bitmap Bitmap to be shared.
-     */
-    private void sharePost(Bitmap bitmap) {
-        Intent intent = new Intent();
-        intent.setAction(Intent.ACTION_SEND);
-        intent.setType("image/*");
-        intent.putExtra(Intent.EXTRA_STREAM, getLocalBitmapUri(bitmap, getActivity()));
-        startActivity(Intent.createChooser(intent, "Share"));
     }
 
 

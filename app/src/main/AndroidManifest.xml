@@ -323,7 +323,7 @@
         <activity
             android:name=".activities.RoyaltiesActivity"
             android:screenOrientation="portrait"
-            android:theme="@style/RoyaltyActivityTheme">
+            android:theme="@style/ZeroElevationActivityTheme">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".activities.BottomNavigationActivity" />
@@ -385,6 +385,11 @@
                 android:value=".activities.BottomNavigationActivity" />
         </activity>
 
+
+        <!--<activity
+            android:name=".activities.DemoActivity"
+            android:theme="@android:style/Theme.Translucent.NoTitleBar" >
+        </activity>-->
 
     </application>
 

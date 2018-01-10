@@ -36,16 +36,17 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
+                    android:paddingBottom="8dp"
                     android:paddingLeft="24dp"
                     android:paddingRight="24dp"
-                    android:paddingTop="24dp"
-                    android:paddingBottom="8dp">
+                    android:paddingTop="24dp">
 
                     <de.hdodenhof.circleimageview.CircleImageView
                         android:id="@+id/imageUser"
                         android:layout_width="88dp"
                         android:layout_height="88dp"
                         android:layout_gravity="center"
+                        android:transitionName="@string/shared_transition_profile_pic"
                         tools:src="@drawable/ic_account_circle_48" />
 
                     <TextView
@@ -89,110 +90,18 @@
                         android:id="@+id/viewPagerUserStats"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="16dp"
-                        android:layout_marginBottom="4dp" />
+                        android:layout_marginBottom="4dp"
+                        android:layout_marginTop="16dp" />
 
                     <me.relex.circleindicator.CircleIndicator
                         android:id="@+id/indicator"
                         android:layout_width="match_parent"
                         android:layout_height="24dp"
-                        app:ci_height="3dp"
-                        app:ci_width="3dp"
                         app:ci_drawable="@drawable/active_dot"
-                        app:ci_drawable_unselected="@drawable/inactive_dot" />
+                        app:ci_drawable_unselected="@drawable/inactive_dot"
+                        app:ci_height="3dp"
+                        app:ci_width="3dp" />
 
-
-                    <!--<LinearLayout
-                        android:id="@+id/containerUserStats"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginLeft="8dp"
-                        android:layout_marginRight="8dp"
-                        android:layout_marginTop="16dp"
-                        android:weightSum="6">
-
-                        <LinearLayout
-                            android:id="@+id/containerPosts"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginLeft="10dp"
-                            android:layout_marginRight="10dp"
-                            android:layout_weight="1"
-                            android:gravity="center"
-                            android:orientation="vertical">
-
-                            <TextView
-                                android:id="@+id/textPostsCount"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:textColor="@color/grey_dark"
-                                android:textSize="20sp"
-                                tools:text="1167" />
-
-                            <TextView
-                                android:id="@+id/textPosts"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:text="posts"
-                                android:textColor="@color/grey_dark"
-                                android:textSize="12sp" />
-                        </LinearLayout>
-
-                        <LinearLayout
-                            android:id="@+id/containerFollowers"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginLeft="10dp"
-                            android:layout_marginRight="10dp"
-                            android:layout_weight="1"
-                            android:gravity="center"
-                            android:orientation="vertical">
-
-                            <TextView
-                                android:id="@+id/textFollowersCount"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:textColor="@color/grey_dark"
-                                android:textSize="20sp"
-                                tools:text="396" />
-
-                            <TextView
-                                android:id="@+id/textFollowers"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:text="followers"
-                                android:textColor="@color/grey_dark"
-                                android:textSize="12sp" />
-                        </LinearLayout>
-
-                        <LinearLayout
-                            android:id="@+id/containerFollowing"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginLeft="10dp"
-                            android:layout_marginRight="10dp"
-                            android:layout_weight="1"
-                            android:gravity="center"
-                            android:orientation="vertical">
-
-                            <TextView
-                                android:id="@+id/textFollowingCount"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:textColor="@color/grey_dark"
-                                android:textSize="20sp"
-                                tools:text="485" />
-
-                            <TextView
-                                android:id="@+id/textFollowing"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:text="following"
-                                android:textColor="@color/grey_dark"
-                                android:textSize="12sp" />
-                        </LinearLayout>
-
-                    </LinearLayout>-->
 
                 </LinearLayout>
 
@@ -202,19 +111,80 @@
                     android:layout_height="0.3dp"
                     android:alpha="0.4"
                     android:background="@color/grey_dark" />
+
+
+                <android.support.design.widget.TabLayout
+                    android:id="@+id/tabLayout"
+                    android:layout_width="match_parent"
+                    android:layout_height="48dp"
+                    android:background="@color/white"
+                    app:tabGravity="fill"
+                    app:tabIndicatorColor="@color/colorPrimary"
+                    app:tabIndicatorHeight="2dp"
+                    app:tabMode="fixed" />
+
+                <!-- <LinearLayout
+                     android:layout_width="match_parent"
+                     android:layout_height="wrap_content"
+                     android:background="@color/grey_light"
+                     android:orientation="horizontal"
+                     android:paddingTop="13dp"
+                     android:paddingBottom="5dp"
+                     android:paddingLeft="10dp"
+                     android:gravity="center">
+
+                     <LinearLayout
+                         android:layout_width="wrap_content"
+                         android:layout_height="wrap_content"
+                         android:layout_gravity="center"
+                         android:gravity="center"
+                         android:orientation="horizontal">
+
+                         <ImageView
+                             android:layout_width="wrap_content"
+                             android:layout_height="wrap_content"
+                             android:layout_gravity="center_horizontal"
+                             app:srcCompat="@drawable/ic_me_all_tab" />
+
+                         <TextView
+                             android:layout_width="wrap_content"
+                             android:layout_height="wrap_content"
+                             android:layout_marginLeft="10dp"
+                             android:text="Grid"
+                             android:textSize="16sp"/>
+
+                         <TextView
+                             android:layout_width="wrap_content"
+                             android:layout_height="wrap_content"
+                             android:layout_marginLeft="20dp"
+                             android:layout_marginRight="20dp"
+                             android:textSize="18sp"
+                             android:text="|"/>
+
+                         <ImageView
+                             android:layout_width="wrap_content"
+                             android:layout_height="wrap_content"
+                             android:layout_gravity="center_horizontal"
+                             app:srcCompat="@drawable/ic_list" />
+
+                         <TextView
+                             android:layout_width="wrap_content"
+                             android:layout_height="wrap_content"
+                             android:layout_marginLeft="10dp"
+                             android:textSize="16sp"
+                             android:text="List"/>
+
+
+
+                     </LinearLayout>
+                 </LinearLayout>-->
+
+
             </LinearLayout>
 
-        </android.support.design.widget.CollapsingToolbarLayout>
 
-        <android.support.design.widget.TabLayout
-            android:id="@+id/tabLayout"
-            android:layout_width="match_parent"
-            android:layout_height="48dp"
-            android:background="@color/white"
-            app:tabGravity="fill"
-            app:tabIndicatorColor="@color/colorPrimary"
-            app:tabIndicatorHeight="2dp"
-            app:tabMode="fixed" />
+
+        </android.support.design.widget.CollapsingToolbarLayout>
 
     </android.support.design.widget.AppBarLayout>
 
@@ -234,6 +204,31 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:layoutAnimation="@anim/layout_animation_from_bottom" />
+
+
+            <!--<LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="vertical"
+                app:layout_behavior="@string/appbar_scrolling_view_behavior">
+
+
+                <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_horizontal"
+                    android:layout_marginBottom="5dp"
+                    android:layout_marginTop="13dp"
+                    app:srcCompat="@drawable/ic_me_all_tab" />
+
+                <android.support.v7.widget.RecyclerView
+                    android:id="@+id/recyclerView"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layoutAnimation="@anim/layout_animation_from_bottom" />
+
+
+            </LinearLayout>-->
 
 
             <!-- No data view-->

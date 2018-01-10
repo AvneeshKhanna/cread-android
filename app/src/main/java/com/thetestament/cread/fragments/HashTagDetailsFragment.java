@@ -1,15 +1,18 @@
 package com.thetestament.cread.fragments;
 
 import android.content.Intent;
+import android.graphics.PorterDuff;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.CoordinatorLayout;
+import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.widget.SwipeRefreshLayout;
+import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -34,6 +37,7 @@ import com.thetestament.cread.helpers.ViewHelper;
 import com.thetestament.cread.listeners.listener;
 import com.thetestament.cread.listeners.listener.OnServerRequestedListener;
 import com.thetestament.cread.models.FeedModel;
+import com.thetestament.cread.utils.Constant;
 import com.yalantis.ucrop.UCrop;
 
 import org.json.JSONArray;
@@ -75,6 +79,8 @@ public class HashTagDetailsFragment extends Fragment implements listener.OnColla
     RecyclerView recyclerView;
     @BindView(R.id.noData)
     TextView noData;
+    @BindView(R.id.tabLayout)
+    TabLayout tabLayout;
 
     CompositeDisposable mCompositeDisposable = new CompositeDisposable();
     List<FeedModel> mDataList = new ArrayList<>();
@@ -83,6 +89,7 @@ public class HashTagDetailsFragment extends Fragment implements listener.OnColla
     private Unbinder mUnbinder;
     private String mLastIndexKey;
     private boolean mRequestMoreData;
+    int spanCount = 2;
 
     @State
     String mShortId, hashTag;
@@ -191,9 +198,10 @@ public class HashTagDetailsFragment extends Fragment implements listener.OnColla
      */
     private void initScreen() {
         //Set layout manger for recyclerView
-        recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
+        GridLayoutManager gridLayoutManager = new GridLayoutManager(getActivity(), spanCount);
+        recyclerView.setLayoutManager(gridLayoutManager);
         //Set adapter
-        mAdapter = new ExploreAdapter(mDataList, getActivity(), mHelper.getUUID(), HashTagDetailsFragment.this);
+        mAdapter = new ExploreAdapter(mDataList, getActivity(), mHelper.getUUID(), HashTagDetailsFragment.this, Constant.ITEM_TYPES.GRID);
         recyclerView.setAdapter(mAdapter);
 
         swipeRefreshLayout.setRefreshing(true);
@@ -216,21 +224,77 @@ public class HashTagDetailsFragment extends Fragment implements listener.OnColla
 
 
         //Initialize listeners
-        initLoadMoreListener(mAdapter);
-        initFollowListener(mAdapter);
-        initCaptureListener(mAdapter);
+        initTabLayout();
+        initListeners();
         //Load data here
         loadHashTagData();
     }
 
     /**
-     * Initialize load more listener.
-     *
-     * @param adapter ExploreAdapter reference.
+     * Method to initialize tab layout.
      */
-    private void initLoadMoreListener(ExploreAdapter adapter) {
+    private void initTabLayout() {
 
-        adapter.setOnExploreLoadMoreListener(new listener.OnExploreLoadMoreListener() {
+        //initialize tabs icon tint
+        tabLayout.getTabAt(0).getIcon().setColorFilter(ContextCompat.getColor(getActivity(), R.color.colorPrimary), PorterDuff.Mode.SRC_IN);
+        tabLayout.getTabAt(1).getIcon().setColorFilter(ContextCompat.getColor(getActivity(), R.color.grey_custom), PorterDuff.Mode.SRC_IN);
+
+        tabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
+            @Override
+            public void onTabSelected(TabLayout.Tab tab) {
+
+                //To change tab icon color from grey to white
+                tab.getIcon().setColorFilter(ContextCompat.getColor(getActivity(), R.color.colorPrimary), PorterDuff.Mode.SRC_IN);
+
+                switch (tab.getPosition()) {
+
+
+                    case 0:
+                        GridLayoutManager gridLayoutManager = new GridLayoutManager(getActivity(), spanCount);
+                        recyclerView.setLayoutManager(gridLayoutManager);
+
+                        mAdapter = new ExploreAdapter(mDataList, getActivity(), mHelper.getUUID(), HashTagDetailsFragment.this, Constant.ITEM_TYPES.GRID);
+                        recyclerView.setAdapter(mAdapter);
+                        initListeners();
+                        break;
+
+                    case 1:
+                        recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
+                        mAdapter = new ExploreAdapter(mDataList, getActivity(), mHelper.getUUID(), HashTagDetailsFragment.this, Constant.ITEM_TYPES.LIST);
+                        recyclerView.setAdapter(mAdapter);
+                        initListeners();
+                        break;
+
+
+                }
+
+            }
+
+            @Override
+            public void onTabUnselected(TabLayout.Tab tab) {
+
+                //To change tab icon color from white color to grey
+                tab.getIcon().setColorFilter(ContextCompat.getColor(getActivity(), R.color.grey_custom), PorterDuff.Mode.SRC_IN);
+            }
+
+            @Override
+            public void onTabReselected(TabLayout.Tab tab) {
+            }
+        });
+    }
+
+    private void initListeners() {
+        initLoadMoreListener();
+        initCaptureListener();
+        initFollowListener();
+    }
+
+    /**
+     * Initialize load more listener.
+     */
+    private void initLoadMoreListener() {
+
+        mAdapter.setOnExploreLoadMoreListener(new listener.OnExploreLoadMoreListener() {
             @Override
             public void onLoadMore() {
                 //If next set of data available
@@ -255,10 +319,9 @@ public class HashTagDetailsFragment extends Fragment implements listener.OnColla
     /**
      * Initialize follow listener.
      *
-     * @param adapter ExploreAdapter reference.
      */
-    private void initFollowListener(ExploreAdapter adapter) {
-        adapter.setOnExploreFollowListener(new listener.OnExploreFollowListener() {
+    private void initFollowListener() {
+        mAdapter.setOnExploreFollowListener(new listener.OnExploreFollowListener() {
             @Override
             public void onFollowClick(FeedModel exploreData, int itemPosition) {
                 updateFollowStatus(exploreData, itemPosition);
@@ -342,10 +405,9 @@ public class HashTagDetailsFragment extends Fragment implements listener.OnColla
     /**
      * Initialize capture listener.
      *
-     * @param exploreAdapter ExploreAdapter reference
      */
-    private void initCaptureListener(ExploreAdapter exploreAdapter) {
-        exploreAdapter.setOnExploreCaptureClickListener(new listener.OnExploreCaptureClickListener() {
+    private void initCaptureListener() {
+        mAdapter.setOnExploreCaptureClickListener(new listener.OnExploreCaptureClickListener() {
             @Override
             public void onClick(String shortId) {
                 //Set entity id

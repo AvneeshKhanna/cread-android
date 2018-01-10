@@ -13,11 +13,10 @@ import android.widget.TextView;
 import com.squareup.picasso.Picasso;
 import com.thetestament.cread.R;
 import com.thetestament.cread.activities.ProfileActivity;
-import com.thetestament.cread.listeners.listener;
 import com.thetestament.cread.listeners.listener.OnCollaborationDetailsLoadMoreListener;
 import com.thetestament.cread.listeners.listener.OnCollaborationItemClickedListener;
 import com.thetestament.cread.models.CollaborationDetailsModel;
-import com.thetestament.cread.utils.SquareView;
+import com.thetestament.cread.widgets.SquareView;
 
 import java.util.List;
 

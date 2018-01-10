@@ -1,5 +1,6 @@
 package com.thetestament.cread.adapters;
 
+import android.app.ActivityOptions;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Color;
@@ -10,6 +11,7 @@ import android.support.design.widget.BottomSheetDialog;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.view.ViewCompat;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -38,6 +40,7 @@ import com.thetestament.cread.listeners.listener.OnShareLinkClickedListener;
 import com.thetestament.cread.listeners.listener.OnUserActivityHatsOffListener;
 import com.thetestament.cread.listeners.listener.OnUserActivityLoadMoreListener;
 import com.thetestament.cread.models.FeedModel;
+import com.thetestament.cread.utils.Constant.ITEM_TYPES;
 
 import java.util.List;
 
@@ -46,6 +49,7 @@ import butterknife.ButterKnife;
 import de.hdodenhof.circleimageview.CircleImageView;
 
 import static com.thetestament.cread.helpers.FeedHelper.initializeShareDialog;
+import static com.thetestament.cread.helpers.FeedHelper.setGridItemMargins;
 import static com.thetestament.cread.utils.Constant.EXTRA_DATA;
 import static com.thetestament.cread.utils.Constant.EXTRA_ENTITY_ID;
 import static com.thetestament.cread.utils.Constant.EXTRA_ENTITY_TYPE;
@@ -60,8 +64,10 @@ import static com.thetestament.cread.utils.Constant.REQUEST_CODE_FEED_DESCRIPTIO
  */
 public class MeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
-    private final int VIEW_TYPE_ITEM = 0;
-    private final int VIEW_TYPE_LOADING = 1;
+    private final int VIEW_TYPE_ITEM_LIST = 0;
+    private final int VIEW_TYPE_ITEM_GRID = 1;
+    private final int VIEW_TYPE_ITEM_LIST_COLLAB = 2;
+    private final int VIEW_TYPE_LOADING = 3;
 
     private List<FeedModel> mUserContentList;
     private FragmentActivity mContext;
@@ -69,6 +75,7 @@ public class MeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     private boolean mIsLoading;
     private String mUUID;
     private SharedPreferenceHelper mHelper;
+    private ITEM_TYPES mItemType;
 
     private OnUserActivityLoadMoreListener onLoadMore;
     private OnUserActivityHatsOffListener onHatsOffListener;
@@ -83,11 +90,12 @@ public class MeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
      * @param mContext         Context to be use.
      * @param mUUID            UUID of user.
      */
-    public MeAdapter(List<FeedModel> mUserContentList, FragmentActivity mContext, String mUUID, Fragment mMeFragment) {
+    public MeAdapter(List<FeedModel> mUserContentList, FragmentActivity mContext, String mUUID, Fragment mMeFragment, ITEM_TYPES mItemType) {
         this.mUserContentList = mUserContentList;
         this.mContext = mContext;
         this.mUUID = mUUID;
         this.mMeFragment = mMeFragment;
+        this.mItemType = mItemType;
 
         mHelper = new SharedPreferenceHelper(mContext);
     }
@@ -129,15 +137,28 @@ public class MeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
     @Override
     public int getItemViewType(int position) {
-        return mUserContentList.get(position) == null ? VIEW_TYPE_LOADING : VIEW_TYPE_ITEM;
+        if (mUserContentList.get(position) == null) {
+            return VIEW_TYPE_LOADING;
+        } else if (mItemType == ITEM_TYPES.LIST) {
+            return VIEW_TYPE_ITEM_LIST;
+        } else if (mItemType == ITEM_TYPES.GRID) {
+            return VIEW_TYPE_ITEM_GRID;
+        } else if (mItemType == ITEM_TYPES.COLLABLIST) {
+            return VIEW_TYPE_ITEM_LIST_COLLAB;
+        }
+        return -1;
     }
 
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        if (viewType == VIEW_TYPE_ITEM) {
-            return new ItemViewHolder(LayoutInflater
+        if (viewType == VIEW_TYPE_ITEM_LIST || viewType == VIEW_TYPE_ITEM_LIST_COLLAB) {
+            return new ListItemViewHolder(LayoutInflater
                     .from(parent.getContext())
                     .inflate(R.layout.item_me, parent, false));
+        } else if (viewType == VIEW_TYPE_ITEM_GRID) {
+            return new GridItemViewHolder(LayoutInflater
+                    .from(parent.getContext())
+                    .inflate(R.layout.item_grid, parent, false));
         } else if (viewType == VIEW_TYPE_LOADING) {
             return new LoadingViewHolder(LayoutInflater
                     .from(parent.getContext())
@@ -149,49 +170,22 @@ public class MeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     @Override
     public void onBindViewHolder(RecyclerView.ViewHolder holder, final int position) {
         final FeedModel data = mUserContentList.get(position);
-        if (holder.getItemViewType() == VIEW_TYPE_ITEM) {
-            final ItemViewHolder itemViewHolder = (ItemViewHolder) holder;
-            //Load creator profile picture
-            loadCreatorPic(data.getCreatorImage(), itemViewHolder.imageCreator);
-            //Load content image
-            loadContentImage(data.getContentImage(), itemViewHolder.imageContent);
+        if (holder.getItemViewType() == VIEW_TYPE_ITEM_LIST || holder.getItemViewType() == VIEW_TYPE_ITEM_LIST_COLLAB) {
+            final ListItemViewHolder itemViewHolder = (ListItemViewHolder) holder;
 
-            // set text and click actions acc. to content type
-            FeedHelper.performContentTypeSpecificOperations(mContext
-                    , data
-                    , itemViewHolder.collabCount
-                    , itemViewHolder.collabCount
-                    , itemViewHolder.buttonCollaborate
-                    , itemViewHolder.textCreatorName
-                    , true
-                    , true
-                    , itemViewHolder.lineSepartor);
+            // intilaize the views and click actions
+            initializeListItem(itemViewHolder, data, position);
 
-            //Initialize context menu button
-            initializeMenuButton(itemViewHolder.buttonMenu, data.getUUID());
+        } else if (holder.getItemViewType() == VIEW_TYPE_ITEM_GRID) {
+            final GridItemViewHolder itemViewHolder = (GridItemViewHolder) holder;
+            //Load me feed image
 
-            //open bottom sheet on clicking of 3 dots
-            itemViewHolder.buttonMenu.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    getMenuActionsBottomSheet(position, data.getEntityID());
-                }
-            });
+            // set margins
+            setGridItemMargins(mContext, position, itemViewHolder.imageMe);
 
-            //ItemView onClick functionality
-            itemViewOnClick(itemViewHolder.itemView, data, position);
+            loadContentImage(data.getContentImage(), itemViewHolder.imageMe);
 
-            //Check whether user has given hats off to this campaign or not
-            checkHatsOffStatus(data.getHatsOffStatus(), itemViewHolder);
-            //HatsOff onClick functionality
-            hatsOffOnClick(itemViewHolder, data, position);
-            //Comment click functionality
-            commentOnClick(itemViewHolder.containerComment, data.getEntityID());
-            //Share click functionality
-            shareOnClick(itemViewHolder.containerShare, data.getContentImage(), data.getEntityID(), data.getCreatorName());
-            //Collaboration count click functionality
-            collaborationCountOnClick(itemViewHolder.collabCount, data.getEntityID(), data.getContentType());
-
+            itemViewOnClick(itemViewHolder.itemView, data, position, true);
         } else if (holder.getItemViewType() == VIEW_TYPE_LOADING) {
             LoadingViewHolder loadingViewHolder = (LoadingViewHolder) holder;
             loadingViewHolder.progressView.setVisibility(View.VISIBLE);
@@ -245,7 +239,7 @@ public class MeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
      * @param creatorID UUID of content creator.
      */
     private void initializeMenuButton(TextView menu, String creatorID) {
-        if (mUUID.equals(creatorID)) {
+        if (mUUID.equals(creatorID) && mItemType != ITEM_TYPES.COLLABLIST) {
             //Show delete button
             menu.setVisibility(View.VISIBLE);
         } else {
@@ -312,14 +306,17 @@ public class MeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     /**
      * ItemView onClick functionality.
      *
-     * @param view      View to be clicked.
-     * @param feedModel Data set for current item.
-     * @param position  Position of item
+     * @param view                 View to be clicked.
+     * @param feedModel            Data set for current item.
+     * @param position             Position of item
+     * @param showSharedTransition show transition if its true
      */
-    private void itemViewOnClick(View view, final FeedModel feedModel, final int position) {
+    private void itemViewOnClick(View view, final FeedModel feedModel, final int position, final boolean showSharedTransition) {
         view.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                //Set transition name
+                ViewCompat.setTransitionName(view, feedModel.getEntityID());
 
                 Bundle bundle = new Bundle();
                 bundle.putParcelable(EXTRA_FEED_DESCRIPTION_DATA, feedModel);
@@ -327,7 +324,19 @@ public class MeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
                 Intent intent = new Intent(mContext, FeedDescriptionActivity.class);
                 intent.putExtra(EXTRA_DATA, bundle);
-                mMeFragment.startActivityForResult(intent, REQUEST_CODE_FEED_DESCRIPTION_ACTIVITY);
+
+
+                //If API is greater than LOLLIPOP
+                if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP && showSharedTransition) {
+                    ActivityOptions transitionActivityOptions = ActivityOptions
+                            .makeSceneTransitionAnimation(mContext, view, ViewCompat.getTransitionName(view));
+                    //start activity result
+                    mMeFragment.startActivityForResult(intent
+                            , REQUEST_CODE_FEED_DESCRIPTION_ACTIVITY
+                            , transitionActivityOptions.toBundle());
+                } else {
+                    mMeFragment.startActivityForResult(intent, REQUEST_CODE_FEED_DESCRIPTION_ACTIVITY);
+                }
             }
         });
     }
@@ -338,7 +347,7 @@ public class MeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
      * @param hatsOffStatus  True if user has given hatsOff, false otherwise.
      * @param itemViewHolder ViewHolder object.
      */
-    private void checkHatsOffStatus(boolean hatsOffStatus, ItemViewHolder itemViewHolder) {
+    private void checkHatsOffStatus(boolean hatsOffStatus, ListItemViewHolder itemViewHolder) {
         if (hatsOffStatus) {
             //Change color
             itemViewHolder.imageHatsOff.setColorFilter(ContextCompat.getColor(mContext, R.color.colorPrimary));
@@ -366,7 +375,7 @@ public class MeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
      * @param itemViewHolder ViewHolder for items.
      * @param data           Data for current item.
      */
-    private void hatsOffOnClick(final ItemViewHolder itemViewHolder, final FeedModel data, final int itemPosition) {
+    private void hatsOffOnClick(final ListItemViewHolder itemViewHolder, final FeedModel data, final int itemPosition) {
         itemViewHolder.containerHatsOff.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -436,7 +445,7 @@ public class MeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
      * @param pictureUrl URL of the picture to be shared.
      * @param entityID   Entity id of content.
      */
-    private void shareOnClick(View view, final String pictureUrl, final String entityID, final String creatorName) {
+    private void shareOnClick(View view, final String pictureUrl, final String entityID, final String creatorName, final FeedModel data) {
         view.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -457,7 +466,7 @@ public class MeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                             case 0:
                                 // image sharing
                                 //so load image
-                                loadBitmapForSharing(pictureUrl, entityID);
+                                loadBitmapForSharing(data);
                                 break;
                             case 1:
                                 // link sharing
@@ -475,15 +484,15 @@ public class MeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     /**
      * Method to load bitmap image to be shared
      */
-    private void loadBitmapForSharing(final String pictureUrl, final String entityID) {
+    private void loadBitmapForSharing(final FeedModel data) {
 
-        Picasso.with(mContext).load(pictureUrl).into(new Target() {
+        Picasso.with(mContext).load(data.getContentImage()).into(new Target() {
             @Override
             public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
                 //Set listener
-                onShareListener.onShareClick(bitmap);
+                onShareListener.onShareClick(bitmap, data);
                 //Log firebase event
-                setAnalytics(FIREBASE_EVENT_SHARED_FROM_PROFILE, entityID);
+                setAnalytics(FIREBASE_EVENT_SHARED_FROM_PROFILE, data.getEntityID());
             }
 
             @Override
@@ -496,6 +505,56 @@ public class MeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
             }
         });
+    }
+
+    /**
+     * Intializes the views and click actions
+     *
+     * @param itemViewHolder view holder
+     * @param data           Feed data
+     * @param position       position of the item
+     */
+    private void initializeListItem(ListItemViewHolder itemViewHolder, final FeedModel data, final int position) {
+        //Load creator profile picture
+        loadCreatorPic(data.getCreatorImage(), itemViewHolder.imageCreator);
+        //Load content image
+        loadContentImage(data.getContentImage(), itemViewHolder.imageContent);
+
+        // set text and click actions acc. to content type
+        FeedHelper.performContentTypeSpecificOperations(mContext
+                , data
+                , itemViewHolder.collabCount
+                , itemViewHolder.collabCount
+                , itemViewHolder.buttonCollaborate
+                , itemViewHolder.textCreatorName
+                , true
+                , true
+                , itemViewHolder.lineSepartor);
+
+        //Initialize context menu button
+        initializeMenuButton(itemViewHolder.buttonMenu, data.getUUID());
+
+        //open bottom sheet on clicking of 3 dots
+        itemViewHolder.buttonMenu.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                getMenuActionsBottomSheet(position, data.getEntityID());
+            }
+        });
+
+        //ItemView onClick functionality
+        itemViewOnClick(itemViewHolder.itemView, data, position, false);
+
+        //Check whether user has given hats off to this campaign or not
+        checkHatsOffStatus(data.getHatsOffStatus(), itemViewHolder);
+        //HatsOff onClick functionality
+        hatsOffOnClick(itemViewHolder, data, position);
+        //Comment click functionality
+        commentOnClick(itemViewHolder.containerComment, data.getEntityID());
+        //Share click functionality
+        shareOnClick(itemViewHolder.containerShare, data.getContentImage(), data.getEntityID(), data.getCreatorName(), data);
+        //Collaboration count click functionality
+        collaborationCountOnClick(itemViewHolder.collabCount, data.getEntityID(), data.getContentType());
     }
 
     /**
@@ -568,7 +627,7 @@ public class MeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     }
 
     //ItemViewHolder class
-    static class ItemViewHolder extends RecyclerView.ViewHolder {
+    static class ListItemViewHolder extends RecyclerView.ViewHolder {
         @BindView(R.id.imageCreator)
         CircleImageView imageCreator;
         @BindView(R.id.textCreatorName)
@@ -597,7 +656,19 @@ public class MeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         //Variable to maintain  hats off view rotation status
         private boolean mIsRotated = false;
 
-        public ItemViewHolder(View itemView) {
+        public ListItemViewHolder(View itemView) {
+            super(itemView);
+            ButterKnife.bind(this, itemView);
+        }
+    }
+
+    //GridItemViewHolder class
+    static class GridItemViewHolder extends RecyclerView.ViewHolder {
+
+        @BindView(R.id.imageGrid)
+        ImageView imageMe;
+
+        public GridItemViewHolder(View itemView) {
             super(itemView);
             ButterKnife.bind(this, itemView);
         }

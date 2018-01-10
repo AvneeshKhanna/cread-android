@@ -10,7 +10,6 @@ import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Environment;
-import android.support.annotation.ColorInt;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.BottomSheetBehavior;
@@ -32,22 +31,27 @@ import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.ImageView;
 import android.widget.SeekBar;
+import android.widget.TextView;
 
-import com.afollestad.materialdialogs.color.ColorChooserDialog;
 import com.google.firebase.analytics.FirebaseAnalytics;
 import com.squareup.picasso.Callback;
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Target;
 import com.thetestament.cread.Manifest;
 import com.thetestament.cread.R;
+import com.thetestament.cread.adapters.ColorAdapter;
 import com.thetestament.cread.adapters.FontAdapter;
 import com.thetestament.cread.dialog.CustomDialog;
+import com.thetestament.cread.helpers.ColorHelper;
+import com.thetestament.cread.helpers.FontsHelper;
 import com.thetestament.cread.helpers.SharedPreferenceHelper;
 import com.thetestament.cread.helpers.ViewHelper;
 import com.thetestament.cread.listeners.OnDragTouchListener;
+import com.thetestament.cread.listeners.OnSwipeGestureListener;
 import com.thetestament.cread.listeners.listener;
+import com.thetestament.cread.models.ColorModel;
 import com.thetestament.cread.models.FontModel;
-import com.thetestament.cread.utils.SquareView;
+import com.thetestament.cread.widgets.SquareView;
 import com.thetestament.cread.widgets.CustomEditText;
 import com.thetestament.cread.widgets.CustomEditText.OnEditTextBackListener;
 
@@ -63,7 +67,6 @@ import icepick.Icepick;
 import icepick.State;
 import io.reactivex.disposables.CompositeDisposable;
 
-import static com.thetestament.cread.helpers.FontsHelper.fontTypes;
 import static com.thetestament.cread.utils.Constant.EXTRA_CAPTURE_ID;
 import static com.thetestament.cread.utils.Constant.EXTRA_CAPTURE_URL;
 import static com.thetestament.cread.utils.Constant.EXTRA_DATA;
@@ -77,6 +80,7 @@ import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_CALLED_FROM_SH
 import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_CAPTURE_ID;
 import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_DATA;
 import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_FONT;
+import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_IMAGE_TINT_COLOR;
 import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_IMG_WIDTH;
 import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_ITALIC;
 import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_MERCHANTABLE;
@@ -97,8 +101,9 @@ import static com.thetestament.cread.utils.Constant.REQUEST_CODE_WRITE_EXTERNAL_
  * Here user creates his/her shorts and uploads on the server.
  */
 
-public class ShortActivity extends BaseActivity implements ColorChooserDialog.ColorCallback, OnEditTextBackListener {
+public class ShortActivity extends BaseActivity implements OnEditTextBackListener {
 
+    //region :Views binding with butter knife
     @BindView(R.id.rootView)
     CoordinatorLayout rootView;
     @BindView(R.id.imageContainer)
@@ -119,28 +124,39 @@ public class ShortActivity extends BaseActivity implements ColorChooserDialog.Co
     View formatOptions;
     @BindView(R.id.imageProgressView)
     View imageProgressView;
+    @BindView(R.id.textNote)
+    TextView textNote;
 
-
+    //Font bottom sheet
     @BindView(R.id.bottomSheetView)
     NestedScrollView bottomSheetView;
     @BindView(R.id.recyclerView)
     RecyclerView recyclerView;
+    //Color bottom sheet
+    @BindView(R.id.colorBottomSheetView)
+    NestedScrollView colorBottomSheetView;
+    @BindView(R.id.colorRecyclerView)
+    RecyclerView colorRecyclerView;
+    //endregion
 
-    private BottomSheetBehavior sheetBehavior;
+    //region :Fields and constants
+    private BottomSheetBehavior sheetBehavior, colorSheetBehaviour;
     //Define font typeface
     private Typeface mTextTypeface;
 
-    private ArrayList<FontModel> mFontDataList = new ArrayList<>();
 
     @State
     String mCaptureUrl, mCaptureID = "", mSignatureText, mShortBgColor = "FFFFFFFF", mFontType = "montserrat_regular.ttf";
 
+    /**
+     * Flag to maintain imageWidth
+     */
     @State
     int mImageWidth = 650;
 
 
     /**
-     * Flag to maintain merchantable status i.e true if merchantable is present false otherwise.
+     * Flag to maintain merchantable status i.e true if merchantable false otherwise.
      */
     @State
     boolean mIsMerchantable = true;
@@ -194,34 +210,32 @@ public class ShortActivity extends BaseActivity implements ColorChooserDialog.Co
     TextGravity textGravity = TextGravity.Center;
 
 
+    /**
+     * Flag to maintain image tint status. 0(Zero) for default.
+     */
+    @State
+    int mImageTintFlag = 0;
+
+    /**
+     * Flag to store image tint color
+     */
+    @State
+    String mImageTintColor = "";
+
+
     CompositeDisposable mCompositeDisposable = new CompositeDisposable();
     SharedPreferenceHelper mHelper;
+    //endregion
 
-
+    //region :Overridden methods
     @Override
-
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_short);
         //ButterKnife view binding
         ButterKnife.bind(this);
-        //set listener
-        textShort.setOnEditTextBackListener(this);
-
-        mHelper = new SharedPreferenceHelper(this);
-        //initialize screen
+        //initialize for screen
         initScreen();
-        //initialize seek bar
-        initSeekBar(seekBarTextSize);
-        //For bottomSheet
-        sheetBehavior = BottomSheetBehavior.from(bottomSheetView);
-        sheetBehavior.setPeekHeight(0);
-        //Set default font
-        mTextTypeface = ResourcesCompat.getFont(ShortActivity.this, R.font.montserrat_regular);
-        //initialise fontLayout bottomSheet
-        initFontLayout();
-        //initialize listener
-        initDragListener();
     }
 
     @Override
@@ -245,6 +259,8 @@ public class ShortActivity extends BaseActivity implements ColorChooserDialog.Co
                     //Update flags
                     mIsBgColorPresent = false;
                     mIsImagePresent = true;
+                    //show note text
+                    textNote.setVisibility(View.VISIBLE);
                 }
                 break;
             case REQUEST_CODE_PREVIEW_ACTIVITY:
@@ -317,9 +333,8 @@ public class ShortActivity extends BaseActivity implements ColorChooserDialog.Co
                 } else {
                     //Remove underline
                     textShort.clearComposingText();
-                    //Remove tint to imageView
-                    imageShort.clearColorFilter();
-
+                    //Remove tint from imageView
+                    removeImageTint();
                     getRuntimePermission();
                 }
                 return true;
@@ -327,25 +342,6 @@ public class ShortActivity extends BaseActivity implements ColorChooserDialog.Co
                 return super.onOptionsItemSelected(item);
         }
 
-    }
-
-    @Override
-    public void onColorSelection(@NonNull ColorChooserDialog dialog, @ColorInt int selectedColor) {
-        if (mColorChooserType.equals("texColor")) {
-            //Change short text color
-            textShort.setTextColor(selectedColor);
-        } else if (mColorChooserType.equals("backGroundColor")) {
-            //Change backgroundColor
-            imageShort.setBackgroundColor(selectedColor);
-            //Update flag
-            mIsBgColorPresent = true;
-        }
-
-    }
-
-    @Override
-    public void onColorChooserDismissed(@NonNull ColorChooserDialog dialog) {
-        //do nothing
     }
 
     @Override
@@ -364,34 +360,34 @@ public class ShortActivity extends BaseActivity implements ColorChooserDialog.Co
         //initialize listener
         initDragListener();
         //Remove tint to imageView
-        imageShort.clearColorFilter();
+        removeImageTint();
         //Toggle visibility
         formatOptions.setVisibility(View.VISIBLE);
         seekBarTextSize.setVisibility(View.VISIBLE);
         viewFormatTextSize.setVisibility(View.VISIBLE);
     }
 
+    //endregion
+
+    //region :Click functionality
+
     /**
-     * Click functionality to hide bottom sheet.
+     * Root view click functionality.
      */
     @OnClick(R.id.rootView)
     void rootViewOnClick() {
-        //Collapse bottomSheet if its expanded
-        if (sheetBehavior.getState() == BottomSheetBehavior.STATE_EXPANDED) {
-            sheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
-        }
+        //Method call
+        hideBottomSheets();
     }
 
     @OnClick(R.id.imageContainer)
     void onContainerClick() {
-        //Collapse bottomSheet if its expanded
-        if (sheetBehavior.getState() == BottomSheetBehavior.STATE_EXPANDED) {
-            sheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
-        }
+        //Method call
+        hideBottomSheets();
         //Hide edit text cursor
         textShort.setCursorVisible(false);
         //Remove tint to imageView
-        imageShort.clearColorFilter();
+        removeImageTint();
         //Hide keyboard
         InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
         imm.hideSoftInputFromWindow(textShort.getWindowToken(), 0);
@@ -451,16 +447,16 @@ public class ShortActivity extends BaseActivity implements ColorChooserDialog.Co
     }
 
     /**
-     * Functionality to change font type.
+     * Functionality to show bottom sheet with font options .
      */
     @OnClick(R.id.btnFont)
     void onFontClicked() {
-        //Show bottomSheet
+        //Show font bottomSheet
         sheetBehavior.setState(BottomSheetBehavior.STATE_EXPANDED);
     }
 
     /**
-     * Functionality to change canvas bac
+     * Functionality to change canvas background
      */
     @OnClick(R.id.btnFormatBg)
     void changeBgColor() {
@@ -471,8 +467,9 @@ public class ShortActivity extends BaseActivity implements ColorChooserDialog.Co
         } else {
             //Set type
             mColorChooserType = "backGroundColor";
-            //Show color dialog
-            showColorChooserDialog();
+            imageShort.clearColorFilter();
+            //Show color bottomSheet
+            colorSheetBehaviour.setState(BottomSheetBehavior.STATE_EXPANDED);
         }
     }
 
@@ -483,8 +480,8 @@ public class ShortActivity extends BaseActivity implements ColorChooserDialog.Co
     void onBtnFormatTextColorClicked() {
         //Set type
         mColorChooserType = "texColor";
-        //Show color dialog
-        showColorChooserDialog();
+        //Show color bottomSheet
+        colorSheetBehaviour.setState(BottomSheetBehavior.STATE_EXPANDED);
     }
 
     /**
@@ -570,39 +567,53 @@ public class ShortActivity extends BaseActivity implements ColorChooserDialog.Co
     }
 
     /**
-     * Close button click functionality to hide bottom sheet.
+     * Font bottom sheet close button click functionality to hide bottom sheet.
      */
     @OnClick(R.id.buttonClose)
     void onCloseBtnClick() {
-        //Hide bottom sheet
+        //Hide font bottom sheet
         sheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
     }
+    //endregion
+
+    //region Private methods
 
     /**
-     * Method to show color chooser dialog.
+     * Method to initialize view for this screen.
      */
-    private void showColorChooserDialog() {
-        // Pass a context, along with the title of the dialog
-        new ColorChooserDialog.Builder(this, R.string.text_color)
-                // title of dialog when viewing shades of a color
-                .titleSub(R.string.text_color)
-                // when true, will display accent palette instead of primary palette
-                .accentMode(false)
-                // changes label of the done button
-                .doneButton(R.string.md_done_label)
-                // changes label of the cancel button
-                .cancelButton(R.string.md_cancel_label)
-                // changes label of the back button
-                .backButton(R.string.md_back_label)
-                // defaults to true, false will disable changing action buttons' color to currently selected color
-                .dynamicButtonColor(true)
-                .show(); // an AppCompatActivity which implements ColorCallback
+    private void initScreen() {
+        //obtain shared preference reference
+        mHelper = new SharedPreferenceHelper(this);
+
+        //retrieve data
+        retrieveData();
+
+        //Set default font
+        mTextTypeface = ResourcesCompat.getFont(ShortActivity.this, R.font.montserrat_regular);
+
+        //set listener
+        textShort.setOnEditTextBackListener(this);
+        //initialize seek bar
+        initSeekBar(seekBarTextSize);
+
+        //setup bottom sheets
+        sheetBehavior = BottomSheetBehavior.from(bottomSheetView);
+        sheetBehavior.setPeekHeight(0);
+        colorSheetBehaviour = BottomSheetBehavior.from(colorBottomSheetView);
+        colorSheetBehaviour.setPeekHeight(0);
+
+        //initialise font, color bottomSheet
+        initFontLayout();
+        initColorLayout();
+        //initialize listener
+        initDragListener();
+        initSwipeListener();
     }
 
     /**
      * Method to retrieve data from intent and initialize this screen.
      */
-    private void initScreen() {
+    private void retrieveData() {
         if (getIntent().hasExtra(EXTRA_DATA)) {
             Bundle bundle = getIntent().getBundleExtra(EXTRA_DATA);
             //Retrieve data
@@ -613,6 +624,8 @@ public class ShortActivity extends BaseActivity implements ColorChooserDialog.Co
             loadCapture(imageShort, mCaptureUrl);
             //Update flag
             mIsImagePresent = true;
+            //show note text
+            textNote.setVisibility(View.VISIBLE);
         }
         //Set water mark text
         mSignatureText = "- " + mHelper.getFirstName() + " " + mHelper.getLastName();
@@ -647,8 +660,9 @@ public class ShortActivity extends BaseActivity implements ColorChooserDialog.Co
      * Method to initialize font bottom sheet.
      */
     private void initFontLayout() {
+        ArrayList<FontModel> mFontDataList = new ArrayList<>();
         //initialize font data list
-        for (String fontName : fontTypes) {
+        for (String fontName : FontsHelper.fontTypes) {
             FontModel data = new FontModel();
             data.setFontName(fontName);
             mFontDataList.add(data);
@@ -690,6 +704,41 @@ public class ShortActivity extends BaseActivity implements ColorChooserDialog.Co
     }
 
     /**
+     * Method to initialize color bottom sheet.
+     */
+    private void initColorLayout() {
+        ArrayList<ColorModel> colorList = new ArrayList<>();
+        //initialize color data list
+        for (String colorValue : ColorHelper.colorList) {
+            ColorModel data = new ColorModel();
+            data.setColorValue(colorValue);
+            colorList.add(data);
+        }
+        //Set layout manager
+        colorRecyclerView.setLayoutManager(new LinearLayoutManager(ShortActivity.this, LinearLayoutManager.HORIZONTAL, false));
+        //Set adapter
+        ColorAdapter colorAdapter = new ColorAdapter(colorList, ShortActivity.this);
+        colorRecyclerView.setAdapter(colorAdapter);
+
+        //Font click listener
+        colorAdapter.setColorSelectListener(new listener.OnColorSelectListener() {
+            @Override
+            public void onColorSelected(int selectedColor) {
+                if (mColorChooserType.equals("texColor")) {
+                    //Change short text color
+                    textShort.setTextColor(selectedColor);
+                    textShort.setHintTextColor(selectedColor);
+                } else if (mColorChooserType.equals("backGroundColor")) {
+                    //Change backgroundColor
+                    imageShort.setBackgroundColor(selectedColor);
+                    //Update flag
+                    mIsBgColorPresent = true;
+                }
+            }
+        });
+    }
+
+    /**
      * Method to initialize  edit text drag listener.
      */
     private void initDragListener() {
@@ -705,7 +754,7 @@ public class ShortActivity extends BaseActivity implements ColorChooserDialog.Co
                 //Show edit text cursor
                 textShort.setCursorVisible(true);
                 //Add tint to imageView
-                imageShort.setColorFilter(ContextCompat.getColor(ShortActivity.this, R.color.transparent));
+                imageShort.setColorFilter(ContextCompat.getColor(ShortActivity.this, R.color.transparent_50));
                 //Show keyboard
                 InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
                 imm.showSoftInput(textShort, 0);
@@ -715,8 +764,84 @@ public class ShortActivity extends BaseActivity implements ColorChooserDialog.Co
                 formatOptions.setVisibility(View.GONE);
                 seekBarTextSize.setVisibility(View.GONE);
                 viewFormatTextSize.setVisibility(View.GONE);
+
+                //Method call
+                hideBottomSheets();
             }
         }));
+    }
+
+    /**
+     * Method to initialize swipe listener on squareView.
+     */
+    private void initSwipeListener() {
+
+        squareView.setOnTouchListener(new OnSwipeGestureListener(this) {
+
+            @Override
+            public void onDoubleClick() {
+
+                if (mIsImagePresent) {
+                    switch (mImageTintFlag) {
+                        case 0:
+                            //Apply tint
+                            imageShort.setColorFilter(ContextCompat.getColor(ShortActivity.this, R.color.transparent_50));
+                            //Update flag
+                            mImageTintFlag = 1;
+                            //set tint color
+                            mImageTintColor = "80000000";
+                            break;
+                        case 1:
+                            //Apply tint
+                            imageShort.setColorFilter(ContextCompat.getColor(ShortActivity.this, R.color.transparent_60));
+                            //Update flag
+                            mImageTintFlag = 2;
+                            //set tint color
+                            mImageTintColor = "99000000";
+                            break;
+                        case 2:
+                            //Apply tint
+                            imageShort.setColorFilter(ContextCompat.getColor(ShortActivity.this, R.color.transparent_70));
+                            //Update flag
+                            mImageTintFlag = 3;
+                            //set tint color
+                            mImageTintColor = "B3000000";
+                            break;
+                        case 3:
+                            //Clear filter
+                            imageShort.clearColorFilter();
+                            //Update flag
+                            mImageTintFlag = 0;
+                            //set tint color
+                            mImageTintColor = "";
+                            break;
+                    }
+                }
+
+            }
+
+            @Override
+            public void onClick() {
+                //Method call
+                hideBottomSheets();
+
+                //Hide edit text cursor
+                textShort.setCursorVisible(false);
+                //Remove tint to imageView
+                removeImageTint();
+                //Hide keyboard
+                InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                imm.hideSoftInputFromWindow(textShort.getWindowToken(), 0);
+
+                //initialize listener
+                initDragListener();
+
+                //Toggle visibility
+                formatOptions.setVisibility(View.VISIBLE);
+                seekBarTextSize.setVisibility(View.VISIBLE);
+                viewFormatTextSize.setVisibility(View.VISIBLE);
+            }
+        });
     }
 
     /**
@@ -735,6 +860,8 @@ public class ShortActivity extends BaseActivity implements ColorChooserDialog.Co
                     public void onSuccess() {
                         //Hide progress indicator
                         imageProgressView.setVisibility(View.GONE);
+                        //Add tint to imageView
+                        //imageShort.setColorFilter(ContextCompat.getColor(ShortActivity.this, R.color.transparent_50));
                         Picasso.with(ShortActivity.this).load(imageUrl).into(new Target() {
                             @Override
                             public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
@@ -753,26 +880,9 @@ public class ShortActivity extends BaseActivity implements ColorChooserDialog.Co
                                                     String hexColorWithoutAlpha = "#" + hexColorWithAlpha.substring(2, 8);
                                                     //set text color
                                                     textShort.setTextColor(Color.parseColor(hexColorWithoutAlpha));
+                                                    //set hint color
+                                                    textShort.setHintTextColor(Color.parseColor(hexColorWithoutAlpha));
                                                 }
-                                                /*Palette.Swatch swatchVibrant = palette.getLightVibrantSwatch();
-                                                Palette.Swatch swatchDarkVibrant = palette.getDarkVibrantSwatch();
-
-                                                Palette.Swatch swatchMuted = palette.getLightMutedSwatch();
-                                                Palette.Swatch swatchDarkMuted = palette.getDarkMutedSwatch();
-
-                                                if (swatchVibrant != null && swatchDarkVibrant != null) {
-                                                    if (swatchVibrant.getPopulation() > swatchDarkVibrant.getPopulation()) {
-                                                        textShort.setTextColor(swatchVibrant.getBodyTextColor());
-                                                    } else {
-                                                        textShort.setTextColor(swatchDarkVibrant.getBodyTextColor());
-                                                    }
-                                                } else if (swatchMuted != null && swatchDarkMuted != null) {
-                                                    if (swatchMuted.getPopulation() > swatchDarkMuted.getPopulation()) {
-                                                        textShort.setTextColor(swatchMuted.getBodyTextColor());
-                                                    } else {
-                                                        textShort.setTextColor(swatchDarkMuted.getBodyTextColor());
-                                                    }
-                                                }*/
                                             }
                                         });
                             }
@@ -877,6 +987,7 @@ public class ShortActivity extends BaseActivity implements ColorChooserDialog.Co
                     , mShortBgColor
                     , String.valueOf(mBoldFlag)
                     , String.valueOf(mItalicFlag)
+                    , mImageTintColor
                     , PREVIEW_EXTRA_CALLED_FROM_SHORT
 
             );
@@ -899,7 +1010,7 @@ public class ShortActivity extends BaseActivity implements ColorChooserDialog.Co
             , String xPosition, String yPosition, String tvWidth, String tvHeight
             , String text, String textSize, String textColor, String textGravity
             , String imgWidth, String merchantable, String font, String bgColor
-            , String bold, String italic, String calledFrom) {
+            , String bold, String italic, String imageTintColor, String calledFrom) {
 
         Intent intent = new Intent(ShortActivity.this, PreviewActivity.class);
 
@@ -922,19 +1033,36 @@ public class ShortActivity extends BaseActivity implements ColorChooserDialog.Co
         bundle.putString(PREVIEW_EXTRA_BG_COLOR, bgColor);
         bundle.putString(PREVIEW_EXTRA_BOLD, bold);
         bundle.putString(PREVIEW_EXTRA_ITALIC, italic);
+        bundle.putString(PREVIEW_EXTRA_IMAGE_TINT_COLOR, imageTintColor);
         bundle.putString(PREVIEW_EXTRA_CALLED_FROM, calledFrom);
+
 
         intent.putExtra(PREVIEW_EXTRA_DATA, bundle);
         startActivityForResult(intent, REQUEST_CODE_PREVIEW_ACTIVITY);
     }
 
 
-    public int getBlackWhiteColor(int color) {
-        double darkness = 1 - (0.299 * Color.red(color) + 0.587 * Color.green(color) + 0.114 * Color.blue(color)) / 255;
-        if (darkness >= 0.5) {
-            return Color.WHITE;
-        } else {
-            return Color.BLACK;
+    /**
+     * Method to hide bottom sheets if they are expanded.
+     */
+    private void hideBottomSheets() {
+        //Collapse font bottomSheet if its expanded
+        if (sheetBehavior.getState() == BottomSheetBehavior.STATE_EXPANDED) {
+            sheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
+        }
+        //Collapse color bottomSheet if its expanded
+        if (colorSheetBehaviour.getState() == BottomSheetBehavior.STATE_EXPANDED) {
+            colorSheetBehaviour.setState(BottomSheetBehavior.STATE_COLLAPSED);
         }
     }
+
+    /**
+     * Method to clear image tint if it its not added explicitly.
+     */
+    private void removeImageTint() {
+        if (mImageTintFlag == 0) {
+            imageShort.clearColorFilter();
+        }
+    }
+    //endregion
 }

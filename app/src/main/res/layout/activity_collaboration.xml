@@ -10,7 +10,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-        <com.thetestament.cread.utils.SquareView
+        <com.thetestament.cread.widgets.SquareView
             android:id="@+id/imageContainer"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -56,7 +56,18 @@
                     android:textSize="12sp"
                     tools:text="~The testament" />
             </FrameLayout>
-        </com.thetestament.cread.utils.SquareView>
+        </com.thetestament.cread.widgets.SquareView>
+
+        <TextView
+            android:id="@+id/textNote"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/imageContainer"
+            android:layout_centerHorizontal="true"
+            android:gravity="center"
+            android:paddingTop="10sp"
+            android:text="@string/note_text_short_creation"
+            android:textSize="12sp" />
 
         <ImageView
             android:id="@+id/btnFormatTextSize"
@@ -87,9 +98,10 @@
             android:layout_alignParentBottom="true" />
     </RelativeLayout>
 
-    <!--Font option bottom sheet-->
-    <include layout="@layout/layout_font_bottom_sheet" />
-
+     <!--Font option bottom sheet-->
+     <include layout="@layout/layout_font_bottom_sheet" />
+     <!--Color option bottom sheet-->
+     <include layout="@layout/layout_color_bottom_sheet" />
     <include
         android:id="@+id/progressView"
         layout="@layout/layout_progress_bar"
