@@ -22,8 +22,7 @@
                 android:id="@+id/imageShort"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:scaleType="centerCrop"
-                android:src="@color/white" />
+                android:scaleType="centerCrop" />
 
             <com.thetestament.cread.widgets.CustomEditText
                 android:id="@+id/textShort"

@@ -959,8 +959,8 @@ public class MeFragment extends Fragment implements listener.OnCollaborationList
         //Load profile picture
         Picasso.with(getActivity())
                 .load(mProfilePicURL)
-                .networkPolicy(NetworkPolicy.NO_CACHE)
-                .memoryPolicy(MemoryPolicy.NO_CACHE)
+                //.networkPolicy(NetworkPolicy.NO_CACHE)
+                //.memoryPolicy(MemoryPolicy.NO_CACHE)
                 .error(R.drawable.ic_person_56)
                 .into(previewImage);
     }

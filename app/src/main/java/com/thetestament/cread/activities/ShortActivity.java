@@ -467,6 +467,7 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
         } else {
             //Set type
             mColorChooserType = "backGroundColor";
+            imageShort.clearColorFilter();
             //Show color bottomSheet
             colorSheetBehaviour.setState(BottomSheetBehavior.STATE_EXPANDED);
         }
@@ -779,40 +780,44 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
 
             @Override
             public void onDoubleClick() {
-                switch (mImageTintFlag) {
-                    case 0:
-                        //Apply tint
-                        imageShort.setColorFilter(ContextCompat.getColor(ShortActivity.this, R.color.transparent_50));
-                        //Update flag
-                        mImageTintFlag = 1;
-                        //set tint color
-                        mImageTintColor = "80000000";
-                        break;
-                    case 1:
-                        //Apply tint
-                        imageShort.setColorFilter(ContextCompat.getColor(ShortActivity.this, R.color.transparent_60));
-                        //Update flag
-                        mImageTintFlag = 2;
-                        //set tint color
-                        mImageTintColor = "99000000";
-                        break;
-                    case 2:
-                        //Apply tint
-                        imageShort.setColorFilter(ContextCompat.getColor(ShortActivity.this, R.color.transparent_70));
-                        //Update flag
-                        mImageTintFlag = 3;
-                        //set tint color
-                        mImageTintColor = "B3000000";
-                        break;
-                    case 3:
-                        //Clear filter
-                        imageShort.clearColorFilter();
-                        //Update flag
-                        mImageTintFlag = 0;
-                        //set tint color
-                        mImageTintColor = "";
-                        break;
+
+                if (mIsImagePresent) {
+                    switch (mImageTintFlag) {
+                        case 0:
+                            //Apply tint
+                            imageShort.setColorFilter(ContextCompat.getColor(ShortActivity.this, R.color.transparent_50));
+                            //Update flag
+                            mImageTintFlag = 1;
+                            //set tint color
+                            mImageTintColor = "80000000";
+                            break;
+                        case 1:
+                            //Apply tint
+                            imageShort.setColorFilter(ContextCompat.getColor(ShortActivity.this, R.color.transparent_60));
+                            //Update flag
+                            mImageTintFlag = 2;
+                            //set tint color
+                            mImageTintColor = "99000000";
+                            break;
+                        case 2:
+                            //Apply tint
+                            imageShort.setColorFilter(ContextCompat.getColor(ShortActivity.this, R.color.transparent_70));
+                            //Update flag
+                            mImageTintFlag = 3;
+                            //set tint color
+                            mImageTintColor = "B3000000";
+                            break;
+                        case 3:
+                            //Clear filter
+                            imageShort.clearColorFilter();
+                            //Update flag
+                            mImageTintFlag = 0;
+                            //set tint color
+                            mImageTintColor = "";
+                            break;
+                    }
                 }
+
             }
 
             @Override
@@ -856,7 +861,7 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
                         //Hide progress indicator
                         imageProgressView.setVisibility(View.GONE);
                         //Add tint to imageView
-                        imageShort.setColorFilter(ContextCompat.getColor(ShortActivity.this, R.color.transparent_50));
+                        //imageShort.setColorFilter(ContextCompat.getColor(ShortActivity.this, R.color.transparent_50));
                         Picasso.with(ShortActivity.this).load(imageUrl).into(new Target() {
                             @Override
                             public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
