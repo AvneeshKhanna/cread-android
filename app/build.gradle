@@ -71,7 +71,6 @@ dependencies {
     compile "com.android.support:preference-v7:$rootProject.supportLibraryVersion"
     implementation "com.android.support:palette-v7:$rootProject.supportLibraryVersion"
 
-
     //Firebase
     compile "com.google.firebase:firebase-core:$rootProject.playServiceVersion"
     compile "com.google.firebase:firebase-config:$rootProject.playServiceVersion"
@@ -90,7 +89,10 @@ dependencies {
     compile "com.amitshekhar.android:rx2-android-networking:$rootProject.rx2FastAndroidNetworking"
 
     //Image
-    compile "com.squareup.picasso:picasso:$rootProject.picassoVersion"
+    implementation "com.squareup.picasso:picasso:$rootProject.picassoVersion"
+    //For picasso caching dependency
+    implementation 'com.squareup.okhttp3:okhttp:3.9.1'
+    implementation 'com.squareup.okhttp:okhttp-urlconnection:2.+'
 
     //For MoneyTextView
     compile 'org.fabiomsr:moneytextview:1.0.3'
@@ -150,6 +152,7 @@ dependencies {
 
     // dependencies for local unit tests
     testCompile "junit:junit:$rootProject.ext.junitVersion"
+
 }
 
 // Add this line at the bottom of the file for firebase services
