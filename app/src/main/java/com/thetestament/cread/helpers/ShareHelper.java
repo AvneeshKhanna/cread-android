@@ -7,6 +7,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 
+import com.thetestament.cread.R;
 import com.thetestament.cread.models.FeedModel;
 
 import static com.thetestament.cread.helpers.ImageHelper.getLocalBitmapUri;
@@ -20,12 +21,9 @@ public class ShareHelper {
      */
     public static void sharePost(Bitmap bitmap, Context context, FeedModel data) {
 
-        //Get caption text
-        String shareText = data.getCaption() == null ? "Do you love #art? Here's something great on @cread! Check it out and tell me what you think. :)" : data.getCaption();
-
         //Copy caption text to clipboard
         ClipboardManager clipboard = (ClipboardManager) context.getSystemService(Context.CLIPBOARD_SERVICE);
-        ClipData clip = ClipData.newPlainText("Caption", shareText);
+        ClipData clip = ClipData.newPlainText("Caption", context.getString(R.string.text_share_image));
         clipboard.setPrimaryClip(clip);
 
         //Show toast
