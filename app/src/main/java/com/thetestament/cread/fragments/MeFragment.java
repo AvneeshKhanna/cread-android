@@ -572,6 +572,7 @@ public class MeFragment extends Fragment implements listener.OnCollaborationList
                         break;
                     case 2:
                         // list layout for collab data
+                        mCollabList.clear();
                         mCollabLastIndexKey = null;
                         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
                         mAdapter = new MeAdapter(mCollabList, getActivity(), mHelper.getUUID(), MeFragment.this, ITEM_TYPES.COLLABLIST);
