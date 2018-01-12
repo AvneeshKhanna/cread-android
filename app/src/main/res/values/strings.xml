@@ -148,5 +148,6 @@
 
     //Info text
     <string name="note_text_short_creation">Double tap outside text to add image tint</string>
+    <string name="text_share_image">Do you love #art? Here\'s something great on @cread! Check it out and tell me what you think. :)</string>
 
 </resources>
