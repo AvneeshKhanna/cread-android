@@ -15,7 +15,7 @@ android {
         applicationId "com.thetestament.cread"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 19
+        versionCode 21
         versionName "1.3.6"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         // Enabling multi-dex support.
@@ -41,8 +41,8 @@ android {
             shrinkResources false
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
-            //buildConfigField "String", "URL", '"http://cread-dev-remote.herokuapp.com"'
-            buildConfigField "String", "URL", '"http://f3463f94.ngrok.io"'
+            buildConfigField "String", "URL", '"http://cread-dev-remote.herokuapp.com"'
+            //buildConfigField "String", "URL", '"http://f3463f94.ngrok.io"'
             buildConfigField "boolean", "VISIBILITY_RESTART_HEROKU_OPTION", "true"
             resValue "string", "RZP_KEY", "rzp_test_Q09427lQA9Ol5g"
             resValue "bool", "FIREBASE_ANALYTICS_ENABLED", "false"
@@ -149,6 +149,10 @@ dependencies {
     // notification badge
     implementation 'com.mikepenz:actionitembadge:3.3.2@aar'
     implementation 'com.mikepenz:iconics-core:2.9.5@aar'
+
+    //For photo filter sdk
+    implementation 'com.github.zomato:androidphotofilters:1.0.1'
+
 
     // dependencies for local unit tests
     testCompile "junit:junit:$rootProject.ext.junitVersion"

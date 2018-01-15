@@ -66,5 +66,7 @@
             android:textColor="@color/white" />
     </RelativeLayout>
 
+    <!--Font option bottom sheet-->
+    <include layout="@layout/layout_filter_bottom_sheet" />
 
 </android.support.design.widget.CoordinatorLayout>

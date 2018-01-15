@@ -1,9 +1,17 @@
 package com.thetestament.cread.activities;
 
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.annotation.Nullable;
+import android.support.design.widget.BottomSheetBehavior;
 import android.support.design.widget.CoordinatorLayout;
+import android.support.v4.widget.NestedScrollView;
 import android.support.v7.widget.AppCompatEditText;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.ImageView;
@@ -15,14 +23,21 @@ import com.squareup.picasso.MemoryPolicy;
 import com.squareup.picasso.Picasso;
 import com.thetestament.cread.BuildConfig;
 import com.thetestament.cread.R;
+import com.thetestament.cread.adapters.FilterAdapter;
 import com.thetestament.cread.dialog.CustomDialog;
+import com.thetestament.cread.helpers.CustomFilters;
+import com.thetestament.cread.helpers.ImageHelper;
 import com.thetestament.cread.helpers.NetworkHelper;
 import com.thetestament.cread.helpers.ViewHelper;
+import com.thetestament.cread.listeners.listener;
+import com.thetestament.cread.models.FilterModel;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import butterknife.BindView;
@@ -75,19 +90,34 @@ import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_Y_POSITION;
  */
 
 public class PreviewActivity extends BaseActivity {
+    static {
+        System.loadLibrary("NativeImageProcessor");
+    }
 
+    //region Butter knife view binding
     @BindView(R.id.rootView)
     CoordinatorLayout rootView;
     @BindView(R.id.imagePreview)
     ImageView imagePreview;
     @BindView(R.id.etCaption)
     AppCompatEditText etCaption;
+    @BindView(R.id.filterBottomSheetView)
+    NestedScrollView filterBottomSheetView;
+    @BindView(R.id.filterRecyclerView)
+    RecyclerView filterRecyclerView;
+    //endregion
 
+    //region :Fields and constants
+    private BottomSheetBehavior filterSheetBehavior;
+    private List<FilterModel> mFilterDataList = new ArrayList<>();
     CompositeDisposable mCompositeDisposable = new CompositeDisposable();
     Bundle mBundle;
     @State
     String mCalledFrom;
+    Bitmap bmp = null;
+    //endregion
 
+    //region :Overridden methods
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -99,6 +129,11 @@ public class PreviewActivity extends BaseActivity {
         mCalledFrom = mBundle.getString(PREVIEW_EXTRA_CALLED_FROM);
         //Load image
         loadPreviewImage();
+        //setup bottom sheets
+        filterSheetBehavior = BottomSheetBehavior.from(filterBottomSheetView);
+        filterSheetBehavior.setPeekHeight(0);
+
+        initFilterView();
     }
 
     @Override
@@ -121,6 +156,7 @@ public class PreviewActivity extends BaseActivity {
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_preview, menu);
         return super.onCreateOptionsMenu(menu);
     }
 
@@ -133,6 +169,11 @@ public class PreviewActivity extends BaseActivity {
                         , "Discard changes?"
                         , "If you go back now, you will loose your changes.");
                 return true;
+
+            case R.id.action_filter:
+                toggleBottomSheet();
+                return true;
+
             default:
                 return super.onOptionsItemSelected(item);
         }
@@ -146,6 +187,7 @@ public class PreviewActivity extends BaseActivity {
                 , "Discard changes?"
                 , "If you go back now, you will loose your changes.");
     }
+    //endregion
 
     /**
      * Update button click functionality
@@ -153,13 +195,11 @@ public class PreviewActivity extends BaseActivity {
     @OnClick(R.id.buttonUpdate)
     void updateOnClick() {
         if (NetworkHelper.getNetConnectionStatus(PreviewActivity.this)) {
-
             performUpdateOperation();
-
+            //Show font bottomSheet
         } else {
             //Show no connection message
             ViewHelper.getToast(this, getString(R.string.error_msg_no_connection));
-
         }
     }
 
@@ -439,4 +479,124 @@ public class PreviewActivity extends BaseActivity {
             //do nothing
         }
     }
+
+    /**
+     * Method to initialize filter view.
+     */
+    private void initFilterView() {
+        final FilterAdapter adapter = new FilterAdapter(PreviewActivity.this, mFilterDataList);
+
+        adapter.setOnFilterSelectListener(new listener.OnFilterSelectListener() {
+            @Override
+            public void onFilterSelected(Bitmap bitmap) {
+                imagePreview.setImageBitmap(bitmap);
+            }
+        });
+
+        filterRecyclerView.setLayoutManager(new LinearLayoutManager(PreviewActivity.this, LinearLayoutManager.HORIZONTAL, false));
+        filterRecyclerView.setHasFixedSize(true);
+        filterRecyclerView.setAdapter(adapter);
+
+        String path = ImageHelper.getImageUri(IMAGE_TYPE_USER_SHORT_PIC).toString();
+        path = Uri.parse(path).getPath();
+        if (path != null) {
+            BitmapFactory.Options opts = new BitmapFactory.Options();
+            opts.inMutable = true;
+            opts.inJustDecodeBounds = false;
+
+
+            bmp = BitmapFactory.decodeFile(path, opts);
+            opts.inSampleSize = calculateInSampleSize(opts, 300, 300);
+            bmp = BitmapFactory.decodeFile(path, opts);
+
+
+            Handler handler = new Handler();
+            Runnable r = new Runnable() {
+                public void run() {
+                    FilterModel original = new FilterModel("Original", bmp, null);
+                    FilterModel starLit = new FilterModel("Star Lit", bmp, CustomFilters.getStarLitFilter());
+                    FilterModel blueMess = new FilterModel("Blue Mess", bmp, CustomFilters.getBlueMessFilter());
+                    FilterModel aweStruckVibe = new FilterModel("Awe Struck Vibe", bmp, CustomFilters.getAweStruckVibeFilter());
+                    FilterModel limeStutter = new FilterModel("Lime Stutter", bmp, CustomFilters.getLimeStutterFilter());
+                    FilterModel nightWhisper = new FilterModel("Night Whisper", bmp, CustomFilters.getNightWhisperFilter());
+                    FilterModel blackAndWhite = new FilterModel("Black & White", bmp, CustomFilters.getBlackAndWhiteFilter());
+                    FilterModel sepia = new FilterModel("Sepia", bmp, CustomFilters.getSepiaFilter());
+                    FilterModel amazon = new FilterModel("Amazon", bmp, CustomFilters.getAmazonFilter());
+                    FilterModel adele = new FilterModel("Adele", bmp, CustomFilters.getAdeleFilter());
+                    FilterModel cruz = new FilterModel("Cruz", bmp, CustomFilters.getCruzFilter());
+                    FilterModel metropolis = new FilterModel("Metropolis", bmp, CustomFilters.getMetropolisFilter());
+                    FilterModel audrey = new FilterModel("Audrey", bmp, CustomFilters.getAudreyFilter());
+                    FilterModel rise = new FilterModel("Rise", bmp, CustomFilters.getRiseFilter(PreviewActivity.this));
+                    FilterModel mars = new FilterModel("Mars", bmp, CustomFilters.getMarsFilter());
+                    FilterModel april = new FilterModel("April", bmp, CustomFilters.getAprilFilter(PreviewActivity.this));
+                    FilterModel han = new FilterModel("Han", bmp, CustomFilters.getHanFilter(PreviewActivity.this));
+                    FilterModel oldMan = new FilterModel("Old Man", bmp, CustomFilters.getOldManFilter(PreviewActivity.this));
+                    FilterModel clarendon = new FilterModel("Clarendon", bmp, CustomFilters.getClarendonFilter());
+
+                    mFilterDataList.clear();
+                    mFilterDataList.add(original); // Original Image
+                    mFilterDataList.add(starLit);
+                    mFilterDataList.add(blueMess);
+                    mFilterDataList.add(aweStruckVibe);
+                    mFilterDataList.add(limeStutter);
+                    mFilterDataList.add(nightWhisper);
+                    mFilterDataList.add(blackAndWhite);
+                    mFilterDataList.add(sepia);
+                    mFilterDataList.add(amazon);
+                    mFilterDataList.add(adele);
+                    mFilterDataList.add(cruz);
+                    mFilterDataList.add(metropolis);
+                    mFilterDataList.add(audrey);
+                    mFilterDataList.add(rise);
+                    mFilterDataList.add(mars);
+                    mFilterDataList.add(april);
+                    mFilterDataList.add(han);
+                    mFilterDataList.add(oldMan);
+                    mFilterDataList.add(clarendon);
+
+                    adapter.notifyDataSetChanged();
+
+                }
+            };
+            handler.post(r);
+        }
+
+    }
+
+    public static int calculateInSampleSize(
+            BitmapFactory.Options options, int reqWidth, int reqHeight) {
+        // Raw height and width of image
+        final int height = options.outHeight;
+        final int width = options.outWidth;
+        int inSampleSize = 1;
+
+        if (height > reqHeight || width > reqWidth) {
+
+            final int halfHeight = height / 2;
+            final int halfWidth = width / 2;
+
+            // Calculate the largest inSampleSize value that is a power of 2 and keeps both
+            // height and width larger than the requested height and width.
+            while ((halfHeight / inSampleSize) >= reqHeight
+                    && (halfWidth / inSampleSize) >= reqWidth) {
+                inSampleSize *= 2;
+            }
+        }
+
+        return inSampleSize;
+    }
+
+    /**
+     * Method to toggle visibility of filter bottomSheet.
+     */
+    private void toggleBottomSheet() {
+        if (filterSheetBehavior.getState() == BottomSheetBehavior.STATE_EXPANDED) {
+            //Hide bottom sheet
+            filterSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
+        } else if (filterSheetBehavior.getState() == BottomSheetBehavior.STATE_COLLAPSED) {
+            //Show bottom sheet
+            filterSheetBehavior.setState(BottomSheetBehavior.STATE_EXPANDED);
+        }
+    }
+
 }

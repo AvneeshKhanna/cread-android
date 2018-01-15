@@ -248,8 +248,8 @@
                 android:value=".activities.BottomNavigationActivity" />
         </activity>
         <activity
-            android:label="Find Friends"
             android:name=".activities.FindFBFriendsActivity"
+            android:label="Find Friends"
             android:screenOrientation="portrait">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
@@ -378,7 +378,8 @@
         <activity
             android:name=".activities.PreviewActivity"
             android:label="Preview"
-            android:screenOrientation="portrait">
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme">
             <!--For back navigation-->
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
