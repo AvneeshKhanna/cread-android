@@ -293,8 +293,6 @@ public class ExploreAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
                 } else {
                     ViewHelper.getToast(mContext, mContext.getString(R.string.error_msg_no_connection));
                 }
-
-
             }
         });
     }

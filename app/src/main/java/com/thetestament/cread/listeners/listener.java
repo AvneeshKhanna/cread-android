@@ -105,8 +105,10 @@ public class listener {
     /**
      * Interface definition for a callback to be invoked when user clicks on follow button.
      */
-    public interface OnFollowListener {
-        void onFollowClick(FollowModel data, boolean followStatus);
+    public interface OnFollowRequestedListener {
+        void onFollowSuccess();
+
+        void onFollowFailiure(String errorMsg);
     }
 
     public interface OnFollowFriendsClickedListener {

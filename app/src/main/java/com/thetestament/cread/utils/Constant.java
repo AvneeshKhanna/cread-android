@@ -158,6 +158,7 @@ public class Constant {
     public static final String FIREBASE_EVENT_NOTIFICATION_CLICKED = "notification_clicked";
     public static final String FIREBASE_EVENT_FIND_FRIENDS = "find_friends";
     public static final String FIREBASE_EVENT_FOLLOW_FROM_EXPLORE = "follow_from_explore";
+    public static final String FIREBASE_EVENT_FOLLOW_FROM_FEED_DESCRIPTION = "follow_from_feed_description";
     public static final String FIREBASE_EVENT_FOLLOW_FROM_PROFILE = "follow_from_profile";
     public static final String FIREBASE_EVENT_SHARED_FROM_FEED_DESCRIPTION = "shared_from_feed_description";
     public static final String FIREBASE_EVENT_SHARED_FROM_MAIN_FEED = "shared_from_main_feed";

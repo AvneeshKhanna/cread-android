@@ -12,7 +12,6 @@ import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.widget.SwipeRefreshLayout;
-import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -29,9 +28,6 @@ import android.widget.TextView;
 
 import com.afollestad.materialdialogs.DialogAction;
 import com.afollestad.materialdialogs.MaterialDialog;
-import com.androidnetworking.AndroidNetworking;
-import com.androidnetworking.error.ANError;
-import com.androidnetworking.interfaces.JSONObjectRequestListener;
 import com.google.firebase.crash.FirebaseCrash;
 import com.thetestament.cread.BuildConfig;
 import com.thetestament.cread.Manifest;
@@ -40,6 +36,7 @@ import com.thetestament.cread.activities.FindFBFriendsActivity;
 import com.thetestament.cread.activities.SearchActivity;
 import com.thetestament.cread.adapters.ExploreAdapter;
 import com.thetestament.cread.helpers.FeedHelper;
+import com.thetestament.cread.helpers.FollowHelper;
 import com.thetestament.cread.helpers.ImageHelper;
 import com.thetestament.cread.helpers.SharedPreferenceHelper;
 import com.thetestament.cread.helpers.ViewHelper;
@@ -69,10 +66,7 @@ import pl.tajchert.nammu.PermissionCallback;
 
 import static android.app.Activity.RESULT_OK;
 import static com.thetestament.cread.CreadApp.GET_RESPONSE_FROM_NETWORK_EXPLORE;
-import static com.thetestament.cread.CreadApp.GET_RESPONSE_FROM_NETWORK_FIND_FRIENDS;
-import static com.thetestament.cread.CreadApp.GET_RESPONSE_FROM_NETWORK_FOLLOWING;
-import static com.thetestament.cread.CreadApp.GET_RESPONSE_FROM_NETWORK_MAIN;
-import static com.thetestament.cread.CreadApp.GET_RESPONSE_FROM_NETWORK_ME;
+import static com.thetestament.cread.helpers.FeedHelper.updateFollowForAll;
 import static com.thetestament.cread.helpers.ImageHelper.getImageUri;
 import static com.thetestament.cread.helpers.NetworkHelper.getNetConnectionStatus;
 import static com.thetestament.cread.helpers.NetworkHelper.getObservableFromServer;
@@ -200,8 +194,13 @@ public class ExploreFragment extends Fragment implements listener.OnCollaboratio
                     //Update data
                     mExploreDataList.get(bundle.getInt("position")).setHatsOffStatus(bundle.getBoolean("hatsOffStatus"));
                     mExploreDataList.get(bundle.getInt("position")).setHatsOffCount(bundle.getLong("hatsOffCount"));
+                    mExploreDataList.get(bundle.getInt("position")).setFollowStatus(bundle.getBoolean("followstatus"));
+
+                    //update follow occurences
+                    updateFollowForAll(mExploreDataList.get(bundle.getInt("position")), mExploreDataList);
+
                     //Notify changes
-                    mAdapter.notifyItemChanged(bundle.getInt("position"));
+                    mAdapter.notifyDataSetChanged();
                 }
                 break;
         }
@@ -696,76 +695,31 @@ public class ExploreFragment extends Fragment implements listener.OnCollaboratio
      * @param itemPosition Position of current item i.e integer
      */
     private void updateFollowStatus(final FeedModel exploreData, final int itemPosition) {
-        final JSONObject jsonObject = new JSONObject();
-        JSONArray jsonArray = new JSONArray();
-        try {
-            jsonArray.put(exploreData.getUUID());
 
-            jsonObject.put("uuid", mHelper.getUUID());
-            jsonObject.put("authkey", mHelper.getAuthToken());
-            jsonObject.put("register", exploreData.getFollowStatus());
-            jsonObject.put("followees", jsonArray);
-
-        } catch (JSONException e) {
-            e.printStackTrace();
-            FirebaseCrash.report(e);
-        }
-        AndroidNetworking.post(BuildConfig.URL + "/follow/on-click")
-                .addJSONObjectBody(jsonObject)
-                .build()
-                .getAsJSONObject(new JSONObjectRequestListener() {
+        FollowHelper followHelper = new FollowHelper();
+        followHelper.updateFollowStatus(getActivity(),
+                mCompositeDisposable,
+                exploreData.getFollowStatus(),
+                new JSONArray().put(exploreData.getUUID()),
+                new listener.OnFollowRequestedListener() {
                     @Override
-                    public void onResponse(JSONObject response) {
-                        try {
-                            //Token status is not valid
-                            if (response.getString("tokenstatus").equals("invalid")) {
-                                //set status to true if its false and vice versa
-                                exploreData.setFollowStatus(!exploreData.getFollowStatus());
-                                //notify changes
-                                mAdapter.notifyItemChanged(itemPosition);
-                                ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_invalid_token));
-                            }
-                            //Token is valid
-                            else {
-                                JSONObject mainData = response.getJSONObject("data");
-                                if (mainData.getString("status").equals("done")) {
+                    public void onFollowSuccess() {
 
-                                    for (FeedModel f : mExploreDataList) {
-                                        if (f.getUUID().equals(exploreData.getUUID())) {
-                                            f.setFollowStatus(exploreData.getFollowStatus());
-                                        }
-                                    }
-                                    mAdapter.notifyDataSetChanged();
-
-                                    // set feeds data to be loaded from network
-                                    // instead of cached data
-                                    GET_RESPONSE_FROM_NETWORK_MAIN = true;
-                                    GET_RESPONSE_FROM_NETWORK_EXPLORE = true;
-                                    GET_RESPONSE_FROM_NETWORK_ME = true;
-                                    GET_RESPONSE_FROM_NETWORK_FIND_FRIENDS = true;
-                                    GET_RESPONSE_FROM_NETWORK_FOLLOWING = true;
-                                }
-                            }
-                        } catch (JSONException e) {
-                            //set status to true if its false and vice versa
-                            exploreData.setFollowStatus(!exploreData.getFollowStatus());
-                            //notify changes
-                            mAdapter.notifyItemChanged(itemPosition);
-                            e.printStackTrace();
-                            FirebaseCrash.report(e);
-                            ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_internal));
-                        }
+                        // updates follow status in all occurrence of the followed user
+                        updateFollowForAll(exploreData, mExploreDataList);
+                        mAdapter.notifyDataSetChanged();
                     }
 
                     @Override
-                    public void onError(ANError anError) {
+                    public void onFollowFailiure(String errorMsg) {
+
                         //set status to true if its false and vice versa
                         exploreData.setFollowStatus(!exploreData.getFollowStatus());
                         //notify changes
                         mAdapter.notifyItemChanged(itemPosition);
-                        anError.printStackTrace();
-                        FirebaseCrash.report(anError);
-                        ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_server));
+
+                        ViewHelper.getSnackBar(rootView, errorMsg);
+
                     }
                 });
     }

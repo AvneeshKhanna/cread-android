@@ -456,7 +456,7 @@ public class BottomNavigationActivity extends BaseActivity {
             //Decode image file
             Bitmap bitmap = BitmapFactory.decodeFile(uri.getPath());
             //If resolution of image is greater than 2000x2000 then compress this image
-            if (bitmap.getWidth() > 1800 && bitmap.getWidth() > 1800) {
+            if (bitmap.getWidth() >= 1800 && bitmap.getWidth() >= 1800) {
                 //Compress image
                 compressCroppedImg(uri, this, IMAGE_TYPE_USER_CAPTURE_PIC);
                 //Open preview screen
