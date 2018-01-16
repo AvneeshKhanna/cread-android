@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_marginLeft="5dp"
+    android:layout_marginRight="5dp">
+
+    <android.support.v7.widget.AppCompatTextView
+        android:id="@+id/filterName"
+        android:layout_width="100dp"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:text="Filter name"
+        android:textSize="11sp" />
+
+    <android.support.v7.widget.AppCompatImageView
+        android:id="@+id/filterImage"
+        android:layout_width="100dp"
+        android:layout_height="100dp"
+        android:layout_below="@+id/filterName"
+        android:scaleType="centerCrop"
+        android:src="@drawable/image_placeholder" />
+
+</RelativeLayout>
+

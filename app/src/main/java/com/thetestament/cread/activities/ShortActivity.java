@@ -51,9 +51,9 @@ import com.thetestament.cread.listeners.OnSwipeGestureListener;
 import com.thetestament.cread.listeners.listener;
 import com.thetestament.cread.models.ColorModel;
 import com.thetestament.cread.models.FontModel;
-import com.thetestament.cread.widgets.SquareView;
 import com.thetestament.cread.widgets.CustomEditText;
 import com.thetestament.cread.widgets.CustomEditText.OnEditTextBackListener;
+import com.thetestament.cread.widgets.SquareView;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -626,6 +626,8 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
             mIsImagePresent = true;
             //show note text
             textNote.setVisibility(View.VISIBLE);
+            // show image tint
+            imageShort.setColorFilter(ContextCompat.getColor(ShortActivity.this, R.color.transparent_50));
         }
         //Set water mark text
         mSignatureText = "- " + mHelper.getFirstName() + " " + mHelper.getLastName();

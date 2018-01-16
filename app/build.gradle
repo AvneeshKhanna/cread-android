@@ -150,6 +150,10 @@ dependencies {
     implementation 'com.mikepenz:actionitembadge:3.3.2@aar'
     implementation 'com.mikepenz:iconics-core:2.9.5@aar'
 
+    //For photo filter sdk
+    implementation 'com.github.zomato:androidphotofilters:1.0.1'
+
+
     // dependencies for local unit tests
     testCompile "junit:junit:$rootProject.ext.junitVersion"
 
