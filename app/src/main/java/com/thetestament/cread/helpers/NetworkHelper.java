@@ -13,6 +13,7 @@ import com.thetestament.cread.BuildConfig;
 import com.thetestament.cread.listeners.listener;
 import com.thetestament.cread.utils.Constant;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -326,38 +327,6 @@ public class NetworkHelper {
                 .getStringObservable();
     }
 
-    public static <T> void requestServer(CompositeDisposable compositeDisposable, final Observable<T> observableObject, FragmentActivity context, final listener.OnServerRequestedListener listener) {
-
-        if (getNetConnectionStatus(context)) {
-            compositeDisposable.add(observableObject
-                    //Run on a background thread
-                    .subscribeOn(Schedulers.io())
-                    //Be notified on the main thread
-                    .observeOn(AndroidSchedulers.mainThread())
-                    .subscribeWith(new DisposableObserver<T>() {
-                        @Override
-                        public void onNext(T jsonObject) {
-                            listener.onNextCalled(jsonObject);
-                        }
-
-                        @Override
-                        public void onError(Throwable e) {
-                            listener.onErrorCalled(e);
-                        }
-
-                        @Override
-                        public void onComplete() {
-                            listener.onCompleteCalled();
-                        }
-                    })
-
-            );
-
-        } else {
-            listener.onDeviceOffline();
-        }
-    }
-
     /**
      * Method to return requested data from the server.
      *
@@ -401,6 +370,62 @@ public class NetworkHelper {
         return requestBuilder
                 .build()
                 .getJSONObjectObservable();
+    }
+
+
+    public static Observable<JSONObject> updateFollowStatusObservable(String uuid, String authkey, boolean register, JSONArray followees) {
+        final JSONObject jsonObject = new JSONObject();
+
+        try {
+
+            jsonObject.put("uuid", uuid);
+            jsonObject.put("authkey", authkey);
+            jsonObject.put("register", register);
+            jsonObject.put("followees", followees);
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+            FirebaseCrash.report(e);
+        }
+
+        return Rx2AndroidNetworking
+                .post(BuildConfig.URL + "/follow/on-click")
+                .addJSONObjectBody(jsonObject)
+                .build()
+                .getJSONObjectObservable();
+    }
+
+
+    public static <T> void requestServer(CompositeDisposable compositeDisposable, final Observable<T> observableObject, FragmentActivity context, final listener.OnServerRequestedListener listener) {
+
+        if (getNetConnectionStatus(context)) {
+            compositeDisposable.add(observableObject
+                    //Run on a background thread
+                    .subscribeOn(Schedulers.io())
+                    //Be notified on the main thread
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribeWith(new DisposableObserver<T>() {
+                        @Override
+                        public void onNext(T jsonObject) {
+                            listener.onNextCalled(jsonObject);
+                        }
+
+                        @Override
+                        public void onError(Throwable e) {
+                            listener.onErrorCalled(e);
+                        }
+
+                        @Override
+                        public void onComplete() {
+                            listener.onCompleteCalled();
+                        }
+                    })
+
+            );
+
+        } else {
+            listener.onDeviceOffline();
+        }
     }
 
 }

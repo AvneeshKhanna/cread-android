@@ -41,6 +41,7 @@ import com.thetestament.cread.R;
 import com.thetestament.cread.adapters.CommentsAdapter;
 import com.thetestament.cread.adapters.ShareDialogAdapter;
 import com.thetestament.cread.helpers.FeedHelper;
+import com.thetestament.cread.helpers.FollowHelper;
 import com.thetestament.cread.helpers.HatsOffHelper;
 import com.thetestament.cread.helpers.ImageHelper;
 import com.thetestament.cread.helpers.NetworkHelper;
@@ -90,6 +91,7 @@ import static com.thetestament.cread.utils.Constant.EXTRA_FEED_DESCRIPTION_DATA;
 import static com.thetestament.cread.utils.Constant.EXTRA_MERCHANTABLE;
 import static com.thetestament.cread.utils.Constant.EXTRA_SHORT_UUID;
 import static com.thetestament.cread.utils.Constant.FIREBASE_EVENT_CAPTURE_CLICKED;
+import static com.thetestament.cread.utils.Constant.FIREBASE_EVENT_FOLLOW_FROM_FEED_DESCRIPTION;
 import static com.thetestament.cread.utils.Constant.FIREBASE_EVENT_HAVE_CLICKED;
 import static com.thetestament.cread.utils.Constant.FIREBASE_EVENT_SHARED_FROM_FEED_DESCRIPTION;
 import static com.thetestament.cread.utils.Constant.FIREBASE_EVENT_WRITE_CLICKED;
@@ -144,6 +146,8 @@ public class FeedDescriptionActivity extends BaseActivity implements listener.On
     TextView textTitle;
     @BindView(R.id.dotSeperator)
     TextView dotSeperator;
+    @BindView(R.id.buttonFollow)
+    TextView buttonFollow;
 
 
     private SharedPreferenceHelper mHelper;
@@ -155,6 +159,9 @@ public class FeedDescriptionActivity extends BaseActivity implements listener.On
     @State
     int mItemPosition;
     Bitmap mBitmap;
+    boolean isUserCreator;
+    Bundle resultBundle = new Bundle();
+    Intent resultIntent = new Intent();
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -168,8 +175,13 @@ public class FeedDescriptionActivity extends BaseActivity implements listener.On
         mHelper = new SharedPreferenceHelper(this);
         // Obtain the FirebaseAnalytics instance.
         mFirebaseAnalytics = FirebaseAnalytics.getInstance(this);
+
+        // check if user is also creator of this post
+
         //initialize views
         initViews();
+
+
     }
 
     @Override
@@ -420,6 +432,23 @@ public class FeedDescriptionActivity extends BaseActivity implements listener.On
         startActivity(intent);
     }
 
+    @OnClick(R.id.buttonFollow)
+    void onFollowClick() {
+        // check net status
+        if (NetworkHelper.getNetConnectionStatus(mContext)) {
+            //Toggle status
+            mFeedData.setFollowStatus(!mFeedData.getFollowStatus());
+            //Toggle follow button
+            toggleFollowButton(true);
+            // update status on server
+            updateFollowStatus();
+            //Log firebase event
+            setAnalytics(FIREBASE_EVENT_FOLLOW_FROM_FEED_DESCRIPTION);
+        } else {
+            ViewHelper.getToast(mContext, mContext.getString(R.string.error_msg_no_connection));
+        }
+    }
+
 
     /**
      * Method to initialize views for this screen.
@@ -445,8 +474,18 @@ public class FeedDescriptionActivity extends BaseActivity implements listener.On
 
         mFeedData = bundle.getParcelable(EXTRA_FEED_DESCRIPTION_DATA);
         mItemPosition = bundle.getInt("position");
+
+        // setting result data
+        // hatsoff status and follow data are updated when action is done
+        resultBundle.putInt("position", mItemPosition);
+        resultIntent.putExtra(EXTRA_DATA, resultBundle);
+
         Log.d("TAG", "retrieveIntentData: " + mItemPosition);
-        // performContentTypeSpecificOperations();
+
+        initViewsFromData();
+    }
+
+    private void initViewsFromData() {
         FeedHelper.performContentTypeSpecificOperations(mContext
                 , mFeedData
                 , textCollabCount
@@ -495,6 +534,10 @@ public class FeedDescriptionActivity extends BaseActivity implements listener.On
             image.setTransitionName(mFeedData.getEntityID());
             ActivityCompat.postponeEnterTransition(this);
         }
+        // check if user is the creator
+        isUserCreator = mFeedData.getUUID().equals(mHelper.getUUID());
+
+        toggleFollowButton(false);
     }
 
     /**
@@ -586,6 +629,21 @@ public class FeedDescriptionActivity extends BaseActivity implements listener.On
             imageHatsOff.setColorFilter(Color.TRANSPARENT);
             //Animation for hats off
             imageHatsOff.startAnimation(AnimationUtils.loadAnimation(this, R.anim.reverse_rotate_animation_hats_off_30_degree));
+        }
+    }
+
+    private void toggleFollowButton(boolean showToast) {
+        // toggle visibility of follow button
+        if (mFeedData.getFollowStatus() || isUserCreator) {
+
+            buttonFollow.setVisibility(View.GONE);
+
+            if (showToast) {
+                ViewHelper.getToast(mContext, "You are now following " + mFeedData.getCreatorName());
+            }
+
+        } else {
+            buttonFollow.setVisibility(View.VISIBLE);
         }
     }
 
@@ -911,12 +969,8 @@ public class FeedDescriptionActivity extends BaseActivity implements listener.On
             @Override
             public void onSuccess() {
 
-                Bundle bundle = new Bundle();
-                bundle.putInt("position", mItemPosition);
-                bundle.putLong("hatsOffCount", mFeedData.getHatsOffCount());
-                bundle.putBoolean("hatsOffStatus", mFeedData.getHatsOffStatus());
-                Intent resultIntent = new Intent();
-                resultIntent.putExtra(EXTRA_DATA, bundle);
+                resultBundle.putLong("hatsOffCount", mFeedData.getHatsOffCount());
+                resultBundle.putBoolean("hatsOffStatus", mFeedData.getHatsOffStatus());
 
                 //Return result ok
                 setResult(RESULT_OK, resultIntent);
@@ -932,6 +986,36 @@ public class FeedDescriptionActivity extends BaseActivity implements listener.On
                 ViewHelper.getSnackBar(rootView, errorMsg);
             }
         });
+    }
+
+    /**
+     * Method to update follow status.
+     */
+    private void updateFollowStatus() {
+
+        FollowHelper followHelper = new FollowHelper();
+        followHelper.updateFollowStatus(mContext,
+                mCompositeDisposable,
+                mFeedData.getFollowStatus(),
+                new JSONArray().put(mFeedData.getUUID()),
+                new listener.OnFollowRequestedListener() {
+                    @Override
+                    public void onFollowSuccess() {
+
+                        resultBundle.putBoolean("followstatus", mFeedData.getFollowStatus());
+                        //Return result ok
+                        setResult(RESULT_OK, resultIntent);
+                    }
+
+                    @Override
+                    public void onFollowFailiure(String errorMsg) {
+                        //Toggle status
+                        mFeedData.setFollowStatus(!mFeedData.getFollowStatus());
+                        //Toggle follow button
+                        toggleFollowButton(false);
+                        ViewHelper.getSnackBar(rootView, errorMsg);
+                    }
+                });
     }
 
     /**

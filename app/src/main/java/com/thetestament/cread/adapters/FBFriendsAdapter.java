@@ -260,5 +260,4 @@ public class FBFriendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
             followButton.setText("Follow");
         }
     }
-
 }

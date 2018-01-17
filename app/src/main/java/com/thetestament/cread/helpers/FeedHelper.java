@@ -386,6 +386,7 @@ public class FeedHelper {
         feedData.setHatsOffCount(dataObj.getLong("hatsoffcount"));
         feedData.setCommentCount(dataObj.getLong("commentcount"));
         feedData.setContentImage(dataObj.getString("entityurl"));
+        feedData.setFollowStatus(dataObj.getBoolean("followstatus"));
         feedData.setCollabCount(dataObj.getLong("collabcount"));
         if (dataObj.isNull("caption")) {
             feedData.setCaption(null);
@@ -936,6 +937,21 @@ public class FeedHelper {
         // both are non-zero so show the dot
         else if (hatsoffCount != 0 && commentCount != 0) {
             dotSeperator.setVisibility(View.VISIBLE);
+        }
+    }
+
+
+    /**
+     * Method to update follow status for each item occurrence of the followed user
+     *
+     * @param exploreData
+     * @param list
+     */
+    public static void updateFollowForAll(FeedModel exploreData, List<FeedModel> list) {
+        for (FeedModel f : list) {
+            if (f.getUUID().equals(exploreData.getUUID())) {
+                f.setFollowStatus(exploreData.getFollowStatus());
+            }
         }
     }
 

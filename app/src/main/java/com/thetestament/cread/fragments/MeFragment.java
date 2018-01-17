@@ -55,6 +55,7 @@ import com.thetestament.cread.activities.UpdateProfileImageActivity;
 import com.thetestament.cread.adapters.MeAdapter;
 import com.thetestament.cread.adapters.UserStatsPagerAdapter;
 import com.thetestament.cread.helpers.FeedHelper;
+import com.thetestament.cread.helpers.FollowHelper;
 import com.thetestament.cread.helpers.HatsOffHelper;
 import com.thetestament.cread.helpers.ImageHelper;
 import com.thetestament.cread.helpers.NetworkHelper;
@@ -102,6 +103,7 @@ import static com.thetestament.cread.CreadApp.GET_RESPONSE_FROM_NETWORK_MAIN;
 import static com.thetestament.cread.CreadApp.GET_RESPONSE_FROM_NETWORK_ME;
 import static com.thetestament.cread.fragments.ExploreFragment.defaultItemType;
 import static com.thetestament.cread.helpers.FeedHelper.generateDeepLink;
+import static com.thetestament.cread.helpers.FeedHelper.updateFollowForAll;
 import static com.thetestament.cread.helpers.ImageHelper.getImageUri;
 import static com.thetestament.cread.helpers.NetworkHelper.getNetConnectionStatus;
 import static com.thetestament.cread.helpers.NetworkHelper.getObservableFromServer;
@@ -330,14 +332,28 @@ public class MeFragment extends Fragment implements listener.OnCollaborationList
                 if (resultCode == RESULT_OK) {
                     Bundle bundle = data.getBundleExtra(EXTRA_DATA);
                     //Update data
-                    mUserActivityDataList.get(bundle.getInt("position")).setHatsOffStatus(bundle.getBoolean("hatsOffStatus"));
-                    mUserActivityDataList.get(bundle.getInt("position")).setHatsOffCount(bundle.getLong("hatsOffCount"));
+                    if (tabLayout.getSelectedTabPosition() == 2) {
+                        mCollabList.get(bundle.getInt("position")).setHatsOffStatus(bundle.getBoolean("hatsOffStatus"));
+                        mCollabList.get(bundle.getInt("position")).setHatsOffCount(bundle.getLong("hatsOffCount"));
+                        mCollabList.get(bundle.getInt("position")).setFollowStatus(bundle.getBoolean("followstatus"));
+
+                        updateFollowForAll(mCollabList.get(bundle.getInt("position")), mCollabList);
+
+                    } else {
+                        mUserActivityDataList.get(bundle.getInt("position")).setHatsOffStatus(bundle.getBoolean("hatsOffStatus"));
+                        mUserActivityDataList.get(bundle.getInt("position")).setHatsOffCount(bundle.getLong("hatsOffCount"));
+                        mUserActivityDataList.get(bundle.getInt("position")).setFollowStatus(bundle.getBoolean("followstatus"));
+
+                        updateFollowForAll(mUserActivityDataList.get(bundle.getInt("position")), mUserActivityDataList);
+
+                    }
+
+
                     //Notify changes
                     mAdapter.notifyItemChanged(bundle.getInt("position"));
                 }
                 break;
         }
-
     }
 
     @Override
@@ -971,100 +987,43 @@ public class MeFragment extends Fragment implements listener.OnCollaborationList
      * Method to update follow status.
      */
     private void updateFollowStatus() {
-        final JSONObject jsonObject = new JSONObject();
-        JSONArray jsonArray = new JSONArray();
-        try {
-            jsonArray.put(mRequestedUUID);
 
-            jsonObject.put("uuid", mHelper.getUUID());
-            jsonObject.put("authkey", mHelper.getAuthToken());
-            jsonObject.put("register", mFollowStatus);
-            jsonObject.put("followees", jsonArray);
-
-        } catch (JSONException e) {
-            e.printStackTrace();
-            FirebaseCrash.report(e);
-        }
-        Rx2AndroidNetworking.post(BuildConfig.URL + "/follow/on-click")
-                .addJSONObjectBody(jsonObject)
-                .build()
-                .getJSONObjectObservable()
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribeWith(new Observer<JSONObject>() {
+        FollowHelper followHelper = new FollowHelper();
+        followHelper.updateFollowStatus(getActivity(),
+                mCompositeDisposable,
+                mFollowStatus,
+                new JSONArray().put(mRequestedUUID),
+                new listener.OnFollowRequestedListener() {
                     @Override
-                    public void onSubscribe(@io.reactivex.annotations.NonNull Disposable d) {
-                        mCompositeDisposable.add(d);
-                    }
+                    public void onFollowSuccess() {
 
-                    @Override
-                    public void onNext(@io.reactivex.annotations.NonNull JSONObject jsonObject) {
-                        //Enable follow button
                         buttonFollow.setEnabled(true);
-                        try {
-                            //Token status is not valid
-                            if (jsonObject.getString("tokenstatus").equals("invalid")) {
-                                //set status to true if its false and vice versa
-                                mFollowStatus = !mFollowStatus;
-                                //toggle follow button
-                                toggleFollowButton(mFollowStatus, getActivity());
-                                ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_invalid_token));
-                            }
-                            //Token is valid
-                            else {
-                                JSONObject mainData = jsonObject.getJSONObject("data");
-                                if (mainData.getString("status").equals("done")) {
-                                    if (mFollowStatus) {
-                                        //Increase count by one
-                                        mFollowerCount += 1;
-                                        //Set count
-                                        ((TextView) viewPagerUserStats.findViewWithTag(FOLLOWERS)).setText(String.valueOf(mFollowerCount));
-                                    } else {
-                                        //Decrease count by one
-                                        mFollowerCount -= 1;
-                                        //Set count
-                                        ((TextView) viewPagerUserStats.findViewWithTag(FOLLOWERS)).setText(String.valueOf(mFollowerCount));
-                                    }
 
-                                    // set feeds data to be loaded from network
-                                    // instead of cached data
-                                    GET_RESPONSE_FROM_NETWORK_MAIN = true;
-                                    GET_RESPONSE_FROM_NETWORK_EXPLORE = true;
-                                    GET_RESPONSE_FROM_NETWORK_ME = true;
-                                    GET_RESPONSE_FROM_NETWORK_FIND_FRIENDS = true;
-                                    GET_RESPONSE_FROM_NETWORK_FOLLOWING = true;
-                                }
-                            }
-                        } catch (JSONException e) {
-                            //set status to true if its false and vice versa
-                            mFollowStatus = !mFollowStatus;
-                            //toggle follow button
-                            toggleFollowButton(mFollowStatus, getActivity());
-                            e.printStackTrace();
-                            FirebaseCrash.report(e);
-                            ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_internal));
+                        if (mFollowStatus) {
+                            //Increase count by one
+                            mFollowerCount += 1;
+                            //Set count
+                            ((TextView) viewPagerUserStats.findViewWithTag(FOLLOWERS)).setText(String.valueOf(mFollowerCount));
+                        } else {
+                            //Decrease count by one
+                            mFollowerCount -= 1;
+                            //Set count
+                            ((TextView) viewPagerUserStats.findViewWithTag(FOLLOWERS)).setText(String.valueOf(mFollowerCount));
                         }
                     }
 
                     @Override
-                    public void onError(@io.reactivex.annotations.NonNull Throwable e) {
-                        //Enable follow button
+                    public void onFollowFailiure(String errorMsg) {
+
                         buttonFollow.setEnabled(true);
                         //set status to true if its false and vice versa
                         mFollowStatus = !mFollowStatus;
                         //toggle follow button
                         toggleFollowButton(mFollowStatus, getActivity());
-                        e.printStackTrace();
-                        FirebaseCrash.report(e);
-                        ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_server));
-                    }
 
-                    @Override
-                    public void onComplete() {
-                        //Do nothing
+                        ViewHelper.getSnackBar(rootView, errorMsg);
                     }
                 });
-
     }
 
     /**
@@ -1175,6 +1134,7 @@ public class MeFragment extends Fragment implements listener.OnCollaborationList
                                     data.setHatsOffCount(dataObj.getLong("hatsoffcount"));
                                     data.setCommentCount(dataObj.getLong("commentcount"));
                                     data.setContentImage(dataObj.getString("entityurl"));
+                                    data.setFollowStatus(dataObj.getBoolean("followstatus"));
                                     data.setCollabCount(dataObj.getLong("collabcount"));
                                     if (dataObj.isNull("caption")) {
                                         data.setCaption(null);
@@ -1479,6 +1439,7 @@ public class MeFragment extends Fragment implements listener.OnCollaborationList
             data.setHatsOffCount(dataObj.getLong("hatsoffcount"));
             data.setCommentCount(dataObj.getLong("commentcount"));
             data.setContentImage(dataObj.getString("entityurl"));
+            data.setFollowStatus(dataObj.getBoolean("followstatus"));
             data.setCollabCount(dataObj.getLong("collabcount"));
             if (dataObj.isNull("caption")) {
                 data.setCaption(null);
@@ -1646,6 +1607,7 @@ public class MeFragment extends Fragment implements listener.OnCollaborationList
                                     data.setHatsOffCount(dataObj.getLong("hatsoffcount"));
                                     data.setCommentCount(dataObj.getLong("commentcount"));
                                     data.setContentImage(dataObj.getString("entityurl"));
+                                    data.setFollowStatus(dataObj.getBoolean("followstatus"));
                                     data.setCollabCount(dataObj.getLong("collabcount"));
                                     if (dataObj.isNull("caption")) {
                                         data.setCaption(null);

@@ -28,6 +28,7 @@ import com.rx2androidnetworking.Rx2AndroidNetworking;
 import com.thetestament.cread.BuildConfig;
 import com.thetestament.cread.R;
 import com.thetestament.cread.adapters.FBFriendsAdapter;
+import com.thetestament.cread.helpers.FollowHelper;
 import com.thetestament.cread.helpers.NetworkHelper;
 import com.thetestament.cread.helpers.SharedPreferenceHelper;
 import com.thetestament.cread.helpers.ViewHelper;
@@ -372,86 +373,28 @@ public class FindFBFriendsActivity extends BaseActivity {
 
         mFollowStatus = data.isFollowStatus();
 
-        final JSONObject jsonObject = new JSONObject();
-        try {
-            JSONArray followees = new JSONArray();
-            followees.put(data.getUuid());
-
-            jsonObject.put("uuid", spHelper.getUUID());
-            jsonObject.put("authkey", spHelper.getAuthToken());
-            jsonObject.put("followees", followees);
-            jsonObject.put("register", data.isFollowStatus());
-        } catch (JSONException e) {
-            e.printStackTrace();
-            FirebaseCrash.report(e);
-        }
-
-
-        AndroidNetworking.post(BuildConfig.URL + "/follow/on-click")
-                .addJSONObjectBody(jsonObject)
-                .build()
-                .getAsJSONObject(new JSONObjectRequestListener() {
+        FollowHelper followHelper = new FollowHelper();
+        followHelper.updateFollowStatus(this,
+                mCompositeDisposable,
+                data.isFollowStatus(),
+                new JSONArray().put(data.getUuid()),
+                new listener.OnFollowRequestedListener() {
                     @Override
-                    public void onResponse(JSONObject response) {
-
-
-                        try {
-                            //Token status is not valid
-                            if (response.getString("tokenstatus").equals("invalid")) {
-                                //set status to true if its false and vice versa
-                                mFollowStatus = !mFollowStatus;
-                                ViewHelper.getSnackBar(rootView
-                                        , getString(R.string.error_msg_invalid_token));
-                            }
-                            //Token is valid
-                            else {
-                                JSONObject mainData = response.getJSONObject("data");
-                                if (mainData.getString("status").equals("done")) {
-
-                                    // set feeds data to be loaded from network
-                                    // instead of cached data
-                                    GET_RESPONSE_FROM_NETWORK_MAIN = true;
-                                    GET_RESPONSE_FROM_NETWORK_EXPLORE = true;
-                                    GET_RESPONSE_FROM_NETWORK_ME = true;
-                                    GET_RESPONSE_FROM_NETWORK_FIND_FRIENDS = true;
-                                    GET_RESPONSE_FROM_NETWORK_FOLLOWING = true;
-
-
-                                } else {
-                                    //set status to true if its false and vice versa
-                                    mFollowStatus = !mFollowStatus;
-                                    //toggle follow button
-                                    ViewHelper.getSnackBar(rootView
-                                            , getString(R.string.error_msg_internal));
-                                }
-                            }
-                        } catch (JSONException e) {
-                            //set status to true if its false and vice versa
-                            mFollowStatus = !mFollowStatus;
-                            //toggle follow button
-                            e.printStackTrace();
-                            FirebaseCrash.report(e);
-                            ViewHelper.getSnackBar(rootView
-                                    , getString(R.string.error_msg_internal));
-                        }
+                    public void onFollowSuccess() {
 
                         data.setFollowStatus(mFollowStatus);
                         mAdapter.notifyItemChanged(position);
-
                     }
 
                     @Override
-                    public void onError(ANError anError) {
+                    public void onFollowFailiure(String errorMsg) {
+
                         //set status to true if its false and vice versa
                         mFollowStatus = !mFollowStatus;
-                        //toggle follow button
-                        anError.printStackTrace();
-                        FirebaseCrash.report(anError);
-                        ViewHelper.getSnackBar(rootView
-                                , getString(R.string.error_msg_server));
-
                         data.setFollowStatus(mFollowStatus);
                         mAdapter.notifyItemChanged(position);
+                        ViewHelper.getSnackBar(rootView, errorMsg);
+
                     }
                 });
     }

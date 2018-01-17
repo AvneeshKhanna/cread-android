@@ -21,9 +21,13 @@ public class ShareHelper {
      */
     public static void sharePost(Bitmap bitmap, Context context, FeedModel data) {
 
+        String shareText = data.getCaption() == null ?
+                context.getString(R.string.text_share_image) :
+                data.getCaption();
+
         //Copy caption text to clipboard
         ClipboardManager clipboard = (ClipboardManager) context.getSystemService(Context.CLIPBOARD_SERVICE);
-        ClipData clip = ClipData.newPlainText("Caption", context.getString(R.string.text_share_image));
+        ClipData clip = ClipData.newPlainText("Caption", shareText);
         clipboard.setPrimaryClip(clip);
 
         //Show toast

@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/rootView"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -18,7 +19,110 @@
             android:animateLayoutChanges="true"
             android:orientation="vertical">
 
-            <include layout="@layout/layout_content_creator" />
+            <!--<include layout="@layout/layout_content_creator" />-->
+
+            <RelativeLayout
+                android:id="@+id/containerCreator"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="8dp"
+                android:layout_marginTop="8dp">
+
+                <LinearLayout
+                    android:id="@+id/containerCreatorSpecific"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_vertical"
+                    android:layout_alignParentLeft="true"
+                    android:layout_toLeftOf="@+id/contentActions">
+
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:layout_marginLeft="8dp">
+
+                        <de.hdodenhof.circleimageview.CircleImageView
+                            android:id="@+id/imageCreator"
+                            android:layout_width="35dp"
+                            android:layout_height="35dp"
+                            android:scaleType="centerCrop"
+                            app:civ_border_color="@color/black_defined"
+                            tools:src="@drawable/ic_account_circle_48" />
+
+                        <TextView
+                            android:id="@+id/buttonFollow"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_below="@+id/containerCreatorSpecific"
+                            android:text="Follow"
+                            android:layout_marginTop="5dp"
+                            android:textColor="@color/com_facebook_blue"
+                            android:textSize="12sp"
+                            android:visibility="gone" />
+
+
+                    </LinearLayout>
+
+
+                    <TextView
+                        android:id="@+id/textCreatorName"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:paddingLeft="8dp"
+                        android:paddingRight="8dp"
+                        android:textColor="@color/grey"
+                        android:textSize="14sp"
+                        tools:text="Biswa Kalyan wrote a short" />
+
+
+                </LinearLayout>
+
+
+                <LinearLayout
+                    android:id="@+id/contentActions"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentRight="true"
+                    android:layout_centerVertical="true"
+                    android:layout_marginRight="8dp"
+                    android:gravity="center"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:id="@+id/buttonCollaborate"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginRight="8dp"
+                        android:background="@drawable/button_filled"
+                        android:paddingBottom="5dp"
+                        android:paddingLeft="10dp"
+                        android:paddingRight="10dp"
+                        android:paddingTop="5dp"
+                        android:text="Collaborate"
+                        android:textColor="@color/white"
+                        android:textSize="12sp"
+                        android:visibility="visible" />
+
+
+                    <TextView
+                        android:id="@+id/buttonMenu"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:paddingBottom="5dp"
+                        android:paddingLeft="10dp"
+                        android:paddingRight="10dp"
+                        android:paddingTop="5dp"
+                        android:text="&#8942;"
+
+                        android:textAppearance="?android:textAppearanceLarge"
+                        android:visibility="visible" />
+
+
+                </LinearLayout>
+
+
+            </RelativeLayout>
 
             <RelativeLayout
                 android:layout_width="match_parent"
@@ -159,9 +263,9 @@
 
                     <android.support.v7.widget.AppCompatImageView
                         android:id="@+id/iconCollabCount"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        app:srcCompat="@drawable/ic_collboration_18" />
+                        android:layout_width="18dp"
+                        android:layout_height="18dp"
+                        app:srcCompat="@drawable/ic_collab" />
 
 
                     <TextView
