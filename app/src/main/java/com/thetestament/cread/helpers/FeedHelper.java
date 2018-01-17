@@ -1,6 +1,5 @@
 package com.thetestament.cread.helpers;
 
-import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.Typeface;
@@ -563,7 +562,7 @@ public class FeedHelper {
 
             // check if some view's visibility has to be toggled
             // true for me and main feed
-            // the view concerned is the line seperator
+            // the view concerned is the line separator
             if (shouldToggleVisibility) {
                 view.setVisibility(View.VISIBLE);
             }
@@ -574,7 +573,7 @@ public class FeedHelper {
 
             // check if some view's visibility has to be toggled
             // true for me and main feed
-            // the view concerned is the line seperator
+            // the view concerned is the line separator
             if (shouldToggleVisibility) {
                 view.setVisibility(View.GONE);
             }
@@ -639,7 +638,7 @@ public class FeedHelper {
 
             case CONTENT_TYPE_SHORT:
 
-                // check if available for collab
+                // check if available for collaboration
                 if (feedData.isAvailableForCollab()) {
 
                     // for stand alone short
