@@ -6,7 +6,6 @@ import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
-import android.support.design.widget.BottomSheetDialog;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.content.ContextCompat;
@@ -47,8 +46,7 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import de.hdodenhof.circleimageview.CircleImageView;
 
-import static com.thetestament.cread.helpers.DeletePostHelper.showDeleteConfirmationDialog;
-import static com.thetestament.cread.helpers.FeedHelper.getMenuActionsBottomSheet;
+import static com.thetestament.cread.helpers.ContentHelper.getMenuActionsBottomSheet;
 import static com.thetestament.cread.helpers.FeedHelper.initializeShareDialog;
 import static com.thetestament.cread.helpers.FeedHelper.setGridItemMargins;
 import static com.thetestament.cread.utils.Constant.EXTRA_DATA;
@@ -485,7 +483,7 @@ public class MeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         itemViewHolder.buttonMenu.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                getMenuActionsBottomSheet(mContext, position, data.getEntityID(), onContentDeleteListener);
+                getMenuActionsBottomSheet(mContext, position, data, onContentDeleteListener);
             }
         });
 
