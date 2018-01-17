@@ -192,6 +192,7 @@ public class Constant {
     public static final String PREVIEW_EXTRA_CALLED_FROM = "calledFrom";
     public static final String PREVIEW_EXTRA_UUID = "uuid";
     public static final String PREVIEW_EXTRA_AUTH_KEY = "authKey";
+    public static final String PREVIEW_EXTRA_ENTITY_ID = "entityID";
     public static final String PREVIEW_EXTRA_SHORT_ID = "shortID";
     public static final String PREVIEW_EXTRA_CAPTURE_ID = "captureID";
     public static final String PREVIEW_EXTRA_X_POSITION = "xPosition";
@@ -210,7 +211,11 @@ public class Constant {
     public static final String PREVIEW_EXTRA_BOLD = "bold";
     public static final String PREVIEW_EXTRA_ITALIC = "italic";
     public static final String PREVIEW_EXTRA_IMAGE_TINT_COLOR = "imageTintColor";
+    public static final String PREVIEW_EXTRA_CAPTION_TEXT = "captionText";
+    public static final String PREVIEW_EXTRA_CONTENT_IMAGE = "contentImage";
     public static final String PREVIEW_EXTRA_CALLED_FROM_COLLABORATION = "collaboration";
     public static final String PREVIEW_EXTRA_CALLED_FROM_SHORT = "short";
     public static final String PREVIEW_EXTRA_CALLED_FROM_CAPTURE = "capture";
+    public static final String PREVIEW_EXTRA_CALLED_FROM_EDIT_CAPTURE = "editCapture";
+    public static final String PREVIEW_EXTRA_CALLED_FROM_EDIT_SHORT = "editShort";
 }

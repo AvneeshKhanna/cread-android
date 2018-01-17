@@ -84,9 +84,13 @@ import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_BOLD;
 import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_CALLED_FROM;
 import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_CALLED_FROM_CAPTURE;
 import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_CALLED_FROM_COLLABORATION;
+import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_CALLED_FROM_EDIT_CAPTURE;
 import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_CALLED_FROM_SHORT;
+import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_CAPTION_TEXT;
 import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_CAPTURE_ID;
+import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_CONTENT_IMAGE;
 import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_DATA;
+import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_ENTITY_ID;
 import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_FONT;
 import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_IMAGE_TINT_COLOR;
 import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_IMG_WIDTH;
@@ -207,6 +211,11 @@ public class PreviewActivity extends BaseActivity {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu_preview, menu);
+
+        if (mCalledFrom.equals(PREVIEW_EXTRA_CALLED_FROM_EDIT_CAPTURE)) {
+            //Hide filter menu option
+            menu.findItem(R.id.action_filter).setVisible(false);
+        }
         return super.onCreateOptionsMenu(menu);
     }
 
@@ -261,9 +270,16 @@ public class PreviewActivity extends BaseActivity {
      * Update button click functionality to upload content on server.
      */
     @OnClick(R.id.buttonUpdate)
-    void updateOnClick1() {
+    void updateOnClick() {
         if (NetworkHelper.getNetConnectionStatus(PreviewActivity.this)) {
-            checkRuntimePermission();
+            if (mCalledFrom.equals(PREVIEW_EXTRA_CALLED_FROM_EDIT_CAPTURE)) {
+                uploadEditedCapture(etCaption.getText().toString().trim()
+                        , mHelper.getUUID()
+                        , mHelper.getAuthToken()
+                        , mBundle.getString(PREVIEW_EXTRA_ENTITY_ID));
+            } else {
+                checkRuntimePermission();
+            }
         } else {
             //Show no connection message
             ViewHelper.getToast(this, getString(R.string.error_msg_no_connection));
@@ -292,8 +308,6 @@ public class PreviewActivity extends BaseActivity {
         mCalledFrom = mBundle.getString(PREVIEW_EXTRA_CALLED_FROM);
         //Check content type
         checkContentType();
-        //initialize filter screen
-        initFilterView();
     }
 
     /**
@@ -305,9 +319,24 @@ public class PreviewActivity extends BaseActivity {
             loadPreviewImage(getImageUri(IMAGE_TYPE_USER_CAPTURE_PIC), imagePreview);
             //Get sharedPreference
             mHelper = new SharedPreferenceHelper(this);
-
+            //initialize filter screen
+            initFilterView();
             checkWatermarkStatus(mHelper);
+        }
+        //For capture editing
+        else if (mCalledFrom.equals(PREVIEW_EXTRA_CALLED_FROM_EDIT_CAPTURE)) {
+            //Get sharedPreference
+            mHelper = new SharedPreferenceHelper(this);
+            //Load capture pic
+            loadPreviewImage(Uri.parse(mBundle.getString(PREVIEW_EXTRA_CONTENT_IMAGE)), imagePreview);
+            //Setup bottom sheets
+            filterSheetBehavior = BottomSheetBehavior.from(filterBottomSheetView);
+            filterSheetBehavior.setPeekHeight(0);
+            //Set caption text
+            etCaption.setText(mBundle.getString(PREVIEW_EXTRA_CAPTION_TEXT));
         } else {
+            //initialize filter screen
+            initFilterView();
             //Load short pic
             loadPreviewImage(getImageUri(IMAGE_TYPE_USER_SHORT_PIC), imagePreview);
         }
@@ -767,6 +796,79 @@ public class PreviewActivity extends BaseActivity {
                     }
                 });
 
+    }
+
+    /**
+     * Method to upload edited capture.
+     *
+     * @param captionText Caption text
+     * @param uuid        UUID of the user.
+     * @param authToken   AuthToken of user.
+     * @param entityID    Entity ID of capture.
+     */
+    private void uploadEditedCapture(String captionText, String uuid, String authToken, String entityID) {
+        //To show the progress dialog
+        MaterialDialog.Builder builder = new MaterialDialog.Builder(this)
+                .title("Updating your caption")
+                .content("Please wait...")
+                .autoDismiss(false)
+                .cancelable(false)
+                .progress(true, 0);
+        final MaterialDialog dialog = builder.build();
+        dialog.show();
+
+        //Configure OkHttpClient for time out
+        OkHttpClient okHttpClient = new OkHttpClient().newBuilder()
+                .connectTimeout(20, TimeUnit.MINUTES)
+                .readTimeout(20, TimeUnit.MINUTES)
+                .writeTimeout(20, TimeUnit.MINUTES)
+                .build();
+
+        //Fixme change server url and upload method  extra
+        AndroidNetworking.upload(BuildConfig.URL + "/capture-upload")
+                .addMultipartParameter("uuid", uuid)
+                .addMultipartParameter("authkey", authToken)
+                .addMultipartParameter("caption", captionText)
+                .addMultipartParameter("entityid", entityID)
+                .setOkHttpClient(okHttpClient)
+                .build()
+                .getAsJSONObject(new JSONObjectRequestListener() {
+                    @Override
+                    public void onResponse(JSONObject response) {
+                        dialog.dismiss();
+                        try {
+                            //if token status is not invalid
+                            if (response.getString("tokenstatus").equals("invalid")) {
+                                ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_invalid_token));
+                            } else {
+                                JSONObject dataObject = response.getJSONObject("data");
+                                if (dataObject.getString("status").equals("done")) {
+                                    ViewHelper.getToast(PreviewActivity.this, "Caption updated successfully");
+
+                                    // Set feeds data to be loaded from network instead of cached data
+                                    GET_RESPONSE_FROM_NETWORK_MAIN = true;
+                                    GET_RESPONSE_FROM_NETWORK_EXPLORE = true;
+                                    GET_RESPONSE_FROM_NETWORK_ME = true;
+                                    GET_RESPONSE_FROM_NETWORK_INSPIRATION = true;
+
+                                    //finish this activity
+                                    finish();
+                                }
+                            }
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                            FirebaseCrash.report(e);
+                            ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_internal));
+                        }
+                    }
+
+                    @Override
+                    public void onError(ANError anError) {
+                        dialog.dismiss();
+                        FirebaseCrash.report(anError);
+                        ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_server));
+                    }
+                });
     }
 
     /**
