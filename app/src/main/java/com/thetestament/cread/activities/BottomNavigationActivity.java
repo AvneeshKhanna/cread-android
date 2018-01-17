@@ -23,7 +23,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.afollestad.materialdialogs.DialogAction;
@@ -41,7 +40,6 @@ import com.thetestament.cread.fragments.MeFragment;
 import com.thetestament.cread.helpers.BottomNavigationViewHelper;
 import com.thetestament.cread.helpers.SharedPreferenceHelper;
 import com.thetestament.cread.helpers.ViewHelper;
-import com.thetestament.cread.listeners.listener;
 import com.thetestament.cread.listeners.listener.OnServerRequestedListener;
 import com.yalantis.ucrop.UCrop;
 
@@ -62,6 +60,10 @@ import static com.thetestament.cread.utils.Constant.FIREBASE_EVENT_FEED_CLICKED;
 import static com.thetestament.cread.utils.Constant.FIREBASE_EVENT_NOTIFICATION_CLICKED;
 import static com.thetestament.cread.utils.Constant.FIREBASE_EVENT_WRITE_CLICKED;
 import static com.thetestament.cread.utils.Constant.IMAGE_TYPE_USER_CAPTURE_PIC;
+import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_CALLED_FROM;
+import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_CALLED_FROM_CAPTURE;
+import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_DATA;
+import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_MERCHANTABLE;
 import static com.thetestament.cread.utils.Constant.REQUEST_CODE_OPEN_GALLERY;
 import static com.thetestament.cread.utils.Constant.REQUEST_CODE_ROYALTIES_ACTIVITY;
 import static com.thetestament.cread.utils.Constant.REQUEST_CODE_WRITE_EXTERNAL_STORAGE;
@@ -460,8 +462,16 @@ public class BottomNavigationActivity extends BaseActivity {
                 //Compress image
                 compressCroppedImg(uri, this, IMAGE_TYPE_USER_CAPTURE_PIC);
                 //Open preview screen
-                Intent intent = new Intent(BottomNavigationActivity.this, CapturePreviewActivity.class);
-                intent.putExtra("isMerchantable", "1");
+                //Intent intent = new Intent(BottomNavigationActivity.this, CapturePreviewActivity.class);
+                //intent.putExtra("isMerchantable", "1");
+                //startActivity(intent);
+                //Open preview screen
+                Bundle bundle = new Bundle();
+                bundle.putString(PREVIEW_EXTRA_MERCHANTABLE, "1");
+                bundle.putString(PREVIEW_EXTRA_CALLED_FROM, PREVIEW_EXTRA_CALLED_FROM_CAPTURE);
+
+                Intent intent = new Intent(BottomNavigationActivity.this, PreviewActivity.class);
+                intent.putExtra(PREVIEW_EXTRA_DATA, bundle);
                 startActivity(intent);
             } else {
                 getMerchantableDialog();
@@ -614,8 +624,17 @@ public class BottomNavigationActivity extends BaseActivity {
                     @Override
                     public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
                         //open preview screen
-                        Intent intent = new Intent(BottomNavigationActivity.this, CapturePreviewActivity.class);
-                        intent.putExtra("isMerchantable", "0");
+                        //Intent intent = new Intent(BottomNavigationActivity.this, CapturePreviewActivity.class);
+                        //intent.putExtra("isMerchantable", "0");
+                        //startActivity(intent);
+
+                        //Open preview screen
+                        Bundle bundle = new Bundle();
+                        bundle.putString(PREVIEW_EXTRA_MERCHANTABLE, "0");
+                        bundle.putString(PREVIEW_EXTRA_CALLED_FROM, PREVIEW_EXTRA_CALLED_FROM_CAPTURE);
+
+                        Intent intent = new Intent(BottomNavigationActivity.this, PreviewActivity.class);
+                        intent.putExtra(PREVIEW_EXTRA_DATA, bundle);
                         startActivity(intent);
                         dialog.dismiss();
                     }

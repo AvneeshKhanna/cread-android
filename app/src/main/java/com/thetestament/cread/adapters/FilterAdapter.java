@@ -1,7 +1,6 @@
 package com.thetestament.cread.adapters;
 
 import android.graphics.Color;
-import android.support.v4.app.FragmentActivity;
 import android.support.v7.widget.AppCompatImageView;
 import android.support.v7.widget.AppCompatTextView;
 import android.support.v7.widget.RecyclerView;
@@ -12,6 +11,7 @@ import android.view.ViewGroup;
 import com.thetestament.cread.R;
 import com.thetestament.cread.listeners.listener.OnFilterSelectListener;
 import com.thetestament.cread.models.FilterModel;
+import com.zomato.photofilters.imageprocessors.Filter;
 
 import java.util.List;
 
@@ -24,7 +24,6 @@ import butterknife.ButterKnife;
 public class FilterAdapter extends RecyclerView.Adapter<FilterAdapter.ItemViewHolder> {
 
     private int mImageSelected = 0;
-    private FragmentActivity mContext;
     private List<FilterModel> mFilterDataList;
 
     private OnFilterSelectListener onFilterSelectListener;
@@ -34,10 +33,8 @@ public class FilterAdapter extends RecyclerView.Adapter<FilterAdapter.ItemViewHo
      * Constructor to create instance of this adapter class.
      *
      * @param filterDataList List of filter data.
-     * @param context        Content to use.
      */
-    public FilterAdapter(FragmentActivity context, List<FilterModel> filterDataList) {
-        this.mContext = context;
+    public FilterAdapter(List<FilterModel> filterDataList) {
         mFilterDataList = filterDataList;
     }
 
@@ -57,21 +54,17 @@ public class FilterAdapter extends RecyclerView.Adapter<FilterAdapter.ItemViewHo
 
     @Override
     public void onBindViewHolder(ItemViewHolder holder, final int position) {
-        //FilterModel data = new FilterModel();
-
-        //Set filter name
-        // holder.filterName.setText(data.getFilterName());
-        //Set image
-        // holder.filterImage.setImageBitmap(data.getImage());
-
+        //Set filer name
         holder.filterName.setText(mFilterDataList.get(position).filterName);
+        //Set bitmap
         holder.filterImage.setImageBitmap(mFilterDataList.get(position).image);
         //Item Click functionality.
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 //set listener
-                onFilterSelectListener.onFilterSelected(mFilterDataList.get(position).image);
+                onFilterSelectListener.onFilterSelected(mFilterDataList.get(position).image
+                        , mFilterDataList.get(position).filterName.toLowerCase());
                 //update flag and notify changes
                 mImageSelected = position;
                 notifyDataSetChanged();
@@ -106,5 +99,11 @@ public class FilterAdapter extends RecyclerView.Adapter<FilterAdapter.ItemViewHo
         }
     }
 
+    /**
+     * Method to return current selected filter.
+     */
+    public Filter getFilterSelected() {
+        return mFilterDataList.get(mImageSelected).filter;
+    }
 
 }

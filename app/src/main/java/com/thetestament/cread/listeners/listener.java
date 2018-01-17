@@ -257,6 +257,6 @@ public class listener {
      * Interface definition for a callback to be invoked when user selects filter from bottom sheet.
      */
     public interface OnFilterSelectListener {
-        void onFilterSelected(Bitmap bitmap);
+        void onFilterSelected(Bitmap bitmap, String filterName);
     }
 }
