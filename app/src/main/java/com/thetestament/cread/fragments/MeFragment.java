@@ -54,6 +54,7 @@ import com.thetestament.cread.activities.UpdateProfileDetailsActivity;
 import com.thetestament.cread.activities.UpdateProfileImageActivity;
 import com.thetestament.cread.adapters.MeAdapter;
 import com.thetestament.cread.adapters.UserStatsPagerAdapter;
+import com.thetestament.cread.helpers.DeletePostHelper;
 import com.thetestament.cread.helpers.FeedHelper;
 import com.thetestament.cread.helpers.FollowHelper;
 import com.thetestament.cread.helpers.HatsOffHelper;
@@ -63,6 +64,7 @@ import com.thetestament.cread.helpers.ShareHelper;
 import com.thetestament.cread.helpers.SharedPreferenceHelper;
 import com.thetestament.cread.helpers.ViewHelper;
 import com.thetestament.cread.listeners.listener;
+import com.thetestament.cread.listeners.listener.OnServerRequestedListener;
 import com.thetestament.cread.listeners.listener.OnUserStatsClickedListener;
 import com.thetestament.cread.models.FeedModel;
 import com.thetestament.cread.utils.Constant.GratitudeNumbers;
@@ -102,9 +104,11 @@ import static com.thetestament.cread.CreadApp.GET_RESPONSE_FROM_NETWORK_INSPIRAT
 import static com.thetestament.cread.CreadApp.GET_RESPONSE_FROM_NETWORK_MAIN;
 import static com.thetestament.cread.CreadApp.GET_RESPONSE_FROM_NETWORK_ME;
 import static com.thetestament.cread.fragments.ExploreFragment.defaultItemType;
+import static com.thetestament.cread.helpers.DialogHelper.getDeletePostDialog;
 import static com.thetestament.cread.helpers.FeedHelper.generateDeepLink;
 import static com.thetestament.cread.helpers.FeedHelper.updateFollowForAll;
 import static com.thetestament.cread.helpers.ImageHelper.getImageUri;
+import static com.thetestament.cread.helpers.NetworkHelper.getDeletePostObservable;
 import static com.thetestament.cread.helpers.NetworkHelper.getNetConnectionStatus;
 import static com.thetestament.cread.helpers.NetworkHelper.getObservableFromServer;
 import static com.thetestament.cread.helpers.NetworkHelper.getUserDataObservableFromServer;
@@ -1256,7 +1260,7 @@ public class MeFragment extends Fragment implements listener.OnCollaborationList
                         mCollabLastIndexKey,
                         GET_RESPONSE_FROM_NETWORK_ME),
                 getActivity(),
-                new listener.OnServerRequestedListener<JSONObject>() {
+                new OnServerRequestedListener<JSONObject>() {
                     @Override
                     public void onDeviceOffline() {
 
@@ -1351,7 +1355,7 @@ public class MeFragment extends Fragment implements listener.OnCollaborationList
                         mCollabLastIndexKey,
                         GET_RESPONSE_FROM_NETWORK_ME),
                 getActivity(),
-                new listener.OnServerRequestedListener<JSONObject>() {
+                new OnServerRequestedListener<JSONObject>() {
                     @Override
                     public void onDeviceOffline() {
                         ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_no_connection));
@@ -1808,13 +1812,8 @@ public class MeFragment extends Fragment implements listener.OnCollaborationList
         meAdapter.setOnContentDeleteListener(new listener.OnContentDeleteListener() {
             @Override
             public void onDelete(String entityID, int position) {
-                // check net status
-                if (NetworkHelper.getNetConnectionStatus(getActivity())) {
-                    deleteContent(entityID, position);
-                } else {
-                    ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_no_connection));
-                }
 
+                deleteContent(entityID, position);
             }
         });
     }
@@ -1826,82 +1825,34 @@ public class MeFragment extends Fragment implements listener.OnCollaborationList
      * @param itemPosition Position of current item.
      */
     private void deleteContent(String entityID, final int itemPosition) {
-        //To show the progress dialog
-        MaterialDialog.Builder builder = new MaterialDialog.Builder(getActivity())
-                .title("Deleting")
-                .content("Please wait...")
-                .autoDismiss(false)
-                .cancelable(false)
-                .progress(true, 0);
-        final MaterialDialog dialog = builder.build();
-        dialog.show();
 
-        JSONObject jsonObject = new JSONObject();
-        try {
-            jsonObject.put("uuid", mHelper.getUUID());
-            jsonObject.put("authkey", mHelper.getAuthToken());
-            jsonObject.put("entityid", entityID);
-        } catch (JSONException e) {
-            e.printStackTrace();
-            FirebaseCrash.report(e);
-            dialog.dismiss();
-        }
-        Rx2AndroidNetworking.post(BuildConfig.URL + "/entity-manage/delete")
-                .addJSONObjectBody(jsonObject)
-                .build()
-                .getJSONObjectObservable()
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new Observer<JSONObject>() {
-                    @Override
-                    public void onSubscribe(@io.reactivex.annotations.NonNull Disposable d) {
-                        //Add disposable
-                        mCompositeDisposable.add(d);
-                    }
+        // init dialog
+        final MaterialDialog dialog = getDeletePostDialog(getActivity());
 
+        DeletePostHelper.deletepost(getActivity(),
+                mCompositeDisposable,
+                entityID,
+                new listener.onDeleteRequestedListener() {
                     @Override
-                    public void onNext(@io.reactivex.annotations.NonNull JSONObject jsonObject) {
+                    public void onDeleteSuccess() {
+
                         dialog.dismiss();
-                        try {
-                            //if token status is not invalid
-                            if (jsonObject.getString("tokenstatus").equals("invalid")) {
-                                ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_invalid_token));
-                            } else {
-                                JSONObject dataObject = jsonObject.getJSONObject("data");
-                                if (dataObject.getString("status").equals("done")) {
-                                    //Remove item from list
-                                    mUserActivityDataList.remove(itemPosition);
-                                    //Update adapter
-                                    mAdapter.notifyItemRemoved(itemPosition);
-                                    ViewHelper.getSnackBar(rootView, "Item deleted");
-                                    //Update user post count
-                                    mPostCount -= 1;
-                                    ((TextView) viewPagerUserStats.findViewWithTag(POSTS)).setText(String.valueOf(mPostCount));
-                                    // update response flag
-                                    GET_RESPONSE_FROM_NETWORK_ME = true;
-                                    GET_RESPONSE_FROM_NETWORK_EXPLORE = true;
-                                    GET_RESPONSE_FROM_NETWORK_INSPIRATION = true;
-                                }
-                            }
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                            FirebaseCrash.report(e);
-                            ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_internal));
-                        }
+
+                        //Remove item from list
+                        mUserActivityDataList.remove(itemPosition);
+                        //Update adapter
+                        mAdapter.notifyItemRemoved(itemPosition);
+                        ViewHelper.getSnackBar(rootView, "Item deleted");
+                        //Update user post count
+                        mPostCount -= 1;
+                        ((TextView) viewPagerUserStats.findViewWithTag(POSTS)).setText(String.valueOf(mPostCount));
                     }
 
+
                     @Override
-                    public void onError(@io.reactivex.annotations.NonNull Throwable e) {
-                        //Dismiss dialog
+                    public void onDeleteFailiure(String errorMsg) {
                         dialog.dismiss();
-                        e.printStackTrace();
-                        FirebaseCrash.report(e);
-                        ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_server));
-                    }
-
-                    @Override
-                    public void onComplete() {
-                        //do nothing
+                        ViewHelper.getSnackBar(rootView, errorMsg);
                     }
                 });
     }

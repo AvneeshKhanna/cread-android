@@ -148,6 +148,8 @@ public class FeedDescriptionActivity extends BaseActivity implements listener.On
     TextView dotSeperator;
     @BindView(R.id.buttonFollow)
     TextView buttonFollow;
+    @BindView(R.id.buttonMenu)
+    TextView buttonMenu;
 
 
     private SharedPreferenceHelper mHelper;
@@ -538,6 +540,8 @@ public class FeedDescriptionActivity extends BaseActivity implements listener.On
         isUserCreator = mFeedData.getUUID().equals(mHelper.getUUID());
 
         toggleFollowButton(false);
+        // show menu options if user is creator
+        showMenuOptions();
     }
 
     /**
@@ -647,6 +651,16 @@ public class FeedDescriptionActivity extends BaseActivity implements listener.On
         }
     }
 
+    /**
+     * If user is creator then it shows menu options
+     */
+    private void showMenuOptions() {
+        if (isUserCreator) {
+            buttonMenu.setVisibility(View.VISIBLE);
+        } else {
+            buttonMenu.setVisibility(View.GONE);
+        }
+    }
 
     /**
      * RxJava2 implementation for retrieving comment data from server.

@@ -111,6 +111,13 @@ public class listener {
         void onFollowFailiure(String errorMsg);
     }
 
+    public interface onDeleteRequestedListener {
+
+        void onDeleteSuccess();
+
+        void onDeleteFailiure(String errorMsg);
+    }
+
     public interface OnFollowFriendsClickedListener {
         void onFollowClicked(int position, FBFriendsModel fbFriendsModel);
     }

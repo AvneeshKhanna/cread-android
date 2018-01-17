@@ -396,6 +396,25 @@ public class NetworkHelper {
     }
 
 
+    public static Observable<JSONObject> getDeletePostObservable(String uuid, String authkey, String entityID) {
+        JSONObject jsonObject = new JSONObject();
+        try {
+            jsonObject.put("uuid", uuid);
+            jsonObject.put("authkey", authkey);
+            jsonObject.put("entityid", entityID);
+        } catch (JSONException e) {
+            e.printStackTrace();
+            FirebaseCrash.report(e);
+        }
+
+        return Rx2AndroidNetworking
+                .post(BuildConfig.URL + "/entity-manage/delete")
+                .addJSONObjectBody(jsonObject)
+                .build()
+                .getJSONObjectObservable();
+    }
+
+
     public static <T> void requestServer(CompositeDisposable compositeDisposable, final Observable<T> observableObject, FragmentActivity context, final listener.OnServerRequestedListener listener) {
 
         if (getNetConnectionStatus(context)) {

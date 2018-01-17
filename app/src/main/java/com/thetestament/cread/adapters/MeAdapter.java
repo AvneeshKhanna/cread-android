@@ -6,7 +6,6 @@ import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
 import android.support.design.widget.BottomSheetDialog;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
@@ -21,7 +20,6 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import com.afollestad.materialdialogs.DialogAction;
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.google.firebase.analytics.FirebaseAnalytics;
 import com.squareup.picasso.Picasso;
@@ -48,6 +46,8 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import de.hdodenhof.circleimageview.CircleImageView;
 
+import static com.thetestament.cread.helpers.DeletePostHelper.showDeleteConfirmationDialog;
+import static com.thetestament.cread.helpers.FeedHelper.getMenuActionsBottomSheet;
 import static com.thetestament.cread.helpers.FeedHelper.initializeShareDialog;
 import static com.thetestament.cread.helpers.FeedHelper.setGridItemMargins;
 import static com.thetestament.cread.utils.Constant.EXTRA_DATA;
@@ -248,59 +248,7 @@ public class MeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         }
     }
 
-    /**
-     * Method to show bottomSheet dialog with 'write a short' and 'Upload a capture' option.
-     */
-    public void getMenuActionsBottomSheet(final int index, final String entityID) {
-        final BottomSheetDialog bottomSheetDialog = new BottomSheetDialog(mContext);
-        View sheetView = mContext.getLayoutInflater()
-                .inflate(R.layout.bottomsheet_dialog_content_actions, null);
-        bottomSheetDialog.setContentView(sheetView);
-        bottomSheetDialog.show();
 
-        LinearLayout buttonDelete = sheetView.findViewById(R.id.buttonDelete);
-
-
-        //Delete button functionality
-        buttonDelete.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
-                showDeleteConfirmationDialog(index, entityID);
-
-                //Dismiss bottom sheet
-                bottomSheetDialog.dismiss();
-            }
-        });
-    }
-
-    /**
-     * Method to show confirmation dialog before deletion.
-     *
-     * @param index    position of item in adapter.
-     * @param entityID Entity id of content.
-     */
-    private void showDeleteConfirmationDialog(final int index, final String entityID) {
-        new MaterialDialog.Builder(mContext)
-                .content("Are you sure want to delete this?")
-                .positiveText("Delete")
-                .negativeText("Cancel")
-                .onPositive(new MaterialDialog.SingleButtonCallback() {
-                    @Override
-                    public void onClick(@NonNull MaterialDialog materialDialog, @NonNull DialogAction dialogAction) {
-                        onContentDeleteListener.onDelete(entityID, index);
-                        materialDialog.dismiss();
-                    }
-                })
-                .onNegative(new MaterialDialog.SingleButtonCallback() {
-                    @Override
-                    public void onClick(@NonNull MaterialDialog materialDialog, @NonNull DialogAction dialogAction) {
-                        materialDialog.dismiss();
-                    }
-                })
-                .build()
-                .show();
-    }
 
 
     /**
@@ -538,7 +486,7 @@ public class MeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         itemViewHolder.buttonMenu.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                getMenuActionsBottomSheet(position, data.getEntityID());
+                getMenuActionsBottomSheet(mContext, position, data.getEntityID(), onContentDeleteListener);
             }
         });
 

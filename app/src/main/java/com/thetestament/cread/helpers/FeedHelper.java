@@ -7,6 +7,7 @@ import android.graphics.Typeface;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.design.widget.BottomSheetDialog;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.content.ContextCompat;
 import android.text.Spannable;
@@ -34,6 +35,7 @@ import com.thetestament.cread.activities.ProfileActivity;
 import com.thetestament.cread.activities.ShortActivity;
 import com.thetestament.cread.adapters.ShareDialogAdapter;
 import com.thetestament.cread.listeners.listener;
+import com.thetestament.cread.listeners.listener.OnContentDeleteListener;
 import com.thetestament.cread.listeners.listener.OnServerRequestedListener;
 import com.thetestament.cread.listeners.listener.OnShareDialogItemClickedListener;
 import com.thetestament.cread.models.FeedModel;
@@ -52,6 +54,7 @@ import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.schedulers.Schedulers;
 
+import static com.thetestament.cread.helpers.DeletePostHelper.showDeleteConfirmationDialog;
 import static com.thetestament.cread.helpers.NetworkHelper.getDeepLinkObservable;
 import static com.thetestament.cread.helpers.NetworkHelper.requestServer;
 import static com.thetestament.cread.helpers.ViewHelper.convertToPx;
@@ -955,5 +958,33 @@ public class FeedHelper {
         }
     }
 
+
+    /**
+     * Method to show bottomSheet dialog with 'write a short' and 'Upload a capture' option.
+     */
+    public static void getMenuActionsBottomSheet(final FragmentActivity context, final int index, final String entityID, final OnContentDeleteListener onContentDeleteListener) {
+        final BottomSheetDialog bottomSheetDialog = new BottomSheetDialog(context);
+        View sheetView = context.getLayoutInflater()
+                .inflate(R.layout.bottomsheet_dialog_content_actions, null);
+        bottomSheetDialog.setContentView(sheetView);
+        bottomSheetDialog.show();
+
+        // TODO add edit button
+
+        LinearLayout buttonDelete = sheetView.findViewById(R.id.buttonDelete);
+
+
+        //Delete button functionality
+        buttonDelete.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                showDeleteConfirmationDialog(context, index, entityID, onContentDeleteListener);
+
+                //Dismiss bottom sheet
+                bottomSheetDialog.dismiss();
+            }
+        });
+    }
 
 }
