@@ -247,6 +247,17 @@ public class PreviewActivity extends BaseActivity {
     //region :Click functionality
 
     /**
+     * Root view click functionality hide filter bottom sheet if its expanded
+     */
+    @OnClick({R.id.rootView, R.id.imageContainer})
+    void rootOnClick() {
+        if (filterSheetBehavior.getState() == BottomSheetBehavior.STATE_EXPANDED) {
+            //Hide bottom sheet
+            filterSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
+        }
+    }
+
+    /**
      * Update button click functionality to upload content on server.
      */
     @OnClick(R.id.buttonUpdate)

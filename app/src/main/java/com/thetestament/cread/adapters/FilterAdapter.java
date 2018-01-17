@@ -64,9 +64,9 @@ public class FilterAdapter extends RecyclerView.Adapter<FilterAdapter.ItemViewHo
             public void onClick(View view) {
                 //set listener
                 onFilterSelectListener.onFilterSelected(mFilterDataList.get(position).image
-                        , mFilterDataList.get(position).filterName.toLowerCase());
-                //update flag and notify changes
-                mImageSelected = position;
+                        , mFilterDataList.get(position).filterName.toLowerCase().replaceAll("\\s", ""));
+                                //update flag and notify changes
+                                mImageSelected = position;
                 notifyDataSetChanged();
             }
         });
