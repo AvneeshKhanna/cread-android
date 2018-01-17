@@ -28,7 +28,6 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import com.afollestad.materialdialogs.DialogAction;
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.google.firebase.analytics.FirebaseAnalytics;
 import com.google.firebase.crash.FirebaseCrash;
@@ -81,14 +80,12 @@ import static com.thetestament.cread.helpers.ImageHelper.getImageUri;
 import static com.thetestament.cread.helpers.NetworkHelper.getCommentObservableFromServer;
 import static com.thetestament.cread.utils.Constant.CONTENT_TYPE_CAPTURE;
 import static com.thetestament.cread.utils.Constant.CONTENT_TYPE_SHORT;
-import static com.thetestament.cread.utils.Constant.EXTRA_CAPTURE_ID;
 import static com.thetestament.cread.utils.Constant.EXTRA_CAPTURE_URL;
 import static com.thetestament.cread.utils.Constant.EXTRA_CAPTURE_UUID;
 import static com.thetestament.cread.utils.Constant.EXTRA_DATA;
 import static com.thetestament.cread.utils.Constant.EXTRA_ENTITY_ID;
 import static com.thetestament.cread.utils.Constant.EXTRA_ENTITY_TYPE;
 import static com.thetestament.cread.utils.Constant.EXTRA_FEED_DESCRIPTION_DATA;
-import static com.thetestament.cread.utils.Constant.EXTRA_MERCHANTABLE;
 import static com.thetestament.cread.utils.Constant.EXTRA_SHORT_UUID;
 import static com.thetestament.cread.utils.Constant.FIREBASE_EVENT_CAPTURE_CLICKED;
 import static com.thetestament.cread.utils.Constant.FIREBASE_EVENT_FOLLOW_FROM_FEED_DESCRIPTION;
@@ -182,8 +179,6 @@ public class FeedDescriptionActivity extends BaseActivity implements listener.On
 
         //initialize views
         initViews();
-
-
     }
 
     @Override
@@ -203,7 +198,6 @@ public class FeedDescriptionActivity extends BaseActivity implements listener.On
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-
         switch (requestCode) {
             case REQUEST_CODE_COMMENTS_ACTIVITY:
                 if (resultCode == RESULT_OK) {
@@ -215,7 +209,6 @@ public class FeedDescriptionActivity extends BaseActivity implements listener.On
                 if (resultCode == RESULT_OK) {
                     // To crop the selected image
                     ImageHelper.startImageCropping(this, data.getData(), getImageUri(IMAGE_TYPE_USER_CAPTURE_PIC));
-
                 } else {
                     ViewHelper.getSnackBar(rootView, "Image from gallery was not attached");
                 }
@@ -327,7 +320,7 @@ public class FeedDescriptionActivity extends BaseActivity implements listener.On
     }
 
     /**
-     * HatsOff collabOnWritingClick functionality.
+     * HatsOff Click functionality.
      */
     @OnClick(R.id.containerHatsOff)
     void onContainerHatsOffClicked() {
@@ -418,9 +411,8 @@ public class FeedDescriptionActivity extends BaseActivity implements listener.On
         });
     }
 
-    /*
+    /**
      * Collaboration count click functionality to launch collaborationDetailsActivity.
-     *
      */
     @OnClick(R.id.containerCollabCount)
     void collaborationCountOnClick() {
@@ -450,7 +442,6 @@ public class FeedDescriptionActivity extends BaseActivity implements listener.On
             ViewHelper.getToast(mContext, mContext.getString(R.string.error_msg_no_connection));
         }
     }
-
 
     /**
      * Method to initialize views for this screen.
@@ -771,135 +762,6 @@ public class FeedDescriptionActivity extends BaseActivity implements listener.On
         mHelper.updateHaveButtonToolTipStatus(false);
     }
 
-
-    /**
-     * write collabOnWritingClick functionality.
-     *
-     * @param view       View to be clicked.
-     * @param captureID  CaptureID of image.
-     * @param captureURL Capture image url.
-     */
-    private void writeOnClick(View view, final String captureID, final String captureURL, final boolean merchantable) {
-        view.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-
-                if (mHelper.isCaptureIconTooltipFirstTime()) {
-                    getShortOnClickDialog(captureID, captureURL, merchantable);
-                } else {
-                    Bundle bundle = new Bundle();
-                    bundle.putString(EXTRA_CAPTURE_ID, captureID);
-                    bundle.putString(EXTRA_CAPTURE_URL, captureURL);
-                    bundle.putBoolean(EXTRA_MERCHANTABLE, merchantable);
-                    Intent intent = new Intent(mContext, ShortActivity.class);
-                    intent.putExtra(EXTRA_DATA, bundle);
-                    mContext.startActivity(intent);
-                }
-                //Log Firebase event
-                setAnalytics(FIREBASE_EVENT_WRITE_CLICKED);
-            }
-        });
-    }
-
-    /**
-     * capture collabOnWritingClick functionality.
-     *
-     * @param view View to be clicked.
-     */
-    private void captureOnClick(View view) {
-        view.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-
-                if (mHelper.isWriteIconTooltipFirstTime()) {
-                    // open dialog
-                    getCaptureOnClickDialog();
-                } else {
-                    startCaptureCollaboration();
-                }
-                //Log Firebase event
-                setAnalytics(FIREBASE_EVENT_CAPTURE_CLICKED);
-            }
-        });
-    }
-
-    /**
-     * Method to show intro dialog when user collaborated by clicking on capture
-     */
-    private void getCaptureOnClickDialog() {
-        MaterialDialog dialog = new MaterialDialog.Builder(mContext)
-                .customView(R.layout.dialog_generic, false)
-                .positiveText(mContext.getString(R.string.text_ok))
-                .onPositive(new MaterialDialog.SingleButtonCallback() {
-                    @Override
-                    public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
-                        //Open capture functionality
-                        startCaptureCollaboration();
-
-                        dialog.dismiss();
-                        //update status
-                        mHelper.updateWriteIconToolTipStatus(false);
-                    }
-                })
-                .show();
-        //Obtain views reference
-        ImageView fillerImage = dialog.getCustomView().findViewById(R.id.viewFiller);
-        TextView textTitle = dialog.getCustomView().findViewById(R.id.textTitle);
-        TextView textDesc = dialog.getCustomView().findViewById(R.id.textDesc);
-
-
-        //Set filler image
-        fillerImage.setImageDrawable(ContextCompat.getDrawable(mContext, R.drawable.img_collab_intro));
-        //Set title text
-        textTitle.setText(getString(R.string.title_dialog_collab_capture));
-        //Set description text
-        textDesc.setText(getString(R.string.text_dialog_collab_capture));
-    }
-
-    /**
-     * Method to show intro dialog when user collaborated by clicking on capture
-     *
-     * @param captureID    capture ID
-     * @param captureURL   capture URl
-     * @param merchantable merchantable true or false
-     */
-    private void getShortOnClickDialog(final String captureID, final String captureURL, final boolean merchantable) {
-        MaterialDialog dialog = new MaterialDialog.Builder(mContext)
-                .customView(R.layout.dialog_generic, false)
-                .positiveText(mContext.getString(R.string.text_ok))
-                .onPositive(new MaterialDialog.SingleButtonCallback() {
-                    @Override
-                    public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
-                        //Open short functionality
-
-                        Bundle bundle = new Bundle();
-                        bundle.putString(EXTRA_CAPTURE_ID, captureID);
-                        bundle.putString(EXTRA_CAPTURE_URL, captureURL);
-                        bundle.putBoolean(EXTRA_MERCHANTABLE, merchantable);
-                        Intent intent = new Intent(mContext, ShortActivity.class);
-                        intent.putExtra(EXTRA_DATA, bundle);
-                        mContext.startActivity(intent);
-
-                        dialog.dismiss();
-                        //update status
-                        mHelper.updateCaptureIconToolTipStatus(false);
-                    }
-                })
-                .show();
-        //Obtain views reference
-        ImageView fillerImage = dialog.getCustomView().findViewById(R.id.viewFiller);
-        TextView textTitle = dialog.getCustomView().findViewById(R.id.textTitle);
-        TextView textDesc = dialog.getCustomView().findViewById(R.id.textDesc);
-
-
-        //Set filler image
-        fillerImage.setImageDrawable(ContextCompat.getDrawable(mContext, R.drawable.img_collab_intro));
-        //Set title text
-        textTitle.setText(getString(R.string.title_dialog_collab_short));
-        //Set description text
-        textDesc.setText(getString(R.string.text_dialog_collab_short));
-    }
-
     /**
      * Method to send analytics data on firebase server.
      *
@@ -930,28 +792,6 @@ public class FeedDescriptionActivity extends BaseActivity implements listener.On
         Intent intent = new Intent(Intent.ACTION_PICK);
         intent.setType("image/*");
         startActivityForResult(intent, REQUEST_CODE_OPEN_GALLERY);
-    }
-
-    /**
-     * Method to start the capture collaboration process
-     */
-    private void startCaptureCollaboration() {
-        //Check for Write permission
-        if (Nammu.checkPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
-            //We have permission do whatever you want to do
-            chooseImageFromGallery();
-        } else {
-            //We do not own this permission
-            if (Nammu.shouldShowRequestPermissionRationale(this
-                    , Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
-                //User already refused to give us this permission or removed it
-                ViewHelper.getToast(this
-                        , getString(R.string.error_msg_capture_permission_denied));
-            } else {
-                //First time asking for permission
-                Nammu.askForPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE, captureWritePermission);
-            }
-        }
     }
 
     /**
@@ -1078,7 +918,6 @@ public class FeedDescriptionActivity extends BaseActivity implements listener.On
                     , getString(R.string.error_msg_share_permission_denied));
         }
     };
-
 
     @Override
     public void collaborationOnGraphic() {

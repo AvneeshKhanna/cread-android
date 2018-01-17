@@ -7,7 +7,6 @@ import android.widget.LinearLayout;
 import com.thetestament.cread.models.CommentsModel;
 import com.thetestament.cread.models.FBFriendsModel;
 import com.thetestament.cread.models.FeedModel;
-import com.thetestament.cread.models.FollowModel;
 import com.thetestament.cread.utils.Constant.GratitudeNumbers;
 
 public class listener {
@@ -160,6 +159,13 @@ public class listener {
         void onDelete(String entityID, int position);
     }
 
+    /**
+     * Interface definition for a callback to be invoked when user clicks on edit button of his/her content.
+     */
+    public interface OnContentEditListener {
+        void onEdit(FeedModel data, int position);
+    }
+
 
     /**
      * Interface definition for callback to be invoked when user clicks on capture button for collaboration(ExploreFragment).
@@ -266,6 +272,6 @@ public class listener {
      * Interface definition for a callback to be invoked when user selects filter from bottom sheet.
      */
     public interface OnFilterSelectListener {
-        void onFilterSelected(Bitmap bitmap);
+        void onFilterSelected(Bitmap bitmap, String filterName);
     }
 }

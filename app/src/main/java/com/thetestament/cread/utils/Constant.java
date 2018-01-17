@@ -40,8 +40,8 @@ public class Constant {
 
     //Image Types
     public static final String IMAGE_TYPE_USER_PROFILE_PIC = "userProfilePic";
-    public static final String IMAGE_TYPE_USER_CAPTURE_PIC = "UserCapturePic";
-    public static final String IMAGE_TYPE_USER_SHORT_PIC = "UserShortPic";
+    public static final String IMAGE_TYPE_USER_CAPTURE_PIC = "userCapturePic";
+    public static final String IMAGE_TYPE_USER_SHORT_PIC = "userShortPic";
     public static final String IMAGE_TYPE_USER_SHARED_PIC = "sharedPic";
 
     //Photo watermark status
@@ -212,5 +212,5 @@ public class Constant {
     public static final String PREVIEW_EXTRA_IMAGE_TINT_COLOR = "imageTintColor";
     public static final String PREVIEW_EXTRA_CALLED_FROM_COLLABORATION = "collaboration";
     public static final String PREVIEW_EXTRA_CALLED_FROM_SHORT = "short";
-
+    public static final String PREVIEW_EXTRA_CALLED_FROM_CAPTURE = "capture";
 }
