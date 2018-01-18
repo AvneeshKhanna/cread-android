@@ -602,7 +602,7 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
         colorSheetBehaviour = BottomSheetBehavior.from(colorBottomSheetView);
         colorSheetBehaviour.setPeekHeight(0);
 
-        //initialise font, color bottomSheet
+        //initialise font and color bottomSheet
         initFontLayout();
         initColorLayout();
         //initialize listener
@@ -1067,4 +1067,116 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
         }
     }
     //endregion
+
+
+
+    /**
+     * Method to retrieve short data from server.
+     */
+    /*private void loadShortData() {
+        //Show progress view
+        //viewProgress.setVisibility(View.VISIBLE);
+
+        //Map for request data
+        Map<String, String> requestMap = new HashMap<>();
+        requestMap.put("entityid", mEntityID);
+        requestMap.put("type", mEntityType);
+
+
+        Rx2AndroidNetworking.get(BuildConfig.URL + "/manage-short/load-specific")
+                .addHeaders("uuid", mHelper.getUUID())
+                .addHeaders("authkey", mHelper.getAuthToken())
+                .addQueryParameter(requestMap)
+                .build()
+                .getJSONObjectObservable()
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribeOn(Schedulers.io())
+                .subscribeWith(new Observer<JSONObject>() {
+                    @Override
+                    public void onSubscribe(Disposable d) {
+                        //Add composite disposable
+                        mCompositeDisposable.add(d);
+                    }
+
+                    @Override
+                    public void onNext(JSONObject jsonObject) {
+                        float factor = (float) squareView.getWidth() / 650;
+                        try {
+                            //if token status is not invalid
+                            if (jsonObject.getString("tokenstatus").equals("invalid")) {
+                                ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_invalid_token));
+                            }
+                            //Token is valid
+                            else {
+                                JSONObject responseObject = jsonObject.getJSONObject("data");
+                                //Retrieve data from server response
+                                mShortID = responseObject.getString("shoid");
+                                String text = responseObject.getString("text");
+                                int textSize = responseObject.getInt("textsize");
+                                int textColor = (int) Long.parseLong(responseObject.getString("textcolor"), 16);
+                                String fontType = responseObject.getString("font");
+                                mBoldFlag = responseObject.getInt("bold");
+                                mItalicFlag = responseObject.getInt("italic");
+
+                                //Set textView property
+                                textShort.setText(text);
+                                textShort.setTextSize(ViewHelper.pixelsToSp(CollaborationActivity.this, textSize * factor));
+                                // textShort.setTextColor(textColor);
+                                //Set short text typeface
+                                if (mItalicFlag == 0 && mBoldFlag == 0) {
+                                    //Set typeface to normal
+                                    textShort.setTypeface(getFontType(fontType, CollaborationActivity.this), Typeface.NORMAL);
+                                    //Toggle dot views visibility
+                                    dotBold.setVisibility(View.INVISIBLE);
+                                    dotItalic.setVisibility(View.INVISIBLE);
+                                } else if (mItalicFlag == 0 && mBoldFlag == 1) {
+                                    //Set typeface to bold
+                                    textShort.setTypeface(getFontType(fontType, CollaborationActivity.this), Typeface.BOLD);
+                                    //Toggle dot views visibility
+                                    dotBold.setVisibility(View.VISIBLE);
+                                    dotItalic.setVisibility(View.INVISIBLE);
+                                } else if (mItalicFlag == 1 && mBoldFlag == 0) {
+                                    //Set typeface to italic
+                                    textShort.setTypeface(getFontType(fontType, CollaborationActivity.this), Typeface.ITALIC);
+                                    //Toggle dot views visibility
+                                    dotBold.setVisibility(View.INVISIBLE);
+                                    dotItalic.setVisibility(View.VISIBLE);
+                                } else if (mItalicFlag == 1 && mBoldFlag == 1) {
+                                    //Set typeface to bold_italic
+                                    textShort.setTypeface(getFontType(fontType, CollaborationActivity.this), Typeface.BOLD_ITALIC);
+                                    //Toggle dot views visibility
+                                    dotBold.setVisibility(View.VISIBLE);
+                                    dotItalic.setVisibility(View.VISIBLE);
+                                }
+                                //set typeface
+                                mTextTypeface = getFontType(fontType, CollaborationActivity.this);
+                                //Set font type
+                                mFontType = fontType;
+                            }
+                        } catch (JSONException e) {
+                            //Hide progress view
+                           // viewProgress.setVisibility(View.GONE);
+                            e.printStackTrace();
+                            FirebaseCrash.report(e);
+                            ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_internal));
+                        }
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        e.printStackTrace();
+                        FirebaseCrash.report(e);
+                        ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_server));
+                        //Hide progress view
+                       // viewProgress.setVisibility(View.GONE);
+                    }
+
+                    @Override
+                    public void onComplete() {
+                        //Hide progress view
+                        //viewProgress.setVisibility(View.GONE);
+                    }
+                });
+    }*/
+
 }

@@ -64,6 +64,7 @@ import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_CALLED_FROM;
 import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_CALLED_FROM_CAPTURE;
 import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_DATA;
 import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_MERCHANTABLE;
+import static com.thetestament.cread.utils.Constant.REQUEST_CODE_EDIT_CAPTURE;
 import static com.thetestament.cread.utils.Constant.REQUEST_CODE_OPEN_GALLERY;
 import static com.thetestament.cread.utils.Constant.REQUEST_CODE_ROYALTIES_ACTIVITY;
 import static com.thetestament.cread.utils.Constant.REQUEST_CODE_WRITE_EXTERNAL_STORAGE;
@@ -154,6 +155,16 @@ public class BottomNavigationActivity extends BaseActivity {
                     getAddContentBottomSheetDialog();
                 }
                 break;
+            case REQUEST_CODE_EDIT_CAPTURE:
+                if (resultCode == RESULT_OK) {
+                    //To open Feed Screen
+                    mCurrentFragment = new MeFragment();
+                    //Set fragment tag
+                    mFragmentTag = TAG_ME_FRAGMENT;
+                    replaceFragment(mCurrentFragment, mFragmentTag);
+                }
+                break;
+
             default:
                 super.onActivityResult(requestCode, resultCode, data);
         }

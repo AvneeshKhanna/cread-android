@@ -824,12 +824,11 @@ public class PreviewActivity extends BaseActivity {
                 .writeTimeout(20, TimeUnit.MINUTES)
                 .build();
 
-        //Fixme change server url and upload method  extra
-        AndroidNetworking.upload(BuildConfig.URL + "/capture-upload")
-                .addMultipartParameter("uuid", uuid)
-                .addMultipartParameter("authkey", authToken)
-                .addMultipartParameter("caption", captionText)
-                .addMultipartParameter("entityid", entityID)
+        AndroidNetworking.post(BuildConfig.URL + "/entity-manage/edit-caption")
+                .addBodyParameter("uuid", uuid)
+                .addBodyParameter("authkey", authToken)
+                .addBodyParameter("caption", captionText)
+                .addBodyParameter("entityid", entityID)
                 .setOkHttpClient(okHttpClient)
                 .build()
                 .getAsJSONObject(new JSONObjectRequestListener() {
@@ -849,9 +848,12 @@ public class PreviewActivity extends BaseActivity {
                                     GET_RESPONSE_FROM_NETWORK_MAIN = true;
                                     GET_RESPONSE_FROM_NETWORK_EXPLORE = true;
                                     GET_RESPONSE_FROM_NETWORK_ME = true;
-                                    GET_RESPONSE_FROM_NETWORK_INSPIRATION = true;
+                                    GET_RESPONSE_FROM_NETWORK_ENTITY_SPECIFIC = true;
 
-                                    //finish this activity
+
+                                    //finish this activity and set result ok
+                                    setResult(RESULT_OK, getIntent().putExtra(PREVIEW_EXTRA_CAPTION_TEXT
+                                            , etCaption.getText().toString().trim()));
                                     finish();
                                 }
                             }

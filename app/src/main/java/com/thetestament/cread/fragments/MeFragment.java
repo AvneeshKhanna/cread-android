@@ -98,8 +98,8 @@ import pl.tajchert.nammu.PermissionCallback;
 
 import static android.app.Activity.RESULT_OK;
 import static com.thetestament.cread.CreadApp.GET_RESPONSE_FROM_NETWORK_ME;
-import static com.thetestament.cread.fragments.ExploreFragment.defaultItemType;
 import static com.thetestament.cread.dialog.DialogHelper.getDeletePostDialog;
+import static com.thetestament.cread.fragments.ExploreFragment.defaultItemType;
 import static com.thetestament.cread.helpers.FeedHelper.generateDeepLink;
 import static com.thetestament.cread.helpers.FeedHelper.updateFollowForAll;
 import static com.thetestament.cread.helpers.ImageHelper.getImageUri;
@@ -840,13 +840,20 @@ public class MeFragment extends Fragment implements listener.OnCollaborationList
                                 textUserName.setText(mFirstName);
                             }
 
-                            //Set user activity stats
-                            ((TextView) viewPagerUserStats.findViewWithTag(POSTS)).setText(String.valueOf(mPostCount));
-                            ((TextView) viewPagerUserStats.findViewWithTag(FOLLOWERS)).setText(String.valueOf(mFollowerCount));
-                            ((TextView) viewPagerUserStats.findViewWithTag(FOLLOWING)).setText(String.valueOf(mFollowingCount));
-                            ((TextView) viewPagerUserStats.findViewWithTag(HATSOFF)).setText(String.valueOf(mHatsoffCount));
-                            ((TextView) viewPagerUserStats.findViewWithTag(COMMENT)).setText(String.valueOf(mCommentsCount));
-                            ((TextView) viewPagerUserStats.findViewWithTag(COLLABORATIONS)).setText(String.valueOf(mCollaborationCount));
+                            new Handler().post(new Runnable() {
+                                                   @Override
+                                                   public void run() {
+                                                       //Set user activity stats
+                                                       ((TextView) viewPagerUserStats.findViewWithTag(POSTS)).setText(String.valueOf(mPostCount));
+                                                       ((TextView) viewPagerUserStats.findViewWithTag(FOLLOWERS)).setText(String.valueOf(mFollowerCount));
+                                                       ((TextView) viewPagerUserStats.findViewWithTag(FOLLOWING)).setText(String.valueOf(mFollowingCount));
+                                                       ((TextView) viewPagerUserStats.findViewWithTag(HATSOFF)).setText(String.valueOf(mHatsoffCount));
+                                                       ((TextView) viewPagerUserStats.findViewWithTag(COMMENT)).setText(String.valueOf(mCommentsCount));
+                                                       ((TextView) viewPagerUserStats.findViewWithTag(COLLABORATIONS)).setText(String.valueOf(mCollaborationCount));
+
+                                                   }
+                                               }
+                            );
 
                             //If user bio present
                             if (mUserBio != null && !mUserBio.isEmpty() && !mUserBio.equals("null")) {

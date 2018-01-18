@@ -1,6 +1,5 @@
 package com.thetestament.cread.helpers;
 
-import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.BottomSheetDialog;
@@ -10,18 +9,23 @@ import android.widget.LinearLayout;
 
 import com.thetestament.cread.R;
 import com.thetestament.cread.activities.PreviewActivity;
+import com.thetestament.cread.activities.ShortActivity;
 import com.thetestament.cread.listeners.listener;
 import com.thetestament.cread.models.FeedModel;
 
 import static com.thetestament.cread.helpers.DeletePostHelper.showDeleteConfirmationDialog;
 import static com.thetestament.cread.utils.Constant.CONTENT_TYPE_CAPTURE;
 import static com.thetestament.cread.utils.Constant.CONTENT_TYPE_SHORT;
+import static com.thetestament.cread.utils.Constant.EXTRA_ENTITY_ID;
+import static com.thetestament.cread.utils.Constant.EXTRA_ENTITY_TYPE;
 import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_CALLED_FROM;
 import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_CALLED_FROM_EDIT_CAPTURE;
 import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_CAPTION_TEXT;
 import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_CONTENT_IMAGE;
 import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_DATA;
 import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_ENTITY_ID;
+import static com.thetestament.cread.utils.Constant.REQUEST_CODE_EDIT_CAPTURE;
+import static com.thetestament.cread.utils.Constant.REQUEST_CODE_EDIT_SHORT;
 
 /**
  * Helper class which provides utility methods related to content deletion and editing.
@@ -34,7 +38,7 @@ public class ContentHelper {
      *
      * @param data FeedModel reference.
      */
-    public static void launchContentEditingScreen(FeedModel data, Context context) {
+    public static void launchContentEditingScreen(FeedModel data, FragmentActivity context) {
 
         switch (data.getContentType()) {
             case CONTENT_TYPE_CAPTURE:
@@ -47,18 +51,17 @@ public class ContentHelper {
                 bundle.putString(PREVIEW_EXTRA_CALLED_FROM, PREVIEW_EXTRA_CALLED_FROM_EDIT_CAPTURE);
                 intent.putExtra(PREVIEW_EXTRA_DATA, bundle);
 
-                context.startActivity(intent);
+                context.startActivityForResult(intent, REQUEST_CODE_EDIT_CAPTURE);
 
                 break;
             case CONTENT_TYPE_SHORT:
-                //Stand alone short
-                if (data.isAvailableForCollab()) {
+                Intent intentShort = new Intent(context, ShortActivity.class);
 
-                }
-                //Short on capture
-                else {
+                Bundle bundleShort = new Bundle();
+                bundleShort.putString(EXTRA_ENTITY_ID, data.getEntityID());
+                bundleShort.putString(EXTRA_ENTITY_TYPE, data.getContentType());
 
-                }
+                context.startActivityForResult(intentShort, REQUEST_CODE_EDIT_SHORT);
                 break;
             default:
         }

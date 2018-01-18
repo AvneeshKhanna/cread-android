@@ -17,6 +17,8 @@ public class Constant {
     public static final int REQUEST_CODE_ROYALTIES_ACTIVITY = 1009;
     public static final int REQUEST_CODE_FEED_DESCRIPTION_ACTIVITY = 1010;
     public static final int REQUEST_CODE_PREVIEW_ACTIVITY = 1011;
+    public static final int REQUEST_CODE_EDIT_CAPTURE = 1012;
+    public static final int REQUEST_CODE_EDIT_SHORT = 1013;
 
 
     //Tag value for fragments
