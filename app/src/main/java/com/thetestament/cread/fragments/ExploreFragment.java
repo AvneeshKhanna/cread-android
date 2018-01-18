@@ -199,6 +199,10 @@ public class ExploreFragment extends Fragment implements listener.OnCollaboratio
                     //update follow occurences
                     updateFollowForAll(mExploreDataList.get(bundle.getInt("position")), mExploreDataList);
 
+                    if (bundle.getBoolean("deletestatus")) {
+                        mExploreDataList.remove(bundle.getInt("position"));
+                    }
+
                     //Notify changes
                     mAdapter.notifyDataSetChanged();
                 }

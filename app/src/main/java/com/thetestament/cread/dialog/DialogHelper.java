@@ -1,4 +1,4 @@
-package com.thetestament.cread.helpers;
+package com.thetestament.cread.dialog;
 
 import android.support.v4.app.FragmentActivity;
 

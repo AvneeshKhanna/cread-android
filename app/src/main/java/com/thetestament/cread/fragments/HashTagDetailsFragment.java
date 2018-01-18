@@ -193,6 +193,10 @@ public class HashTagDetailsFragment extends Fragment implements listener.OnColla
                     //update follow occurences
                     updateFollowForAll(mDataList.get(bundle.getInt("position")), mDataList);
 
+                    if (bundle.getBoolean("deletestatus")) {
+                        mDataList.remove(bundle.getInt("position"));
+                    }
+
                     //Notify changes
                     mAdapter.notifyDataSetChanged();
                 }

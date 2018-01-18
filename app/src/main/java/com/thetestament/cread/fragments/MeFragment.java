@@ -97,18 +97,12 @@ import pl.tajchert.nammu.Nammu;
 import pl.tajchert.nammu.PermissionCallback;
 
 import static android.app.Activity.RESULT_OK;
-import static com.thetestament.cread.CreadApp.GET_RESPONSE_FROM_NETWORK_EXPLORE;
-import static com.thetestament.cread.CreadApp.GET_RESPONSE_FROM_NETWORK_FIND_FRIENDS;
-import static com.thetestament.cread.CreadApp.GET_RESPONSE_FROM_NETWORK_FOLLOWING;
-import static com.thetestament.cread.CreadApp.GET_RESPONSE_FROM_NETWORK_INSPIRATION;
-import static com.thetestament.cread.CreadApp.GET_RESPONSE_FROM_NETWORK_MAIN;
 import static com.thetestament.cread.CreadApp.GET_RESPONSE_FROM_NETWORK_ME;
 import static com.thetestament.cread.fragments.ExploreFragment.defaultItemType;
-import static com.thetestament.cread.helpers.DialogHelper.getDeletePostDialog;
+import static com.thetestament.cread.dialog.DialogHelper.getDeletePostDialog;
 import static com.thetestament.cread.helpers.FeedHelper.generateDeepLink;
 import static com.thetestament.cread.helpers.FeedHelper.updateFollowForAll;
 import static com.thetestament.cread.helpers.ImageHelper.getImageUri;
-import static com.thetestament.cread.helpers.NetworkHelper.getDeletePostObservable;
 import static com.thetestament.cread.helpers.NetworkHelper.getNetConnectionStatus;
 import static com.thetestament.cread.helpers.NetworkHelper.getObservableFromServer;
 import static com.thetestament.cread.helpers.NetworkHelper.getUserDataObservableFromServer;
@@ -350,9 +344,11 @@ public class MeFragment extends Fragment implements listener.OnCollaborationList
 
                         updateFollowForAll(mUserActivityDataList.get(bundle.getInt("position")), mUserActivityDataList);
 
+                        if (bundle.getBoolean("deletestatus")) {
+                            mUserActivityDataList.remove(bundle.getInt("position"));
+                            mAdapter.notifyItemRemoved(bundle.getInt("position") + 1);
+                        }
                     }
-
-
                     //Notify changes
                     mAdapter.notifyItemChanged(bundle.getInt("position"));
                 }

@@ -39,6 +39,7 @@ import com.thetestament.cread.Manifest;
 import com.thetestament.cread.R;
 import com.thetestament.cread.adapters.CommentsAdapter;
 import com.thetestament.cread.adapters.ShareDialogAdapter;
+import com.thetestament.cread.helpers.DeletePostHelper;
 import com.thetestament.cread.helpers.FeedHelper;
 import com.thetestament.cread.helpers.FollowHelper;
 import com.thetestament.cread.helpers.HatsOffHelper;
@@ -48,6 +49,7 @@ import com.thetestament.cread.helpers.ShareHelper;
 import com.thetestament.cread.helpers.SharedPreferenceHelper;
 import com.thetestament.cread.helpers.ViewHelper;
 import com.thetestament.cread.listeners.listener;
+import com.thetestament.cread.listeners.listener.OnContentDeleteListener;
 import com.thetestament.cread.models.CommentsModel;
 import com.thetestament.cread.models.FeedModel;
 import com.yalantis.ucrop.UCrop;
@@ -72,6 +74,9 @@ import io.reactivex.schedulers.Schedulers;
 import pl.tajchert.nammu.Nammu;
 import pl.tajchert.nammu.PermissionCallback;
 
+import static com.thetestament.cread.dialog.DialogHelper.getDeletePostDialog;
+import static com.thetestament.cread.helpers.ContentHelper.getMenuActionsBottomSheet;
+import static com.thetestament.cread.helpers.DeletePostHelper.deletepost;
 import static com.thetestament.cread.helpers.FeedHelper.generateDeepLink;
 import static com.thetestament.cread.helpers.FeedHelper.initCaption;
 import static com.thetestament.cread.helpers.FeedHelper.initializeShareDialog;
@@ -443,6 +448,11 @@ public class FeedDescriptionActivity extends BaseActivity implements listener.On
         }
     }
 
+    @OnClick(R.id.buttonMenu)
+    void onMenuClick() {
+        getMenuActionsBottomSheet(mContext, mItemPosition, mFeedData, initDeletePostClick());
+    }
+
     /**
      * Method to initialize views for this screen.
      */
@@ -468,14 +478,25 @@ public class FeedDescriptionActivity extends BaseActivity implements listener.On
         mFeedData = bundle.getParcelable(EXTRA_FEED_DESCRIPTION_DATA);
         mItemPosition = bundle.getInt("position");
 
-        // setting result data
-        // hatsoff status and follow data are updated when action is done
-        resultBundle.putInt("position", mItemPosition);
-        resultIntent.putExtra(EXTRA_DATA, resultBundle);
-
-        Log.d("TAG", "retrieveIntentData: " + mItemPosition);
+        // method to initialize the result data
+        initResultBundle();
 
         initViewsFromData();
+    }
+
+    /**
+     * Initializes the result data to their existing values
+     */
+    private void initResultBundle() {
+        // setting result data
+        // hatsoff count and status, follow and delete are set to existing values
+        // and are updated when these actions actions are performed on this screen
+        resultBundle.putInt("position", mItemPosition);
+        resultBundle.putLong("hatsOffCount", mFeedData.getHatsOffCount());
+        resultBundle.putBoolean("hatsOffStatus", mFeedData.getHatsOffStatus());
+        resultBundle.putBoolean("followstatus", mFeedData.getFollowStatus());
+        resultBundle.putBoolean("deletestatus", false);
+        resultIntent.putExtra(EXTRA_DATA, resultBundle);
     }
 
     private void initViewsFromData() {
@@ -811,6 +832,41 @@ public class FeedDescriptionActivity extends BaseActivity implements listener.On
                     , getString(R.string.error_msg_capture_permission_denied));
         }
     };
+
+    private OnContentDeleteListener initDeletePostClick() {
+
+        final MaterialDialog dialog = getDeletePostDialog(mContext);
+
+        OnContentDeleteListener onContentDeleteListener = new OnContentDeleteListener() {
+            @Override
+            public void onDelete(String entityID, int position) {
+
+                deletepost(mContext,
+                        mCompositeDisposable,
+                        mFeedData.getEntityID(),
+                        new listener.onDeleteRequestedListener() {
+                            @Override
+                            public void onDeleteSuccess() {
+                                dialog.dismiss();
+
+                                resultBundle.putBoolean("deletestatus", true);
+                                //Return result ok
+                                setResult(RESULT_OK, resultIntent);
+
+                            }
+
+                            @Override
+                            public void onDeleteFailiure(String errorMsg) {
+
+                                dialog.dismiss();
+                                ViewHelper.getSnackBar(rootView, errorMsg);
+                            }
+                        });
+            }
+        };
+
+        return onContentDeleteListener;
+    }
 
     /**
      * Method to update hatsOff status on server
