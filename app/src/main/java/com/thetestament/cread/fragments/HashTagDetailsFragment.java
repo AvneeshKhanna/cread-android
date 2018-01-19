@@ -189,7 +189,7 @@ public class HashTagDetailsFragment extends Fragment implements listener.OnColla
                     mDataList.get(bundle.getInt("position")).setHatsOffStatus(bundle.getBoolean("hatsOffStatus"));
                     mDataList.get(bundle.getInt("position")).setHatsOffCount(bundle.getLong("hatsOffCount"));
                     mDataList.get(bundle.getInt("position")).setFollowStatus(bundle.getBoolean("followstatus"));
-
+                    mDataList.get(bundle.getInt("position")).setCaption(bundle.getString("caption"));
                     //update follow occurences
                     updateFollowForAll(mDataList.get(bundle.getInt("position")), mDataList);
 

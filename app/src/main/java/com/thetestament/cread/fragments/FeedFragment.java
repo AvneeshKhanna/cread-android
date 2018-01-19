@@ -780,7 +780,7 @@ public class FeedFragment extends Fragment implements listener.OnCollaborationLi
     @OnClick(R.id.explorePeopleButton)
     public void onExploreFriendsClicked() {
         ((BottomNavigationActivity) getActivity()).activateBottomNavigationItem(R.id.action_explore);
-        ((BottomNavigationActivity) getActivity()).replaceFragment(new ExploreFragment(), Constant.TAG_EXPLORE_FRAGMENT);
+        ((BottomNavigationActivity) getActivity()).replaceFragment(new ExploreFragment(), Constant.TAG_EXPLORE_FRAGMENT, false);
         //Log firebase event
         setAnalytics(FIREBASE_EVENT_EXPLORE_CLICKED);
     }

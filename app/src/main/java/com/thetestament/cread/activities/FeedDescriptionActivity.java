@@ -32,7 +32,9 @@ import com.afollestad.materialdialogs.MaterialDialog;
 import com.google.firebase.analytics.FirebaseAnalytics;
 import com.google.firebase.crash.FirebaseCrash;
 import com.squareup.picasso.Callback;
+import com.squareup.picasso.NetworkPolicy;
 import com.squareup.picasso.Picasso;
+import com.squareup.picasso.RequestCreator;
 import com.squareup.picasso.Target;
 import com.thetestament.cread.BuildConfig;
 import com.thetestament.cread.Manifest;
@@ -98,7 +100,9 @@ import static com.thetestament.cread.utils.Constant.FIREBASE_EVENT_HAVE_CLICKED;
 import static com.thetestament.cread.utils.Constant.FIREBASE_EVENT_SHARED_FROM_FEED_DESCRIPTION;
 import static com.thetestament.cread.utils.Constant.FIREBASE_EVENT_WRITE_CLICKED;
 import static com.thetestament.cread.utils.Constant.IMAGE_TYPE_USER_CAPTURE_PIC;
+import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_CAPTION_TEXT;
 import static com.thetestament.cread.utils.Constant.REQUEST_CODE_COMMENTS_ACTIVITY;
+import static com.thetestament.cread.utils.Constant.REQUEST_CODE_EDIT_POST;
 import static com.thetestament.cread.utils.Constant.REQUEST_CODE_OPEN_GALLERY;
 
 /**
@@ -162,9 +166,14 @@ public class FeedDescriptionActivity extends BaseActivity implements listener.On
 
     @State
     int mItemPosition;
+    @State
     Bitmap mBitmap;
+    @State
     boolean isUserCreator;
+
+    @State
     Bundle resultBundle = new Bundle();
+
     Intent resultIntent = new Intent();
 
     @Override
@@ -227,6 +236,26 @@ public class FeedDescriptionActivity extends BaseActivity implements listener.On
 
                 } else if (resultCode == UCrop.RESULT_ERROR) {
                     ViewHelper.getSnackBar(rootView, "Image could not be cropped due to some error");
+                }
+                break;
+
+            case REQUEST_CODE_EDIT_POST:
+                if (resultCode == RESULT_OK) {
+
+                    // reload image
+                    // because short can be edited
+                    // and it's image will change
+                    loadStoryImage(mFeedData.getContentImage(), image, true);
+
+                    // get edited caption
+                    String editedCaption = data.getStringExtra(PREVIEW_EXTRA_CAPTION_TEXT);
+
+                    // update the caption
+                    mFeedData.setCaption(editedCaption);
+                    initCaption(mContext, mFeedData, textTitle);
+
+                    resultBundle.putString("caption", editedCaption);
+                    setResult(RESULT_OK, resultIntent);
                 }
                 break;
         }
@@ -461,7 +490,7 @@ public class FeedDescriptionActivity extends BaseActivity implements listener.On
         //Get data from intent
         retrieveIntentData();
         //Load story image
-        loadStoryImage(mFeedData.getContentImage(), image);
+        loadStoryImage(mFeedData.getContentImage(), image, false);
         //Load creator image
         loadCreatorImage(mFeedData.getCreatorImage(), imageCreator);
         //toggle hats off status
@@ -496,6 +525,7 @@ public class FeedDescriptionActivity extends BaseActivity implements listener.On
         resultBundle.putBoolean("hatsOffStatus", mFeedData.getHatsOffStatus());
         resultBundle.putBoolean("followstatus", mFeedData.getFollowStatus());
         resultBundle.putBoolean("deletestatus", false);
+        resultBundle.putString("caption", mFeedData.getCaption());
         resultIntent.putExtra(EXTRA_DATA, resultBundle);
     }
 
@@ -562,11 +592,19 @@ public class FeedDescriptionActivity extends BaseActivity implements listener.On
      * @param imgLink Image Url.
      * @param image   Where image to be displayed.
      */
-    private void loadStoryImage(String imgLink, ImageView image) {
-        Picasso.with(this)
+    private void loadStoryImage(String imgLink, ImageView image, boolean invalidateCache) {
+
+
+        RequestCreator requestCreator = Picasso.with(this)
                 .load(imgLink)
-                .error(R.drawable.image_placeholder)
-                .into(image, new Callback() {
+                .error(R.drawable.image_placeholder);
+
+
+        if (invalidateCache) {
+            requestCreator.networkPolicy(NetworkPolicy.NO_CACHE);
+        }
+
+        requestCreator.into(image, new Callback() {
                     @Override
                     public void onSuccess() {
                         ActivityCompat.startPostponedEnterTransition(FeedDescriptionActivity.this);
@@ -833,13 +871,19 @@ public class FeedDescriptionActivity extends BaseActivity implements listener.On
         }
     };
 
-    private OnContentDeleteListener initDeletePostClick() {
 
-        final MaterialDialog dialog = getDeletePostDialog(mContext);
+    /**
+     * Initializes delete on click listener
+     *
+     * @return
+     */
+    private OnContentDeleteListener initDeletePostClick() {
 
         OnContentDeleteListener onContentDeleteListener = new OnContentDeleteListener() {
             @Override
             public void onDelete(String entityID, int position) {
+
+                final MaterialDialog dialog = getDeletePostDialog(mContext);
 
                 deletepost(mContext,
                         mCompositeDisposable,
@@ -852,7 +896,8 @@ public class FeedDescriptionActivity extends BaseActivity implements listener.On
                                 resultBundle.putBoolean("deletestatus", true);
                                 //Return result ok
                                 setResult(RESULT_OK, resultIntent);
-
+                                ViewHelper.getToast(mContext, getString(R.string.msg_post_deleted));
+                                finish();
                             }
 
                             @Override

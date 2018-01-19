@@ -195,6 +195,7 @@ public class ExploreFragment extends Fragment implements listener.OnCollaboratio
                     mExploreDataList.get(bundle.getInt("position")).setHatsOffStatus(bundle.getBoolean("hatsOffStatus"));
                     mExploreDataList.get(bundle.getInt("position")).setHatsOffCount(bundle.getLong("hatsOffCount"));
                     mExploreDataList.get(bundle.getInt("position")).setFollowStatus(bundle.getBoolean("followstatus"));
+                    mExploreDataList.get(bundle.getInt("position")).setCaption(bundle.getString("caption"));
 
                     //update follow occurences
                     updateFollowForAll(mExploreDataList.get(bundle.getInt("position")), mExploreDataList);

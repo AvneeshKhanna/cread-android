@@ -24,8 +24,8 @@ import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_CAPTION_TEXT;
 import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_CONTENT_IMAGE;
 import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_DATA;
 import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_ENTITY_ID;
-import static com.thetestament.cread.utils.Constant.REQUEST_CODE_EDIT_CAPTURE;
-import static com.thetestament.cread.utils.Constant.REQUEST_CODE_EDIT_SHORT;
+import static com.thetestament.cread.utils.Constant.REQUEST_CODE_EDIT_POST;
+
 
 /**
  * Helper class which provides utility methods related to content deletion and editing.
@@ -51,7 +51,7 @@ public class ContentHelper {
                 bundle.putString(PREVIEW_EXTRA_CALLED_FROM, PREVIEW_EXTRA_CALLED_FROM_EDIT_CAPTURE);
                 intent.putExtra(PREVIEW_EXTRA_DATA, bundle);
 
-                context.startActivityForResult(intent, REQUEST_CODE_EDIT_CAPTURE);
+                context.startActivityForResult(intent, REQUEST_CODE_EDIT_POST);
 
                 break;
             case CONTENT_TYPE_SHORT:
@@ -61,7 +61,7 @@ public class ContentHelper {
                 bundleShort.putString(EXTRA_ENTITY_ID, data.getEntityID());
                 bundleShort.putString(EXTRA_ENTITY_TYPE, data.getContentType());
 
-                context.startActivityForResult(intentShort, REQUEST_CODE_EDIT_SHORT);
+                context.startActivityForResult(intentShort, REQUEST_CODE_EDIT_POST);
                 break;
             default:
         }

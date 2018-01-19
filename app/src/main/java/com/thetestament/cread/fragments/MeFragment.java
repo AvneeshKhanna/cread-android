@@ -341,6 +341,7 @@ public class MeFragment extends Fragment implements listener.OnCollaborationList
                         mUserActivityDataList.get(bundle.getInt("position")).setHatsOffStatus(bundle.getBoolean("hatsOffStatus"));
                         mUserActivityDataList.get(bundle.getInt("position")).setHatsOffCount(bundle.getLong("hatsOffCount"));
                         mUserActivityDataList.get(bundle.getInt("position")).setFollowStatus(bundle.getBoolean("followstatus"));
+                        mUserActivityDataList.get(bundle.getInt("position")).setCaption(bundle.getString("caption"));
 
                         updateFollowForAll(mUserActivityDataList.get(bundle.getInt("position")), mUserActivityDataList);
 
