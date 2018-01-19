@@ -16,6 +16,7 @@ import com.thetestament.cread.models.FeedModel;
 import static com.thetestament.cread.helpers.DeletePostHelper.showDeleteConfirmationDialog;
 import static com.thetestament.cread.utils.Constant.CONTENT_TYPE_CAPTURE;
 import static com.thetestament.cread.utils.Constant.CONTENT_TYPE_SHORT;
+import static com.thetestament.cread.utils.Constant.EXTRA_DATA;
 import static com.thetestament.cread.utils.Constant.EXTRA_ENTITY_ID;
 import static com.thetestament.cread.utils.Constant.EXTRA_ENTITY_TYPE;
 import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_CALLED_FROM;
@@ -60,7 +61,7 @@ public class ContentHelper {
                 Bundle bundleShort = new Bundle();
                 bundleShort.putString(EXTRA_ENTITY_ID, data.getEntityID());
                 bundleShort.putString(EXTRA_ENTITY_TYPE, data.getContentType());
-
+                intentShort.putExtra(EXTRA_DATA, bundleShort);
                 context.startActivityForResult(intentShort, REQUEST_CODE_EDIT_SHORT);
                 break;
             default:

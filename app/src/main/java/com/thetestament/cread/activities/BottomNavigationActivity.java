@@ -158,10 +158,10 @@ public class BottomNavigationActivity extends BaseActivity {
             case REQUEST_CODE_EDIT_CAPTURE:
                 if (resultCode == RESULT_OK) {
                     //To open Feed Screen
-                    mCurrentFragment = new MeFragment();
+                   // mCurrentFragment = new MeFragment();
                     //Set fragment tag
-                    mFragmentTag = TAG_ME_FRAGMENT;
-                    replaceFragment(mCurrentFragment, mFragmentTag);
+                   // mFragmentTag = TAG_ME_FRAGMENT;
+                   // replaceFragment(mCurrentFragment, mFragmentTag);
                 }
                 break;
 
