@@ -19,6 +19,7 @@ import static com.thetestament.cread.utils.Constant.CONTENT_TYPE_SHORT;
 import static com.thetestament.cread.utils.Constant.EXTRA_DATA;
 import static com.thetestament.cread.utils.Constant.EXTRA_ENTITY_ID;
 import static com.thetestament.cread.utils.Constant.EXTRA_ENTITY_TYPE;
+import static com.thetestament.cread.utils.Constant.EXTRA_MERCHANTABLE;
 import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_CALLED_FROM;
 import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_CALLED_FROM_EDIT_CAPTURE;
 import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_CAPTION_TEXT;
@@ -27,6 +28,9 @@ import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_DATA;
 import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_ENTITY_ID;
 import static com.thetestament.cread.utils.Constant.REQUEST_CODE_EDIT_CAPTURE;
 import static com.thetestament.cread.utils.Constant.REQUEST_CODE_EDIT_SHORT;
+import static com.thetestament.cread.utils.Constant.SHORT_EXTRA_CALLED_FROM;
+import static com.thetestament.cread.utils.Constant.SHORT_EXTRA_CALLED_FROM_EDIT_SHORT;
+import static com.thetestament.cread.utils.Constant.SHORT_EXTRA_CAPTION_TEXT;
 
 /**
  * Helper class which provides utility methods related to content deletion and editing.
@@ -61,6 +65,9 @@ public class ContentHelper {
                 Bundle bundleShort = new Bundle();
                 bundleShort.putString(EXTRA_ENTITY_ID, data.getEntityID());
                 bundleShort.putString(EXTRA_ENTITY_TYPE, data.getContentType());
+                bundleShort.putString(SHORT_EXTRA_CALLED_FROM, SHORT_EXTRA_CALLED_FROM_EDIT_SHORT);
+                bundleShort.putString(EXTRA_MERCHANTABLE, String.valueOf(data.isMerchantable()));
+                bundleShort.putString(SHORT_EXTRA_CAPTION_TEXT, data.getCaption());
                 intentShort.putExtra(EXTRA_DATA, bundleShort);
                 context.startActivityForResult(intentShort, REQUEST_CODE_EDIT_SHORT);
                 break;

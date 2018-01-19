@@ -3,7 +3,6 @@ package com.thetestament.cread.activities;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.Typeface;
@@ -24,7 +23,6 @@ import android.support.v7.widget.AppCompatSeekBar;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
-import android.util.Log;
 import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.Menu;
@@ -32,6 +30,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.ImageView;
+import android.widget.RelativeLayout;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
@@ -93,7 +92,9 @@ import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_AUTH_KEY;
 import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_BG_COLOR;
 import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_BOLD;
 import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_CALLED_FROM;
+import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_CALLED_FROM_EDIT_SHORT;
 import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_CALLED_FROM_SHORT;
+import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_CAPTION_TEXT;
 import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_CAPTURE_ID;
 import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_DATA;
 import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_FONT;
@@ -101,6 +102,7 @@ import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_IMAGE_TINT_COL
 import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_IMG_WIDTH;
 import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_ITALIC;
 import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_MERCHANTABLE;
+import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_SHORT_ID;
 import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_TEXT;
 import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_TEXT_COLOR;
 import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_TEXT_GRAVITY;
@@ -113,6 +115,13 @@ import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_Y_POSITION;
 import static com.thetestament.cread.utils.Constant.REQUEST_CODE_INSPIRATION_ACTIVITY;
 import static com.thetestament.cread.utils.Constant.REQUEST_CODE_PREVIEW_ACTIVITY;
 import static com.thetestament.cread.utils.Constant.REQUEST_CODE_WRITE_EXTERNAL_STORAGE;
+import static com.thetestament.cread.utils.Constant.SHORT_EXTRA_CALLED_FROM;
+import static com.thetestament.cread.utils.Constant.SHORT_EXTRA_CALLED_FROM_COLLABORATION_SHORT;
+import static com.thetestament.cread.utils.Constant.SHORT_EXTRA_CALLED_FROM_EDIT_SHORT;
+import static com.thetestament.cread.utils.Constant.SHORT_EXTRA_CAPTION_TEXT;
+import static com.thetestament.cread.utils.Constant.TEXT_GRAVITY_TYPE_CENTER;
+import static com.thetestament.cread.utils.Constant.TEXT_GRAVITY_TYPE_LEFT;
+import static com.thetestament.cread.utils.Constant.TEXT_GRAVITY_TYPE_RIGHT;
 
 /**
  * Here user creates his/her shorts and uploads on the server.
@@ -131,6 +140,8 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
     CustomEditText textShort;
     @BindView(R.id.seekBarTextSize)
     AppCompatSeekBar seekBarTextSize;
+    @BindView(R.id.btnLAlignText)
+    ImageView btnAlignText;
     @BindView(R.id.dotBold)
     View dotBold;
     @BindView(R.id.dotItalic)
@@ -163,7 +174,7 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
 
 
     @State
-    String mCaptureUrl, mCaptureID = "", mSignatureText, mShortBgColor = "FFFFFFFF", mFontType = "montserrat_regular.ttf";
+    String mCaptureUrl, mCaptureID = "", mShortID = "", mCaptionText = "", mSignatureText, mShortBgColor = "FFFFFFFF", mFontType = "montserrat_regular.ttf";
 
     /**
      * Flag to maintain imageWidth
@@ -216,6 +227,9 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
      */
     @State
     int mGravityFlag = 0;
+
+    @State
+    String mCalledFrom = PREVIEW_EXTRA_CALLED_FROM_SHORT;
 
     ShortActivity mContext;
 
@@ -636,19 +650,32 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
     private void retrieveData() {
         if (getIntent().hasExtra(EXTRA_DATA)) {
             Bundle bundle = getIntent().getBundleExtra(EXTRA_DATA);
-            //Retrieve data
-            /*mCaptureID = bundle.getString(EXTRA_CAPTURE_ID);
-            mCaptureUrl = bundle.getString(EXTRA_CAPTURE_URL);
-            mIsMerchantable = bundle.getBoolean(EXTRA_MERCHANTABLE);
-            //Load inspiration/capture image
-            loadCapture(imageShort, mCaptureUrl);
-            //Update flag
-            mIsImagePresent = true;
-            //show note text
-            textNote.setVisibility(View.VISIBLE);
-            // show image tint
-            imageShort.setColorFilter(ContextCompat.getColor(ShortActivity.this, R.color.transparent_50));*/
-            loadShortData(bundle.getString(EXTRA_ENTITY_ID), bundle.getString(EXTRA_ENTITY_TYPE));
+            //Called from short collaboration
+            if (bundle.getString(SHORT_EXTRA_CALLED_FROM).equals(SHORT_EXTRA_CALLED_FROM_COLLABORATION_SHORT)) {
+                //Retrieve data
+                mCaptureID = bundle.getString(EXTRA_CAPTURE_ID);
+                mCaptureUrl = bundle.getString(EXTRA_CAPTURE_URL);
+                mIsMerchantable = bundle.getBoolean(EXTRA_MERCHANTABLE);
+                //Load inspiration/capture image
+                loadCapture(imageShort, mCaptureUrl);
+                //Update flag
+                mIsImagePresent = true;
+                //show note text
+                textNote.setVisibility(View.VISIBLE);
+                // show image tint
+                imageShort.setColorFilter(ContextCompat.getColor(ShortActivity.this, R.color.transparent_50));
+            }
+            //Called from short editing
+            else if (bundle.getString(SHORT_EXTRA_CALLED_FROM).equals(SHORT_EXTRA_CALLED_FROM_EDIT_SHORT)) {
+                loadShortData(bundle.getString(EXTRA_ENTITY_ID), bundle.getString(EXTRA_ENTITY_TYPE));
+                //Retrieve data
+                mIsMerchantable = bundle.getBoolean(EXTRA_MERCHANTABLE);
+                mCaptionText = bundle.getString(SHORT_EXTRA_CAPTION_TEXT);
+                //Update flag
+
+                mCalledFrom = PREVIEW_EXTRA_CALLED_FROM_EDIT_SHORT;
+
+            }
         }
         //Set water mark text
         mSignatureText = "- " + mHelper.getFirstName() + " " + mHelper.getLastName();
@@ -1011,7 +1038,9 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
                     , String.valueOf(mBoldFlag)
                     , String.valueOf(mItalicFlag)
                     , mImageTintColor
-                    , PREVIEW_EXTRA_CALLED_FROM_SHORT
+                    , mCalledFrom
+                    , mShortID
+                    , mCaptionText
 
             );
 
@@ -1033,7 +1062,8 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
             , String xPosition, String yPosition, String tvWidth, String tvHeight
             , String text, String textSize, String textColor, String textGravity
             , String imgWidth, String merchantable, String font, String bgColor
-            , String bold, String italic, String imageTintColor, String calledFrom) {
+            , String bold, String italic, String imageTintColor, String calledFrom
+            , String shortID, String captionText) {
 
         Intent intent = new Intent(ShortActivity.this, PreviewActivity.class);
 
@@ -1058,6 +1088,8 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
         bundle.putString(PREVIEW_EXTRA_ITALIC, italic);
         bundle.putString(PREVIEW_EXTRA_IMAGE_TINT_COLOR, imageTintColor);
         bundle.putString(PREVIEW_EXTRA_CALLED_FROM, calledFrom);
+        bundle.putString(PREVIEW_EXTRA_SHORT_ID, shortID);
+        bundle.putString(PREVIEW_EXTRA_CAPTION_TEXT, captionText);
 
 
         intent.putExtra(PREVIEW_EXTRA_DATA, bundle);
@@ -1087,21 +1119,17 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
             imageShort.clearColorFilter();
         }
     }
-    //endregion
-
 
     /**
-     * Method to retrieve short data from server.
+     * Method to retrieve short data from server when user edits his/her shorts.
      */
     private void loadShortData(String entityID, String entityType) {
-        //Show progress view
-        //viewProgress.setVisibility(View.VISIBLE);
-
+        //Hide progress indicator
+        imageProgressView.setVisibility(View.VISIBLE);
         //Map for request data
         Map<String, String> requestMap = new HashMap<>();
         requestMap.put("entityid", entityID);
         requestMap.put("type", entityType);
-
 
         Rx2AndroidNetworking.get(BuildConfig.URL + "/manage-short/load-specific")
                 .addHeaders("uuid", mHelper.getUUID())
@@ -1120,7 +1148,6 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
 
                     @Override
                     public void onNext(JSONObject jsonObject) {
-                        //float factor = (float) squareView.getWidth() / 650;
                         try {
                             //if token status is not invalid
                             if (jsonObject.getString("tokenstatus").equals("invalid")) {
@@ -1129,77 +1156,160 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
                             //Token is valid
                             else {
                                 JSONObject responseObject = jsonObject.getJSONObject("data");
-                                float factor = (float) squareView.getWidth() / (float) responseObject.getDouble("img_width");
+                                //Obtain multiplication factor
+                                float factor = (float) squareView.getWidth()
+                                        / (float) responseObject.getDouble("img_width");
 
+                                //If capture image is not present
+                                if (TextUtils.isEmpty(responseObject.getString("captureurl"))) {
+                                    //Change backgroundColor
+                                    imageShort.setBackgroundColor((int) Long.parseLong(responseObject.getString("bgcolor"), 16));
+                                    //Update flag
+                                    mIsBgColorPresent = true;
+                                } else {
+                                    //Update flag
+                                    mIsImagePresent = true;
+                                    //show note text
+                                    textNote.setVisibility(View.VISIBLE);
 
-                                /*RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-                                params.leftMargin = (int) dx;
-                                textShort.setLayoutParams(params);*/
+                                    Picasso.with(mContext)
+                                            .load(responseObject.getString("captureurl"))
+                                            .into(imageShort, new Callback() {
+                                                @Override
+                                                public void onSuccess() {
+                                                    //Hide progress indicator
+                                                    imageProgressView.setVisibility(View.GONE);
+                                                }
 
-                                //Retrieve data from server response
-                                //mShortID = responseObject.getString("shoid");
-                                String text = responseObject.getString("text");
-                                int textSize = responseObject.getInt("textsize");
-                                int textColor = (int) Long.parseLong(responseObject.getString("textcolor"), 16);
-                                String fontType = responseObject.getString("font");
+                                                @Override
+                                                public void onError() {
+                                                    //Hide progress indicator
+                                                    imageProgressView.setVisibility(View.GONE);
+                                                }
+                                            });
+                                }
+
+                                //Update flags
                                 mBoldFlag = responseObject.getInt("bold");
                                 mItalicFlag = responseObject.getInt("italic");
+                                mFontType = responseObject.getString("font");
+                                mTextTypeface = getFontType(mFontType, mContext);
+                                mImageWidth = responseObject.getInt("img_width");
+                                mCaptureID = responseObject.getString("capid");
+                                mShortID = responseObject.getString("shoid");
+
 
                                 //Set textView property
-                                textShort.setText(text);
-                                textShort.setTextSize(ViewHelper.pixelsToSp(mContext, textSize * factor));
-                                textShort.setTextColor(textColor);
+                                textShort.setText(responseObject.getString("text"));
+                                textShort.setTextColor((int) Long.parseLong(responseObject.getString("textcolor"), 16));
+                                textShort.setTextSize(ViewHelper.pixelsToSp(mContext, (float) responseObject.getDouble("textsize") * factor));
 
-                                float dy = (float) (responseObject.getDouble("dy") - squareView.getY()) * factor;
-                                float dx = (float) (responseObject.getDouble("dx") * factor);
 
-                                //textShort.setX(getActualDPsFromPixels(mContext,(int) (responseObject.getDouble("dx") * factor)));
-                                //textShort.setY((float) (getActualDPsFromPixels(mContext,(int)((responseObject.getDouble("dy")-squareView.getY()) * factor))));
-                                //textShort.setX(ViewHelper.pixelsToSp(mContext, (float) responseObject.getDouble("dx") * factor));
-                                //textShort.setY(ViewHelper.pixelsToSp(mContext,(float) (responseObject.getDouble("dy") - squareView.getY()) * factor));
-                                //textShort.setY((float) (responseObject.getDouble("dy") - squareView.getY()) * factor);
-                                //textShort.setX( getActualDPsFromPixels(mContext, (int) (responseObject.getDouble("dx")*factor) ));
-                                //textShort.setX( getActualDPsFromPixels(mContext, (int) (responseObject.getDouble("dy")*factor) ));
-                                //Set short text typeface
+                                //Update short text typeface
                                 if (mItalicFlag == 0 && mBoldFlag == 0) {
                                     //Set typeface to normal
-                                    textShort.setTypeface(getFontType(fontType, mContext), Typeface.NORMAL);
+                                    textShort.setTypeface(getFontType(mFontType, mContext), Typeface.NORMAL);
                                     //Toggle dot views visibility
                                     dotBold.setVisibility(View.INVISIBLE);
                                     dotItalic.setVisibility(View.INVISIBLE);
                                 } else if (mItalicFlag == 0 && mBoldFlag == 1) {
                                     //Set typeface to bold
-                                    textShort.setTypeface(getFontType(fontType, mContext), Typeface.BOLD);
+                                    textShort.setTypeface(getFontType(mFontType, mContext), Typeface.BOLD);
                                     //Toggle dot views visibility
                                     dotBold.setVisibility(View.VISIBLE);
                                     dotItalic.setVisibility(View.INVISIBLE);
                                 } else if (mItalicFlag == 1 && mBoldFlag == 0) {
                                     //Set typeface to italic
-                                    textShort.setTypeface(getFontType(fontType, mContext), Typeface.ITALIC);
+                                    textShort.setTypeface(getFontType(mFontType, mContext), Typeface.ITALIC);
                                     //Toggle dot views visibility
                                     dotBold.setVisibility(View.INVISIBLE);
                                     dotItalic.setVisibility(View.VISIBLE);
                                 } else if (mItalicFlag == 1 && mBoldFlag == 1) {
                                     //Set typeface to bold_italic
-                                    textShort.setTypeface(getFontType(fontType, mContext), Typeface.BOLD_ITALIC);
+                                    textShort.setTypeface(getFontType(mFontType, mContext), Typeface.BOLD_ITALIC);
                                     //Toggle dot views visibility
                                     dotBold.setVisibility(View.VISIBLE);
                                     dotItalic.setVisibility(View.VISIBLE);
                                 }
-                                //set typeface
-                                mTextTypeface = getFontType(fontType, mContext);
-                                //Set font type
-                                mFontType = fontType;
 
-                                textShort.setX(dx);
-                                textShort.setY(dy);
+                                //Obtain x and y position of text
+                                float dy = (float) (responseObject.getDouble("dy") - squareView.getY()) * factor;
+                                float dx = (float) (responseObject.getDouble("dx") * factor);
 
+                                //Update textView xPosition  and yPosition
+                                RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT
+                                        , RelativeLayout.LayoutParams.WRAP_CONTENT);
+                                params.leftMargin = Math.round(dx); //Your X coordinate
+                                params.topMargin = Math.round(dy); //Your Y coordinate
+                                textShort.setLayoutParams(params);
 
-                                Log.d("TAG", "onNext: " + textShort.getX());
+                                //Update short text gravity
+                                switch (responseObject.getString("textgravity")) {
+                                    case TEXT_GRAVITY_TYPE_CENTER:
+                                        //Set text gravity
+                                        textShort.setGravity(Gravity.CENTER);
+                                        //Change button drawable
+                                        btnAlignText.setImageDrawable(ContextCompat.getDrawable(mContext, R.drawable.ic_format_align_center_32));
+                                        //Change gravity flag
+                                        mGravityFlag = 0;
+                                        //Set gravity variable
+                                        textGravity = TextGravity.Center;
+                                        break;
+                                    case TEXT_GRAVITY_TYPE_LEFT:
+                                        //Set text gravity
+                                        textShort.setGravity(Gravity.LEFT);
+                                        //Change button drawable
+                                        btnAlignText.setImageDrawable(ContextCompat.getDrawable(mContext, R.drawable.ic_format_align_left_32));
+                                        //Change gravity flag
+                                        mGravityFlag = 2;
+                                        //Set gravity variable
+                                        textGravity = TextGravity.West;
+                                        break;
+                                    case TEXT_GRAVITY_TYPE_RIGHT:
+                                        //Set text gravity
+                                        textShort.setGravity(Gravity.RIGHT);
+                                        //Change button drawable
+                                        btnAlignText.setImageDrawable(ContextCompat.getDrawable(mContext, R.drawable.ic_format_align_right_32));
+                                        //Change gravity flag
+                                        mGravityFlag = 1;
+                                        //Set gravity variable
+                                        textGravity = TextGravity.East;
+                                        break;
+                                }
+
+                                //Update image tint
+                                if (!TextUtils.isEmpty(responseObject.getString("imgtintcolor"))) {
+                                    switch (responseObject.getString("imgtintcolor")) {
+                                        case "80000000":
+                                            //Apply tint
+                                            imageShort.setColorFilter(ContextCompat.getColor(ShortActivity.this, R.color.transparent_50));
+                                            //Update flag
+                                            mImageTintFlag = 1;
+                                            //set tint color
+                                            mImageTintColor = "80000000";
+                                            break;
+                                        case "99000000":
+                                            //Apply tint
+                                            imageShort.setColorFilter(ContextCompat.getColor(ShortActivity.this, R.color.transparent_60));
+                                            //Update flag
+                                            mImageTintFlag = 2;
+                                            //set tint color
+                                            mImageTintColor = "99000000";
+                                            break;
+                                        case "B3000000":
+                                            //Apply tint
+                                            imageShort.setColorFilter(ContextCompat.getColor(ShortActivity.this, R.color.transparent_70));
+                                            //Update flag
+                                            mImageTintFlag = 3;
+                                            //set tint color
+                                            mImageTintColor = "B3000000";
+                                            break;
+                                    }
+                                }
                             }
                         } catch (JSONException e) {
-                            //Hide progress view
-                            // viewProgress.setVisibility(View.GONE);
+                            //Hide progress indicator
+                            imageProgressView.setVisibility(View.GONE);
                             e.printStackTrace();
                             FirebaseCrash.report(e);
                             ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_internal));
@@ -1208,87 +1318,19 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
 
                     @Override
                     public void onError(Throwable e) {
+                        //Hide progress indicator
+                        imageProgressView.setVisibility(View.GONE);
                         e.printStackTrace();
                         FirebaseCrash.report(e);
                         ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_server));
-                        //Hide progress view
-                        // viewProgress.setVisibility(View.GONE);
                     }
 
                     @Override
                     public void onComplete() {
-                        //Hide progress view
-                        //viewProgress.setVisibility(View.GONE);
+                        //Hide progress indicator
+                        imageProgressView.setVisibility(View.GONE);
                     }
                 });
     }
-
-
-    // Method for converting Pixels value to actual DPs (return float value)
-    private float getActualDPsFromPixels(Context context, int pixels) {
-        /*
-            Resources
-                Class for accessing an application's resources. This sits on top of the
-                asset manager of the application (accessible through getAssets()) and
-                provides a high-level API for getting typed data from the assets.
-
-                The Android resource system keeps track of all non-code assets
-                associated with an application. You can use this class to access your
-                application's resources. You can generally acquire the Resources
-                instance associated with your application with getResources().
-        */
-
-        /*
-            public DisplayMetrics getDisplayMetrics ()
-                Return the current display metrics that are in effect for
-                this resource object. The returned object should be treated as read-only.
-
-                Returns
-                The resource's current display metrics.
-        */
-        Resources r = context.getResources();
-        /*
-            public int densityDpi
-                The screen density expressed as dots-per-inch. May be
-                either DENSITY_LOW, DENSITY_MEDIUM, or DENSITY_HIGH.
-        */
-
-        /*
-            Density-independent pixel (dp)
-
-                A virtual pixel unit that you should use when defining UI layout,
-                to express layout dimensions or position in a density-independent way.
-
-                The density-independent pixel is equivalent to one physical pixel on
-                a 160 dpi screen, which is the baseline density assumed by the system
-                for a "medium" density screen. At runtime, the system transparently handles
-                any scaling of the dp units, as necessary, based on the actual density
-                of the screen in use. The conversion of dp units to screen pixels
-                is simple: px = dp * (dpi / 160). For example, on a 240 dpi screen,
-                1 dp equals 1.5 physical pixels. You should always use dp
-                units when defining your application's UI, to ensure proper
-                display of your UI on screens with different densities.
-        */
-
-        // Math.round() return the nearest whole number
-        float dps = pixels / (r.getDisplayMetrics().densityDpi / 160f);
-        return dps;
-    }
-
-    /**
-     * Method to updates  square view with  downloaded data.
-     */
-    private void populateSquareView(JSONObject data) {
-        try {
-            float factor = (float) squareView.getWidth() / (float) data.getDouble("img_width");
-
-            //Set textView data
-            textShort.setText(data.getString("text"));
-            textShort.setTextSize(ViewHelper.pixelsToSp(mContext, data.getInt("text") * factor));
-        } catch (JSONException e) {
-            e.printStackTrace();
-            FirebaseCrash.report(e);
-        }
-    }
-
+    //endregion
 }
