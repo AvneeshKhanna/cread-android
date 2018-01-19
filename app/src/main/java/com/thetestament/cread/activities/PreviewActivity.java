@@ -511,6 +511,7 @@ public class PreviewActivity extends BaseActivity {
      * Method to update capture/collaboration details on server.
      */
     private void updateData(File imgHighRes, File imgLowRes, String shortID, String uuid, String authToken, String xPosition, String yPosition, String tvWidth, String tvHeight, String text, String textSize, String textColor, String textGravity, String imgWidth, String signature, String merchantable, String font, String bold, String italic, String captionText, String imageTintColor) {
+
         //Configure OkHttpClient for time out
         OkHttpClient okHttpClient = new OkHttpClient().newBuilder()
                 .connectTimeout(20, TimeUnit.MINUTES)
@@ -618,6 +619,14 @@ public class PreviewActivity extends BaseActivity {
      */
     private void updateShort(File file, String captureID, String uuid, String authToken, String xPosition, String yPosition, String tvWidth, String tvHeight, String text, String textSize, String textColor, String textGravity, String imgWidth, String merchantable, String font, String bgColor, String bold, String italic, String captionText, String imageTintColor) {
 
+        String mMerchantable =null;
+
+        if (merchantable.equals("true")) {
+            mMerchantable = "1";
+        } else {
+            mMerchantable = "0";
+        }
+
         //Configure OkHttpClient for time out
         OkHttpClient okHttpClient = new OkHttpClient().newBuilder()
                 .connectTimeout(20, TimeUnit.MINUTES)
@@ -653,7 +662,7 @@ public class PreviewActivity extends BaseActivity {
                 .addMultipartParameter("textsize", textSize)
                 .addMultipartParameter("textcolor", textColor)
                 .addMultipartParameter("textgravity", textGravity)
-                .addMultipartParameter("merchantable", merchantable)
+                .addMultipartParameter("merchantable", mMerchantable)
                 .addMultipartParameter("font", font)
                 .addMultipartParameter("bgcolor", bgColor)
                 .addMultipartParameter("bold", bold)
