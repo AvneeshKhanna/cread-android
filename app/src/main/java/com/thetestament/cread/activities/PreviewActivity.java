@@ -510,8 +510,9 @@ public class PreviewActivity extends BaseActivity {
                     , mHelper.getAuthToken()
                     , mWaterMarkText
                     , mBundle.getString(PREVIEW_EXTRA_MERCHANTABLE));
-        } else if (mCalledFrom.equals(PREVIEW_EXTRA_CALLED_FROM_SHORT)) {
+        } else if (mCalledFrom.equals(PREVIEW_EXTRA_CALLED_FROM_EDIT_SHORT)) {
             updateEditedShort(new File(getImageUri(IMAGE_TYPE_USER_SHORT_PIC).getPath())
+                    , mBundle.getString(PREVIEW_EXTRA_ENTITY_ID)
                     , mBundle.getString(PREVIEW_EXTRA_CAPTURE_ID)
                     , mBundle.getString(PREVIEW_EXTRA_SHORT_ID)
                     , mBundle.getString(PREVIEW_EXTRA_UUID)
@@ -763,9 +764,9 @@ public class PreviewActivity extends BaseActivity {
     /**
      * Update edited short image and other details on server.
      */
-    private void updateEditedShort(File file, String captureID, String shortID, String uuid, String authToken, String xPosition, String yPosition, String tvWidth, String tvHeight, String text, String textSize, String textColor, String textGravity, String imgWidth, String merchantable, String font, String bgColor, String bold, String italic, String captionText, String imageTintColor) {
+    private void updateEditedShort(File file, String entityID, String captureID, String shortID, String uuid, String authToken, String xPosition, String yPosition, String tvWidth, String tvHeight, String text, String textSize, String textColor, String textGravity, String imgWidth, String merchantable, String font, String bgColor, String bold, String italic, String captionText, String imageTintColor) {
 
-        String mMerchantable ;
+        String mMerchantable;
 
         if (merchantable.equals("true")) {
             mMerchantable = "1";
@@ -794,6 +795,7 @@ public class PreviewActivity extends BaseActivity {
         Rx2AndroidNetworking.upload(BuildConfig.URL + "/short-upload/edit")
                 .setOkHttpClient(okHttpClient)
                 .addMultipartFile("short-image", file)
+                .addMultipartParameter("entityid", entityID)
                 .addMultipartParameter("capid", captureID)
                 .addMultipartParameter("shoid", shortID)
                 .addMultipartParameter("uuid", uuid)

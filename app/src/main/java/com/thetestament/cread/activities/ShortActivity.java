@@ -97,6 +97,7 @@ import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_CALLED_FROM_SH
 import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_CAPTION_TEXT;
 import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_CAPTURE_ID;
 import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_DATA;
+import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_ENTITY_ID;
 import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_FONT;
 import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_IMAGE_TINT_COLOR;
 import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_IMG_WIDTH;
@@ -174,7 +175,7 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
 
 
     @State
-    String mCaptureUrl, mCaptureID = "", mShortID = "", mCaptionText = "", mSignatureText, mShortBgColor = "FFFFFFFF", mFontType = "montserrat_regular.ttf";
+    String mCaptureUrl, mCaptureID = "", mShortID = "", mEntityID = "", mCaptionText = "", mSignatureText, mShortBgColor = "FFFFFFFF", mFontType = "montserrat_regular.ttf";
 
     /**
      * Flag to maintain imageWidth
@@ -671,6 +672,7 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
                 //Retrieve data
                 mIsMerchantable = bundle.getBoolean(EXTRA_MERCHANTABLE);
                 mCaptionText = bundle.getString(SHORT_EXTRA_CAPTION_TEXT);
+                mEntityID = bundle.getString(EXTRA_ENTITY_ID);
                 //Update flag
 
                 mCalledFrom = PREVIEW_EXTRA_CALLED_FROM_EDIT_SHORT;
@@ -1041,7 +1043,7 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
                     , mCalledFrom
                     , mShortID
                     , mCaptionText
-
+                    , mEntityID
             );
 
         } catch (IOException e) {
@@ -1063,7 +1065,7 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
             , String text, String textSize, String textColor, String textGravity
             , String imgWidth, String merchantable, String font, String bgColor
             , String bold, String italic, String imageTintColor, String calledFrom
-            , String shortID, String captionText) {
+            , String shortID, String captionText, String entityID) {
 
         Intent intent = new Intent(ShortActivity.this, PreviewActivity.class);
 
@@ -1090,6 +1092,7 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
         bundle.putString(PREVIEW_EXTRA_CALLED_FROM, calledFrom);
         bundle.putString(PREVIEW_EXTRA_SHORT_ID, shortID);
         bundle.putString(PREVIEW_EXTRA_CAPTION_TEXT, captionText);
+        bundle.putString(PREVIEW_EXTRA_ENTITY_ID, entityID);
 
 
         intent.putExtra(PREVIEW_EXTRA_DATA, bundle);
