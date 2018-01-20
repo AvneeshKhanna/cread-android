@@ -26,8 +26,6 @@ import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_CAPTION_TEXT;
 import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_CONTENT_IMAGE;
 import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_DATA;
 import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_ENTITY_ID;
-import static com.thetestament.cread.utils.Constant.REQUEST_CODE_EDIT_CAPTURE;
-import static com.thetestament.cread.utils.Constant.REQUEST_CODE_EDIT_SHORT;
 import static com.thetestament.cread.utils.Constant.SHORT_EXTRA_CALLED_FROM;
 import static com.thetestament.cread.utils.Constant.SHORT_EXTRA_CALLED_FROM_EDIT_SHORT;
 import static com.thetestament.cread.utils.Constant.SHORT_EXTRA_CAPTION_TEXT;
