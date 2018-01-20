@@ -1,5 +1,6 @@
 package com.thetestament.cread.activities;
 
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
@@ -75,6 +76,8 @@ import static com.thetestament.cread.CreadApp.GET_RESPONSE_FROM_NETWORK_EXPLORE;
 import static com.thetestament.cread.CreadApp.GET_RESPONSE_FROM_NETWORK_INSPIRATION;
 import static com.thetestament.cread.CreadApp.GET_RESPONSE_FROM_NETWORK_MAIN;
 import static com.thetestament.cread.CreadApp.GET_RESPONSE_FROM_NETWORK_ME;
+import static com.thetestament.cread.CreadApp.IMAGE_LOAD_FROM_NETWORK_FEED_DESCRIPTION;
+import static com.thetestament.cread.CreadApp.IMAGE_LOAD_FROM_NETWORK_ME;
 import static com.thetestament.cread.helpers.ImageHelper.getImageUri;
 import static com.thetestament.cread.utils.Constant.IMAGE_TYPE_USER_CAPTURE_PIC;
 import static com.thetestament.cread.utils.Constant.IMAGE_TYPE_USER_SHORT_PIC;
@@ -764,7 +767,7 @@ public class PreviewActivity extends BaseActivity {
     /**
      * Update edited short image and other details on server.
      */
-    private void updateEditedShort(File file, String entityID, String captureID, String shortID, String uuid, String authToken, String xPosition, String yPosition, String tvWidth, String tvHeight, String text, String textSize, String textColor, String textGravity, String imgWidth, String merchantable, String font, String bgColor, String bold, String italic, String captionText, String imageTintColor) {
+    private void updateEditedShort(final File file, String entityID, String captureID, String shortID, String uuid, String authToken, String xPosition, String yPosition, String tvWidth, String tvHeight, String text, String textSize, String textColor, String textGravity, String imgWidth, String merchantable, String font, String bgColor, String bold, String italic, final String captionText, String imageTintColor) {
 
         String mMerchantable;
 
@@ -840,7 +843,6 @@ public class PreviewActivity extends BaseActivity {
                                 JSONObject dataObject = jsonObject.getJSONObject("data");
                                 if (dataObject.getString("status").equals("done")) {
                                     ViewHelper.getToast(PreviewActivity.this, "Changes updated successfully.");
-                                    setResult(RESULT_OK);
 
                                     //fixme chandna G.............
                                     // set feeds data to be loaded from network
@@ -849,10 +851,18 @@ public class PreviewActivity extends BaseActivity {
                                     GET_RESPONSE_FROM_NETWORK_EXPLORE = true;
                                     GET_RESPONSE_FROM_NETWORK_ME = true;
                                     GET_RESPONSE_FROM_NETWORK_ENTITY_SPECIFIC = true;
-                                    GET_RESPONSE_FROM_NETWORK_COLLABORATION_DETAILS = true;
 
 
-                                    //Navigate back to previous market
+                                    // to invalidate image cache
+                                    IMAGE_LOAD_FROM_NETWORK_ME = true;
+                                    IMAGE_LOAD_FROM_NETWORK_FEED_DESCRIPTION = true;
+
+                                    Picasso.with(PreviewActivity.this).invalidate(file);
+
+
+                                    //finish this activity and set result ok
+                                    setResult(RESULT_OK, getIntent().putExtra(PREVIEW_EXTRA_CAPTION_TEXT
+                                            , captionText));
                                     finish();
                                 }
                             }
@@ -1007,7 +1017,6 @@ public class PreviewActivity extends BaseActivity {
                                     GET_RESPONSE_FROM_NETWORK_EXPLORE = true;
                                     GET_RESPONSE_FROM_NETWORK_ME = true;
                                     GET_RESPONSE_FROM_NETWORK_ENTITY_SPECIFIC = true;
-
 
                                     //finish this activity and set result ok
                                     setResult(RESULT_OK, getIntent().putExtra(PREVIEW_EXTRA_CAPTION_TEXT

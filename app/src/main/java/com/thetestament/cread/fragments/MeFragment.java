@@ -1316,7 +1316,6 @@ public class MeFragment extends Fragment implements listener.OnCollaborationList
                             ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_internal));
                         } else if (mCollabList.size() == 0) {
                             //Show no data view
-                            // TODO change this
                             viewNoData.setVisibility(View.VISIBLE);
                         } else {
                             // Token status invalid
@@ -1413,7 +1412,6 @@ public class MeFragment extends Fragment implements listener.OnCollaborationList
                             ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_internal));
                         } else if (mCollabList.size() == 0) {
                             //Show no data view
-                            // TODO change this
                             viewNoData.setVisibility(View.VISIBLE);
                         } else {
                             //Notify changes

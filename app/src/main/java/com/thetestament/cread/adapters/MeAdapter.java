@@ -21,7 +21,9 @@ import android.widget.TextView;
 
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.google.firebase.analytics.FirebaseAnalytics;
+import com.squareup.picasso.NetworkPolicy;
 import com.squareup.picasso.Picasso;
+import com.squareup.picasso.RequestCreator;
 import com.squareup.picasso.Target;
 import com.thetestament.cread.R;
 import com.thetestament.cread.activities.CollaborationDetailsActivity;
@@ -46,6 +48,7 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import de.hdodenhof.circleimageview.CircleImageView;
 
+import static com.thetestament.cread.CreadApp.IMAGE_LOAD_FROM_NETWORK_ME;
 import static com.thetestament.cread.helpers.ContentHelper.getMenuActionsBottomSheet;
 import static com.thetestament.cread.helpers.FeedHelper.initializeShareDialog;
 import static com.thetestament.cread.helpers.FeedHelper.setGridItemMargins;
@@ -228,6 +231,18 @@ public class MeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                 .load(imageUrl)
                 .error(R.drawable.image_placeholder)
                 .into(imageView);
+
+        RequestCreator requestCreator = Picasso.with(mContext)
+                .load(imageUrl)
+                .error(R.drawable.image_placeholder);
+
+        if (IMAGE_LOAD_FROM_NETWORK_ME) {
+            requestCreator.networkPolicy(NetworkPolicy.NO_CACHE);
+        }
+
+
+        requestCreator.into(imageView);
+
     }
 
     /**

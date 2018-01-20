@@ -76,6 +76,7 @@ import io.reactivex.schedulers.Schedulers;
 import pl.tajchert.nammu.Nammu;
 import pl.tajchert.nammu.PermissionCallback;
 
+import static com.thetestament.cread.CreadApp.IMAGE_LOAD_FROM_NETWORK_FEED_DESCRIPTION;
 import static com.thetestament.cread.dialog.DialogHelper.getDeletePostDialog;
 import static com.thetestament.cread.helpers.ContentHelper.getMenuActionsBottomSheet;
 import static com.thetestament.cread.helpers.DeletePostHelper.deletepost;
@@ -245,7 +246,8 @@ public class FeedDescriptionActivity extends BaseActivity implements listener.On
                     // reload image
                     // because short can be edited
                     // and it's image will change
-                    loadStoryImage(mFeedData.getContentImage(), image, true);
+
+                    loadStoryImage(mFeedData.getContentImage(), image);
 
                     // get edited caption
                     String editedCaption = data.getStringExtra(PREVIEW_EXTRA_CAPTION_TEXT);
@@ -490,7 +492,7 @@ public class FeedDescriptionActivity extends BaseActivity implements listener.On
         //Get data from intent
         retrieveIntentData();
         //Load story image
-        loadStoryImage(mFeedData.getContentImage(), image, false);
+        loadStoryImage(mFeedData.getContentImage(), image);
         //Load creator image
         loadCreatorImage(mFeedData.getCreatorImage(), imageCreator);
         //toggle hats off status
@@ -592,17 +594,21 @@ public class FeedDescriptionActivity extends BaseActivity implements listener.On
      * @param imgLink Image Url.
      * @param image   Where image to be displayed.
      */
-    private void loadStoryImage(String imgLink, ImageView image, boolean invalidateCache) {
+    private void loadStoryImage(String imgLink, ImageView image) {
+
+        if (IMAGE_LOAD_FROM_NETWORK_FEED_DESCRIPTION) {
+            Picasso.with(this).invalidate(mFeedData.getContentImage());
+        }
 
 
         RequestCreator requestCreator = Picasso.with(this)
                 .load(imgLink)
                 .error(R.drawable.image_placeholder);
 
-
-        if (invalidateCache) {
+        if (IMAGE_LOAD_FROM_NETWORK_FEED_DESCRIPTION) {
             requestCreator.networkPolicy(NetworkPolicy.NO_CACHE);
         }
+
 
         requestCreator.into(image, new Callback() {
                     @Override
