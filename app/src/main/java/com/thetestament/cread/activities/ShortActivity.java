@@ -1170,7 +1170,7 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
                                         / (float) responseObject.getDouble("img_width");
 
                                 //If capture image is not present
-                                if (TextUtils.isEmpty(responseObject.getString("captureurl"))) {
+                                if ( TextUtils.isEmpty(responseObject.getString("captureurl")) ||responseObject.getString("captureurl").equals("null")) {
                                     //Change backgroundColor
                                     imageShort.setBackgroundColor((int) Long.parseLong(responseObject.getString("bgcolor"), 16));
                                     //Update flag
@@ -1287,7 +1287,7 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
                                 }
 
                                 //Update image tint
-                                if (!TextUtils.isEmpty(responseObject.getString("imgtintcolor"))) {
+                                if (!TextUtils.isEmpty(responseObject.getString("imgtintcolor"))||responseObject.getString("imgtintcolor").equals("null")) {
                                     switch (responseObject.getString("imgtintcolor")) {
                                         case "80000000":
                                             //Apply tint

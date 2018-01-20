@@ -1,6 +1,5 @@
 package com.thetestament.cread.activities;
 
-import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
@@ -799,7 +798,7 @@ public class PreviewActivity extends BaseActivity {
                 .setOkHttpClient(okHttpClient)
                 .addMultipartFile("short-image", file)
                 .addMultipartParameter("entityid", entityID)
-                .addMultipartParameter("capid", captureID)
+                .addMultipartParameter("captureid", captureID)
                 .addMultipartParameter("shoid", shortID)
                 .addMultipartParameter("uuid", uuid)
                 .addMultipartParameter("authkey", authToken)
