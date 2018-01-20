@@ -21,6 +21,7 @@ import android.widget.TextView;
 
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.google.firebase.analytics.FirebaseAnalytics;
+import com.squareup.picasso.MemoryPolicy;
 import com.squareup.picasso.NetworkPolicy;
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.RequestCreator;
@@ -237,6 +238,7 @@ public class MeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                 .error(R.drawable.image_placeholder);
 
         if (IMAGE_LOAD_FROM_NETWORK_ME) {
+            requestCreator.memoryPolicy(MemoryPolicy.NO_CACHE);
             requestCreator.networkPolicy(NetworkPolicy.NO_CACHE);
         }
 

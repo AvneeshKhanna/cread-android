@@ -611,8 +611,6 @@ public class FeedFragment extends Fragment implements listener.OnCollaborationLi
             @Override
             public void onHatsOffClick(final FeedModel feedData, final int itemPosition) {
 
-                // updateHatsOffStatus(feedData, itemPosition);
-
                 HatsOffHelper hatsOffHelper = new HatsOffHelper(getActivity());
                 hatsOffHelper.updateHatsOffStatus(feedData.getEntityID(), feedData.getHatsOffStatus());
                 // On hatsOffSuccessListener

@@ -1719,7 +1719,6 @@ public class MeFragment extends Fragment implements listener.OnCollaborationList
         adapter.setHatsOffListener(new listener.OnUserActivityHatsOffListener() {
             @Override
             public void onHatsOffClick(final FeedModel data, final int itemPosition) {
-                updateHatsOffStatus(data, itemPosition);
                 HatsOffHelper hatsOffHelper = new HatsOffHelper(getActivity());
                 hatsOffHelper.updateHatsOffStatus(data.getEntityID(), data.getHatsOffStatus());
                 // On hatsOffSuccessListener
@@ -1744,67 +1743,6 @@ public class MeFragment extends Fragment implements listener.OnCollaborationList
         });
     }
 
-    /**
-     * Method to update hats off status of campaign.
-     *
-     * @param data         Model of current item
-     * @param itemPosition Position of current item i.e integer
-     */
-    private void updateHatsOffStatus(final FeedModel data, final int itemPosition) {
-
-        final JSONObject jsonObject = new JSONObject();
-        try {
-            jsonObject.put("uuid", mHelper.getUUID());
-            jsonObject.put("authkey", mHelper.getAuthToken());
-            jsonObject.put("entityid", data.getEntityID());
-            jsonObject.put("register", data.getHatsOffStatus());
-        } catch (JSONException e) {
-            e.printStackTrace();
-            FirebaseCrash.report(e);
-        }
-        AndroidNetworking.post(BuildConfig.URL + "/hatsoff/on-click")
-                .addJSONObjectBody(jsonObject)
-                .build()
-                .getAsJSONObject(new JSONObjectRequestListener() {
-                    @Override
-                    public void onResponse(JSONObject response) {
-                        try {
-                            //Token status is not valid
-                            if (response.getString("tokenstatus").equals("invalid")) {
-                                //set status to true if its false and vice versa
-                                data.setHatsOffStatus(!data.getHatsOffStatus());
-                                //notify changes
-                                mAdapter.notifyItemChanged(itemPosition);
-                                ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_invalid_token));
-                            }
-                            //Token is valid
-                            else {
-                                JSONObject mainData = response.getJSONObject("data");
-                                if (mainData.getString("status").equals("done")) {
-                                    //Do nothing
-                                }
-                            }
-                        } catch (JSONException e) {
-                            //set status to true if its false and vice versa
-                            data.setHatsOffStatus(!data.getHatsOffStatus());
-                            //notify changes
-                            mAdapter.notifyItemChanged(itemPosition);
-                            e.printStackTrace();
-                            FirebaseCrash.report(e);
-                            ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_internal));
-                        }
-                    }
-
-                    @Override
-                    public void onError(ANError anError) {
-                        //set status to true if its false and vice versa
-                        data.setHatsOffStatus(!data.getHatsOffStatus());
-                        //notify changes
-                        mAdapter.notifyItemChanged(itemPosition);
-                        ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_server));
-                    }
-                });
-    }
 
     /**
      * Initialize delete listener
