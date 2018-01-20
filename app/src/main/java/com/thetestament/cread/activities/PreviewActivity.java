@@ -85,6 +85,7 @@ import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_CALLED_FROM;
 import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_CALLED_FROM_CAPTURE;
 import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_CALLED_FROM_COLLABORATION;
 import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_CALLED_FROM_EDIT_CAPTURE;
+import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_CALLED_FROM_EDIT_SHORT;
 import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_CALLED_FROM_SHORT;
 import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_CAPTION_TEXT;
 import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_CAPTURE_ID;
@@ -334,6 +335,13 @@ public class PreviewActivity extends BaseActivity {
             filterSheetBehavior.setPeekHeight(0);
             //Set caption text
             etCaption.setText(mBundle.getString(PREVIEW_EXTRA_CAPTION_TEXT));
+        } else if (mCalledFrom.equals(PREVIEW_EXTRA_CALLED_FROM_EDIT_SHORT)) {
+            //initialize filter screen
+            initFilterView();
+            //Load short pic
+            loadPreviewImage(getImageUri(IMAGE_TYPE_USER_SHORT_PIC), imagePreview);
+            //Set caption text
+            etCaption.setText(mBundle.getString(PREVIEW_EXTRA_CAPTION_TEXT));
         } else {
             //initialize filter screen
             initFilterView();
@@ -502,6 +510,29 @@ public class PreviewActivity extends BaseActivity {
                     , mHelper.getAuthToken()
                     , mWaterMarkText
                     , mBundle.getString(PREVIEW_EXTRA_MERCHANTABLE));
+        } else if (mCalledFrom.equals(PREVIEW_EXTRA_CALLED_FROM_SHORT)) {
+            updateEditedShort(new File(getImageUri(IMAGE_TYPE_USER_SHORT_PIC).getPath())
+                    , mBundle.getString(PREVIEW_EXTRA_CAPTURE_ID)
+                    , mBundle.getString(PREVIEW_EXTRA_SHORT_ID)
+                    , mBundle.getString(PREVIEW_EXTRA_UUID)
+                    , mBundle.getString(PREVIEW_EXTRA_AUTH_KEY)
+                    , mBundle.getString(PREVIEW_EXTRA_X_POSITION)
+                    , mBundle.getString(PREVIEW_EXTRA_Y_POSITION)
+                    , mBundle.getString(PREVIEW_EXTRA_TV_WIDTH)
+                    , mBundle.getString(PREVIEW_EXTRA_TV_HEIGHT)
+                    , mBundle.getString(PREVIEW_EXTRA_TEXT)
+                    , mBundle.getString(PREVIEW_EXTRA_TEXT_SIZE)
+                    , mBundle.getString(PREVIEW_EXTRA_TEXT_COLOR)
+                    , mBundle.getString(PREVIEW_EXTRA_TEXT_GRAVITY)
+                    , mBundle.getString(PREVIEW_EXTRA_IMG_WIDTH)
+                    , mBundle.getString(PREVIEW_EXTRA_MERCHANTABLE)
+                    , mBundle.getString(PREVIEW_EXTRA_FONT)
+                    , mBundle.getString(PREVIEW_EXTRA_BG_COLOR)
+                    , mBundle.getString(PREVIEW_EXTRA_BOLD)
+                    , mBundle.getString(PREVIEW_EXTRA_ITALIC)
+                    , etCaption.getText().toString()
+                    , mBundle.getString(PREVIEW_EXTRA_IMAGE_TINT_COLOR)
+            );
         } else {
             //do nothing
         }
@@ -619,7 +650,7 @@ public class PreviewActivity extends BaseActivity {
      */
     private void updateShort(File file, String captureID, String uuid, String authToken, String xPosition, String yPosition, String tvWidth, String tvHeight, String text, String textSize, String textColor, String textGravity, String imgWidth, String merchantable, String font, String bgColor, String bold, String italic, String captionText, String imageTintColor) {
 
-        String mMerchantable =null;
+        String mMerchantable = null;
 
         if (merchantable.equals("true")) {
             mMerchantable = "1";
@@ -694,6 +725,122 @@ public class PreviewActivity extends BaseActivity {
                                     ViewHelper.getToast(PreviewActivity.this, "Writing uploaded successfully.");
                                     setResult(RESULT_OK);
 
+                                    // set feeds data to be loaded from network
+                                    // instead of cached data
+                                    GET_RESPONSE_FROM_NETWORK_MAIN = true;
+                                    GET_RESPONSE_FROM_NETWORK_EXPLORE = true;
+                                    GET_RESPONSE_FROM_NETWORK_ME = true;
+                                    GET_RESPONSE_FROM_NETWORK_ENTITY_SPECIFIC = true;
+                                    GET_RESPONSE_FROM_NETWORK_COLLABORATION_DETAILS = true;
+
+
+                                    //Navigate back to previous market
+                                    finish();
+                                }
+                            }
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                            FirebaseCrash.report(e);
+                            ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_internal));
+                        }
+                    }
+
+                    @Override
+                    public void onError(@io.reactivex.annotations.NonNull Throwable e) {
+                        dialog.dismiss();
+                        e.printStackTrace();
+                        FirebaseCrash.report(e);
+                        ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_server));
+                    }
+
+                    @Override
+                    public void onComplete() {
+                        //do nothing
+                    }
+                });
+    }
+
+    /**
+     * Update edited short image and other details on server.
+     */
+    private void updateEditedShort(File file, String captureID, String shortID, String uuid, String authToken, String xPosition, String yPosition, String tvWidth, String tvHeight, String text, String textSize, String textColor, String textGravity, String imgWidth, String merchantable, String font, String bgColor, String bold, String italic, String captionText, String imageTintColor) {
+
+        String mMerchantable ;
+
+        if (merchantable.equals("true")) {
+            mMerchantable = "1";
+        } else {
+            mMerchantable = "0";
+        }
+
+        //Configure OkHttpClient for time out
+        OkHttpClient okHttpClient = new OkHttpClient().newBuilder()
+                .connectTimeout(20, TimeUnit.MINUTES)
+                .readTimeout(20, TimeUnit.MINUTES)
+                .writeTimeout(20, TimeUnit.MINUTES)
+                .build();
+
+        //To show the progress dialog
+        MaterialDialog.Builder builder = new MaterialDialog.Builder(this)
+                .title("Uploading your writing")
+                .content("Please wait...")
+                .autoDismiss(false)
+                .cancelable(false)
+                .progress(true, 0);
+
+        final MaterialDialog dialog = builder.build();
+        dialog.show();
+
+        Rx2AndroidNetworking.upload(BuildConfig.URL + "/short-upload/edit")
+                .setOkHttpClient(okHttpClient)
+                .addMultipartFile("short-image", file)
+                .addMultipartParameter("capid", captureID)
+                .addMultipartParameter("shoid", shortID)
+                .addMultipartParameter("uuid", uuid)
+                .addMultipartParameter("authkey", authToken)
+                .addMultipartParameter("dx", xPosition)
+                .addMultipartParameter("dy", yPosition)
+                .addMultipartParameter("txt_width", tvWidth)
+                .addMultipartParameter("txt_height", tvHeight)
+                .addMultipartParameter("img_width", imgWidth)
+                .addMultipartParameter("img_height", imgWidth)
+                .addMultipartParameter("text", text)
+                .addMultipartParameter("textsize", textSize)
+                .addMultipartParameter("textcolor", textColor)
+                .addMultipartParameter("textgravity", textGravity)
+                .addMultipartParameter("merchantable", mMerchantable)
+                .addMultipartParameter("font", font)
+                .addMultipartParameter("bgcolor", bgColor)
+                .addMultipartParameter("bold", bold)
+                .addMultipartParameter("italic", italic)
+                .addMultipartParameter("caption", captionText)
+                .addMultipartParameter("imgtintcolor", imageTintColor)
+                .addMultipartParameter("filtername", mFilterName)
+                .build()
+                .getJSONObjectObservable()
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Observer<JSONObject>() {
+                    @Override
+                    public void onSubscribe(@io.reactivex.annotations.NonNull Disposable d) {
+                        //Add disposable
+                        mCompositeDisposable.add(d);
+                    }
+
+                    @Override
+                    public void onNext(@io.reactivex.annotations.NonNull JSONObject jsonObject) {
+                        dialog.dismiss();
+                        try {
+                            //if token status is not invalid
+                            if (jsonObject.getString("tokenstatus").equals("invalid")) {
+                                ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_invalid_token));
+                            } else {
+                                JSONObject dataObject = jsonObject.getJSONObject("data");
+                                if (dataObject.getString("status").equals("done")) {
+                                    ViewHelper.getToast(PreviewActivity.this, "Changes updated successfully.");
+                                    setResult(RESULT_OK);
+
+                                    //fixme chandna G.............
                                     // set feeds data to be loaded from network
                                     // instead of cached data
                                     GET_RESPONSE_FROM_NETWORK_MAIN = true;

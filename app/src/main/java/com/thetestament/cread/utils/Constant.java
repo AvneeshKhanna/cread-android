@@ -35,6 +35,11 @@ public class Constant {
     public static final String CONTENT_TYPE_SHORT = "SHORT";
     public static final String CONTENT_TYPE_CAPTURE = "CAPTURE";
 
+    //Text gravity types
+    public static final String TEXT_GRAVITY_TYPE_CENTER = "Center";
+    public static final String TEXT_GRAVITY_TYPE_LEFT = "Left";
+    public static final String TEXT_GRAVITY_TYPE_RIGHT = "Right";
+
     public static final String SEARCH_TYPE_PEOPLE = "USER";
     public static final String SEARCH_TYPE_HASHTAG = "HASHTAG";
     public static final String SEARCH_TYPE_NO_RESULTS = "NORESULTS";
@@ -220,4 +225,11 @@ public class Constant {
     public static final String PREVIEW_EXTRA_CALLED_FROM_CAPTURE = "capture";
     public static final String PREVIEW_EXTRA_CALLED_FROM_EDIT_CAPTURE = "editCapture";
     public static final String PREVIEW_EXTRA_CALLED_FROM_EDIT_SHORT = "editShort";
+
+    //Data for  Short activity
+    public static final String SHORT_EXTRA_CALLED_FROM = "shortCalledFrom";
+    public static final String SHORT_EXTRA_CALLED_FROM_EDIT_SHORT = "calledFromEditShort";
+    public static final String SHORT_EXTRA_CALLED_FROM_COLLABORATION_SHORT = "calledFromCollaboration";
+    public static final String SHORT_EXTRA_CAPTION_TEXT = "shortCaptionText";
+
 }
