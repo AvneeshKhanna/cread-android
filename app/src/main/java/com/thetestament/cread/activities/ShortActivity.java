@@ -302,8 +302,10 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
                 if (resultCode == RESULT_OK) {
                     //Finish this screen
 
-                    setResult(RESULT_OK, getIntent().putExtra(PREVIEW_EXTRA_CAPTION_TEXT
-                            , data.getStringExtra(PREVIEW_EXTRA_CAPTION_TEXT)));
+                    if (data != null) {
+                        setResult(RESULT_OK, getIntent().putExtra(PREVIEW_EXTRA_CAPTION_TEXT
+                                , data.getStringExtra(PREVIEW_EXTRA_CAPTION_TEXT)));
+                    }
 
                     finish();
                 }
