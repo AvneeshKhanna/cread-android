@@ -28,19 +28,22 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import com.afollestad.materialdialogs.DialogAction;
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.google.firebase.analytics.FirebaseAnalytics;
 import com.google.firebase.crash.FirebaseCrash;
 import com.squareup.picasso.Callback;
+import com.squareup.picasso.NetworkPolicy;
 import com.squareup.picasso.Picasso;
+import com.squareup.picasso.RequestCreator;
 import com.squareup.picasso.Target;
 import com.thetestament.cread.BuildConfig;
 import com.thetestament.cread.Manifest;
 import com.thetestament.cread.R;
 import com.thetestament.cread.adapters.CommentsAdapter;
 import com.thetestament.cread.adapters.ShareDialogAdapter;
+import com.thetestament.cread.helpers.DeletePostHelper;
 import com.thetestament.cread.helpers.FeedHelper;
+import com.thetestament.cread.helpers.FollowHelper;
 import com.thetestament.cread.helpers.HatsOffHelper;
 import com.thetestament.cread.helpers.ImageHelper;
 import com.thetestament.cread.helpers.NetworkHelper;
@@ -48,6 +51,7 @@ import com.thetestament.cread.helpers.ShareHelper;
 import com.thetestament.cread.helpers.SharedPreferenceHelper;
 import com.thetestament.cread.helpers.ViewHelper;
 import com.thetestament.cread.listeners.listener;
+import com.thetestament.cread.listeners.listener.OnContentDeleteListener;
 import com.thetestament.cread.models.CommentsModel;
 import com.thetestament.cread.models.FeedModel;
 import com.yalantis.ucrop.UCrop;
@@ -72,6 +76,10 @@ import io.reactivex.schedulers.Schedulers;
 import pl.tajchert.nammu.Nammu;
 import pl.tajchert.nammu.PermissionCallback;
 
+import static com.thetestament.cread.CreadApp.IMAGE_LOAD_FROM_NETWORK_FEED_DESCRIPTION;
+import static com.thetestament.cread.dialog.DialogHelper.getDeletePostDialog;
+import static com.thetestament.cread.helpers.ContentHelper.getMenuActionsBottomSheet;
+import static com.thetestament.cread.helpers.DeletePostHelper.deletepost;
 import static com.thetestament.cread.helpers.FeedHelper.generateDeepLink;
 import static com.thetestament.cread.helpers.FeedHelper.initCaption;
 import static com.thetestament.cread.helpers.FeedHelper.initializeShareDialog;
@@ -80,21 +88,22 @@ import static com.thetestament.cread.helpers.ImageHelper.getImageUri;
 import static com.thetestament.cread.helpers.NetworkHelper.getCommentObservableFromServer;
 import static com.thetestament.cread.utils.Constant.CONTENT_TYPE_CAPTURE;
 import static com.thetestament.cread.utils.Constant.CONTENT_TYPE_SHORT;
-import static com.thetestament.cread.utils.Constant.EXTRA_CAPTURE_ID;
 import static com.thetestament.cread.utils.Constant.EXTRA_CAPTURE_URL;
 import static com.thetestament.cread.utils.Constant.EXTRA_CAPTURE_UUID;
 import static com.thetestament.cread.utils.Constant.EXTRA_DATA;
 import static com.thetestament.cread.utils.Constant.EXTRA_ENTITY_ID;
 import static com.thetestament.cread.utils.Constant.EXTRA_ENTITY_TYPE;
 import static com.thetestament.cread.utils.Constant.EXTRA_FEED_DESCRIPTION_DATA;
-import static com.thetestament.cread.utils.Constant.EXTRA_MERCHANTABLE;
 import static com.thetestament.cread.utils.Constant.EXTRA_SHORT_UUID;
 import static com.thetestament.cread.utils.Constant.FIREBASE_EVENT_CAPTURE_CLICKED;
+import static com.thetestament.cread.utils.Constant.FIREBASE_EVENT_FOLLOW_FROM_FEED_DESCRIPTION;
 import static com.thetestament.cread.utils.Constant.FIREBASE_EVENT_HAVE_CLICKED;
 import static com.thetestament.cread.utils.Constant.FIREBASE_EVENT_SHARED_FROM_FEED_DESCRIPTION;
 import static com.thetestament.cread.utils.Constant.FIREBASE_EVENT_WRITE_CLICKED;
 import static com.thetestament.cread.utils.Constant.IMAGE_TYPE_USER_CAPTURE_PIC;
+import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_CAPTION_TEXT;
 import static com.thetestament.cread.utils.Constant.REQUEST_CODE_COMMENTS_ACTIVITY;
+import static com.thetestament.cread.utils.Constant.REQUEST_CODE_EDIT_POST;
 import static com.thetestament.cread.utils.Constant.REQUEST_CODE_OPEN_GALLERY;
 
 /**
@@ -144,6 +153,10 @@ public class FeedDescriptionActivity extends BaseActivity implements listener.On
     TextView textTitle;
     @BindView(R.id.dotSeperator)
     TextView dotSeperator;
+    @BindView(R.id.buttonFollow)
+    TextView buttonFollow;
+    @BindView(R.id.buttonMenu)
+    TextView buttonMenu;
 
 
     private SharedPreferenceHelper mHelper;
@@ -154,7 +167,15 @@ public class FeedDescriptionActivity extends BaseActivity implements listener.On
 
     @State
     int mItemPosition;
+    @State
     Bitmap mBitmap;
+    @State
+    boolean isUserCreator;
+
+    @State
+    Bundle resultBundle = new Bundle();
+
+    Intent resultIntent = new Intent();
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -168,6 +189,9 @@ public class FeedDescriptionActivity extends BaseActivity implements listener.On
         mHelper = new SharedPreferenceHelper(this);
         // Obtain the FirebaseAnalytics instance.
         mFirebaseAnalytics = FirebaseAnalytics.getInstance(this);
+
+        // check if user is also creator of this post
+
         //initialize views
         initViews();
     }
@@ -189,7 +213,6 @@ public class FeedDescriptionActivity extends BaseActivity implements listener.On
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-
         switch (requestCode) {
             case REQUEST_CODE_COMMENTS_ACTIVITY:
                 if (resultCode == RESULT_OK) {
@@ -201,7 +224,6 @@ public class FeedDescriptionActivity extends BaseActivity implements listener.On
                 if (resultCode == RESULT_OK) {
                     // To crop the selected image
                     ImageHelper.startImageCropping(this, data.getData(), getImageUri(IMAGE_TYPE_USER_CAPTURE_PIC));
-
                 } else {
                     ViewHelper.getSnackBar(rootView, "Image from gallery was not attached");
                 }
@@ -215,6 +237,27 @@ public class FeedDescriptionActivity extends BaseActivity implements listener.On
 
                 } else if (resultCode == UCrop.RESULT_ERROR) {
                     ViewHelper.getSnackBar(rootView, "Image could not be cropped due to some error");
+                }
+                break;
+
+            case REQUEST_CODE_EDIT_POST:
+                if (resultCode == RESULT_OK) {
+
+                    // reload image
+                    // because short can be edited
+                    // and it's image will change
+
+                    loadStoryImage(mFeedData.getContentImage(), image);
+
+                    // get edited caption
+                    String editedCaption = data.getStringExtra(PREVIEW_EXTRA_CAPTION_TEXT);
+
+                    // update the caption
+                    mFeedData.setCaption(editedCaption);
+                    initCaption(mContext, mFeedData, textTitle);
+
+                    resultBundle.putString("caption", editedCaption);
+                    setResult(RESULT_OK, resultIntent);
                 }
                 break;
         }
@@ -313,7 +356,7 @@ public class FeedDescriptionActivity extends BaseActivity implements listener.On
     }
 
     /**
-     * HatsOff collabOnWritingClick functionality.
+     * HatsOff Click functionality.
      */
     @OnClick(R.id.containerHatsOff)
     void onContainerHatsOffClicked() {
@@ -404,9 +447,8 @@ public class FeedDescriptionActivity extends BaseActivity implements listener.On
         });
     }
 
-    /*
+    /**
      * Collaboration count click functionality to launch collaborationDetailsActivity.
-     *
      */
     @OnClick(R.id.containerCollabCount)
     void collaborationCountOnClick() {
@@ -420,6 +462,27 @@ public class FeedDescriptionActivity extends BaseActivity implements listener.On
         startActivity(intent);
     }
 
+    @OnClick(R.id.buttonFollow)
+    void onFollowClick() {
+        // check net status
+        if (NetworkHelper.getNetConnectionStatus(mContext)) {
+            //Toggle status
+            mFeedData.setFollowStatus(!mFeedData.getFollowStatus());
+            //Toggle follow button
+            toggleFollowButton(true);
+            // update status on server
+            updateFollowStatus();
+            //Log firebase event
+            setAnalytics(FIREBASE_EVENT_FOLLOW_FROM_FEED_DESCRIPTION);
+        } else {
+            ViewHelper.getToast(mContext, mContext.getString(R.string.error_msg_no_connection));
+        }
+    }
+
+    @OnClick(R.id.buttonMenu)
+    void onMenuClick() {
+        getMenuActionsBottomSheet(mContext, mItemPosition, mFeedData, initDeletePostClick());
+    }
 
     /**
      * Method to initialize views for this screen.
@@ -445,8 +508,30 @@ public class FeedDescriptionActivity extends BaseActivity implements listener.On
 
         mFeedData = bundle.getParcelable(EXTRA_FEED_DESCRIPTION_DATA);
         mItemPosition = bundle.getInt("position");
-        Log.d("TAG", "retrieveIntentData: " + mItemPosition);
-        // performContentTypeSpecificOperations();
+
+        // method to initialize the result data
+        initResultBundle();
+
+        initViewsFromData();
+    }
+
+    /**
+     * Initializes the result data to their existing values
+     */
+    private void initResultBundle() {
+        // setting result data
+        // hatsoff count and status, follow and delete are set to existing values
+        // and are updated when these actions actions are performed on this screen
+        resultBundle.putInt("position", mItemPosition);
+        resultBundle.putLong("hatsOffCount", mFeedData.getHatsOffCount());
+        resultBundle.putBoolean("hatsOffStatus", mFeedData.getHatsOffStatus());
+        resultBundle.putBoolean("followstatus", mFeedData.getFollowStatus());
+        resultBundle.putBoolean("deletestatus", false);
+        resultBundle.putString("caption", mFeedData.getCaption());
+        resultIntent.putExtra(EXTRA_DATA, resultBundle);
+    }
+
+    private void initViewsFromData() {
         FeedHelper.performContentTypeSpecificOperations(mContext
                 , mFeedData
                 , textCollabCount
@@ -495,6 +580,12 @@ public class FeedDescriptionActivity extends BaseActivity implements listener.On
             image.setTransitionName(mFeedData.getEntityID());
             ActivityCompat.postponeEnterTransition(this);
         }
+        // check if user is the creator
+        isUserCreator = mFeedData.getUUID().equals(mHelper.getUUID());
+
+        toggleFollowButton(false);
+        // show menu options if user is creator
+        showMenuOptions();
     }
 
     /**
@@ -504,10 +595,22 @@ public class FeedDescriptionActivity extends BaseActivity implements listener.On
      * @param image   Where image to be displayed.
      */
     private void loadStoryImage(String imgLink, ImageView image) {
-        Picasso.with(this)
+
+        if (IMAGE_LOAD_FROM_NETWORK_FEED_DESCRIPTION) {
+            Picasso.with(this).invalidate(mFeedData.getContentImage());
+        }
+
+
+        RequestCreator requestCreator = Picasso.with(this)
                 .load(imgLink)
-                .error(R.drawable.image_placeholder)
-                .into(image, new Callback() {
+                .error(R.drawable.image_placeholder);
+
+        if (IMAGE_LOAD_FROM_NETWORK_FEED_DESCRIPTION) {
+            requestCreator.networkPolicy(NetworkPolicy.NO_CACHE);
+        }
+
+
+        requestCreator.into(image, new Callback() {
                     @Override
                     public void onSuccess() {
                         ActivityCompat.startPostponedEnterTransition(FeedDescriptionActivity.this);
@@ -589,6 +692,31 @@ public class FeedDescriptionActivity extends BaseActivity implements listener.On
         }
     }
 
+    private void toggleFollowButton(boolean showToast) {
+        // toggle visibility of follow button
+        if (mFeedData.getFollowStatus() || isUserCreator) {
+
+            buttonFollow.setVisibility(View.GONE);
+
+            if (showToast) {
+                ViewHelper.getToast(mContext, "You are now following " + mFeedData.getCreatorName());
+            }
+
+        } else {
+            buttonFollow.setVisibility(View.VISIBLE);
+        }
+    }
+
+    /**
+     * If user is creator then it shows menu options
+     */
+    private void showMenuOptions() {
+        if (isUserCreator) {
+            buttonMenu.setVisibility(View.VISIBLE);
+        } else {
+            buttonMenu.setVisibility(View.GONE);
+        }
+    }
 
     /**
      * RxJava2 implementation for retrieving comment data from server.
@@ -699,135 +827,6 @@ public class FeedDescriptionActivity extends BaseActivity implements listener.On
         mHelper.updateHaveButtonToolTipStatus(false);
     }
 
-
-    /**
-     * write collabOnWritingClick functionality.
-     *
-     * @param view       View to be clicked.
-     * @param captureID  CaptureID of image.
-     * @param captureURL Capture image url.
-     */
-    private void writeOnClick(View view, final String captureID, final String captureURL, final boolean merchantable) {
-        view.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-
-                if (mHelper.isCaptureIconTooltipFirstTime()) {
-                    getShortOnClickDialog(captureID, captureURL, merchantable);
-                } else {
-                    Bundle bundle = new Bundle();
-                    bundle.putString(EXTRA_CAPTURE_ID, captureID);
-                    bundle.putString(EXTRA_CAPTURE_URL, captureURL);
-                    bundle.putBoolean(EXTRA_MERCHANTABLE, merchantable);
-                    Intent intent = new Intent(mContext, ShortActivity.class);
-                    intent.putExtra(EXTRA_DATA, bundle);
-                    mContext.startActivity(intent);
-                }
-                //Log Firebase event
-                setAnalytics(FIREBASE_EVENT_WRITE_CLICKED);
-            }
-        });
-    }
-
-    /**
-     * capture collabOnWritingClick functionality.
-     *
-     * @param view View to be clicked.
-     */
-    private void captureOnClick(View view) {
-        view.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-
-                if (mHelper.isWriteIconTooltipFirstTime()) {
-                    // open dialog
-                    getCaptureOnClickDialog();
-                } else {
-                    startCaptureCollaboration();
-                }
-                //Log Firebase event
-                setAnalytics(FIREBASE_EVENT_CAPTURE_CLICKED);
-            }
-        });
-    }
-
-    /**
-     * Method to show intro dialog when user collaborated by clicking on capture
-     */
-    private void getCaptureOnClickDialog() {
-        MaterialDialog dialog = new MaterialDialog.Builder(mContext)
-                .customView(R.layout.dialog_generic, false)
-                .positiveText(mContext.getString(R.string.text_ok))
-                .onPositive(new MaterialDialog.SingleButtonCallback() {
-                    @Override
-                    public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
-                        //Open capture functionality
-                        startCaptureCollaboration();
-
-                        dialog.dismiss();
-                        //update status
-                        mHelper.updateWriteIconToolTipStatus(false);
-                    }
-                })
-                .show();
-        //Obtain views reference
-        ImageView fillerImage = dialog.getCustomView().findViewById(R.id.viewFiller);
-        TextView textTitle = dialog.getCustomView().findViewById(R.id.textTitle);
-        TextView textDesc = dialog.getCustomView().findViewById(R.id.textDesc);
-
-
-        //Set filler image
-        fillerImage.setImageDrawable(ContextCompat.getDrawable(mContext, R.drawable.img_collab_intro));
-        //Set title text
-        textTitle.setText(getString(R.string.title_dialog_collab_capture));
-        //Set description text
-        textDesc.setText(getString(R.string.text_dialog_collab_capture));
-    }
-
-    /**
-     * Method to show intro dialog when user collaborated by clicking on capture
-     *
-     * @param captureID    capture ID
-     * @param captureURL   capture URl
-     * @param merchantable merchantable true or false
-     */
-    private void getShortOnClickDialog(final String captureID, final String captureURL, final boolean merchantable) {
-        MaterialDialog dialog = new MaterialDialog.Builder(mContext)
-                .customView(R.layout.dialog_generic, false)
-                .positiveText(mContext.getString(R.string.text_ok))
-                .onPositive(new MaterialDialog.SingleButtonCallback() {
-                    @Override
-                    public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
-                        //Open short functionality
-
-                        Bundle bundle = new Bundle();
-                        bundle.putString(EXTRA_CAPTURE_ID, captureID);
-                        bundle.putString(EXTRA_CAPTURE_URL, captureURL);
-                        bundle.putBoolean(EXTRA_MERCHANTABLE, merchantable);
-                        Intent intent = new Intent(mContext, ShortActivity.class);
-                        intent.putExtra(EXTRA_DATA, bundle);
-                        mContext.startActivity(intent);
-
-                        dialog.dismiss();
-                        //update status
-                        mHelper.updateCaptureIconToolTipStatus(false);
-                    }
-                })
-                .show();
-        //Obtain views reference
-        ImageView fillerImage = dialog.getCustomView().findViewById(R.id.viewFiller);
-        TextView textTitle = dialog.getCustomView().findViewById(R.id.textTitle);
-        TextView textDesc = dialog.getCustomView().findViewById(R.id.textDesc);
-
-
-        //Set filler image
-        fillerImage.setImageDrawable(ContextCompat.getDrawable(mContext, R.drawable.img_collab_intro));
-        //Set title text
-        textTitle.setText(getString(R.string.title_dialog_collab_short));
-        //Set description text
-        textDesc.setText(getString(R.string.text_dialog_collab_short));
-    }
-
     /**
      * Method to send analytics data on firebase server.
      *
@@ -861,28 +860,6 @@ public class FeedDescriptionActivity extends BaseActivity implements listener.On
     }
 
     /**
-     * Method to start the capture collaboration process
-     */
-    private void startCaptureCollaboration() {
-        //Check for Write permission
-        if (Nammu.checkPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
-            //We have permission do whatever you want to do
-            chooseImageFromGallery();
-        } else {
-            //We do not own this permission
-            if (Nammu.shouldShowRequestPermissionRationale(this
-                    , Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
-                //User already refused to give us this permission or removed it
-                ViewHelper.getToast(this
-                        , getString(R.string.error_msg_capture_permission_denied));
-            } else {
-                //First time asking for permission
-                Nammu.askForPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE, captureWritePermission);
-            }
-        }
-    }
-
-    /**
      * Used to handle result of askForPermission for capture.
      */
     PermissionCallback captureWritePermission = new PermissionCallback() {
@@ -900,6 +877,48 @@ public class FeedDescriptionActivity extends BaseActivity implements listener.On
         }
     };
 
+
+    /**
+     * Initializes delete on click listener
+     *
+     * @return
+     */
+    private OnContentDeleteListener initDeletePostClick() {
+
+        OnContentDeleteListener onContentDeleteListener = new OnContentDeleteListener() {
+            @Override
+            public void onDelete(String entityID, int position) {
+
+                final MaterialDialog dialog = getDeletePostDialog(mContext);
+
+                deletepost(mContext,
+                        mCompositeDisposable,
+                        mFeedData.getEntityID(),
+                        new listener.onDeleteRequestedListener() {
+                            @Override
+                            public void onDeleteSuccess() {
+                                dialog.dismiss();
+
+                                resultBundle.putBoolean("deletestatus", true);
+                                //Return result ok
+                                setResult(RESULT_OK, resultIntent);
+                                ViewHelper.getToast(mContext, getString(R.string.msg_post_deleted));
+                                finish();
+                            }
+
+                            @Override
+                            public void onDeleteFailiure(String errorMsg) {
+
+                                dialog.dismiss();
+                                ViewHelper.getSnackBar(rootView, errorMsg);
+                            }
+                        });
+            }
+        };
+
+        return onContentDeleteListener;
+    }
+
     /**
      * Method to update hatsOff status on server
      */
@@ -911,12 +930,8 @@ public class FeedDescriptionActivity extends BaseActivity implements listener.On
             @Override
             public void onSuccess() {
 
-                Bundle bundle = new Bundle();
-                bundle.putInt("position", mItemPosition);
-                bundle.putLong("hatsOffCount", mFeedData.getHatsOffCount());
-                bundle.putBoolean("hatsOffStatus", mFeedData.getHatsOffStatus());
-                Intent resultIntent = new Intent();
-                resultIntent.putExtra(EXTRA_DATA, bundle);
+                resultBundle.putLong("hatsOffCount", mFeedData.getHatsOffCount());
+                resultBundle.putBoolean("hatsOffStatus", mFeedData.getHatsOffStatus());
 
                 //Return result ok
                 setResult(RESULT_OK, resultIntent);
@@ -932,6 +947,36 @@ public class FeedDescriptionActivity extends BaseActivity implements listener.On
                 ViewHelper.getSnackBar(rootView, errorMsg);
             }
         });
+    }
+
+    /**
+     * Method to update follow status.
+     */
+    private void updateFollowStatus() {
+
+        FollowHelper followHelper = new FollowHelper();
+        followHelper.updateFollowStatus(mContext,
+                mCompositeDisposable,
+                mFeedData.getFollowStatus(),
+                new JSONArray().put(mFeedData.getUUID()),
+                new listener.OnFollowRequestedListener() {
+                    @Override
+                    public void onFollowSuccess() {
+
+                        resultBundle.putBoolean("followstatus", mFeedData.getFollowStatus());
+                        //Return result ok
+                        setResult(RESULT_OK, resultIntent);
+                    }
+
+                    @Override
+                    public void onFollowFailiure(String errorMsg) {
+                        //Toggle status
+                        mFeedData.setFollowStatus(!mFeedData.getFollowStatus());
+                        //Toggle follow button
+                        toggleFollowButton(false);
+                        ViewHelper.getSnackBar(rootView, errorMsg);
+                    }
+                });
     }
 
     /**
@@ -980,7 +1025,6 @@ public class FeedDescriptionActivity extends BaseActivity implements listener.On
                     , getString(R.string.error_msg_share_permission_denied));
         }
     };
-
 
     @Override
     public void collaborationOnGraphic() {

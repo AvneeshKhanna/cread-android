@@ -1,6 +1,5 @@
 package com.thetestament.cread.helpers;
 
-import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.Typeface;
@@ -62,6 +61,8 @@ import static com.thetestament.cread.utils.Constant.EXTRA_CAPTURE_URL;
 import static com.thetestament.cread.utils.Constant.EXTRA_DATA;
 import static com.thetestament.cread.utils.Constant.EXTRA_MERCHANTABLE;
 import static com.thetestament.cread.utils.Constant.EXTRA_PROFILE_UUID;
+import static com.thetestament.cread.utils.Constant.SHORT_EXTRA_CALLED_FROM;
+import static com.thetestament.cread.utils.Constant.SHORT_EXTRA_CALLED_FROM_COLLABORATION_SHORT;
 import static com.thetestament.cread.utils.Constant.URI_HASH_TAG_ACTIVITY;
 
 
@@ -386,6 +387,7 @@ public class FeedHelper {
         feedData.setHatsOffCount(dataObj.getLong("hatsoffcount"));
         feedData.setCommentCount(dataObj.getLong("commentcount"));
         feedData.setContentImage(dataObj.getString("entityurl"));
+        feedData.setFollowStatus(dataObj.getBoolean("followstatus"));
         feedData.setCollabCount(dataObj.getLong("collabcount"));
         if (dataObj.isNull("caption")) {
             feedData.setCaption(null);
@@ -562,7 +564,7 @@ public class FeedHelper {
 
             // check if some view's visibility has to be toggled
             // true for me and main feed
-            // the view concerned is the line seperator
+            // the view concerned is the line separator
             if (shouldToggleVisibility) {
                 view.setVisibility(View.VISIBLE);
             }
@@ -573,7 +575,7 @@ public class FeedHelper {
 
             // check if some view's visibility has to be toggled
             // true for me and main feed
-            // the view concerned is the line seperator
+            // the view concerned is the line separator
             if (shouldToggleVisibility) {
                 view.setVisibility(View.GONE);
             }
@@ -601,6 +603,7 @@ public class FeedHelper {
                                 bundle.putString(EXTRA_CAPTURE_ID, feedData.getCaptureID());
                                 bundle.putString(EXTRA_CAPTURE_URL, feedData.getContentImage());
                                 bundle.putBoolean(EXTRA_MERCHANTABLE, feedData.isMerchantable());
+                                bundle.putString(SHORT_EXTRA_CALLED_FROM, SHORT_EXTRA_CALLED_FROM_COLLABORATION_SHORT);
                                 Intent intent = new Intent(context, ShortActivity.class);
                                 intent.putExtra(EXTRA_DATA, bundle);
                                 context.startActivity(intent);
@@ -638,7 +641,7 @@ public class FeedHelper {
 
             case CONTENT_TYPE_SHORT:
 
-                // check if available for collab
+                // check if available for collaboration
                 if (feedData.isAvailableForCollab()) {
 
                     // for stand alone short
@@ -723,6 +726,7 @@ public class FeedHelper {
                         bundle.putString(EXTRA_CAPTURE_ID, captureID);
                         bundle.putString(EXTRA_CAPTURE_URL, captureURL);
                         bundle.putBoolean(EXTRA_MERCHANTABLE, merchantable);
+                        bundle.putString(SHORT_EXTRA_CALLED_FROM, SHORT_EXTRA_CALLED_FROM_COLLABORATION_SHORT);
                         Intent intent = new Intent(context, ShortActivity.class);
                         intent.putExtra(EXTRA_DATA, bundle);
                         context.startActivity(intent);
@@ -810,6 +814,7 @@ public class FeedHelper {
                             bundle.putString(EXTRA_CAPTURE_ID, responseObject.getString("capid"));
                             bundle.putString(EXTRA_CAPTURE_URL, responseObject.getString("entityurl"));
                             bundle.putBoolean(EXTRA_MERCHANTABLE, merchantable);
+                            bundle.putString(SHORT_EXTRA_CALLED_FROM, SHORT_EXTRA_CALLED_FROM_COLLABORATION_SHORT);
                             Intent intent = new Intent(context, ShortActivity.class);
                             intent.putExtra(EXTRA_DATA, bundle);
                             context.startActivity(intent);
@@ -835,6 +840,7 @@ public class FeedHelper {
                     @Override
                     public void onComplete() {
                         //Hide progress view
+                        progressBar.setVisibility(View.GONE);
                     }
                 });
     }
@@ -920,8 +926,8 @@ public class FeedHelper {
 
 
     /**
-     * Updates the visibility of the dot seperator
-     * based on the values of hatsoff and comment ount
+     * Updates the visibility of the dot separator
+     * based on the values of hatsOff and comment count
      */
     public static void updateDotSeperatorVisibility(FeedModel data, TextView dotSeperator) {
         long hatsoffCount = data.getHatsOffCount();
@@ -939,5 +945,19 @@ public class FeedHelper {
         }
     }
 
+
+    /**
+     * Method to update follow status for each item occurrence of the followed user
+     *
+     * @param exploreData
+     * @param list
+     */
+    public static void updateFollowForAll(FeedModel exploreData, List<FeedModel> list) {
+        for (FeedModel f : list) {
+            if (f.getUUID().equals(exploreData.getUUID())) {
+                f.setFollowStatus(exploreData.getFollowStatus());
+            }
+        }
+    }
 
 }

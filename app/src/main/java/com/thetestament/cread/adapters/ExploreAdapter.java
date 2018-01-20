@@ -25,7 +25,6 @@ import com.thetestament.cread.R;
 import com.thetestament.cread.activities.CollaborationDetailsActivity;
 import com.thetestament.cread.activities.FeedDescriptionActivity;
 import com.thetestament.cread.activities.ProfileActivity;
-import com.thetestament.cread.activities.ShortActivity;
 import com.thetestament.cread.helpers.FeedHelper;
 import com.thetestament.cread.helpers.NetworkHelper;
 import com.thetestament.cread.helpers.SharedPreferenceHelper;
@@ -43,13 +42,10 @@ import butterknife.ButterKnife;
 import de.hdodenhof.circleimageview.CircleImageView;
 
 import static com.thetestament.cread.helpers.FeedHelper.setGridItemMargins;
-import static com.thetestament.cread.utils.Constant.EXTRA_CAPTURE_ID;
-import static com.thetestament.cread.utils.Constant.EXTRA_CAPTURE_URL;
 import static com.thetestament.cread.utils.Constant.EXTRA_DATA;
 import static com.thetestament.cread.utils.Constant.EXTRA_ENTITY_ID;
 import static com.thetestament.cread.utils.Constant.EXTRA_ENTITY_TYPE;
 import static com.thetestament.cread.utils.Constant.EXTRA_FEED_DESCRIPTION_DATA;
-import static com.thetestament.cread.utils.Constant.EXTRA_MERCHANTABLE;
 import static com.thetestament.cread.utils.Constant.EXTRA_PROFILE_UUID;
 import static com.thetestament.cread.utils.Constant.FIREBASE_EVENT_CAPTURE_CLICKED;
 import static com.thetestament.cread.utils.Constant.FIREBASE_EVENT_FOLLOW_FROM_EXPLORE;
@@ -293,37 +289,6 @@ public class ExploreAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
                 } else {
                     ViewHelper.getToast(mContext, mContext.getString(R.string.error_msg_no_connection));
                 }
-
-
-            }
-        });
-    }
-
-    /**
-     * write collabOnWritingClick functionality.
-     *
-     * @param view       View to be clicked.
-     * @param captureID  CaptureID of image.
-     * @param captureURL Capture image url.
-     */
-    private void writeOnClick(View view, final String captureID, final String captureURL, final boolean merchantable) {
-        view.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-
-                if (mHelper.isCaptureIconTooltipFirstTime()) {
-                    getShortOnClickDialog(captureID, captureURL, merchantable);
-                } else {
-                    Bundle bundle = new Bundle();
-                    bundle.putString(EXTRA_CAPTURE_ID, captureID);
-                    bundle.putString(EXTRA_CAPTURE_URL, captureURL);
-                    bundle.putBoolean(EXTRA_MERCHANTABLE, merchantable);
-                    Intent intent = new Intent(mContext, ShortActivity.class);
-                    intent.putExtra(EXTRA_DATA, bundle);
-                    mContext.startActivity(intent);
-                }
-                //Log Firebase event
-                setAnalytics(FIREBASE_EVENT_WRITE_CLICKED);
             }
         });
     }
@@ -511,51 +476,6 @@ public class ExploreAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
         textDesc.setText(mContext.getString(R.string.text_dialog_collab_capture));
     }
 
-    /**
-     * Method to show intro dialog when user collaborated by clicking on capture
-     *
-     * @param captureID    capture ID
-     * @param captureURL   capture URl
-     * @param merchantable merchantable true or false
-     */
-    private void getShortOnClickDialog(final String captureID, final String captureURL, final boolean merchantable) {
-        MaterialDialog dialog = new MaterialDialog.Builder(mContext)
-                .customView(R.layout.dialog_generic, false)
-                .positiveText(mContext.getString(R.string.text_ok))
-                .onPositive(new MaterialDialog.SingleButtonCallback() {
-                    @Override
-                    public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
-                        //Open short functionality
-
-                        Bundle bundle = new Bundle();
-                        bundle.putString(EXTRA_CAPTURE_ID, captureID);
-                        bundle.putString(EXTRA_CAPTURE_URL, captureURL);
-                        bundle.putBoolean(EXTRA_MERCHANTABLE, merchantable);
-                        Intent intent = new Intent(mContext, ShortActivity.class);
-                        intent.putExtra(EXTRA_DATA, bundle);
-                        mContext.startActivity(intent);
-
-                        dialog.dismiss();
-                        //update status
-                        mHelper.updateCaptureIconToolTipStatus(false);
-                    }
-                })
-                .show();
-        //Obtain views reference
-        ImageView fillerImage = dialog.getCustomView().findViewById(R.id.viewFiller);
-        TextView textTitle = dialog.getCustomView().findViewById(R.id.textTitle);
-        TextView textDesc = dialog.getCustomView().findViewById(R.id.textDesc);
-
-
-        //Set filler im
-        fillerImage.setImageDrawable(ContextCompat.getDrawable(mContext, R.drawable.img_collab_intro));
-        //Set title text
-
-        //Set title text
-        textTitle.setText(mContext.getString(R.string.title_dialog_collab_short));
-        //Set description text
-        textDesc.setText(mContext.getString(R.string.text_dialog_collab_short));
-    }
 
     /**
      * Collaboration count click functionality to launch collaborationDetailsActivity.

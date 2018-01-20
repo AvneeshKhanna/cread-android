@@ -15,6 +15,7 @@ import android.support.design.widget.BottomSheetDialog;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.Toolbar;
@@ -23,7 +24,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.afollestad.materialdialogs.DialogAction;
@@ -41,7 +41,6 @@ import com.thetestament.cread.fragments.MeFragment;
 import com.thetestament.cread.helpers.BottomNavigationViewHelper;
 import com.thetestament.cread.helpers.SharedPreferenceHelper;
 import com.thetestament.cread.helpers.ViewHelper;
-import com.thetestament.cread.listeners.listener;
 import com.thetestament.cread.listeners.listener.OnServerRequestedListener;
 import com.yalantis.ucrop.UCrop;
 
@@ -62,6 +61,11 @@ import static com.thetestament.cread.utils.Constant.FIREBASE_EVENT_FEED_CLICKED;
 import static com.thetestament.cread.utils.Constant.FIREBASE_EVENT_NOTIFICATION_CLICKED;
 import static com.thetestament.cread.utils.Constant.FIREBASE_EVENT_WRITE_CLICKED;
 import static com.thetestament.cread.utils.Constant.IMAGE_TYPE_USER_CAPTURE_PIC;
+import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_CALLED_FROM;
+import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_CALLED_FROM_CAPTURE;
+import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_DATA;
+import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_MERCHANTABLE;
+import static com.thetestament.cread.utils.Constant.REQUEST_CODE_EDIT_POST;
 import static com.thetestament.cread.utils.Constant.REQUEST_CODE_OPEN_GALLERY;
 import static com.thetestament.cread.utils.Constant.REQUEST_CODE_ROYALTIES_ACTIVITY;
 import static com.thetestament.cread.utils.Constant.REQUEST_CODE_WRITE_EXTERNAL_STORAGE;
@@ -152,6 +156,13 @@ public class BottomNavigationActivity extends BaseActivity {
                     getAddContentBottomSheetDialog();
                 }
                 break;
+            case REQUEST_CODE_EDIT_POST:
+                if (resultCode == RESULT_OK) {
+
+                    initMeFragment(true);
+                }
+                break;
+
             default:
                 super.onActivityResult(requestCode, resultCode, data);
         }
@@ -264,7 +275,7 @@ public class BottomNavigationActivity extends BaseActivity {
         mCurrentFragment = new FeedFragment();
         //Set fragment tag
         mFragmentTag = TAG_FEED_FRAGMENT;
-        replaceFragment(mCurrentFragment, mFragmentTag);
+        replaceFragment(mCurrentFragment, mFragmentTag, false);
 
         mSelectedItemID = R.id.action_feed;
     }
@@ -291,7 +302,7 @@ public class BottomNavigationActivity extends BaseActivity {
                         mCurrentFragment = new FeedFragment();
                         //set fragment tag
                         mFragmentTag = TAG_FEED_FRAGMENT;
-                        replaceFragment(mCurrentFragment, mFragmentTag);
+                        replaceFragment(mCurrentFragment, mFragmentTag, false);
                         //Log firebase event
                         setAnalytics(FIREBASE_EVENT_FEED_CLICKED);
                         //Update flag
@@ -306,7 +317,7 @@ public class BottomNavigationActivity extends BaseActivity {
                         mCurrentFragment = new ExploreFragment();
                         //Set fragment tag
                         mFragmentTag = TAG_EXPLORE_FRAGMENT;
-                        replaceFragment(mCurrentFragment, mFragmentTag);
+                        replaceFragment(mCurrentFragment, mFragmentTag, false);
                         //Log firebase event
                         setAnalytics(FIREBASE_EVENT_EXPLORE_CLICKED);
                         //Update flag
@@ -320,20 +331,7 @@ public class BottomNavigationActivity extends BaseActivity {
                         break;
 
                     case R.id.action_me:
-                        //Set title
-                        setTitle("Me");
-                        getSupportActionBar().setElevation(
-                                convertToPx(BottomNavigationActivity.this, 4));
-                        setTheme(R.style.BottomNavigationActivityTheme);
-                        Bundle meBundle = new Bundle();
-                        meBundle.putString("calledFrom", "BottomNavigationActivity");
-                        mCurrentFragment = new MeFragment();
-                        mCurrentFragment.setArguments(meBundle);
-                        //set fragment tag
-                        mFragmentTag = TAG_ME_FRAGMENT;
-                        replaceFragment(mCurrentFragment, mFragmentTag);
-                        //Update flag
-                        mSelectedItemID = R.id.action_me;
+                        initMeFragment(false);
                         break;
                 }
                 return true;
@@ -347,12 +345,17 @@ public class BottomNavigationActivity extends BaseActivity {
      * @param fragment    Fragment to be open.
      * @param tagFragment Tag for the fragment to be opened.
      */
-    public void replaceFragment(Fragment fragment, String tagFragment) {
-        getSupportFragmentManager()
+    public void replaceFragment(Fragment fragment, String tagFragment, boolean allowStateLoss) {
+        FragmentTransaction fragmentTransaction = getSupportFragmentManager()
                 .beginTransaction()
                 .replace(R.id.navigationView, fragment, tagFragment)
-                .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE)
-                .commit();
+                .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
+
+        if (allowStateLoss) {
+            fragmentTransaction.commitAllowingStateLoss();
+        } else {
+            fragmentTransaction.commit();
+        }
     }
 
 
@@ -456,12 +459,20 @@ public class BottomNavigationActivity extends BaseActivity {
             //Decode image file
             Bitmap bitmap = BitmapFactory.decodeFile(uri.getPath());
             //If resolution of image is greater than 2000x2000 then compress this image
-            if (bitmap.getWidth() > 1800 && bitmap.getWidth() > 1800) {
+            if (bitmap.getWidth() >= 1800 && bitmap.getWidth() >= 1800) {
                 //Compress image
                 compressCroppedImg(uri, this, IMAGE_TYPE_USER_CAPTURE_PIC);
                 //Open preview screen
-                Intent intent = new Intent(BottomNavigationActivity.this, CapturePreviewActivity.class);
-                intent.putExtra("isMerchantable", "1");
+                //Intent intent = new Intent(BottomNavigationActivity.this, CapturePreviewActivity.class);
+                //intent.putExtra("isMerchantable", "1");
+                //startActivity(intent);
+                //Open preview screen
+                Bundle bundle = new Bundle();
+                bundle.putString(PREVIEW_EXTRA_MERCHANTABLE, "1");
+                bundle.putString(PREVIEW_EXTRA_CALLED_FROM, PREVIEW_EXTRA_CALLED_FROM_CAPTURE);
+
+                Intent intent = new Intent(BottomNavigationActivity.this, PreviewActivity.class);
+                intent.putExtra(PREVIEW_EXTRA_DATA, bundle);
                 startActivity(intent);
             } else {
                 getMerchantableDialog();
@@ -614,8 +625,17 @@ public class BottomNavigationActivity extends BaseActivity {
                     @Override
                     public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
                         //open preview screen
-                        Intent intent = new Intent(BottomNavigationActivity.this, CapturePreviewActivity.class);
-                        intent.putExtra("isMerchantable", "0");
+                        //Intent intent = new Intent(BottomNavigationActivity.this, CapturePreviewActivity.class);
+                        //intent.putExtra("isMerchantable", "0");
+                        //startActivity(intent);
+
+                        //Open preview screen
+                        Bundle bundle = new Bundle();
+                        bundle.putString(PREVIEW_EXTRA_MERCHANTABLE, "0");
+                        bundle.putString(PREVIEW_EXTRA_CALLED_FROM, PREVIEW_EXTRA_CALLED_FROM_CAPTURE);
+
+                        Intent intent = new Intent(BottomNavigationActivity.this, PreviewActivity.class);
+                        intent.putExtra(PREVIEW_EXTRA_DATA, bundle);
                         startActivity(intent);
                         dialog.dismiss();
                     }
@@ -658,6 +678,23 @@ public class BottomNavigationActivity extends BaseActivity {
 
                     }
                 });
+    }
+
+    private void initMeFragment(boolean allowStateLoss) {
+        //Set title
+        setTitle("Me");
+        getSupportActionBar().setElevation(
+                convertToPx(BottomNavigationActivity.this, 4));
+        setTheme(R.style.BottomNavigationActivityTheme);
+        Bundle meBundle = new Bundle();
+        meBundle.putString("calledFrom", "BottomNavigationActivity");
+        mCurrentFragment = new MeFragment();
+        mCurrentFragment.setArguments(meBundle);
+        //set fragment tag
+        mFragmentTag = TAG_ME_FRAGMENT;
+        replaceFragment(mCurrentFragment, mFragmentTag, allowStateLoss);
+        //Update flag
+        mSelectedItemID = R.id.action_me;
     }
 
 

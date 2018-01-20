@@ -17,6 +17,8 @@ public class Constant {
     public static final int REQUEST_CODE_ROYALTIES_ACTIVITY = 1009;
     public static final int REQUEST_CODE_FEED_DESCRIPTION_ACTIVITY = 1010;
     public static final int REQUEST_CODE_PREVIEW_ACTIVITY = 1011;
+    public static final int REQUEST_CODE_EDIT_POST = 1012;
+    //public static final int REQUEST_CODE_EDIT_SHORT = 1013;
 
 
     //Tag value for fragments
@@ -33,6 +35,11 @@ public class Constant {
     public static final String CONTENT_TYPE_SHORT = "SHORT";
     public static final String CONTENT_TYPE_CAPTURE = "CAPTURE";
 
+    //Text gravity types
+    public static final String TEXT_GRAVITY_TYPE_CENTER = "Center";
+    public static final String TEXT_GRAVITY_TYPE_LEFT = "Left";
+    public static final String TEXT_GRAVITY_TYPE_RIGHT = "Right";
+
     public static final String SEARCH_TYPE_PEOPLE = "USER";
     public static final String SEARCH_TYPE_HASHTAG = "HASHTAG";
     public static final String SEARCH_TYPE_NO_RESULTS = "NORESULTS";
@@ -40,8 +47,8 @@ public class Constant {
 
     //Image Types
     public static final String IMAGE_TYPE_USER_PROFILE_PIC = "userProfilePic";
-    public static final String IMAGE_TYPE_USER_CAPTURE_PIC = "UserCapturePic";
-    public static final String IMAGE_TYPE_USER_SHORT_PIC = "UserShortPic";
+    public static final String IMAGE_TYPE_USER_CAPTURE_PIC = "userCapturePic";
+    public static final String IMAGE_TYPE_USER_SHORT_PIC = "userShortPic";
     public static final String IMAGE_TYPE_USER_SHARED_PIC = "sharedPic";
 
     //Photo watermark status
@@ -158,6 +165,7 @@ public class Constant {
     public static final String FIREBASE_EVENT_NOTIFICATION_CLICKED = "notification_clicked";
     public static final String FIREBASE_EVENT_FIND_FRIENDS = "find_friends";
     public static final String FIREBASE_EVENT_FOLLOW_FROM_EXPLORE = "follow_from_explore";
+    public static final String FIREBASE_EVENT_FOLLOW_FROM_FEED_DESCRIPTION = "follow_from_feed_description";
     public static final String FIREBASE_EVENT_FOLLOW_FROM_PROFILE = "follow_from_profile";
     public static final String FIREBASE_EVENT_SHARED_FROM_FEED_DESCRIPTION = "shared_from_feed_description";
     public static final String FIREBASE_EVENT_SHARED_FROM_MAIN_FEED = "shared_from_main_feed";
@@ -191,6 +199,7 @@ public class Constant {
     public static final String PREVIEW_EXTRA_CALLED_FROM = "calledFrom";
     public static final String PREVIEW_EXTRA_UUID = "uuid";
     public static final String PREVIEW_EXTRA_AUTH_KEY = "authKey";
+    public static final String PREVIEW_EXTRA_ENTITY_ID = "entityID";
     public static final String PREVIEW_EXTRA_SHORT_ID = "shortID";
     public static final String PREVIEW_EXTRA_CAPTURE_ID = "captureID";
     public static final String PREVIEW_EXTRA_X_POSITION = "xPosition";
@@ -209,7 +218,18 @@ public class Constant {
     public static final String PREVIEW_EXTRA_BOLD = "bold";
     public static final String PREVIEW_EXTRA_ITALIC = "italic";
     public static final String PREVIEW_EXTRA_IMAGE_TINT_COLOR = "imageTintColor";
+    public static final String PREVIEW_EXTRA_CAPTION_TEXT = "captionText";
+    public static final String PREVIEW_EXTRA_CONTENT_IMAGE = "contentImage";
     public static final String PREVIEW_EXTRA_CALLED_FROM_COLLABORATION = "collaboration";
     public static final String PREVIEW_EXTRA_CALLED_FROM_SHORT = "short";
+    public static final String PREVIEW_EXTRA_CALLED_FROM_CAPTURE = "capture";
+    public static final String PREVIEW_EXTRA_CALLED_FROM_EDIT_CAPTURE = "editCapture";
+    public static final String PREVIEW_EXTRA_CALLED_FROM_EDIT_SHORT = "editShort";
+
+    //Data for  Short activity
+    public static final String SHORT_EXTRA_CALLED_FROM = "shortCalledFrom";
+    public static final String SHORT_EXTRA_CALLED_FROM_EDIT_SHORT = "calledFromEditShort";
+    public static final String SHORT_EXTRA_CALLED_FROM_COLLABORATION_SHORT = "calledFromCollaboration";
+    public static final String SHORT_EXTRA_CAPTION_TEXT = "shortCaptionText";
 
 }

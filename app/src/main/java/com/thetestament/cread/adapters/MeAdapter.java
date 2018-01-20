@@ -6,8 +6,6 @@ import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.design.widget.BottomSheetDialog;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.content.ContextCompat;
@@ -21,10 +19,12 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import com.afollestad.materialdialogs.DialogAction;
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.google.firebase.analytics.FirebaseAnalytics;
+import com.squareup.picasso.MemoryPolicy;
+import com.squareup.picasso.NetworkPolicy;
 import com.squareup.picasso.Picasso;
+import com.squareup.picasso.RequestCreator;
 import com.squareup.picasso.Target;
 import com.thetestament.cread.R;
 import com.thetestament.cread.activities.CollaborationDetailsActivity;
@@ -36,6 +36,7 @@ import com.thetestament.cread.helpers.SharedPreferenceHelper;
 import com.thetestament.cread.helpers.ViewHelper;
 import com.thetestament.cread.listeners.listener;
 import com.thetestament.cread.listeners.listener.OnContentDeleteListener;
+import com.thetestament.cread.listeners.listener.OnContentEditListener;
 import com.thetestament.cread.listeners.listener.OnShareLinkClickedListener;
 import com.thetestament.cread.listeners.listener.OnUserActivityHatsOffListener;
 import com.thetestament.cread.listeners.listener.OnUserActivityLoadMoreListener;
@@ -48,6 +49,8 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import de.hdodenhof.circleimageview.CircleImageView;
 
+import static com.thetestament.cread.CreadApp.IMAGE_LOAD_FROM_NETWORK_ME;
+import static com.thetestament.cread.helpers.ContentHelper.getMenuActionsBottomSheet;
 import static com.thetestament.cread.helpers.FeedHelper.initializeShareDialog;
 import static com.thetestament.cread.helpers.FeedHelper.setGridItemMargins;
 import static com.thetestament.cread.utils.Constant.EXTRA_DATA;
@@ -80,6 +83,7 @@ public class MeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     private OnUserActivityLoadMoreListener onLoadMore;
     private OnUserActivityHatsOffListener onHatsOffListener;
     private OnContentDeleteListener onContentDeleteListener;
+    private OnContentEditListener onContentEditListener;
     private listener.OnShareListener onShareListener;
     private OnShareLinkClickedListener onShareLinkClickedListener;
 
@@ -170,27 +174,24 @@ public class MeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     @Override
     public void onBindViewHolder(RecyclerView.ViewHolder holder, final int position) {
         final FeedModel data = mUserContentList.get(position);
-        if (holder.getItemViewType() == VIEW_TYPE_ITEM_LIST || holder.getItemViewType() == VIEW_TYPE_ITEM_LIST_COLLAB) {
+        if (holder.getItemViewType() == VIEW_TYPE_ITEM_LIST
+                || holder.getItemViewType() == VIEW_TYPE_ITEM_LIST_COLLAB) {
             final ListItemViewHolder itemViewHolder = (ListItemViewHolder) holder;
-
-            // intilaize the views and click actions
+            // initialize the views and click actions
             initializeListItem(itemViewHolder, data, position);
 
         } else if (holder.getItemViewType() == VIEW_TYPE_ITEM_GRID) {
             final GridItemViewHolder itemViewHolder = (GridItemViewHolder) holder;
-            //Load me feed image
-
-            // set margins
+            // Set margins
             setGridItemMargins(mContext, position, itemViewHolder.imageMe);
-
+            //Load content image
             loadContentImage(data.getContentImage(), itemViewHolder.imageMe);
-
+            //item click functionality
             itemViewOnClick(itemViewHolder.itemView, data, position, true);
         } else if (holder.getItemViewType() == VIEW_TYPE_LOADING) {
             LoadingViewHolder loadingViewHolder = (LoadingViewHolder) holder;
             loadingViewHolder.progressView.setVisibility(View.VISIBLE);
         }
-
         //Load more data initialization
         initializeLoadMore(position);
     }
@@ -231,6 +232,19 @@ public class MeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                 .load(imageUrl)
                 .error(R.drawable.image_placeholder)
                 .into(imageView);
+
+        RequestCreator requestCreator = Picasso.with(mContext)
+                .load(imageUrl)
+                .error(R.drawable.image_placeholder);
+
+        if (IMAGE_LOAD_FROM_NETWORK_ME) {
+            requestCreator.memoryPolicy(MemoryPolicy.NO_CACHE);
+            requestCreator.networkPolicy(NetworkPolicy.NO_CACHE);
+        }
+
+
+        requestCreator.into(imageView);
+
     }
 
     /**
@@ -248,59 +262,7 @@ public class MeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         }
     }
 
-    /**
-     * Method to show bottomSheet dialog with 'write a short' and 'Upload a capture' option.
-     */
-    public void getMenuActionsBottomSheet(final int index, final String entityID) {
-        final BottomSheetDialog bottomSheetDialog = new BottomSheetDialog(mContext);
-        View sheetView = mContext.getLayoutInflater()
-                .inflate(R.layout.bottomsheet_dialog_content_actions, null);
-        bottomSheetDialog.setContentView(sheetView);
-        bottomSheetDialog.show();
 
-        LinearLayout buttonDelete = sheetView.findViewById(R.id.buttonDelete);
-
-
-        //Delete button functionality
-        buttonDelete.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
-                showDeleteConfirmationDialog(index, entityID);
-
-                //Dismiss bottom sheet
-                bottomSheetDialog.dismiss();
-            }
-        });
-    }
-
-    /**
-     * Method to show confirmation dialog before deletion.
-     *
-     * @param index    position of item in adapter.
-     * @param entityID Entity id of content.
-     */
-    private void showDeleteConfirmationDialog(final int index, final String entityID) {
-        new MaterialDialog.Builder(mContext)
-                .content("Are you sure want to delete this?")
-                .positiveText("Delete")
-                .negativeText("Cancel")
-                .onPositive(new MaterialDialog.SingleButtonCallback() {
-                    @Override
-                    public void onClick(@NonNull MaterialDialog materialDialog, @NonNull DialogAction dialogAction) {
-                        onContentDeleteListener.onDelete(entityID, index);
-                        materialDialog.dismiss();
-                    }
-                })
-                .onNegative(new MaterialDialog.SingleButtonCallback() {
-                    @Override
-                    public void onClick(@NonNull MaterialDialog materialDialog, @NonNull DialogAction dialogAction) {
-                        materialDialog.dismiss();
-                    }
-                })
-                .build()
-                .show();
-    }
 
 
     /**
@@ -379,7 +341,7 @@ public class MeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         itemViewHolder.containerHatsOff.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                //fixme
+
                 // check net status
                 if (NetworkHelper.getNetConnectionStatus(mContext)) {
                     //User has already given the hats off
@@ -508,7 +470,7 @@ public class MeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     }
 
     /**
-     * Intializes the views and click actions
+     * Initializes the views and click actions
      *
      * @param itemViewHolder view holder
      * @param data           Feed data
@@ -538,7 +500,7 @@ public class MeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         itemViewHolder.buttonMenu.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                getMenuActionsBottomSheet(position, data.getEntityID());
+                getMenuActionsBottomSheet(mContext, position, data, onContentDeleteListener);
             }
         });
 
@@ -555,16 +517,6 @@ public class MeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         shareOnClick(itemViewHolder.containerShare, data.getContentImage(), data.getEntityID(), data.getCreatorName(), data);
         //Collaboration count click functionality
         collaborationCountOnClick(itemViewHolder.collabCount, data.getEntityID(), data.getContentType());
-    }
-
-    /**
-     * Method to update dataList and notify for changes.
-     *
-     * @param list Updated data list.
-     */
-    public void updateList(List<FeedModel> list) {
-        mUserContentList = list;
-        notifyDataSetChanged();
     }
 
     /**

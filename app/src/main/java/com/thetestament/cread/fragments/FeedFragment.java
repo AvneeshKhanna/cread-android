@@ -611,8 +611,6 @@ public class FeedFragment extends Fragment implements listener.OnCollaborationLi
             @Override
             public void onHatsOffClick(final FeedModel feedData, final int itemPosition) {
 
-                // updateHatsOffStatus(feedData, itemPosition);
-
                 HatsOffHelper hatsOffHelper = new HatsOffHelper(getActivity());
                 hatsOffHelper.updateHatsOffStatus(feedData.getEntityID(), feedData.getHatsOffStatus());
                 // On hatsOffSuccessListener
@@ -780,7 +778,7 @@ public class FeedFragment extends Fragment implements listener.OnCollaborationLi
     @OnClick(R.id.explorePeopleButton)
     public void onExploreFriendsClicked() {
         ((BottomNavigationActivity) getActivity()).activateBottomNavigationItem(R.id.action_explore);
-        ((BottomNavigationActivity) getActivity()).replaceFragment(new ExploreFragment(), Constant.TAG_EXPLORE_FRAGMENT);
+        ((BottomNavigationActivity) getActivity()).replaceFragment(new ExploreFragment(), Constant.TAG_EXPLORE_FRAGMENT, false);
         //Log firebase event
         setAnalytics(FIREBASE_EVENT_EXPLORE_CLICKED);
     }

@@ -54,7 +54,9 @@ import com.thetestament.cread.activities.UpdateProfileDetailsActivity;
 import com.thetestament.cread.activities.UpdateProfileImageActivity;
 import com.thetestament.cread.adapters.MeAdapter;
 import com.thetestament.cread.adapters.UserStatsPagerAdapter;
+import com.thetestament.cread.helpers.DeletePostHelper;
 import com.thetestament.cread.helpers.FeedHelper;
+import com.thetestament.cread.helpers.FollowHelper;
 import com.thetestament.cread.helpers.HatsOffHelper;
 import com.thetestament.cread.helpers.ImageHelper;
 import com.thetestament.cread.helpers.NetworkHelper;
@@ -62,6 +64,7 @@ import com.thetestament.cread.helpers.ShareHelper;
 import com.thetestament.cread.helpers.SharedPreferenceHelper;
 import com.thetestament.cread.helpers.ViewHelper;
 import com.thetestament.cread.listeners.listener;
+import com.thetestament.cread.listeners.listener.OnServerRequestedListener;
 import com.thetestament.cread.listeners.listener.OnUserStatsClickedListener;
 import com.thetestament.cread.models.FeedModel;
 import com.thetestament.cread.utils.Constant.GratitudeNumbers;
@@ -94,14 +97,11 @@ import pl.tajchert.nammu.Nammu;
 import pl.tajchert.nammu.PermissionCallback;
 
 import static android.app.Activity.RESULT_OK;
-import static com.thetestament.cread.CreadApp.GET_RESPONSE_FROM_NETWORK_EXPLORE;
-import static com.thetestament.cread.CreadApp.GET_RESPONSE_FROM_NETWORK_FIND_FRIENDS;
-import static com.thetestament.cread.CreadApp.GET_RESPONSE_FROM_NETWORK_FOLLOWING;
-import static com.thetestament.cread.CreadApp.GET_RESPONSE_FROM_NETWORK_INSPIRATION;
-import static com.thetestament.cread.CreadApp.GET_RESPONSE_FROM_NETWORK_MAIN;
 import static com.thetestament.cread.CreadApp.GET_RESPONSE_FROM_NETWORK_ME;
+import static com.thetestament.cread.dialog.DialogHelper.getDeletePostDialog;
 import static com.thetestament.cread.fragments.ExploreFragment.defaultItemType;
 import static com.thetestament.cread.helpers.FeedHelper.generateDeepLink;
+import static com.thetestament.cread.helpers.FeedHelper.updateFollowForAll;
 import static com.thetestament.cread.helpers.ImageHelper.getImageUri;
 import static com.thetestament.cread.helpers.NetworkHelper.getNetConnectionStatus;
 import static com.thetestament.cread.helpers.NetworkHelper.getObservableFromServer;
@@ -330,14 +330,31 @@ public class MeFragment extends Fragment implements listener.OnCollaborationList
                 if (resultCode == RESULT_OK) {
                     Bundle bundle = data.getBundleExtra(EXTRA_DATA);
                     //Update data
-                    mUserActivityDataList.get(bundle.getInt("position")).setHatsOffStatus(bundle.getBoolean("hatsOffStatus"));
-                    mUserActivityDataList.get(bundle.getInt("position")).setHatsOffCount(bundle.getLong("hatsOffCount"));
+                    if (tabLayout.getSelectedTabPosition() == 2) {
+                        mCollabList.get(bundle.getInt("position")).setHatsOffStatus(bundle.getBoolean("hatsOffStatus"));
+                        mCollabList.get(bundle.getInt("position")).setHatsOffCount(bundle.getLong("hatsOffCount"));
+                        mCollabList.get(bundle.getInt("position")).setFollowStatus(bundle.getBoolean("followstatus"));
+
+                        updateFollowForAll(mCollabList.get(bundle.getInt("position")), mCollabList);
+
+                    } else {
+                        mUserActivityDataList.get(bundle.getInt("position")).setHatsOffStatus(bundle.getBoolean("hatsOffStatus"));
+                        mUserActivityDataList.get(bundle.getInt("position")).setHatsOffCount(bundle.getLong("hatsOffCount"));
+                        mUserActivityDataList.get(bundle.getInt("position")).setFollowStatus(bundle.getBoolean("followstatus"));
+                        mUserActivityDataList.get(bundle.getInt("position")).setCaption(bundle.getString("caption"));
+
+                        updateFollowForAll(mUserActivityDataList.get(bundle.getInt("position")), mUserActivityDataList);
+
+                        if (bundle.getBoolean("deletestatus")) {
+                            mUserActivityDataList.remove(bundle.getInt("position"));
+                            mAdapter.notifyItemRemoved(bundle.getInt("position") + 1);
+                        }
+                    }
                     //Notify changes
                     mAdapter.notifyItemChanged(bundle.getInt("position"));
                 }
                 break;
         }
-
     }
 
     @Override
@@ -824,13 +841,20 @@ public class MeFragment extends Fragment implements listener.OnCollaborationList
                                 textUserName.setText(mFirstName);
                             }
 
-                            //Set user activity stats
-                            ((TextView) viewPagerUserStats.findViewWithTag(POSTS)).setText(String.valueOf(mPostCount));
-                            ((TextView) viewPagerUserStats.findViewWithTag(FOLLOWERS)).setText(String.valueOf(mFollowerCount));
-                            ((TextView) viewPagerUserStats.findViewWithTag(FOLLOWING)).setText(String.valueOf(mFollowingCount));
-                            ((TextView) viewPagerUserStats.findViewWithTag(HATSOFF)).setText(String.valueOf(mHatsoffCount));
-                            ((TextView) viewPagerUserStats.findViewWithTag(COMMENT)).setText(String.valueOf(mCommentsCount));
-                            ((TextView) viewPagerUserStats.findViewWithTag(COLLABORATIONS)).setText(String.valueOf(mCollaborationCount));
+                            new Handler().post(new Runnable() {
+                                                   @Override
+                                                   public void run() {
+                                                       //Set user activity stats
+                                                       ((TextView) viewPagerUserStats.findViewWithTag(POSTS)).setText(String.valueOf(mPostCount));
+                                                       ((TextView) viewPagerUserStats.findViewWithTag(FOLLOWERS)).setText(String.valueOf(mFollowerCount));
+                                                       ((TextView) viewPagerUserStats.findViewWithTag(FOLLOWING)).setText(String.valueOf(mFollowingCount));
+                                                       ((TextView) viewPagerUserStats.findViewWithTag(HATSOFF)).setText(String.valueOf(mHatsoffCount));
+                                                       ((TextView) viewPagerUserStats.findViewWithTag(COMMENT)).setText(String.valueOf(mCommentsCount));
+                                                       ((TextView) viewPagerUserStats.findViewWithTag(COLLABORATIONS)).setText(String.valueOf(mCollaborationCount));
+
+                                                   }
+                                               }
+                            );
 
                             //If user bio present
                             if (mUserBio != null && !mUserBio.isEmpty() && !mUserBio.equals("null")) {
@@ -971,100 +995,43 @@ public class MeFragment extends Fragment implements listener.OnCollaborationList
      * Method to update follow status.
      */
     private void updateFollowStatus() {
-        final JSONObject jsonObject = new JSONObject();
-        JSONArray jsonArray = new JSONArray();
-        try {
-            jsonArray.put(mRequestedUUID);
 
-            jsonObject.put("uuid", mHelper.getUUID());
-            jsonObject.put("authkey", mHelper.getAuthToken());
-            jsonObject.put("register", mFollowStatus);
-            jsonObject.put("followees", jsonArray);
-
-        } catch (JSONException e) {
-            e.printStackTrace();
-            FirebaseCrash.report(e);
-        }
-        Rx2AndroidNetworking.post(BuildConfig.URL + "/follow/on-click")
-                .addJSONObjectBody(jsonObject)
-                .build()
-                .getJSONObjectObservable()
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribeWith(new Observer<JSONObject>() {
+        FollowHelper followHelper = new FollowHelper();
+        followHelper.updateFollowStatus(getActivity(),
+                mCompositeDisposable,
+                mFollowStatus,
+                new JSONArray().put(mRequestedUUID),
+                new listener.OnFollowRequestedListener() {
                     @Override
-                    public void onSubscribe(@io.reactivex.annotations.NonNull Disposable d) {
-                        mCompositeDisposable.add(d);
-                    }
+                    public void onFollowSuccess() {
 
-                    @Override
-                    public void onNext(@io.reactivex.annotations.NonNull JSONObject jsonObject) {
-                        //Enable follow button
                         buttonFollow.setEnabled(true);
-                        try {
-                            //Token status is not valid
-                            if (jsonObject.getString("tokenstatus").equals("invalid")) {
-                                //set status to true if its false and vice versa
-                                mFollowStatus = !mFollowStatus;
-                                //toggle follow button
-                                toggleFollowButton(mFollowStatus, getActivity());
-                                ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_invalid_token));
-                            }
-                            //Token is valid
-                            else {
-                                JSONObject mainData = jsonObject.getJSONObject("data");
-                                if (mainData.getString("status").equals("done")) {
-                                    if (mFollowStatus) {
-                                        //Increase count by one
-                                        mFollowerCount += 1;
-                                        //Set count
-                                        ((TextView) viewPagerUserStats.findViewWithTag(FOLLOWERS)).setText(String.valueOf(mFollowerCount));
-                                    } else {
-                                        //Decrease count by one
-                                        mFollowerCount -= 1;
-                                        //Set count
-                                        ((TextView) viewPagerUserStats.findViewWithTag(FOLLOWERS)).setText(String.valueOf(mFollowerCount));
-                                    }
 
-                                    // set feeds data to be loaded from network
-                                    // instead of cached data
-                                    GET_RESPONSE_FROM_NETWORK_MAIN = true;
-                                    GET_RESPONSE_FROM_NETWORK_EXPLORE = true;
-                                    GET_RESPONSE_FROM_NETWORK_ME = true;
-                                    GET_RESPONSE_FROM_NETWORK_FIND_FRIENDS = true;
-                                    GET_RESPONSE_FROM_NETWORK_FOLLOWING = true;
-                                }
-                            }
-                        } catch (JSONException e) {
-                            //set status to true if its false and vice versa
-                            mFollowStatus = !mFollowStatus;
-                            //toggle follow button
-                            toggleFollowButton(mFollowStatus, getActivity());
-                            e.printStackTrace();
-                            FirebaseCrash.report(e);
-                            ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_internal));
+                        if (mFollowStatus) {
+                            //Increase count by one
+                            mFollowerCount += 1;
+                            //Set count
+                            ((TextView) viewPagerUserStats.findViewWithTag(FOLLOWERS)).setText(String.valueOf(mFollowerCount));
+                        } else {
+                            //Decrease count by one
+                            mFollowerCount -= 1;
+                            //Set count
+                            ((TextView) viewPagerUserStats.findViewWithTag(FOLLOWERS)).setText(String.valueOf(mFollowerCount));
                         }
                     }
 
                     @Override
-                    public void onError(@io.reactivex.annotations.NonNull Throwable e) {
-                        //Enable follow button
+                    public void onFollowFailiure(String errorMsg) {
+
                         buttonFollow.setEnabled(true);
                         //set status to true if its false and vice versa
                         mFollowStatus = !mFollowStatus;
                         //toggle follow button
                         toggleFollowButton(mFollowStatus, getActivity());
-                        e.printStackTrace();
-                        FirebaseCrash.report(e);
-                        ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_server));
-                    }
 
-                    @Override
-                    public void onComplete() {
-                        //Do nothing
+                        ViewHelper.getSnackBar(rootView, errorMsg);
                     }
                 });
-
     }
 
     /**
@@ -1175,6 +1142,7 @@ public class MeFragment extends Fragment implements listener.OnCollaborationList
                                     data.setHatsOffCount(dataObj.getLong("hatsoffcount"));
                                     data.setCommentCount(dataObj.getLong("commentcount"));
                                     data.setContentImage(dataObj.getString("entityurl"));
+                                    data.setFollowStatus(dataObj.getBoolean("followstatus"));
                                     data.setCollabCount(dataObj.getLong("collabcount"));
                                     if (dataObj.isNull("caption")) {
                                         data.setCaption(null);
@@ -1296,7 +1264,7 @@ public class MeFragment extends Fragment implements listener.OnCollaborationList
                         mCollabLastIndexKey,
                         GET_RESPONSE_FROM_NETWORK_ME),
                 getActivity(),
-                new listener.OnServerRequestedListener<JSONObject>() {
+                new OnServerRequestedListener<JSONObject>() {
                     @Override
                     public void onDeviceOffline() {
 
@@ -1348,7 +1316,6 @@ public class MeFragment extends Fragment implements listener.OnCollaborationList
                             ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_internal));
                         } else if (mCollabList.size() == 0) {
                             //Show no data view
-                            // TODO change this
                             viewNoData.setVisibility(View.VISIBLE);
                         } else {
                             // Token status invalid
@@ -1391,7 +1358,7 @@ public class MeFragment extends Fragment implements listener.OnCollaborationList
                         mCollabLastIndexKey,
                         GET_RESPONSE_FROM_NETWORK_ME),
                 getActivity(),
-                new listener.OnServerRequestedListener<JSONObject>() {
+                new OnServerRequestedListener<JSONObject>() {
                     @Override
                     public void onDeviceOffline() {
                         ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_no_connection));
@@ -1445,7 +1412,6 @@ public class MeFragment extends Fragment implements listener.OnCollaborationList
                             ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_internal));
                         } else if (mCollabList.size() == 0) {
                             //Show no data view
-                            // TODO change this
                             viewNoData.setVisibility(View.VISIBLE);
                         } else {
                             //Notify changes
@@ -1479,6 +1445,7 @@ public class MeFragment extends Fragment implements listener.OnCollaborationList
             data.setHatsOffCount(dataObj.getLong("hatsoffcount"));
             data.setCommentCount(dataObj.getLong("commentcount"));
             data.setContentImage(dataObj.getString("entityurl"));
+            data.setFollowStatus(dataObj.getBoolean("followstatus"));
             data.setCollabCount(dataObj.getLong("collabcount"));
             if (dataObj.isNull("caption")) {
                 data.setCaption(null);
@@ -1646,6 +1613,7 @@ public class MeFragment extends Fragment implements listener.OnCollaborationList
                                     data.setHatsOffCount(dataObj.getLong("hatsoffcount"));
                                     data.setCommentCount(dataObj.getLong("commentcount"));
                                     data.setContentImage(dataObj.getString("entityurl"));
+                                    data.setFollowStatus(dataObj.getBoolean("followstatus"));
                                     data.setCollabCount(dataObj.getLong("collabcount"));
                                     if (dataObj.isNull("caption")) {
                                         data.setCaption(null);
@@ -1751,7 +1719,6 @@ public class MeFragment extends Fragment implements listener.OnCollaborationList
         adapter.setHatsOffListener(new listener.OnUserActivityHatsOffListener() {
             @Override
             public void onHatsOffClick(final FeedModel data, final int itemPosition) {
-                updateHatsOffStatus(data, itemPosition);
                 HatsOffHelper hatsOffHelper = new HatsOffHelper(getActivity());
                 hatsOffHelper.updateHatsOffStatus(data.getEntityID(), data.getHatsOffStatus());
                 // On hatsOffSuccessListener
@@ -1776,67 +1743,6 @@ public class MeFragment extends Fragment implements listener.OnCollaborationList
         });
     }
 
-    /**
-     * Method to update hats off status of campaign.
-     *
-     * @param data         Model of current item
-     * @param itemPosition Position of current item i.e integer
-     */
-    private void updateHatsOffStatus(final FeedModel data, final int itemPosition) {
-
-        final JSONObject jsonObject = new JSONObject();
-        try {
-            jsonObject.put("uuid", mHelper.getUUID());
-            jsonObject.put("authkey", mHelper.getAuthToken());
-            jsonObject.put("entityid", data.getEntityID());
-            jsonObject.put("register", data.getHatsOffStatus());
-        } catch (JSONException e) {
-            e.printStackTrace();
-            FirebaseCrash.report(e);
-        }
-        AndroidNetworking.post(BuildConfig.URL + "/hatsoff/on-click")
-                .addJSONObjectBody(jsonObject)
-                .build()
-                .getAsJSONObject(new JSONObjectRequestListener() {
-                    @Override
-                    public void onResponse(JSONObject response) {
-                        try {
-                            //Token status is not valid
-                            if (response.getString("tokenstatus").equals("invalid")) {
-                                //set status to true if its false and vice versa
-                                data.setHatsOffStatus(!data.getHatsOffStatus());
-                                //notify changes
-                                mAdapter.notifyItemChanged(itemPosition);
-                                ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_invalid_token));
-                            }
-                            //Token is valid
-                            else {
-                                JSONObject mainData = response.getJSONObject("data");
-                                if (mainData.getString("status").equals("done")) {
-                                    //Do nothing
-                                }
-                            }
-                        } catch (JSONException e) {
-                            //set status to true if its false and vice versa
-                            data.setHatsOffStatus(!data.getHatsOffStatus());
-                            //notify changes
-                            mAdapter.notifyItemChanged(itemPosition);
-                            e.printStackTrace();
-                            FirebaseCrash.report(e);
-                            ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_internal));
-                        }
-                    }
-
-                    @Override
-                    public void onError(ANError anError) {
-                        //set status to true if its false and vice versa
-                        data.setHatsOffStatus(!data.getHatsOffStatus());
-                        //notify changes
-                        mAdapter.notifyItemChanged(itemPosition);
-                        ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_server));
-                    }
-                });
-    }
 
     /**
      * Initialize delete listener
@@ -1846,13 +1752,8 @@ public class MeFragment extends Fragment implements listener.OnCollaborationList
         meAdapter.setOnContentDeleteListener(new listener.OnContentDeleteListener() {
             @Override
             public void onDelete(String entityID, int position) {
-                // check net status
-                if (NetworkHelper.getNetConnectionStatus(getActivity())) {
-                    deleteContent(entityID, position);
-                } else {
-                    ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_no_connection));
-                }
 
+                deleteContent(entityID, position);
             }
         });
     }
@@ -1864,82 +1765,34 @@ public class MeFragment extends Fragment implements listener.OnCollaborationList
      * @param itemPosition Position of current item.
      */
     private void deleteContent(String entityID, final int itemPosition) {
-        //To show the progress dialog
-        MaterialDialog.Builder builder = new MaterialDialog.Builder(getActivity())
-                .title("Deleting")
-                .content("Please wait...")
-                .autoDismiss(false)
-                .cancelable(false)
-                .progress(true, 0);
-        final MaterialDialog dialog = builder.build();
-        dialog.show();
 
-        JSONObject jsonObject = new JSONObject();
-        try {
-            jsonObject.put("uuid", mHelper.getUUID());
-            jsonObject.put("authkey", mHelper.getAuthToken());
-            jsonObject.put("entityid", entityID);
-        } catch (JSONException e) {
-            e.printStackTrace();
-            FirebaseCrash.report(e);
-            dialog.dismiss();
-        }
-        Rx2AndroidNetworking.post(BuildConfig.URL + "/entity-manage/delete")
-                .addJSONObjectBody(jsonObject)
-                .build()
-                .getJSONObjectObservable()
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new Observer<JSONObject>() {
-                    @Override
-                    public void onSubscribe(@io.reactivex.annotations.NonNull Disposable d) {
-                        //Add disposable
-                        mCompositeDisposable.add(d);
-                    }
+        // init dialog
+        final MaterialDialog dialog = getDeletePostDialog(getActivity());
 
+        DeletePostHelper.deletepost(getActivity(),
+                mCompositeDisposable,
+                entityID,
+                new listener.onDeleteRequestedListener() {
                     @Override
-                    public void onNext(@io.reactivex.annotations.NonNull JSONObject jsonObject) {
+                    public void onDeleteSuccess() {
+
                         dialog.dismiss();
-                        try {
-                            //if token status is not invalid
-                            if (jsonObject.getString("tokenstatus").equals("invalid")) {
-                                ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_invalid_token));
-                            } else {
-                                JSONObject dataObject = jsonObject.getJSONObject("data");
-                                if (dataObject.getString("status").equals("done")) {
-                                    //Remove item from list
-                                    mUserActivityDataList.remove(itemPosition);
-                                    //Update adapter
-                                    mAdapter.notifyItemRemoved(itemPosition);
-                                    ViewHelper.getSnackBar(rootView, "Item deleted");
-                                    //Update user post count
-                                    mPostCount -= 1;
-                                    ((TextView) viewPagerUserStats.findViewWithTag(POSTS)).setText(String.valueOf(mPostCount));
-                                    // update response flag
-                                    GET_RESPONSE_FROM_NETWORK_ME = true;
-                                    GET_RESPONSE_FROM_NETWORK_EXPLORE = true;
-                                    GET_RESPONSE_FROM_NETWORK_INSPIRATION = true;
-                                }
-                            }
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                            FirebaseCrash.report(e);
-                            ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_internal));
-                        }
+
+                        //Remove item from list
+                        mUserActivityDataList.remove(itemPosition);
+                        //Update adapter
+                        mAdapter.notifyItemRemoved(itemPosition);
+                        ViewHelper.getSnackBar(rootView, "Item deleted");
+                        //Update user post count
+                        mPostCount -= 1;
+                        ((TextView) viewPagerUserStats.findViewWithTag(POSTS)).setText(String.valueOf(mPostCount));
                     }
 
+
                     @Override
-                    public void onError(@io.reactivex.annotations.NonNull Throwable e) {
-                        //Dismiss dialog
+                    public void onDeleteFailiure(String errorMsg) {
                         dialog.dismiss();
-                        e.printStackTrace();
-                        FirebaseCrash.report(e);
-                        ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_server));
-                    }
-
-                    @Override
-                    public void onComplete() {
-                        //do nothing
+                        ViewHelper.getSnackBar(rootView, errorMsg);
                     }
                 });
     }

@@ -30,13 +30,17 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.ImageView;
+import android.widget.RelativeLayout;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
 import com.google.firebase.analytics.FirebaseAnalytics;
+import com.google.firebase.crash.FirebaseCrash;
+import com.rx2androidnetworking.Rx2AndroidNetworking;
 import com.squareup.picasso.Callback;
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Target;
+import com.thetestament.cread.BuildConfig;
 import com.thetestament.cread.Manifest;
 import com.thetestament.cread.R;
 import com.thetestament.cread.adapters.ColorAdapter;
@@ -51,39 +55,55 @@ import com.thetestament.cread.listeners.OnSwipeGestureListener;
 import com.thetestament.cread.listeners.listener;
 import com.thetestament.cread.models.ColorModel;
 import com.thetestament.cread.models.FontModel;
-import com.thetestament.cread.widgets.SquareView;
 import com.thetestament.cread.widgets.CustomEditText;
 import com.thetestament.cread.widgets.CustomEditText.OnEditTextBackListener;
+import com.thetestament.cread.widgets.SquareView;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import icepick.Icepick;
 import icepick.State;
+import io.reactivex.Observer;
+import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.CompositeDisposable;
+import io.reactivex.disposables.Disposable;
+import io.reactivex.schedulers.Schedulers;
 
+import static com.thetestament.cread.helpers.FontsHelper.getFontType;
 import static com.thetestament.cread.utils.Constant.EXTRA_CAPTURE_ID;
 import static com.thetestament.cread.utils.Constant.EXTRA_CAPTURE_URL;
 import static com.thetestament.cread.utils.Constant.EXTRA_DATA;
+import static com.thetestament.cread.utils.Constant.EXTRA_ENTITY_ID;
+import static com.thetestament.cread.utils.Constant.EXTRA_ENTITY_TYPE;
 import static com.thetestament.cread.utils.Constant.EXTRA_MERCHANTABLE;
 import static com.thetestament.cread.utils.Constant.FIREBASE_EVENT_INSPIRATION_CLICKED;
 import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_AUTH_KEY;
 import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_BG_COLOR;
 import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_BOLD;
 import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_CALLED_FROM;
+import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_CALLED_FROM_EDIT_SHORT;
 import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_CALLED_FROM_SHORT;
+import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_CAPTION_TEXT;
 import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_CAPTURE_ID;
 import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_DATA;
+import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_ENTITY_ID;
 import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_FONT;
 import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_IMAGE_TINT_COLOR;
 import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_IMG_WIDTH;
 import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_ITALIC;
 import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_MERCHANTABLE;
+import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_SHORT_ID;
 import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_TEXT;
 import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_TEXT_COLOR;
 import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_TEXT_GRAVITY;
@@ -96,6 +116,13 @@ import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_Y_POSITION;
 import static com.thetestament.cread.utils.Constant.REQUEST_CODE_INSPIRATION_ACTIVITY;
 import static com.thetestament.cread.utils.Constant.REQUEST_CODE_PREVIEW_ACTIVITY;
 import static com.thetestament.cread.utils.Constant.REQUEST_CODE_WRITE_EXTERNAL_STORAGE;
+import static com.thetestament.cread.utils.Constant.SHORT_EXTRA_CALLED_FROM;
+import static com.thetestament.cread.utils.Constant.SHORT_EXTRA_CALLED_FROM_COLLABORATION_SHORT;
+import static com.thetestament.cread.utils.Constant.SHORT_EXTRA_CALLED_FROM_EDIT_SHORT;
+import static com.thetestament.cread.utils.Constant.SHORT_EXTRA_CAPTION_TEXT;
+import static com.thetestament.cread.utils.Constant.TEXT_GRAVITY_TYPE_CENTER;
+import static com.thetestament.cread.utils.Constant.TEXT_GRAVITY_TYPE_LEFT;
+import static com.thetestament.cread.utils.Constant.TEXT_GRAVITY_TYPE_RIGHT;
 
 /**
  * Here user creates his/her shorts and uploads on the server.
@@ -114,6 +141,8 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
     CustomEditText textShort;
     @BindView(R.id.seekBarTextSize)
     AppCompatSeekBar seekBarTextSize;
+    @BindView(R.id.btnLAlignText)
+    ImageView btnAlignText;
     @BindView(R.id.dotBold)
     View dotBold;
     @BindView(R.id.dotItalic)
@@ -146,7 +175,7 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
 
 
     @State
-    String mCaptureUrl, mCaptureID = "", mSignatureText, mShortBgColor = "FFFFFFFF", mFontType = "montserrat_regular.ttf";
+    String mCaptureUrl, mCaptureID = "", mShortID = "", mEntityID = "", mCaptionText = "", mSignatureText, mShortBgColor = "FFFFFFFF", mFontType = "montserrat_regular.ttf";
 
     /**
      * Flag to maintain imageWidth
@@ -200,6 +229,10 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
     @State
     int mGravityFlag = 0;
 
+    @State
+    String mCalledFrom = PREVIEW_EXTRA_CALLED_FROM_SHORT;
+
+    ShortActivity mContext;
 
     //ENUM for text gravity
     private enum TextGravity {
@@ -234,6 +267,8 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
         setContentView(R.layout.activity_short);
         //ButterKnife view binding
         ButterKnife.bind(this);
+        //Obtain reference
+        mContext = this;
         //initialize for screen
         initScreen();
     }
@@ -259,13 +294,19 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
                     //Update flags
                     mIsBgColorPresent = false;
                     mIsImagePresent = true;
-                    //show note text
+                    //show note textView
                     textNote.setVisibility(View.VISIBLE);
                 }
                 break;
             case REQUEST_CODE_PREVIEW_ACTIVITY:
                 if (resultCode == RESULT_OK) {
                     //Finish this screen
+
+                    if (data != null) {
+                        setResult(RESULT_OK, getIntent().putExtra(PREVIEW_EXTRA_CAPTION_TEXT
+                                , data.getStringExtra(PREVIEW_EXTRA_CAPTION_TEXT)));
+                    }
+
                     finish();
                 }
                 break;
@@ -602,7 +643,7 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
         colorSheetBehaviour = BottomSheetBehavior.from(colorBottomSheetView);
         colorSheetBehaviour.setPeekHeight(0);
 
-        //initialise font, color bottomSheet
+        //initialise font and color bottomSheet
         initFontLayout();
         initColorLayout();
         //initialize listener
@@ -616,16 +657,33 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
     private void retrieveData() {
         if (getIntent().hasExtra(EXTRA_DATA)) {
             Bundle bundle = getIntent().getBundleExtra(EXTRA_DATA);
-            //Retrieve data
-            mCaptureID = bundle.getString(EXTRA_CAPTURE_ID);
-            mCaptureUrl = bundle.getString(EXTRA_CAPTURE_URL);
-            mIsMerchantable = bundle.getBoolean(EXTRA_MERCHANTABLE);
-            //Load inspiration/capture image
-            loadCapture(imageShort, mCaptureUrl);
-            //Update flag
-            mIsImagePresent = true;
-            //show note text
-            textNote.setVisibility(View.VISIBLE);
+            //Called from short collaboration
+            if (bundle.getString(SHORT_EXTRA_CALLED_FROM).equals(SHORT_EXTRA_CALLED_FROM_COLLABORATION_SHORT)) {
+                //Retrieve data
+                mCaptureID = bundle.getString(EXTRA_CAPTURE_ID);
+                mCaptureUrl = bundle.getString(EXTRA_CAPTURE_URL);
+                mIsMerchantable = bundle.getBoolean(EXTRA_MERCHANTABLE);
+                //Load inspiration/capture image
+                loadCapture(imageShort, mCaptureUrl);
+                //Update flag
+                mIsImagePresent = true;
+                //show note text
+                textNote.setVisibility(View.VISIBLE);
+                // show image tint
+                imageShort.setColorFilter(ContextCompat.getColor(ShortActivity.this, R.color.transparent_50));
+            }
+            //Called from short editing
+            else if (bundle.getString(SHORT_EXTRA_CALLED_FROM).equals(SHORT_EXTRA_CALLED_FROM_EDIT_SHORT)) {
+                loadShortData(bundle.getString(EXTRA_ENTITY_ID), bundle.getString(EXTRA_ENTITY_TYPE));
+                //Retrieve data
+                mIsMerchantable = bundle.getBoolean(EXTRA_MERCHANTABLE);
+                mCaptionText = bundle.getString(SHORT_EXTRA_CAPTION_TEXT);
+                mEntityID = bundle.getString(EXTRA_ENTITY_ID);
+                //Update flag
+
+                mCalledFrom = PREVIEW_EXTRA_CALLED_FROM_EDIT_SHORT;
+
+            }
         }
         //Set water mark text
         mSignatureText = "- " + mHelper.getFirstName() + " " + mHelper.getLastName();
@@ -988,8 +1046,10 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
                     , String.valueOf(mBoldFlag)
                     , String.valueOf(mItalicFlag)
                     , mImageTintColor
-                    , PREVIEW_EXTRA_CALLED_FROM_SHORT
-
+                    , mCalledFrom
+                    , mShortID
+                    , mCaptionText
+                    , mEntityID
             );
 
         } catch (IOException e) {
@@ -1010,7 +1070,8 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
             , String xPosition, String yPosition, String tvWidth, String tvHeight
             , String text, String textSize, String textColor, String textGravity
             , String imgWidth, String merchantable, String font, String bgColor
-            , String bold, String italic, String imageTintColor, String calledFrom) {
+            , String bold, String italic, String imageTintColor, String calledFrom
+            , String shortID, String captionText, String entityID) {
 
         Intent intent = new Intent(ShortActivity.this, PreviewActivity.class);
 
@@ -1035,6 +1096,9 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
         bundle.putString(PREVIEW_EXTRA_ITALIC, italic);
         bundle.putString(PREVIEW_EXTRA_IMAGE_TINT_COLOR, imageTintColor);
         bundle.putString(PREVIEW_EXTRA_CALLED_FROM, calledFrom);
+        bundle.putString(PREVIEW_EXTRA_SHORT_ID, shortID);
+        bundle.putString(PREVIEW_EXTRA_CAPTION_TEXT, captionText);
+        bundle.putString(PREVIEW_EXTRA_ENTITY_ID, entityID);
 
 
         intent.putExtra(PREVIEW_EXTRA_DATA, bundle);
@@ -1063,6 +1127,219 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
         if (mImageTintFlag == 0) {
             imageShort.clearColorFilter();
         }
+    }
+
+    /**
+     * Method to retrieve short data from server when user edits his/her shorts.
+     */
+    private void loadShortData(String entityID, String entityType) {
+        //Hide progress indicator
+        imageProgressView.setVisibility(View.VISIBLE);
+        //Map for request data
+        Map<String, String> requestMap = new HashMap<>();
+        requestMap.put("entityid", entityID);
+        requestMap.put("type", entityType);
+
+        Rx2AndroidNetworking.get(BuildConfig.URL + "/manage-short/load-specific")
+                .addHeaders("uuid", mHelper.getUUID())
+                .addHeaders("authkey", mHelper.getAuthToken())
+                .addQueryParameter(requestMap)
+                .build()
+                .getJSONObjectObservable()
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribeOn(Schedulers.io())
+                .subscribeWith(new Observer<JSONObject>() {
+                    @Override
+                    public void onSubscribe(Disposable d) {
+                        //Add composite disposable
+                        mCompositeDisposable.add(d);
+                    }
+
+                    @Override
+                    public void onNext(JSONObject jsonObject) {
+                        try {
+                            //if token status is not invalid
+                            if (jsonObject.getString("tokenstatus").equals("invalid")) {
+                                ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_invalid_token));
+                            }
+                            //Token is valid
+                            else {
+                                JSONObject responseObject = jsonObject.getJSONObject("data");
+                                //Obtain multiplication factor
+                                float factor = (float) squareView.getWidth()
+                                        / (float) responseObject.getDouble("img_width");
+
+                                //If capture image is not present
+                                if ( TextUtils.isEmpty(responseObject.getString("captureurl")) ||responseObject.getString("captureurl").equals("null")) {
+                                    //Change backgroundColor
+                                    imageShort.setBackgroundColor((int) Long.parseLong(responseObject.getString("bgcolor"), 16));
+                                    //Update flag
+                                    mIsBgColorPresent = true;
+                                } else {
+                                    //Update flag
+                                    mIsImagePresent = true;
+                                    //show note text
+                                    textNote.setVisibility(View.VISIBLE);
+
+                                    Picasso.with(mContext)
+                                            .load(responseObject.getString("captureurl"))
+                                            .into(imageShort, new Callback() {
+                                                @Override
+                                                public void onSuccess() {
+                                                    //Hide progress indicator
+                                                    imageProgressView.setVisibility(View.GONE);
+                                                }
+
+                                                @Override
+                                                public void onError() {
+                                                    //Hide progress indicator
+                                                    imageProgressView.setVisibility(View.GONE);
+                                                }
+                                            });
+                                }
+
+                                //Update flags
+                                mBoldFlag = responseObject.getInt("bold");
+                                mItalicFlag = responseObject.getInt("italic");
+                                mFontType = responseObject.getString("font");
+                                mTextTypeface = getFontType(mFontType, mContext);
+                                mImageWidth = responseObject.getInt("img_width");
+                                mCaptureID = responseObject.getString("capid");
+                                mShortID = responseObject.getString("shoid");
+
+
+                                //Set textView property
+                                textShort.setText(responseObject.getString("text"));
+                                textShort.setTextColor((int) Long.parseLong(responseObject.getString("textcolor"), 16));
+                                textShort.setTextSize(ViewHelper.pixelsToSp(mContext, (float) responseObject.getDouble("textsize") * factor));
+
+
+                                //Update short text typeface
+                                if (mItalicFlag == 0 && mBoldFlag == 0) {
+                                    //Set typeface to normal
+                                    textShort.setTypeface(getFontType(mFontType, mContext), Typeface.NORMAL);
+                                    //Toggle dot views visibility
+                                    dotBold.setVisibility(View.INVISIBLE);
+                                    dotItalic.setVisibility(View.INVISIBLE);
+                                } else if (mItalicFlag == 0 && mBoldFlag == 1) {
+                                    //Set typeface to bold
+                                    textShort.setTypeface(getFontType(mFontType, mContext), Typeface.BOLD);
+                                    //Toggle dot views visibility
+                                    dotBold.setVisibility(View.VISIBLE);
+                                    dotItalic.setVisibility(View.INVISIBLE);
+                                } else if (mItalicFlag == 1 && mBoldFlag == 0) {
+                                    //Set typeface to italic
+                                    textShort.setTypeface(getFontType(mFontType, mContext), Typeface.ITALIC);
+                                    //Toggle dot views visibility
+                                    dotBold.setVisibility(View.INVISIBLE);
+                                    dotItalic.setVisibility(View.VISIBLE);
+                                } else if (mItalicFlag == 1 && mBoldFlag == 1) {
+                                    //Set typeface to bold_italic
+                                    textShort.setTypeface(getFontType(mFontType, mContext), Typeface.BOLD_ITALIC);
+                                    //Toggle dot views visibility
+                                    dotBold.setVisibility(View.VISIBLE);
+                                    dotItalic.setVisibility(View.VISIBLE);
+                                }
+
+                                //Obtain x and y position of text
+                                float dy = (float) (responseObject.getDouble("dy") - squareView.getY()) * factor;
+                                float dx = (float) (responseObject.getDouble("dx") * factor);
+
+                                //Update textView xPosition  and yPosition
+                                RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT
+                                        , RelativeLayout.LayoutParams.WRAP_CONTENT);
+                                params.leftMargin = Math.round(dx); //Your X coordinate
+                                params.topMargin = Math.round(dy); //Your Y coordinate
+                                textShort.setLayoutParams(params);
+
+                                //Update short text gravity
+                                switch (responseObject.getString("textgravity")) {
+                                    case TEXT_GRAVITY_TYPE_CENTER:
+                                        //Set text gravity
+                                        textShort.setGravity(Gravity.CENTER);
+                                        //Change button drawable
+                                        btnAlignText.setImageDrawable(ContextCompat.getDrawable(mContext, R.drawable.ic_format_align_center_32));
+                                        //Change gravity flag
+                                        mGravityFlag = 0;
+                                        //Set gravity variable
+                                        textGravity = TextGravity.Center;
+                                        break;
+                                    case TEXT_GRAVITY_TYPE_LEFT:
+                                        //Set text gravity
+                                        textShort.setGravity(Gravity.LEFT);
+                                        //Change button drawable
+                                        btnAlignText.setImageDrawable(ContextCompat.getDrawable(mContext, R.drawable.ic_format_align_left_32));
+                                        //Change gravity flag
+                                        mGravityFlag = 2;
+                                        //Set gravity variable
+                                        textGravity = TextGravity.West;
+                                        break;
+                                    case TEXT_GRAVITY_TYPE_RIGHT:
+                                        //Set text gravity
+                                        textShort.setGravity(Gravity.RIGHT);
+                                        //Change button drawable
+                                        btnAlignText.setImageDrawable(ContextCompat.getDrawable(mContext, R.drawable.ic_format_align_right_32));
+                                        //Change gravity flag
+                                        mGravityFlag = 1;
+                                        //Set gravity variable
+                                        textGravity = TextGravity.East;
+                                        break;
+                                }
+
+                                //Update image tint
+                                if (!TextUtils.isEmpty(responseObject.getString("imgtintcolor"))||responseObject.getString("imgtintcolor").equals("null")) {
+                                    switch (responseObject.getString("imgtintcolor")) {
+                                        case "80000000":
+                                            //Apply tint
+                                            imageShort.setColorFilter(ContextCompat.getColor(ShortActivity.this, R.color.transparent_50));
+                                            //Update flag
+                                            mImageTintFlag = 1;
+                                            //set tint color
+                                            mImageTintColor = "80000000";
+                                            break;
+                                        case "99000000":
+                                            //Apply tint
+                                            imageShort.setColorFilter(ContextCompat.getColor(ShortActivity.this, R.color.transparent_60));
+                                            //Update flag
+                                            mImageTintFlag = 2;
+                                            //set tint color
+                                            mImageTintColor = "99000000";
+                                            break;
+                                        case "B3000000":
+                                            //Apply tint
+                                            imageShort.setColorFilter(ContextCompat.getColor(ShortActivity.this, R.color.transparent_70));
+                                            //Update flag
+                                            mImageTintFlag = 3;
+                                            //set tint color
+                                            mImageTintColor = "B3000000";
+                                            break;
+                                    }
+                                }
+                            }
+                        } catch (JSONException e) {
+                            //Hide progress indicator
+                            imageProgressView.setVisibility(View.GONE);
+                            e.printStackTrace();
+                            FirebaseCrash.report(e);
+                            ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_internal));
+                        }
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        //Hide progress indicator
+                        imageProgressView.setVisibility(View.GONE);
+                        e.printStackTrace();
+                        FirebaseCrash.report(e);
+                        ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_server));
+                    }
+
+                    @Override
+                    public void onComplete() {
+                        //Hide progress indicator
+                        imageProgressView.setVisibility(View.GONE);
+                    }
+                });
     }
     //endregion
 }

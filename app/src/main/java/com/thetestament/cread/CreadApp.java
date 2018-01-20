@@ -26,6 +26,10 @@ public class CreadApp extends MultiDexApplication {
     public static boolean GET_RESPONSE_FROM_NETWORK_COLLABORATION_DETAILS = false;
     public static boolean GET_RESPONSE_FROM_NETWORK_COMMENTS = false;
 
+    // for picasso image loading
+    public static boolean IMAGE_LOAD_FROM_NETWORK_ME = false;
+    public static boolean IMAGE_LOAD_FROM_NETWORK_FEED_DESCRIPTION = false;
+
     /**
      * Method to return singleton instance of this class.
      */
