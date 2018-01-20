@@ -1204,7 +1204,9 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
                                 mFontType = responseObject.getString("font");
                                 mTextTypeface = getFontType(mFontType, mContext);
                                 mImageWidth = responseObject.getInt("img_width");
-                                mCaptureID = responseObject.getString("capid");
+                                if (!responseObject.isNull("capid")) {
+                                    mCaptureID = responseObject.getString("capid");
+                                }
                                 mShortID = responseObject.getString("shoid");
 
 
