@@ -7,8 +7,8 @@
     <uses-permission android:name="android.permission.WAKE_LOCK" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
-    <uses-permission android:name="android.permission.VIBRATE"/>
-    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
+    <uses-permission android:name="android.permission.VIBRATE" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
 
 
     <permission
@@ -117,8 +117,14 @@
             android:name=".activities.BottomNavigationActivity"
             android:launchMode="singleTop"
             android:screenOrientation="portrait"
-            android:theme="@style/BottomNavigationActivityTheme" />
-
+            android:theme="@style/BottomNavigationActivityTheme">
+            <!--Intent filter to accept image from third party apps-->
+            <intent-filter>
+                <action android:name="android.intent.action.SEND" />
+                <data android:mimeType="image/*" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
         <!-- UpdatesActivity -->
         <activity
             android:name=".activities.UpdatesActivity"

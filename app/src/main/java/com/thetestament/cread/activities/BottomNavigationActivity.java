@@ -15,10 +15,10 @@ import android.support.design.widget.BottomSheetDialog;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.Toolbar;
+import android.text.TextUtils;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -79,13 +79,16 @@ import static com.thetestament.cread.utils.Constant.TAG_ME_FRAGMENT;
 
 public class BottomNavigationActivity extends BaseActivity {
 
+    //region Butter knife view binding
     @BindView(R.id.rootView)
     CoordinatorLayout rootView;
     @BindView(R.id.toolBar)
     Toolbar toolbar;
     @BindView(R.id.bottomNavigation)
     BottomNavigationView navigationView;
+    //endregion
 
+    //region :Fields and constants
     @State
     String mFragmentTag;
     Fragment mCurrentFragment;
@@ -95,12 +98,15 @@ public class BottomNavigationActivity extends BaseActivity {
     @State
     int mSelectedItemID;
 
+    @State
+    boolean mCalledFromSendIntent = false;
+
     private FirebaseAnalytics mFirebaseAnalytics;
     private SharedPreferenceHelper mHelper;
     private CompositeDisposable mCompositeDisposable = new CompositeDisposable();
+    //endregion
 
     @Override
-
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_bottom_navigation);
@@ -124,6 +130,8 @@ public class BottomNavigationActivity extends BaseActivity {
         }
         //Initialize navigation view
         initBottomNavigation();
+        //Method call
+        captureSendIntent(mHelper);
     }
 
     @Override
@@ -144,6 +152,10 @@ public class BottomNavigationActivity extends BaseActivity {
                     //Get cropped image Uri
                     Uri mCroppedImgUri = UCrop.getOutput(data);
                     processCroppedImage(mCroppedImgUri);
+                    //Finish this screen if called from other apps
+                    if (mCalledFromSendIntent) {
+                        finish();
+                    }
 
                 } else if (resultCode == UCrop.RESULT_ERROR) {
                     ViewHelper.getSnackBar(rootView, "Image could not be cropped due to some error");
@@ -203,9 +215,10 @@ public class BottomNavigationActivity extends BaseActivity {
 
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
-        UpdateNotificationBadge updateNotificationBadge = new UpdateNotificationBadge();
-        updateNotificationBadge.execute(menu);
-
+        if (!mCalledFromSendIntent) {
+            UpdateNotificationBadge updateNotificationBadge = new UpdateNotificationBadge();
+            updateNotificationBadge.execute(menu);
+        }
         super.onPrepareOptionsMenu(menu);
         return true;
     }
@@ -279,7 +292,6 @@ public class BottomNavigationActivity extends BaseActivity {
 
         mSelectedItemID = R.id.action_feed;
     }
-
 
     /**
      * Method to initialize BottomNavigation view item click functionality.
@@ -357,7 +369,6 @@ public class BottomNavigationActivity extends BaseActivity {
             fragmentTransaction.commit();
         }
     }
-
 
     /**
      * Method to show bottomSheet dialog with 'write a short' and 'Upload a capture' option.
@@ -697,5 +708,42 @@ public class BottomNavigationActivity extends BaseActivity {
         mSelectedItemID = R.id.action_me;
     }
 
+    /**
+     * Method to handle send intent from other apps.
+     *
+     * @param helper SharedPreference reference
+     */
+    private void captureSendIntent(SharedPreferenceHelper helper) {
+        // Get intent, action and MIME type
+        Intent intent = getIntent();
+        String action = intent.getAction();
+        String type = intent.getType();
+
+
+        //User is not logged in
+        if (TextUtils.isEmpty(helper.getAuthToken()) && TextUtils.isEmpty(helper.getUUID())) {
+            //Update flag
+            mCalledFromSendIntent = true;
+            //Open main screen
+            startActivity(new Intent(BottomNavigationActivity.this, MainActivity.class));
+            //Finish this activity
+            finish();
+        }
+        //user is logged in
+        else {
+            if (Intent.ACTION_SEND.equals(action) && type != null) {
+                if (type.startsWith("image/")) {
+                    //Retrieve image uri
+                    Uri imageUri = intent.getParcelableExtra(Intent.EXTRA_STREAM);
+                    if (imageUri != null) {
+                        //Update flag
+                        mCalledFromSendIntent = true;
+                        // To crop the received image
+                        startImageCropping(this, imageUri, getImageUri(IMAGE_TYPE_USER_CAPTURE_PIC));
+                    }
+                }
+            }
+        }
+    }
 
 }
