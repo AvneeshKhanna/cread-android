@@ -35,9 +35,6 @@ import android.widget.TextView;
 
 import com.afollestad.materialdialogs.DialogAction;
 import com.afollestad.materialdialogs.MaterialDialog;
-import com.androidnetworking.AndroidNetworking;
-import com.androidnetworking.error.ANError;
-import com.androidnetworking.interfaces.JSONObjectRequestListener;
 import com.google.firebase.analytics.FirebaseAnalytics;
 import com.google.firebase.crash.FirebaseCrash;
 import com.rx2androidnetworking.Rx2AndroidNetworking;
@@ -92,6 +89,7 @@ import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.observers.DisposableObserver;
 import io.reactivex.schedulers.Schedulers;
+import io.smooch.ui.ConversationActivity;
 import me.relex.circleindicator.CircleIndicator;
 import pl.tajchert.nammu.Nammu;
 import pl.tajchert.nammu.PermissionCallback;
@@ -361,6 +359,7 @@ public class MeFragment extends Fragment implements listener.OnCollaborationList
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         if (mHelper.getUUID().equals(mRequestedUUID)) {
             inflater.inflate(R.menu.menu_fragment_me, menu);
+            menu.findItem(R.id.action_updates).setShowAsActionFlags(MenuItem.SHOW_AS_ACTION_NEVER);
         }
     }
 
@@ -370,6 +369,9 @@ public class MeFragment extends Fragment implements listener.OnCollaborationList
         switch (item.getItemId()) {
             case R.id.action_royalties:
                 startRoyaltiesActivity();
+                return true;
+            case R.id.action_chat_with_cread:
+                ConversationActivity.show(getActivity());
                 return true;
             default:
                 return super.onOptionsItemSelected(item);

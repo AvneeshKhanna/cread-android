@@ -5,6 +5,9 @@ import android.support.v7.app.AppCompatDelegate;
 
 import com.androidnetworking.AndroidNetworking;
 
+import io.smooch.core.Settings;
+import io.smooch.core.Smooch;
+import io.smooch.core.SmoochCallback;
 import pl.tajchert.nammu.Nammu;
 import uk.co.chrisjenx.calligraphy.CalligraphyConfig;
 
@@ -50,6 +53,9 @@ public class CreadApp extends MultiDexApplication {
         //For vector drawable
         AppCompatDelegate.setCompatVectorFromResourcesEnabled(true);
 
+        //For smooch
+        initSmooch();
+
     }
 
     /**
@@ -62,5 +68,17 @@ public class CreadApp extends MultiDexApplication {
                 .build());
     }
 
+    /**
+     * Method to initialize smooch.
+     */
+    private void initSmooch() {
+        Settings settings = new Settings("5a65b0084cc508004ba2eba7");
+        settings.setFileProviderAuthorities(BuildConfig.APPLICATION_ID + ".provider");
+        Smooch.init(this, settings, new SmoochCallback() {
+            @Override
+            public void run(Response response) {
 
+            }
+        });
+    }
 }

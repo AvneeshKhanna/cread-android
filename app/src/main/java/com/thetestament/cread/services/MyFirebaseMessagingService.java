@@ -13,11 +13,11 @@ import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v4.app.NotificationCompat;
+import android.text.TextUtils;
 import android.util.Log;
 
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
-import com.squareup.picasso.Picasso;
 import com.thetestament.cread.R;
 import com.thetestament.cread.activities.BottomNavigationActivity;
 import com.thetestament.cread.activities.UpdatesActivity;
@@ -34,6 +34,7 @@ import static com.thetestament.cread.CreadApp.GET_RESPONSE_FROM_NETWORK_COMMENTS
 import static com.thetestament.cread.CreadApp.GET_RESPONSE_FROM_NETWORK_ENTITY_SPECIFIC;
 import static com.thetestament.cread.CreadApp.GET_RESPONSE_FROM_NETWORK_EXPLORE;
 import static com.thetestament.cread.CreadApp.GET_RESPONSE_FROM_NETWORK_FIND_FRIENDS;
+import static com.thetestament.cread.CreadApp.GET_RESPONSE_FROM_NETWORK_FOLLOWING;
 import static com.thetestament.cread.CreadApp.GET_RESPONSE_FROM_NETWORK_HATSOFF;
 import static com.thetestament.cread.CreadApp.GET_RESPONSE_FROM_NETWORK_INSPIRATION;
 import static com.thetestament.cread.CreadApp.GET_RESPONSE_FROM_NETWORK_MAIN;
@@ -62,11 +63,10 @@ import static com.thetestament.cread.utils.Constant.NOTIFICATION_ID_CREAD_FOLLOW
 import static com.thetestament.cread.utils.Constant.NOTIFICATION_ID_CREAD_GENERAL;
 import static com.thetestament.cread.utils.Constant.NOTIFICATION_ID_CREAD_HATSOFF;
 import static com.thetestament.cread.utils.Constant.NOTIFICATION_ID_CREAD_TOP_POST;
-import static com.thetestament.cread.CreadApp.GET_RESPONSE_FROM_NETWORK_FOLLOWING;
 
 public class MyFirebaseMessagingService extends FirebaseMessagingService {
 
-    private String category, message, entityID, actorUserID, actorUserImage, persistable, entityImage;
+    private String category = "", message, entityID, actorUserID, actorUserImage, persistable, entityImage;
     private boolean otherCollaborator = false;
     private int mId = 0;
     private int resId = 0;
@@ -86,7 +86,10 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
         message = data.get("message");
 
 
-        performCategorySpecificOperations();
+        if (!TextUtils.isEmpty(category)) {
+            performCategorySpecificOperations();
+        }
+
     }
 
     /**
@@ -185,8 +188,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
         }
 
         //show notification only if valid category
-        if(isValidCategory)
-        {
+        if (isValidCategory) {
             initialiseNotification();
         }
     }

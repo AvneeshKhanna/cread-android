@@ -77,3 +77,9 @@
  -keep class com.facebook.** {
     *;
  }
+
+ ## Smooch
+ -dontwarn okio.**
+ -keep class okio.**
+ -keep class com.google.gson.**
+ -keepclassmembers enum * { *; }

@@ -5,7 +5,14 @@
     <item
         android:id="@+id/action_royalties"
         android:icon="@drawable/ic_menu_wallet_solid"
+        android:orderInCategory="2"
         android:title="Royalties"
         app:showAsAction="always" />
 
+    <item
+        android:id="@+id/action_chat_with_cread"
+        android:icon="@drawable/ic_feedback_24"
+        android:orderInCategory="1"
+        android:title="Royalties"
+        app:showAsAction="always" />
 </menu>

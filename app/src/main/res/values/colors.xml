@@ -111,4 +111,9 @@
     <color name="color_red_500">#F44336</color>
 
 
+    <!--Smooch Customization-->
+    <color name="Smooch_accent">@color/colorPrimary</color>
+    <color name="Smooch_accentDark">@color/colorPrimaryDark</color>
+    <color name="Smooch_accentLight">@color/colorPrimary</color>
+
 </resources>

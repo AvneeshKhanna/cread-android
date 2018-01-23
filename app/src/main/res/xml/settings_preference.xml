@@ -56,6 +56,14 @@
         android:title="FAQ" />
 
     <android.support.v7.preference.Preference
+        android:id="@+id/chat_with_us"
+        android:defaultValue="true"
+        android:icon="@drawable/ic_chat_vector_24"
+        android:key="chatWithUs"
+        android:title="Chat with us" />
+
+
+    <android.support.v7.preference.Preference
         android:id="@+id/logout_settings"
         android:defaultValue="true"
         android:icon="@drawable/ic_menu_logout"

@@ -40,12 +40,13 @@ import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.schedulers.Schedulers;
+import io.smooch.ui.ConversationActivity;
 
+import static com.thetestament.cread.helpers.FeedHelper.inviteFriends;
 import static com.thetestament.cread.utils.Constant.EXTRA_WEB_VIEW_TITLE;
 import static com.thetestament.cread.utils.Constant.EXTRA_WEB_VIEW_URL;
 import static com.thetestament.cread.utils.Constant.FIREBASE_EVENT_FIND_FRIENDS;
 import static com.thetestament.cread.utils.Constant.FIREBASE_EVENT_RATE_US_CLICKED;
-import static com.thetestament.cread.helpers.FeedHelper.inviteFriends;
 
 public class SettingsFragment extends PreferenceFragmentCompat {
 
@@ -118,7 +119,6 @@ public class SettingsFragment extends PreferenceFragmentCompat {
         });
 
 
-
         Preference rateUsItem = findPreference("rate_us");
         rateUsItem.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
             @Override
@@ -143,6 +143,9 @@ public class SettingsFragment extends PreferenceFragmentCompat {
                 return false;
             }
         });
+
+        //Method called
+        chatWithUsOnClick();
 
         return super.onCreateView(inflater, container, savedInstanceState);
     }
@@ -190,8 +193,7 @@ public class SettingsFragment extends PreferenceFragmentCompat {
     private void performLogOut() {
 
         // check net status
-        if(NetworkHelper.getNetConnectionStatus(getActivity()))
-        {
+        if (NetworkHelper.getNetConnectionStatus(getActivity())) {
             //To show the progress dialog
             MaterialDialog.Builder builder = new MaterialDialog.Builder(getActivity())
                     .title("Log out in progress")
@@ -305,10 +307,7 @@ public class SettingsFragment extends PreferenceFragmentCompat {
                             // do nothing
                         }
                     });
-        }
-
-        else
-        {
+        } else {
             ViewHelper.getToast(getActivity(), getString(R.string.error_msg_no_connection));
         }
 
@@ -346,5 +345,20 @@ public class SettingsFragment extends PreferenceFragmentCompat {
         } else {
             mFirebaseAnalytics.logEvent(FIREBASE_EVENT_FIND_FRIENDS, bundle);
         }
+    }
+
+    /**
+     * Chat with us click functionality to launch smooch chat system.
+     */
+    private void chatWithUsOnClick() {
+        final Preference preference = findPreference("chatWithUs");
+        preference.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+            @Override
+            public boolean onPreferenceClick(Preference preference) {
+                //Start smooch activity
+                ConversationActivity.show(getActivity());
+                return false;
+            }
+        });
     }
 }
