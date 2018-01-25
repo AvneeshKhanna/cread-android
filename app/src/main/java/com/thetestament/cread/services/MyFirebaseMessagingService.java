@@ -22,11 +22,12 @@ import com.thetestament.cread.R;
 import com.thetestament.cread.activities.BottomNavigationActivity;
 import com.thetestament.cread.activities.UpdatesActivity;
 import com.thetestament.cread.fragments.SettingsFragment;
-import com.thetestament.cread.utils.Constant;
 import com.thetestament.cread.utils.NotificationDataSaver;
 import com.thetestament.cread.utils.NotificationDataSaver.OnCompleteListener;
 
 import java.util.Map;
+
+import io.smooch.ui.ConversationActivity;
 
 import static android.support.v4.app.NotificationManagerCompat.IMPORTANCE_HIGH;
 import static com.thetestament.cread.CreadApp.GET_RESPONSE_FROM_NETWORK_COLLABORATION_DETAILS;
@@ -51,8 +52,10 @@ import static com.thetestament.cread.utils.Constant.NOTIFICATION_CATEGORY_CREAD_
 import static com.thetestament.cread.utils.Constant.NOTIFICATION_CATEGORY_CREAD_COLLABORATE;
 import static com.thetestament.cread.utils.Constant.NOTIFICATION_CATEGORY_CREAD_COMMENT;
 import static com.thetestament.cread.utils.Constant.NOTIFICATION_CATEGORY_CREAD_COMMENT_OTHER;
+import static com.thetestament.cread.utils.Constant.NOTIFICATION_CATEGORY_CREAD_FOLLOW;
 import static com.thetestament.cread.utils.Constant.NOTIFICATION_CATEGORY_CREAD_GENERAL;
 import static com.thetestament.cread.utils.Constant.NOTIFICATION_CATEGORY_CREAD_HATSOFF;
+import static com.thetestament.cread.utils.Constant.NOTIFICATION_CATEGORY_CREAD_TEAM_CHAT;
 import static com.thetestament.cread.utils.Constant.NOTIFICATION_CATEGORY_CREAD_TOP_POST;
 import static com.thetestament.cread.utils.Constant.NOTIFICATION_CHANNEL_GENERAL;
 import static com.thetestament.cread.utils.Constant.NOTIFICATION_ID_CREAD_BUY;
@@ -62,11 +65,12 @@ import static com.thetestament.cread.utils.Constant.NOTIFICATION_ID_CREAD_COMMEN
 import static com.thetestament.cread.utils.Constant.NOTIFICATION_ID_CREAD_FOLLOW;
 import static com.thetestament.cread.utils.Constant.NOTIFICATION_ID_CREAD_GENERAL;
 import static com.thetestament.cread.utils.Constant.NOTIFICATION_ID_CREAD_HATSOFF;
+import static com.thetestament.cread.utils.Constant.NOTIFICATION_ID_CREAD_TEAM_CHAT;
 import static com.thetestament.cread.utils.Constant.NOTIFICATION_ID_CREAD_TOP_POST;
 
 public class MyFirebaseMessagingService extends FirebaseMessagingService {
 
-    private String category = "", message, entityID, actorUserID, actorUserImage, persistable, entityImage;
+    private String category, message, entityID, actorUserID, actorUserImage, persistable, entityImage;
     private boolean otherCollaborator = false;
     private int mId = 0;
     private int resId = 0;
@@ -89,7 +93,6 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
         if (!TextUtils.isEmpty(category)) {
             performCategorySpecificOperations();
         }
-
     }
 
     /**
@@ -101,7 +104,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
 
         switch (category) {
 
-            case Constant.NOTIFICATION_CATEGORY_CREAD_FOLLOW:
+            case NOTIFICATION_CATEGORY_CREAD_FOLLOW:
                 mId = NOTIFICATION_ID_CREAD_FOLLOW;
                 actorUserID = data.get("actorid");
                 actorUserImage = data.get("actorimage");
@@ -164,6 +167,13 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
                 intent = new Intent(this, BottomNavigationActivity.class);
                 intent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
                 break;
+
+            case NOTIFICATION_CATEGORY_CREAD_TEAM_CHAT:
+                mId = NOTIFICATION_ID_CREAD_TEAM_CHAT;
+                resId = R.drawable.ic_cread_notification_general;
+                intent = new Intent(this, ConversationActivity.class);
+                intent.setFlags(0);
+                break;
             case NOTIFICATION_CATEGORY_CREAD_COMMENT_OTHER:
                 mId = NOTIFICATION_ID_CREAD_COMMENT_OTHER;
                 entityID = data.get("entityid");
@@ -181,6 +191,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
                 intent = new Intent(this, UpdatesActivity.class);
                 intent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
                 break;
+
 
             default:
                 isValidCategory = false;
