@@ -516,7 +516,6 @@ public class BottomNavigationActivity extends BaseActivity {
 
             }
 
-
         }
 
 

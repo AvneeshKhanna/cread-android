@@ -24,21 +24,33 @@ import com.androidnetworking.AndroidNetworking;
 import com.androidnetworking.error.ANError;
 import com.androidnetworking.interfaces.JSONObjectRequestListener;
 import com.google.firebase.crash.FirebaseCrash;
+import com.linkedin.android.spyglass.suggestions.SuggestionsResult;
+import com.linkedin.android.spyglass.suggestions.interfaces.Suggestible;
+import com.linkedin.android.spyglass.suggestions.interfaces.SuggestionsResultListener;
+import com.linkedin.android.spyglass.suggestions.interfaces.SuggestionsVisibilityManager;
+import com.linkedin.android.spyglass.tokenization.QueryToken;
+import com.linkedin.android.spyglass.tokenization.impl.WordTokenizer;
+import com.linkedin.android.spyglass.tokenization.impl.WordTokenizerConfig;
+import com.linkedin.android.spyglass.tokenization.interfaces.QueryTokenReceiver;
+import com.linkedin.android.spyglass.ui.MentionsEditText;
 import com.thetestament.cread.BuildConfig;
 import com.thetestament.cread.R;
 import com.thetestament.cread.adapters.CommentsAdapter;
 import com.thetestament.cread.adapters.CommentsAdapter.HeaderViewHolder;
+import com.thetestament.cread.adapters.PersonMentionAdapter;
 import com.thetestament.cread.helpers.NetworkHelper;
 import com.thetestament.cread.helpers.SharedPreferenceHelper;
 import com.thetestament.cread.helpers.ViewHelper;
 import com.thetestament.cread.listeners.listener;
 import com.thetestament.cread.models.CommentsModel;
+import com.thetestament.cread.models.PersonMentionModel;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -63,7 +75,7 @@ import static com.thetestament.cread.utils.Constant.EXTRA_ENTITY_ID;
  * Class which Shows comments for the particular story.
  */
 
-public class CommentsActivity extends BaseActivity {
+public class CommentsActivity extends BaseActivity implements QueryTokenReceiver, SuggestionsResultListener, SuggestionsVisibilityManager {
 
     @BindView(R.id.rootView)
     CoordinatorLayout rootView;
@@ -72,13 +84,15 @@ public class CommentsActivity extends BaseActivity {
     @BindView(R.id.recyclerView)
     RecyclerView recyclerView;
     @BindView(R.id.editTextComment)
-    EditText editTextComment;
+    MentionsEditText editTextComment;
     @BindView(R.id.buttonPost)
     ImageView buttonPost;
     @BindView(R.id.addCommentViewProgress)
     View addCommentViewProgress;
     @BindView(R.id.viewNoData)
     LinearLayout viewNoData;
+    @BindView(R.id.recyclerViewMentions)
+    RecyclerView recyclerViewMentions;
 
 
     CompositeDisposable mCompositeDisposable = new CompositeDisposable();
@@ -87,6 +101,16 @@ public class CommentsActivity extends BaseActivity {
     CommentsAdapter mAdapter;
     LinearLayoutManager mLayoutManager;
     SharedPreferenceHelper mHelper;
+
+    private static final String BUCKET = "people-network";
+    private static final WordTokenizerConfig tokenizerConfig = new WordTokenizerConfig
+            .Builder()
+            .setWordBreakChars(", ")
+            .setExplicitChars("@")
+            .setMaxNumKeywords(2)
+            .setThreshold(1)
+            .build();
+    PersonMentionAdapter mMentionsAdapter;
 
 
     @State
@@ -126,6 +150,59 @@ public class CommentsActivity extends BaseActivity {
     protected void onRestoreInstanceState(Bundle savedInstanceState) {
         super.onRestoreInstanceState(savedInstanceState);
         Icepick.restoreInstanceState(this, savedInstanceState);
+    }
+
+
+    @Override
+    public void onReceiveSuggestionsResult(@NonNull SuggestionsResult result, @NonNull String bucket) {
+
+        List<? extends Suggestible> suggestions = result.getSuggestions();
+        mMentionsAdapter = new PersonMentionAdapter(result.getSuggestions(), this);
+        recyclerViewMentions.swapAdapter(mMentionsAdapter, true);
+        boolean display = suggestions != null && suggestions.size() > 0;
+        displaySuggestions(display);
+    }
+
+    // --------------------------------------------------
+    // SuggestionsManager Implementation
+    // --------------------------------------------------
+
+    @Override
+    public void displaySuggestions(boolean display) {
+        if (display) {
+            recyclerViewMentions.setVisibility(RecyclerView.VISIBLE);
+        } else {
+            recyclerViewMentions.setVisibility(RecyclerView.GONE);
+        }
+    }
+
+    @Override
+    public boolean isDisplayingSuggestions() {
+        return recyclerViewMentions.getVisibility() == RecyclerView.VISIBLE;
+    }
+
+    @Override
+    public List<String> onQueryReceived(@NonNull QueryToken queryToken) {
+
+        List<String> buckets = Arrays.asList(BUCKET);
+
+        PersonMentionModel personMentionModel1 = new PersonMentionModel();
+
+        personMentionModel1.setmName("Prakhar");
+        personMentionModel1.setmPictureURL("");
+
+        PersonMentionModel personMentionModel2 = new PersonMentionModel();
+
+        personMentionModel2.setmName("Parul");
+        personMentionModel2.setmPictureURL("");
+
+        List<PersonMentionModel> suggestions = new ArrayList<>();
+        suggestions.add(personMentionModel1);
+        suggestions.add(personMentionModel2);
+        SuggestionsResult result = new SuggestionsResult(queryToken, suggestions);
+        // Have suggestions, now call the listener (which is this activity)
+        onReceiveSuggestionsResult(result, BUCKET);
+        return buckets;
     }
 
     /**
@@ -198,6 +275,15 @@ public class CommentsActivity extends BaseActivity {
         initLoadMoreCommentsListener();
         initDeleteCommentListener(mAdapter);
         initEditCommentListener(mAdapter);
+
+        mMentionsAdapter = new PersonMentionAdapter(new ArrayList<PersonMentionModel>(), this);
+        recyclerViewMentions.setAdapter(mMentionsAdapter);
+        recyclerViewMentions.setLayoutManager(new LinearLayoutManager(CommentsActivity.this));
+
+
+        editTextComment.setTokenizer(new WordTokenizer(tokenizerConfig));
+        editTextComment.setQueryTokenReceiver(this);
+        editTextComment.setSuggestionsVisibilityManager(this);
     }
 
 
@@ -293,8 +379,6 @@ public class CommentsActivity extends BaseActivity {
             //No connection Snack bar
             ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_no_connection));
         }
-
-
     }
 
     /**
@@ -775,6 +859,4 @@ public class CommentsActivity extends BaseActivity {
                     }
                 });
     }
-
-
 }

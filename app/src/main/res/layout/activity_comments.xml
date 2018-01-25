@@ -10,20 +10,36 @@
         android:layout_height="match_parent"
         android:background="@color/white">
 
+
         <android.support.v4.widget.SwipeRefreshLayout
+            android:layout_above="@+id/commentView"
+            android:clipToPadding="true"
             android:id="@+id/swipeRefreshLayout"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_above="@+id/commentView"
-            android:clipToPadding="true">
+            android:layout_height="match_parent">
 
-            <android.support.v7.widget.RecyclerView
-                android:id="@+id/recyclerView"
+            <FrameLayout
                 android:layout_width="match_parent"
-                android:layout_height="match_parent" />
+                android:layout_height="match_parent">
+
+                <android.support.v7.widget.RecyclerView
+                    android:id="@+id/recyclerView"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent" />
+
+
+                <android.support.v7.widget.RecyclerView
+                    android:id="@+id/recyclerViewMentions"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:visibility="gone" />
+
+
+            </FrameLayout>
 
 
         </android.support.v4.widget.SwipeRefreshLayout>
+
 
         <include
             android:id="@+id/addCommentViewProgress"
@@ -53,7 +69,15 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content">
 
-                    <EditText
+                    <!--<LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:layout_centerInParent="true"
+                        android:layout_marginRight="10dp"
+                        android:layout_toLeftOf="@+id/buttonPost">-->
+
+                    <com.linkedin.android.spyglass.ui.MentionsEditText
                         android:id="@+id/editTextComment"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
@@ -62,8 +86,18 @@
                         android:layout_toLeftOf="@+id/buttonPost"
                         android:background="@null"
                         android:hint="Comment"
+                        android:imeOptions="flagNoExtractUi"
                         android:inputType="textCapSentences"
                         android:paddingLeft="20dp" />
+
+
+                    <!-- <android.support.v7.widget.RecyclerView
+                         android:id="@+id/recyclerViewMentions"
+                         android:layout_width="match_parent"
+                         android:layout_height="wrap_content"/>-->
+
+                    <!--</LinearLayout>-->
+
 
                     <ImageView
                         android:id="@+id/buttonPost"
