@@ -66,7 +66,7 @@ public class ContentHelper {
                 bundleShort.putString(EXTRA_ENTITY_ID, data.getEntityID());
                 bundleShort.putString(EXTRA_ENTITY_TYPE, data.getContentType());
                 bundleShort.putString(SHORT_EXTRA_CALLED_FROM, SHORT_EXTRA_CALLED_FROM_EDIT_SHORT);
-                bundleShort.putString(EXTRA_MERCHANTABLE, String.valueOf(data.isMerchantable()));
+                bundleShort.putBoolean(EXTRA_MERCHANTABLE, data.isMerchantable());
                 bundleShort.putString(SHORT_EXTRA_CAPTION_TEXT, data.getCaption());
                 intentShort.putExtra(EXTRA_DATA, bundleShort);
 

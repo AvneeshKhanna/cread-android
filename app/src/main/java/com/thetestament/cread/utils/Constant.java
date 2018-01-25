@@ -124,6 +124,7 @@ public class Constant {
     public static final String NOTIFICATION_CATEGORY_CREAD_GENERAL = "general";
     public static final String NOTIFICATION_CATEGORY_CREAD_COMMENT_OTHER = "other-comment";
     public static final String NOTIFICATION_CATEGORY_CREAD_TOP_POST = "top-post";
+    public static final String NOTIFICATION_CATEGORY_CREAD_TEAM_CHAT = "team-chat";
 
     //Notification id cread
     public static final int NOTIFICATION_ID_CREAD_FOLLOW = 1000;
@@ -134,6 +135,7 @@ public class Constant {
     public static final int NOTIFICATION_ID_CREAD_GENERAL = 1005;
     public static final int NOTIFICATION_ID_CREAD_COMMENT_OTHER = 1006;
     public static final int NOTIFICATION_ID_CREAD_TOP_POST = 1007;
+    public static final int NOTIFICATION_ID_CREAD_TEAM_CHAT = 1008;
 
     public static final String NOTIFICATION_CHANNEL_GENERAL = "generalNotificationChannel";
 

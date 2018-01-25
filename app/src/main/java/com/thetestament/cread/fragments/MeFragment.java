@@ -35,9 +35,6 @@ import android.widget.TextView;
 
 import com.afollestad.materialdialogs.DialogAction;
 import com.afollestad.materialdialogs.MaterialDialog;
-import com.androidnetworking.AndroidNetworking;
-import com.androidnetworking.error.ANError;
-import com.androidnetworking.interfaces.JSONObjectRequestListener;
 import com.google.firebase.analytics.FirebaseAnalytics;
 import com.google.firebase.crash.FirebaseCrash;
 import com.rx2androidnetworking.Rx2AndroidNetworking;
@@ -92,6 +89,7 @@ import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.observers.DisposableObserver;
 import io.reactivex.schedulers.Schedulers;
+import io.smooch.ui.ConversationActivity;
 import me.relex.circleindicator.CircleIndicator;
 import pl.tajchert.nammu.Nammu;
 import pl.tajchert.nammu.PermissionCallback;
@@ -168,6 +166,9 @@ public class MeFragment extends Fragment implements listener.OnCollaborationList
     LinearLayout viewNoData;
     @BindView(R.id.progressView)
     View progressView;
+
+    //Chat badge view
+    View badgeView;
 
     @State
     String mFirstName, mLastName, mProfilePicURL, mUserBio;
@@ -358,11 +359,16 @@ public class MeFragment extends Fragment implements listener.OnCollaborationList
     }
 
     @Override
-    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+    public void onCreateOptionsMenu(final Menu menu, MenuInflater inflater) {
         if (mHelper.getUUID().equals(mRequestedUUID)) {
             inflater.inflate(R.menu.menu_fragment_me, menu);
+            //Change action flag for updates icon
+            menu.findItem(R.id.action_updates).setShowAsActionFlags(MenuItem.SHOW_AS_ACTION_NEVER);
+            //Method called
+            setupBadge(menu);
         }
     }
+
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
@@ -370,6 +376,13 @@ public class MeFragment extends Fragment implements listener.OnCollaborationList
         switch (item.getItemId()) {
             case R.id.action_royalties:
                 startRoyaltiesActivity();
+                return true;
+            case R.id.action_chat_with_cread:
+                ConversationActivity.show(getActivity());
+                //Update status
+                mHelper.setChatMsgReadStatus(true);
+                //Hide badge view
+                badgeView.setVisibility(View.GONE);
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
@@ -2062,4 +2075,34 @@ public class MeFragment extends Fragment implements listener.OnCollaborationList
     public static boolean isCountZero(long count) {
         return count == 0;
     }
+
+    /**
+     * Method to setup chat icon badge indicator and its functionality.
+     *
+     * @param menu MeFragment menu.
+     */
+    private void setupBadge(final Menu menu) {
+        //Action layout of chat icon
+        View actionView = menu.findItem(R.id.action_chat_with_cread).getActionView();
+        //Obtain reference of badgeView
+        badgeView = actionView.findViewById(R.id.dotBadge);
+        //Action view click functionality
+        actionView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                onOptionsItemSelected(menu.findItem(R.id.action_chat_with_cread));
+            }
+        });
+
+
+        //Toggle visibility of dot indicator
+        if (mHelper.isChatMsgRead()) {
+            //Hide badge view
+            badgeView.setVisibility(View.GONE);
+        } else {
+            //Show Badge View
+            badgeView.setVisibility(View.VISIBLE);
+        }
+    }
+
 }

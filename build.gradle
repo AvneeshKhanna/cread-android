@@ -11,7 +11,7 @@ buildscript {
 
         // NOTE: Do not place your application dependencies here; they belong
         // in the individual module build.gradle files
-        classpath 'com.google.gms:google-services:3.0.0'
+        classpath 'com.google.gms:google-services:3.1.1'
         // For Android Studio 3.0, use firebase-plugins version 1.1.5
         classpath 'com.google.firebase:firebase-plugins:1.1.5'
 
@@ -50,7 +50,7 @@ ext {
     // App dependencies
     multiDexVersion = '1.0.1'
     supportLibraryVersion = '26.1.0'
-    playServiceVersion = '11.4.2'
+    playServiceVersion = '11.0.4'
     //playServiceVersion = '10.2.0'
     gsonVersion = '2.8.2'
     calligraphyVersion = '2.3.0'

@@ -154,6 +154,9 @@ dependencies {
     //For photo filter sdk
     implementation 'com.github.zomato:androidphotofilters:1.0.1'
 
+    //For smooch messaging platform
+    implementation 'io.smooch:core:5.7.3'
+    implementation 'io.smooch:ui:5.7.3'
 
     // dependencies for local unit tests
     testCompile "junit:junit:$rootProject.ext.junitVersion"
