@@ -131,7 +131,15 @@ public class BottomNavigationActivity extends BaseActivity {
         //Initialize navigation view
         initBottomNavigation();
         //Method call
-        captureSendIntent(mHelper);
+        captureSendIntent(mHelper, getIntent());
+    }
+
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+
+        captureSendIntent(mHelper, intent);
+
     }
 
     @Override
@@ -712,9 +720,9 @@ public class BottomNavigationActivity extends BaseActivity {
      *
      * @param helper SharedPreference reference
      */
-    private void captureSendIntent(SharedPreferenceHelper helper) {
+    private void captureSendIntent(SharedPreferenceHelper helper, Intent intent) {
         // Get intent, action and MIME type
-        Intent intent = getIntent();
+
         String action = intent.getAction();
         String type = intent.getType();
 
@@ -724,6 +732,7 @@ public class BottomNavigationActivity extends BaseActivity {
             //Update flag
             mCalledFromSendIntent = true;
             //Open main screen
+            ViewHelper.getToast(BottomNavigationActivity.this, getString(R.string.text_msg_share_loggedin));
             startActivity(new Intent(BottomNavigationActivity.this, MainActivity.class));
             //Finish this activity
             finish();

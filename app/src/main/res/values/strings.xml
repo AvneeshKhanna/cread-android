@@ -151,5 +151,6 @@
     <string name="note_text_short_creation">Double tap outside text to add image tint</string>
     <string name="text_share_image">Do you love #art? Here\'s something great on @cread! Check it out and tell me what you think. :)</string>
     <string name="msg_post_deleted">Post deleted</string>
+    <string name="text_msg_share_loggedin">You need to be logged in for sharing the image</string>
 
 </resources>
