@@ -153,4 +153,8 @@
     <string name="msg_post_deleted">Post deleted</string>
     <string name="text_msg_share_loggedin">You need to be logged in order to share the image</string>
 
+
+    <string name="Smooch_startOfConversation">Here\'s Cread Kalakaar! Kalakaar is an androgynous personality who wants to help you get the most out of the app.</string>
+    <string name="Smooch_welcome">Don\'t hesitate! Start talking right away! He/she is a great conversationalist. :)</string>
+
 </resources>
