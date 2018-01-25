@@ -11,8 +11,9 @@
 
     <item
         android:id="@+id/action_chat_with_cread"
-        android:icon="@drawable/ic_feedback_24"
+        android:icon="@drawable/ic_chat_with_us"
         android:orderInCategory="1"
-        android:title="Royalties"
+        android:title="Chat with us"
+        app:actionLayout="@layout/layout_chat_badge"
         app:showAsAction="always" />
 </menu>

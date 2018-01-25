@@ -2,7 +2,6 @@ package com.thetestament.cread.helpers;
 
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.net.Uri;
 
 import com.thetestament.cread.R;
 import com.thetestament.cread.utils.Constant;
@@ -287,7 +286,6 @@ public class SharedPreferenceHelper {
     }
 
 
-
     /**
      * Method to retrieve "Write button " tooltip status.
      *
@@ -390,7 +388,6 @@ public class SharedPreferenceHelper {
     }
 
 
-
     /**
      * Method to clear all key value pairs in cread shared preferences
      */
@@ -407,6 +404,27 @@ public class SharedPreferenceHelper {
     public void setRatingStatus(boolean firstTime) {
         SharedPreferences.Editor editor = mSharedPreferences.edit();
         editor.putBoolean(mContext.getString(R.string.rating_status), firstTime);
+        editor.apply();
+    }
+
+    /**
+     * Method to check whether user has seen the chat message or not.
+     *
+     * @return true by default
+     */
+    public boolean isChatMsgRead() {
+        return mSharedPreferences
+                .getBoolean(mContext.getString(R.string.chat_msg_seen_status), true);
+    }
+
+    /**
+     * Method to update chat message seen status.
+     *
+     * @param status boolean value i.e true or false
+     */
+    public void setChatMsgReadStatus(boolean status) {
+        SharedPreferences.Editor editor = mSharedPreferences.edit();
+        editor.putBoolean(mContext.getString(R.string.chat_msg_seen_status), status);
         editor.apply();
     }
 
