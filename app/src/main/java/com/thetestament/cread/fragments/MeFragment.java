@@ -362,8 +362,14 @@ public class MeFragment extends Fragment implements listener.OnCollaborationList
     public void onCreateOptionsMenu(final Menu menu, MenuInflater inflater) {
         if (mHelper.getUUID().equals(mRequestedUUID)) {
             inflater.inflate(R.menu.menu_fragment_me, menu);
-            //Change action flag for updates icon
-            menu.findItem(R.id.action_updates).setShowAsActionFlags(MenuItem.SHOW_AS_ACTION_NEVER);
+
+            // get instance of update menu item
+            MenuItem updatesMenuItem = menu.findItem(R.id.action_updates);
+
+            // if it exists set its flag
+            if (updatesMenuItem != null) {   //Change action flag for updates icon
+                updatesMenuItem.setShowAsActionFlags(MenuItem.SHOW_AS_ACTION_NEVER);
+            }
             //Method called
             setupBadge(menu);
         }
