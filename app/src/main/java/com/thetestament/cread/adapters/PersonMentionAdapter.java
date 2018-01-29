@@ -10,6 +10,7 @@ import android.widget.TextView;
 
 import com.linkedin.android.spyglass.suggestions.interfaces.Suggestible;
 import com.thetestament.cread.R;
+import com.thetestament.cread.listeners.listener;
 import com.thetestament.cread.models.PersonMentionModel;
 
 import java.util.ArrayList;
@@ -18,29 +19,43 @@ import java.util.List;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
-public class PersonMentionAdapter extends RecyclerView.Adapter<PersonMentionAdapter.ViewHolder> {
+public class PersonMentionAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
     private List<? extends Suggestible> mPeople = new ArrayList<>();
     private Context mContext;
+    private final int VIEW_TYPE_LOADING = 0;
+    private final int VIEW_TYPE_ITEM = 1;
+    private boolean mIsLoading;
+
+    private listener.onSuggestionsLoadMore mSuggestionsLoadMore;
 
     public PersonMentionAdapter(List<? extends Suggestible> mPeople, Context mContext) {
         this.mPeople = mPeople;
         this.mContext = mContext;
     }
 
+    public void setLoadMoreSuggestionsListener(listener.onSuggestionsLoadMore mSuggestionsLoadMore) {
+        this.mSuggestionsLoadMore = mSuggestionsLoadMore;
+    }
+
 
     @Override
-    public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+    public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
 
-        return new
-                ViewHolder(
-                LayoutInflater
-                        .from(mContext)
-                        .inflate(R.layout.item_profile_mention, parent, false));
+        if (viewType == VIEW_TYPE_ITEM) {
+            return new ItemViewHolder(LayoutInflater
+                    .from(parent.getContext())
+                    .inflate(R.layout.item_profile_mention, parent, false));
+        } else if (viewType == VIEW_TYPE_LOADING) {
+            return new LoadingViewHolder(LayoutInflater
+                    .from(parent.getContext())
+                    .inflate(R.layout.item_load_more, parent, false));
+        }
+        return null;
     }
 
     @Override
-    public void onBindViewHolder(ViewHolder holder, int position) {
+    public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
 
         Suggestible suggestion = mPeople.get(position);
         if (!(suggestion instanceof PersonMentionModel)) {
@@ -48,7 +63,26 @@ public class PersonMentionAdapter extends RecyclerView.Adapter<PersonMentionAdap
         }
 
         final PersonMentionModel person = (PersonMentionModel) suggestion;
-        holder.textName.setText(person.getmName());
+
+        if (holder.getItemViewType() == VIEW_TYPE_ITEM) {
+
+            ItemViewHolder itemViewHolder = (ItemViewHolder) holder;
+
+            itemViewHolder.textName.setText(person.getmName());
+        } else if (holder.getItemViewType() == VIEW_TYPE_LOADING) {
+            LoadingViewHolder loadingViewHolder = (LoadingViewHolder) holder;
+            loadingViewHolder.progressView.setVisibility(View.VISIBLE);
+        }
+
+        //If last item is visible to user and new set of data is to yet to be loaded
+        initializeLoadMore(position);
+    }
+
+    @Override
+    public int getItemViewType(int position) {
+
+        return mPeople.get(position) == null ? VIEW_TYPE_LOADING : VIEW_TYPE_ITEM;
+
     }
 
     @Override
@@ -57,14 +91,50 @@ public class PersonMentionAdapter extends RecyclerView.Adapter<PersonMentionAdap
     }
 
 
-    static class ViewHolder extends RecyclerView.ViewHolder {
+    /**
+     * Method is toggle the loading status
+     */
+    public void setLoaded() {
+        mIsLoading = false;
+    }
+
+
+    /**
+     * Method to initialize load more listener.
+     */
+    private void initializeLoadMore(int position) {
+        //If last item is visible to user and new set of data is to yet to be loaded
+        if (position == mPeople.size() - 1 && !mIsLoading) {
+            if (mSuggestionsLoadMore != null) {
+                //Lode more data here
+                mSuggestionsLoadMore.onLoadMore();
+            }
+            //toggle
+            mIsLoading = true;
+        }
+    }
+
+
+    static class ItemViewHolder extends RecyclerView.ViewHolder {
 
         @BindView(R.id.imagePerson)
         ImageView imagePerson;
         @BindView(R.id.textName)
         TextView textName;
 
-        public ViewHolder(View itemView) {
+        public ItemViewHolder(View itemView) {
+            super(itemView);
+            ButterKnife.bind(this, itemView);
+        }
+    }
+
+
+    //LoadingViewHolder class
+    static class LoadingViewHolder extends RecyclerView.ViewHolder {
+        @BindView(R.id.viewProgress)
+        View progressView;
+
+        public LoadingViewHolder(View itemView) {
             super(itemView);
             ButterKnife.bind(this, itemView);
         }

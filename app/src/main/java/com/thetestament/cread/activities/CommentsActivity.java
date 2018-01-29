@@ -69,6 +69,8 @@ import io.reactivex.schedulers.Schedulers;
 import static com.thetestament.cread.CreadApp.GET_RESPONSE_FROM_NETWORK_COMMENTS;
 import static com.thetestament.cread.helpers.NetworkHelper.getCommentObservableFromServer;
 import static com.thetestament.cread.helpers.NetworkHelper.getNetConnectionStatus;
+import static com.thetestament.cread.helpers.NetworkHelper.getSearchObservableServer;
+import static com.thetestament.cread.helpers.NetworkHelper.requestServer;
 import static com.thetestament.cread.utils.Constant.EXTRA_ENTITY_ID;
 
 /**
@@ -171,6 +173,7 @@ public class CommentsActivity extends BaseActivity implements QueryTokenReceiver
     public void displaySuggestions(boolean display) {
         if (display) {
             recyclerViewMentions.setVisibility(RecyclerView.VISIBLE);
+            viewNoData.setVisibility(View.GONE);
         } else {
             recyclerViewMentions.setVisibility(RecyclerView.GONE);
         }
@@ -185,6 +188,7 @@ public class CommentsActivity extends BaseActivity implements QueryTokenReceiver
     public List<String> onQueryReceived(@NonNull QueryToken queryToken) {
 
         List<String> buckets = Arrays.asList(BUCKET);
+
 
         PersonMentionModel personMentionModel1 = new PersonMentionModel();
 
@@ -273,6 +277,7 @@ public class CommentsActivity extends BaseActivity implements QueryTokenReceiver
 
         //Initialize listeners
         initLoadMoreCommentsListener();
+        initLoadMoreSuggestionsListener(mMentionsAdapter);
         initDeleteCommentListener(mAdapter);
         initEditCommentListener(mAdapter);
 
@@ -346,6 +351,17 @@ public class CommentsActivity extends BaseActivity implements QueryTokenReceiver
             @Override
             public void onLoadMoreClicked() {
                 loadMoreData();
+            }
+        });
+    }
+
+
+    private void initLoadMoreSuggestionsListener(PersonMentionAdapter adapter) {
+        adapter.setLoadMoreSuggestionsListener(new listener.onSuggestionsLoadMore() {
+            @Override
+            public void onLoadMore() {
+
+
             }
         });
     }
@@ -858,5 +874,11 @@ public class CommentsActivity extends BaseActivity implements QueryTokenReceiver
                         ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_server));
                     }
                 });
+    }
+
+
+    private void getPeopleSuggestions(String query) {
+        /*requestServer(mCompositeDisposable,
+                        getSearchObservableServer(query, ));*/
     }
 }

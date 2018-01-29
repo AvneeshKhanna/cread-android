@@ -20,7 +20,8 @@
 
             <FrameLayout
                 android:layout_width="match_parent"
-                android:layout_height="match_parent">
+                android:layout_height="match_parent"
+                android:measureAllChildren="true">
 
                 <android.support.v7.widget.RecyclerView
                     android:id="@+id/recyclerView"
@@ -32,7 +33,37 @@
                     android:id="@+id/recyclerViewMentions"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
+                    android:background="@color/white"
                     android:visibility="gone" />
+
+                <!-- No data view-->
+                <LinearLayout
+                    android:id="@+id/viewNoData"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical"
+                    android:orientation="vertical"
+                    android:visibility="gone">
+
+                    <ImageView
+                        android:layout_width="100dp"
+                        android:layout_height="100dp"
+                        android:layout_gravity="center"
+                        app:srcCompat="@drawable/ic_comment" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:layout_marginLeft="25dp"
+                        android:layout_marginRight="25dp"
+                        android:layout_marginTop="15dp"
+                        android:gravity="center"
+                        android:text="No comments yet. Be the first to comment."
+                        android:textColor="@color/black_overlay"
+                        android:textSize="16sp" />
+
+                </LinearLayout>
 
 
             </FrameLayout>
@@ -115,33 +146,4 @@
         </LinearLayout>
     </RelativeLayout>
 
-
-    <!-- No data view-->
-    <LinearLayout
-        android:id="@+id/viewNoData"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center_vertical"
-        android:orientation="vertical"
-        android:visibility="gone">
-
-        <ImageView
-            android:layout_width="100dp"
-            android:layout_height="100dp"
-            android:layout_gravity="center"
-            app:srcCompat="@drawable/ic_comment" />
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:layout_marginLeft="25dp"
-            android:layout_marginRight="25dp"
-            android:layout_marginTop="15dp"
-            android:gravity="center"
-            android:text="No comments yet. Be the first to comment."
-            android:textColor="@color/black_overlay"
-            android:textSize="16sp" />
-
-    </LinearLayout>
 </android.support.design.widget.CoordinatorLayout>
