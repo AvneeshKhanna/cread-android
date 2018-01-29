@@ -368,7 +368,7 @@ public class MeFragment extends Fragment implements listener.OnCollaborationList
 
             // if it exists set its flag
             if (updatesMenuItem != null) {   //Change action flag for updates icon
-                updatesMenuItem.setShowAsActionFlags(MenuItem.SHOW_AS_ACTION_NEVER);
+                updatesMenuItem.setShowAsActionFlags(MenuItem.SHOW_AS_ACTION_IF_ROOM);
             }
             //Method called
             setupBadge(menu);
