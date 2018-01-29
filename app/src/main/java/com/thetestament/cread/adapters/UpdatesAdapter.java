@@ -33,6 +33,8 @@ import static com.thetestament.cread.utils.Constant.NOTIFICATION_CATEGORY_CREAD_
 import static com.thetestament.cread.utils.Constant.NOTIFICATION_CATEGORY_CREAD_GENERAL;
 import static com.thetestament.cread.utils.Constant.NOTIFICATION_CATEGORY_CREAD_HATSOFF;
 import static com.thetestament.cread.utils.Constant.NOTIFICATION_CATEGORY_CREAD_TOP_POST;
+import static com.thetestament.cread.utils.Constant.NOTIFICATION_CATEGORY_PROFILE_MENTION_COMMENT;
+import static com.thetestament.cread.utils.Constant.NOTIFICATION_CATEGORY_PROFILE_MENTION_POST;
 
 
 /*Adapter class for UpdatesFragment RecyclerView.*/
@@ -42,24 +44,25 @@ public class UpdatesAdapter extends RecyclerView.Adapter<UpdatesAdapter.ViewHold
 
     private NotificationItemClick notificationItemClick;
 
+    private List<UpdatesModel> mUpdatesDataList;
+    private FragmentActivity mContext;
 
-    /*Interface definition for a callback to be invoked when a notification is clicked.*/
 
-
+    /**
+     * Interface definition for a callback to be invoked when a notification is clicked.
+     */
     public interface NotificationItemClick {
         void onNotificationClick(String notificationType, String shareID);
     }
 
 
-      /*Register a callback to be invoked when user clicks on notification item.*/
-
-
+    /**
+     * Register a callback to be invoked when user clicks on notification item.
+     */
     public void setNotificationItemClick(NotificationItemClick notificationItemClick) {
         this.notificationItemClick = notificationItemClick;
     }
 
-    private List<UpdatesModel> mUpdatesDataList;
-    private FragmentActivity mContext;
 
     //Constructor
     public UpdatesAdapter(List<UpdatesModel> updatesDataList, FragmentActivity context) {
@@ -128,9 +131,9 @@ public class UpdatesAdapter extends RecyclerView.Adapter<UpdatesAdapter.ViewHold
     }
 
 
-     /* AsyncTask to update the notification seen status.*/
-
-
+    /**
+     * AsyncTask to update the notification seen status.
+     */
     class UpdateSeenStatus extends AsyncTask<ViewHolder, Void, ViewHolder> {
         @Override
         protected ViewHolder doInBackground(ViewHolder... holder) {
@@ -150,11 +153,12 @@ public class UpdatesAdapter extends RecyclerView.Adapter<UpdatesAdapter.ViewHold
     }
 
 
-     /** Open screen depending on the type of the notification.
+    /**
+     * Open screen depending on the type of the notification.
      *
      * @param category Notification category
-     * @param entityID     entity id.
-     * @param userID  userID
+     * @param entityID entity id.
+     * @param userID   userID
      */
 
     private void initClick(String category, String entityID, String userID) {
@@ -199,6 +203,14 @@ public class UpdatesAdapter extends RecyclerView.Adapter<UpdatesAdapter.ViewHold
             case NOTIFICATION_CATEGORY_CREAD_TOP_POST:
                 //Listener
                 notificationItemClick.onNotificationClick(NOTIFICATION_CATEGORY_CREAD_TOP_POST, entityID);
+                break;
+            case NOTIFICATION_CATEGORY_PROFILE_MENTION_POST:
+                //Set Listener
+                notificationItemClick.onNotificationClick(NOTIFICATION_CATEGORY_PROFILE_MENTION_POST, entityID);
+                break;
+            case NOTIFICATION_CATEGORY_PROFILE_MENTION_COMMENT:
+                //Set Listener
+                notificationItemClick.onNotificationClick(NOTIFICATION_CATEGORY_PROFILE_MENTION_COMMENT, entityID);
                 break;
             default:
                 break;

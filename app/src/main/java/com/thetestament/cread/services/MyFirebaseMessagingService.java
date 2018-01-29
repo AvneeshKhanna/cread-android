@@ -18,6 +18,7 @@ import android.util.Log;
 
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
+import com.thetestament.cread.BuildConfig;
 import com.thetestament.cread.R;
 import com.thetestament.cread.activities.BottomNavigationActivity;
 import com.thetestament.cread.activities.UpdatesActivity;
@@ -57,6 +58,8 @@ import static com.thetestament.cread.utils.Constant.NOTIFICATION_CATEGORY_CREAD_
 import static com.thetestament.cread.utils.Constant.NOTIFICATION_CATEGORY_CREAD_HATSOFF;
 import static com.thetestament.cread.utils.Constant.NOTIFICATION_CATEGORY_CREAD_TEAM_CHAT;
 import static com.thetestament.cread.utils.Constant.NOTIFICATION_CATEGORY_CREAD_TOP_POST;
+import static com.thetestament.cread.utils.Constant.NOTIFICATION_CATEGORY_PROFILE_MENTION_COMMENT;
+import static com.thetestament.cread.utils.Constant.NOTIFICATION_CATEGORY_PROFILE_MENTION_POST;
 import static com.thetestament.cread.utils.Constant.NOTIFICATION_CHANNEL_GENERAL;
 import static com.thetestament.cread.utils.Constant.NOTIFICATION_ID_CREAD_BUY;
 import static com.thetestament.cread.utils.Constant.NOTIFICATION_ID_CREAD_COLLABORATE;
@@ -67,6 +70,8 @@ import static com.thetestament.cread.utils.Constant.NOTIFICATION_ID_CREAD_GENERA
 import static com.thetestament.cread.utils.Constant.NOTIFICATION_ID_CREAD_HATSOFF;
 import static com.thetestament.cread.utils.Constant.NOTIFICATION_ID_CREAD_TEAM_CHAT;
 import static com.thetestament.cread.utils.Constant.NOTIFICATION_ID_CREAD_TOP_POST;
+import static com.thetestament.cread.utils.Constant.NOTIFICATION_ID_PROFILE_MENTION_COMMENT;
+import static com.thetestament.cread.utils.Constant.NOTIFICATION_ID_PROFILE_MENTION_POST;
 
 public class MyFirebaseMessagingService extends FirebaseMessagingService {
 
@@ -83,7 +88,9 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
         super.onMessageReceived(remoteMessage);
 
         data = remoteMessage.getData();
-        Log.d(TAG, "onMessageReceived: " + data);
+        if (BuildConfig.DEBUG) {
+            Log.d(TAG, "onMessageReceived: " + data);
+        }
 
         category = data.get("category");
         persistable = data.get("persistable");
@@ -191,8 +198,22 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
                 intent = new Intent(this, UpdatesActivity.class);
                 intent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
                 break;
-
-
+            case NOTIFICATION_CATEGORY_PROFILE_MENTION_POST:
+                mId = NOTIFICATION_ID_PROFILE_MENTION_POST;
+                entityID = data.get("entityid");
+                actorUserImage = data.get("actorimage");
+                resId = R.drawable.ic_cread_notification_general;
+                intent = new Intent(this, UpdatesActivity.class);
+                intent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
+                break;
+            case NOTIFICATION_CATEGORY_PROFILE_MENTION_COMMENT:
+                mId = NOTIFICATION_ID_PROFILE_MENTION_COMMENT;
+                entityID = data.get("entityid");
+                actorUserImage = data.get("actorimage");
+                resId = R.drawable.ic_cread_notification_general;
+                intent = new Intent(this, UpdatesActivity.class);
+                intent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
+                break;
             default:
                 isValidCategory = false;
                 break;
