@@ -76,6 +76,7 @@ import io.reactivex.schedulers.Schedulers;
 import pl.tajchert.nammu.Nammu;
 import pl.tajchert.nammu.PermissionCallback;
 
+import static com.thetestament.cread.helpers.FontsHelper.FONT_TYPE_BOHEMIAN_TYPEWRITER;
 import static com.thetestament.cread.helpers.FontsHelper.fontTypes;
 import static com.thetestament.cread.helpers.FontsHelper.getFontType;
 import static com.thetestament.cread.helpers.ImageHelper.getImageUri;
@@ -152,7 +153,7 @@ public class CollaborationActivity extends BaseActivity {
 
 
     @State
-    String mEntityID, mShortID, mIsMerchantable, mSignatureText = "", mFontType = "montserrat_regular.ttf";
+    String mEntityID, mShortID, mIsMerchantable, mSignatureText = "", mFontType = FONT_TYPE_BOHEMIAN_TYPEWRITER;
 
     @State
     String mEntityType;
@@ -218,7 +219,7 @@ public class CollaborationActivity extends BaseActivity {
         colorSheetBehaviour = BottomSheetBehavior.from(colorBottomSheetView);
         colorSheetBehaviour.setPeekHeight(0);
         //Set default font
-        mTextTypeface = ResourcesCompat.getFont(CollaborationActivity.this, R.font.montserrat_regular);
+        mTextTypeface = ResourcesCompat.getFont(CollaborationActivity.this, R.font.bohemian_typewriter);
         //initialise font , color bottomSheet
         initFontLayout();
         initColorLayout();

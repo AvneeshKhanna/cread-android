@@ -80,6 +80,7 @@ import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.schedulers.Schedulers;
 
+import static com.thetestament.cread.helpers.FontsHelper.FONT_TYPE_BOHEMIAN_TYPEWRITER;
 import static com.thetestament.cread.helpers.FontsHelper.getFontType;
 import static com.thetestament.cread.utils.Constant.EXTRA_CAPTURE_ID;
 import static com.thetestament.cread.utils.Constant.EXTRA_CAPTURE_URL;
@@ -175,7 +176,7 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
 
 
     @State
-    String mCaptureUrl, mCaptureID = "", mShortID = "", mEntityID = "", mCaptionText = "", mSignatureText, mShortBgColor = "FFFFFFFF", mFontType = "montserrat_regular.ttf";
+    String mCaptureUrl, mCaptureID = "", mShortID = "", mEntityID = "", mCaptionText = "", mSignatureText, mShortBgColor = "FFFFFFFF", mFontType = FONT_TYPE_BOHEMIAN_TYPEWRITER;
 
     /**
      * Flag to maintain imageWidth
@@ -630,7 +631,7 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
         retrieveData();
 
         //Set default font
-        mTextTypeface = ResourcesCompat.getFont(ShortActivity.this, R.font.montserrat_regular);
+        mTextTypeface = ResourcesCompat.getFont(ShortActivity.this, R.font.bohemian_typewriter);
 
         //set listener
         textShort.setOnEditTextBackListener(this);
