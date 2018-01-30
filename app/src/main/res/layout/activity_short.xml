@@ -33,6 +33,7 @@
                 android:layout_marginRight="10dp"
                 android:background="@null"
                 android:gravity="left"
+                android:textColor="@color/color_grey_600"
                 android:hint="Express yourself"
                 android:inputType="textCapSentences|textMultiLine|textNoSuggestions"
                 android:paddingRight="5dp"

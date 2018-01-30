@@ -176,7 +176,7 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
 
 
     @State
-    String mCaptureUrl, mCaptureID = "", mShortID = "", mEntityID = "", mCaptionText = "", mSignatureText, mShortBgColor = "FFFFFFFF", mFontType = FONT_TYPE_BOHEMIAN_TYPEWRITER;
+    String mCaptureUrl, mCaptureID = "", mShortID = "", mEntityID = "", mCaptionText = "", mSignatureText, mShortBgColor = "FF757575", mFontType = FONT_TYPE_BOHEMIAN_TYPEWRITER;
 
     /**
      * Flag to maintain imageWidth
