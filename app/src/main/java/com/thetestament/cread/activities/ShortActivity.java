@@ -700,7 +700,7 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
             @Override
             public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
                 //Set text size
-                textShort.setTextSize(TypedValue.COMPLEX_UNIT_PX, i + 50);
+                textShort.setTextSize(TypedValue.COMPLEX_UNIT_SP, i + 16);
             }
 
             @Override
@@ -1171,7 +1171,7 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
                                         / (float) responseObject.getDouble("img_width");
 
                                 //If capture image is not present
-                                if ( TextUtils.isEmpty(responseObject.getString("captureurl")) ||responseObject.getString("captureurl").equals("null")) {
+                                if (TextUtils.isEmpty(responseObject.getString("captureurl")) || responseObject.getString("captureurl").equals("null")) {
                                     //Change backgroundColor
                                     imageShort.setBackgroundColor((int) Long.parseLong(responseObject.getString("bgcolor"), 16));
                                     //Update flag
@@ -1290,7 +1290,7 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
                                 }
 
                                 //Update image tint
-                                if (!TextUtils.isEmpty(responseObject.getString("imgtintcolor"))||responseObject.getString("imgtintcolor").equals("null")) {
+                                if (!TextUtils.isEmpty(responseObject.getString("imgtintcolor")) || responseObject.getString("imgtintcolor").equals("null")) {
                                     switch (responseObject.getString("imgtintcolor")) {
                                         case "80000000":
                                             //Apply tint

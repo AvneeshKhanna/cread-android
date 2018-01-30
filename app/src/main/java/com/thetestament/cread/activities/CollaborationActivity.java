@@ -515,7 +515,7 @@ public class CollaborationActivity extends BaseActivity {
             @Override
             public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
                 //Set text size
-                textShort.setTextSize(TypedValue.COMPLEX_UNIT_PX, i + 50);
+                textShort.setTextSize(TypedValue.COMPLEX_UNIT_SP, i + 16);
             }
 
             @Override
