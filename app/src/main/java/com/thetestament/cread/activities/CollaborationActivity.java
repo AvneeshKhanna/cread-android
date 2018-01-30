@@ -176,7 +176,7 @@ public class CollaborationActivity extends BaseActivity {
      * Flag to maintain gravity status i.e 0 for center , 1 for right and 2 for left.
      */
     @State
-    int mGravityFlag = 0;
+    int mGravityFlag = 2;
 
     //ENUM for text gravity
     private enum TextGravity {
@@ -197,7 +197,7 @@ public class CollaborationActivity extends BaseActivity {
 
 
     //Initially text gravity is "CENTER"
-    TextGravity textGravity = TextGravity.Center;
+    TextGravity textGravity = TextGravity.West;
 
     CompositeDisposable mCompositeDisposable = new CompositeDisposable();
     SharedPreferenceHelper mHelper;

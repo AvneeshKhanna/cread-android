@@ -228,7 +228,7 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
      * Flag to maintain gravity status i.e 0 for center , 1 for right and 2 for left.
      */
     @State
-    int mGravityFlag = 0;
+    int mGravityFlag = 2;
 
     @State
     String mCalledFrom = PREVIEW_EXTRA_CALLED_FROM_SHORT;
@@ -240,8 +240,8 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
         Center, East, West
     }
 
-    //Initially text gravity is "CENTER"
-    TextGravity textGravity = TextGravity.Center;
+    //Initially text gravity is "West"
+    TextGravity textGravity = TextGravity.West;
 
 
     /**

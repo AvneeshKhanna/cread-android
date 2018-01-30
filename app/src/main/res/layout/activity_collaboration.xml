@@ -30,7 +30,7 @@
                 android:layout_centerInParent="true"
                 android:layout_marginLeft="10dp"
                 android:layout_marginRight="10dp"
-                android:gravity="center"
+                android:gravity="left"
                 android:inputType="textCapSentences|textMultiLine"
                 android:textAppearance="@style/ShortFont"
                 android:textSize="16sp" />
