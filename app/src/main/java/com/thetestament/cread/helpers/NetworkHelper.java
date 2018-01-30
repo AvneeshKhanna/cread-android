@@ -28,11 +28,7 @@ import io.reactivex.schedulers.Schedulers;
 
 import static com.thetestament.cread.CreadApp.GET_RESPONSE_FROM_NETWORK_COMMENTS;
 import static com.thetestament.cread.CreadApp.GET_RESPONSE_FROM_NETWORK_ENTITY_SPECIFIC;
-import static com.thetestament.cread.CreadApp.GET_RESPONSE_FROM_NETWORK_EXPLORE;
-import static com.thetestament.cread.CreadApp.GET_RESPONSE_FROM_NETWORK_FOLLOWING;
 import static com.thetestament.cread.CreadApp.GET_RESPONSE_FROM_NETWORK_HATSOFF;
-import static com.thetestament.cread.CreadApp.GET_RESPONSE_FROM_NETWORK_INSPIRATION;
-import static com.thetestament.cread.CreadApp.GET_RESPONSE_FROM_NETWORK_MAIN;
 import static com.thetestament.cread.CreadApp.GET_RESPONSE_FROM_NETWORK_ME;
 
 /**
@@ -79,6 +75,7 @@ public class NetworkHelper {
         Map<String, String> queryParams = new HashMap<>();
         queryParams.put("requesteduuid", requestedUUID);
         queryParams.put("lastindexkey", lastIndexKey);
+        queryParams.put(Constant.PLATFORM_KEY, Constant.PLATFORM_VALUE);
 
         Rx2ANRequest.GetRequestBuilder requestBuilder = Rx2AndroidNetworking.get(serverURL)
                 .addHeaders(headers)
@@ -112,7 +109,8 @@ public class NetworkHelper {
 
         Rx2ANRequest.GetRequestBuilder requestBuilder = Rx2AndroidNetworking.get(serverURL)
                 .addHeaders(header)
-                .addQueryParameter("lastindexkey", lastIndexKey);
+                .addQueryParameter("lastindexkey", lastIndexKey)
+                .addQueryParameter(Constant.PLATFORM_KEY, Constant.PLATFORM_VALUE);
 
         if (getResponseFromNetwork) {
             requestBuilder.getResponseOnlyFromNetwork();
@@ -204,6 +202,7 @@ public class NetworkHelper {
         queryParams.put("entityid", entityID);
         queryParams.put("lastindexkey", lastIndexKey);
         queryParams.put("loadall", loadAll);
+        queryParams.put(Constant.PLATFORM_KEY, Constant.PLATFORM_VALUE);
 
 
         Rx2ANRequest.GetRequestBuilder requestBuilder = Rx2AndroidNetworking.get(serverURL)
@@ -240,6 +239,7 @@ public class NetworkHelper {
         queryParams.put("entityid", entityID);
         queryParams.put("lastindexkey", lastIndexKey);
         queryParams.put("entitytype", entityType);
+        queryParams.put(Constant.PLATFORM_KEY, Constant.PLATFORM_VALUE);
 
         return Rx2AndroidNetworking.get(serverURL)
                 .addQueryParameter(queryParams)
@@ -309,6 +309,7 @@ public class NetworkHelper {
         Map<String, String> queryParam = new HashMap<>();
         queryParam.put("htag", hashtag);
         queryParam.put("lastindexkey", lastIndexKey);
+        queryParam.put(Constant.PLATFORM_KEY, Constant.PLATFORM_VALUE);
 
         Map<String, String> headers = new HashMap<>();
         headers.put("uuid", uuid);
@@ -361,7 +362,8 @@ public class NetworkHelper {
 
         Rx2ANRequest.GetRequestBuilder requestBuilder = Rx2AndroidNetworking.get(BuildConfig.URL + "/entity-manage/load-specific")
                 .addHeaders(headers)
-                .addQueryParameter("entityid", entityID);
+                .addQueryParameter("entityid", entityID)
+                .addQueryParameter(Constant.PLATFORM_KEY, Constant.PLATFORM_VALUE);
 
         if (GET_RESPONSE_FROM_NETWORK_ENTITY_SPECIFIC) {
             requestBuilder.getResponseOnlyFromNetwork();
