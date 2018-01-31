@@ -116,7 +116,12 @@ public class CommentsActivity extends BaseActivity implements QueryTokenReceiver
     @State
     String mEntityID, mLastIndexKey = null, mSuggestionsLastIndexKey;
     @State
-    boolean mRequestMoreData, mRequestMoreSuggestionsData = false;
+    boolean mRequestMoreData, mRequestMoreSuggestionsData;
+
+    // variables for comment editing
+    boolean isCommentEditMode;
+    CommentsModel editedCommentModel;
+    int editedCommentIndex = -1;
 
     QueryToken mQueryToken;
 
@@ -204,8 +209,15 @@ public class CommentsActivity extends BaseActivity implements QueryTokenReceiver
         if (NetworkHelper.getNetConnectionStatus(CommentsActivity.this)) {
 
             String mentionFormattedString = convertToMentionsFormat(editTextComment);
-
-            saveComment(mentionFormattedString);
+            // check whether comment has been edited or is a new comment
+            if (isCommentEditMode) {
+                saveEditedComment(editedCommentModel.getCommentId()
+                        , mentionFormattedString
+                        , editedCommentIndex
+                        , editedCommentModel);
+            } else {
+                saveComment(mentionFormattedString);
+            }
             //Clear edit text
             editTextComment.getMentionsText().clearSpans();
             editTextComment.getText().clear();
@@ -304,29 +316,19 @@ public class CommentsActivity extends BaseActivity implements QueryTokenReceiver
         adapter.setOnEditListener(new listener.OnCommentEditListener() {
             @Override
             public void onEdit(final int index, final CommentsModel commentsModel) {
-                new MaterialDialog.Builder(CommentsActivity.this)
-                        .title("Edit ")
-                        .autoDismiss(false)
-                        .inputType(InputType.TYPE_TEXT_FLAG_CAP_SENTENCES | InputType.TYPE_TEXT_VARIATION_SHORT_MESSAGE)
-                        .input(null, commentsModel.getComment(), false, new MaterialDialog.InputCallback() {
-                            @Override
-                            public void onInput(@NonNull MaterialDialog dialog, CharSequence input) {
-                                String s = String.valueOf(input).trim();
-                                if (s.length() < 1) {
-                                    ViewHelper.getToast(CommentsActivity.this, "This field can't be empty");
-                                } else {
-                                    //Dismiss
-                                    dialog.dismiss();
-                                    //save edited comment
-                                    saveEditedComment(commentsModel.getCommentId()
-                                            , String.valueOf(input)
-                                            , index
-                                            , commentsModel);
-                                }
-                            }
-                        })
-                        .build()
-                        .show();
+                // initialize comment editing variables
+                isCommentEditMode = true;
+                editedCommentIndex = index;
+                editedCommentModel = commentsModel;
+
+                // init comment box with the original comment
+                editTextComment.setText(commentsModel.getComment());
+                editTextComment.setSelection(commentsModel.getComment().length());
+
+                // request focus and show keyboard
+                editTextComment.requestFocus();
+                InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, InputMethodManager.HIDE_IMPLICIT_ONLY);
             }
         });
     }
@@ -859,6 +861,11 @@ public class CommentsActivity extends BaseActivity implements QueryTokenReceiver
                                     commentsModel.setComment(textComment);
                                     //Notify changes
                                     mAdapter.notifyItemChanged(itemIndex);
+
+                                    ViewHelper.getSnackBar(rootView, getString(R.string.msg_success_comment_edit));
+
+                                    // set to false
+                                    isCommentEditMode = false;
 
                                     //set response flag
                                     GET_RESPONSE_FROM_NETWORK_COMMENTS = true;

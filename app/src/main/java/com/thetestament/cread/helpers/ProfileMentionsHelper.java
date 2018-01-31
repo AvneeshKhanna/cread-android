@@ -22,6 +22,13 @@ public class ProfileMentionsHelper {
 
     public static final String BUCKET = "people-network";
 
+    static Linkify.MatchFilter mentionMatchFilter = new Linkify.MatchFilter() {
+        @Override
+        public boolean acceptMatch(CharSequence s, int start, int end) {
+            return false;
+        }
+    };
+
 
     public static String convertToMentionsFormat(MentionsEditText mentionsEditText) {
 
@@ -56,7 +63,8 @@ public class ProfileMentionsHelper {
         //i.e. any word starting with a # and containing letter or numbers or _
         Pattern tagMatcher = Pattern.compile("\\+n:([^\\x00-\\x7F]|\\w|\\s|\\n)+", Pattern.CASE_INSENSITIVE);
         // attach linkify to text view for click action of hash tags
-        Linkify.addLinks(textView, tagMatcher, URI_HASH_TAG_ACTIVITY);
+        //Linkify.addLinks(textView, tagMatcher, URI_HASH_TAG_ACTIVITY, ,mentionMatchFilter, );
+
         // to remove underlines from the hashtag links
         new FeedHelper().stripUnderlines(textView);
     }
@@ -74,4 +82,5 @@ public class ProfileMentionsHelper {
                         (ContextCompat.getColor(context, R.color.blue_dark))
                 .build();
     }
+
 }
