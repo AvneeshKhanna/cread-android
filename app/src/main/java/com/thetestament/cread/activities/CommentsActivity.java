@@ -24,6 +24,7 @@ import com.androidnetworking.AndroidNetworking;
 import com.androidnetworking.error.ANError;
 import com.androidnetworking.interfaces.JSONObjectRequestListener;
 import com.google.firebase.crash.FirebaseCrash;
+import com.linkedin.android.spyglass.mentions.MentionSpanConfig;
 import com.linkedin.android.spyglass.suggestions.SuggestionsResult;
 import com.linkedin.android.spyglass.suggestions.interfaces.Suggestible;
 import com.linkedin.android.spyglass.suggestions.interfaces.SuggestionsResultListener;
@@ -39,6 +40,7 @@ import com.thetestament.cread.adapters.CommentsAdapter;
 import com.thetestament.cread.adapters.CommentsAdapter.HeaderViewHolder;
 import com.thetestament.cread.adapters.PersonMentionAdapter;
 import com.thetestament.cread.helpers.NetworkHelper;
+import com.thetestament.cread.helpers.ProfileMentionsHelper;
 import com.thetestament.cread.helpers.SharedPreferenceHelper;
 import com.thetestament.cread.helpers.ViewHelper;
 import com.thetestament.cread.listeners.listener;
@@ -71,7 +73,12 @@ import static com.thetestament.cread.helpers.NetworkHelper.getCommentObservableF
 import static com.thetestament.cread.helpers.NetworkHelper.getNetConnectionStatus;
 import static com.thetestament.cread.helpers.NetworkHelper.getSearchObservableServer;
 import static com.thetestament.cread.helpers.NetworkHelper.requestServer;
+import static com.thetestament.cread.helpers.ProfileMentionsHelper.BUCKET;
+import static com.thetestament.cread.helpers.ProfileMentionsHelper.convertToMentionsFormat;
+import static com.thetestament.cread.helpers.ProfileMentionsHelper.getMentionSpanConfig;
+import static com.thetestament.cread.helpers.ProfileMentionsHelper.tokenizerConfig;
 import static com.thetestament.cread.utils.Constant.EXTRA_ENTITY_ID;
+import static com.thetestament.cread.utils.Constant.SEARCH_TYPE_PEOPLE;
 
 /**
  * Class which Shows comments for the particular story.
@@ -100,25 +107,18 @@ public class CommentsActivity extends BaseActivity implements QueryTokenReceiver
     CompositeDisposable mCompositeDisposable = new CompositeDisposable();
 
     List<CommentsModel> mCommentsList = new ArrayList<>();
+    List<PersonMentionModel> mSuggestionsList = new ArrayList<>();
     CommentsAdapter mAdapter;
     LinearLayoutManager mLayoutManager;
     SharedPreferenceHelper mHelper;
-
-    private static final String BUCKET = "people-network";
-    private static final WordTokenizerConfig tokenizerConfig = new WordTokenizerConfig
-            .Builder()
-            .setWordBreakChars(", ")
-            .setExplicitChars("@")
-            .setMaxNumKeywords(2)
-            .setThreshold(1)
-            .build();
     PersonMentionAdapter mMentionsAdapter;
 
+    @State
+    String mEntityID, mLastIndexKey = null, mSuggestionsLastIndexKey;
+    @State
+    boolean mRequestMoreData, mRequestMoreSuggestionsData = false;
 
-    @State
-    String mEntityID, mLastIndexKey = null;
-    @State
-    boolean mRequestMoreData;
+    QueryToken mQueryToken;
 
 
     @Override
@@ -159,8 +159,6 @@ public class CommentsActivity extends BaseActivity implements QueryTokenReceiver
     public void onReceiveSuggestionsResult(@NonNull SuggestionsResult result, @NonNull String bucket) {
 
         List<? extends Suggestible> suggestions = result.getSuggestions();
-        mMentionsAdapter = new PersonMentionAdapter(result.getSuggestions(), this);
-        recyclerViewMentions.swapAdapter(mMentionsAdapter, true);
         boolean display = suggestions != null && suggestions.size() > 0;
         displaySuggestions(display);
     }
@@ -188,24 +186,11 @@ public class CommentsActivity extends BaseActivity implements QueryTokenReceiver
     public List<String> onQueryReceived(@NonNull QueryToken queryToken) {
 
         List<String> buckets = Arrays.asList(BUCKET);
+        // init query token
+        mQueryToken = queryToken;
 
+        getPeopleSuggestions();
 
-        PersonMentionModel personMentionModel1 = new PersonMentionModel();
-
-        personMentionModel1.setmName("Prakhar");
-        personMentionModel1.setmPictureURL("");
-
-        PersonMentionModel personMentionModel2 = new PersonMentionModel();
-
-        personMentionModel2.setmName("Parul");
-        personMentionModel2.setmPictureURL("");
-
-        List<PersonMentionModel> suggestions = new ArrayList<>();
-        suggestions.add(personMentionModel1);
-        suggestions.add(personMentionModel2);
-        SuggestionsResult result = new SuggestionsResult(queryToken, suggestions);
-        // Have suggestions, now call the listener (which is this activity)
-        onReceiveSuggestionsResult(result, BUCKET);
         return buckets;
     }
 
@@ -217,8 +202,12 @@ public class CommentsActivity extends BaseActivity implements QueryTokenReceiver
 
         // check net status
         if (NetworkHelper.getNetConnectionStatus(CommentsActivity.this)) {
-            saveComment(editTextComment.getText().toString().trim());
+
+            String mentionFormattedString = convertToMentionsFormat(editTextComment);
+
+            saveComment(mentionFormattedString);
             //Clear edit text
+            editTextComment.getMentionsText().clearSpans();
             editTextComment.getText().clear();
             //Hide keyboard
             InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
@@ -226,8 +215,6 @@ public class CommentsActivity extends BaseActivity implements QueryTokenReceiver
         } else {
             ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_no_connection));
         }
-
-
     }
 
 
@@ -273,15 +260,7 @@ public class CommentsActivity extends BaseActivity implements QueryTokenReceiver
         mAdapter = new CommentsAdapter(mCommentsList, this, mHelper.getUUID(), true);
         recyclerView.setAdapter(mAdapter);
 
-        initSwipeRefreshLayout();
-
-        //Initialize listeners
-        initLoadMoreCommentsListener();
-        initLoadMoreSuggestionsListener(mMentionsAdapter);
-        initDeleteCommentListener(mAdapter);
-        initEditCommentListener(mAdapter);
-
-        mMentionsAdapter = new PersonMentionAdapter(new ArrayList<PersonMentionModel>(), this);
+        mMentionsAdapter = new PersonMentionAdapter(mSuggestionsList, this);
         recyclerViewMentions.setAdapter(mMentionsAdapter);
         recyclerViewMentions.setLayoutManager(new LinearLayoutManager(CommentsActivity.this));
 
@@ -289,6 +268,15 @@ public class CommentsActivity extends BaseActivity implements QueryTokenReceiver
         editTextComment.setTokenizer(new WordTokenizer(tokenizerConfig));
         editTextComment.setQueryTokenReceiver(this);
         editTextComment.setSuggestionsVisibilityManager(this);
+
+        initSwipeRefreshLayout();
+
+        //Initialize listeners
+        initLoadMoreCommentsListener();
+        initLoadMoreSuggestionsListener(mMentionsAdapter);
+        initSuggestionsClickListener(mMentionsAdapter);
+        initDeleteCommentListener(mAdapter);
+        initEditCommentListener(mAdapter);
     }
 
 
@@ -360,8 +348,32 @@ public class CommentsActivity extends BaseActivity implements QueryTokenReceiver
         adapter.setLoadMoreSuggestionsListener(new listener.onSuggestionsLoadMore() {
             @Override
             public void onLoadMore() {
+                if (mRequestMoreSuggestionsData) {
+                    new Handler().post(new Runnable() {
+                                           @Override
+                                           public void run() {
+                                               mSuggestionsList.add(null);
+                                               mMentionsAdapter.notifyItemInserted(mSuggestionsList.size() - 1);
+                                           }
+                                       }
+                    );
 
+                    getMoreSuggestions();
+                }
+            }
+        });
+    }
 
+    private void initSuggestionsClickListener(PersonMentionAdapter adapter) {
+        adapter.setSuggestionsClickListener(new listener.OnPeopleSuggestionsClick() {
+            @Override
+            public void onPeopleSuggestionsClick(PersonMentionModel person) {
+
+                editTextComment.setMentionSpanConfig(getMentionSpanConfig(CommentsActivity.this));
+                editTextComment.insertMention(person);
+                recyclerViewMentions.setAdapter(mMentionsAdapter);
+                displaySuggestions(false);
+                editTextComment.requestFocus();
             }
         });
     }
@@ -877,8 +889,138 @@ public class CommentsActivity extends BaseActivity implements QueryTokenReceiver
     }
 
 
-    private void getPeopleSuggestions(String query) {
-        /*requestServer(mCompositeDisposable,
-                        getSearchObservableServer(query, ));*/
+    private void getPeopleSuggestions() {
+
+        mSuggestionsLastIndexKey = null;
+
+        requestServer(mCompositeDisposable,
+                getSearchObservableServer(mQueryToken.getKeywords(), mSuggestionsLastIndexKey, SEARCH_TYPE_PEOPLE)
+                , this, new listener.OnServerRequestedListener<JSONObject>() {
+                    @Override
+                    public void onDeviceOffline() {
+
+                        ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_no_connection));
+                    }
+
+                    @Override
+                    public void onNextCalled(JSONObject jsonObject) {
+
+                        //Clear data
+                        mSuggestionsList.clear();
+                        mMentionsAdapter.notifyDataSetChanged();
+                        mMentionsAdapter.setLoaded();
+
+                        try {
+
+                            parseSuggestionsData(false, jsonObject);
+
+                            mMentionsAdapter.notifyDataSetChanged();
+
+                            SuggestionsResult result = new SuggestionsResult(mQueryToken, mSuggestionsList);
+                            // Have suggestions, now call the listener (which is this activity)
+                            onReceiveSuggestionsResult(result, BUCKET);
+
+
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                            FirebaseCrash.report(e);
+                            ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_internal));
+                        }
+
+                    }
+
+                    @Override
+                    public void onErrorCalled(Throwable e) {
+
+                        e.printStackTrace();
+                        FirebaseCrash.report(e);
+                        //Server error Snack bar
+                        ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_server));
+
+                    }
+
+                    @Override
+                    public void onCompleteCalled() {
+                    }
+                });
+    }
+
+    private void getMoreSuggestions() {
+
+        requestServer(mCompositeDisposable,
+                getSearchObservableServer(mQueryToken.getKeywords(), mSuggestionsLastIndexKey, SEARCH_TYPE_PEOPLE)
+                , this, new listener.OnServerRequestedListener<JSONObject>() {
+                    @Override
+                    public void onDeviceOffline() {
+
+                        ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_no_connection));
+                    }
+
+                    @Override
+                    public void onNextCalled(JSONObject jsonObject) {
+
+                        //Remove loading item
+                        mSuggestionsList.remove(mSuggestionsList.size() - 1);
+                        mMentionsAdapter.notifyItemRemoved(mSuggestionsList.size());
+
+                        try {
+
+                            parseSuggestionsData(true, jsonObject);
+
+
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                            FirebaseCrash.report(e);
+                            ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_internal));
+                        }
+
+                    }
+
+                    @Override
+                    public void onErrorCalled(Throwable e) {
+
+                        //Remove loading item
+                        mSuggestionsList.remove(mSuggestionsList.size() - 1);
+                        mMentionsAdapter.notifyItemRemoved(mSuggestionsList.size());
+                        FirebaseCrash.report(e);
+                        //Server error Snack bar
+                        ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_server));
+
+
+                    }
+
+                    @Override
+                    public void onCompleteCalled() {
+
+                        mMentionsAdapter.setLoaded();
+                    }
+                });
+    }
+
+
+    private void parseSuggestionsData(boolean isCalledFromLoadMore
+            , JSONObject jsonObject)
+            throws JSONException {
+
+        JSONObject mainData = jsonObject.getJSONObject("data");
+        mRequestMoreSuggestionsData = mainData.getBoolean("requestmore");
+        mSuggestionsLastIndexKey = mainData.getString("lastindexkey");
+        //Data list
+        JSONArray dataArray = mainData.getJSONArray("items");
+        for (int i = 0; i < dataArray.length(); i++) {
+            JSONObject dataObj = dataArray.getJSONObject(i);
+            PersonMentionModel data = new PersonMentionModel();
+            data.setUserUUID(dataObj.getString("uuid"));
+            data.setmName(dataObj.getString("name"));
+            data.setmPictureURL(dataObj.getString("profilepicurl"));
+
+
+            mSuggestionsList.add(data);
+            //Notify changes
+            if (isCalledFromLoadMore) {
+                mMentionsAdapter.notifyItemInserted(mSuggestionsList.size() - 1);
+            }
+        }
+
     }
 }

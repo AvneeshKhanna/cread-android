@@ -16,9 +16,11 @@ import android.support.v4.app.FragmentActivity;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.FileProvider;
 import android.view.View;
+import android.widget.ImageView;
 
 import com.afollestad.materialdialogs.DialogAction;
 import com.afollestad.materialdialogs.MaterialDialog;
+import com.squareup.picasso.Picasso;
 import com.thetestament.cread.BuildConfig;
 import com.thetestament.cread.R;
 import com.thetestament.cread.activities.CollaborationActivity;
@@ -336,6 +338,14 @@ public class ImageHelper {
                     }
                 })
                 .show();
+    }
+
+
+    public static void loadImageFromPicasso(Context context, ImageView imageView, String url, int placeholder) {
+        Picasso.with(context)
+                .load(url)
+                .error(placeholder)
+                .into(imageView);
     }
 
 

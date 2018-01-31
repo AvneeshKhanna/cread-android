@@ -19,6 +19,8 @@ import java.util.List;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
+import static com.thetestament.cread.helpers.ImageHelper.loadImageFromPicasso;
+
 public class PersonMentionAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
     private List<? extends Suggestible> mPeople = new ArrayList<>();
@@ -28,6 +30,7 @@ public class PersonMentionAdapter extends RecyclerView.Adapter<RecyclerView.View
     private boolean mIsLoading;
 
     private listener.onSuggestionsLoadMore mSuggestionsLoadMore;
+    private listener.OnPeopleSuggestionsClick mSuggestionsClick;
 
     public PersonMentionAdapter(List<? extends Suggestible> mPeople, Context mContext) {
         this.mPeople = mPeople;
@@ -36,6 +39,10 @@ public class PersonMentionAdapter extends RecyclerView.Adapter<RecyclerView.View
 
     public void setLoadMoreSuggestionsListener(listener.onSuggestionsLoadMore mSuggestionsLoadMore) {
         this.mSuggestionsLoadMore = mSuggestionsLoadMore;
+    }
+
+    public void setSuggestionsClickListener(listener.OnPeopleSuggestionsClick mSuggestionsClick) {
+        this.mSuggestionsClick = mSuggestionsClick;
     }
 
 
@@ -68,7 +75,19 @@ public class PersonMentionAdapter extends RecyclerView.Adapter<RecyclerView.View
 
             ItemViewHolder itemViewHolder = (ItemViewHolder) holder;
 
+            // load image
+            loadImageFromPicasso(mContext,
+                    itemViewHolder.imagePerson,
+                    person.getmPictureURL(),
+                    R.drawable.ic_account_circle_48);
+
+            // set name
             itemViewHolder.textName.setText(person.getmName());
+            // init click listener
+            initMentionsClick(itemViewHolder.itemView, person);
+
+
+
         } else if (holder.getItemViewType() == VIEW_TYPE_LOADING) {
             LoadingViewHolder loadingViewHolder = (LoadingViewHolder) holder;
             loadingViewHolder.progressView.setVisibility(View.VISIBLE);
@@ -112,6 +131,20 @@ public class PersonMentionAdapter extends RecyclerView.Adapter<RecyclerView.View
             //toggle
             mIsLoading = true;
         }
+    }
+
+
+    private void initMentionsClick(View view, final PersonMentionModel person) {
+        view.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (mSuggestionsClick != null) {
+                    mSuggestionsClick.onPeopleSuggestionsClick(person);
+                }
+
+
+            }
+        });
     }
 
 

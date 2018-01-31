@@ -19,7 +19,7 @@
         android:layout_alignTop="@+id/imageUser"
         android:layout_marginLeft="10dp"
         android:layout_marginRight="5dp"
-        android:layout_toRightOf="@+id/imageUser"
+        android:layout_toRightOf="@+id/imagePerson"
         android:gravity="center_vertical">
 
         <TextView

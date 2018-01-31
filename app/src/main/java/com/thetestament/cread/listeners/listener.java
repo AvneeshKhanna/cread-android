@@ -7,6 +7,7 @@ import android.widget.LinearLayout;
 import com.thetestament.cread.models.CommentsModel;
 import com.thetestament.cread.models.FBFriendsModel;
 import com.thetestament.cread.models.FeedModel;
+import com.thetestament.cread.models.PersonMentionModel;
 import com.thetestament.cread.utils.Constant.GratitudeNumbers;
 
 public class listener {
@@ -212,6 +213,10 @@ public class listener {
 
     public interface OnRoyaltyitemClickedListener {
         void onRoyaltyItemClicked(String entityID);
+    }
+
+    public interface OnPeopleSuggestionsClick {
+        void onPeopleSuggestionsClick(PersonMentionModel person);
     }
 
 

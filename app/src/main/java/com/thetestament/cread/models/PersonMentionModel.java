@@ -11,8 +11,7 @@ import com.linkedin.android.spyglass.mentions.Mentionable;
  */
 public class PersonMentionModel implements Mentionable {
 
-    private String mName;
-    private String mPictureURL;
+    private String mName, mPictureURL, userUUID;
 
 
     public PersonMentionModel() {
@@ -34,6 +33,14 @@ public class PersonMentionModel implements Mentionable {
 
     public void setmPictureURL(String mPictureURL) {
         this.mPictureURL = mPictureURL;
+    }
+
+    public String getUserUUID() {
+        return userUUID;
+    }
+
+    public void setUserUUID(String userUUID) {
+        this.userUUID = userUUID;
     }
 
     // --------------------------------------------------

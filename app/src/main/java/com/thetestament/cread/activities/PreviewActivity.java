@@ -10,6 +10,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.BottomSheetBehavior;
 import android.support.design.widget.CoordinatorLayout;
+import android.support.v4.app.FragmentActivity;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.widget.NestedScrollView;
 import android.support.v7.widget.AppCompatEditText;
@@ -28,6 +29,14 @@ import com.androidnetworking.AndroidNetworking;
 import com.androidnetworking.error.ANError;
 import com.androidnetworking.interfaces.JSONObjectRequestListener;
 import com.google.firebase.crash.FirebaseCrash;
+import com.linkedin.android.spyglass.suggestions.SuggestionsResult;
+import com.linkedin.android.spyglass.suggestions.interfaces.Suggestible;
+import com.linkedin.android.spyglass.suggestions.interfaces.SuggestionsResultListener;
+import com.linkedin.android.spyglass.suggestions.interfaces.SuggestionsVisibilityManager;
+import com.linkedin.android.spyglass.tokenization.QueryToken;
+import com.linkedin.android.spyglass.tokenization.impl.WordTokenizer;
+import com.linkedin.android.spyglass.tokenization.interfaces.QueryTokenReceiver;
+import com.linkedin.android.spyglass.ui.MentionsEditText;
 import com.rx2androidnetworking.Rx2AndroidNetworking;
 import com.squareup.picasso.MemoryPolicy;
 import com.squareup.picasso.Picasso;
@@ -35,16 +44,20 @@ import com.thetestament.cread.BuildConfig;
 import com.thetestament.cread.Manifest;
 import com.thetestament.cread.R;
 import com.thetestament.cread.adapters.FilterAdapter;
+import com.thetestament.cread.adapters.PersonMentionAdapter;
 import com.thetestament.cread.dialog.CustomDialog;
 import com.thetestament.cread.helpers.CustomFilters;
 import com.thetestament.cread.helpers.ImageHelper;
 import com.thetestament.cread.helpers.NetworkHelper;
+import com.thetestament.cread.helpers.ProfileMentionsHelper;
 import com.thetestament.cread.helpers.SharedPreferenceHelper;
 import com.thetestament.cread.helpers.ViewHelper;
 import com.thetestament.cread.listeners.listener;
 import com.thetestament.cread.models.FilterModel;
+import com.thetestament.cread.models.PersonMentionModel;
 import com.zomato.photofilters.imageprocessors.Filter;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -52,6 +65,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -78,6 +92,11 @@ import static com.thetestament.cread.CreadApp.GET_RESPONSE_FROM_NETWORK_ME;
 import static com.thetestament.cread.CreadApp.IMAGE_LOAD_FROM_NETWORK_FEED_DESCRIPTION;
 import static com.thetestament.cread.CreadApp.IMAGE_LOAD_FROM_NETWORK_ME;
 import static com.thetestament.cread.helpers.ImageHelper.getImageUri;
+import static com.thetestament.cread.helpers.NetworkHelper.getSearchObservableServer;
+import static com.thetestament.cread.helpers.NetworkHelper.requestServer;
+import static com.thetestament.cread.helpers.ProfileMentionsHelper.BUCKET;
+import static com.thetestament.cread.helpers.ProfileMentionsHelper.getMentionSpanConfig;
+import static com.thetestament.cread.helpers.ProfileMentionsHelper.tokenizerConfig;
 import static com.thetestament.cread.utils.Constant.IMAGE_TYPE_USER_CAPTURE_PIC;
 import static com.thetestament.cread.utils.Constant.IMAGE_TYPE_USER_SHORT_PIC;
 import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_AUTH_KEY;
@@ -110,6 +129,7 @@ import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_TV_WIDTH;
 import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_UUID;
 import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_X_POSITION;
 import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_Y_POSITION;
+import static com.thetestament.cread.utils.Constant.SEARCH_TYPE_PEOPLE;
 import static com.thetestament.cread.utils.Constant.WATERMARK_STATUS_ASK_ALWAYS;
 import static com.thetestament.cread.utils.Constant.WATERMARK_STATUS_NO;
 import static com.thetestament.cread.utils.Constant.WATERMARK_STATUS_YES;
@@ -118,7 +138,7 @@ import static com.thetestament.cread.utils.Constant.WATERMARK_STATUS_YES;
  * AppcompatActivity to show preview and option to write caption.
  */
 
-public class PreviewActivity extends BaseActivity {
+public class PreviewActivity extends BaseActivity implements QueryTokenReceiver, SuggestionsResultListener, SuggestionsVisibilityManager {
 
     //Required for photo filters
     static {
@@ -131,13 +151,15 @@ public class PreviewActivity extends BaseActivity {
     @BindView(R.id.imagePreview)
     ImageView imagePreview;
     @BindView(R.id.etCaption)
-    AppCompatEditText etCaption;
+    MentionsEditText etCaption;
     @BindView(R.id.textWaterMark)
     TextView textWaterMark;
     @BindView(R.id.filterBottomSheetView)
     NestedScrollView filterBottomSheetView;
     @BindView(R.id.filterRecyclerView)
     RecyclerView filterRecyclerView;
+    @BindView(R.id.recyclerViewMentions)
+    RecyclerView recyclerViewMentions;
     //endregion
 
     //region :Fields and constants
@@ -172,8 +194,21 @@ public class PreviewActivity extends BaseActivity {
     @State
     String mFilterName = "original";
 
+    @State
+    String mCapInMentionFormat;
+
+    @State
+    boolean mRequestMoreSuggestionsData = false;
+    @State
+    String mSuggestionsLastIndexKey;
+
     SharedPreferenceHelper mHelper;
     CompositeDisposable mCompositeDisposable = new CompositeDisposable();
+    QueryToken mQueryToken;
+    List<PersonMentionModel> mSuggestionsList = new ArrayList<>();
+    PersonMentionAdapter mMentionsAdapter;
+    FragmentActivity mContext = PreviewActivity.this;
+
     //endregion
 
     //region :Overridden methods
@@ -254,6 +289,47 @@ public class PreviewActivity extends BaseActivity {
                     , "If you go back now, you will loose your changes.");
         }
     }
+
+    @Override
+    public void onReceiveSuggestionsResult(@NonNull SuggestionsResult result, @NonNull String bucket) {
+
+        List<? extends Suggestible> suggestions = result.getSuggestions();
+        boolean display = suggestions != null && suggestions.size() > 0;
+        displaySuggestions(display);
+    }
+
+    @Override
+    public void displaySuggestions(boolean display) {
+
+        if (display) {
+            recyclerViewMentions.setVisibility(RecyclerView.VISIBLE);
+
+        } else {
+            recyclerViewMentions.setVisibility(RecyclerView.GONE);
+        }
+
+    }
+
+    @Override
+    public boolean isDisplayingSuggestions() {
+        return recyclerViewMentions.getVisibility() == RecyclerView.VISIBLE;
+    }
+
+    @Override
+    public List<String> onQueryReceived(@NonNull QueryToken queryToken) {
+        List<String> buckets = Arrays.asList(BUCKET);
+
+
+        // init query token
+        mQueryToken = queryToken;
+
+        getPeopleSuggestions();
+
+
+        return buckets;
+    }
+
+
     //endregion
 
     //region :Click functionality
@@ -275,8 +351,14 @@ public class PreviewActivity extends BaseActivity {
     @OnClick(R.id.buttonUpdate)
     void updateOnClick() {
         if (NetworkHelper.getNetConnectionStatus(PreviewActivity.this)) {
+
+
+            // get caption in mentions format
+            mCapInMentionFormat = ProfileMentionsHelper.convertToMentionsFormat(etCaption);
+
+            // edit capture
             if (mCalledFrom.equals(PREVIEW_EXTRA_CALLED_FROM_EDIT_CAPTURE)) {
-                uploadEditedCapture(etCaption.getText().toString().trim()
+                uploadEditedCapture(mCapInMentionFormat
                         , mHelper.getUUID()
                         , mHelper.getAuthToken()
                         , mBundle.getString(PREVIEW_EXTRA_ENTITY_ID));
@@ -311,6 +393,18 @@ public class PreviewActivity extends BaseActivity {
         mCalledFrom = mBundle.getString(PREVIEW_EXTRA_CALLED_FROM);
         //Check content type
         checkContentType();
+
+        mMentionsAdapter = new PersonMentionAdapter(mSuggestionsList, this);
+        recyclerViewMentions.setAdapter(mMentionsAdapter);
+        recyclerViewMentions.setLayoutManager(new LinearLayoutManager(mContext));
+
+
+        etCaption.setTokenizer(new WordTokenizer(tokenizerConfig));
+        etCaption.setQueryTokenReceiver(this);
+        etCaption.setSuggestionsVisibilityManager(this);
+
+        initLoadMoreSuggestionsListener(mMentionsAdapter);
+        initSuggestionsClickListener(mMentionsAdapter);
     }
 
     /**
@@ -460,6 +554,7 @@ public class PreviewActivity extends BaseActivity {
      * Method to update the requested data on server.
      */
     private void performUpdateOperation() {
+        // cpshort
         if (mCalledFrom.equals(PREVIEW_EXTRA_CALLED_FROM_COLLABORATION)) {
             updateData(new File(getImageUri(IMAGE_TYPE_USER_CAPTURE_PIC).getPath())
                     , new File(getImageUri(IMAGE_TYPE_USER_SHORT_PIC).getPath())
@@ -480,10 +575,12 @@ public class PreviewActivity extends BaseActivity {
                     , mBundle.getString(PREVIEW_EXTRA_FONT)
                     , mBundle.getString(PREVIEW_EXTRA_BOLD)
                     , mBundle.getString(PREVIEW_EXTRA_ITALIC)
-                    , etCaption.getText().toString()
+                    , mCapInMentionFormat
                     , mBundle.getString(PREVIEW_EXTRA_IMAGE_TINT_COLOR)
             );
-        } else if (mCalledFrom.equals(PREVIEW_EXTRA_CALLED_FROM_SHORT)) {
+        }
+        // short, shcapture
+        else if (mCalledFrom.equals(PREVIEW_EXTRA_CALLED_FROM_SHORT)) {
             updateShort(new File(getImageUri(IMAGE_TYPE_USER_SHORT_PIC).getPath())
                     , mBundle.getString(PREVIEW_EXTRA_CAPTURE_ID)
                     , mBundle.getString(PREVIEW_EXTRA_UUID)
@@ -502,17 +599,21 @@ public class PreviewActivity extends BaseActivity {
                     , mBundle.getString(PREVIEW_EXTRA_BG_COLOR)
                     , mBundle.getString(PREVIEW_EXTRA_BOLD)
                     , mBundle.getString(PREVIEW_EXTRA_ITALIC)
-                    , etCaption.getText().toString()
+                    , mCapInMentionFormat
                     , mBundle.getString(PREVIEW_EXTRA_IMAGE_TINT_COLOR)
             );
-        } else if (mCalledFrom.equals(PREVIEW_EXTRA_CALLED_FROM_CAPTURE)) {
+        }
+        // capture
+        else if (mCalledFrom.equals(PREVIEW_EXTRA_CALLED_FROM_CAPTURE)) {
             uploadCapture(new File(getImageUri(IMAGE_TYPE_USER_CAPTURE_PIC).getPath())
-                    , etCaption.getText().toString().trim()
+                    , mCapInMentionFormat
                     , mHelper.getUUID()
                     , mHelper.getAuthToken()
                     , mWaterMarkText
                     , mBundle.getString(PREVIEW_EXTRA_MERCHANTABLE));
-        } else if (mCalledFrom.equals(PREVIEW_EXTRA_CALLED_FROM_EDIT_SHORT)) {
+        }
+        // edit short
+        else if (mCalledFrom.equals(PREVIEW_EXTRA_CALLED_FROM_EDIT_SHORT)) {
             updateEditedShort(new File(getImageUri(IMAGE_TYPE_USER_SHORT_PIC).getPath())
                     , mBundle.getString(PREVIEW_EXTRA_ENTITY_ID)
                     , mBundle.getString(PREVIEW_EXTRA_CAPTURE_ID)
@@ -533,7 +634,7 @@ public class PreviewActivity extends BaseActivity {
                     , mBundle.getString(PREVIEW_EXTRA_BG_COLOR)
                     , mBundle.getString(PREVIEW_EXTRA_BOLD)
                     , mBundle.getString(PREVIEW_EXTRA_ITALIC)
-                    , etCaption.getText().toString()
+                    , mCapInMentionFormat
                     , mBundle.getString(PREVIEW_EXTRA_IMAGE_TINT_COLOR)
             );
         } else {
@@ -1278,6 +1379,176 @@ public class PreviewActivity extends BaseActivity {
         }
 
     }
+
+    private void initLoadMoreSuggestionsListener(PersonMentionAdapter adapter) {
+        adapter.setLoadMoreSuggestionsListener(new listener.onSuggestionsLoadMore() {
+            @Override
+            public void onLoadMore() {
+                if (mRequestMoreSuggestionsData) {
+                    new Handler().post(new Runnable() {
+                                           @Override
+                                           public void run() {
+                                               mSuggestionsList.add(null);
+                                               mMentionsAdapter.notifyItemInserted(mSuggestionsList.size() - 1);
+                                           }
+                                       }
+                    );
+
+                    getMoreSuggestions();
+                }
+            }
+        });
+    }
+
+    private void initSuggestionsClickListener(PersonMentionAdapter adapter) {
+        adapter.setSuggestionsClickListener(new listener.OnPeopleSuggestionsClick() {
+            @Override
+            public void onPeopleSuggestionsClick(PersonMentionModel person) {
+
+                etCaption.setMentionSpanConfig(getMentionSpanConfig(mContext));
+                etCaption.insertMention(person);
+                recyclerViewMentions.setAdapter(mMentionsAdapter);
+                displaySuggestions(false);
+                etCaption.requestFocus();
+            }
+        });
+    }
+
+
+    private void getPeopleSuggestions() {
+
+        mSuggestionsLastIndexKey = null;
+
+        requestServer(mCompositeDisposable,
+                getSearchObservableServer(mQueryToken.getKeywords(), mSuggestionsLastIndexKey, SEARCH_TYPE_PEOPLE)
+                , this, new listener.OnServerRequestedListener<JSONObject>() {
+                    @Override
+                    public void onDeviceOffline() {
+
+                        ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_no_connection));
+                    }
+
+                    @Override
+                    public void onNextCalled(JSONObject jsonObject) {
+
+                        //Clear data
+                        mSuggestionsList.clear();
+                        mMentionsAdapter.notifyDataSetChanged();
+                        mMentionsAdapter.setLoaded();
+
+                        try {
+
+                            parseSuggestionsData(false, jsonObject);
+
+                            mMentionsAdapter.notifyDataSetChanged();
+
+                            SuggestionsResult result = new SuggestionsResult(mQueryToken, mSuggestionsList);
+                            // Have suggestions, now call the listener (which is this activity)
+                            onReceiveSuggestionsResult(result, BUCKET);
+
+
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                            FirebaseCrash.report(e);
+                            ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_internal));
+                        }
+
+                    }
+
+                    @Override
+                    public void onErrorCalled(Throwable e) {
+
+                        e.printStackTrace();
+                        FirebaseCrash.report(e);
+                        //Server error Snack bar
+                        ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_server));
+
+                    }
+
+                    @Override
+                    public void onCompleteCalled() {
+                    }
+                });
+    }
+
+    private void getMoreSuggestions() {
+
+        requestServer(mCompositeDisposable,
+                getSearchObservableServer(mQueryToken.getKeywords(), mSuggestionsLastIndexKey, SEARCH_TYPE_PEOPLE)
+                , this, new listener.OnServerRequestedListener<JSONObject>() {
+                    @Override
+                    public void onDeviceOffline() {
+
+                        ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_no_connection));
+                    }
+
+                    @Override
+                    public void onNextCalled(JSONObject jsonObject) {
+
+                        //Remove loading item
+                        mSuggestionsList.remove(mSuggestionsList.size() - 1);
+                        mMentionsAdapter.notifyItemRemoved(mSuggestionsList.size());
+
+                        try {
+
+                            parseSuggestionsData(true, jsonObject);
+
+
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                            FirebaseCrash.report(e);
+                            ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_internal));
+                        }
+
+                    }
+
+                    @Override
+                    public void onErrorCalled(Throwable e) {
+
+                        //Remove loading item
+                        mSuggestionsList.remove(mSuggestionsList.size() - 1);
+                        mMentionsAdapter.notifyItemRemoved(mSuggestionsList.size());
+                        FirebaseCrash.report(e);
+                        //Server error Snack bar
+                        ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_server));
+
+
+                    }
+
+                    @Override
+                    public void onCompleteCalled() {
+
+                        mMentionsAdapter.setLoaded();
+                    }
+                });
+    }
+
+    private void parseSuggestionsData(boolean isCalledFromLoadMore
+            , JSONObject jsonObject)
+            throws JSONException {
+
+        JSONObject mainData = jsonObject.getJSONObject("data");
+        mRequestMoreSuggestionsData = mainData.getBoolean("requestmore");
+        mSuggestionsLastIndexKey = mainData.getString("lastindexkey");
+        //Data list
+        JSONArray dataArray = mainData.getJSONArray("items");
+        for (int i = 0; i < dataArray.length(); i++) {
+            JSONObject dataObj = dataArray.getJSONObject(i);
+            PersonMentionModel data = new PersonMentionModel();
+            data.setUserUUID(dataObj.getString("uuid"));
+            data.setmName(dataObj.getString("name"));
+            data.setmPictureURL(dataObj.getString("profilepicurl"));
+
+
+            mSuggestionsList.add(data);
+            //Notify changes
+            if (isCalledFromLoadMore) {
+                mMentionsAdapter.notifyItemInserted(mSuggestionsList.size() - 1);
+            }
+        }
+
+    }
+
     //endregion
 
 }

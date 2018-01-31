@@ -10,91 +10,120 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-        <android.support.v4.widget.NestedScrollView
+        <FrameLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_above="@+id/buttonUpdate">
+            android:layout_above="@+id/containerPreviewBottom">
 
-            <LinearLayout
+            <android.support.v4.widget.NestedScrollView
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:orientation="vertical">
+                android:layout_height="match_parent">
 
-                <com.thetestament.cread.widgets.SquareView
-                    android:id="@+id/imageContainer"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:background="@color/yellow_light">
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:orientation="vertical">
 
-                    <ImageView
-                        android:id="@+id/imagePreview"
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:scaleType="centerCrop" />
-
-                    <View
-                        android:id="@+id/lineSeparator"
-                        android:layout_width="match_parent"
-                        android:layout_height="0.3dp"
-                        android:layout_alignParentBottom="true"
-                        android:alpha="0.4"
-                        android:background="@color/grey_dark" />
-
-                    <FrameLayout
+                    <com.thetestament.cread.widgets.SquareView
+                        android:id="@+id/imageContainer"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_above="@+id/viewDivider"
-                        android:layout_alignParentBottom="true"
-                        android:layout_alignParentLeft="true"
-                        android:layout_marginBottom="5dp"
-                        android:layout_marginLeft="5dp"
-                        android:background="@color/black_overlay">
+                        android:background="@color/yellow_light">
 
-                        <TextView
-                            android:id="@+id/textWaterMark"
+                        <ImageView
+                            android:id="@+id/imagePreview"
                             android:layout_width="match_parent"
                             android:layout_height="match_parent"
+                            android:scaleType="centerCrop" />
+
+                        <View
+                            android:id="@+id/lineSeparator"
+                            android:layout_width="match_parent"
+                            android:layout_height="0.3dp"
                             android:layout_alignParentBottom="true"
-                            android:paddingLeft="3dp"
-                            android:paddingRight="3dp"
-                            android:textColor="@color/white"
-                            android:textSize="12sp"
-                            android:visibility="gone"
-                            tools:text="~The testament" />
-                    </FrameLayout>
+                            android:alpha="0.4"
+                            android:background="@color/grey_dark" />
 
-                </com.thetestament.cread.widgets.SquareView>
+                        <FrameLayout
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_above="@+id/viewDivider"
+                            android:layout_alignParentBottom="true"
+                            android:layout_alignParentLeft="true"
+                            android:layout_marginBottom="5dp"
+                            android:layout_marginLeft="5dp"
+                            android:background="@color/black_overlay">
 
-                <android.support.v7.widget.AppCompatEditText
-                    android:id="@+id/etCaption"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:background="@null"
-                    android:hint="@string/text_add_caption"
-                    android:inputType="textCapSentences|textMultiLine"
-                    android:minLines="5"
-                    android:paddingBottom="10dp"
-                    android:paddingLeft="10dp"
-                    android:paddingRight="10dp"
-                    android:paddingTop="10dp"
-                    android:textColor="@color/grey_dark"
-                    android:textSize="14sp" />
+                            <TextView
+                                android:id="@+id/textWaterMark"
+                                android:layout_width="match_parent"
+                                android:layout_height="match_parent"
+                                android:layout_alignParentBottom="true"
+                                android:paddingLeft="3dp"
+                                android:paddingRight="3dp"
+                                android:textColor="@color/white"
+                                android:textSize="12sp"
+                                android:visibility="gone"
+                                tools:text="~The testament" />
+                        </FrameLayout>
+
+                    </com.thetestament.cread.widgets.SquareView>
 
 
-            </LinearLayout>
+                </LinearLayout>
 
-        </android.support.v4.widget.NestedScrollView>
+            </android.support.v4.widget.NestedScrollView>
 
-        <Button
-            android:id="@+id/buttonUpdate"
+
+            <android.support.v7.widget.RecyclerView
+                android:id="@+id/recyclerViewMentions"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@color/white"
+                android:visibility="gone" />
+
+
+        </FrameLayout>
+
+
+        <LinearLayout
+            android:layout_alignParentBottom="true"
+            android:id="@+id/containerPreviewBottom"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_alignParentBottom="true"
-            android:layout_marginTop="10dp"
-            android:background="@color/blue"
-            android:text="Upload"
-            android:textColor="@color/white" />
+            android:orientation="vertical">
+
+            <com.linkedin.android.spyglass.ui.MentionsEditText
+                android:id="@+id/etCaption"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:background="@null"
+                android:hint="@string/text_add_caption"
+                android:imeOptions="flagNoExtractUi"
+                android:inputType="textCapSentences|textMultiLine"
+                android:lines="5"
+                android:paddingBottom="10dp"
+                android:paddingLeft="10dp"
+                android:paddingRight="10dp"
+                android:scrollbars="vertical"
+                android:textColor="@color/grey_dark"
+                android:textSize="14sp" />
+
+            <Button
+                android:id="@+id/buttonUpdate"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_alignParentBottom="true"
+                android:layout_marginTop="10dp"
+                android:background="@color/blue"
+                android:text="Upload"
+                android:textColor="@color/white" />
+
+
+        </LinearLayout>
+
+
     </RelativeLayout>
 
     <!--Filter option bottom sheet-->

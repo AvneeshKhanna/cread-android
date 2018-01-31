@@ -341,7 +341,7 @@ public class FeedHelper {
     /**
      * Removes the underline of the spannable texts
      */
-    private void stripUnderlines(TextView textView) {
+    public void stripUnderlines(TextView textView) {
         Spannable s = new SpannableString(textView.getText());
         URLSpan[] spans = s.getSpans(0, s.length(), URLSpan.class);
         for (URLSpan span : spans) {
