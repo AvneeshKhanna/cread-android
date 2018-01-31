@@ -24,6 +24,7 @@ import com.androidnetworking.AndroidNetworking;
 import com.androidnetworking.error.ANError;
 import com.androidnetworking.interfaces.JSONObjectRequestListener;
 import com.google.firebase.crash.FirebaseCrash;
+import com.linkedin.android.spyglass.mentions.MentionSpan;
 import com.linkedin.android.spyglass.mentions.MentionSpanConfig;
 import com.linkedin.android.spyglass.suggestions.SuggestionsResult;
 import com.linkedin.android.spyglass.suggestions.interfaces.Suggestible;
@@ -218,9 +219,18 @@ public class CommentsActivity extends BaseActivity implements QueryTokenReceiver
             } else {
                 saveComment(mentionFormattedString);
             }
+
+            /*editTextComment.getText().clearSpans();*/
+            List<MentionSpan> mentionSpans = editTextComment.getMentionsText().getMentionSpans();
+
+            for (MentionSpan mentionSpan : mentionSpans) {
+                editTextComment.getText().removeSpan(mentionSpan);
+            }
+
             //Clear edit text
-            editTextComment.getMentionsText().clearSpans();
             editTextComment.getText().clear();
+
+
             //Hide keyboard
             InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
             imm.hideSoftInputFromWindow(view.getWindowToken(), 0);

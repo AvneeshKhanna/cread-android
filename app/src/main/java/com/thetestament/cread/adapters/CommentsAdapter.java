@@ -115,7 +115,7 @@ public class CommentsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
             //Set comment
             itemViewHolder.textComment.setText(data.getComment());
             // set profile mentions
-            ProfileMentionsHelper.setProfileMentions(itemViewHolder.textComment, mContext);
+            ProfileMentionsHelper.setProfileMentionsForViewing(data.getComment(), mContext, itemViewHolder.textComment);
 
             // set hash tags on comment
             FeedHelper feedHelper = new FeedHelper();

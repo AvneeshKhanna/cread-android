@@ -1,8 +1,11 @@
 package com.thetestament.cread.helpers;
 
+import android.graphics.Color;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.content.ContextCompat;
-import android.text.util.Linkify;
+import android.text.SpannableString;
+import android.text.Spanned;
+import android.text.method.LinkMovementMethod;
 import android.widget.TextView;
 
 import com.linkedin.android.spyglass.mentions.MentionSpan;
@@ -10,24 +13,17 @@ import com.linkedin.android.spyglass.mentions.MentionSpanConfig;
 import com.linkedin.android.spyglass.tokenization.impl.WordTokenizerConfig;
 import com.linkedin.android.spyglass.ui.MentionsEditText;
 import com.thetestament.cread.R;
-import com.thetestament.cread.adapters.PersonMentionAdapter;
 import com.thetestament.cread.models.PersonMentionModel;
+import com.thetestament.cread.widgets.ProfileClickableSpan;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import static com.thetestament.cread.utils.Constant.URI_HASH_TAG_ACTIVITY;
 
 public class ProfileMentionsHelper {
 
     public static final String BUCKET = "people-network";
-
-    static Linkify.MatchFilter mentionMatchFilter = new Linkify.MatchFilter() {
-        @Override
-        public boolean acceptMatch(CharSequence s, int start, int end) {
-            return false;
-        }
-    };
 
 
     public static String convertToMentionsFormat(MentionsEditText mentionsEditText) {
@@ -57,16 +53,91 @@ public class ProfileMentionsHelper {
 
     }
 
-    public static void setProfileMentions(TextView textView, FragmentActivity context) {
-        textView.setLinkTextColor(ContextCompat.getColor(context, R.color.blue_dark));
-        //Pattern to find if there's a hash tag in the message
-        //i.e. any word starting with a # and containing letter or numbers or _
-        Pattern tagMatcher = Pattern.compile("\\+n:([^\\x00-\\x7F]|\\w|\\s|\\n)+", Pattern.CASE_INSENSITIVE);
-        // attach linkify to text view for click action of hash tags
-        //Linkify.addLinks(textView, tagMatcher, URI_HASH_TAG_ACTIVITY, ,mentionMatchFilter, );
+    public static void setProfileMentionsForViewing(String mentionText, FragmentActivity context, TextView textView) {
 
-        // to remove underlines from the hashtag links
-        new FeedHelper().stripUnderlines(textView);
+        Pattern mentionPattern = Pattern.compile
+                ("\\@\\[\\(u:\\w{8}-\\w{4}-\\w{4}-\\w{4}-\\w{12}\\+n:([^\\x00-\\x7F]|\\w|\\s|\\n)+\\)\\]",
+                        Pattern.CASE_INSENSITIVE);
+
+        Pattern namePattern = Pattern.compile
+                ("\\+n:([^\\x00-\\x7F]|\\w|\\s|\\n)+",
+                        Pattern.CASE_INSENSITIVE);
+
+        Pattern uuidPattern = Pattern.compile
+                ("u:\\w{8}-\\w{4}-\\w{4}-\\w{4}-\\w{12}",
+                        Pattern.CASE_INSENSITIVE);
+
+        Matcher matcher = mentionPattern.matcher(mentionText);
+
+        ArrayList<Integer> startIndi = new ArrayList<>();
+        ArrayList<Integer> endIndi = new ArrayList<>();
+        ArrayList<String> uuids = new ArrayList<>();
+
+
+        while (matcher.find()) {
+
+            String matchedText = matcher.group();
+
+            String improperName = null;
+
+            Matcher nameMatcher = namePattern.matcher(matchedText);
+
+            if (nameMatcher.find()) {
+                improperName = nameMatcher.group();
+            }
+
+            String properName = improperName.split(":")[1];
+
+            String tempName = "@&" + properName;
+
+
+            mentionText = mentionText.replaceFirst(Pattern.quote(matchedText), tempName);
+
+            int sIndex = mentionText.indexOf(tempName);
+            startIndi.add(sIndex);
+            endIndi.add(sIndex + tempName.length());
+
+            String improperUUID = null;
+
+            Matcher uuidMatcher = uuidPattern.matcher(matchedText);
+
+            if (uuidMatcher.find()) {
+                improperUUID = uuidMatcher.group();
+            }
+
+            String properUUID = improperUUID.split(":")[1];
+
+            uuids.add(properUUID);
+
+            mentionText = mentionText.replaceAll("@&", "");
+
+        }
+
+
+        SpannableString spannableString = new SpannableString(mentionText);
+
+        int stInda = 0;
+        int enInda = -2;
+        int d = -2;
+
+        for (int n = 0; n < uuids.size(); n++) {
+            int stIndSubFactor = stInda + n * d;
+            int enIndSubFactor = enInda + n * d;
+
+            int startPos = startIndi.get(n) + /*stIndSubFactor*/0;
+            int endPos = endIndi.get(n) + /*enIndSubFactor*/(-2);
+
+            spannableString.setSpan(new ProfileClickableSpan(context
+                            , uuids.get(n))
+                    , (startPos)
+                    , (endPos)
+                    , Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+        }
+
+        textView.setText(spannableString);
+        textView.setMovementMethod(LinkMovementMethod.getInstance());
+        textView.setHighlightColor(Color.TRANSPARENT);
+
     }
 
     public static final WordTokenizerConfig tokenizerConfig = new WordTokenizerConfig
@@ -82,5 +153,6 @@ public class ProfileMentionsHelper {
                         (ContextCompat.getColor(context, R.color.blue_dark))
                 .build();
     }
+
 
 }
