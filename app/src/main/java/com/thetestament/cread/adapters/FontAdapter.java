@@ -27,6 +27,8 @@ public class FontAdapter extends RecyclerView.Adapter<FontAdapter.ItemViewHolder
     private FragmentActivity mContext;
     private OnFontClickListener onFontClickListener;
 
+    private int mFontSelected = 0;
+
     /**
      * Required constructor.
      *
@@ -53,10 +55,17 @@ public class FontAdapter extends RecyclerView.Adapter<FontAdapter.ItemViewHolder
     }
 
     @Override
-    public void onBindViewHolder(FontAdapter.ItemViewHolder holder, int position) {
+    public void onBindViewHolder(FontAdapter.ItemViewHolder holder, final int position) {
         final FontModel data = mFontDataList.get(position);
         //Set typeface
         holder.textFont.setTypeface(getFontType(data.getFontName(), mContext));
+
+        //update font selection indicator
+        if (mFontSelected == position) {
+            holder.dotIndicator.setVisibility(View.VISIBLE);
+        } else {
+            holder.dotIndicator.setVisibility(View.INVISIBLE);
+        }
 
         //ItemView click functionality
         holder.itemView.setOnClickListener(new View.OnClickListener() {
@@ -64,6 +73,9 @@ public class FontAdapter extends RecyclerView.Adapter<FontAdapter.ItemViewHolder
             public void onClick(View view) {
                 //Set Listener
                 onFontClickListener.onFontClick(getFontType(data.getFontName(), mContext), data.getFontName());
+                //update flag and notify changes
+                mFontSelected = position;
+                notifyDataSetChanged();
             }
         });
 
@@ -78,6 +90,8 @@ public class FontAdapter extends RecyclerView.Adapter<FontAdapter.ItemViewHolder
     static class ItemViewHolder extends RecyclerView.ViewHolder {
         @BindView(R.id.textFont)
         TextView textFont;
+        @BindView(R.id.dotIndicator)
+        View dotIndicator;
 
         public ItemViewHolder(View itemView) {
             super(itemView);
