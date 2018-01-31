@@ -15,7 +15,6 @@
             android:id="@+id/imageContainer"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_below="@+id/containerCreator"
             android:background="@color/white">
 
             <ImageView
@@ -32,11 +31,12 @@
                 android:layout_marginLeft="10dp"
                 android:layout_marginRight="10dp"
                 android:background="@null"
-                android:gravity="center"
+                android:gravity="left"
                 android:hint="Express yourself"
                 android:inputType="textCapSentences|textMultiLine|textNoSuggestions"
                 android:paddingRight="5dp"
                 android:textAppearance="@style/ShortFont"
+                android:textColor="@color/color_grey_600"
                 android:textCursorDrawable="@drawable/cursor_edit_text"
                 android:textSize="16sp" />
 
@@ -66,9 +66,9 @@
             android:layout_centerHorizontal="true"
             android:gravity="center"
             android:paddingTop="10sp"
-            android:visibility="invisible"
             android:text="@string/note_text_short_creation"
-            android:textSize="12sp" />
+            android:textSize="12sp"
+            android:visibility="invisible" />
 
         <FrameLayout
             android:id="@+id/containerPostButton"
@@ -77,18 +77,20 @@
             android:layout_above="@+id/containerSeekBar"
             android:layout_below="@+id/textNote">
 
-            <TextView
-                android:id="@+id/btnInspireMe"
-                android:layout_width="wrap_content"
+            <include
+                android:id="@+id/progressViewInspiration"
+                layout="@layout/layout_progress_bar"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
-                android:background="@drawable/button_filled"
-                android:paddingBottom="8dp"
-                android:paddingLeft="32dp"
-                android:paddingRight="32dp"
-                android:paddingTop="8dp"
-                android:text="Inspire me"
-                android:textColor="@color/white" />
+                android:visibility="gone" />
+
+            <android.support.v7.widget.RecyclerView
+                android:id="@+id/recyclerViewInspiration"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center" />
+
         </FrameLayout>
 
         <!--Container seek bar-->
@@ -104,7 +106,7 @@
                 android:layout_width="25dp"
                 android:layout_height="25dp"
                 android:layout_marginLeft="15dp"
-                android:visibility="gone"
+                android:visibility="visible"
                 app:srcCompat="@drawable/ic_format_size_32" />
 
             <android.support.v7.widget.AppCompatSeekBar
@@ -116,7 +118,7 @@
                 android:layout_marginLeft="5dp"
                 android:layout_marginRight="10dp"
                 android:layout_toRightOf="@+id/btnFormatTextSize"
-                android:visibility="gone" />
+                android:visibility="visible" />
         </RelativeLayout>
 
         <!--Format options-->
@@ -131,15 +133,15 @@
                 layout="@layout/layout_format_option"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:visibility="gone" />
+                android:visibility="visible" />
         </FrameLayout>
 
 
     </RelativeLayout>
 
-      <!--Font option bottom sheet-->
-      <include layout="@layout/layout_font_bottom_sheet" />
-      <!--Color option bottom sheet-->
-      <include layout="@layout/layout_color_bottom_sheet" />
+    <!--Font option bottom sheet-->
+    <include layout="@layout/layout_font_bottom_sheet" />
+    <!--Color option bottom sheet-->
+     <include layout="@layout/layout_color_bottom_sheet" />
 
 </android.support.design.widget.CoordinatorLayout>

@@ -4,7 +4,11 @@ package com.thetestament.cread.utils;
 public class Constant {
     public static final String MINIMUM_APP_VERSION_KEY = "minimum_app_version";
 
-    //Request codes
+    //Platform key and value con
+    public static final String PLATFORM_KEY = "platform";
+    public static final String PLATFORM_VALUE = "android";
+
+    //region :Request codes
     public static final int REQUEST_CODE_OPEN_GALLERY_FOR_CAPTURE = 1000;
     public static final int REQUEST_CODE_FB_ACCOUNT_KIT = 1001;
     public static final int REQUEST_CODE_COMMENTS_ACTIVITY = 1002;
@@ -19,9 +23,9 @@ public class Constant {
     public static final int REQUEST_CODE_PREVIEW_ACTIVITY = 1011;
     public static final int REQUEST_CODE_EDIT_POST = 1012;
     //public static final int REQUEST_CODE_EDIT_SHORT = 1013;
+    //endregion
 
-
-    //Tag value for fragments
+    //region :Tag value for fragments
     public static final String TAG_FEED_FRAGMENT = "TagFeedFragment";
     public static final String TAG_EXPLORE_FRAGMENT = "TagExploreFragment";
     public static final String TAG_ME_FRAGMENT = "TagMeFragment";
@@ -30,31 +34,38 @@ public class Constant {
     public static final String TAG_HASH_TAG_DETAILS_FRAGMENT = "HashTagDetailsFragment";
     public static final String TAG_SEARCH_PEOPLE_FRAGMENT = "SearchPeopleFragment";
     public static final String TAG_SEARCH_HASH_TAG_FRAGMENT = "SearchHashTagFragment";
+    //endregion
 
-    //Content Types
+    //region :Content Types
     public static final String CONTENT_TYPE_SHORT = "SHORT";
     public static final String CONTENT_TYPE_CAPTURE = "CAPTURE";
+    //endregion
 
-    //Text gravity types
+    //region :Text gravity types
     public static final String TEXT_GRAVITY_TYPE_CENTER = "Center";
     public static final String TEXT_GRAVITY_TYPE_LEFT = "Left";
     public static final String TEXT_GRAVITY_TYPE_RIGHT = "Right";
+    //endregion
 
+    //region :Search item view type
     public static final String SEARCH_TYPE_PEOPLE = "USER";
     public static final String SEARCH_TYPE_HASHTAG = "HASHTAG";
     public static final String SEARCH_TYPE_NO_RESULTS = "NORESULTS";
     public static final String SEARCH_TYPE_PROGRESS = "PROGRESS";
+    //endregion
 
-    //Image Types
+    //region :Image Types
     public static final String IMAGE_TYPE_USER_PROFILE_PIC = "userProfilePic";
     public static final String IMAGE_TYPE_USER_CAPTURE_PIC = "userCapturePic";
     public static final String IMAGE_TYPE_USER_SHORT_PIC = "userShortPic";
     public static final String IMAGE_TYPE_USER_SHARED_PIC = "sharedPic";
+    //endregion
 
-    //Photo watermark status
+    //region Photo watermark status
     public static final String WATERMARK_STATUS_YES = "statusYes";
     public static final String WATERMARK_STATUS_NO = "statusNo";
     public static final String WATERMARK_STATUS_ASK_ALWAYS = "StatusAskAlways";
+    //endregion
 
     //Extra data
     public static final String EXTRA_ENTITY_ID = "entityID";
@@ -125,6 +136,8 @@ public class Constant {
     public static final String NOTIFICATION_CATEGORY_CREAD_COMMENT_OTHER = "other-comment";
     public static final String NOTIFICATION_CATEGORY_CREAD_TOP_POST = "top-post";
     public static final String NOTIFICATION_CATEGORY_CREAD_TEAM_CHAT = "team-chat";
+    public static final String NOTIFICATION_CATEGORY_PROFILE_MENTION_POST = "profile-mention-post";
+    public static final String NOTIFICATION_CATEGORY_PROFILE_MENTION_COMMENT = "profile-mention-comment";
 
     //Notification id cread
     public static final int NOTIFICATION_ID_CREAD_FOLLOW = 1000;
@@ -136,6 +149,8 @@ public class Constant {
     public static final int NOTIFICATION_ID_CREAD_COMMENT_OTHER = 1006;
     public static final int NOTIFICATION_ID_CREAD_TOP_POST = 1007;
     public static final int NOTIFICATION_ID_CREAD_TEAM_CHAT = 1008;
+    public static final int NOTIFICATION_ID_PROFILE_MENTION_POST = 1009;
+    public static final int NOTIFICATION_ID_PROFILE_MENTION_COMMENT = 1010;
 
     public static final String NOTIFICATION_CHANNEL_GENERAL = "generalNotificationChannel";
 
@@ -155,7 +170,7 @@ public class Constant {
     public static final String BUNDLE_HASHTAG_NAME = "hashTagName";
 
 
-    //Firebase event types
+    //region :Firebase event types
     public static final String FIREBASE_EVENT_HAVE_CLICKED = "have_clicked";
     public static final String FIREBASE_EVENT_BUY_CLICKED = "buy_clicked";
     public static final String FIREBASE_EVENT_MAKE_PAYMENT_CLICKED = "make_payment_clicked";
@@ -173,6 +188,7 @@ public class Constant {
     public static final String FIREBASE_EVENT_SHARED_FROM_MAIN_FEED = "shared_from_main_feed";
     public static final String FIREBASE_EVENT_SHARED_FROM_PROFILE = "shared_from_profile";
     public static final String FIREBASE_EVENT_RATE_US_CLICKED = "rate_us_clicked";
+    //endregion
 
 
     public enum GratitudeNumbers {
@@ -196,7 +212,7 @@ public class Constant {
     public static final String URI_HASH_TAG_ACTIVITY = "content://com.thetestament.cread.hashtagdetailsactivity/";
 
 
-    //Data for preview Screen
+    //region :Data for preview Screen
     public static final String PREVIEW_EXTRA_DATA = "extraData";
     public static final String PREVIEW_EXTRA_CALLED_FROM = "calledFrom";
     public static final String PREVIEW_EXTRA_UUID = "uuid";
@@ -227,11 +243,13 @@ public class Constant {
     public static final String PREVIEW_EXTRA_CALLED_FROM_CAPTURE = "capture";
     public static final String PREVIEW_EXTRA_CALLED_FROM_EDIT_CAPTURE = "editCapture";
     public static final String PREVIEW_EXTRA_CALLED_FROM_EDIT_SHORT = "editShort";
+    //endregion
 
-    //Data for  Short activity
+    //region :Data for  Short activity
     public static final String SHORT_EXTRA_CALLED_FROM = "shortCalledFrom";
     public static final String SHORT_EXTRA_CALLED_FROM_EDIT_SHORT = "calledFromEditShort";
     public static final String SHORT_EXTRA_CALLED_FROM_COLLABORATION_SHORT = "calledFromCollaboration";
     public static final String SHORT_EXTRA_CAPTION_TEXT = "shortCaptionText";
+    //endregion
 
 }

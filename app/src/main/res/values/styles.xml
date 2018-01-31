@@ -69,7 +69,7 @@
     <!--HelveticaNeuBold font-->
     <style name="ShortFont" parent="android:TextAppearance">
         <!-- Custom Attr-->
-        <item name="fontPath">fonts/montserrat_regular.ttf</item>
+        <item name="fontPath">fonts/bohemian_typewriter.ttf</item>
     </style>
 
 

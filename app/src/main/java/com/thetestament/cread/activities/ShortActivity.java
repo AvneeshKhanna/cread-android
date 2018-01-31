@@ -10,6 +10,7 @@ import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.BottomSheetBehavior;
@@ -28,6 +29,8 @@ import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.animation.AnimationUtils;
+import android.view.animation.LayoutAnimationController;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
@@ -45,6 +48,7 @@ import com.thetestament.cread.Manifest;
 import com.thetestament.cread.R;
 import com.thetestament.cread.adapters.ColorAdapter;
 import com.thetestament.cread.adapters.FontAdapter;
+import com.thetestament.cread.adapters.InspirationAdapter;
 import com.thetestament.cread.dialog.CustomDialog;
 import com.thetestament.cread.helpers.ColorHelper;
 import com.thetestament.cread.helpers.FontsHelper;
@@ -55,10 +59,12 @@ import com.thetestament.cread.listeners.OnSwipeGestureListener;
 import com.thetestament.cread.listeners.listener;
 import com.thetestament.cread.models.ColorModel;
 import com.thetestament.cread.models.FontModel;
+import com.thetestament.cread.models.InspirationModel;
 import com.thetestament.cread.widgets.CustomEditText;
 import com.thetestament.cread.widgets.CustomEditText.OnEditTextBackListener;
 import com.thetestament.cread.widgets.SquareView;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -67,6 +73,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import butterknife.BindView;
@@ -78,9 +85,14 @@ import io.reactivex.Observer;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.disposables.Disposable;
+import io.reactivex.observers.DisposableObserver;
 import io.reactivex.schedulers.Schedulers;
 
+import static com.thetestament.cread.CreadApp.GET_RESPONSE_FROM_NETWORK_INSPIRATION;
+import static com.thetestament.cread.helpers.FontsHelper.FONT_TYPE_BOHEMIAN_TYPEWRITER;
 import static com.thetestament.cread.helpers.FontsHelper.getFontType;
+import static com.thetestament.cread.helpers.NetworkHelper.getNetConnectionStatus;
+import static com.thetestament.cread.helpers.NetworkHelper.getObservableFromServer;
 import static com.thetestament.cread.utils.Constant.EXTRA_CAPTURE_ID;
 import static com.thetestament.cread.utils.Constant.EXTRA_CAPTURE_URL;
 import static com.thetestament.cread.utils.Constant.EXTRA_DATA;
@@ -155,6 +167,10 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
     View imageProgressView;
     @BindView(R.id.textNote)
     TextView textNote;
+    @BindView(R.id.recyclerViewInspiration)
+    RecyclerView recyclerViewInspiration;
+    @BindView(R.id.progressViewInspiration)
+    View progressViewInspiration;
 
     //Font bottom sheet
     @BindView(R.id.bottomSheetView)
@@ -175,7 +191,7 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
 
 
     @State
-    String mCaptureUrl, mCaptureID = "", mShortID = "", mEntityID = "", mCaptionText = "", mSignatureText, mShortBgColor = "FFFFFFFF", mFontType = "montserrat_regular.ttf";
+    String mCaptureUrl, mCaptureID = "", mShortID = "", mEntityID = "", mCaptionText = "", mSignatureText, mShortBgColor = "FF757575", mFontType = FONT_TYPE_BOHEMIAN_TYPEWRITER;
 
     /**
      * Flag to maintain imageWidth
@@ -227,7 +243,7 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
      * Flag to maintain gravity status i.e 0 for center , 1 for right and 2 for left.
      */
     @State
-    int mGravityFlag = 0;
+    int mGravityFlag = 2;
 
     @State
     String mCalledFrom = PREVIEW_EXTRA_CALLED_FROM_SHORT;
@@ -239,8 +255,8 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
         Center, East, West
     }
 
-    //Initially text gravity is "CENTER"
-    TextGravity textGravity = TextGravity.Center;
+    //Initially text gravity is "West"
+    TextGravity textGravity = TextGravity.West;
 
 
     /**
@@ -258,6 +274,12 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
 
     CompositeDisposable mCompositeDisposable = new CompositeDisposable();
     SharedPreferenceHelper mHelper;
+
+    //For inspiration view
+    List<InspirationModel> mInspirationDataList = new ArrayList<>();
+    InspirationAdapter mAdapter;
+    private String mLastIndexKey;
+    private boolean mRequestMoreData;
     //endregion
 
     //region :Overridden methods
@@ -445,7 +467,7 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
     /**
      * Inspire me button click functionality to open InspirationActivity.
      */
-    @OnClick(R.id.btnInspireMe)
+    /*@OnClick(R.id.btnInspireMe)*/
     void onBtnInspireClicked() {
         startActivityForResult(new Intent(this, InspirationActivity.class)
                 , REQUEST_CODE_INSPIRATION_ACTIVITY);
@@ -630,7 +652,7 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
         retrieveData();
 
         //Set default font
-        mTextTypeface = ResourcesCompat.getFont(ShortActivity.this, R.font.montserrat_regular);
+        mTextTypeface = ResourcesCompat.getFont(ShortActivity.this, R.font.bohemian_typewriter);
 
         //set listener
         textShort.setOnEditTextBackListener(this);
@@ -646,9 +668,11 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
         //initialise font and color bottomSheet
         initFontLayout();
         initColorLayout();
+        initInspirationView();
         //initialize listener
         initDragListener();
         initSwipeListener();
+
     }
 
     /**
@@ -699,7 +723,7 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
             @Override
             public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
                 //Set text size
-                textShort.setTextSize(TypedValue.COMPLEX_UNIT_PX, i + 50);
+                textShort.setTextSize(TypedValue.COMPLEX_UNIT_SP, i + 16);
             }
 
             @Override
@@ -900,6 +924,41 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
                 viewFormatTextSize.setVisibility(View.VISIBLE);
             }
         });
+    }
+
+    /**
+     *
+     * */
+    private void initInspirationView() {
+        //Set layout manger for recyclerView
+        recyclerViewInspiration.setLayoutManager(new LinearLayoutManager(mContext
+                , LinearLayoutManager.HORIZONTAL, false));
+        //Set adapter
+        mAdapter = new InspirationAdapter(mInspirationDataList, this);
+        recyclerViewInspiration.setAdapter(mAdapter);
+
+        //Setup listener
+        mAdapter.setInspirationSelectListener(new listener.OnInspirationSelectListener() {
+            @Override
+            public void onInspireImageSelected(InspirationModel model) {
+                //Retrieve data
+                mCaptureID = model.getCaptureID();
+                mCaptureUrl = model.getCapturePic();
+                mIsMerchantable = model.isMerchantable();
+                //Load inspiration/capture image
+                loadCapture(imageShort, mCaptureUrl);
+                //Update flags
+                mIsBgColorPresent = false;
+                mIsImagePresent = true;
+                //show note textView
+                textNote.setVisibility(View.VISIBLE);
+            }
+        });
+
+        //Load inspiration data
+        loadInspirationData();
+        //initialize inspiration load more listener
+        initLoadMoreListener(mAdapter);
     }
 
     /**
@@ -1170,7 +1229,7 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
                                         / (float) responseObject.getDouble("img_width");
 
                                 //If capture image is not present
-                                if ( TextUtils.isEmpty(responseObject.getString("captureurl")) ||responseObject.getString("captureurl").equals("null")) {
+                                if (TextUtils.isEmpty(responseObject.getString("captureurl")) || responseObject.getString("captureurl").equals("null")) {
                                     //Change backgroundColor
                                     imageShort.setBackgroundColor((int) Long.parseLong(responseObject.getString("bgcolor"), 16));
                                     //Update flag
@@ -1289,7 +1348,7 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
                                 }
 
                                 //Update image tint
-                                if (!TextUtils.isEmpty(responseObject.getString("imgtintcolor"))||responseObject.getString("imgtintcolor").equals("null")) {
+                                if (!TextUtils.isEmpty(responseObject.getString("imgtintcolor")) || responseObject.getString("imgtintcolor").equals("null")) {
                                     switch (responseObject.getString("imgtintcolor")) {
                                         case "80000000":
                                             //Apply tint
@@ -1342,6 +1401,210 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
                         imageProgressView.setVisibility(View.GONE);
                     }
                 });
+    }
+
+    /**
+     * Initialize inspiration load more listener.
+     *
+     * @param adapter Inspiration adapter reference.
+     */
+    private void initLoadMoreListener(InspirationAdapter adapter) {
+        adapter.setLoadMoreListener(new listener.OnInspirationLoadMoreListener() {
+            @Override
+            public void onLoadMore() {
+                //If next set of data available
+                if (mRequestMoreData) {
+                    new Handler().post(new Runnable() {
+                                           @Override
+                                           public void run() {
+                                               mInspirationDataList.add(null);
+                                               mAdapter.notifyItemInserted(mInspirationDataList.size() - 1);
+                                           }
+                                       }
+                    );
+                    //Load new set of data
+                    loadMoreData();
+                }
+            }
+        });
+    }
+
+    /**
+     * This method loads data from server if user device is connected to internet.
+     */
+    private void loadInspirationData() {
+        // if user device is connected to net
+        if (getNetConnectionStatus(this)) {
+            progressViewInspiration.setVisibility(View.VISIBLE);
+            //Get data from server
+            getInspirationData();
+        } else {
+            //No connection Snack bar
+            ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_no_connection));
+        }
+    }
+
+    /**
+     * RxJava2 implementation for retrieving inspiration data
+     */
+    private void getInspirationData() {
+        final boolean[] tokenError = {false};
+        final boolean[] connectionError = {false};
+
+        mCompositeDisposable.add(getObservableFromServer(BuildConfig.URL + "/inspiration-feed/load"
+                , mHelper.getUUID()
+                , mHelper.getAuthToken()
+                , mLastIndexKey
+                , GET_RESPONSE_FROM_NETWORK_INSPIRATION)
+                //Run on a background thread
+                .subscribeOn(Schedulers.io())
+                //Be notified on the main thread
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribeWith(new DisposableObserver<JSONObject>() {
+                    @Override
+                    public void onNext(JSONObject jsonObject) {
+                        try {
+                            //Token status is invalid
+                            if (jsonObject.getString("tokenstatus").equals("invalid")) {
+                                tokenError[0] = true;
+                            } else {
+                                JSONObject mainData = jsonObject.getJSONObject("data");
+                                mRequestMoreData = mainData.getBoolean("requestmore");
+                                mLastIndexKey = mainData.getString("lastindexkey");
+                                //Inspiration list
+                                JSONArray array = mainData.getJSONArray("items");
+                                for (int i = 0; i < array.length(); i++) {
+                                    JSONObject dataObj = array.getJSONObject(i);
+                                    InspirationModel data = new InspirationModel();
+                                    data.setEntityID(dataObj.getString("entityid"));
+                                    data.setCaptureID(dataObj.getString("captureid"));
+                                    data.setCapturePic(dataObj.getString("captureurl"));
+                                    data.setMerchantable(dataObj.getBoolean("merchantable"));
+                                    mInspirationDataList.add(data);
+                                }
+                            }
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                            FirebaseCrash.report(e);
+                            connectionError[0] = true;
+                        }
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        //Hide progress view
+                        progressViewInspiration.setVisibility(View.GONE);
+                        FirebaseCrash.report(e);
+                        //Server error Snack bar
+                        ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_server));
+                    }
+
+                    @Override
+                    public void onComplete() {
+                        //Hide progress view
+                        progressViewInspiration.setVisibility(View.GONE);
+                        // set to false
+                        GET_RESPONSE_FROM_NETWORK_INSPIRATION = false;
+                        // Token status invalid
+                        if (tokenError[0]) {
+                            ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_invalid_token));
+                        }
+                        //Error occurred
+                        else if (connectionError[0]) {
+                            ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_internal));
+                        }
+                        //No data
+                        else if (mInspirationDataList.size() == 0) {
+                            ViewHelper.getSnackBar(rootView, "Nothing to show.");
+                        } else {
+                            //Apply 'Slide Up' animation
+                            int resId = R.anim.layout_animation_from_bottom;
+                            LayoutAnimationController animation = AnimationUtils.loadLayoutAnimation(mContext, resId);
+                            recyclerView.setLayoutAnimation(animation);
+                            mAdapter.notifyDataSetChanged();
+                        }
+                    }
+                })
+        );
+    }
+
+    /**
+     * Method to retrieve to next set of inspiration data from server.
+     */
+    private void loadMoreData() {
+        final boolean[] tokenError = {false};
+        final boolean[] connectionError = {false};
+        mCompositeDisposable.add(getObservableFromServer(BuildConfig.URL + "/inspiration-feed/load"
+                , mHelper.getUUID()
+                , mHelper.getAuthToken()
+                , mLastIndexKey
+                , GET_RESPONSE_FROM_NETWORK_INSPIRATION)
+                //Run on a background thread
+                .subscribeOn(Schedulers.io())
+                //Be notified on the main thread
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribeWith(new DisposableObserver<JSONObject>() {
+                    @Override
+                    public void onNext(JSONObject jsonObject) {
+                        //Remove loading item
+                        mInspirationDataList.remove(mInspirationDataList.size() - 1);
+                        mAdapter.notifyItemRemoved(mInspirationDataList.size());
+                        try {
+                            //Token status is invalid
+                            if (jsonObject.getString("tokenstatus").equals("invalid")) {
+                                tokenError[0] = true;
+                            } else {
+
+                                JSONObject mainData = jsonObject.getJSONObject("data");
+                                mRequestMoreData = mainData.getBoolean("requestmore");
+                                mLastIndexKey = mainData.getString("lastindexkey");
+                                //Inspiration list
+                                JSONArray array = mainData.getJSONArray("items");
+                                for (int i = 0; i < array.length(); i++) {
+                                    JSONObject dataObj = array.getJSONObject(i);
+                                    InspirationModel data = new InspirationModel();
+                                    data.setEntityID(dataObj.getString("entityid"));
+                                    data.setCaptureID(dataObj.getString("captureid"));
+                                    data.setCapturePic(dataObj.getString("captureurl"));
+                                    data.setMerchantable(dataObj.getBoolean("merchantable"));
+                                    mInspirationDataList.add(data);
+                                    //Notify item insertion
+                                    mAdapter.notifyItemInserted(mInspirationDataList.size() - 1);
+                                }
+                            }
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                            FirebaseCrash.report(e);
+                            connectionError[0] = true;
+                        }
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        //Remove loading item
+                        mInspirationDataList.remove(mInspirationDataList.size() - 1);
+                        mAdapter.notifyItemRemoved(mInspirationDataList.size());
+                        FirebaseCrash.report(e);
+                        //Server error Snack bar
+                        ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_server));
+                    }
+
+                    @Override
+                    public void onComplete() {
+                        // Token status invalid
+                        if (tokenError[0]) {
+                            ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_invalid_token));
+                        }
+                        //Error occurred
+                        else if (connectionError[0]) {
+                            ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_internal));
+                        } else {
+                            //Notify changes
+                            mAdapter.setLoaded();
+                        }
+                    }
+                })
+        );
     }
     //endregion
 }

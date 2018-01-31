@@ -11,9 +11,12 @@ import com.thetestament.cread.R;
  */
 
 public class FontsHelper {
-    //Font types
+
+    //region Font types
     public static final String FONT_TYPE_AMATIC_SC_REGULAR = "amatic_sc_regular.ttf";
     public static final String FONT_TYPE_BARLOW_CONDENSED_REGULAR = "barlow_condensed_regular.ttf";
+    public static final String FONT_TYPE_BOHEMIAN_TYPEWRITER = "bohemian_typewriter.ttf";
+    public static final String FONT_TYPE_BROTHER_DELUXE = "brother_deluxe.ttf";
     public static final String FONT_TYPE_CABIN_SKETCH_REGULAR = "cabin_sketch_regular.ttf";
     public static final String FONT_TYPE_HELVETICA_NEUE_MEDIUM = "helvetica_neue_medium.ttf";
     public static final String FONT_TYPE_INDIE_FLOWER = "indie_flower.ttf";
@@ -34,11 +37,13 @@ public class FontsHelper {
     public static final String FONT_TYPE_VIGA_REGULAR = "viga_regular.ttf";
     public static final String FONT_TYPE_WALTERTURNCOAT_REGULAR = "walterturncoat_regular.ttf";
     public static final String FONT_TYPE_RALEWAY_LIGHT = "raleway_light.ttf";
+    //endregion
 
-
-    //Font list
+    //region :Font list
     public static String[] fontTypes = {
-            FONT_TYPE_MONTSERRAT_REGULAR
+            FONT_TYPE_BOHEMIAN_TYPEWRITER
+            , FONT_TYPE_BROTHER_DELUXE
+            , FONT_TYPE_MONTSERRAT_REGULAR
             , FONT_TYPE_AMATIC_SC_REGULAR
             , FONT_TYPE_BARLOW_CONDENSED_REGULAR
             , FONT_TYPE_CABIN_SKETCH_REGULAR
@@ -60,8 +65,8 @@ public class FontsHelper {
             , FONT_TYPE_VIGA_REGULAR
             , FONT_TYPE_WALTERTURNCOAT_REGULAR
             , FONT_TYPE_RALEWAY_LIGHT
-
     };
+    //endregion
 
     /**
      * Method to return typeFace
@@ -75,6 +80,10 @@ public class FontsHelper {
                 return ResourcesCompat.getFont(context, R.font.amatic_sc_regular);
             case FONT_TYPE_BARLOW_CONDENSED_REGULAR:
                 return ResourcesCompat.getFont(context, R.font.barlow_condensed_regular);
+            case FONT_TYPE_BOHEMIAN_TYPEWRITER:
+                return ResourcesCompat.getFont(context, R.font.bohemian_typewriter);
+            case FONT_TYPE_BROTHER_DELUXE:
+                return ResourcesCompat.getFont(context, R.font.brother_deluxe);
             case FONT_TYPE_CABIN_SKETCH_REGULAR:
                 return ResourcesCompat.getFont(context, R.font.cabin_sketch_regular);
             case FONT_TYPE_HELVETICA_NEUE_MEDIUM:

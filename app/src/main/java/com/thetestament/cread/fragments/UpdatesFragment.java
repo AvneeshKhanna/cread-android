@@ -12,7 +12,6 @@ import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -21,18 +20,15 @@ import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 
 import com.google.firebase.crash.FirebaseCrash;
-import com.rx2androidnetworking.Rx2AndroidNetworking;
-import com.thetestament.cread.BuildConfig;
 import com.thetestament.cread.R;
+import com.thetestament.cread.activities.CommentsActivity;
 import com.thetestament.cread.activities.FeedDescriptionActivity;
 import com.thetestament.cread.activities.RoyaltiesActivity;
 import com.thetestament.cread.adapters.UpdatesAdapter;
 import com.thetestament.cread.database.NotificationsDBHelper;
 import com.thetestament.cread.database.NotificationsDBSchema;
-import com.thetestament.cread.helpers.NetworkHelper;
 import com.thetestament.cread.helpers.SharedPreferenceHelper;
 import com.thetestament.cread.helpers.ViewHelper;
-import com.thetestament.cread.listeners.listener;
 import com.thetestament.cread.listeners.listener.OnServerRequestedListener;
 import com.thetestament.cread.models.FeedModel;
 import com.thetestament.cread.models.UpdatesModel;
@@ -46,12 +42,7 @@ import java.util.List;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.Unbinder;
-import io.reactivex.Observer;
-import io.reactivex.android.schedulers.AndroidSchedulers;
-import io.reactivex.annotations.NonNull;
 import io.reactivex.disposables.CompositeDisposable;
-import io.reactivex.disposables.Disposable;
-import io.reactivex.schedulers.Schedulers;
 
 import static com.thetestament.cread.CreadApp.GET_RESPONSE_FROM_NETWORK_ENTITY_SPECIFIC;
 import static com.thetestament.cread.database.NotificationsDBSchema.NotificationDBEntry.COLUMN_NAME_ACTOR_USERID;
@@ -67,9 +58,8 @@ import static com.thetestament.cread.database.NotificationsDBSchema.Notification
 import static com.thetestament.cread.helpers.FeedHelper.parseEntitySpecificJSON;
 import static com.thetestament.cread.helpers.NetworkHelper.getEntitySpecificObservable;
 import static com.thetestament.cread.helpers.NetworkHelper.requestServer;
-import static com.thetestament.cread.utils.Constant.CONTENT_TYPE_CAPTURE;
-import static com.thetestament.cread.utils.Constant.CONTENT_TYPE_SHORT;
 import static com.thetestament.cread.utils.Constant.EXTRA_DATA;
+import static com.thetestament.cread.utils.Constant.EXTRA_ENTITY_ID;
 import static com.thetestament.cread.utils.Constant.EXTRA_FEED_DESCRIPTION_DATA;
 import static com.thetestament.cread.utils.Constant.NOTIFICATION_CATEGORY_CREAD_BUY;
 import static com.thetestament.cread.utils.Constant.NOTIFICATION_CATEGORY_CREAD_COLLABORATE;
@@ -79,6 +69,8 @@ import static com.thetestament.cread.utils.Constant.NOTIFICATION_CATEGORY_CREAD_
 import static com.thetestament.cread.utils.Constant.NOTIFICATION_CATEGORY_CREAD_GENERAL;
 import static com.thetestament.cread.utils.Constant.NOTIFICATION_CATEGORY_CREAD_HATSOFF;
 import static com.thetestament.cread.utils.Constant.NOTIFICATION_CATEGORY_CREAD_TOP_POST;
+import static com.thetestament.cread.utils.Constant.NOTIFICATION_CATEGORY_PROFILE_MENTION_COMMENT;
+import static com.thetestament.cread.utils.Constant.NOTIFICATION_CATEGORY_PROFILE_MENTION_POST;
 
 
 
@@ -286,6 +278,16 @@ public class UpdatesFragment extends Fragment {
                             // handled in updates adapter
                             break;
 
+                        case NOTIFICATION_CATEGORY_PROFILE_MENTION_POST:
+                            // gets feed details and opens details screen
+                            getFeedDetails(entityID);
+                            break;
+                        case NOTIFICATION_CATEGORY_PROFILE_MENTION_COMMENT:
+                            //Open comments activity
+                            Intent intent = new Intent(getActivity(), CommentsActivity.class);
+                            intent.putExtra(EXTRA_ENTITY_ID, entityID);
+                            startActivity(intent);
+                            break;
                         default:
                             break;
                     }

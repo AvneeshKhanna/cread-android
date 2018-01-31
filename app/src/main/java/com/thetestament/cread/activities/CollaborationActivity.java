@@ -76,6 +76,7 @@ import io.reactivex.schedulers.Schedulers;
 import pl.tajchert.nammu.Nammu;
 import pl.tajchert.nammu.PermissionCallback;
 
+import static com.thetestament.cread.helpers.FontsHelper.FONT_TYPE_BOHEMIAN_TYPEWRITER;
 import static com.thetestament.cread.helpers.FontsHelper.fontTypes;
 import static com.thetestament.cread.helpers.FontsHelper.getFontType;
 import static com.thetestament.cread.helpers.ImageHelper.getImageUri;
@@ -152,7 +153,7 @@ public class CollaborationActivity extends BaseActivity {
 
 
     @State
-    String mEntityID, mShortID, mIsMerchantable, mSignatureText = "", mFontType = "montserrat_regular.ttf";
+    String mEntityID, mShortID, mIsMerchantable, mSignatureText = "", mFontType = FONT_TYPE_BOHEMIAN_TYPEWRITER;
 
     @State
     String mEntityType;
@@ -175,7 +176,7 @@ public class CollaborationActivity extends BaseActivity {
      * Flag to maintain gravity status i.e 0 for center , 1 for right and 2 for left.
      */
     @State
-    int mGravityFlag = 0;
+    int mGravityFlag = 2;
 
     //ENUM for text gravity
     private enum TextGravity {
@@ -196,7 +197,7 @@ public class CollaborationActivity extends BaseActivity {
 
 
     //Initially text gravity is "CENTER"
-    TextGravity textGravity = TextGravity.Center;
+    TextGravity textGravity = TextGravity.West;
 
     CompositeDisposable mCompositeDisposable = new CompositeDisposable();
     SharedPreferenceHelper mHelper;
@@ -218,7 +219,7 @@ public class CollaborationActivity extends BaseActivity {
         colorSheetBehaviour = BottomSheetBehavior.from(colorBottomSheetView);
         colorSheetBehaviour.setPeekHeight(0);
         //Set default font
-        mTextTypeface = ResourcesCompat.getFont(CollaborationActivity.this, R.font.montserrat_regular);
+        mTextTypeface = ResourcesCompat.getFont(CollaborationActivity.this, R.font.bohemian_typewriter);
         //initialise font , color bottomSheet
         initFontLayout();
         initColorLayout();
@@ -514,7 +515,7 @@ public class CollaborationActivity extends BaseActivity {
             @Override
             public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
                 //Set text size
-                textShort.setTextSize(TypedValue.COMPLEX_UNIT_PX, i + 50);
+                textShort.setTextSize(TypedValue.COMPLEX_UNIT_SP, i + 16);
             }
 
             @Override
