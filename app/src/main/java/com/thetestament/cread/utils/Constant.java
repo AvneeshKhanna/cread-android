@@ -4,9 +4,15 @@ package com.thetestament.cread.utils;
 public class Constant {
     public static final String MINIMUM_APP_VERSION_KEY = "minimum_app_version";
 
-    //Platform key and value con
+    //region :Platform key and value con
     public static final String PLATFORM_KEY = "platform";
     public static final String PLATFORM_VALUE = "android";
+    //endregion
+
+    //region Inspiration item view types
+    public static final String INSPIRATION_ITEM_TYPE_SMALL = "itemSmall";
+    public static final String INSPIRATION_ITEM_TYPE_DETAIL = "itemDetail";
+    //endregion
 
     //region :Request codes
     public static final int REQUEST_CODE_OPEN_GALLERY_FOR_CAPTURE = 1000;

@@ -19,6 +19,7 @@ import com.thetestament.cread.helpers.SharedPreferenceHelper;
 import com.thetestament.cread.helpers.ViewHelper;
 import com.thetestament.cread.listeners.listener;
 import com.thetestament.cread.models.InspirationModel;
+import com.thetestament.cread.utils.Constant;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -91,7 +92,7 @@ public class InspirationActivity extends BaseActivity {
         //Set layout manger for recyclerView
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         //Set adapter
-        mAdapter = new InspirationAdapter(mInspirationDataList, this);
+        mAdapter = new InspirationAdapter(mInspirationDataList, this , Constant.INSPIRATION_ITEM_TYPE_DETAIL);
         recyclerView.setAdapter(mAdapter);
 
         swipeRefreshLayout.setRefreshing(true);

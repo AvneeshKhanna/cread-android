@@ -91,6 +91,13 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center" />
 
+            <android.support.v7.widget.AppCompatImageView
+                android:id="@+id/btnInspiration"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="right|center"
+                android:background="@color/transparent_15"
+                app:srcCompat="@drawable/ic_arrow_right_vector" />
         </FrameLayout>
 
         <!--Container seek bar-->
@@ -106,7 +113,7 @@
                 android:layout_width="25dp"
                 android:layout_height="25dp"
                 android:layout_marginLeft="15dp"
-                android:visibility="visible"
+                android:visibility="invisible"
                 app:srcCompat="@drawable/ic_format_size_32" />
 
             <android.support.v7.widget.AppCompatSeekBar
@@ -118,7 +125,7 @@
                 android:layout_marginLeft="5dp"
                 android:layout_marginRight="10dp"
                 android:layout_toRightOf="@+id/btnFormatTextSize"
-                android:visibility="visible" />
+                android:visibility="invisible" />
         </RelativeLayout>
 
         <!--Format options-->
@@ -133,7 +140,7 @@
                 layout="@layout/layout_format_option"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:visibility="visible" />
+                android:visibility="invisible" />
         </FrameLayout>
 
 
@@ -142,6 +149,6 @@
     <!--Font option bottom sheet-->
     <include layout="@layout/layout_font_bottom_sheet" />
     <!--Color option bottom sheet-->
-     <include layout="@layout/layout_color_bottom_sheet" />
+    <include layout="@layout/layout_color_bottom_sheet" />
 
 </android.support.design.widget.CoordinatorLayout>

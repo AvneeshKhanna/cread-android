@@ -60,6 +60,7 @@ import com.thetestament.cread.listeners.listener;
 import com.thetestament.cread.models.ColorModel;
 import com.thetestament.cread.models.FontModel;
 import com.thetestament.cread.models.InspirationModel;
+import com.thetestament.cread.utils.Constant;
 import com.thetestament.cread.widgets.CustomEditText;
 import com.thetestament.cread.widgets.CustomEditText.OnEditTextBackListener;
 import com.thetestament.cread.widgets.SquareView;
@@ -467,7 +468,7 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
     /**
      * Inspire me button click functionality to open InspirationActivity.
      */
-    /*@OnClick(R.id.btnInspireMe)*/
+    @OnClick(R.id.btnInspiration)
     void onBtnInspireClicked() {
         startActivityForResult(new Intent(this, InspirationActivity.class)
                 , REQUEST_CODE_INSPIRATION_ACTIVITY);
@@ -843,9 +844,9 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
                 //Remove listener
                 textShort.setOnTouchListener(null);
                 //Toggle visibility
-                formatOptions.setVisibility(View.GONE);
-                seekBarTextSize.setVisibility(View.GONE);
-                viewFormatTextSize.setVisibility(View.GONE);
+                formatOptions.setVisibility(View.INVISIBLE);
+                seekBarTextSize.setVisibility(View.INVISIBLE);
+                viewFormatTextSize.setVisibility(View.INVISIBLE);
 
                 //Method call
                 hideBottomSheets();
@@ -867,19 +868,19 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
                     switch (mImageTintFlag) {
                         case 0:
                             //Apply tint
-                            imageShort.setColorFilter(ContextCompat.getColor(ShortActivity.this, R.color.transparent_50));
+                            imageShort.setColorFilter(ContextCompat.getColor(ShortActivity.this, R.color.transparent_30));
                             //Update flag
                             mImageTintFlag = 1;
                             //set tint color
-                            mImageTintColor = "80000000";
+                            mImageTintColor = "4D000000";
                             break;
                         case 1:
                             //Apply tint
-                            imageShort.setColorFilter(ContextCompat.getColor(ShortActivity.this, R.color.transparent_60));
+                            imageShort.setColorFilter(ContextCompat.getColor(ShortActivity.this, R.color.transparent_50));
                             //Update flag
                             mImageTintFlag = 2;
                             //set tint color
-                            mImageTintColor = "99000000";
+                            mImageTintColor = "80000000";
                             break;
                         case 2:
                             //Apply tint
@@ -934,7 +935,7 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
         recyclerViewInspiration.setLayoutManager(new LinearLayoutManager(mContext
                 , LinearLayoutManager.HORIZONTAL, false));
         //Set adapter
-        mAdapter = new InspirationAdapter(mInspirationDataList, this);
+        mAdapter = new InspirationAdapter(mInspirationDataList, this, Constant.INSPIRATION_ITEM_TYPE_SMALL);
         recyclerViewInspiration.setAdapter(mAdapter);
 
         //Setup listener
@@ -1349,22 +1350,22 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
 
                                 //Update image tint
                                 if (!TextUtils.isEmpty(responseObject.getString("imgtintcolor")) || responseObject.getString("imgtintcolor").equals("null")) {
-                                    switch (responseObject.getString("imgtintcolor")) {
+                                    switch (responseObject.getString("imgtintcolor").toUpperCase()) {
+                                        case "4D000000":
+                                            //Apply tint
+                                            imageShort.setColorFilter(ContextCompat.getColor(ShortActivity.this, R.color.transparent_30));
+                                            //Update flag
+                                            mImageTintFlag = 1;
+                                            //set tint color
+                                            mImageTintColor = "99000000";
+                                            break;
                                         case "80000000":
                                             //Apply tint
                                             imageShort.setColorFilter(ContextCompat.getColor(ShortActivity.this, R.color.transparent_50));
                                             //Update flag
-                                            mImageTintFlag = 1;
-                                            //set tint color
-                                            mImageTintColor = "80000000";
-                                            break;
-                                        case "99000000":
-                                            //Apply tint
-                                            imageShort.setColorFilter(ContextCompat.getColor(ShortActivity.this, R.color.transparent_60));
-                                            //Update flag
                                             mImageTintFlag = 2;
                                             //set tint color
-                                            mImageTintColor = "99000000";
+                                            mImageTintColor = "80000000";
                                             break;
                                         case "B3000000":
                                             //Apply tint
@@ -1373,6 +1374,16 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
                                             mImageTintFlag = 3;
                                             //set tint color
                                             mImageTintColor = "B3000000";
+                                            break;
+                                        case "99000000":
+                                            //Apply tint
+                                            imageShort.setColorFilter(ContextCompat.getColor(ShortActivity.this, R.color.transparent_60));
+                                            //Update flag
+                                            mImageTintFlag = 3;
+                                            //set tint color
+                                            mImageTintColor = "99000000";
+                                            break;
+                                        default:
                                             break;
                                     }
                                 }
