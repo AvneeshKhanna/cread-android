@@ -614,19 +614,19 @@ public class CollaborationActivity extends BaseActivity {
                 switch (mImageTintFlag) {
                     case 0:
                         //Apply tint
-                        imageShort.setColorFilter(ContextCompat.getColor(CollaborationActivity.this, R.color.transparent_50));
+                        imageShort.setColorFilter(ContextCompat.getColor(CollaborationActivity.this, R.color.transparent_30));
                         //Update flag
                         mImageTintFlag = 1;
                         //set tint color
-                        mImageTintColor = "80000000";
+                        mImageTintColor = "4d000000";
                         break;
                     case 1:
                         //Apply tint
-                        imageShort.setColorFilter(ContextCompat.getColor(CollaborationActivity.this, R.color.transparent_60));
+                        imageShort.setColorFilter(ContextCompat.getColor(CollaborationActivity.this, R.color.transparent_50));
                         //Update flag
                         mImageTintFlag = 2;
                         //set tint color
-                        mImageTintColor = "99000000";
+                        mImageTintColor = "80000000";
                         break;
                     case 2:
                         //Apply tint
