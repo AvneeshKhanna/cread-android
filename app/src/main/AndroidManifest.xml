@@ -246,7 +246,7 @@
             android:name=".activities.ShortActivity"
             android:label="Write"
             android:screenOrientation="portrait"
-            android:windowSoftInputMode="stateVisible">
+            android:windowSoftInputMode="stateVisible|adjustPan">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".activities.BottomNavigationActivity" />

@@ -844,9 +844,9 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
                 //Remove listener
                 textShort.setOnTouchListener(null);
                 //Toggle visibility
-                formatOptions.setVisibility(View.GONE);
-                seekBarTextSize.setVisibility(View.GONE);
-                viewFormatTextSize.setVisibility(View.GONE);
+                formatOptions.setVisibility(View.INVISIBLE);
+                seekBarTextSize.setVisibility(View.INVISIBLE);
+                viewFormatTextSize.setVisibility(View.INVISIBLE);
 
                 //Method call
                 hideBottomSheets();
