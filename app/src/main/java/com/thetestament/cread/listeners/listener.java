@@ -7,6 +7,7 @@ import android.widget.LinearLayout;
 import com.thetestament.cread.models.CommentsModel;
 import com.thetestament.cread.models.FBFriendsModel;
 import com.thetestament.cread.models.FeedModel;
+import com.thetestament.cread.models.InspirationModel;
 import com.thetestament.cread.utils.Constant.GratitudeNumbers;
 
 public class listener {
@@ -281,5 +282,12 @@ public class listener {
      */
     public interface OnFilterSelectListener {
         void onFilterSelected(Bitmap bitmap, String filterName);
+    }
+
+    /**
+     * Interface definition for a callback to be invoked when user selects image from inspiration list.
+     */
+    public interface OnInspirationSelectListener {
+        void onInspireImageSelected(InspirationModel model);
     }
 }

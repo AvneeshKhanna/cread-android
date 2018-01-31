@@ -24,8 +24,11 @@ public class RxSearchObservable {
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String s) {
-                subject.onComplete();
-                return false;
+                //subject.onComplete();
+                if (!s.isEmpty()) {
+                    subject.onNext(s);
+                }
+                return true;
             }
 
             @Override

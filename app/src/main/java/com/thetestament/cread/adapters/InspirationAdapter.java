@@ -1,35 +1,23 @@
 package com.thetestament.cread.adapters;
 
 
-import android.app.Activity;
-import android.content.Intent;
-import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
-import android.widget.RelativeLayout;
-import android.widget.TextView;
 
 import com.squareup.picasso.Picasso;
 import com.thetestament.cread.R;
-import com.thetestament.cread.activities.ProfileActivity;
 import com.thetestament.cread.listeners.listener.OnInspirationLoadMoreListener;
+import com.thetestament.cread.listeners.listener.OnInspirationSelectListener;
 import com.thetestament.cread.models.InspirationModel;
 
 import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import de.hdodenhof.circleimageview.CircleImageView;
-
-import static com.thetestament.cread.utils.Constant.EXTRA_CAPTURE_ID;
-import static com.thetestament.cread.utils.Constant.EXTRA_CAPTURE_URL;
-import static com.thetestament.cread.utils.Constant.EXTRA_DATA;
-import static com.thetestament.cread.utils.Constant.EXTRA_MERCHANTABLE;
-import static com.thetestament.cread.utils.Constant.EXTRA_PROFILE_UUID;
 
 /**
  * Adapter class to provide a binding from data set to views that are displayed within a inspiration RecyclerView.
@@ -45,6 +33,7 @@ public class InspirationAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
     private boolean mIsLoading;
 
     private OnInspirationLoadMoreListener loadMoreListener;
+    private OnInspirationSelectListener inspirationSelectListener;
 
     /**
      * Required constructor.
@@ -62,6 +51,13 @@ public class InspirationAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
      */
     public void setLoadMoreListener(OnInspirationLoadMoreListener loadMoreListener) {
         this.loadMoreListener = loadMoreListener;
+    }
+
+    /**
+     * Register a callback to be invoked when user select image from list.
+     */
+    public void setInspirationSelectListener(OnInspirationSelectListener inspirationSelectListener) {
+        this.inspirationSelectListener = inspirationSelectListener;
     }
 
     @Override
@@ -90,19 +86,10 @@ public class InspirationAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
 
         if (holder.getItemViewType() == VIEW_TYPE_ITEM) {
             final ItemViewHolder itemViewHolder = (ItemViewHolder) holder;
-            //Load creator profile picture
-            loadCreatorPic(data.getCreatorProfilePic(), itemViewHolder.imageCreator);
-            //Set creator name
-            itemViewHolder.textCreatorName.setText(data.getCreatorName());
             //Load inspiration image
             loadInspirationImage(data.getCapturePic(), itemViewHolder.imageInspiration);
-
-            //Click functionality to launch profile of creator
-            openCreatorProfile(itemViewHolder.containerCreator, data.getUUID());
-
             //ItemView onClick functionality
             itemViewOnClick(itemViewHolder.itemView, data);
-
 
         } else if (holder.getItemViewType() == VIEW_TYPE_LOADING) {
             LoadingViewHolder loadingViewHolder = (LoadingViewHolder) holder;
@@ -136,19 +123,6 @@ public class InspirationAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
     }
 
     /**
-     * Method to load creator profile picture.
-     *
-     * @param picUrl    picture URL.
-     * @param imageView View where image to be loaded.
-     */
-    private void loadCreatorPic(String picUrl, CircleImageView imageView) {
-        Picasso.with(mContext)
-                .load(picUrl)
-                .error(R.drawable.ic_account_circle_48)
-                .into(imageView);
-    }
-
-    /**
      * Method to load inspiration image.
      *
      * @param imageUrl  picture URL.
@@ -162,38 +136,14 @@ public class InspirationAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
     }
 
     /**
-     * Method to open creator profile.
-     *
-     * @param view        View to be clicked.
-     * @param creatorUUID UUID of the creator.
-     */
-    private void openCreatorProfile(View view, final String creatorUUID) {
-        view.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent intent = new Intent(mContext, ProfileActivity.class);
-                intent.putExtra(EXTRA_PROFILE_UUID, creatorUUID);
-                mContext.startActivity(intent);
-            }
-        });
-    }
-
-    /**
      * ItemView click functionality.
      */
     private void itemViewOnClick(View view, final InspirationModel data) {
         view.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Bundle bundle = new Bundle();
-                bundle.putString(EXTRA_CAPTURE_ID, data.getCaptureID());
-                bundle.putString(EXTRA_CAPTURE_URL, data.getCapturePic());
-                bundle.putBoolean(EXTRA_MERCHANTABLE, data.isMerchantable());
-                Intent intent = new Intent();
-                intent.putExtra(EXTRA_DATA, bundle);
-                mContext.setResult(Activity.RESULT_OK, intent);
-                //finis this activity
-                mContext.finish();
+                //Set listener
+                inspirationSelectListener.onInspireImageSelected(data);
             }
         });
     }
@@ -201,13 +151,7 @@ public class InspirationAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
 
     //ItemViewHolder class
     static class ItemViewHolder extends RecyclerView.ViewHolder {
-        @BindView(R.id.imageCreator)
-        CircleImageView imageCreator;
-        @BindView(R.id.textCreatorName)
-        TextView textCreatorName;
-        @BindView(R.id.containerCreator)
-        RelativeLayout containerCreator;
-        @BindView(R.id.imageInspiration)
+        @BindView(R.id.inspirationImage)
         ImageView imageInspiration;
 
         public ItemViewHolder(View itemView) {
