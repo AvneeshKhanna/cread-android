@@ -194,7 +194,7 @@ public class SearchAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
     }
 
     /**
-     * ItemView collabOnWritingClick functionality.
+     * ItemView click functionality.
      *
      * @param hashTag HashTag.
      */

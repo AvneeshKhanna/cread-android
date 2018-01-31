@@ -91,6 +91,12 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center" />
 
+            <android.support.v7.widget.AppCompatImageView
+                android:id="@+id/btnInspiration"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="right|center"
+                app:srcCompat="@drawable/ic_arrow_right_vector" />
         </FrameLayout>
 
         <!--Container seek bar-->
@@ -142,6 +148,6 @@
     <!--Font option bottom sheet-->
     <include layout="@layout/layout_font_bottom_sheet" />
     <!--Color option bottom sheet-->
-     <include layout="@layout/layout_color_bottom_sheet" />
+    <include layout="@layout/layout_color_bottom_sheet" />
 
 </android.support.design.widget.CoordinatorLayout>

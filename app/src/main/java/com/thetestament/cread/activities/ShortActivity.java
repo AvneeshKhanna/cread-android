@@ -60,6 +60,7 @@ import com.thetestament.cread.listeners.listener;
 import com.thetestament.cread.models.ColorModel;
 import com.thetestament.cread.models.FontModel;
 import com.thetestament.cread.models.InspirationModel;
+import com.thetestament.cread.utils.Constant;
 import com.thetestament.cread.widgets.CustomEditText;
 import com.thetestament.cread.widgets.CustomEditText.OnEditTextBackListener;
 import com.thetestament.cread.widgets.SquareView;
@@ -467,7 +468,7 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
     /**
      * Inspire me button click functionality to open InspirationActivity.
      */
-    /*@OnClick(R.id.btnInspireMe)*/
+    @OnClick(R.id.btnInspiration)
     void onBtnInspireClicked() {
         startActivityForResult(new Intent(this, InspirationActivity.class)
                 , REQUEST_CODE_INSPIRATION_ACTIVITY);
@@ -934,7 +935,7 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
         recyclerViewInspiration.setLayoutManager(new LinearLayoutManager(mContext
                 , LinearLayoutManager.HORIZONTAL, false));
         //Set adapter
-        mAdapter = new InspirationAdapter(mInspirationDataList, this);
+        mAdapter = new InspirationAdapter(mInspirationDataList, this, Constant.INSPIRATION_ITEM_TYPE_SMALL);
         recyclerViewInspiration.setAdapter(mAdapter);
 
         //Setup listener
