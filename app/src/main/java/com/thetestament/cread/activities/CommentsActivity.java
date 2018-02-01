@@ -11,7 +11,6 @@ import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.Editable;
-import android.text.InputType;
 import android.text.TextWatcher;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
@@ -25,14 +24,12 @@ import com.androidnetworking.error.ANError;
 import com.androidnetworking.interfaces.JSONObjectRequestListener;
 import com.google.firebase.crash.FirebaseCrash;
 import com.linkedin.android.spyglass.mentions.MentionSpan;
-import com.linkedin.android.spyglass.mentions.MentionSpanConfig;
 import com.linkedin.android.spyglass.suggestions.SuggestionsResult;
 import com.linkedin.android.spyglass.suggestions.interfaces.Suggestible;
 import com.linkedin.android.spyglass.suggestions.interfaces.SuggestionsResultListener;
 import com.linkedin.android.spyglass.suggestions.interfaces.SuggestionsVisibilityManager;
 import com.linkedin.android.spyglass.tokenization.QueryToken;
 import com.linkedin.android.spyglass.tokenization.impl.WordTokenizer;
-import com.linkedin.android.spyglass.tokenization.impl.WordTokenizerConfig;
 import com.linkedin.android.spyglass.tokenization.interfaces.QueryTokenReceiver;
 import com.linkedin.android.spyglass.ui.MentionsEditText;
 import com.thetestament.cread.BuildConfig;
@@ -41,13 +38,11 @@ import com.thetestament.cread.adapters.CommentsAdapter;
 import com.thetestament.cread.adapters.CommentsAdapter.HeaderViewHolder;
 import com.thetestament.cread.adapters.PersonMentionAdapter;
 import com.thetestament.cread.helpers.NetworkHelper;
-import com.thetestament.cread.helpers.ProfileMentionsHelper;
 import com.thetestament.cread.helpers.SharedPreferenceHelper;
 import com.thetestament.cread.helpers.ViewHelper;
 import com.thetestament.cread.listeners.listener;
 import com.thetestament.cread.models.CommentsModel;
 import com.thetestament.cread.models.PersonMentionModel;
-
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -66,12 +61,14 @@ import butterknife.ButterKnife;
 import butterknife.OnClick;
 import icepick.Icepick;
 import icepick.State;
+import io.reactivex.Observable;
 import io.reactivex.ObservableSource;
 import io.reactivex.Observer;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.functions.Function;
+import io.reactivex.functions.Predicate;
 import io.reactivex.observers.DisposableObserver;
 import io.reactivex.schedulers.Schedulers;
 import io.reactivex.subjects.PublishSubject;
@@ -135,6 +132,7 @@ public class CommentsActivity extends BaseActivity implements QueryTokenReceiver
     QueryToken mQueryToken;
     PublishSubject<QueryToken> subject = PublishSubject.create();
 
+    Observable<QueryToken> observable;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -205,6 +203,8 @@ public class CommentsActivity extends BaseActivity implements QueryTokenReceiver
         mQueryToken = queryToken;
 
         subject.onNext(mQueryToken);
+
+        observable = subject;
 
         getPeopleSuggestions();
 
@@ -977,8 +977,19 @@ public class CommentsActivity extends BaseActivity implements QueryTokenReceiver
                 });*/
 
 
-        subject.debounce(1, TimeUnit.SECONDS)
+        observable.debounce(1, TimeUnit.SECONDS)
                 .distinctUntilChanged()
+                //Emit only those items from an Observable that pass a predicate test
+                .filter(new Predicate<QueryToken>() {
+                    @Override
+                    public boolean test(QueryToken  queryToken) throws Exception {
+                        if (queryToken.getKeywords().trim().isEmpty()) {
+                            return false;
+                        } else {
+                            return true;
+                        }
+                    }
+                })
                 //transform the items emitted by an Observable into Observables,
                 // then flatten the emissions from those into a single Observable
                 .switchMap(new Function<QueryToken, ObservableSource<JSONObject>>() {
