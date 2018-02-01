@@ -329,7 +329,7 @@ public class ImageHelper {
                         Bundle bundle = new Bundle();
                         bundle.putString(EXTRA_ENTITY_ID, entityID);
                         bundle.putString(EXTRA_ENTITY_TYPE, entityType);
-                        bundle.putString(EXTRA_MERCHANTABLE, "1");
+                        bundle.putString(EXTRA_MERCHANTABLE, "0");
                         //open preview screen
                         Intent intent = new Intent(context, CollaborationActivity.class);
                         intent.putExtra(EXTRA_DATA, bundle);
