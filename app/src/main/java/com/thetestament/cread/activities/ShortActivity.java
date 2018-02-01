@@ -20,6 +20,7 @@ import android.support.v4.content.ContextCompat;
 import android.support.v4.content.res.ResourcesCompat;
 import android.support.v4.widget.NestedScrollView;
 import android.support.v7.graphics.Palette;
+import android.support.v7.widget.AppCompatImageView;
 import android.support.v7.widget.AppCompatSeekBar;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -172,6 +173,8 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
     RecyclerView recyclerViewInspiration;
     @BindView(R.id.progressViewInspiration)
     View progressViewInspiration;
+    @BindView(R.id.btnInspiration)
+    AppCompatImageView buttonInspireMe;
 
     //Font bottom sheet
     @BindView(R.id.bottomSheetView)
@@ -669,7 +672,6 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
         //initialise font and color bottomSheet
         initFontLayout();
         initColorLayout();
-        initInspirationView();
         //initialize listener
         initDragListener();
         initSwipeListener();
@@ -681,9 +683,12 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
      */
     private void retrieveData() {
         if (getIntent().hasExtra(EXTRA_DATA)) {
+            //Retrieve bundle data
             Bundle bundle = getIntent().getBundleExtra(EXTRA_DATA);
             //Called from short collaboration
             if (bundle.getString(SHORT_EXTRA_CALLED_FROM).equals(SHORT_EXTRA_CALLED_FROM_COLLABORATION_SHORT)) {
+                //Hide button
+                buttonInspireMe.setVisibility(View.INVISIBLE);
                 //Retrieve data
                 mCaptureID = bundle.getString(EXTRA_CAPTURE_ID);
                 mCaptureUrl = bundle.getString(EXTRA_CAPTURE_URL);
@@ -707,8 +712,12 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
                 //Update flag
 
                 mCalledFrom = PREVIEW_EXTRA_CALLED_FROM_EDIT_SHORT;
-
+                //Method called
+                initInspirationView();
             }
+        } else {
+            //Method called
+            initInspirationView();
         }
         //Set water mark text
         mSignatureText = "- " + mHelper.getFirstName() + " " + mHelper.getLastName();
@@ -928,8 +937,8 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
     }
 
     /**
-     *
-     * */
+     * Method to setup inspiration view and its functionality.
+     */
     private void initInspirationView() {
         //Set layout manger for recyclerView
         recyclerViewInspiration.setLayoutManager(new LinearLayoutManager(mContext
