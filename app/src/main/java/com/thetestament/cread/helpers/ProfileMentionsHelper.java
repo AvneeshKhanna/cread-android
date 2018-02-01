@@ -4,6 +4,7 @@ import android.graphics.Color;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.content.ContextCompat;
 import android.text.SpannableString;
+import android.text.SpannableStringBuilder;
 import android.text.Spanned;
 import android.text.method.LinkMovementMethod;
 import android.widget.TextView;
@@ -30,17 +31,28 @@ public class ProfileMentionsHelper {
 
         String originalText = mentionsEditText.getText().toString().trim();
 
+        StringBuilder stringBuilder = new StringBuilder(originalText);
+
         List<MentionSpan> mentionSpans = mentionsEditText.getMentionsText().getMentionSpans();
 
         // if mentions exist format them
         if (mentionSpans.size() != 0) {
-            for (MentionSpan mentionSpan : mentionSpans) {
+            for (int i = mentionSpans.size() - 1; i >= 0; i--) {
+
+                int start = mentionsEditText.getMentionsText().getSpanStart(mentionSpans.get(i));
+                int end = mentionsEditText.getMentionsText().getSpanEnd(mentionSpans.get(i));
+
+                String customMention = setMentionFormat(mentionSpans.get(i));
+
                 // replacing mention with the custom mention format in the string
-                originalText = originalText.replaceFirst(mentionSpan.getDisplayString(), setMentionFormat(mentionSpan));
+
+
+                stringBuilder.replace(start, end, customMention);
+
             }
         }
 
-        return originalText;
+        return stringBuilder.toString();
     }
 
 
@@ -56,7 +68,7 @@ public class ProfileMentionsHelper {
     public static void setProfileMentionsForViewing(String mentionText, FragmentActivity context, TextView textView) {
 
         Pattern mentionPattern = Pattern.compile
-                ("\\@\\[\\(u:\\w{8}-\\w{4}-\\w{4}-\\w{4}-\\w{12}\\+n:([^\\x00-\\x7F]|\\w|\\s|\\n)+\\)\\]",
+                ("\\@\\[\\(u:[\\w\\-]+\\+n:([^\\x00-\\x7F]|\\w|\\s|\\n)+\\)\\]",
                         Pattern.CASE_INSENSITIVE);
 
         Pattern namePattern = Pattern.compile
@@ -64,7 +76,7 @@ public class ProfileMentionsHelper {
                         Pattern.CASE_INSENSITIVE);
 
         Pattern uuidPattern = Pattern.compile
-                ("u:\\w{8}-\\w{4}-\\w{4}-\\w{4}-\\w{12}",
+                ("u:[\\w\\-]+",
                         Pattern.CASE_INSENSITIVE);
 
         Matcher matcher = mentionPattern.matcher(mentionText);

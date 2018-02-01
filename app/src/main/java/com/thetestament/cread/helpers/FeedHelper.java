@@ -53,6 +53,7 @@ import io.reactivex.schedulers.Schedulers;
 
 import static com.thetestament.cread.helpers.NetworkHelper.getDeepLinkObservable;
 import static com.thetestament.cread.helpers.NetworkHelper.requestServer;
+import static com.thetestament.cread.helpers.ProfileMentionsHelper.setProfileMentionsForViewing;
 import static com.thetestament.cread.helpers.ViewHelper.convertToPx;
 import static com.thetestament.cread.utils.Constant.CONTENT_TYPE_CAPTURE;
 import static com.thetestament.cread.utils.Constant.CONTENT_TYPE_SHORT;
@@ -882,6 +883,9 @@ public class FeedHelper {
         if (data.getCaption() != null) {
             textView.setVisibility(View.VISIBLE);
             textView.setText(data.getCaption());
+
+            //set profile mentions
+            setProfileMentionsForViewing(data.getCaption(), context, textView);
 
             // set hash tags
             FeedHelper feedHelper = new FeedHelper();
