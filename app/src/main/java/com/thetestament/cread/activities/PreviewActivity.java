@@ -96,6 +96,7 @@ import static com.thetestament.cread.helpers.NetworkHelper.getSearchObservableSe
 import static com.thetestament.cread.helpers.NetworkHelper.requestServer;
 import static com.thetestament.cread.helpers.ProfileMentionsHelper.BUCKET;
 import static com.thetestament.cread.helpers.ProfileMentionsHelper.getMentionSpanConfig;
+import static com.thetestament.cread.helpers.ProfileMentionsHelper.setProfileMentionsForEditing;
 import static com.thetestament.cread.helpers.ProfileMentionsHelper.tokenizerConfig;
 import static com.thetestament.cread.utils.Constant.IMAGE_TYPE_USER_CAPTURE_PIC;
 import static com.thetestament.cread.utils.Constant.IMAGE_TYPE_USER_SHORT_PIC;
@@ -431,6 +432,7 @@ public class PreviewActivity extends BaseActivity implements QueryTokenReceiver,
             filterSheetBehavior.setPeekHeight(0);
             //Set caption text
             etCaption.setText(mBundle.getString(PREVIEW_EXTRA_CAPTION_TEXT));
+            setProfileMentionsForEditing(mContext, mBundle.getString(PREVIEW_EXTRA_CAPTION_TEXT), etCaption);
         } else if (mCalledFrom.equals(PREVIEW_EXTRA_CALLED_FROM_EDIT_SHORT)) {
             //initialize filter screen
             initFilterView();
@@ -438,6 +440,7 @@ public class PreviewActivity extends BaseActivity implements QueryTokenReceiver,
             loadPreviewImage(getImageUri(IMAGE_TYPE_USER_SHORT_PIC), imagePreview);
             //Set caption text
             etCaption.setText(mBundle.getString(PREVIEW_EXTRA_CAPTION_TEXT));
+            setProfileMentionsForEditing(mContext, mBundle.getString(PREVIEW_EXTRA_CAPTION_TEXT), etCaption);
         } else {
             //initialize filter screen
             initFilterView();

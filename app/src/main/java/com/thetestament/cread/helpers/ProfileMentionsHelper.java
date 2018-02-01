@@ -26,6 +26,32 @@ public class ProfileMentionsHelper {
 
     public static final String BUCKET = "people-network";
 
+    public static final WordTokenizerConfig tokenizerConfig = new WordTokenizerConfig
+            .Builder()
+            .setThreshold(Integer.MAX_VALUE)
+            .build();
+
+
+    public static MentionSpanConfig getMentionSpanConfig(FragmentActivity context) {
+        return new MentionSpanConfig
+                .Builder()
+                .setMentionTextColor
+                        (ContextCompat.getColor(context, R.color.blue_dark))
+                .build();
+    }
+
+
+    private static Pattern mentionPattern = Pattern.compile
+            ("\\@\\[\\(u:[\\w\\-]+\\+n:([^\\x00-\\x7F]|\\w|\\s|\\n)+\\)\\]",
+                    Pattern.CASE_INSENSITIVE);
+
+    private static Pattern namePattern = Pattern.compile
+            ("\\+n:([^\\x00-\\x7F]|\\w|\\s|\\n)+",
+                    Pattern.CASE_INSENSITIVE);
+
+    private static Pattern uuidPattern = Pattern.compile
+            ("u:[\\w\\-]+",
+                    Pattern.CASE_INSENSITIVE);
 
     public static String convertToMentionsFormat(MentionsEditText mentionsEditText) {
 
@@ -67,18 +93,6 @@ public class ProfileMentionsHelper {
 
     public static void setProfileMentionsForViewing(String mentionText, FragmentActivity context, TextView textView) {
 
-        Pattern mentionPattern = Pattern.compile
-                ("\\@\\[\\(u:[\\w\\-]+\\+n:([^\\x00-\\x7F]|\\w|\\s|\\n)+\\)\\]",
-                        Pattern.CASE_INSENSITIVE);
-
-        Pattern namePattern = Pattern.compile
-                ("\\+n:([^\\x00-\\x7F]|\\w|\\s|\\n)+",
-                        Pattern.CASE_INSENSITIVE);
-
-        Pattern uuidPattern = Pattern.compile
-                ("u:[\\w\\-]+",
-                        Pattern.CASE_INSENSITIVE);
-
         Matcher matcher = mentionPattern.matcher(mentionText);
 
         ArrayList<Integer> startIndi = new ArrayList<>();
@@ -90,37 +104,34 @@ public class ProfileMentionsHelper {
 
             String matchedText = matcher.group();
 
+            // process name part
             String improperName = null;
-
             Matcher nameMatcher = namePattern.matcher(matchedText);
 
             if (nameMatcher.find()) {
                 improperName = nameMatcher.group();
             }
-
             String properName = improperName.split(":")[1];
-
             String tempName = "@&" + properName;
 
-
+            // replace mention part with temp name
             mentionText = mentionText.replaceFirst(Pattern.quote(matchedText), tempName);
 
+            // get indexes
             int sIndex = mentionText.indexOf(tempName);
             startIndi.add(sIndex);
             endIndi.add(sIndex + tempName.length());
 
+            // process uuid part
             String improperUUID = null;
-
             Matcher uuidMatcher = uuidPattern.matcher(matchedText);
-
             if (uuidMatcher.find()) {
                 improperUUID = uuidMatcher.group();
             }
-
             String properUUID = improperUUID.split(":")[1];
-
             uuids.add(properUUID);
 
+            // replace all @& to get the text
             mentionText = mentionText.replaceAll("@&", "");
 
         }
@@ -128,16 +139,10 @@ public class ProfileMentionsHelper {
 
         SpannableString spannableString = new SpannableString(mentionText);
 
-        int stInda = 0;
-        int enInda = -2;
-        int d = -2;
-
         for (int n = 0; n < uuids.size(); n++) {
-            int stIndSubFactor = stInda + n * d;
-            int enIndSubFactor = enInda + n * d;
 
-            int startPos = startIndi.get(n) + /*stIndSubFactor*/0;
-            int endPos = endIndi.get(n) + /*enIndSubFactor*/(-2);
+            int startPos = startIndi.get(n) + 0;
+            int endPos = endIndi.get(n) + (-2);
 
             spannableString.setSpan(new ProfileClickableSpan(context
                             , uuids.get(n))
@@ -152,19 +157,77 @@ public class ProfileMentionsHelper {
 
     }
 
-    public static final WordTokenizerConfig tokenizerConfig = new WordTokenizerConfig
-            .Builder()
-            .setThreshold(Integer.MAX_VALUE)
-            .build();
+
+    public static void setProfileMentionsForEditing(FragmentActivity context, String mentionText, MentionsEditText mentionsEditText) {
+
+        //set config
+        mentionsEditText.setMentionSpanConfig(getMentionSpanConfig(context));
+
+        ArrayList<Integer> startIndi = new ArrayList<>();
+        ArrayList<Integer> endIndi = new ArrayList<>();
+        ArrayList<PersonMentionModel> mentions = new ArrayList<>();
+
+        Matcher matcher = mentionPattern.matcher(mentionText);
+
+        while (matcher.find()) {
+
+            String matchedText = matcher.group();
+
+            // process name part
+            String improperName = null;
+            Matcher nameMatcher = namePattern.matcher(matchedText);
+
+            if (nameMatcher.find()) {
+                improperName = nameMatcher.group();
+            }
+            String properName = improperName.split(":")[1];
+            String tempName = "@&" + properName;
+
+            // replace mention part with temp name
+            mentionText = mentionText.replaceFirst(Pattern.quote(matchedText), tempName);
+
+            // get indexes
+            int sIndex = mentionText.indexOf(tempName);
+            startIndi.add(sIndex);
+            endIndi.add(sIndex + tempName.length());
+
+            // process uuid part
+            String improperUUID = null;
+            Matcher uuidMatcher = uuidPattern.matcher(matchedText);
+            if (uuidMatcher.find()) {
+                improperUUID = uuidMatcher.group();
+            }
+            String properUUID = improperUUID.split(":")[1];
 
 
-    public static MentionSpanConfig getMentionSpanConfig(FragmentActivity context) {
-        return new MentionSpanConfig
-                .Builder()
-                .setMentionTextColor
-                        (ContextCompat.getColor(context, R.color.blue_dark))
-                .build();
+            // init mentionable
+            PersonMentionModel person = new PersonMentionModel();
+            person.setmName(properName);
+            person.setUserUUID(properUUID);
+            mentions.add(person);
+
+            // replace all @& to get the text
+            mentionText = mentionText.replaceAll("@&", "");
+
+        }
+
+        mentionsEditText.setText(mentionText);
+
+        for (int n = 0; n < mentions.size(); n++) {
+
+            int startPos = startIndi.get(n) + 0;
+            int endPos = endIndi.get(n) + (-2);
+
+            mentionsEditText.getMentionsText().setSpan(
+                    new MentionSpan(mentions.get(n))
+                    , startPos
+                    , endPos
+                    , 0);
+        }
+
+        // set cursor next to the last char
+        mentionsEditText.setSelection(mentionsEditText.getText().length());
+
     }
-
 
 }

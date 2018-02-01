@@ -77,6 +77,7 @@ import static com.thetestament.cread.helpers.NetworkHelper.requestServer;
 import static com.thetestament.cread.helpers.ProfileMentionsHelper.BUCKET;
 import static com.thetestament.cread.helpers.ProfileMentionsHelper.convertToMentionsFormat;
 import static com.thetestament.cread.helpers.ProfileMentionsHelper.getMentionSpanConfig;
+import static com.thetestament.cread.helpers.ProfileMentionsHelper.setProfileMentionsForEditing;
 import static com.thetestament.cread.helpers.ProfileMentionsHelper.tokenizerConfig;
 import static com.thetestament.cread.utils.Constant.EXTRA_ENTITY_ID;
 import static com.thetestament.cread.utils.Constant.SEARCH_TYPE_PEOPLE;
@@ -333,7 +334,8 @@ public class CommentsActivity extends BaseActivity implements QueryTokenReceiver
 
                 // init comment box with the original comment
                 editTextComment.setText(commentsModel.getComment());
-                editTextComment.setSelection(commentsModel.getComment().length());
+                setProfileMentionsForEditing(CommentsActivity.this, commentsModel.getComment(), editTextComment);
+
 
                 // request focus and show keyboard
                 editTextComment.requestFocus();
