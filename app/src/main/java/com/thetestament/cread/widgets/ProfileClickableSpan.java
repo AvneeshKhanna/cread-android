@@ -38,6 +38,6 @@ public class ProfileClickableSpan extends ClickableSpan {
         super.updateDrawState(ds);
         ds.setUnderlineText(false);
         ds.setTypeface(Typeface.create(Typeface.DEFAULT, Typeface.BOLD));
-        ds.setColor(ContextCompat.getColor(mContext, R.color.grey_dark));
+        ds.setColor(ContextCompat.getColor(mContext, R.color.blue_dark));
     }
 }

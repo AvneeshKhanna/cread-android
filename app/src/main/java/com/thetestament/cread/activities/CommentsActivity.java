@@ -48,6 +48,7 @@ import com.thetestament.cread.listeners.listener;
 import com.thetestament.cread.models.CommentsModel;
 import com.thetestament.cread.models.PersonMentionModel;
 
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -65,10 +66,15 @@ import butterknife.ButterKnife;
 import butterknife.OnClick;
 import icepick.Icepick;
 import icepick.State;
+import io.reactivex.ObservableSource;
+import io.reactivex.Observer;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.CompositeDisposable;
+import io.reactivex.disposables.Disposable;
+import io.reactivex.functions.Function;
 import io.reactivex.observers.DisposableObserver;
 import io.reactivex.schedulers.Schedulers;
+import io.reactivex.subjects.PublishSubject;
 
 import static com.thetestament.cread.CreadApp.GET_RESPONSE_FROM_NETWORK_COMMENTS;
 import static com.thetestament.cread.helpers.NetworkHelper.getCommentObservableFromServer;
@@ -127,6 +133,7 @@ public class CommentsActivity extends BaseActivity implements QueryTokenReceiver
     int editedCommentIndex = -1;
 
     QueryToken mQueryToken;
+    PublishSubject<QueryToken> subject = PublishSubject.create();
 
 
     @Override
@@ -196,6 +203,8 @@ public class CommentsActivity extends BaseActivity implements QueryTokenReceiver
         List<String> buckets = Arrays.asList(BUCKET);
         // init query token
         mQueryToken = queryToken;
+
+        subject.onNext(mQueryToken);
 
         getPeopleSuggestions();
 
@@ -373,7 +382,7 @@ public class CommentsActivity extends BaseActivity implements QueryTokenReceiver
                                        }
                     );
 
-                    getMoreSuggestions();
+                    //getMoreSuggestions();
                 }
             }
         });
@@ -911,7 +920,7 @@ public class CommentsActivity extends BaseActivity implements QueryTokenReceiver
 
     private void getPeopleSuggestions() {
 
-        mSuggestionsLastIndexKey = null;
+        /*mSuggestionsLastIndexKey = null;
 
         requestServer(mCompositeDisposable,
                 getSearchObservableServer(
@@ -965,7 +974,84 @@ public class CommentsActivity extends BaseActivity implements QueryTokenReceiver
                     @Override
                     public void onCompleteCalled() {
                     }
+                });*/
+
+
+        subject.debounce(1, TimeUnit.SECONDS)
+                .distinctUntilChanged()
+                //transform the items emitted by an Observable into Observables,
+                // then flatten the emissions from those into a single Observable
+                .switchMap(new Function<QueryToken, ObservableSource<JSONObject>>() {
+                    @Override
+                    public ObservableSource<JSONObject> apply(final QueryToken queryToken) throws Exception {
+
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                mSuggestionsList.clear();
+                                mSuggestionsLastIndexKey = null;
+
+                                mQueryToken = queryToken;
+                            }
+                        });
+
+
+                        return getSearchObservableServer(queryToken.getKeywords()
+                                , mSuggestionsLastIndexKey
+                                , SEARCH_TYPE_PEOPLE);
+                    }
+                })
+                .subscribeOn(Schedulers.single())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribeWith(new Observer<JSONObject>() {
+                    @Override
+                    public void onSubscribe(Disposable d) {
+                        //Add disposable here
+                        mCompositeDisposable.add(d);
+                    }
+
+
+                    @Override
+                    public void onNext(JSONObject jsonObject) {
+                        //Clear data
+                        mSuggestionsList.clear();
+                        mMentionsAdapter.notifyDataSetChanged();
+                        mMentionsAdapter.setLoaded();
+
+                        try {
+
+                            parseSuggestionsData(false, jsonObject);
+
+                            mMentionsAdapter.notifyDataSetChanged();
+
+                            SuggestionsResult result = new SuggestionsResult(mQueryToken, mSuggestionsList);
+                            // Have suggestions, now call the listener (which is this activity)
+                            onReceiveSuggestionsResult(result, BUCKET);
+
+
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                            FirebaseCrash.report(e);
+                            ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_internal));
+                        }
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+
+                        e.printStackTrace();
+                        FirebaseCrash.report(e);
+                        //Server error Snack bar
+                        ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_server));
+                    }
+
+                    @Override
+                    public void onComplete() {
+
+                    }
                 });
+
+
     }
 
     private void getMoreSuggestions() {
