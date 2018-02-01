@@ -79,6 +79,7 @@ import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.functions.Function;
+import io.reactivex.functions.Predicate;
 import io.reactivex.schedulers.Schedulers;
 import io.reactivex.subjects.PublishSubject;
 import okhttp3.OkHttpClient;
@@ -1428,6 +1429,17 @@ public class PreviewActivity extends BaseActivity implements QueryTokenReceiver,
 
         subject.debounce(1, TimeUnit.SECONDS)
                 .distinctUntilChanged()
+                //Emit only those items from an Observable that pass a predicate test
+                .filter(new Predicate<QueryToken>() {
+                    @Override
+                    public boolean test(QueryToken queryToken) throws Exception {
+                        if (queryToken.getKeywords().trim().isEmpty()) {
+                            return false;
+                        } else {
+                            return true;
+                        }
+                    }
+                })
                 //transform the items emitted by an Observable into Observables,
                 // then flatten the emissions from those into a single Observable
                 .switchMap(new Function<QueryToken, ObservableSource<JSONObject>>() {
