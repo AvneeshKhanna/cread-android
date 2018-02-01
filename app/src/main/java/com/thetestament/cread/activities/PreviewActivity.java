@@ -13,7 +13,6 @@ import android.support.design.widget.CoordinatorLayout;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.widget.NestedScrollView;
-import android.support.v7.widget.AppCompatEditText;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.InputType;
@@ -74,11 +73,14 @@ import butterknife.ButterKnife;
 import butterknife.OnClick;
 import icepick.Icepick;
 import icepick.State;
+import io.reactivex.ObservableSource;
 import io.reactivex.Observer;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.disposables.Disposable;
+import io.reactivex.functions.Function;
 import io.reactivex.schedulers.Schedulers;
+import io.reactivex.subjects.PublishSubject;
 import okhttp3.OkHttpClient;
 import pl.tajchert.nammu.Nammu;
 import pl.tajchert.nammu.PermissionCallback;
@@ -206,6 +208,7 @@ public class PreviewActivity extends BaseActivity implements QueryTokenReceiver,
     SharedPreferenceHelper mHelper;
     CompositeDisposable mCompositeDisposable = new CompositeDisposable();
     QueryToken mQueryToken;
+    PublishSubject<QueryToken> subject = PublishSubject.create();
     List<PersonMentionModel> mSuggestionsList = new ArrayList<>();
     PersonMentionAdapter mMentionsAdapter;
     FragmentActivity mContext = PreviewActivity.this;
@@ -323,8 +326,7 @@ public class PreviewActivity extends BaseActivity implements QueryTokenReceiver,
 
         // init query token
         mQueryToken = queryToken;
-
-        getPeopleSuggestions();
+        subject.onNext(mQueryToken);
 
 
         return buckets;
@@ -403,6 +405,8 @@ public class PreviewActivity extends BaseActivity implements QueryTokenReceiver,
         etCaption.setTokenizer(new WordTokenizer(tokenizerConfig));
         etCaption.setQueryTokenReceiver(this);
         etCaption.setSuggestionsVisibilityManager(this);
+
+        initSuggestionsView();
 
         initLoadMoreSuggestionsListener(mMentionsAdapter);
         initSuggestionsClickListener(mMentionsAdapter);
@@ -1418,22 +1422,42 @@ public class PreviewActivity extends BaseActivity implements QueryTokenReceiver,
     }
 
 
-    private void getPeopleSuggestions() {
+    private void initSuggestionsView() {
 
-        mSuggestionsLastIndexKey = null;
+        subject = PublishSubject.create();
 
-        requestServer(mCompositeDisposable,
-                getSearchObservableServer(mQueryToken.getKeywords(), mSuggestionsLastIndexKey, SEARCH_TYPE_PEOPLE)
-                , this, new listener.OnServerRequestedListener<JSONObject>() {
+        subject.debounce(1, TimeUnit.SECONDS)
+                .distinctUntilChanged()
+                //transform the items emitted by an Observable into Observables,
+                // then flatten the emissions from those into a single Observable
+                .switchMap(new Function<QueryToken, ObservableSource<JSONObject>>() {
                     @Override
-                    public void onDeviceOffline() {
+                    public ObservableSource<JSONObject> apply(final QueryToken queryToken) throws Exception {
 
-                        ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_no_connection));
+
+                        mSuggestionsList.clear();
+                        mSuggestionsLastIndexKey = null;
+
+                        mQueryToken = queryToken;
+
+
+                        return getSearchObservableServer(queryToken.getKeywords()
+                                , mSuggestionsLastIndexKey
+                                , SEARCH_TYPE_PEOPLE);
+                    }
+                })
+                .subscribeOn(Schedulers.single())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribeWith(new Observer<JSONObject>() {
+                    @Override
+                    public void onSubscribe(Disposable d) {
+                        //Add disposable here
+                        mCompositeDisposable.add(d);
                     }
 
-                    @Override
-                    public void onNextCalled(JSONObject jsonObject) {
 
+                    @Override
+                    public void onNext(JSONObject jsonObject) {
                         //Clear data
                         mSuggestionsList.clear();
                         mMentionsAdapter.notifyDataSetChanged();
@@ -1455,21 +1479,20 @@ public class PreviewActivity extends BaseActivity implements QueryTokenReceiver,
                             FirebaseCrash.report(e);
                             ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_internal));
                         }
-
                     }
 
                     @Override
-                    public void onErrorCalled(Throwable e) {
+                    public void onError(Throwable e) {
 
                         e.printStackTrace();
                         FirebaseCrash.report(e);
                         //Server error Snack bar
                         ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_server));
-
                     }
 
                     @Override
-                    public void onCompleteCalled() {
+                    public void onComplete() {
+
                     }
                 });
     }

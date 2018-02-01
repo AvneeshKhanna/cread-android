@@ -206,8 +206,6 @@ public class CommentsActivity extends BaseActivity implements QueryTokenReceiver
 
         subject.onNext(mQueryToken);
 
-        getPeopleSuggestions();
-
         return buckets;
     }
 
@@ -302,6 +300,8 @@ public class CommentsActivity extends BaseActivity implements QueryTokenReceiver
         editTextComment.setQueryTokenReceiver(this);
         editTextComment.setSuggestionsVisibilityManager(this);
 
+        initSuggestionsView();
+
         initSwipeRefreshLayout();
 
         //Initialize listeners
@@ -382,7 +382,7 @@ public class CommentsActivity extends BaseActivity implements QueryTokenReceiver
                                        }
                     );
 
-                    //getMoreSuggestions();
+                    getMoreSuggestions();
                 }
             }
         });
@@ -918,64 +918,9 @@ public class CommentsActivity extends BaseActivity implements QueryTokenReceiver
     }
 
 
-    private void getPeopleSuggestions() {
+    private void initSuggestionsView() {
 
-        /*mSuggestionsLastIndexKey = null;
-
-        requestServer(mCompositeDisposable,
-                getSearchObservableServer(
-                        mQueryToken.getKeywords()
-                        , mSuggestionsLastIndexKey
-                        , SEARCH_TYPE_PEOPLE).debounce(1, TimeUnit.SECONDS)
-                , this, new listener.OnServerRequestedListener<JSONObject>() {
-                    @Override
-                    public void onDeviceOffline() {
-
-                        ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_no_connection));
-                    }
-
-                    @Override
-                    public void onNextCalled(JSONObject jsonObject) {
-
-                        //Clear data
-                        mSuggestionsList.clear();
-                        mMentionsAdapter.notifyDataSetChanged();
-                        mMentionsAdapter.setLoaded();
-
-                        try {
-
-                            parseSuggestionsData(false, jsonObject);
-
-                            mMentionsAdapter.notifyDataSetChanged();
-
-                            SuggestionsResult result = new SuggestionsResult(mQueryToken, mSuggestionsList);
-                            // Have suggestions, now call the listener (which is this activity)
-                            onReceiveSuggestionsResult(result, BUCKET);
-
-
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                            FirebaseCrash.report(e);
-                            ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_internal));
-                        }
-
-                    }
-
-                    @Override
-                    public void onErrorCalled(Throwable e) {
-
-                        e.printStackTrace();
-                        FirebaseCrash.report(e);
-                        //Server error Snack bar
-                        ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_server));
-
-                    }
-
-                    @Override
-                    public void onCompleteCalled() {
-                    }
-                });*/
-
+        subject = PublishSubject.create();
 
         subject.debounce(1, TimeUnit.SECONDS)
                 .distinctUntilChanged()
@@ -985,15 +930,11 @@ public class CommentsActivity extends BaseActivity implements QueryTokenReceiver
                     @Override
                     public ObservableSource<JSONObject> apply(final QueryToken queryToken) throws Exception {
 
-                        runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
+
                                 mSuggestionsList.clear();
                                 mSuggestionsLastIndexKey = null;
 
                                 mQueryToken = queryToken;
-                            }
-                        });
 
 
                         return getSearchObservableServer(queryToken.getKeywords()
