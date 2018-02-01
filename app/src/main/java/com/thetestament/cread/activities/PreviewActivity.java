@@ -1128,7 +1128,7 @@ public class PreviewActivity extends BaseActivity implements QueryTokenReceiver,
 
                                     //finish this activity and set result ok
                                     setResult(RESULT_OK, getIntent().putExtra(PREVIEW_EXTRA_CAPTION_TEXT
-                                            , etCaption.getText().toString().trim()));
+                                            , mCapInMentionFormat));
                                     finish();
                                 }
                             }
