@@ -159,4 +159,6 @@
     <string name="Smooch_welcome">Don\'t hesitate! Start talking right away! He/she is a great conversationalist. :)</string>
     <string name="msg_success_comment_edit">Comment edited</string>
 
+    <string name="action_text_filters">Filters</string>
+
 </resources>
