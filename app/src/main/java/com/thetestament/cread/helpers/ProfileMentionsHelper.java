@@ -6,6 +6,7 @@ import android.support.v4.content.ContextCompat;
 import android.text.SpannableString;
 import android.text.SpannableStringBuilder;
 import android.text.Spanned;
+import android.text.TextUtils;
 import android.text.method.LinkMovementMethod;
 import android.widget.TextView;
 
@@ -16,6 +17,8 @@ import com.linkedin.android.spyglass.ui.MentionsEditText;
 import com.thetestament.cread.R;
 import com.thetestament.cread.models.PersonMentionModel;
 import com.thetestament.cread.widgets.ProfileClickableSpan;
+
+import org.w3c.dom.Text;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -93,141 +96,147 @@ public class ProfileMentionsHelper {
 
     public static void setProfileMentionsForViewing(String mentionText, FragmentActivity context, TextView textView) {
 
-        Matcher matcher = mentionPattern.matcher(mentionText);
 
-        ArrayList<Integer> startIndi = new ArrayList<>();
-        ArrayList<Integer> endIndi = new ArrayList<>();
-        ArrayList<String> uuids = new ArrayList<>();
+        if (!TextUtils.isEmpty(mentionText)) {
+            Matcher matcher = mentionPattern.matcher(mentionText);
+
+            ArrayList<Integer> startIndi = new ArrayList<>();
+            ArrayList<Integer> endIndi = new ArrayList<>();
+            ArrayList<String> uuids = new ArrayList<>();
 
 
-        while (matcher.find()) {
+            while (matcher.find()) {
 
-            String matchedText = matcher.group();
+                String matchedText = matcher.group();
 
-            // process name part
-            String improperName = null;
-            Matcher nameMatcher = namePattern.matcher(matchedText);
+                // process name part
+                String improperName = null;
+                Matcher nameMatcher = namePattern.matcher(matchedText);
 
-            if (nameMatcher.find()) {
-                improperName = nameMatcher.group();
+                if (nameMatcher.find()) {
+                    improperName = nameMatcher.group();
+                }
+                String properName = improperName.split(":")[1];
+                String tempName = "@&" + properName;
+
+                // replace mention part with temp name
+                mentionText = mentionText.replaceFirst(Pattern.quote(matchedText), tempName);
+
+                // get indexes
+                int sIndex = mentionText.indexOf(tempName);
+                startIndi.add(sIndex);
+                endIndi.add(sIndex + tempName.length());
+
+                // process uuid part
+                String improperUUID = null;
+                Matcher uuidMatcher = uuidPattern.matcher(matchedText);
+                if (uuidMatcher.find()) {
+                    improperUUID = uuidMatcher.group();
+                }
+                String properUUID = improperUUID.split(":")[1];
+                uuids.add(properUUID);
+
+                // replace all @& to get the text
+                mentionText = mentionText.replaceAll("@&", "");
+
             }
-            String properName = improperName.split(":")[1];
-            String tempName = "@&" + properName;
 
-            // replace mention part with temp name
-            mentionText = mentionText.replaceFirst(Pattern.quote(matchedText), tempName);
 
-            // get indexes
-            int sIndex = mentionText.indexOf(tempName);
-            startIndi.add(sIndex);
-            endIndi.add(sIndex + tempName.length());
+            SpannableString spannableString = new SpannableString(mentionText);
 
-            // process uuid part
-            String improperUUID = null;
-            Matcher uuidMatcher = uuidPattern.matcher(matchedText);
-            if (uuidMatcher.find()) {
-                improperUUID = uuidMatcher.group();
+            for (int n = 0; n < uuids.size(); n++) {
+
+                int startPos = startIndi.get(n) + 0;
+                int endPos = endIndi.get(n) + (-2);
+
+                spannableString.setSpan(new ProfileClickableSpan(context
+                                , uuids.get(n))
+                        , (startPos)
+                        , (endPos)
+                        , Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
             }
-            String properUUID = improperUUID.split(":")[1];
-            uuids.add(properUUID);
 
-            // replace all @& to get the text
-            mentionText = mentionText.replaceAll("@&", "");
-
+            textView.setText(spannableString);
+            textView.setMovementMethod(LinkMovementMethod.getInstance());
+            textView.setHighlightColor(Color.TRANSPARENT);
         }
 
-
-        SpannableString spannableString = new SpannableString(mentionText);
-
-        for (int n = 0; n < uuids.size(); n++) {
-
-            int startPos = startIndi.get(n) + 0;
-            int endPos = endIndi.get(n) + (-2);
-
-            spannableString.setSpan(new ProfileClickableSpan(context
-                            , uuids.get(n))
-                    , (startPos)
-                    , (endPos)
-                    , Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-        }
-
-        textView.setText(spannableString);
-        textView.setMovementMethod(LinkMovementMethod.getInstance());
-        textView.setHighlightColor(Color.TRANSPARENT);
 
     }
 
 
     public static void setProfileMentionsForEditing(FragmentActivity context, String mentionText, MentionsEditText mentionsEditText) {
 
-        //set config
-        mentionsEditText.setMentionSpanConfig(getMentionSpanConfig(context));
 
-        ArrayList<Integer> startIndi = new ArrayList<>();
-        ArrayList<Integer> endIndi = new ArrayList<>();
-        ArrayList<PersonMentionModel> mentions = new ArrayList<>();
+        if (!TextUtils.isEmpty(mentionText)) {
+            //set config
+            mentionsEditText.setMentionSpanConfig(getMentionSpanConfig(context));
 
-        Matcher matcher = mentionPattern.matcher(mentionText);
+            ArrayList<Integer> startIndi = new ArrayList<>();
+            ArrayList<Integer> endIndi = new ArrayList<>();
+            ArrayList<PersonMentionModel> mentions = new ArrayList<>();
 
-        while (matcher.find()) {
+            Matcher matcher = mentionPattern.matcher(mentionText);
 
-            String matchedText = matcher.group();
+            while (matcher.find()) {
 
-            // process name part
-            String improperName = null;
-            Matcher nameMatcher = namePattern.matcher(matchedText);
+                String matchedText = matcher.group();
 
-            if (nameMatcher.find()) {
-                improperName = nameMatcher.group();
+                // process name part
+                String improperName = null;
+                Matcher nameMatcher = namePattern.matcher(matchedText);
+
+                if (nameMatcher.find()) {
+                    improperName = nameMatcher.group();
+                }
+                String properName = improperName.split(":")[1];
+                String tempName = "@&" + properName;
+
+                // replace mention part with temp name
+                mentionText = mentionText.replaceFirst(Pattern.quote(matchedText), tempName);
+
+                // get indexes
+                int sIndex = mentionText.indexOf(tempName);
+                startIndi.add(sIndex);
+                endIndi.add(sIndex + tempName.length());
+
+                // process uuid part
+                String improperUUID = null;
+                Matcher uuidMatcher = uuidPattern.matcher(matchedText);
+                if (uuidMatcher.find()) {
+                    improperUUID = uuidMatcher.group();
+                }
+                String properUUID = improperUUID.split(":")[1];
+
+
+                // init mentionable
+                PersonMentionModel person = new PersonMentionModel();
+                person.setmName(properName);
+                person.setUserUUID(properUUID);
+                mentions.add(person);
+
+                // replace all @& to get the text
+                mentionText = mentionText.replaceAll("@&", "");
+
             }
-            String properName = improperName.split(":")[1];
-            String tempName = "@&" + properName;
 
-            // replace mention part with temp name
-            mentionText = mentionText.replaceFirst(Pattern.quote(matchedText), tempName);
+            mentionsEditText.setText(mentionText);
 
-            // get indexes
-            int sIndex = mentionText.indexOf(tempName);
-            startIndi.add(sIndex);
-            endIndi.add(sIndex + tempName.length());
+            for (int n = 0; n < mentions.size(); n++) {
 
-            // process uuid part
-            String improperUUID = null;
-            Matcher uuidMatcher = uuidPattern.matcher(matchedText);
-            if (uuidMatcher.find()) {
-                improperUUID = uuidMatcher.group();
+                int startPos = startIndi.get(n) + 0;
+                int endPos = endIndi.get(n) + (-2);
+
+                mentionsEditText.getMentionsText().setSpan(
+                        new MentionSpan(mentions.get(n))
+                        , startPos
+                        , endPos
+                        , 0);
             }
-            String properUUID = improperUUID.split(":")[1];
 
-
-            // init mentionable
-            PersonMentionModel person = new PersonMentionModel();
-            person.setmName(properName);
-            person.setUserUUID(properUUID);
-            mentions.add(person);
-
-            // replace all @& to get the text
-            mentionText = mentionText.replaceAll("@&", "");
-
+            // set cursor next to the last char
+            mentionsEditText.setSelection(mentionsEditText.getText().length());
         }
-
-        mentionsEditText.setText(mentionText);
-
-        for (int n = 0; n < mentions.size(); n++) {
-
-            int startPos = startIndi.get(n) + 0;
-            int endPos = endIndi.get(n) + (-2);
-
-            mentionsEditText.getMentionsText().setSpan(
-                    new MentionSpan(mentions.get(n))
-                    , startPos
-                    , endPos
-                    , 0);
-        }
-
-        // set cursor next to the last char
-        mentionsEditText.setSelection(mentionsEditText.getText().length());
-
     }
 
 }

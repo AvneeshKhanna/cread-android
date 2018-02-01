@@ -58,6 +58,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -913,7 +914,10 @@ public class CommentsActivity extends BaseActivity implements QueryTokenReceiver
         mSuggestionsLastIndexKey = null;
 
         requestServer(mCompositeDisposable,
-                getSearchObservableServer(mQueryToken.getKeywords(), mSuggestionsLastIndexKey, SEARCH_TYPE_PEOPLE)
+                getSearchObservableServer(
+                        mQueryToken.getKeywords()
+                        , mSuggestionsLastIndexKey
+                        , SEARCH_TYPE_PEOPLE).debounce(1, TimeUnit.SECONDS)
                 , this, new listener.OnServerRequestedListener<JSONObject>() {
                     @Override
                     public void onDeviceOffline() {
