@@ -199,6 +199,9 @@ public class ProductsAdapter extends RecyclerView.Adapter<ProductsAdapter.ItemVi
             case "POSTER":
                 name = "Poster";
                 break;
+            case "JOURNAL":
+                name = "Journal";
+                break;
         }
         return name;
     }
