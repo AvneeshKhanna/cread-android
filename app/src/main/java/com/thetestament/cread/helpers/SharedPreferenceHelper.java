@@ -476,5 +476,24 @@ public class SharedPreferenceHelper {
     }
 
 
+    /**
+     * Method to get previous selected font stored in shared preferences.
+     *
+     * @return Name of selected font.
+     */
+    public String getSelectedFont() {
+        return mSharedPreferences.getString(mContext.getString(R.string.key_show_selected_font)
+                , FontsHelper.FONT_TYPE_BOHEMIAN_TYPEWRITER);
+    }
+
+    /**
+     * Method to update selected font in shared preferences.
+     *
+     * @param fontName font to store.
+     */
+    public void setSelectedFont(String fontName) {
+        addPreferences(mContext.getString(R.string.key_show_selected_font), fontName);
+    }
+
 
 }

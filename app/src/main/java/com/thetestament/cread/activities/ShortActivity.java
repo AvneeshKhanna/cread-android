@@ -718,6 +718,11 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
         } else {
             //Method called
             initInspirationView();
+            //update font type and typeface
+            mFontType = mHelper.getSelectedFont();
+            mTextTypeface = FontsHelper.getFontType(mFontType, mContext);
+            //set typeface
+            textShort.setTypeface(mTextTypeface);
         }
         //Set water mark text
         mSignatureText = "- " + mHelper.getFirstName() + " " + mHelper.getLastName();
@@ -790,7 +795,8 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
                 mTextTypeface = typeface;
                 //Set font type
                 mFontType = fontType;
-
+                //Save current selected font in shared preference
+                mHelper.setSelectedFont(mFontType);
             }
         });
     }
