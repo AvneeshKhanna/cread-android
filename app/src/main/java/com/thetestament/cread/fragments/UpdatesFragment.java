@@ -245,8 +245,6 @@ public class UpdatesFragment extends Fragment {
                         Intent profileIntent = new Intent(getActivity(), ProfileActivity.class);
                         profileIntent.putExtra(EXTRA_PROFILE_UUID, updatesModel.getActorID());
                         startActivity(profileIntent);
-                        //Finish Updates activity
-                        getActivity().finish();
                         break;
                     case NOTIFICATION_CATEGORY_CREAD_COLLABORATE:
 
