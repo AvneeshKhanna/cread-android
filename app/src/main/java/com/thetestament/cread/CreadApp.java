@@ -26,7 +26,7 @@ import pl.tajchert.nammu.Nammu;
 import uk.co.chrisjenx.calligraphy.CalligraphyConfig;
 
 
-public class CreadApp extends MultiDexApplication {
+public class CreadApp extends MultiDexApplication { 
 
     private static CreadApp singleTone;
 
