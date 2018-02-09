@@ -760,4 +760,36 @@ public class BottomNavigationActivity extends BaseActivity {
         }
     }
 
+   /* private void transFormIntoSquare(int imgWidth, int imgHeight) {
+        int squareSize = 650;
+
+        if (imgWidth < imgHeight) {
+            //Assign variable
+            squareSize = imgHeight;
+        } else if (imgWidth > imgHeight) {
+            //Assign variable
+            squareSize = imgWidth;
+        }
+
+        //Create bitmap
+        Bitmap bitmap = Bitmap.createBitmap(squareSize, squareSize, Bitmap.Config.ARGB_8888);
+        BitmapFactory.Options options = new BitmapFactory.Options();
+        *//*options.inSampleSize;*//*
+        //Create canvas
+        Canvas canvas = new Canvas(bitmap);
+        Paint paint = new Paint();
+        paint.setColor(Color.GREEN);
+        paint.measureText("image danndakalk");
+        //Draw bitmap on canvas
+        canvas.drawBitmap(bitmap, 1f, 1f, paint);
+
+        try {
+            File file = new File(ImageHelper.getImageUri(IMAGE_TYPE_USER_CAPTURE_PIC).getPath());
+            FileOutputStream out = new FileOutputStream(file);
+            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, out);
+            out.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }*/
 }

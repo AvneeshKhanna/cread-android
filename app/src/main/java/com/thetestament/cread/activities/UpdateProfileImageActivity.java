@@ -1,6 +1,7 @@
 package com.thetestament.cread.activities;
 
 import android.content.Intent;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -105,14 +106,16 @@ public class UpdateProfileImageActivity extends BaseActivity {
                 if (resultCode == RESULT_OK) {
                     //Get cropped image Uri
                     mCroppedImgUri = UCrop.getOutput(data);
-                    try {
+                    //Method called
+                    processProfilePicture(mCroppedImgUri);
+                    /*try {
                         mCompressedUri = compressCroppedImg(mCroppedImgUri, this, IMAGE_TYPE_USER_PROFILE_PIC);
                         //save user profile
                         saveProfilePicture(new File(mCompressedUri.getPath()));
                     } catch (IOException e) {
                         e.printStackTrace();
                         ViewHelper.getSnackBar(rootView, "Image could not be cropped due to some error");
-                    }
+                    }*/
                 } else if (resultCode == UCrop.RESULT_ERROR) {
                     ViewHelper.getSnackBar(rootView, "Image could not be cropped due to some error");
                 }
@@ -228,5 +231,32 @@ public class UpdateProfileImageActivity extends BaseActivity {
                         ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_server));
                     }
                 });
+    }
+
+    /**
+     * Method to perform required operation on cropped image and upload it on server.
+     *
+     * @param croppedImgUri Uri of cropped image.
+     */
+    private void processProfilePicture(Uri croppedImgUri) {
+        //Decode image file
+        BitmapFactory.Options options = new BitmapFactory.Options();
+        options.inJustDecodeBounds = true;
+        BitmapFactory.decodeFile(new File(croppedImgUri.getPath()).getAbsolutePath(), options);
+
+        //If resolution of image is greater than 750x750 then compress this image
+        if (options.outWidth >= 1250 && options.outHeight >= 1250) {
+            try {
+                mCompressedUri = compressCroppedImg(mCroppedImgUri, this, IMAGE_TYPE_USER_PROFILE_PIC);
+                //save user profile
+                saveProfilePicture(new File(mCompressedUri.getPath()));
+            } catch (IOException e) {
+                e.printStackTrace();
+                ViewHelper.getSnackBar(rootView, "Image could not be cropped due to some error");
+            }
+        } else {
+            //save user profile
+            saveProfilePicture(new File(mCroppedImgUri.getPath()));
+        }
     }
 }

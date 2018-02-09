@@ -178,6 +178,7 @@ public class ImageHelper {
         UCrop.of(sourceUri, destinationUri)
                 .withAspectRatio(1, 1)
                 .withOptions(options)
+                /*.useSourceImageAspectRatio()*/
                 .start(context);
     }
 
@@ -269,6 +270,7 @@ public class ImageHelper {
         UCrop.of(sourceUri, destinationUri)
                 .withAspectRatio(1, 1)
                 .withOptions(options)
+               /* .useSourceImageAspectRatio()*/
                 .start(context, fragment, UCrop.REQUEST_CROP);
     }
 
