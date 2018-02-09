@@ -88,6 +88,7 @@ import static com.thetestament.cread.helpers.ProfileMentionsHelper.getMentionSpa
 import static com.thetestament.cread.helpers.ProfileMentionsHelper.setProfileMentionsForEditing;
 import static com.thetestament.cread.helpers.ProfileMentionsHelper.tokenizerConfig;
 import static com.thetestament.cread.utils.Constant.EXTRA_ENTITY_ID;
+import static com.thetestament.cread.utils.Constant.EXTRA_FROM_UPDATES_COMMENT_MENTION;
 import static com.thetestament.cread.utils.Constant.SEARCH_TYPE_PEOPLE;
 
 /**

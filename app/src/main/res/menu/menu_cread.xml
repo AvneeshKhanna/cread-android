@@ -5,7 +5,7 @@
     <item
         android:id="@+id/action_updates"
         android:title="Updates"
-        app:actionLayout="@layout/menu_action_item_badge"
+        app:actionLayout="@layout/layout_updates_badge"
         app:showAsAction="always" />
 
     <item

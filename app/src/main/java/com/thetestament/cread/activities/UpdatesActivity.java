@@ -28,7 +28,6 @@ public class UpdatesActivity extends BaseActivity {
         setContentView(R.layout.activity_updates);
         initView();
 
-
     }
 
     @Override
@@ -62,6 +61,14 @@ public class UpdatesActivity extends BaseActivity {
     public void onBackPressed() {
 
         setBackButtonBehaviour();
+    }
+
+
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+
+        initView();
     }
 
     private void setBackButtonBehaviour()

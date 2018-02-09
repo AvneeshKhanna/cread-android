@@ -23,6 +23,7 @@ import com.thetestament.cread.R;
 import com.thetestament.cread.activities.BottomNavigationActivity;
 import com.thetestament.cread.activities.UpdatesActivity;
 import com.thetestament.cread.fragments.SettingsFragment;
+import com.thetestament.cread.helpers.SharedPreferenceHelper;
 import com.thetestament.cread.utils.NotificationDataSaver;
 import com.thetestament.cread.utils.NotificationDataSaver.OnCompleteListener;
 
@@ -41,6 +42,7 @@ import static com.thetestament.cread.CreadApp.GET_RESPONSE_FROM_NETWORK_HATSOFF;
 import static com.thetestament.cread.CreadApp.GET_RESPONSE_FROM_NETWORK_INSPIRATION;
 import static com.thetestament.cread.CreadApp.GET_RESPONSE_FROM_NETWORK_MAIN;
 import static com.thetestament.cread.CreadApp.GET_RESPONSE_FROM_NETWORK_ME;
+import static com.thetestament.cread.CreadApp.GET_RESPONSE_FROM_NETWORK_UPDATES;
 import static com.thetestament.cread.utils.Constant.NOTIFICATION_BUNDLE_DATA_ACTOR_ID;
 import static com.thetestament.cread.utils.Constant.NOTIFICATION_BUNDLE_DATA_ACTOR_IMAGE;
 import static com.thetestament.cread.utils.Constant.NOTIFICATION_BUNDLE_DATA_CATEGORY;
@@ -107,6 +109,8 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
      */
     private void performCategorySpecificOperations() {
 
+        SharedPreferenceHelper spHelper = new SharedPreferenceHelper(getApplicationContext());
+
         boolean isValidCategory = true;
 
         switch (category) {
@@ -121,6 +125,9 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
                 GET_RESPONSE_FROM_NETWORK_FOLLOWING = true;
                 GET_RESPONSE_FROM_NETWORK_FIND_FRIENDS = true;
                 GET_RESPONSE_FROM_NETWORK_ME = true;
+                GET_RESPONSE_FROM_NETWORK_UPDATES = true;
+                //set notification indicator status
+                spHelper.setNotifIndicatorStatus(true);
                 break;
             case NOTIFICATION_CATEGORY_CREAD_COLLABORATE:
                 mId = NOTIFICATION_ID_CREAD_COLLABORATE;
@@ -134,6 +141,9 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
                 GET_RESPONSE_FROM_NETWORK_EXPLORE = true;
                 GET_RESPONSE_FROM_NETWORK_COLLABORATION_DETAILS = true;
                 GET_RESPONSE_FROM_NETWORK_MAIN = true;
+                GET_RESPONSE_FROM_NETWORK_UPDATES = true;
+                //set notification indicator status
+                spHelper.setNotifIndicatorStatus(true);
                 break;
             case NOTIFICATION_CATEGORY_CREAD_HATSOFF:
                 mId = NOTIFICATION_ID_CREAD_HATSOFF;
@@ -148,6 +158,9 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
                 GET_RESPONSE_FROM_NETWORK_EXPLORE = true;
                 GET_RESPONSE_FROM_NETWORK_ME = true;
                 GET_RESPONSE_FROM_NETWORK_MAIN = true;
+                GET_RESPONSE_FROM_NETWORK_UPDATES = true;
+                //set notification indicator status
+                spHelper.setNotifIndicatorStatus(true);
                 break;
             case NOTIFICATION_CATEGORY_CREAD_COMMENT:
                 mId = NOTIFICATION_ID_CREAD_COMMENT;
@@ -158,6 +171,9 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
                 intent = new Intent(this, UpdatesActivity.class);
                 intent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
                 GET_RESPONSE_FROM_NETWORK_COMMENTS = true;
+                GET_RESPONSE_FROM_NETWORK_UPDATES = true;
+                //set notification indicator status
+                spHelper.setNotifIndicatorStatus(true);
                 break;
             case NOTIFICATION_CATEGORY_CREAD_BUY:
                 mId = NOTIFICATION_ID_CREAD_BUY;
@@ -167,6 +183,9 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
                 resId = R.drawable.ic_cread_notification_general;
                 intent = new Intent(this, UpdatesActivity.class);
                 intent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
+                GET_RESPONSE_FROM_NETWORK_UPDATES = true;
+                //set notification indicator status
+                spHelper.setNotifIndicatorStatus(true);
                 break;
             case NOTIFICATION_CATEGORY_CREAD_GENERAL:
                 mId = NOTIFICATION_ID_CREAD_GENERAL;
@@ -189,6 +208,9 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
                 intent = new Intent(this, UpdatesActivity.class);
                 intent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
                 GET_RESPONSE_FROM_NETWORK_COMMENTS = true;
+                GET_RESPONSE_FROM_NETWORK_UPDATES = true;
+                //set notification indicator status
+                spHelper.setNotifIndicatorStatus(true);
                 break;
             case NOTIFICATION_CATEGORY_CREAD_TOP_POST:
                 mId = NOTIFICATION_ID_CREAD_TOP_POST;
@@ -197,6 +219,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
                 resId = R.drawable.ic_cread_notification_general;
                 intent = new Intent(this, UpdatesActivity.class);
                 intent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
+                GET_RESPONSE_FROM_NETWORK_UPDATES = true;
                 break;
             case NOTIFICATION_CATEGORY_PROFILE_MENTION_POST:
                 mId = NOTIFICATION_ID_PROFILE_MENTION_POST;
@@ -205,6 +228,13 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
                 resId = R.drawable.ic_cread_notification_general;
                 intent = new Intent(this, UpdatesActivity.class);
                 intent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
+                GET_RESPONSE_FROM_NETWORK_ENTITY_SPECIFIC = true;
+                GET_RESPONSE_FROM_NETWORK_EXPLORE = true;
+                GET_RESPONSE_FROM_NETWORK_ME = true;
+                GET_RESPONSE_FROM_NETWORK_MAIN = true;
+                GET_RESPONSE_FROM_NETWORK_UPDATES = true;
+                //set notification indicator status
+                spHelper.setNotifIndicatorStatus(true);
                 break;
             case NOTIFICATION_CATEGORY_PROFILE_MENTION_COMMENT:
                 mId = NOTIFICATION_ID_PROFILE_MENTION_COMMENT;
@@ -213,6 +243,10 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
                 resId = R.drawable.ic_cread_notification_general;
                 intent = new Intent(this, UpdatesActivity.class);
                 intent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
+                GET_RESPONSE_FROM_NETWORK_COMMENTS = true;
+                GET_RESPONSE_FROM_NETWORK_UPDATES = true;
+                //set notification indicator status
+                spHelper.setNotifIndicatorStatus(true);
                 break;
             default:
                 isValidCategory = false;
@@ -260,6 +294,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
         data.putString(NOTIFICATION_BUNDLE_DATA_PERSISTABLE, persistable);
         data.putBoolean(NOTIFICATION_BUNDLE_DATA_OTHER_COLLABORATOR, otherCollaborator);
         nData.save(getApplicationContext(), data);
+
     }
 
     /**

@@ -464,4 +464,17 @@ public class SharedPreferenceHelper {
         return Constant.ITEM_TYPES.toItemType(enumString);
     }
 
+    public void setNotifIndicatorStatus(boolean shouldShow) {
+        SharedPreferences.Editor editor = mSharedPreferences.edit();
+        editor.putBoolean(mContext.getString(R.string.key_show_notif_indicator), shouldShow);
+        editor.apply();
+    }
+
+    public boolean shouldShowNotifIndicator() {
+        return mSharedPreferences
+                .getBoolean(mContext.getString(R.string.key_show_notif_indicator), false);
+    }
+
+
+
 }

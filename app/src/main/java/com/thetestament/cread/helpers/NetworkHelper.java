@@ -30,6 +30,7 @@ import static com.thetestament.cread.CreadApp.GET_RESPONSE_FROM_NETWORK_COMMENTS
 import static com.thetestament.cread.CreadApp.GET_RESPONSE_FROM_NETWORK_ENTITY_SPECIFIC;
 import static com.thetestament.cread.CreadApp.GET_RESPONSE_FROM_NETWORK_HATSOFF;
 import static com.thetestament.cread.CreadApp.GET_RESPONSE_FROM_NETWORK_ME;
+import static com.thetestament.cread.CreadApp.GET_RESPONSE_FROM_NETWORK_UPDATES;
 
 /**
  * A helper class for providing utility method for network related operations.
@@ -411,6 +412,45 @@ public class NetworkHelper {
 
         return Rx2AndroidNetworking
                 .post(BuildConfig.URL + "/entity-manage/delete")
+                .addJSONObjectBody(jsonObject)
+                .build()
+                .getJSONObjectObservable();
+    }
+
+    public static Observable<JSONObject> getUpdatesObservable(String uuid, String authKey, String lastIndexKey) {
+
+        Map<String, String> header = new HashMap<>();
+        header.put("uuid", uuid);
+        header.put("authkey", authKey);
+
+        Rx2ANRequest.GetRequestBuilder requestBuilder = Rx2AndroidNetworking.get(BuildConfig.URL + "/updates/load/")
+                .addHeaders(header)
+                .addQueryParameter("lastindexkey", lastIndexKey);
+
+        if (GET_RESPONSE_FROM_NETWORK_UPDATES) {
+            requestBuilder.getResponseOnlyFromNetwork();
+        }
+
+        return requestBuilder.build().getJSONObjectObservable();
+
+    }
+
+    public static Observable<JSONObject> getUpdateUnreadObservable(String uuid, String authKey, String updateid) {
+        final JSONObject jsonObject = new JSONObject();
+
+        try {
+
+            jsonObject.put("uuid", uuid);
+            jsonObject.put("authkey", authKey);
+            jsonObject.put("updateid", updateid);
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+            FirebaseCrash.report(e);
+        }
+
+        return Rx2AndroidNetworking
+                .post(BuildConfig.URL + "/updates/update-unread")
                 .addJSONObjectBody(jsonObject)
                 .build()
                 .getJSONObjectObservable();

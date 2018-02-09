@@ -49,6 +49,7 @@
     <string name="chat_msg_seen_status">chatMsgSeenStatus</string>
     <string name="key_deep_link">deepLink</string>
     <string name="key_feed_item_type">meItemType</string>
+    <string name="key_show_notif_indicator"></string>
 
 
     // dialog messages

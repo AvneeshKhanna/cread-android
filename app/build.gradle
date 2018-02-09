@@ -41,8 +41,8 @@ android {
             shrinkResources false
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
-            //buildConfigField "String", "URL", '"http://cread-dev-remote.herokuapp.com"'
-            buildConfigField "String", "URL", '"http://faa50f3d.ngrok.io"'
+            buildConfigField "String", "URL", '"http://cread-dev-remote.herokuapp.com"'
+            //buildConfigField "String", "URL", '"http://811f4b2d.ngrok.io"'
             //buildConfigField "String", "URL", '"http://cread-server-dev.ap-northeast-1.elasticbeanstalk.com"'
             buildConfigField "boolean", "VISIBILITY_RESTART_HEROKU_OPTION", "true"
             resValue "string", "RZP_KEY", "rzp_test_Q09427lQA9Ol5g"
@@ -146,10 +146,6 @@ dependencies {
 
     // for Razor pay
     compile 'com.razorpay:checkout:1.4.1'
-
-    // notification badge
-    implementation 'com.mikepenz:actionitembadge:3.3.2@aar'
-    implementation 'com.mikepenz:iconics-core:2.9.5@aar'
 
     //For photo filter sdk
     implementation 'com.github.zomato:androidphotofilters:1.0.1'

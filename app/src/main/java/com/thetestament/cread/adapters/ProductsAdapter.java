@@ -14,6 +14,7 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.google.firebase.analytics.FirebaseAnalytics;
+import com.google.zxing.common.StringUtils;
 import com.squareup.picasso.Picasso;
 import com.thetestament.cread.R;
 import com.thetestament.cread.helpers.ViewHelper;
@@ -185,25 +186,24 @@ public class ProductsAdapter extends RecyclerView.Adapter<ProductsAdapter.ItemVi
 
 
     private String getProductName(String type) {
-        String name = null;
-        switch (type) {
-            case "SHIRT":
-                name = "T-Shirt";
-                break;
-            case "COFFEE_MUG":
-                name = "Coffee Mug";
-                break;
-            case "FRAME":
-                name = "Frame";
-                break;
-            case "POSTER":
-                name = "Poster";
-                break;
-            case "JOURNAL":
-                name = "Journal";
-                break;
+
+        String name = type.replaceAll("_", " ").toLowerCase();
+
+        return capitalizeString(name);
+    }
+
+    public static String capitalizeString(String string) {
+        char[] chars = string.toLowerCase().toCharArray();
+        boolean found = false;
+        for (int i = 0; i < chars.length; i++) {
+            if (!found && Character.isLetter(chars[i])) {
+                chars[i] = Character.toUpperCase(chars[i]);
+                found = true;
+            } else if (Character.isWhitespace(chars[i]) || chars[i] == '.' || chars[i] == '\'') { // You can add other chars here
+                found = false;
+            }
         }
-        return name;
+        return String.valueOf(chars);
     }
 
     private ImageView processEntityImage(String type, ImageView imageView) {

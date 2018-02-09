@@ -94,6 +94,7 @@ import static com.thetestament.cread.utils.Constant.EXTRA_DATA;
 import static com.thetestament.cread.utils.Constant.EXTRA_ENTITY_ID;
 import static com.thetestament.cread.utils.Constant.EXTRA_ENTITY_TYPE;
 import static com.thetestament.cread.utils.Constant.EXTRA_FEED_DESCRIPTION_DATA;
+import static com.thetestament.cread.utils.Constant.EXTRA_FROM_UPDATES_COMMENT_MENTION;
 import static com.thetestament.cread.utils.Constant.EXTRA_SHORT_UUID;
 import static com.thetestament.cread.utils.Constant.FIREBASE_EVENT_CAPTURE_CLICKED;
 import static com.thetestament.cread.utils.Constant.FIREBASE_EVENT_FOLLOW_FROM_FEED_DESCRIPTION;
@@ -171,6 +172,8 @@ public class FeedDescriptionActivity extends BaseActivity implements listener.On
     Bitmap mBitmap;
     @State
     boolean isUserCreator;
+    @State
+    boolean shouldScroll;
 
     @State
     Bundle resultBundle = new Bundle();
@@ -509,6 +512,8 @@ public class FeedDescriptionActivity extends BaseActivity implements listener.On
         mFeedData = bundle.getParcelable(EXTRA_FEED_DESCRIPTION_DATA);
         mItemPosition = bundle.getInt("position");
 
+        shouldScroll = bundle.getBoolean(EXTRA_FROM_UPDATES_COMMENT_MENTION, false);
+
         // method to initialize the result data
         initResultBundle();
 
@@ -807,6 +812,10 @@ public class FeedDescriptionActivity extends BaseActivity implements listener.On
                             recyclerView.setLayoutManager(new LinearLayoutManager(FeedDescriptionActivity.this));
                             //Set adapter
                             recyclerView.setAdapter(new CommentsAdapter(mCommentsList, FeedDescriptionActivity.this, mHelper.getUUID(), false));
+                            // scroll to bottom if opened from updates comment mention
+                            if (shouldScroll) {
+                                recyclerView.requestFocus();
+                            }
                         }
                     }
                 })

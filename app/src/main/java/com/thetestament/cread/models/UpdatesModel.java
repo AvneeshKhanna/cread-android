@@ -3,8 +3,8 @@ package com.thetestament.cread.models;
 public class UpdatesModel {
 
 
-    String message, timeStamp, seen, category, actorID, entityID, actorImage, entityImage;
-    int _ID;
+    String updateID, message, timeStamp, category, actorID, entityID, actorImage, entityImage, actorName, contentType, productType;
+    boolean unread, otherCollaborator;
 
 
     public String getMessage() {
@@ -21,14 +21,6 @@ public class UpdatesModel {
 
     public void setTimeStamp(String timeStamp) {
         this.timeStamp = timeStamp;
-    }
-
-    public String getSeen() {
-        return seen;
-    }
-
-    public void setSeen(String seen) {
-        this.seen = seen;
     }
 
     public String getCategory() {
@@ -71,11 +63,51 @@ public class UpdatesModel {
         this.entityImage = entityImage;
     }
 
-    public int get_ID() {
-        return _ID;
+    public String getUpdateID() {
+        return updateID;
     }
 
-    public void set_ID(int _ID) {
-        this._ID = _ID;
+    public void setUpdateID(String updateID) {
+        this.updateID = updateID;
+    }
+
+    public String getActorName() {
+        return actorName;
+    }
+
+    public void setActorName(String actorName) {
+        this.actorName = actorName;
+    }
+
+    public String getContentType() {
+        return contentType;
+    }
+
+    public void setContentType(String contentType) {
+        this.contentType = contentType;
+    }
+
+    public String getProductType() {
+        return productType;
+    }
+
+    public void setProductType(String productType) {
+        this.productType = productType;
+    }
+
+    public boolean isUnread() {
+        return unread;
+    }
+
+    public void setUnread(boolean unread) {
+        this.unread = unread;
+    }
+
+    public boolean isOtherCollaborator() {
+        return otherCollaborator;
+    }
+
+    public void setOtherCollaborator(boolean otherCollaborator) {
+        this.otherCollaborator = otherCollaborator;
     }
 }

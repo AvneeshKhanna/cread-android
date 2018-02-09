@@ -16,6 +16,8 @@ import com.squareup.picasso.Picasso;
 import com.thetestament.cread.R;
 import com.thetestament.cread.activities.ProfileActivity;
 import com.thetestament.cread.database.NotificationsDBFunctions;
+import com.thetestament.cread.listeners.listener;
+import com.thetestament.cread.listeners.listener.NotificationItemClick;
 import com.thetestament.cread.models.UpdatesModel;
 
 import java.util.List;
@@ -24,6 +26,7 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import de.hdodenhof.circleimageview.CircleImageView;
 
+import static com.thetestament.cread.utils.Constant.CONTENT_TYPE_CAPTURE;
 import static com.thetestament.cread.utils.Constant.EXTRA_PROFILE_UUID;
 import static com.thetestament.cread.utils.Constant.NOTIFICATION_CATEGORY_CREAD_BUY;
 import static com.thetestament.cread.utils.Constant.NOTIFICATION_CATEGORY_CREAD_COLLABORATE;
@@ -35,24 +38,26 @@ import static com.thetestament.cread.utils.Constant.NOTIFICATION_CATEGORY_CREAD_
 import static com.thetestament.cread.utils.Constant.NOTIFICATION_CATEGORY_CREAD_TOP_POST;
 import static com.thetestament.cread.utils.Constant.NOTIFICATION_CATEGORY_PROFILE_MENTION_COMMENT;
 import static com.thetestament.cread.utils.Constant.NOTIFICATION_CATEGORY_PROFILE_MENTION_POST;
+import static com.thetestament.cread.utils.TimeUtils.getCustomTime;
 
 
 /*Adapter class for UpdatesFragment RecyclerView.*/
 
 
-public class UpdatesAdapter extends RecyclerView.Adapter<UpdatesAdapter.ViewHolder> {
+public class UpdatesAdapter extends RecyclerView.Adapter {
 
     private NotificationItemClick notificationItemClick;
 
     private List<UpdatesModel> mUpdatesDataList;
     private FragmentActivity mContext;
+    private final int VIEW_TYPE_ITEM = 0;
+    private final int VIEW_TYPE_LOADING = 1;
+    private boolean mIsLoading;
+    private listener.onNotificationsLoadMore onNotificationsLoadMore;
 
 
-    /**
-     * Interface definition for a callback to be invoked when a notification is clicked.
-     */
-    public interface NotificationItemClick {
-        void onNotificationClick(String notificationType, String shareID);
+    public void setNotificationsLoadMoreListener(listener.onNotificationsLoadMore onNotificationsLoadMore) {
+        this.onNotificationsLoadMore = onNotificationsLoadMore;
     }
 
 
@@ -71,43 +76,71 @@ public class UpdatesAdapter extends RecyclerView.Adapter<UpdatesAdapter.ViewHold
     }
 
     @Override
-    public UpdatesAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        return new ViewHolder(LayoutInflater
-                .from(parent.getContext())
-                .inflate(R.layout.item_updates, parent, false));
+    public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+        if (viewType == VIEW_TYPE_ITEM) {
+            return new ItemViewHolder(LayoutInflater
+                    .from(parent.getContext())
+                    .inflate(R.layout.item_updates, parent, false));
+        } else if (viewType == VIEW_TYPE_LOADING) {
+            return new LoadingViewHolder(LayoutInflater
+                    .from(parent.getContext())
+                    .inflate(R.layout.item_load_more, parent, false));
+        }
+        return null;
+    }
+
+
+    @Override
+    public int getItemViewType(int position) {
+        return mUpdatesDataList.get(position) == null ? VIEW_TYPE_LOADING : VIEW_TYPE_ITEM;
     }
 
     @Override
-    public void onBindViewHolder(final UpdatesAdapter.ViewHolder holder, int position) {
+    public void onBindViewHolder(final RecyclerView.ViewHolder holder, int position) {
+
         final UpdatesModel updatesData = mUpdatesDataList.get(position);
 
-        holder.textDescription.setText(updatesData.getMessage());
-        holder.textTimestamp.setText(updatesData.getTimeStamp());
-        holder._id = updatesData.get_ID();
+        if (holder.getItemViewType() == VIEW_TYPE_ITEM) {
 
-        // set image url depending on the notification category
-        String imageUrl = updatesData.getCategory()
-                .equals(NOTIFICATION_CATEGORY_CREAD_TOP_POST)
-                ? updatesData.getEntityImage() : updatesData.getActorImage();
+            final ItemViewHolder itemViewHolder = (ItemViewHolder) holder;
 
-        loadImage(imageUrl, holder.imgNotification);
+            // parsing server date
+            List<String> dateList = getCustomTime(updatesData.getTimeStamp());
+            String timeStamp = dateList.get(1) + " " + dateList.get(0) + " at " + dateList.get(3);
+            // set timestamp
+            itemViewHolder.textTimestamp.setText(timeStamp);
 
-        //Change notification item color depending upon seen status
-        if (updatesData.getSeen().equals("true")) {
-            holder.itemView.setBackgroundColor(Color.TRANSPARENT);
-        } else {
-            holder.itemView.setBackgroundColor(ContextCompat.getColor(mContext, R.color.highlight_color));
+            //set message
+            itemViewHolder.textDescription.setText(getNotifMessage(updatesData));
+
+            // set image url depending on the notification category
+            String imageUrl = updatesData.getCategory()
+                    .equals(NOTIFICATION_CATEGORY_CREAD_TOP_POST)
+                    ? updatesData.getEntityImage() : updatesData.getActorImage();
+
+            loadImage(imageUrl, itemViewHolder.imgNotification);
+
+            //Change notification item color depending upon seen status
+            initBackgroundColor(itemViewHolder, updatesData);
+
+            //init notification item click
+            initClick(itemViewHolder, updatesData, position);
+
+
+        } else if (holder.getItemViewType() == VIEW_TYPE_LOADING) {
+            LoadingViewHolder loadingViewHolder = (LoadingViewHolder) holder;
+            loadingViewHolder.progressView.setVisibility(View.VISIBLE);
         }
 
-        //Notifications onClick functionality
-        holder.itemView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                //Background task to update seen status
-                new UpdateSeenStatus().execute(holder);
-                initClick(updatesData.getCategory(), updatesData.getEntityID(), updatesData.getActorID());
+        //If last item is visible to user and new set of data is to yet to be loaded
+        if (position == mUpdatesDataList.size() - 1 && !mIsLoading) {
+            if (onNotificationsLoadMore != null) {
+                //Lode more data here
+                onNotificationsLoadMore.onLoadMore();
             }
-        });
+            //toggle
+            mIsLoading = true;
+        }
     }
 
     @Override
@@ -115,7 +148,7 @@ public class UpdatesAdapter extends RecyclerView.Adapter<UpdatesAdapter.ViewHold
         return mUpdatesDataList.size();
     }
 
-    public static class ViewHolder extends RecyclerView.ViewHolder {
+    public static class ItemViewHolder extends RecyclerView.ViewHolder {
         @BindView(R.id.text_timestamp)
         TextView textTimestamp;
         @BindView(R.id.text_description)
@@ -124,97 +157,48 @@ public class UpdatesAdapter extends RecyclerView.Adapter<UpdatesAdapter.ViewHold
         CircleImageView imgNotification;
         int _id;
 
-        public ViewHolder(View itemView) {
+        public ItemViewHolder(View itemView) {
             super(itemView);
             ButterKnife.bind(this, itemView);
         }
     }
 
+    //LoadingViewHolder class
+    static class LoadingViewHolder extends RecyclerView.ViewHolder {
+        @BindView(R.id.viewProgress)
+        View progressView;
 
-    /**
-     * AsyncTask to update the notification seen status.
-     */
-    class UpdateSeenStatus extends AsyncTask<ViewHolder, Void, ViewHolder> {
-        @Override
-        protected ViewHolder doInBackground(ViewHolder... holder) {
-
-            NotificationsDBFunctions notificationsDBFunctions
-                    = new NotificationsDBFunctions((AppCompatActivity) mContext);
-            notificationsDBFunctions.accessNotificationsDatabase();
-            notificationsDBFunctions.setSeen(holder[0]._id);
-            return holder[0];
-        }
-
-        @Override
-        protected void onPostExecute(ViewHolder holder) {
-            //set item visibility to transparent
-            holder.itemView.setBackgroundColor(Color.TRANSPARENT);
+        public LoadingViewHolder(View itemView) {
+            super(itemView);
+            ButterKnife.bind(this, itemView);
         }
     }
 
+    /**
+     * Method is toggle the loading status
+     */
+    public void setLoaded() {
+        mIsLoading = false;
+    }
 
     /**
      * Open screen depending on the type of the notification.
      *
-     * @param category Notification category
-     * @param entityID entity id.
-     * @param userID   userID
+     * @param itemViewHolder
+     * @param updatesModel
      */
 
-    private void initClick(String category, String entityID, String userID) {
-        switch (category) {
-            case NOTIFICATION_CATEGORY_CREAD_FOLLOW:
-                //Launch me fragment
-                Intent intent = new Intent(mContext, ProfileActivity.class);
-                intent.putExtra(EXTRA_PROFILE_UUID, userID);
-                mContext.startActivity(intent);
-                //Finish Updates activity
-                mContext.finish();
-                break;
+    private void initClick(final ItemViewHolder itemViewHolder, final UpdatesModel updatesModel, final int position) {
 
-            case NOTIFICATION_CATEGORY_CREAD_COLLABORATE:
-                //Listener
-                notificationItemClick.onNotificationClick(NOTIFICATION_CATEGORY_CREAD_COLLABORATE, entityID);
-                break;
-
-            case NOTIFICATION_CATEGORY_CREAD_HATSOFF:
-                //Listener
-                notificationItemClick.onNotificationClick(NOTIFICATION_CATEGORY_CREAD_HATSOFF, entityID);
-                break;
-
-            case NOTIFICATION_CATEGORY_CREAD_COMMENT:
-                //Listener
-                notificationItemClick.onNotificationClick(NOTIFICATION_CATEGORY_CREAD_COMMENT, entityID);
-                break;
-
-            case NOTIFICATION_CATEGORY_CREAD_COMMENT_OTHER:
-                //Listener
-                notificationItemClick.onNotificationClick(NOTIFICATION_CATEGORY_CREAD_COMMENT_OTHER, entityID);
-                break;
-
-            case NOTIFICATION_CATEGORY_CREAD_BUY:
-                //Listener
-                notificationItemClick.onNotificationClick(NOTIFICATION_CATEGORY_CREAD_BUY, entityID);
-                break;
-            case NOTIFICATION_CATEGORY_CREAD_GENERAL:
-                //Listener
-                // do nothing since it is not persistable and not present here
-                break;
-            case NOTIFICATION_CATEGORY_CREAD_TOP_POST:
-                //Listener
-                notificationItemClick.onNotificationClick(NOTIFICATION_CATEGORY_CREAD_TOP_POST, entityID);
-                break;
-            case NOTIFICATION_CATEGORY_PROFILE_MENTION_POST:
-                //Set Listener
-                notificationItemClick.onNotificationClick(NOTIFICATION_CATEGORY_PROFILE_MENTION_POST, entityID);
-                break;
-            case NOTIFICATION_CATEGORY_PROFILE_MENTION_COMMENT:
-                //Set Listener
-                notificationItemClick.onNotificationClick(NOTIFICATION_CATEGORY_PROFILE_MENTION_COMMENT, entityID);
-                break;
-            default:
-                break;
-        }
+        //Notifications onClick functionality
+        itemViewHolder.itemView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                updatesModel.setUnread(false);
+                initBackgroundColor(itemViewHolder, updatesModel);
+                notificationItemClick.onNotificationClick(updatesModel, position);
+            }
+        });
     }
 
     /**
@@ -228,5 +212,74 @@ public class UpdatesAdapter extends RecyclerView.Adapter<UpdatesAdapter.ViewHold
                 .load(picUrl)
                 .error(R.drawable.ic_account_circle_48)
                 .into(imageView);
+    }
+
+
+    private void initBackgroundColor(ItemViewHolder itemViewHolder, UpdatesModel updatesData) {
+        if (!updatesData.isUnread()) {
+            itemViewHolder.itemView.setBackgroundColor(Color.TRANSPARENT);
+        } else {
+            itemViewHolder.itemView.setBackgroundColor(ContextCompat.getColor(mContext, R.color.highlight_color));
+        }
+    }
+
+
+    /**
+     * Creates the notification message according to the category of the notification
+     *
+     * @param updatesModel
+     * @return
+     */
+    private String getNotifMessage(UpdatesModel updatesModel) {
+        String message = "";
+
+        switch (updatesModel.getCategory()) {
+            case NOTIFICATION_CATEGORY_CREAD_FOLLOW:
+                message = updatesModel.getActorName() + " has started following you on Cread";
+                break;
+
+            case NOTIFICATION_CATEGORY_CREAD_BUY:
+                message = updatesModel.isOtherCollaborator() ?
+                        updatesModel.getActorName() + " has purchased a "
+                                + updatesModel.getProductType().replaceAll("_", " ").toLowerCase() + " created using a post inspired by yours"
+                        : updatesModel.getActorName() + " has purchased a " + updatesModel.getProductType().replaceAll("_", " ").toLowerCase()
+                        + " created using your post";
+                break;
+            case NOTIFICATION_CATEGORY_CREAD_HATSOFF:
+                message = updatesModel.isOtherCollaborator() ?
+                        updatesModel.getActorName()
+                                + " has given a hats-off to a post which was inspired by yours"
+                        : updatesModel.getActorName() + " has given your post a hats-off";
+                break;
+
+            case NOTIFICATION_CATEGORY_CREAD_COMMENT:
+                message = updatesModel.isOtherCollaborator() ?
+                        updatesModel.getActorName()
+                                + " has commented on a post inspired by yours"
+                        : updatesModel.getActorName() + " has commented on your post";
+                break;
+
+            case NOTIFICATION_CATEGORY_CREAD_COMMENT_OTHER:
+                message = updatesModel.getActorName()
+                        + " also commented on a post you commented on";
+                break;
+
+            case NOTIFICATION_CATEGORY_CREAD_COLLABORATE:
+                message = updatesModel.getContentType().equals(CONTENT_TYPE_CAPTURE)
+                        ? updatesModel.getActorName() + " uploaded a graphic art to your writing"
+                        : updatesModel.getActorName() + " wrote on your graphic art";
+                break;
+
+            case NOTIFICATION_CATEGORY_PROFILE_MENTION_COMMENT:
+                message = updatesModel.getActorName() + " mentioned you in a comment";
+                break;
+            case NOTIFICATION_CATEGORY_PROFILE_MENTION_POST:
+                message = updatesModel.getActorName() + " mentioned you in a post";
+                break;
+
+            default:
+        }
+
+        return message;
     }
 }

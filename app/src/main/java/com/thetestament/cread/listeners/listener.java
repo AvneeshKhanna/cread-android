@@ -9,6 +9,7 @@ import com.thetestament.cread.models.FBFriendsModel;
 import com.thetestament.cread.models.FeedModel;
 import com.thetestament.cread.models.PersonMentionModel;
 import com.thetestament.cread.models.InspirationModel;
+import com.thetestament.cread.models.UpdatesModel;
 import com.thetestament.cread.utils.Constant.GratitudeNumbers;
 
 public class listener {
@@ -197,6 +198,20 @@ public class listener {
      */
     public interface onSuggestionsLoadMore {
         void onLoadMore();
+    }
+
+    /**
+     * Interface definition for a callback to be invoked when user scroll for more data.
+     */
+    public interface onNotificationsLoadMore {
+        void onLoadMore();
+    }
+
+    /**
+     * Interface definition for a callback to be invoked when a notification is clicked.
+     */
+    public interface NotificationItemClick {
+        void onNotificationClick(UpdatesModel updatesModel, int position);
     }
 
     /**

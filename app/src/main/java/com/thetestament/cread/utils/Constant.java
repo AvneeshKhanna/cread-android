@@ -28,6 +28,7 @@ public class Constant {
     public static final int REQUEST_CODE_FEED_DESCRIPTION_ACTIVITY = 1010;
     public static final int REQUEST_CODE_PREVIEW_ACTIVITY = 1011;
     public static final int REQUEST_CODE_EDIT_POST = 1012;
+    public static final int REQUEST_CODE_COMMENT_MENTION = 1013;
     //public static final int REQUEST_CODE_EDIT_SHORT = 1013;
     //endregion
 
@@ -122,6 +123,8 @@ public class Constant {
     public static final String EXTRA_IS_PROFILE_EDITABLE = "isProfileEditable";
     public static final String EXTRA_MIN_CASH_AMT = "minCashInData";
     public static final String EXTRA_CASH_IN_AMOUNT = "cashInAmount";
+
+    public static final String EXTRA_FROM_UPDATES_COMMENT_MENTION = "fromUpdatesCommentMention";
 
     public static final String PAYMENT_STATUS_SUCCESS = "paymentSuccess";
     public static final String PAYMENT_STATUS_INVALID_TOKEN = "paymentInvalidToken";

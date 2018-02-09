@@ -30,7 +30,6 @@ import com.afollestad.materialdialogs.DialogAction;
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.google.firebase.analytics.FirebaseAnalytics;
 import com.google.firebase.crash.FirebaseCrash;
-import com.mikepenz.actionitembadge.library.ActionItemBadge;
 import com.thetestament.cread.BuildConfig;
 import com.thetestament.cread.Manifest;
 import com.thetestament.cread.R;
@@ -93,8 +92,6 @@ public class BottomNavigationActivity extends BaseActivity {
     String mFragmentTag;
     Fragment mCurrentFragment;
 
-    private int mUnreadCount = 0;
-
     @State
     int mSelectedItemID;
 
@@ -104,6 +101,9 @@ public class BottomNavigationActivity extends BaseActivity {
     private FirebaseAnalytics mFirebaseAnalytics;
     private SharedPreferenceHelper mHelper;
     private CompositeDisposable mCompositeDisposable = new CompositeDisposable();
+
+    View badgeView;
+
     //endregion
 
     @Override
@@ -223,10 +223,6 @@ public class BottomNavigationActivity extends BaseActivity {
 
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
-        if (!mCalledFromSendIntent) {
-            UpdateNotificationBadge updateNotificationBadge = new UpdateNotificationBadge();
-            updateNotificationBadge.execute(menu);
-        }
         super.onPrepareOptionsMenu(menu);
         return true;
     }
@@ -238,6 +234,8 @@ public class BottomNavigationActivity extends BaseActivity {
         // set visibility of restart heroku option according to build config
         menu.findItem(R.id.action_restart_heroku).setVisible(BuildConfig.VISIBILITY_RESTART_HEROKU_OPTION);
 
+        setupBadge(menu);
+
         super.onCreateOptionsMenu(menu);
         return true;
     }
@@ -246,28 +244,12 @@ public class BottomNavigationActivity extends BaseActivity {
     public boolean onOptionsItemSelected(final MenuItem item) {
         switch (item.getItemId()) {
             case R.id.action_updates:
-                // To hide the badge
-                mUnreadCount = 0;
-                ActionItemBadge.update(BottomNavigationActivity.this
-                        , item
-                        , ContextCompat.getDrawable(BottomNavigationActivity.this, R.drawable.ic_menu_updates_solid)
-                        , ActionItemBadge.BadgeStyles.DARK_GREY, null);
-
-                Thread thread = new Thread(
-                        new Runnable() {
-                            @Override
-                            public void run() {
-
-                                NotificationsDBFunctions dbFunctions = new NotificationsDBFunctions(BottomNavigationActivity.this);
-                                dbFunctions.accessNotificationsDatabase();
-                                dbFunctions.setRead();
-                                //Open updates screen
-                                startActivity(new Intent(BottomNavigationActivity.this, UpdatesActivity.class));
-                            }
-                        }
-                );
-                thread.start();
-
+                //Open updates screen
+                startActivity(new Intent(BottomNavigationActivity.this, UpdatesActivity.class));
+                // set status to false
+                mHelper.setNotifIndicatorStatus(false);
+                // hide badge
+                badgeView.setVisibility(View.GONE);
                 //Log firebase analytics
                 setAnalytics(FIREBASE_EVENT_NOTIFICATION_CLICKED);
 
@@ -502,43 +484,7 @@ public class BottomNavigationActivity extends BaseActivity {
         }
     }
 
-    /**
-     * async task to update the unread count in notification badge
-     */
-    class UpdateNotificationBadge extends AsyncTask<Menu, Void, Menu> {
 
-
-        @Override
-        protected Menu doInBackground(Menu... menus) {
-
-            NotificationsDBFunctions notificationsDBFunctions = new NotificationsDBFunctions(BottomNavigationActivity.this);
-            notificationsDBFunctions.accessNotificationsDatabase();
-
-            mUnreadCount = notificationsDBFunctions.getUnreadCount();
-
-
-            return menus[0];
-        }
-
-        @Override
-        protected void onPostExecute(Menu menu) {
-            super.onPostExecute(menu);
-
-            //you can add some logic (hide it if the count == 0)
-            if (mUnreadCount > 0) {
-                ActionItemBadge.update(BottomNavigationActivity.this, menu.findItem(R.id.action_updates), ContextCompat.getDrawable(BottomNavigationActivity.this, R.drawable.ic_menu_updates_solid)/*FontAwesome.Icon.faw_android*/, ActionItemBadge.BadgeStyles.DARK_GREY, mUnreadCount);
-
-            } else {
-
-                // setting badge count parameter as null to hide the badge
-                ActionItemBadge.update(BottomNavigationActivity.this, menu.findItem(R.id.action_updates), ContextCompat.getDrawable(BottomNavigationActivity.this, R.drawable.ic_menu_updates_solid)/*FontAwesome.Icon.faw_android*/, ActionItemBadge.BadgeStyles.DARK_GREY, null);
-
-            }
-
-        }
-
-
-    }
 
 
     /**
@@ -751,6 +697,36 @@ public class BottomNavigationActivity extends BaseActivity {
                     }
                 }
             }
+        }
+    }
+
+
+    /**
+     * Method to setup updates icon badge indicator and its functionality.
+     *
+     * @param menu Bottomnavigation menu.
+     */
+    private void setupBadge(final Menu menu) {
+        //Action layout of chat icon
+        View actionView = menu.findItem(R.id.action_updates).getActionView();
+        //Obtain reference of badgeView
+        badgeView = actionView.findViewById(R.id.updatesDotBadge);
+        //Action view click functionality
+        actionView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                onOptionsItemSelected(menu.findItem(R.id.action_updates));
+            }
+        });
+
+
+        //Toggle visibility of dot indicator
+        if (mHelper.shouldShowNotifIndicator()) {
+            //Hide badge view
+            badgeView.setVisibility(View.VISIBLE);
+        } else {
+            //Show Badge View
+            badgeView.setVisibility(View.GONE);
         }
     }
 
