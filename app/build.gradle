@@ -23,6 +23,10 @@ android {
         // for facebook account kit to support only specific languages
         resConfigs "en_GB", "en_US"
         vectorDrawables.useSupportLibrary = true
+
+       /* renderscriptTargetApi 19
+        renderscriptSupportModeEnabled true*/
+
     }
     buildTypes {
         release {
@@ -159,6 +163,9 @@ dependencies {
 
     //Linkedin profile mentions
     compile 'com.linkedin.android.spyglass:spyglass:1.4.0'
+
+    /*compile 'com.jackandphantom.android:blurimage:1.2.0'*/
+
 
 }
 

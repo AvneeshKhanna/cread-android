@@ -3,7 +3,6 @@ package com.thetestament.cread.activities;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -42,6 +41,8 @@ import com.thetestament.cread.helpers.SharedPreferenceHelper;
 import com.thetestament.cread.helpers.ViewHelper;
 import com.thetestament.cread.listeners.listener.OnServerRequestedListener;
 import com.yalantis.ucrop.UCrop;
+
+import java.io.File;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -458,15 +459,17 @@ public class BottomNavigationActivity extends BaseActivity {
     private void processCroppedImage(Uri uri) {
         try {
             //Decode image file
-            Bitmap bitmap = BitmapFactory.decodeFile(uri.getPath());
-            //If resolution of image is greater than 2000x2000 then compress this image
-            if (bitmap.getWidth() >= 1800 && bitmap.getWidth() >= 1800) {
+            BitmapFactory.Options options = new BitmapFactory.Options();
+            options.inJustDecodeBounds = true;
+            BitmapFactory.decodeFile(new File(uri.getPath()).getAbsolutePath(), options);
+            int imageHeight = options.outHeight;
+            int imageWidth = options.outWidth;
+
+            //If resolution of image is greater than 1800x1800 then compress this image
+            if (imageHeight >= 1800 && imageWidth >= 1800) {
                 //Compress image
                 compressCroppedImg(uri, this, IMAGE_TYPE_USER_CAPTURE_PIC);
-                //Open preview screen
-                //Intent intent = new Intent(BottomNavigationActivity.this, CapturePreviewActivity.class);
-                //intent.putExtra("isMerchantable", "1");
-                //startActivity(intent);
+
                 //Open preview screen
                 Bundle bundle = new Bundle();
                 bundle.putString(PREVIEW_EXTRA_MERCHANTABLE, "1");
@@ -478,7 +481,10 @@ public class BottomNavigationActivity extends BaseActivity {
             } else {
                 getMerchantableDialog();
             }
-        } catch (Exception e) {
+        } catch (
+                Exception e)
+
+        {
             e.printStackTrace();
             ViewHelper.getSnackBar(rootView, "Image could not be cropped due to some error");
         }
@@ -730,4 +736,36 @@ public class BottomNavigationActivity extends BaseActivity {
         }
     }
 
+   /* private void transFormIntoSquare(int imgWidth, int imgHeight) {
+        int squareSize = 650;
+
+        if (imgWidth < imgHeight) {
+            //Assign variable
+            squareSize = imgHeight;
+        } else if (imgWidth > imgHeight) {
+            //Assign variable
+            squareSize = imgWidth;
+        }
+
+        //Create bitmap
+        Bitmap bitmap = Bitmap.createBitmap(squareSize, squareSize, Bitmap.Config.ARGB_8888);
+        BitmapFactory.Options options = new BitmapFactory.Options();
+        *//*options.inSampleSize;*//*
+        //Create canvas
+        Canvas canvas = new Canvas(bitmap);
+        Paint paint = new Paint();
+        paint.setColor(Color.GREEN);
+        paint.measureText("image danndakalk");
+        //Draw bitmap on canvas
+        canvas.drawBitmap(bitmap, 1f, 1f, paint);
+
+        try {
+            File file = new File(ImageHelper.getImageUri(IMAGE_TYPE_USER_CAPTURE_PIC).getPath());
+            FileOutputStream out = new FileOutputStream(file);
+            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, out);
+            out.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }*/
 }

@@ -178,6 +178,7 @@ public class ImageHelper {
         UCrop.of(sourceUri, destinationUri)
                 .withAspectRatio(1, 1)
                 .withOptions(options)
+                /*.useSourceImageAspectRatio()*/
                 .start(context);
     }
 
@@ -269,6 +270,7 @@ public class ImageHelper {
         UCrop.of(sourceUri, destinationUri)
                 .withAspectRatio(1, 1)
                 .withOptions(options)
+               /* .useSourceImageAspectRatio()*/
                 .start(context, fragment, UCrop.REQUEST_CROP);
     }
 
@@ -283,9 +285,14 @@ public class ImageHelper {
     public static void processCroppedImage(Uri uri, Context context, View rootView, String entityID, String entityType) {
         try {
             //Decode image file
-            Bitmap bitmap = BitmapFactory.decodeFile(uri.getPath());
-            //If resolution of image is greater than 2000x2000 then compress this image
-            if (bitmap.getWidth() > 1800 && bitmap.getWidth() > 1800) {
+            BitmapFactory.Options options = new BitmapFactory.Options();
+            options.inJustDecodeBounds = true;
+            BitmapFactory.decodeFile(new File(uri.getPath()).getAbsolutePath(), options);
+            int imageHeight = options.outHeight;
+            int imageWidth = options.outWidth;
+
+            //If resolution of image is greater than 1800x1800 then compress this image
+            if (imageHeight >= 1800 && imageWidth >= 1800) {
                 //Compress image
                 compressCroppedImg(uri, context, IMAGE_TYPE_USER_CAPTURE_PIC);
                 Bundle bundle = new Bundle();

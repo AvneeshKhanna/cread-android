@@ -18,7 +18,6 @@ import android.support.v4.widget.TextViewCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -41,7 +40,6 @@ import com.thetestament.cread.Manifest;
 import com.thetestament.cread.R;
 import com.thetestament.cread.adapters.CommentsAdapter;
 import com.thetestament.cread.adapters.ShareDialogAdapter;
-import com.thetestament.cread.helpers.DeletePostHelper;
 import com.thetestament.cread.helpers.FeedHelper;
 import com.thetestament.cread.helpers.FollowHelper;
 import com.thetestament.cread.helpers.HatsOffHelper;
@@ -168,7 +166,7 @@ public class FeedDescriptionActivity extends BaseActivity implements listener.On
 
     @State
     int mItemPosition;
-    @State
+
     Bitmap mBitmap;
     @State
     boolean isUserCreator;
