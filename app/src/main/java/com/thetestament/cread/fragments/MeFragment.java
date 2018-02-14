@@ -12,6 +12,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.CoordinatorLayout;
+import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
@@ -45,6 +46,8 @@ import com.thetestament.cread.BuildConfig;
 import com.thetestament.cread.Manifest;
 import com.thetestament.cread.R;
 import com.thetestament.cread.activities.BottomNavigationActivity;
+import com.thetestament.cread.activities.ChatDetailsActivity;
+import com.thetestament.cread.activities.ChatListActivity;
 import com.thetestament.cread.activities.FollowActivity;
 import com.thetestament.cread.activities.RoyaltiesActivity;
 import com.thetestament.cread.activities.UpdateProfileDetailsActivity;
@@ -166,6 +169,8 @@ public class MeFragment extends Fragment implements listener.OnCollaborationList
     LinearLayout viewNoData;
     @BindView(R.id.progressView)
     View progressView;
+    @BindView(R.id.fabChat)
+    FloatingActionButton fabChat;
 
     //Chat badge view
     View badgeView;
@@ -491,6 +496,21 @@ public class MeFragment extends Fragment implements listener.OnCollaborationList
     }
 
     /**
+     * Click functionality to open a chat list screen.
+     */
+    @OnClick(R.id.fabChat)
+    void fabOnClick() {
+        //User is viewing his/her own profile
+        if (mRequestedUUID.equals(mHelper.getUUID())) {
+            Intent intent = new Intent(getActivity(), ChatListActivity.class);
+            startActivity(intent);
+        } else {
+            Intent intent = new Intent(getActivity(), ChatDetailsActivity.class);
+            startActivity(intent);
+        }
+    }
+
+    /**
      * Click functionality to launch screen where user can see list of people whom he/she is following.
      */
     public void onFollowingContainerClicked() {
@@ -526,7 +546,6 @@ public class MeFragment extends Fragment implements listener.OnCollaborationList
     void onCreateClick() {
         ((BottomNavigationActivity) getActivity()).getAddContentBottomSheetDialog();
     }
-
 
     /**
      * Method to initialize views for this screen.
@@ -565,6 +584,8 @@ public class MeFragment extends Fragment implements listener.OnCollaborationList
         initUserStatsPager();
         initSwipeRefreshLayout();
         initTabLayout(tabLayout);
+        //Fab custom behaviour
+        getFabCustomBehaviour(recyclerView);
     }
 
     /**
@@ -2109,6 +2130,28 @@ public class MeFragment extends Fragment implements listener.OnCollaborationList
             //Show Badge View
             badgeView.setVisibility(View.VISIBLE);
         }
+    }
+
+    /**
+     * Method to hide and show the FAB depending upon scrolling behaviour of user.
+     *
+     * @param recyclerView View to be scrolled.
+     */
+    private void getFabCustomBehaviour(RecyclerView recyclerView) {
+        recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+                super.onScrolled(recyclerView, dx, dy);
+                //Scroll Down
+                if (dy > 0 && fabChat.getVisibility() == View.VISIBLE) {
+                    fabChat.hide();
+                }
+                //Scroll Up
+                else if (dy < 0 && fabChat.getVisibility() != View.VISIBLE) {
+                    fabChat.show();
+                }
+            }
+        });
     }
 
 }

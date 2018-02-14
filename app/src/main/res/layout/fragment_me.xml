@@ -183,7 +183,6 @@
             </LinearLayout>
 
 
-
         </android.support.design.widget.CollapsingToolbarLayout>
 
     </android.support.design.widget.AppBarLayout>
@@ -289,4 +288,18 @@
         android:layout_height="wrap_content"
         android:layout_gravity="center"
         android:visibility="gone" />
+
+    <!--Fab to launch chat list screen-->
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/fabChat"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="end|bottom"
+        android:layout_margin="20dp"
+        app:borderWidth="2dp"
+        app:fabSize="normal"
+        app:rippleColor="@color/colorAccent"
+        app:srcCompat="@drawable/ic_chat_24"
+        app:useCompatPadding="true" />
+
 </android.support.design.widget.CoordinatorLayout>
