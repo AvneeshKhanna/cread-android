@@ -11,7 +11,6 @@ import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.Editable;
-import android.text.InputType;
 import android.text.TextWatcher;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
@@ -25,14 +24,12 @@ import com.androidnetworking.error.ANError;
 import com.androidnetworking.interfaces.JSONObjectRequestListener;
 import com.google.firebase.crash.FirebaseCrash;
 import com.linkedin.android.spyglass.mentions.MentionSpan;
-import com.linkedin.android.spyglass.mentions.MentionSpanConfig;
 import com.linkedin.android.spyglass.suggestions.SuggestionsResult;
 import com.linkedin.android.spyglass.suggestions.interfaces.Suggestible;
 import com.linkedin.android.spyglass.suggestions.interfaces.SuggestionsResultListener;
 import com.linkedin.android.spyglass.suggestions.interfaces.SuggestionsVisibilityManager;
 import com.linkedin.android.spyglass.tokenization.QueryToken;
 import com.linkedin.android.spyglass.tokenization.impl.WordTokenizer;
-import com.linkedin.android.spyglass.tokenization.impl.WordTokenizerConfig;
 import com.linkedin.android.spyglass.tokenization.interfaces.QueryTokenReceiver;
 import com.linkedin.android.spyglass.ui.MentionsEditText;
 import com.thetestament.cread.BuildConfig;
@@ -41,13 +38,11 @@ import com.thetestament.cread.adapters.CommentsAdapter;
 import com.thetestament.cread.adapters.CommentsAdapter.HeaderViewHolder;
 import com.thetestament.cread.adapters.PersonMentionAdapter;
 import com.thetestament.cread.helpers.NetworkHelper;
-import com.thetestament.cread.helpers.ProfileMentionsHelper;
 import com.thetestament.cread.helpers.SharedPreferenceHelper;
 import com.thetestament.cread.helpers.ViewHelper;
 import com.thetestament.cread.listeners.listener;
 import com.thetestament.cread.models.CommentsModel;
 import com.thetestament.cread.models.PersonMentionModel;
-
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -88,7 +83,6 @@ import static com.thetestament.cread.helpers.ProfileMentionsHelper.getMentionSpa
 import static com.thetestament.cread.helpers.ProfileMentionsHelper.setProfileMentionsForEditing;
 import static com.thetestament.cread.helpers.ProfileMentionsHelper.tokenizerConfig;
 import static com.thetestament.cread.utils.Constant.EXTRA_ENTITY_ID;
-import static com.thetestament.cread.utils.Constant.EXTRA_FROM_UPDATES_COMMENT_MENTION;
 import static com.thetestament.cread.utils.Constant.SEARCH_TYPE_PEOPLE;
 
 /**

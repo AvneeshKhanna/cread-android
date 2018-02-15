@@ -4,7 +4,8 @@ package com.thetestament.cread.utils;
 public class Constant {
     public static final String MINIMUM_APP_VERSION_KEY = "minimum_app_version";
 
-    //region :Platform key and value con
+
+    //region :Platform key and value constant
     public static final String PLATFORM_KEY = "platform";
     public static final String PLATFORM_VALUE = "android";
     //endregion

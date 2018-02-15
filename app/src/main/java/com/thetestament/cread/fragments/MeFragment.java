@@ -114,6 +114,7 @@ import static com.thetestament.cread.utils.Constant.EXTRA_DATA;
 import static com.thetestament.cread.utils.Constant.EXTRA_FOLLOW_REQUESTED_UUID;
 import static com.thetestament.cread.utils.Constant.EXTRA_FOLLOW_TYPE;
 import static com.thetestament.cread.utils.Constant.EXTRA_IS_PROFILE_EDITABLE;
+import static com.thetestament.cread.utils.Constant.EXTRA_PROFILE_UUID;
 import static com.thetestament.cread.utils.Constant.EXTRA_USER_BIO;
 import static com.thetestament.cread.utils.Constant.EXTRA_USER_CONTACT;
 import static com.thetestament.cread.utils.Constant.EXTRA_USER_EMAIL;
@@ -506,6 +507,7 @@ public class MeFragment extends Fragment implements listener.OnCollaborationList
             startActivity(intent);
         } else {
             Intent intent = new Intent(getActivity(), ChatDetailsActivity.class);
+            intent.putExtra(EXTRA_PROFILE_UUID, mRequestedUUID);
             startActivity(intent);
         }
     }

@@ -317,4 +317,22 @@ public class listener {
     public interface OnChatListLoadMoreListener {
         void onLoadMore();
     }
+
+    /**
+     * Interface definition for a callback to be invoked when user scroll for more data.
+     */
+    public interface OnChatDetailsLoadMoreListener {
+        void onLoadMore();
+    }
+
+    /**
+     * Interface definition for a callback to be invoked when user clicks on delete button.
+     */
+    public interface OnChatDeleteListener {
+        /**
+         * @param index index of the comment to be deleted.
+         */
+        void onDelete(int index);
+    }
+
 }
