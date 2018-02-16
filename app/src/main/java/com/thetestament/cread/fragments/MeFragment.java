@@ -110,11 +110,14 @@ import static com.thetestament.cread.helpers.NetworkHelper.getUserDataObservable
 import static com.thetestament.cread.helpers.NetworkHelper.requestServer;
 import static com.thetestament.cread.utils.Constant.CONTENT_TYPE_CAPTURE;
 import static com.thetestament.cread.utils.Constant.CONTENT_TYPE_SHORT;
+import static com.thetestament.cread.utils.Constant.EXTRA_CHAT_DETAILS_DATA;
+import static com.thetestament.cread.utils.Constant.EXTRA_CHAT_ITEM_POSITION;
+import static com.thetestament.cread.utils.Constant.EXTRA_CHAT_USER_NAME;
+import static com.thetestament.cread.utils.Constant.EXTRA_CHAT_UUID;
 import static com.thetestament.cread.utils.Constant.EXTRA_DATA;
 import static com.thetestament.cread.utils.Constant.EXTRA_FOLLOW_REQUESTED_UUID;
 import static com.thetestament.cread.utils.Constant.EXTRA_FOLLOW_TYPE;
 import static com.thetestament.cread.utils.Constant.EXTRA_IS_PROFILE_EDITABLE;
-import static com.thetestament.cread.utils.Constant.EXTRA_PROFILE_UUID;
 import static com.thetestament.cread.utils.Constant.EXTRA_USER_BIO;
 import static com.thetestament.cread.utils.Constant.EXTRA_USER_CONTACT;
 import static com.thetestament.cread.utils.Constant.EXTRA_USER_EMAIL;
@@ -506,8 +509,15 @@ public class MeFragment extends Fragment implements listener.OnCollaborationList
             Intent intent = new Intent(getActivity(), ChatListActivity.class);
             startActivity(intent);
         } else {
+            //Open ChatDetailsActivity
             Intent intent = new Intent(getActivity(), ChatDetailsActivity.class);
-            intent.putExtra(EXTRA_PROFILE_UUID, mRequestedUUID);
+            //Set bundle data
+            Bundle bundle = new Bundle();
+            bundle.putString(EXTRA_CHAT_UUID, mRequestedUUID);
+            bundle.putString(EXTRA_CHAT_USER_NAME, mFirstName);
+            bundle.putInt(EXTRA_CHAT_ITEM_POSITION, 0);
+
+            intent.putExtra(EXTRA_CHAT_DETAILS_DATA, bundle);
             startActivity(intent);
         }
     }

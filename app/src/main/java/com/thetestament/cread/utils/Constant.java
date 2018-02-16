@@ -30,6 +30,7 @@ public class Constant {
     public static final int REQUEST_CODE_PREVIEW_ACTIVITY = 1011;
     public static final int REQUEST_CODE_EDIT_POST = 1012;
     public static final int REQUEST_CODE_COMMENT_MENTION = 1013;
+    public static final int REQUEST_CODE_CHAT_DETAILS = 1014;
     //public static final int REQUEST_CODE_EDIT_SHORT = 1013;
     //endregion
 
@@ -262,4 +263,11 @@ public class Constant {
     public static final String SHORT_EXTRA_CAPTION_TEXT = "shortCaptionText";
     //endregion
 
+    //region :Data for chat details screen
+    public static final String EXTRA_CHAT_UUID = "chatUUID";
+    public static final String EXTRA_CHAT_USER_NAME = "chatUserName";
+    public static final String EXTRA_CHAT_ITEM_POSITION = "chatItemPosition";
+    public static final String EXTRA_CHAT_DETAILS_DATA = "chatDetailsData";
+    public static final String EXTRA_CHAT_LAST_MESSAGE = "chatLastMessage";
+    //endregion
 }

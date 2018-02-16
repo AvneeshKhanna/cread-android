@@ -1,5 +1,7 @@
 package com.thetestament.cread.activities;
 
+import android.content.Intent;
+import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.FragmentActivity;
@@ -8,6 +10,8 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
@@ -22,7 +26,6 @@ import com.thetestament.cread.R;
 import com.thetestament.cread.adapters.ChatDetailsAdapter;
 import com.thetestament.cread.helpers.SharedPreferenceHelper;
 import com.thetestament.cread.models.ChatDetailsModel;
-import com.thetestament.cread.utils.Constant;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -40,6 +43,11 @@ import io.reactivex.disposables.CompositeDisposable;
 
 import static com.thetestament.cread.adapters.ChatDetailsAdapter.VIEW_TYPE_MESSAGE_RECEIVED_VALUE;
 import static com.thetestament.cread.adapters.ChatDetailsAdapter.VIEW_TYPE_MESSAGE_SENT_VALUE;
+import static com.thetestament.cread.utils.Constant.EXTRA_CHAT_DETAILS_DATA;
+import static com.thetestament.cread.utils.Constant.EXTRA_CHAT_ITEM_POSITION;
+import static com.thetestament.cread.utils.Constant.EXTRA_CHAT_LAST_MESSAGE;
+import static com.thetestament.cread.utils.Constant.EXTRA_CHAT_USER_NAME;
+import static com.thetestament.cread.utils.Constant.EXTRA_CHAT_UUID;
 
 /**
  * AppCompat activity class to show details of  1-1 chat.
@@ -76,6 +84,20 @@ public class ChatDetailsActivity extends BaseActivity {
     String mLastIndexKey = null;
     @State
     boolean mRequestMoreData;
+
+    @State
+    Bundle mBundle;
+
+    /**
+     * Flag to maintain last message update status true if last message has been updated ,false otherwise.
+     */
+    @State
+    boolean mLastMessageUpdated = false;
+    /**
+     * Flag to maintain last message.
+     */
+    @State
+    String mLastMessage = "";
     //endregion
 
     //region :Overridden Methods
@@ -110,6 +132,31 @@ public class ChatDetailsActivity extends BaseActivity {
         Icepick.restoreInstanceState(this, savedInstanceState);
     }
 
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                //Method called
+                navigateBack();
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+
+    }
+
+    @Override
+    public void onBackPressed() {
+        //super.onBackPressed();
+        //Method called
+        navigateBack();
+    }
+
     //endregion
 
     //region :Click functionality
@@ -120,7 +167,7 @@ public class ChatDetailsActivity extends BaseActivity {
     void sendBtnOnClick() {
         JSONObject jsonObject = new JSONObject();
         try {
-            jsonObject.put("to", getIntent().getStringExtra(Constant.EXTRA_PROFILE_UUID));
+            jsonObject.put("to", mBundle.getString(EXTRA_CHAT_UUID));
             jsonObject.put("from", mPreferenceHelper.getUUID());
             jsonObject.put("body", etWriteMessage.getText().toString());
         } catch (JSONException e) {
@@ -133,7 +180,9 @@ public class ChatDetailsActivity extends BaseActivity {
         // add the message to view
         addMessage(etWriteMessage.getText().toString(), VIEW_TYPE_MESSAGE_SENT_VALUE);
         //Clear edit text
-       etWriteMessage.getText().clear();
+        etWriteMessage.getText().clear();
+        //fixme remove it before release
+        notifyIncomingMessage();
     }
 
     /**
@@ -155,6 +204,11 @@ public class ChatDetailsActivity extends BaseActivity {
         mContext = this;
         //Obtain shared preference reference
         mPreferenceHelper = new SharedPreferenceHelper(mContext);
+
+        //Retrieve intent data
+        mBundle = getIntent().getBundleExtra(EXTRA_CHAT_DETAILS_DATA);
+        //Set toolbar title
+        getSupportActionBar().setTitle(mBundle.getString(EXTRA_CHAT_USER_NAME));
 
         //set query parameter
         IO.Options opts = new IO.Options();
@@ -233,6 +287,8 @@ public class ChatDetailsActivity extends BaseActivity {
                     } catch (JSONException e) {
                         return;
                     }
+                    //Method called
+                    notifyIncomingMessage();
                     // add the message to view
                     addMessage(message, VIEW_TYPE_MESSAGE_RECEIVED_VALUE);
                 }
@@ -257,7 +313,47 @@ public class ChatDetailsActivity extends BaseActivity {
         mAdapter.notifyItemInserted(mChatDetailsList.size() - 1);
         // scroll to last item in the recycler view
         recyclerView.smoothScrollToPosition(mChatDetailsList.size());
+
+        //Update flags
+        mLastMessageUpdated = true;
+        mLastMessage = message;
     }
 
+    /**
+     * * Method to navigate back to previous screen
+     */
+    private void navigateBack() {
+        //If last message has been updated
+        if (mLastMessageUpdated) {
+            Intent intent = getIntent();
+
+            Bundle bundle = new Bundle();
+            bundle.putInt(EXTRA_CHAT_ITEM_POSITION, mBundle.getInt(EXTRA_CHAT_ITEM_POSITION));
+            bundle.putString(EXTRA_CHAT_LAST_MESSAGE, mLastMessage);
+            intent.putExtra(EXTRA_CHAT_DETAILS_DATA, bundle);
+
+            setResult(RESULT_OK, intent);
+        }
+        //Navigate back to previous screen
+        finish();
+    }
+
+    /**
+     * Method to play a sound when user receives a message.
+     */
+    private void notifyIncomingMessage() {
+        MediaPlayer mediaPlayer = MediaPlayer.create(mContext, R.raw.track_one);
+        //Listener for track completion
+        mediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+            @Override
+            public void onCompletion(MediaPlayer mediaPlayer) {
+                mediaPlayer.reset();
+                mediaPlayer.release();
+                mediaPlayer = null;
+            }
+        });
+        //Play sound
+        mediaPlayer.start();
+    }
     //endregion
 }

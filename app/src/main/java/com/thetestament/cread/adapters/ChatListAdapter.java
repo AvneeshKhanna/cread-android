@@ -1,6 +1,7 @@
 package com.thetestament.cread.adapters;
 
 import android.content.Intent;
+import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -20,7 +21,11 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import de.hdodenhof.circleimageview.CircleImageView;
 
-import static com.thetestament.cread.utils.Constant.EXTRA_PROFILE_UUID;
+import static com.thetestament.cread.utils.Constant.EXTRA_CHAT_DETAILS_DATA;
+import static com.thetestament.cread.utils.Constant.EXTRA_CHAT_ITEM_POSITION;
+import static com.thetestament.cread.utils.Constant.EXTRA_CHAT_USER_NAME;
+import static com.thetestament.cread.utils.Constant.EXTRA_CHAT_UUID;
+import static com.thetestament.cread.utils.Constant.REQUEST_CODE_CHAT_DETAILS;
 
 /**
  * Adapter class to provide a binding from data set to views that are displayed within a chatList RecyclerView.
@@ -142,8 +147,16 @@ public class ChatListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
             public void onClick(View view) {
                 //Open ChatDetailsActivity
                 Intent intent = new Intent(mContext, ChatDetailsActivity.class);
-                intent.putExtra(EXTRA_PROFILE_UUID, data.getUserUID());
-                mContext.startActivity(intent);
+
+                //Set bundle data
+                Bundle bundle = new Bundle();
+                bundle.putString(EXTRA_CHAT_UUID, data.getUserUID());
+                bundle.putString(EXTRA_CHAT_USER_NAME, data.getUserName());
+                bundle.putInt(EXTRA_CHAT_ITEM_POSITION, position);
+
+                intent.putExtra(EXTRA_CHAT_DETAILS_DATA, bundle);
+
+                mContext.startActivityForResult(intent, REQUEST_CODE_CHAT_DETAILS);
 
                 //Update read status of item
                 if (!data.getReadStatus()) {

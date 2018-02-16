@@ -1,5 +1,6 @@
 package com.thetestament.cread.activities;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.Nullable;
@@ -40,6 +41,10 @@ import io.reactivex.schedulers.Schedulers;
 
 import static com.thetestament.cread.helpers.NetworkHelper.getNetConnectionStatus;
 import static com.thetestament.cread.helpers.NetworkHelper.getObservableFromServer;
+import static com.thetestament.cread.utils.Constant.EXTRA_CHAT_DETAILS_DATA;
+import static com.thetestament.cread.utils.Constant.EXTRA_CHAT_ITEM_POSITION;
+import static com.thetestament.cread.utils.Constant.EXTRA_CHAT_LAST_MESSAGE;
+import static com.thetestament.cread.utils.Constant.REQUEST_CODE_CHAT_DETAILS;
 
 /**
  * Appcompat activity class to show user chat list.
@@ -88,6 +93,20 @@ public class ChatListActivity extends BaseActivity {
     protected void onDestroy() {
         super.onDestroy();
         mCompositeDisposable.dispose();
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == REQUEST_CODE_CHAT_DETAILS && resultCode == RESULT_OK) {
+            //Retrieve data
+            Bundle bundle = data.getBundleExtra(EXTRA_CHAT_DETAILS_DATA);
+            //Set last message
+            mChatList.get(bundle.getInt(EXTRA_CHAT_ITEM_POSITION))
+                    .setLastMessage(bundle.getString(EXTRA_CHAT_LAST_MESSAGE));
+            //Notify changes
+            mAdapter.notifyItemChanged(bundle.getInt(EXTRA_CHAT_ITEM_POSITION));
+        }
     }
 
     @Override
