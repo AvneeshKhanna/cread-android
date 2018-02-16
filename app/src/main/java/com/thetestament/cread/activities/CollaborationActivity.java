@@ -20,6 +20,7 @@ import android.support.v7.widget.AppCompatTextView;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.InputType;
+import android.text.TextUtils;
 import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.Menu;
@@ -43,6 +44,7 @@ import com.thetestament.cread.R;
 import com.thetestament.cread.adapters.ColorAdapter;
 import com.thetestament.cread.adapters.FontAdapter;
 import com.thetestament.cread.dialog.CustomDialog;
+import com.thetestament.cread.helpers.CaptureHelper;
 import com.thetestament.cread.helpers.ColorHelper;
 import com.thetestament.cread.helpers.SharedPreferenceHelper;
 import com.thetestament.cread.helpers.ViewHelper;
@@ -907,6 +909,14 @@ public class CollaborationActivity extends BaseActivity {
      */
     private void generateImage() {
 
+        //if signature text is not empty
+        if (!TextUtils.isEmpty(mSignatureText)) {
+            CaptureHelper.generateSignatureOnCapture(mSignatureText
+                    , textSignature.getWidth()
+                    , textSignature.getHeight()
+
+                    , imageShort.getWidth());
+        }
         //Obtain division factor
         float divisionFactor = (float) squareView.getWidth() / mImageWidth;
 
