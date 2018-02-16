@@ -3,6 +3,7 @@ package com.thetestament.cread.activities;
 import android.content.Intent;
 import android.media.MediaPlayer;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.annotation.Nullable;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.content.ContextCompat;
@@ -12,6 +13,9 @@ import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.view.animation.AnimationUtils;
+import android.view.animation.LayoutAnimationController;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
@@ -22,11 +26,17 @@ import com.github.nkzawa.socketio.client.IO;
 import com.github.nkzawa.socketio.client.Socket;
 import com.google.firebase.crash.FirebaseCrash;
 import com.thetestament.cread.BuildConfig;
+import com.thetestament.cread.CreadApp;
 import com.thetestament.cread.R;
 import com.thetestament.cread.adapters.ChatDetailsAdapter;
+import com.thetestament.cread.adapters.ChatListAdapter;
 import com.thetestament.cread.helpers.SharedPreferenceHelper;
+import com.thetestament.cread.helpers.ViewHelper;
+import com.thetestament.cread.listeners.listener;
 import com.thetestament.cread.models.ChatDetailsModel;
+import com.thetestament.cread.models.ChatListModel;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -39,10 +49,15 @@ import butterknife.ButterKnife;
 import butterknife.OnClick;
 import icepick.Icepick;
 import icepick.State;
+import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.CompositeDisposable;
+import io.reactivex.observers.DisposableObserver;
+import io.reactivex.schedulers.Schedulers;
 
 import static com.thetestament.cread.adapters.ChatDetailsAdapter.VIEW_TYPE_MESSAGE_RECEIVED_VALUE;
 import static com.thetestament.cread.adapters.ChatDetailsAdapter.VIEW_TYPE_MESSAGE_SENT_VALUE;
+import static com.thetestament.cread.helpers.NetworkHelper.getNetConnectionStatus;
+import static com.thetestament.cread.helpers.NetworkHelper.getObservableFromServer;
 import static com.thetestament.cread.utils.Constant.EXTRA_CHAT_DETAILS_DATA;
 import static com.thetestament.cread.utils.Constant.EXTRA_CHAT_ITEM_POSITION;
 import static com.thetestament.cread.utils.Constant.EXTRA_CHAT_LAST_MESSAGE;
@@ -68,6 +83,8 @@ public class ChatDetailsActivity extends BaseActivity {
     TextView textRequestChat;
     @BindView(R.id.buttonFollow)
     TextView buttonFollow;
+    @BindView(R.id.progressView)
+    View progressView;
     //endregion
 
     //region :Fields and constants
@@ -114,6 +131,8 @@ public class ChatDetailsActivity extends BaseActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        //Remove compositeDisposable
+        mCompositeDisposable.dispose();
         //Disconnect socket connection
         mSocket.disconnect();
         //Remove incoming message listener
@@ -235,6 +254,11 @@ public class ChatDetailsActivity extends BaseActivity {
         //Set adapter
         mAdapter = new ChatDetailsAdapter(mChatDetailsList, mContext);
         recyclerView.setAdapter(mAdapter);
+
+        //Load chat list data
+        //loadChatDetailData();
+        //Initialize listener
+        //initLoadMoreListener(mAdapter);
     }
 
     /**
@@ -354,6 +378,217 @@ public class ChatDetailsActivity extends BaseActivity {
         });
         //Play sound
         mediaPlayer.start();
+    }
+
+
+    /**
+     * This method loads data from server if user device is connected to internet.
+     */
+    private void loadChatDetailData() {
+        // if user device is connected to net
+        if (getNetConnectionStatus(this)) {
+            //Show progress view
+            progressView.setVisibility(View.VISIBLE);
+            //Get data from server
+            getChatDetailsData();
+        } else {
+            //Hide progressView
+            progressView.setVisibility(View.GONE);
+            //No connection Snack bar
+            ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_no_connection));
+        }
+    }
+
+    /**
+     * RxJava2 implementation for retrieving chat details data from server.
+     */
+    private void getChatDetailsData() {
+        final boolean[] tokenError = {false};
+        final boolean[] connectionError = {false};
+
+        mCompositeDisposable.add(getObservableFromServer(BuildConfig.URL + "/chat-list/list-all"
+                , mPreferenceHelper.getUUID()
+                , mPreferenceHelper.getAuthToken()
+                , mLastIndexKey
+                , CreadApp.GET_RESPONSE_FROM_NETWORK_CHAT_LIST)
+                //Run on a background thread
+                .subscribeOn(Schedulers.io())
+                //Be notified on the main thread
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribeWith(new DisposableObserver<JSONObject>() {
+                    @Override
+                    public void onNext(JSONObject jsonObject) {
+                        try {
+                            //Token status is invalid
+                            if (jsonObject.getString("tokenstatus").equals("invalid")) {
+                                tokenError[0] = true;
+                            } else {
+                                JSONObject mainData = jsonObject.getJSONObject("data");
+                                mRequestMoreData = mainData.getBoolean("requestmore");
+                                mLastIndexKey = mainData.getString("lastindexkey");
+                                //chat list
+                                JSONArray chatListArray = mainData.getJSONArray("chatlist");
+                                for (int i = 0; i < chatListArray.length(); i++) {
+                                    JSONObject dataObj = chatListArray.getJSONObject(i);
+                                    ChatDetailsModel chatListData = new ChatDetailsModel();
+                                    //chatListData.setReadStatus(dataObj.getBoolean("unread"));
+                                    //chatListData.setUserUID(dataObj.getString("senderuuid"));
+                                    //chatListData.setLastMessage(dataObj.getString("lastmessage"));
+                                    //chatListData.setUserName(dataObj.getString("name"));
+                                    //chatListData.setProfileImgUrl(dataObj.getString("profilepicurl"));
+                                    mChatDetailsList.add(chatListData);
+                                }
+                            }
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                            FirebaseCrash.report(e);
+                            connectionError[0] = true;
+                        }
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        //Hide progress view
+                        progressView.setVisibility(View.GONE);
+                        FirebaseCrash.report(e);
+                        //Server error Snack bar
+                        ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_server));
+                    }
+
+                    @Override
+                    public void onComplete() {
+                        //Hide progress view
+                        progressView.setVisibility(View.GONE);
+                        // Token status invalid
+                        if (tokenError[0]) {
+                            ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_invalid_token));
+                        }
+                        //Error occurred
+                        else if (connectionError[0]) {
+                            ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_internal));
+                        } else if (mChatDetailsList.size() == 0) {
+                            //Show no data message
+                           // viewNoData.setVisibility(View.VISIBLE);
+                        } else {
+                            //Apply 'Slide Up' animation
+                            int resId = R.anim.layout_animation_from_bottom;
+                            LayoutAnimationController animation = AnimationUtils.loadLayoutAnimation(mContext, resId);
+                            recyclerView.setLayoutAnimation(animation);
+                            //Notify changes
+                            mAdapter.notifyDataSetChanged();
+                        }
+                    }
+                })
+        );
+    }
+
+    /**
+     * Initialize load more listener.
+     *
+     * @param adapter ChatListAdapter reference.
+     */
+    private void initLoadMoreListener(ChatListAdapter adapter) {
+
+        //Load more data listener
+        adapter.setLoadMoreListener(new listener.OnChatListLoadMoreListener() {
+            @Override
+            public void onLoadMore() {
+                //if more data is available
+                if (mRequestMoreData) {
+                    new Handler().post(new Runnable() {
+                                           @Override
+                                           public void run() {
+                                               mChatDetailsList.add(null);
+                                               mAdapter.notifyItemInserted(mChatDetailsList.size() - 1);
+                                           }
+                                       }
+                    );
+                    //Load new set of data
+                    loadMoreData();
+                }
+            }
+        });
+    }
+
+    /**
+     * Method to retrieve next set of data from server.
+     */
+    private void loadMoreData() {
+
+        final boolean[] tokenError = {false};
+        final boolean[] connectionError = {false};
+
+        mCompositeDisposable.add(getObservableFromServer(BuildConfig.URL + "/chat-list/list-all"
+                , mPreferenceHelper.getUUID()
+                , mPreferenceHelper.getAuthToken()
+                , mLastIndexKey
+                , CreadApp.GET_RESPONSE_FROM_NETWORK_CHAT_LIST)
+                //Run on a background thread
+                .subscribeOn(Schedulers.io())
+                //Be notified on the main thread
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribeWith(new DisposableObserver<JSONObject>() {
+                    @Override
+                    public void onNext(JSONObject jsonObject) {
+                        //Remove loading item
+                       // mChatList.remove(mChatList.size() - 1);
+                        //mAdapter.notifyItemRemoved(mChatList.size());
+                        try {
+                            //Token status is invalid
+                            if (jsonObject.getString("tokenstatus").equals("invalid")) {
+                                tokenError[0] = true;
+                            } else {
+                                JSONObject mainData = jsonObject.getJSONObject("data");
+                                mRequestMoreData = mainData.getBoolean("requestmore");
+                                mLastIndexKey = mainData.getString("lastindexkey");
+                                //chat list
+                                JSONArray chatListArray = mainData.getJSONArray("chatlist");
+                                for (int i = 0; i < chatListArray.length(); i++) {
+                                    JSONObject dataObj = chatListArray.getJSONObject(i);
+                                    ChatListModel chatListData = new ChatListModel();
+                                    chatListData.setUserUID(dataObj.getString("senderuuid"));
+                                    chatListData.setReadStatus(dataObj.getBoolean("unread"));
+                                    chatListData.setLastMessage(dataObj.getString("lastmessage"));
+                                    chatListData.setUserName(dataObj.getString("name"));
+                                    chatListData.setProfileImgUrl(dataObj.getString("profilepicurl"));
+                                   // mChatList.add(chatListData);
+                                    //Notify changes
+                                   // mAdapter.notifyItemInserted(mChatList.size() - 1);
+                                }
+                            }
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                            FirebaseCrash.report(e);
+                            connectionError[0] = true;
+                        }
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        //Remove loading item
+                        //mChatList.remove(mChatList.size() - 1);
+                       // mAdapter.notifyItemRemoved(mChatList.size());
+                        FirebaseCrash.report(e);
+                        //Server error Snack bar
+                        ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_server));
+                    }
+
+                    @Override
+                    public void onComplete() {
+                        // Token status invalid
+                        if (tokenError[0]) {
+                            ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_invalid_token));
+                        }
+                        //Error occurred
+                        else if (connectionError[0]) {
+                            ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_internal));
+                        } else {
+                            //Notify changes
+                            mAdapter.setLoaded();
+                        }
+                    }
+                })
+        );
     }
     //endregion
 }

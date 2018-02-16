@@ -162,7 +162,6 @@ public class ChatListActivity extends BaseActivity {
         }
     }
 
-
     /**
      * RxJava2 implementation for retrieving chat list data from server.
      */

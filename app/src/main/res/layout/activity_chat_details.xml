@@ -75,4 +75,12 @@
         android:textColorHint="@color/grey_custom"
         android:textSize="15sp" />
 
+    <!--loading progress view-->
+    <include
+        android:id="@+id/progressView"
+        layout="@layout/layout_progress_bar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:visibility="visible" />
 </RelativeLayout>
