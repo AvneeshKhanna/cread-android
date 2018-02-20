@@ -13,6 +13,7 @@ import android.widget.TextView;
 import com.squareup.picasso.Picasso;
 import com.thetestament.cread.R;
 import com.thetestament.cread.activities.ChatDetailsActivity;
+import com.thetestament.cread.activities.ChatRequestActivity;
 import com.thetestament.cread.listeners.listener.OnChatListLoadMoreListener;
 import com.thetestament.cread.models.ChatListModel;
 
@@ -35,9 +36,9 @@ import static com.thetestament.cread.utils.Constant.REQUEST_CODE_CHAT_DETAILS;
 
 public class ChatListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
-    private final int VIEW_TYPE_ITEM = 0;
-    private final int VIEW_TYPE_HEADER = 1;
-    private final int VIEW_TYPE_LOADING = 2;
+    public static final int VIEW_TYPE_ITEM = 0;
+    public static final int VIEW_TYPE_HEADER = 1;
+    private static final int VIEW_TYPE_LOADING = 2;
     private List<ChatListModel> mChatList;
     private FragmentActivity mContext;
     private boolean mIsLoading;
@@ -50,7 +51,6 @@ public class ChatListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
      * @param chatListModel List of chat list data.
      * @param mContext      Context to use.
      */
-
     public ChatListAdapter(List<ChatListModel> chatListModel, FragmentActivity mContext) {
         this.mChatList = chatListModel;
         this.mContext = mContext;
@@ -65,13 +65,12 @@ public class ChatListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
 
     @Override
     public int getItemViewType(int position) {
-        return mChatList.get(position) == null ? VIEW_TYPE_LOADING : VIEW_TYPE_ITEM;
-        /*if (mChatList.get(position) == null) {
+        if (mChatList.get(position) == null) {
             return VIEW_TYPE_LOADING;
         } else {
             return mChatList.get(position).getItemType() == VIEW_TYPE_ITEM
                     ? VIEW_TYPE_ITEM : VIEW_TYPE_HEADER;
-        }*/
+        }
     }
 
     @Override
@@ -119,11 +118,11 @@ public class ChatListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
             loadingViewHolder.progressView.setVisibility(View.VISIBLE);
         } else if (holder.getItemViewType() == VIEW_TYPE_HEADER) {
             HeaderViewHolder headerViewHolder = (HeaderViewHolder) holder;
-            //Set request count
-            headerViewHolder.textRequestCount.setVisibility(View.VISIBLE);
-
+            //Set request count text
+            headerViewHolder.textRequestCount.setText(data.getLastMessage());
+            //Click functionality
+            headerViewOnClick(headerViewHolder.itemView);
         }
-
 
         //Method called
         setupLoadMoreListener(position);
@@ -186,6 +185,23 @@ public class ChatListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
             }
         });
     }
+
+    /**
+     * ItemView onClick functionality.
+     *
+     * @param view View to be clicked
+     */
+    private void headerViewOnClick(View view) {
+        view.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                //Open ChatRequestActivity
+                Intent intent = new Intent(mContext, ChatRequestActivity.class);
+                mContext.startActivity(intent);
+            }
+        });
+    }
+
 
     /**
      * Method to setup load more listener

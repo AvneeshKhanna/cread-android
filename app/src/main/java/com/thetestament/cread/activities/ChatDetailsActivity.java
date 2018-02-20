@@ -115,6 +115,8 @@ public class ChatDetailsActivity extends BaseActivity {
      */
     @State
     String mLastMessage = "";
+    @State
+    String mChatId;
     //endregion
 
     //region :Overridden Methods
@@ -134,7 +136,7 @@ public class ChatDetailsActivity extends BaseActivity {
         //Remove compositeDisposable
         mCompositeDisposable.dispose();
         //Disconnect socket connection
-        mSocket.disconnect();
+        //mSocket.disconnect();
         //Remove incoming message listener
         mSocket.off("send-message", inComingListener);
     }
@@ -190,6 +192,7 @@ public class ChatDetailsActivity extends BaseActivity {
             jsonObject.put("from_uuid", mPreferenceHelper.getUUID());
             jsonObject.put("body", etWriteMessage.getText().toString());
             jsonObject.put("chatid", mBundle.getString(EXTRA_CHAT_ID));
+            jsonObject.put("from_name", mPreferenceHelper.getFirstName());
         } catch (JSONException e) {
             FirebaseCrash.report(e);
             e.printStackTrace();
@@ -246,6 +249,7 @@ public class ChatDetailsActivity extends BaseActivity {
         btnSend.setEnabled(false);
         //Retrieve intent data
         mBundle = getIntent().getBundleExtra(EXTRA_CHAT_DETAILS_DATA);
+        mChatId = mBundle.getString(EXTRA_CHAT_ID);
         //Set toolbar title
         getSupportActionBar().setTitle(mBundle.getString(EXTRA_CHAT_USER_NAME));
 
@@ -330,15 +334,21 @@ public class ChatDetailsActivity extends BaseActivity {
 
                     JSONObject data = (JSONObject) args[0];
                     String message;
+                    String chatID;
                     try {
                         message = data.getString("body");
+                        chatID = data.getString("chatid");
                     } catch (JSONException e) {
                         return;
                     }
-                    //Method called
-                    notifyIncomingMessage();
-                    // add the message to view
-                    addMessage(message, VIEW_TYPE_MESSAGE_RECEIVED_VALUE);
+                    if (mChatId.equals(chatID)) {
+                        //Method called
+                        notifyIncomingMessage();
+                        // add the message to view
+                        addMessage(message, VIEW_TYPE_MESSAGE_RECEIVED_VALUE);
+                    } else {
+                        //todo notification code  here
+                    }
                 }
             });
         }
@@ -452,6 +462,7 @@ public class ChatDetailsActivity extends BaseActivity {
                                 chatDetailsData.setMessage(dataObj.getString("body"));
                                 chatDetailsData.setMessageID(dataObj.getString("messageid"));
                                 chatDetailsData.setSenderUUID(dataObj.getString("from_uuid"));
+                                mChatId = dataObj.getString("chatid");
 
                                 if (dataObj.getString("from_uuid").equals(mPreferenceHelper.getUUID())) {
                                     chatDetailsData.setChatUserType(VIEW_TYPE_MESSAGE_SENT_VALUE);
@@ -493,7 +504,7 @@ public class ChatDetailsActivity extends BaseActivity {
                             recyclerView.setLayoutAnimation(animation);
                             //Notify changes
                             mAdapter.notifyDataSetChanged();
-                            recyclerView.smoothScrollToPosition(mChatDetailsList.size() );
+                            recyclerView.smoothScrollToPosition(mChatDetailsList.size());
                         }
                     }
                 })
@@ -572,9 +583,9 @@ public class ChatDetailsActivity extends BaseActivity {
                                     } else {
                                         chatDetailsData.setChatUserType(VIEW_TYPE_MESSAGE_RECEIVED_VALUE);
                                     }
-                                     mChatDetailsList.add(chatDetailsData);
+                                    mChatDetailsList.add(chatDetailsData);
                                     //Notify changes
-                                     mAdapter.notifyItemInserted(mChatDetailsList.size() - 1);
+                                    mAdapter.notifyItemInserted(mChatDetailsList.size() - 1);
                                 }
                             }
                         } catch (JSONException e) {

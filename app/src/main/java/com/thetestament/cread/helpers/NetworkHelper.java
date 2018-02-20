@@ -517,4 +517,27 @@ public class NetworkHelper {
                 .getJSONObjectObservable();
     }
 
+
+    /**
+     * Method to return chat request count from the server.
+     *
+     * @param uuid      UUID of user
+     * @param serverURL URL of the server.
+     */
+    public static Observable<JSONObject> getChatRequestCountObservableFromServer(String serverURL, String uuid, boolean getResponseFromNetwork) {
+
+        Map<String, String> header = new HashMap<>();
+        header.put("uuid", uuid);
+
+        Rx2ANRequest.GetRequestBuilder requestBuilder = Rx2AndroidNetworking.get(serverURL)
+                .addHeaders(header)
+                .addQueryParameter(Constant.PLATFORM_KEY, Constant.PLATFORM_VALUE);
+
+        if (getResponseFromNetwork) {
+            requestBuilder.getResponseOnlyFromNetwork();
+        }
+
+        return requestBuilder.build().getJSONObjectObservable();
+    }
+
 }

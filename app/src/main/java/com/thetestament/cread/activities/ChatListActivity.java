@@ -8,11 +8,16 @@ import android.support.design.widget.CoordinatorLayout;
 import android.support.v4.app.FragmentActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.animation.AnimationUtils;
 import android.view.animation.LayoutAnimationController;
 import android.widget.LinearLayout;
 
+import com.github.nkzawa.emitter.Emitter;
+import com.github.nkzawa.socketio.client.IO;
+import com.github.nkzawa.socketio.client.Socket;
 import com.google.firebase.crash.FirebaseCrash;
 import com.thetestament.cread.BuildConfig;
 import com.thetestament.cread.CreadApp;
@@ -27,7 +32,9 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.net.URISyntaxException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import butterknife.BindView;
@@ -39,6 +46,7 @@ import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.observers.DisposableObserver;
 import io.reactivex.schedulers.Schedulers;
 
+import static com.thetestament.cread.helpers.NetworkHelper.getChatRequestCountObservableFromServer;
 import static com.thetestament.cread.helpers.NetworkHelper.getNetConnectionStatus;
 import static com.thetestament.cread.helpers.NetworkHelper.getObservableFromServer;
 import static com.thetestament.cread.utils.Constant.EXTRA_CHAT_DETAILS_DATA;
@@ -51,7 +59,7 @@ import static com.thetestament.cread.utils.Constant.REQUEST_CODE_CHAT_DETAILS;
  */
 
 public class ChatListActivity extends BaseActivity {
-
+    private Socket mSocket;
     //region :Views binding with butter knife
     @BindView(R.id.rootView)
     CoordinatorLayout rootView;
@@ -76,6 +84,19 @@ public class ChatListActivity extends BaseActivity {
     String mLastIndexKey = null;
     @State
     boolean mRequestMoreData;
+
+    /**
+     * Flag to maintain this activity foreground status
+     */
+    @State
+    boolean mIsActivityInForground = true;
+
+
+    /**
+     * Flag to maintain chat request count
+     */
+    @State
+    int mChatRequestCount = 0;
     //endregion
 
     //region :Overridden Methods
@@ -90,9 +111,25 @@ public class ChatListActivity extends BaseActivity {
     }
 
     @Override
+    protected void onResume() {
+        super.onResume();
+        //Update flag
+        mIsActivityInForground = true;
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        //Update flag
+        mIsActivityInForground = false;
+    }
+
+    @Override
     protected void onDestroy() {
         super.onDestroy();
+        //Dispose disposable
         mCompositeDisposable.dispose();
+        //
     }
 
     @Override
@@ -120,6 +157,40 @@ public class ChatListActivity extends BaseActivity {
         super.onRestoreInstanceState(savedInstanceState);
         Icepick.restoreInstanceState(this, savedInstanceState);
     }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                //Disconnect socket connection
+                mSocket.disconnect();
+                //Remove incoming message listener
+                mSocket.off("send-message", inComingListener);
+                //Navigate back to previous screen
+                finish();
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+
+    }
+
+    @Override
+    public void onBackPressed() {
+        //super.onBackPressed();
+        //Disconnect socket connection
+        mSocket.disconnect();
+        //Remove incoming message listener
+        mSocket.off("send-message", inComingListener);
+        //Navigate back to previous screen
+        finish();
+    }
+
     //endregion
 
     //region :Private methods
@@ -138,10 +209,28 @@ public class ChatListActivity extends BaseActivity {
         mAdapter = new ChatListAdapter(mChatList, mContext);
         recyclerView.setAdapter(mAdapter);
 
+        //Load chat request count
+        getChatRequestCount();
         //Load chat list data
         loadChatListData();
-        //Initialize listener
+        //Initialize load more listener
         initLoadMoreListener(mAdapter);
+
+        //set query parameter
+        IO.Options opts = new IO.Options();
+        opts.query = "uuid=" + mHelper.getUUID();
+        {
+            try {
+                mSocket = IO.socket(BuildConfig.URL, opts);
+            } catch (URISyntaxException e) {
+                FirebaseCrash.report(e);
+                e.printStackTrace();
+            }
+        }
+        //Set incoming message listener
+        mSocket.on("send-message", inComingListener);
+        //Make socket connection
+        mSocket.connect();
     }
 
     /**
@@ -200,7 +289,7 @@ public class ChatListActivity extends BaseActivity {
                                     chatListData.setReceiverName(dataObj.getString("receivername"));
                                     chatListData.setProfileImgUrl(dataObj.getString("profilepicurl"));
                                     chatListData.setChatID(dataObj.getString("chatid"));
-                                   // chatListData.setFollowStatus(dataObj.getString("status"));
+                                    chatListData.setItemType(ChatListAdapter.VIEW_TYPE_ITEM);
                                     mChatList.add(chatListData);
                                 }
                             }
@@ -317,7 +406,7 @@ public class ChatListActivity extends BaseActivity {
                                     chatListData.setReceiverName(dataObj.getString("receivername"));
                                     chatListData.setProfileImgUrl(dataObj.getString("profilepicurl"));
                                     chatListData.setChatID(dataObj.getString("chatid"));
-                                    //chatListData.setFollowStatus(dataObj.getString("status"));
+                                    chatListData.setItemType(ChatListAdapter.VIEW_TYPE_ITEM);
                                     mChatList.add(chatListData);
                                     //Notify changes
                                     mAdapter.notifyItemInserted(mChatList.size() - 1);
@@ -357,6 +446,92 @@ public class ChatListActivity extends BaseActivity {
                 })
         );
     }
+
+    /**
+     * RxJava2 implementation for retrieving chat request count from server.
+     */
+    private void getChatRequestCount() {
+        mCompositeDisposable.add(getChatRequestCountObservableFromServer(BuildConfig.URL + "/chat-list/requests-count"
+                , mHelper.getUUID()
+                , true)
+                //Run on a background thread
+                .subscribeOn(Schedulers.io())
+                //Be notified on the main thread
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribeWith(new DisposableObserver<JSONObject>() {
+                    @Override
+                    public void onNext(JSONObject jsonObject) {
+                        try {
+                            mChatRequestCount = jsonObject.getInt("requestcount");
+                            //if request count is more zero
+                            if (mChatRequestCount > 0) {
+                                ChatListModel chatListData = new ChatListModel();
+                                chatListData.setItemType(ChatListAdapter.VIEW_TYPE_HEADER);
+                                chatListData.setLastMessage(mChatRequestCount + " chat request");
+                                mChatList.add(0, chatListData);
+                                mAdapter.notifyItemInserted(0);
+                            }
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                            FirebaseCrash.report(e);
+                        }
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        FirebaseCrash.report(e);
+                        e.printStackTrace();
+                    }
+
+                    @Override
+                    public void onComplete() {
+                    }
+                })
+        );
+    }
+
+    /**
+     * Incoming message listener.
+     */
+    private Emitter.Listener inComingListener = new Emitter.Listener() {
+        @Override
+        public void call(final Object... args) {
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+
+                    JSONObject data = (JSONObject) args[0];
+                    String message;
+                    //Activity is  in foreground
+                    if (mIsActivityInForground) {
+                        try {
+                            message = data.getString("body");
+                            //fixme filter for new chat
+                            for (int i = 0; i < mChatList.size(); i++) {
+                                if (mChatList.get(i).getItemType() == ChatListAdapter.VIEW_TYPE_ITEM) {
+                                    if (mChatList.get(i).getChatID().equals(data.getString("chatid"))) {
+                                        mChatList.get(i).setUnreadStatus(true);
+                                        mChatList.get(i).setLastMessage(message);
+
+                                        Collections.swap(mChatList, i, 0);
+                                        mAdapter.notifyItemMoved(i, 0);
+                                        mAdapter.notifyItemChanged(i);
+                                        mAdapter.notifyItemChanged(0);
+
+                                        //todo incoming messages tone
+                                        return;
+                                    }
+                                }
+                            }
+                        } catch (JSONException e) {
+                            return;
+                        }
+                    }
+
+                }
+            });
+        }
+    };
     //endregion
 
 }

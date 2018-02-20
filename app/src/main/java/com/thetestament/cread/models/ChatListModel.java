@@ -7,7 +7,6 @@ package com.thetestament.cread.models;
 public class ChatListModel {
     private String profileImgUrl, receiverName, lastMessage, receiverUUID, chatID;
     private boolean unreadStatus;
-    private String status;
     private int itemType;
 
     public String getProfileImgUrl() {
@@ -56,14 +55,6 @@ public class ChatListModel {
 
     public void setUnreadStatus(boolean unreadStatus) {
         this.unreadStatus = unreadStatus;
-    }
-
-    public String getFollowStatus() {
-        return status;
-    }
-
-    public void setFollowStatus(String status) {
-        this.status = status;
     }
 
     public int getItemType() {
