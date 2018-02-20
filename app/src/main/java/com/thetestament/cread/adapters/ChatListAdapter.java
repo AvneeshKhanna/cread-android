@@ -3,6 +3,7 @@ package com.thetestament.cread.adapters;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
+import android.support.v7.widget.AppCompatTextView;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -22,6 +23,7 @@ import butterknife.ButterKnife;
 import de.hdodenhof.circleimageview.CircleImageView;
 
 import static com.thetestament.cread.utils.Constant.EXTRA_CHAT_DETAILS_DATA;
+import static com.thetestament.cread.utils.Constant.EXTRA_CHAT_ID;
 import static com.thetestament.cread.utils.Constant.EXTRA_CHAT_ITEM_POSITION;
 import static com.thetestament.cread.utils.Constant.EXTRA_CHAT_USER_NAME;
 import static com.thetestament.cread.utils.Constant.EXTRA_CHAT_UUID;
@@ -34,7 +36,8 @@ import static com.thetestament.cread.utils.Constant.REQUEST_CODE_CHAT_DETAILS;
 public class ChatListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
     private final int VIEW_TYPE_ITEM = 0;
-    private final int VIEW_TYPE_LOADING = 1;
+    private final int VIEW_TYPE_HEADER = 1;
+    private final int VIEW_TYPE_LOADING = 2;
     private List<ChatListModel> mChatList;
     private FragmentActivity mContext;
     private boolean mIsLoading;
@@ -63,6 +66,12 @@ public class ChatListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
     @Override
     public int getItemViewType(int position) {
         return mChatList.get(position) == null ? VIEW_TYPE_LOADING : VIEW_TYPE_ITEM;
+        /*if (mChatList.get(position) == null) {
+            return VIEW_TYPE_LOADING;
+        } else {
+            return mChatList.get(position).getItemType() == VIEW_TYPE_ITEM
+                    ? VIEW_TYPE_ITEM : VIEW_TYPE_HEADER;
+        }*/
     }
 
     @Override
@@ -75,6 +84,10 @@ public class ChatListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
             return new LoadingViewHolder(LayoutInflater
                     .from(parent.getContext())
                     .inflate(R.layout.item_load_more, parent, false));
+        } else if (viewType == VIEW_TYPE_HEADER) {
+            return new HeaderViewHolder(LayoutInflater
+                    .from(parent.getContext())
+                    .inflate(R.layout.item_chat_list_header, parent, false));
         }
         return null;
     }
@@ -87,16 +100,16 @@ public class ChatListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
             ItemViewHolder itemViewHolder = (ItemViewHolder) holder;
             //Load profile picture
             loadProfilePicture(data.getProfileImgUrl(), itemViewHolder.imageUser);
-            //set user name
-            itemViewHolder.textUserName.setText(data.getUserName());
+            //set receiver user name
+            itemViewHolder.textUserName.setText(data.getReceiverName());
             //set Last message
             itemViewHolder.textLastMessage.setText(data.getLastMessage());
 
             //Update read indicator
-            if (data.getReadStatus()) {
-                itemViewHolder.textIndicator.setVisibility(View.INVISIBLE);
-            } else {
+            if (data.getUnreadStatus()) {
                 itemViewHolder.textIndicator.setVisibility(View.VISIBLE);
+            } else {
+                itemViewHolder.textIndicator.setVisibility(View.INVISIBLE);
             }
             //Click functionality
             itemViewOnClick(itemViewHolder.itemView, data, position);
@@ -104,7 +117,13 @@ public class ChatListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         } else if (holder.getItemViewType() == VIEW_TYPE_LOADING) {
             LoadingViewHolder loadingViewHolder = (LoadingViewHolder) holder;
             loadingViewHolder.progressView.setVisibility(View.VISIBLE);
+        } else if (holder.getItemViewType() == VIEW_TYPE_HEADER) {
+            HeaderViewHolder headerViewHolder = (HeaderViewHolder) holder;
+            //Set request count
+            headerViewHolder.textRequestCount.setVisibility(View.VISIBLE);
+
         }
+
 
         //Method called
         setupLoadMoreListener(position);
@@ -147,11 +166,12 @@ public class ChatListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
             public void onClick(View view) {
                 //Open ChatDetailsActivity
                 Intent intent = new Intent(mContext, ChatDetailsActivity.class);
-
+                //Intent intent = new Intent(mContext, ChatRequestActivity.class);
                 //Set bundle data
                 Bundle bundle = new Bundle();
-                bundle.putString(EXTRA_CHAT_UUID, data.getUserUID());
-                bundle.putString(EXTRA_CHAT_USER_NAME, data.getUserName());
+                bundle.putString(EXTRA_CHAT_UUID, data.getReceiverUUID());
+                bundle.putString(EXTRA_CHAT_USER_NAME, data.getReceiverName());
+                bundle.putString(EXTRA_CHAT_ID, data.getChatID());
                 bundle.putInt(EXTRA_CHAT_ITEM_POSITION, position);
 
                 intent.putExtra(EXTRA_CHAT_DETAILS_DATA, bundle);
@@ -159,8 +179,8 @@ public class ChatListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                 mContext.startActivityForResult(intent, REQUEST_CODE_CHAT_DETAILS);
 
                 //Update read status of item
-                if (!data.getReadStatus()) {
-                    data.setReadStatus(true);
+                if (data.getUnreadStatus()) {
+                    data.setUnreadStatus(false);
                     notifyItemChanged(position);
                 }
             }
@@ -205,6 +225,17 @@ public class ChatListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         View progressView;
 
         public LoadingViewHolder(View itemView) {
+            super(itemView);
+            ButterKnife.bind(this, itemView);
+        }
+    }
+
+    //HeaderViewHolder class
+    static class HeaderViewHolder extends RecyclerView.ViewHolder {
+        @BindView(R.id.textRequestCount)
+        AppCompatTextView textRequestCount;
+
+        public HeaderViewHolder(View itemView) {
             super(itemView);
             ButterKnife.bind(this, itemView);
         }

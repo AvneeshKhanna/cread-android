@@ -26,7 +26,7 @@ import pl.tajchert.nammu.Nammu;
 import uk.co.chrisjenx.calligraphy.CalligraphyConfig;
 
 
-public class CreadApp extends MultiDexApplication { 
+public class CreadApp extends MultiDexApplication {
 
     private static CreadApp singleTone;
 
@@ -44,6 +44,7 @@ public class CreadApp extends MultiDexApplication {
     public static boolean GET_RESPONSE_FROM_NETWORK_COMMENTS = false;
     public static boolean GET_RESPONSE_FROM_NETWORK_UPDATES = false;
     public static boolean GET_RESPONSE_FROM_NETWORK_CHAT_LIST = false;
+    public static boolean GET_RESPONSE_FROM_NETWORK_CHAT_DETAILS = false;
 
     // for picasso image loading
     public static boolean IMAGE_LOAD_FROM_NETWORK_ME = false;

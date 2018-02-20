@@ -83,7 +83,7 @@ public class ChatDetailsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
         } else if (viewType == VIEW_TYPE_MESSAGE_RECEIVED) {
             return new MessageReceivedViewHolder(LayoutInflater
                     .from(parent.getContext())
-                    .inflate(R.layout.item_chat_details_recieved, parent, false));
+                    .inflate(R.layout.item_chat_details_received, parent, false));
         } else if (viewType == VIEW_TYPE_LOADING) {
             return new LoadingViewHolder(LayoutInflater
                     .from(parent.getContext())

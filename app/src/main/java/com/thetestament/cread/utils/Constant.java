@@ -269,5 +269,6 @@ public class Constant {
     public static final String EXTRA_CHAT_ITEM_POSITION = "chatItemPosition";
     public static final String EXTRA_CHAT_DETAILS_DATA = "chatDetailsData";
     public static final String EXTRA_CHAT_LAST_MESSAGE = "chatLastMessage";
+    public static final String EXTRA_CHAT_ID = "chatID";
     //endregion
 }

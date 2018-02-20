@@ -5,8 +5,10 @@ package com.thetestament.cread.models;
  */
 
 public class ChatListModel {
-    String profileImgUrl, userName, lastMessage, userUID;
-    boolean readStatus;
+    private String profileImgUrl, receiverName, lastMessage, receiverUUID, chatID;
+    private boolean unreadStatus;
+    private String status;
+    private int itemType;
 
     public String getProfileImgUrl() {
         return profileImgUrl;
@@ -16,12 +18,12 @@ public class ChatListModel {
         this.profileImgUrl = profileImgUrl;
     }
 
-    public String getUserName() {
-        return userName;
+    public String getReceiverName() {
+        return receiverName;
     }
 
-    public void setUserName(String userName) {
-        this.userName = userName;
+    public void setReceiverName(String receiverName) {
+        this.receiverName = receiverName;
     }
 
     public String getLastMessage() {
@@ -32,19 +34,43 @@ public class ChatListModel {
         this.lastMessage = lastMessage;
     }
 
-    public String getUserUID() {
-        return userUID;
+    public String getReceiverUUID() {
+        return receiverUUID;
     }
 
-    public void setUserUID(String userUID) {
-        this.userUID = userUID;
+    public void setReceiverUUID(String receiverUUID) {
+        this.receiverUUID = receiverUUID;
     }
 
-    public boolean getReadStatus() {
-        return readStatus;
+    public String getChatID() {
+        return chatID;
     }
 
-    public void setReadStatus(boolean readStatus) {
-        this.readStatus = readStatus;
+    public void setChatID(String chatID) {
+        this.chatID = chatID;
+    }
+
+    public boolean getUnreadStatus() {
+        return unreadStatus;
+    }
+
+    public void setUnreadStatus(boolean unreadStatus) {
+        this.unreadStatus = unreadStatus;
+    }
+
+    public String getFollowStatus() {
+        return status;
+    }
+
+    public void setFollowStatus(String status) {
+        this.status = status;
+    }
+
+    public int getItemType() {
+        return itemType;
+    }
+
+    public void setItemType(int itemType) {
+        this.itemType = itemType;
     }
 }

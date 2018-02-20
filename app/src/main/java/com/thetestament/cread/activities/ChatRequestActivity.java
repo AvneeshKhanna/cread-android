@@ -47,10 +47,10 @@ import static com.thetestament.cread.utils.Constant.EXTRA_CHAT_LAST_MESSAGE;
 import static com.thetestament.cread.utils.Constant.REQUEST_CODE_CHAT_DETAILS;
 
 /**
- * Appcompat activity class to show user chat list.
+ * Appcompat activity class to show requested chat user list.
  */
 
-public class ChatListActivity extends BaseActivity {
+public class ChatRequestActivity extends BaseActivity {
 
     //region :Views binding with butter knife
     @BindView(R.id.rootView)
@@ -169,7 +169,7 @@ public class ChatListActivity extends BaseActivity {
         final boolean[] tokenError = {false};
         final boolean[] connectionError = {false};
 
-        mCompositeDisposable.add(getObservableFromServer(BuildConfig.URL + "/chat-list/load"
+        mCompositeDisposable.add(getObservableFromServer(BuildConfig.URL + "/chat-list/load-requests"
                 , mHelper.getUUID()
                 , mHelper.getAuthToken()
                 , mLastIndexKey
@@ -200,7 +200,7 @@ public class ChatListActivity extends BaseActivity {
                                     chatListData.setReceiverName(dataObj.getString("receivername"));
                                     chatListData.setProfileImgUrl(dataObj.getString("profilepicurl"));
                                     chatListData.setChatID(dataObj.getString("chatid"));
-                                   // chatListData.setFollowStatus(dataObj.getString("status"));
+                                    //chatListData.setFollowStatus(dataObj.getString("status"));
                                     mChatList.add(chatListData);
                                 }
                             }
@@ -283,7 +283,7 @@ public class ChatListActivity extends BaseActivity {
         final boolean[] tokenError = {false};
         final boolean[] connectionError = {false};
 
-        mCompositeDisposable.add(getObservableFromServer(BuildConfig.URL + "/chat-list/load"
+        mCompositeDisposable.add(getObservableFromServer(BuildConfig.URL + "/chat-list/list-all"
                 , mHelper.getUUID()
                 , mHelper.getAuthToken()
                 , mLastIndexKey

@@ -26,15 +26,14 @@ import com.github.nkzawa.socketio.client.IO;
 import com.github.nkzawa.socketio.client.Socket;
 import com.google.firebase.crash.FirebaseCrash;
 import com.thetestament.cread.BuildConfig;
-import com.thetestament.cread.CreadApp;
 import com.thetestament.cread.R;
 import com.thetestament.cread.adapters.ChatDetailsAdapter;
 import com.thetestament.cread.adapters.ChatListAdapter;
+import com.thetestament.cread.helpers.FollowHelper;
 import com.thetestament.cread.helpers.SharedPreferenceHelper;
 import com.thetestament.cread.helpers.ViewHelper;
 import com.thetestament.cread.listeners.listener;
 import com.thetestament.cread.models.ChatDetailsModel;
-import com.thetestament.cread.models.ChatListModel;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -56,9 +55,10 @@ import io.reactivex.schedulers.Schedulers;
 
 import static com.thetestament.cread.adapters.ChatDetailsAdapter.VIEW_TYPE_MESSAGE_RECEIVED_VALUE;
 import static com.thetestament.cread.adapters.ChatDetailsAdapter.VIEW_TYPE_MESSAGE_SENT_VALUE;
+import static com.thetestament.cread.helpers.NetworkHelper.getChatDataObservableFromServer;
 import static com.thetestament.cread.helpers.NetworkHelper.getNetConnectionStatus;
-import static com.thetestament.cread.helpers.NetworkHelper.getObservableFromServer;
 import static com.thetestament.cread.utils.Constant.EXTRA_CHAT_DETAILS_DATA;
+import static com.thetestament.cread.utils.Constant.EXTRA_CHAT_ID;
 import static com.thetestament.cread.utils.Constant.EXTRA_CHAT_ITEM_POSITION;
 import static com.thetestament.cread.utils.Constant.EXTRA_CHAT_LAST_MESSAGE;
 import static com.thetestament.cread.utils.Constant.EXTRA_CHAT_USER_NAME;
@@ -186,9 +186,10 @@ public class ChatDetailsActivity extends BaseActivity {
     void sendBtnOnClick() {
         JSONObject jsonObject = new JSONObject();
         try {
-            jsonObject.put("to", mBundle.getString(EXTRA_CHAT_UUID));
-            jsonObject.put("from", mPreferenceHelper.getUUID());
+            jsonObject.put("to_uuid", mBundle.getString(EXTRA_CHAT_UUID));
+            jsonObject.put("from_uuid", mPreferenceHelper.getUUID());
             jsonObject.put("body", etWriteMessage.getText().toString());
+            jsonObject.put("chatid", mBundle.getString(EXTRA_CHAT_ID));
         } catch (JSONException e) {
             FirebaseCrash.report(e);
             e.printStackTrace();
@@ -209,7 +210,25 @@ public class ChatDetailsActivity extends BaseActivity {
      */
     @OnClick(R.id.buttonFollow)
     public void onFollowClicked() {
-        //fixme
+        FollowHelper followHelper = new FollowHelper();
+        followHelper.updateFollowStatus(mContext
+                , mCompositeDisposable
+                , true
+                , new JSONArray().put(mBundle.getString(EXTRA_CHAT_UUID))
+                , new listener.OnFollowRequestedListener() {
+                    @Override
+                    public void onFollowSuccess() {
+                        //Hide request text and follow button
+                        textRequestChat.setVisibility(View.GONE);
+                        buttonFollow.setVisibility(View.GONE);
+                    }
+
+                    @Override
+                    public void onFollowFailiure(String errorMsg) {
+                        //Show error snackBar
+                        ViewHelper.getSnackBar(rootView, errorMsg);
+                    }
+                });
     }
     //endregion
 
@@ -223,7 +242,8 @@ public class ChatDetailsActivity extends BaseActivity {
         mContext = this;
         //Obtain shared preference reference
         mPreferenceHelper = new SharedPreferenceHelper(mContext);
-
+        //Disable send button initially
+        btnSend.setEnabled(false);
         //Retrieve intent data
         mBundle = getIntent().getBundleExtra(EXTRA_CHAT_DETAILS_DATA);
         //Set toolbar title
@@ -234,7 +254,7 @@ public class ChatDetailsActivity extends BaseActivity {
         opts.query = "uuid=" + mPreferenceHelper.getUUID();
         {
             try {
-                mSocket = IO.socket(BuildConfig.SOCKET_URL, opts);
+                mSocket = IO.socket(BuildConfig.URL, opts);
             } catch (URISyntaxException e) {
                 FirebaseCrash.report(e);
                 e.printStackTrace();
@@ -256,7 +276,7 @@ public class ChatDetailsActivity extends BaseActivity {
         recyclerView.setAdapter(mAdapter);
 
         //Load chat list data
-        //loadChatDetailData();
+        loadChatDetailData();
         //Initialize listener
         //initLoadMoreListener(mAdapter);
     }
@@ -281,9 +301,13 @@ public class ChatDetailsActivity extends BaseActivity {
                 if (count == 0) {
                     //Change button tint to grey
                     btnSend.setColorFilter(ContextCompat.getColor(ChatDetailsActivity.this, R.color.grey));
+                    //disable button
+                    btnSend.setEnabled(false);
                 } else {
                     //Change button tint to color primary
                     btnSend.setColorFilter(ContextCompat.getColor(ChatDetailsActivity.this, R.color.colorPrimary));
+                    //enable button
+                    btnSend.setEnabled(true);
                 }
             }
 
@@ -403,14 +427,12 @@ public class ChatDetailsActivity extends BaseActivity {
      * RxJava2 implementation for retrieving chat details data from server.
      */
     private void getChatDetailsData() {
-        final boolean[] tokenError = {false};
         final boolean[] connectionError = {false};
 
-        mCompositeDisposable.add(getObservableFromServer(BuildConfig.URL + "/chat-list/list-all"
+        mCompositeDisposable.add(getChatDataObservableFromServer(BuildConfig.URL + "/chat-convo/load-messages"
+                , mBundle.getString(EXTRA_CHAT_UUID)
                 , mPreferenceHelper.getUUID()
-                , mPreferenceHelper.getAuthToken()
-                , mLastIndexKey
-                , CreadApp.GET_RESPONSE_FROM_NETWORK_CHAT_LIST)
+                , mLastIndexKey)
                 //Run on a background thread
                 .subscribeOn(Schedulers.io())
                 //Be notified on the main thread
@@ -419,25 +441,24 @@ public class ChatDetailsActivity extends BaseActivity {
                     @Override
                     public void onNext(JSONObject jsonObject) {
                         try {
-                            //Token status is invalid
-                            if (jsonObject.getString("tokenstatus").equals("invalid")) {
-                                tokenError[0] = true;
-                            } else {
-                                JSONObject mainData = jsonObject.getJSONObject("data");
-                                mRequestMoreData = mainData.getBoolean("requestmore");
-                                mLastIndexKey = mainData.getString("lastindexkey");
-                                //chat list
-                                JSONArray chatListArray = mainData.getJSONArray("chatlist");
-                                for (int i = 0; i < chatListArray.length(); i++) {
-                                    JSONObject dataObj = chatListArray.getJSONObject(i);
-                                    ChatDetailsModel chatListData = new ChatDetailsModel();
-                                    //chatListData.setReadStatus(dataObj.getBoolean("unread"));
-                                    //chatListData.setUserUID(dataObj.getString("senderuuid"));
-                                    //chatListData.setLastMessage(dataObj.getString("lastmessage"));
-                                    //chatListData.setUserName(dataObj.getString("name"));
-                                    //chatListData.setProfileImgUrl(dataObj.getString("profilepicurl"));
-                                    mChatDetailsList.add(chatListData);
+                            JSONObject mainData = jsonObject.getJSONObject("data");
+                            mRequestMoreData = mainData.getBoolean("requestmore");
+                            mLastIndexKey = mainData.getString("lastindexkey");
+                            //chat details list
+                            JSONArray chatDetailsArray = mainData.getJSONArray("messages");
+                            for (int i = 0; i < chatDetailsArray.length(); i++) {
+                                JSONObject dataObj = chatDetailsArray.getJSONObject(i);
+                                ChatDetailsModel chatDetailsData = new ChatDetailsModel();
+                                chatDetailsData.setMessage(dataObj.getString("body"));
+                                chatDetailsData.setMessageID(dataObj.getString("messageid"));
+                                chatDetailsData.setSenderUUID(dataObj.getString("from_uuid"));
+
+                                if (dataObj.getString("from_uuid").equals(mPreferenceHelper.getUUID())) {
+                                    chatDetailsData.setChatUserType(VIEW_TYPE_MESSAGE_SENT_VALUE);
+                                } else {
+                                    chatDetailsData.setChatUserType(VIEW_TYPE_MESSAGE_RECEIVED_VALUE);
                                 }
+                                mChatDetailsList.add(chatDetailsData);
                             }
                         } catch (JSONException e) {
                             e.printStackTrace();
@@ -459,16 +480,12 @@ public class ChatDetailsActivity extends BaseActivity {
                     public void onComplete() {
                         //Hide progress view
                         progressView.setVisibility(View.GONE);
-                        // Token status invalid
-                        if (tokenError[0]) {
-                            ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_invalid_token));
-                        }
                         //Error occurred
-                        else if (connectionError[0]) {
+                        if (connectionError[0]) {
                             ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_internal));
                         } else if (mChatDetailsList.size() == 0) {
                             //Show no data message
-                           // viewNoData.setVisibility(View.VISIBLE);
+                            // viewNoData.setVisibility(View.VISIBLE);
                         } else {
                             //Apply 'Slide Up' animation
                             int resId = R.anim.layout_animation_from_bottom;
@@ -476,6 +493,7 @@ public class ChatDetailsActivity extends BaseActivity {
                             recyclerView.setLayoutAnimation(animation);
                             //Notify changes
                             mAdapter.notifyDataSetChanged();
+                            recyclerView.smoothScrollToPosition(mChatDetailsList.size() );
                         }
                     }
                 })
@@ -518,11 +536,10 @@ public class ChatDetailsActivity extends BaseActivity {
         final boolean[] tokenError = {false};
         final boolean[] connectionError = {false};
 
-        mCompositeDisposable.add(getObservableFromServer(BuildConfig.URL + "/chat-list/list-all"
+        mCompositeDisposable.add(getChatDataObservableFromServer(BuildConfig.URL + "/chat-convo/load-messages"
                 , mPreferenceHelper.getUUID()
                 , mPreferenceHelper.getAuthToken()
-                , mLastIndexKey
-                , CreadApp.GET_RESPONSE_FROM_NETWORK_CHAT_LIST)
+                , mLastIndexKey)
                 //Run on a background thread
                 .subscribeOn(Schedulers.io())
                 //Be notified on the main thread
@@ -531,7 +548,7 @@ public class ChatDetailsActivity extends BaseActivity {
                     @Override
                     public void onNext(JSONObject jsonObject) {
                         //Remove loading item
-                       // mChatList.remove(mChatList.size() - 1);
+                        // mChatList.remove(mChatList.size() - 1);
                         //mAdapter.notifyItemRemoved(mChatList.size());
                         try {
                             //Token status is invalid
@@ -541,19 +558,23 @@ public class ChatDetailsActivity extends BaseActivity {
                                 JSONObject mainData = jsonObject.getJSONObject("data");
                                 mRequestMoreData = mainData.getBoolean("requestmore");
                                 mLastIndexKey = mainData.getString("lastindexkey");
-                                //chat list
-                                JSONArray chatListArray = mainData.getJSONArray("chatlist");
-                                for (int i = 0; i < chatListArray.length(); i++) {
-                                    JSONObject dataObj = chatListArray.getJSONObject(i);
-                                    ChatListModel chatListData = new ChatListModel();
-                                    chatListData.setUserUID(dataObj.getString("senderuuid"));
-                                    chatListData.setReadStatus(dataObj.getBoolean("unread"));
-                                    chatListData.setLastMessage(dataObj.getString("lastmessage"));
-                                    chatListData.setUserName(dataObj.getString("name"));
-                                    chatListData.setProfileImgUrl(dataObj.getString("profilepicurl"));
-                                   // mChatList.add(chatListData);
+                                //chat details list
+                                JSONArray chatDetailsArray = mainData.getJSONArray("messages");
+                                for (int i = 0; i < chatDetailsArray.length(); i++) {
+                                    JSONObject dataObj = chatDetailsArray.getJSONObject(i);
+                                    ChatDetailsModel chatDetailsData = new ChatDetailsModel();
+                                    chatDetailsData.setMessage(dataObj.getString("body"));
+                                    chatDetailsData.setMessageID(dataObj.getString("messageid"));
+                                    chatDetailsData.setSenderUUID(dataObj.getString("from_uuid"));
+
+                                    if (dataObj.getString("from_uuid").equals(mPreferenceHelper.getUUID())) {
+                                        chatDetailsData.setChatUserType(VIEW_TYPE_MESSAGE_SENT_VALUE);
+                                    } else {
+                                        chatDetailsData.setChatUserType(VIEW_TYPE_MESSAGE_RECEIVED_VALUE);
+                                    }
+                                     mChatDetailsList.add(chatDetailsData);
                                     //Notify changes
-                                   // mAdapter.notifyItemInserted(mChatList.size() - 1);
+                                     mAdapter.notifyItemInserted(mChatDetailsList.size() - 1);
                                 }
                             }
                         } catch (JSONException e) {
@@ -566,8 +587,8 @@ public class ChatDetailsActivity extends BaseActivity {
                     @Override
                     public void onError(Throwable e) {
                         //Remove loading item
-                        //mChatList.remove(mChatList.size() - 1);
-                       // mAdapter.notifyItemRemoved(mChatList.size());
+                        mChatDetailsList.remove(mChatDetailsList.size() - 1);
+                        mAdapter.notifyItemRemoved(mChatDetailsList.size());
                         FirebaseCrash.report(e);
                         //Server error Snack bar
                         ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_server));

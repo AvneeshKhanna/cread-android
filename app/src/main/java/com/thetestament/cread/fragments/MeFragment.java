@@ -111,6 +111,7 @@ import static com.thetestament.cread.helpers.NetworkHelper.requestServer;
 import static com.thetestament.cread.utils.Constant.CONTENT_TYPE_CAPTURE;
 import static com.thetestament.cread.utils.Constant.CONTENT_TYPE_SHORT;
 import static com.thetestament.cread.utils.Constant.EXTRA_CHAT_DETAILS_DATA;
+import static com.thetestament.cread.utils.Constant.EXTRA_CHAT_ID;
 import static com.thetestament.cread.utils.Constant.EXTRA_CHAT_ITEM_POSITION;
 import static com.thetestament.cread.utils.Constant.EXTRA_CHAT_USER_NAME;
 import static com.thetestament.cread.utils.Constant.EXTRA_CHAT_UUID;
@@ -509,16 +510,22 @@ public class MeFragment extends Fragment implements listener.OnCollaborationList
             Intent intent = new Intent(getActivity(), ChatListActivity.class);
             startActivity(intent);
         } else {
-            //Open ChatDetailsActivity
-            Intent intent = new Intent(getActivity(), ChatDetailsActivity.class);
-            //Set bundle data
-            Bundle bundle = new Bundle();
-            bundle.putString(EXTRA_CHAT_UUID, mRequestedUUID);
-            bundle.putString(EXTRA_CHAT_USER_NAME, mFirstName);
-            bundle.putInt(EXTRA_CHAT_ITEM_POSITION, 0);
+            //if user is following the user
+            if (mFollowStatus) {
+                //Open ChatDetailsActivity
+                Intent intent = new Intent(getActivity(), ChatDetailsActivity.class);
+                //Set bundle data
+                Bundle bundle = new Bundle();
+                bundle.putString(EXTRA_CHAT_UUID, mRequestedUUID);
+                bundle.putString(EXTRA_CHAT_USER_NAME, mFirstName);
+                bundle.putString(EXTRA_CHAT_ID, "");
+                bundle.putInt(EXTRA_CHAT_ITEM_POSITION, 0);
 
-            intent.putExtra(EXTRA_CHAT_DETAILS_DATA, bundle);
-            startActivity(intent);
+                intent.putExtra(EXTRA_CHAT_DETAILS_DATA, bundle);
+                startActivity(intent);
+            } else {
+                ViewHelper.getSnackBar(rootView, "Follow this person to chat");
+            }
         }
     }
 

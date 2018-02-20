@@ -422,6 +422,17 @@
                 android:value=".activities.BottomNavigationActivity" />
         </activity>
 
+        <!--Chat details screen Screen-->
+        <activity
+            android:name=".activities.ChatRequestActivity"
+            android:label="Requests"
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme">
+            <!--For back navigation-->
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".activities.ChatListActivity" />
+        </activity>
         <!--<activity
             android:name=".activities.DemoActivity"
             android:theme="@android:style/Theme.Translucent.NoTitleBar" >
