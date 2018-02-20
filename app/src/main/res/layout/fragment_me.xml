@@ -12,7 +12,7 @@
         android:layout_height="wrap_content"
         android:background="@android:color/transparent"
         android:fitsSystemWindows="true"
-        android:visibility="invisible">
+        android:visibility="visible">
 
         <android.support.design.widget.CollapsingToolbarLayout
             android:id="@+id/collapsingToolbar"
@@ -69,21 +69,39 @@
                         android:textColor="@color/grey"
                         android:textSize="12sp" />
 
-                    <TextView
-                        android:id="@+id/buttonFollow"
-                        android:layout_width="wrap_content"
+                    <LinearLayout
+                        android:id="@+id/containerMessage"
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_gravity="center"
                         android:layout_marginTop="16dp"
-                        android:background="@drawable/button_outline"
-                        android:paddingBottom="8dp"
-                        android:paddingLeft="24dp"
-                        android:paddingRight="24dp"
-                        android:paddingTop="8dp"
-                        android:text="Following"
-                        android:textColor="@color/grey_dark"
-                        android:textSize="12sp"
-                        android:visibility="visible" />
+                        android:gravity="center"
+                        android:orientation="horizontal">
+
+                        <TextView
+                            android:id="@+id/buttonFollow"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center"
+                            android:layout_marginRight="8dp"
+                            android:background="@drawable/button_outline"
+                            android:paddingBottom="8dp"
+                            android:paddingLeft="24dp"
+                            android:paddingRight="24dp"
+                            android:paddingTop="8dp"
+                            android:text="Following"
+                            android:textColor="@color/grey_dark"
+                            android:textSize="12sp"
+                            android:visibility="visible" />
+
+                        <android.support.v7.widget.AppCompatImageView
+                            android:id="@+id/buttonMessage"
+                            android:layout_width="30dp"
+                            android:layout_height="30dp"
+                            android:background="@drawable/button_outline"
+                            android:scaleType="centerInside"
+                            android:visibility="visible"
+                            app:srcCompat="@drawable/ic_send_mail" />
+                    </LinearLayout>
 
 
                     <com.thetestament.cread.utils.UserStatsViewPager
@@ -280,7 +298,6 @@
 
     </android.support.v4.widget.SwipeRefreshLayout>
 
-
     <include
         android:id="@+id/progressView"
         layout="@layout/layout_progress_bar"
@@ -296,10 +313,11 @@
         android:layout_height="wrap_content"
         android:layout_gravity="end|bottom"
         android:layout_margin="20dp"
+        android:tint="@color/white"
         app:borderWidth="2dp"
         app:fabSize="normal"
         app:rippleColor="@color/colorAccent"
-        app:srcCompat="@drawable/ic_chat_24"
+        app:srcCompat="@drawable/ic_send_mail"
         app:useCompatPadding="true" />
 
 </android.support.design.widget.CoordinatorLayout>
