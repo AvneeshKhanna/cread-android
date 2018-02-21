@@ -3,7 +3,6 @@ package com.thetestament.cread.activities;
 import android.content.Intent;
 import android.media.MediaPlayer;
 import android.os.Bundle;
-import android.os.Handler;
 import android.support.annotation.Nullable;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.content.ContextCompat;
@@ -29,7 +28,6 @@ import com.google.firebase.crash.FirebaseCrash;
 import com.thetestament.cread.BuildConfig;
 import com.thetestament.cread.R;
 import com.thetestament.cread.adapters.ChatDetailsAdapter;
-import com.thetestament.cread.adapters.ChatListAdapter;
 import com.thetestament.cread.helpers.FollowHelper;
 import com.thetestament.cread.helpers.SharedPreferenceHelper;
 import com.thetestament.cread.helpers.ViewHelper;
@@ -54,6 +52,7 @@ import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.observers.DisposableObserver;
 import io.reactivex.schedulers.Schedulers;
 
+import static android.view.View.VISIBLE;
 import static com.thetestament.cread.adapters.ChatDetailsAdapter.VIEW_TYPE_MESSAGE_RECEIVED_VALUE;
 import static com.thetestament.cread.adapters.ChatDetailsAdapter.VIEW_TYPE_MESSAGE_SENT_VALUE;
 import static com.thetestament.cread.helpers.NetworkHelper.getChatDataObservableFromServer;
@@ -313,7 +312,7 @@ public class ChatDetailsActivity extends BaseActivity {
         //Load chat list data
         loadChatDetailData();
         //Initialize listener
-        //initLoadMoreListener(mAdapter);
+        initLoadMoreListener(mAdapter);
     }
 
     /**
@@ -332,7 +331,7 @@ public class ChatDetailsActivity extends BaseActivity {
         if (mBundle.getString(EXTRA_CHAT_DETAILS_CALLED_FROM)
                 .equals(EXTRA_CHAT_DETAILS_CALLED_FROM_CHAT_REQUEST)) {
             //Toggle visibility
-            chatRequestContainer.setVisibility(View.VISIBLE);
+            chatRequestContainer.setVisibility(VISIBLE);
             //update flag
             mIsFollowingReceiver = false;
         } else {
@@ -573,7 +572,7 @@ public class ChatDetailsActivity extends BaseActivity {
         // if user device is connected to net
         if (getNetConnectionStatus(this)) {
             //Show progress view
-            progressView.setVisibility(View.VISIBLE);
+            progressView.setVisibility(VISIBLE);
             //Get data from server
             getChatDetailsData();
         } else {
@@ -645,17 +644,23 @@ public class ChatDetailsActivity extends BaseActivity {
                         //Error occurred
                         if (connectionError[0]) {
                             ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_internal));
-                        } else if (mChatDetailsList.size() == 0) {
-                            //Show no data message
-                            // viewNoData.setVisibility(View.VISIBLE);
                         } else {
                             //Apply 'Slide Up' animation
                             int resId = R.anim.layout_animation_from_bottom;
                             LayoutAnimationController animation = AnimationUtils.loadLayoutAnimation(mContext, resId);
                             recyclerView.setLayoutAnimation(animation);
+
+                            // show header
+                            if (mRequestMoreData) {
+                                mAdapter.setLoadMoreViewVisibility((ChatDetailsAdapter.HeaderViewHolder) recyclerView.
+                                        findViewHolderForAdapterPosition(0), View.VISIBLE);
+
+                            }
                             //Notify changes
                             mAdapter.notifyDataSetChanged();
                             recyclerView.smoothScrollToPosition(mChatDetailsList.size());
+
+
                         }
                     }
                 })
@@ -667,25 +672,19 @@ public class ChatDetailsActivity extends BaseActivity {
      *
      * @param adapter ChatListAdapter reference.
      */
-    private void initLoadMoreListener(ChatListAdapter adapter) {
+    private void initLoadMoreListener(ChatDetailsAdapter adapter) {
 
         //Load more data listener
-        adapter.setLoadMoreListener(new listener.OnChatListLoadMoreListener() {
+        adapter.setLoadMoreListener(new listener.OnChatDetailsLoadMoreListener() {
             @Override
             public void onLoadMore() {
-                //if more data is available
-                if (mRequestMoreData) {
-                    new Handler().post(new Runnable() {
-                                           @Override
-                                           public void run() {
-                                               mChatDetailsList.add(null);
-                                               mAdapter.notifyItemInserted(mChatDetailsList.size() - 1);
-                                           }
-                                       }
-                    );
-                    //Load new set of data
-                    loadMoreData();
-                }
+                // hide load more and show loading icon
+                mAdapter.setLoadMoreViewVisibility((ChatDetailsAdapter.HeaderViewHolder) recyclerView.
+                        findViewHolderForAdapterPosition(0), View.GONE);
+                mAdapter.setLoadingIconVisibility((ChatDetailsAdapter.HeaderViewHolder) recyclerView.
+                        findViewHolderForAdapterPosition(0), View.VISIBLE);
+                //Load new set of data
+                loadMoreData();
             }
         });
     }
@@ -711,31 +710,36 @@ public class ChatDetailsActivity extends BaseActivity {
                     public void onNext(JSONObject jsonObject) {
                         //Remove loading item
                         try {
-                            //Token status is invalid
-                            if (jsonObject.getString("tokenstatus").equals("invalid")) {
-                                tokenError[0] = true;
-                            } else {
-                                JSONObject mainData = jsonObject.getJSONObject("data");
-                                mRequestMoreData = mainData.getBoolean("requestmore");
-                                mLastIndexKey = mainData.getString("lastindexkey");
-                                //chat details list
-                                JSONArray chatDetailsArray = mainData.getJSONArray("messages");
-                                for (int i = 0; i < chatDetailsArray.length(); i++) {
-                                    JSONObject dataObj = chatDetailsArray.getJSONObject(i);
-                                    ChatDetailsModel chatDetailsData = new ChatDetailsModel();
-                                    chatDetailsData.setMessage(dataObj.getString("body"));
-                                    chatDetailsData.setMessageID(dataObj.getString("messageid"));
-                                    chatDetailsData.setSenderUUID(dataObj.getString("from_uuid"));
+                            JSONObject mainData = jsonObject.getJSONObject("data");
+                            mRequestMoreData = mainData.getBoolean("requestmore");
+                            mLastIndexKey = mainData.getString("lastindexkey");
 
-                                    if (dataObj.getString("from_uuid").equals(mPreferenceHelper.getUUID())) {
-                                        chatDetailsData.setChatUserType(VIEW_TYPE_MESSAGE_SENT_VALUE);
-                                    } else {
-                                        chatDetailsData.setChatUserType(VIEW_TYPE_MESSAGE_RECEIVED_VALUE);
-                                    }
-                                    mChatDetailsList.add(chatDetailsData);
-                                    //Notify changes
-                                    mAdapter.notifyItemInserted(mChatDetailsList.size() - 1);
+                            // hide loading icon  and show load more image
+                            if (mRequestMoreData) {
+                                mAdapter.setLoadMoreViewVisibility((ChatDetailsAdapter.HeaderViewHolder) recyclerView.
+                                        findViewHolderForAdapterPosition(0), View.VISIBLE);
+
+                            }
+                            mAdapter.setLoadingIconVisibility((ChatDetailsAdapter.HeaderViewHolder) recyclerView.
+                                    findViewHolderForAdapterPosition(0), View.GONE);
+                            //chat details list
+                            JSONArray chatDetailsArray = mainData.getJSONArray("messages");
+                            for (int i = 0; i < chatDetailsArray.length(); i++) {
+                                JSONObject dataObj = chatDetailsArray.getJSONObject(i);
+                                ChatDetailsModel chatDetailsData = new ChatDetailsModel();
+                                chatDetailsData.setMessage(dataObj.getString("body"));
+                                chatDetailsData.setMessageID(dataObj.getString("messageid"));
+                                chatDetailsData.setSenderUUID(dataObj.getString("from_uuid"));
+
+                                if (dataObj.getString("from_uuid").equals(mPreferenceHelper.getUUID())) {
+                                    chatDetailsData.setChatUserType(VIEW_TYPE_MESSAGE_SENT_VALUE);
+                                } else {
+                                    chatDetailsData.setChatUserType(VIEW_TYPE_MESSAGE_RECEIVED_VALUE);
                                 }
+
+                                mChatDetailsList.add(0, chatDetailsData);
+                                //Notify changes
+                                mAdapter.notifyItemInserted(0);
                             }
                         } catch (JSONException e) {
                             e.printStackTrace();
@@ -746,6 +750,14 @@ public class ChatDetailsActivity extends BaseActivity {
 
                     @Override
                     public void onError(Throwable e) {
+                        // hide loading icon  and show load more image
+                        if (mRequestMoreData) {
+                            mAdapter.setLoadMoreViewVisibility((ChatDetailsAdapter.HeaderViewHolder) recyclerView.
+                                    findViewHolderForAdapterPosition(0), View.VISIBLE);
+
+                        }
+                        mAdapter.setLoadingIconVisibility((ChatDetailsAdapter.HeaderViewHolder) recyclerView.
+                                findViewHolderForAdapterPosition(0), View.GONE);
                         //Remove loading item
                         FirebaseCrash.report(e);
                         //Server error Snack bar
@@ -762,8 +774,7 @@ public class ChatDetailsActivity extends BaseActivity {
                         else if (connectionError[0]) {
                             ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_internal));
                         } else {
-                            //Notify changes
-                            mAdapter.setLoaded();
+                            //recyclerView.smoothScrollToPosition(0);
                         }
                     }
                 })

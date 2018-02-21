@@ -5,6 +5,7 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.thetestament.cread.R;
@@ -25,14 +26,15 @@ public class ChatDetailsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
 
     private final int VIEW_TYPE_MESSAGE_SENT = 0;
     private final int VIEW_TYPE_MESSAGE_RECEIVED = 1;
-    private final int VIEW_TYPE_LOADING = 2;
+    private final int VIEW_TYPE_HEADER = 2;
 
     public static final String VIEW_TYPE_MESSAGE_SENT_VALUE = "messageSent";
     public static final String VIEW_TYPE_MESSAGE_RECEIVED_VALUE = "messageReceived";
+    public static final String VIEW_TYPE_MESSAGE_HEADER_VALUE = "messageHeader";
 
     private List<ChatDetailsModel> mChatDetailsList;
     private FragmentActivity mContext;
-    private boolean mIsLoading;
+
 
     private OnChatDetailsLoadMoreListener loadMoreListener;
     private OnChatDeleteListener chatDeleteListener;
@@ -65,10 +67,17 @@ public class ChatDetailsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
 
     @Override
     public int getItemViewType(int position) {
-        if (mChatDetailsList.get(position) == null) {
-            return VIEW_TYPE_LOADING;
-        } else {
-            return mChatDetailsList.get(position)
+
+        if (position == 0) {
+            return VIEW_TYPE_HEADER;
+        }
+        /*if (mChatDetailsList.get(position)
+                .getChatUserType().equals(VIEW_TYPE_MESSAGE_HEADER_VALUE)) {
+            return VIEW_TYPE_HEADER;
+
+        } */
+        else {
+            return mChatDetailsList.get(position-1)
                     .getChatUserType().equals(VIEW_TYPE_MESSAGE_SENT_VALUE)
                     ? VIEW_TYPE_MESSAGE_SENT : VIEW_TYPE_MESSAGE_RECEIVED;
         }
@@ -84,60 +93,65 @@ public class ChatDetailsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
             return new MessageReceivedViewHolder(LayoutInflater
                     .from(parent.getContext())
                     .inflate(R.layout.item_chat_details_received, parent, false));
-        } else if (viewType == VIEW_TYPE_LOADING) {
-            return new LoadingViewHolder(LayoutInflater
+        } else if (viewType == VIEW_TYPE_HEADER) {
+            return new HeaderViewHolder(LayoutInflater
                     .from(parent.getContext())
-                    .inflate(R.layout.item_load_more, parent, false));
+                    .inflate(R.layout.item_chat_details_header, parent, false));
         }
         return null;
     }
 
     @Override
     public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
-        ChatDetailsModel data = mChatDetailsList.get(position);
+
 
         if (holder.getItemViewType() == VIEW_TYPE_MESSAGE_SENT) {
+            ChatDetailsModel data = mChatDetailsList.get(position-1 );
             MessageSentViewHolder sentViewHolder = (MessageSentViewHolder) holder;
             //set text here
             sentViewHolder.textSent.setText(data.getMessage());
-        }
-        if (holder.getItemViewType() == VIEW_TYPE_MESSAGE_RECEIVED) {
+        } else if (holder.getItemViewType() == VIEW_TYPE_MESSAGE_RECEIVED) {
+            ChatDetailsModel data = mChatDetailsList.get(position-1 );
             MessageReceivedViewHolder receivedViewHolder = (MessageReceivedViewHolder) holder;
+            //set text here
             receivedViewHolder.textReceived.setText(data.getMessage());
-
-        } else if (holder.getItemViewType() == VIEW_TYPE_LOADING) {
-            LoadingViewHolder loadingViewHolder = (LoadingViewHolder) holder;
-            loadingViewHolder.progressView.setVisibility(View.VISIBLE);
+        } else if (holder.getItemViewType() == VIEW_TYPE_HEADER) {
+            HeaderViewHolder headerViewHolder = (HeaderViewHolder) holder;
+            //Click functionality
+            headerViewHolder.itemView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    //Set listener
+                    loadMoreListener.onLoadMore();
+                }
+            });
         }
-        //Method called
-        setupLoadMoreListener(position);
+
     }
 
     @Override
     public int getItemCount() {
-        return mChatDetailsList == null ? 0 : mChatDetailsList.size();
+        return mChatDetailsList.size()+1;
     }
 
     /**
-     * Method is toggle the loading status
+     * Method to update load more view visibility.
+     *
+     * @param holder     HeaderViewHolder reference
+     * @param visibility Visibility flags i.e GONE , VISIBLE, INVISIBLE
      */
-    public void setLoaded() {
-        mIsLoading = false;
+    public void setLoadMoreViewVisibility(HeaderViewHolder holder, int visibility) {
+        holder.loadMoreView.setVisibility(visibility);
     }
 
     /**
-     * Method to setup load more listener
+     * Method to update progress view visibility.
+     *
+     * @param holder     HeaderViewHolder reference
+     * @param visibility Visibility flags i.e GONE , VISIBLE, INVISIBLE
      */
-    private void setupLoadMoreListener(int position) {
-        //If last item is visible to user and new set of data is to yet to be loaded
-        if (position == mChatDetailsList.size() - 1 && !mIsLoading) {
-            if (loadMoreListener != null) {
-                //Lode more data here
-                loadMoreListener.onLoadMore();
-            }
-            //toggle
-            mIsLoading = true;
-        }
+    public void setLoadingIconVisibility(HeaderViewHolder holder, int visibility) {
+        holder.loadMoreViewProgress.setVisibility(visibility);
     }
 
     //MessageSent viewHolder class
@@ -162,14 +176,18 @@ public class ChatDetailsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
         }
     }
 
-    //LoadingViewHolder class
-    static class LoadingViewHolder extends RecyclerView.ViewHolder {
-        @BindView(R.id.viewProgress)
-        View progressView;
+    //Header ViewHolder class
+    public static class HeaderViewHolder extends RecyclerView.ViewHolder {
 
-        public LoadingViewHolder(View itemView) {
-            super(itemView);
-            ButterKnife.bind(this, itemView);
+        @BindView(R.id.loadMoreView)
+        LinearLayout loadMoreView;
+        @BindView(R.id.loadMoreViewProgress)
+        View loadMoreViewProgress;
+
+        public HeaderViewHolder(View headerView) {
+            super(headerView);
+            ButterKnife.bind(this, headerView);
         }
     }
+
 }
