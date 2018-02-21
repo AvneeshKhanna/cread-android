@@ -517,4 +517,23 @@ public class SharedPreferenceHelper {
                 .getBoolean(mContext.getString(R.string.key_enable_chat_sound), true);
     }
 
+    /**
+     * Method to update personal chat notification indicator
+     *
+     * @param shouldShow True if indicator required false otherwise
+     */
+    public void setPersonalChatIndicatorStatus(boolean shouldShow) {
+        SharedPreferences.Editor editor = mSharedPreferences.edit();
+        editor.putBoolean(mContext.getString(R.string.key_personal_chat_indicator), shouldShow);
+        editor.apply();
+    }
+
+    /**
+     * Method to get personal chat notification indicator status
+     */
+    public boolean getPersonalChatIndicatorStatus() {
+        return mSharedPreferences
+                .getBoolean(mContext.getString(R.string.key_personal_chat_indicator), false);
+    }
+
 }

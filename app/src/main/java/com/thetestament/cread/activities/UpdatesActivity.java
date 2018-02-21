@@ -12,7 +12,6 @@ import android.view.MenuItem;
 import com.thetestament.cread.R;
 import com.thetestament.cread.fragments.UpdatesFragment;
 
-
 import static com.thetestament.cread.utils.Constant.TAG_UPDATES_FRAGMENT;
 
 
@@ -71,8 +70,7 @@ public class UpdatesActivity extends BaseActivity {
         initView();
     }
 
-    private void setBackButtonBehaviour()
-    {
+    private void setBackButtonBehaviour() {
         Intent upIntent = NavUtils.getParentActivityIntent(this);
         if (NavUtils.shouldUpRecreateTask(this, upIntent) || isTaskRoot()) {
             // This activity is NOT part of this app's task, so create a new task
@@ -90,7 +88,7 @@ public class UpdatesActivity extends BaseActivity {
     }
 
 
-     /*Method to initialize views for this screen*/
+    /*Method to initialize views for this screen*/
     private void initView() {
         getSupportFragmentManager().beginTransaction()
                 .replace(R.id.updates_container, new UpdatesFragment(), TAG_UPDATES_FRAGMENT)

@@ -6,6 +6,8 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.Nullable;
 import android.support.v4.app.FragmentActivity;
+import android.support.v4.app.NavUtils;
+import android.support.v4.app.TaskStackBuilder;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -60,6 +62,7 @@ import static com.thetestament.cread.helpers.NetworkHelper.getChatDataObservable
 import static com.thetestament.cread.helpers.NetworkHelper.getNetConnectionStatus;
 import static com.thetestament.cread.helpers.NetworkHelper.getupdateChatReadStatusObservable;
 import static com.thetestament.cread.utils.Constant.EXTRA_CHAT_DETAILS_CALLED_FROM;
+import static com.thetestament.cread.utils.Constant.EXTRA_CHAT_DETAILS_CALLED_FROM_CHAT_NOTIFICATION;
 import static com.thetestament.cread.utils.Constant.EXTRA_CHAT_DETAILS_CALLED_FROM_CHAT_PROFILE;
 import static com.thetestament.cread.utils.Constant.EXTRA_CHAT_DETAILS_CALLED_FROM_CHAT_REQUEST;
 import static com.thetestament.cread.utils.Constant.EXTRA_CHAT_DETAILS_DATA;
@@ -477,6 +480,10 @@ public class ChatDetailsActivity extends BaseActivity {
 
             setResult(RESULT_OK, intent);
         }
+
+        if (mBundle.getString(EXTRA_CHAT_DETAILS_CALLED_FROM).equals(EXTRA_CHAT_DETAILS_CALLED_FROM_CHAT_NOTIFICATION)) {
+            setBackButtonBehaviour();
+        }
         //Navigate back to previous screen
         finish();
     }
@@ -785,6 +792,26 @@ public class ChatDetailsActivity extends BaseActivity {
                     }
                 })
         );
+    }
+
+    /**
+     * Method to set back
+     */
+    private void setBackButtonBehaviour() {
+        Intent upIntent = NavUtils.getParentActivityIntent(this);
+        if (NavUtils.shouldUpRecreateTask(this, upIntent) || isTaskRoot()) {
+            // This activity is NOT part of this app's task, so create a new task
+            // when navigating up, with a synthesized back stack.
+            TaskStackBuilder.create(this)
+                    // Add all of this activity's parents to the back stack
+                    .addNextIntentWithParentStack(upIntent)
+                    // Navigate up to the closest parent
+                    .startActivities();
+        } else {
+            // This activity is part of this app's task, so simply
+            // navigate up to the logical parent activity.
+            NavUtils.navigateUpTo(this, upIntent);
+        }
     }
     //endregion
 }
