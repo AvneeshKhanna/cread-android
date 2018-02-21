@@ -540,4 +540,31 @@ public class NetworkHelper {
         return requestBuilder.build().getJSONObjectObservable();
     }
 
+
+    /**
+     * Method to return data from the server.
+     *
+     * @param serverURL URL of the server.
+     * @param uuid      UUID of the user.
+     * @param authKey   AuthKey of user.
+     * @param chatID    chat ID of conversation.
+     */
+    public static Observable<JSONObject> getupdateChatReadStatusObservable(String serverURL, String uuid, String authKey, String chatID) {
+
+        JSONObject jsonObject = new JSONObject();
+        try {
+            jsonObject.put("uuid", uuid);
+            jsonObject.put("authkey", authKey);
+            jsonObject.put("chatid", chatID);
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+            FirebaseCrash.report(e);
+        }
+        return Rx2AndroidNetworking.post(serverURL)
+                .addJSONObjectBody(jsonObject)
+                .build()
+                .getJSONObjectObservable();
+    }
+
 }

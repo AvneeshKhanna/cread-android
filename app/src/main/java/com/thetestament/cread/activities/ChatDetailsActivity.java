@@ -18,6 +18,7 @@ import android.view.animation.AnimationUtils;
 import android.view.animation.LayoutAnimationController;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
@@ -57,6 +58,10 @@ import static com.thetestament.cread.adapters.ChatDetailsAdapter.VIEW_TYPE_MESSA
 import static com.thetestament.cread.adapters.ChatDetailsAdapter.VIEW_TYPE_MESSAGE_SENT_VALUE;
 import static com.thetestament.cread.helpers.NetworkHelper.getChatDataObservableFromServer;
 import static com.thetestament.cread.helpers.NetworkHelper.getNetConnectionStatus;
+import static com.thetestament.cread.helpers.NetworkHelper.getupdateChatReadStatusObservable;
+import static com.thetestament.cread.utils.Constant.EXTRA_CHAT_DETAILS_CALLED_FROM;
+import static com.thetestament.cread.utils.Constant.EXTRA_CHAT_DETAILS_CALLED_FROM_CHAT_PROFILE;
+import static com.thetestament.cread.utils.Constant.EXTRA_CHAT_DETAILS_CALLED_FROM_CHAT_REQUEST;
 import static com.thetestament.cread.utils.Constant.EXTRA_CHAT_DETAILS_DATA;
 import static com.thetestament.cread.utils.Constant.EXTRA_CHAT_ID;
 import static com.thetestament.cread.utils.Constant.EXTRA_CHAT_ITEM_POSITION;
@@ -81,8 +86,8 @@ public class ChatDetailsActivity extends BaseActivity {
     EditText etWriteMessage;
     @BindView(R.id.textRequestChat)
     TextView textRequestChat;
-    @BindView(R.id.buttonFollow)
-    TextView buttonFollow;
+    @BindView(R.id.chatRequestContainer)
+    LinearLayout chatRequestContainer;
     @BindView(R.id.progressView)
     View progressView;
     //endregion
@@ -105,6 +110,8 @@ public class ChatDetailsActivity extends BaseActivity {
     @State
     Bundle mBundle;
 
+    Menu menu;
+
     /**
      * Flag to maintain last message update status true if last message has been updated ,false otherwise.
      */
@@ -117,6 +124,12 @@ public class ChatDetailsActivity extends BaseActivity {
     String mLastMessage = "";
     @State
     String mChatId;
+
+    /**
+     * Flag to maintain whether this user is following the receiver or not. True if following false otherwise.
+     */
+    @State
+    boolean mIsFollowingReceiver;
     //endregion
 
     //region :Overridden Methods
@@ -155,6 +168,12 @@ public class ChatDetailsActivity extends BaseActivity {
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
+        //inflate this menu
+        getMenuInflater().inflate(R.menu.menu_chat_details, menu);
+        //Obtain reference of this menu
+        this.menu = menu;
+        //Method called
+        updateMenuTitleText(menu);
         return super.onCreateOptionsMenu(menu);
     }
 
@@ -164,6 +183,23 @@ public class ChatDetailsActivity extends BaseActivity {
             case android.R.id.home:
                 //Method called
                 navigateBack();
+                return true;
+            case R.id.action_follow_or_block:
+                //Method called
+                updateFollowStatus();
+                return true;
+            case R.id.action_toggle_chat_sound:
+                if (mPreferenceHelper.isChatSoundEnabled()) {
+                    //Update status
+                    mPreferenceHelper.updateChatSoundEnableStatus(false);
+                    //Update title text
+                    item.setTitle("Enable chat sound");
+                } else {
+                    //Update status
+                    mPreferenceHelper.updateChatSoundEnableStatus(true);
+                    //Update title text
+                    item.setTitle("Disable chat sound");
+                }
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
@@ -181,61 +217,76 @@ public class ChatDetailsActivity extends BaseActivity {
     //endregion
 
     //region :Click functionality
-    @OnClick(R.id.btnSend)
+
     /**
      * Send button click functionality.
-     * */
+     */
+    @OnClick(R.id.btnSend)
     void sendBtnOnClick() {
-        JSONObject jsonObject = new JSONObject();
-        try {
-            jsonObject.put("to_uuid", mBundle.getString(EXTRA_CHAT_UUID));
-            jsonObject.put("from_uuid", mPreferenceHelper.getUUID());
-            jsonObject.put("body", etWriteMessage.getText().toString());
-            jsonObject.put("chatid", mBundle.getString(EXTRA_CHAT_ID));
-            jsonObject.put("from_name", mPreferenceHelper.getFirstName());
-        } catch (JSONException e) {
-            FirebaseCrash.report(e);
-            e.printStackTrace();
-        }
-        //Send message
-        mSocket.emit("send-message", jsonObject);
+        //If user is following the receiver
+        if (mIsFollowingReceiver) {
+            JSONObject jsonObject = new JSONObject();
+            try {
+                jsonObject.put("to_uuid", mBundle.getString(EXTRA_CHAT_UUID));
+                jsonObject.put("from_uuid", mPreferenceHelper.getUUID());
+                jsonObject.put("body", etWriteMessage.getText().toString());
+                jsonObject.put("chatid", mBundle.getString(EXTRA_CHAT_ID));
+                jsonObject.put("from_name", mPreferenceHelper.getFirstName());
+            } catch (JSONException e) {
+                FirebaseCrash.report(e);
+                e.printStackTrace();
+            }
+            //Send message
+            mSocket.emit("send-message", jsonObject);
 
-        // add the message to view
-        addMessage(etWriteMessage.getText().toString(), VIEW_TYPE_MESSAGE_SENT_VALUE);
-        //Clear edit text
-        etWriteMessage.getText().clear();
-        //fixme remove it before release
-        notifyIncomingMessage();
+            // add the message to view
+            addMessage(etWriteMessage.getText().toString(), VIEW_TYPE_MESSAGE_SENT_VALUE);
+            //Clear edit text
+            etWriteMessage.getText().clear();
+            //Play sound track
+            notifyIncomingMessage();
+        } else {
+            ViewHelper.getSnackBar(rootView
+                    , "Follow " + mBundle.getString(EXTRA_CHAT_USER_NAME) + " to chat");
+        }
+
     }
 
     /**
      * Follow button click functionality.
      */
     @OnClick(R.id.buttonFollow)
-    public void onFollowClicked() {
-        FollowHelper followHelper = new FollowHelper();
-        followHelper.updateFollowStatus(mContext
-                , mCompositeDisposable
-                , true
-                , new JSONArray().put(mBundle.getString(EXTRA_CHAT_UUID))
-                , new listener.OnFollowRequestedListener() {
-                    @Override
-                    public void onFollowSuccess() {
-                        //Hide request text and follow button
-                        textRequestChat.setVisibility(View.GONE);
-                        buttonFollow.setVisibility(View.GONE);
-                    }
-
-                    @Override
-                    public void onFollowFailiure(String errorMsg) {
-                        //Show error snackBar
-                        ViewHelper.getSnackBar(rootView, errorMsg);
-                    }
-                });
+    void onFollowClicked() {
+        //Method called
+        updateFollowStatus();
     }
     //endregion
 
     //region :Private methods
+
+    /**
+     * Method to update menu title text depending upon the condition.
+     *
+     * @param menu Menu for this activity
+     */
+    private void updateMenuTitleText(Menu menu) {
+        //if this user is following receiver
+        if (mIsFollowingReceiver) {
+            //Change menu title
+            menu.findItem(R.id.action_follow_or_block).setTitle("Unfollow");
+        } else {
+            //Change menu title
+            menu.findItem(R.id.action_follow_or_block).setTitle("Follow");
+        }
+        //if sound is enabled for chat
+        if (mPreferenceHelper.isChatSoundEnabled()) {
+            //Change title text
+            menu.findItem(R.id.action_toggle_chat_sound).setTitle("Disable chat sound");
+        } else {
+            //Change title text
+            menu.findItem(R.id.action_toggle_chat_sound).setTitle("Enable chat sound");
+        }
+    }
 
     /**
      * Method to initialize this screen.
@@ -247,12 +298,59 @@ public class ChatDetailsActivity extends BaseActivity {
         mPreferenceHelper = new SharedPreferenceHelper(mContext);
         //Disable send button initially
         btnSend.setEnabled(false);
+
+        //Method called
+        retrieveIntentData();
+        initSocketConnection();
+        initTextWatcher(etWriteMessage);
+
+        //Set layout manger for recyclerView
+        recyclerView.setLayoutManager(new LinearLayoutManager(mContext));
+        //Set adapter
+        mAdapter = new ChatDetailsAdapter(mChatDetailsList, mContext);
+        recyclerView.setAdapter(mAdapter);
+
+        //Load chat list data
+        loadChatDetailData();
+        //Initialize listener
+        //initLoadMoreListener(mAdapter);
+    }
+
+    /**
+     * Method to retrieve intent data and perform required operation.
+     */
+    private void retrieveIntentData() {
         //Retrieve intent data
         mBundle = getIntent().getBundleExtra(EXTRA_CHAT_DETAILS_DATA);
         mChatId = mBundle.getString(EXTRA_CHAT_ID);
         //Set toolbar title
         getSupportActionBar().setTitle(mBundle.getString(EXTRA_CHAT_USER_NAME));
+        //Update text
+        textRequestChat.setText("Follow " + mBundle.getString(EXTRA_CHAT_USER_NAME) + " to chat ");
 
+        //if user is not following the receiver
+        if (mBundle.getString(EXTRA_CHAT_DETAILS_CALLED_FROM)
+                .equals(EXTRA_CHAT_DETAILS_CALLED_FROM_CHAT_REQUEST)) {
+            //Toggle visibility
+            chatRequestContainer.setVisibility(View.VISIBLE);
+            //update flag
+            mIsFollowingReceiver = false;
+        } else {
+            //update flag
+            mIsFollowingReceiver = true;
+        }
+        //if this is not called from EXTRA_CHAT_DETAILS_CALLED_FROM_CHAT_PROFILE screen
+        if (!mBundle.getString(EXTRA_CHAT_DETAILS_CALLED_FROM)
+                .equals(EXTRA_CHAT_DETAILS_CALLED_FROM_CHAT_PROFILE)) {
+            //Method called
+            updateChatReadStatus(mChatId, mPreferenceHelper.getUUID(), mPreferenceHelper.getAuthToken());
+        }
+    }
+
+    /**
+     * Method to initialize socket for real time messaging.
+     */
+    private void initSocketConnection() {
         //set query parameter
         IO.Options opts = new IO.Options();
         opts.query = "uuid=" + mPreferenceHelper.getUUID();
@@ -270,19 +368,6 @@ public class ChatDetailsActivity extends BaseActivity {
         //Make socket connection
         mSocket.connect();
 
-        //Method called
-        initTextWatcher(etWriteMessage);
-
-        //Set layout manger for recyclerView
-        recyclerView.setLayoutManager(new LinearLayoutManager(mContext));
-        //Set adapter
-        mAdapter = new ChatDetailsAdapter(mChatDetailsList, mContext);
-        recyclerView.setAdapter(mAdapter);
-
-        //Load chat list data
-        loadChatDetailData();
-        //Initialize listener
-        //initLoadMoreListener(mAdapter);
     }
 
     /**
@@ -400,20 +485,86 @@ public class ChatDetailsActivity extends BaseActivity {
      * Method to play a sound when user receives a message.
      */
     private void notifyIncomingMessage() {
-        MediaPlayer mediaPlayer = MediaPlayer.create(mContext, R.raw.track_one);
-        //Listener for track completion
-        mediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
-            @Override
-            public void onCompletion(MediaPlayer mediaPlayer) {
-                mediaPlayer.reset();
-                mediaPlayer.release();
-                mediaPlayer = null;
-            }
-        });
-        //Play sound
-        mediaPlayer.start();
+        //Play sound if its enabled by user
+        if (mPreferenceHelper.isChatSoundEnabled()) {
+            MediaPlayer mediaPlayer = MediaPlayer.create(mContext, R.raw.sound_one);
+            //Listener for track completion
+            mediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+                @Override
+                public void onCompletion(MediaPlayer mediaPlayer) {
+                    mediaPlayer.reset();
+                    mediaPlayer.release();
+                    mediaPlayer = null;
+                }
+            });
+            //Play sound
+            mediaPlayer.start();
+        }
     }
 
+    /**
+     * Method to update chat read status on server.
+     *
+     * @param chatID  chatID of this conversation
+     * @param authKey Authentication token of user.
+     * @UUID UUID of the user.
+     */
+    private void updateChatReadStatus(String chatID, String UUID, String authKey) {
+        mCompositeDisposable.add(getupdateChatReadStatusObservable(BuildConfig.URL + "/chat-list/mark-as-read"
+                , UUID
+                , authKey
+                , chatID)
+                //Run on a background thread
+                .subscribeOn(Schedulers.io())
+                //Be notified on the main thread
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribeWith(new DisposableObserver<JSONObject>() {
+                    @Override
+                    public void onNext(JSONObject jsonObject) {
+                        //Do nothing
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        FirebaseCrash.report(e);
+                        e.printStackTrace();
+                    }
+
+                    @Override
+                    public void onComplete() {
+                        //Do nothing
+                    }
+                })
+        );
+    }
+
+    /**
+     * Method to update follow status
+     */
+    private void updateFollowStatus() {
+        FollowHelper followHelper = new FollowHelper();
+        followHelper.updateFollowStatus(mContext
+                , mCompositeDisposable
+                , mIsFollowingReceiver
+                , new JSONArray().put(mBundle.getString(EXTRA_CHAT_UUID))
+                , new listener.OnFollowRequestedListener() {
+                    @Override
+                    public void onFollowSuccess() {
+                        //Update flag
+                        mIsFollowingReceiver = !mIsFollowingReceiver;
+                        //Hide request text and follow button
+                        chatRequestContainer.setVisibility(View.GONE);
+                        //Method called
+                        updateMenuTitleText(menu);
+                    }
+
+                    @Override
+                    public void onFollowFailiure(String errorMsg) {
+                        //Show error snackBar
+                        ViewHelper.getSnackBar(rootView, errorMsg);
+                    }
+                });
+    }
 
     /**
      * This method loads data from server if user device is connected to internet.
@@ -548,8 +699,8 @@ public class ChatDetailsActivity extends BaseActivity {
         final boolean[] connectionError = {false};
 
         mCompositeDisposable.add(getChatDataObservableFromServer(BuildConfig.URL + "/chat-convo/load-messages"
+                , mBundle.getString(EXTRA_CHAT_UUID)
                 , mPreferenceHelper.getUUID()
-                , mPreferenceHelper.getAuthToken()
                 , mLastIndexKey)
                 //Run on a background thread
                 .subscribeOn(Schedulers.io())
@@ -559,8 +710,6 @@ public class ChatDetailsActivity extends BaseActivity {
                     @Override
                     public void onNext(JSONObject jsonObject) {
                         //Remove loading item
-                        // mChatList.remove(mChatList.size() - 1);
-                        //mAdapter.notifyItemRemoved(mChatList.size());
                         try {
                             //Token status is invalid
                             if (jsonObject.getString("tokenstatus").equals("invalid")) {
@@ -598,8 +747,6 @@ public class ChatDetailsActivity extends BaseActivity {
                     @Override
                     public void onError(Throwable e) {
                         //Remove loading item
-                        mChatDetailsList.remove(mChatDetailsList.size() - 1);
-                        mAdapter.notifyItemRemoved(mChatDetailsList.size());
                         FirebaseCrash.report(e);
                         //Server error Snack bar
                         ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_server));

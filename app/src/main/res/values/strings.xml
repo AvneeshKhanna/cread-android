@@ -51,6 +51,7 @@
     <string name="key_feed_item_type">meItemType</string>
     <string name="key_show_notif_indicator"></string>
     <string name="key_show_selected_font">selectedFont</string>
+    <string name="key_enable_chat_sound">enableChatSound</string>
 
 
     // dialog messages
@@ -161,5 +162,6 @@
     <string name="msg_success_comment_edit">Comment edited</string>
 
     <string name="action_text_filters">Filters</string>
+    <string name="text_follow"> \u2022 Follow</string>
 
 </resources>

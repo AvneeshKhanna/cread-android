@@ -496,4 +496,25 @@ public class SharedPreferenceHelper {
     }
 
 
+    /**
+     * Method to update chat sound enable status.
+     *
+     * @param status boolean value i.e true or false
+     */
+    public void updateChatSoundEnableStatus(boolean status) {
+        SharedPreferences.Editor editor = mSharedPreferences.edit();
+        editor.putBoolean(mContext.getString(R.string.key_enable_chat_sound), status);
+        editor.apply();
+    }
+
+    /**
+     * Method to retrieve the chat sound enable status.
+     *
+     * @return True by default
+     */
+    public boolean isChatSoundEnabled() {
+        return mSharedPreferences
+                .getBoolean(mContext.getString(R.string.key_enable_chat_sound), true);
+    }
+
 }

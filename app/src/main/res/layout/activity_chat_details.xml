@@ -1,44 +1,45 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/rootView"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <TextView
-        android:id="@+id/textRequestChat"
+    <LinearLayout
+        android:id="@+id/chatRequestContainer"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginBottom="16dp"
         android:layout_marginTop="16dp"
-        android:gravity="center"
-        android:paddingLeft="16dp"
-        android:paddingRight="16dp"
-        android:text="Follow Gaurav back to chat"
-        android:textColor="@color/grey_dark" />
+        android:gravity="center_horizontal"
+        android:orientation="horizontal"
+        android:visibility="gone">
 
-    <TextView
-        android:id="@+id/buttonFollow"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/textRequestChat"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="16dp"
-        android:background="@drawable/button_filled"
-        android:paddingBottom="8dp"
-        android:paddingLeft="24dp"
-        android:paddingRight="24dp"
-        android:paddingTop="8dp"
-        android:text="Follow"
-        android:textColor="@color/white"
-        android:textSize="12sp"
-        android:visibility="visible" />
+        <TextView
+            android:id="@+id/textRequestChat"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:text="Follow Gaurav to chat "
+            android:textColor="@color/grey_dark" />
+
+        <TextView
+            android:id="@+id/buttonFollow"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:text="@string/text_follow"
+            android:textColor="@color/blue_dark" />
+    </LinearLayout>
+
 
     <android.support.v7.widget.RecyclerView
         android:id="@+id/recyclerView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_above="@id/lineDivider"
-        tools:listitem="@layout/item_chat_details_sent" />
+        android:layout_below="@+id/chatRequestContainer"
+        android:clipToPadding="false"
+        android:paddingBottom="8dp" />
 
     <View
         android:id="@+id/lineDivider"
