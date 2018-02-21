@@ -261,4 +261,7 @@ public class Constant {
     public static final String SHORT_EXTRA_CAPTION_TEXT = "shortCaptionText";
     //endregion
 
+
+    public static final String USER_ACTION_TYPE_VIEW = "ENTITY_VIEW";
+
 }

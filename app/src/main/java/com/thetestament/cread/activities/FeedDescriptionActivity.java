@@ -1,6 +1,7 @@
 package com.thetestament.cread.activities;
 
 
+import android.content.ContentResolver;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Color;
@@ -18,6 +19,7 @@ import android.support.v4.widget.TextViewCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -28,6 +30,9 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.afollestad.materialdialogs.MaterialDialog;
+import com.androidnetworking.AndroidNetworking;
+import com.androidnetworking.error.ANError;
+import com.androidnetworking.interfaces.JSONObjectRequestListener;
 import com.google.firebase.analytics.FirebaseAnalytics;
 import com.google.firebase.crash.FirebaseCrash;
 import com.squareup.picasso.Callback;
@@ -40,6 +45,7 @@ import com.thetestament.cread.Manifest;
 import com.thetestament.cread.R;
 import com.thetestament.cread.adapters.CommentsAdapter;
 import com.thetestament.cread.adapters.ShareDialogAdapter;
+import com.thetestament.cread.database.NotificationsDBFunctions;
 import com.thetestament.cread.helpers.FeedHelper;
 import com.thetestament.cread.helpers.FollowHelper;
 import com.thetestament.cread.helpers.HatsOffHelper;
@@ -52,6 +58,8 @@ import com.thetestament.cread.listeners.listener;
 import com.thetestament.cread.listeners.listener.OnContentDeleteListener;
 import com.thetestament.cread.models.CommentsModel;
 import com.thetestament.cread.models.FeedModel;
+import com.thetestament.cread.utils.Constant;
+import com.thetestament.cread.utils.RxUtils;
 import com.yalantis.ucrop.UCrop;
 
 import org.json.JSONArray;
@@ -60,6 +68,8 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Observable;
+import java.util.concurrent.Callable;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -67,14 +77,18 @@ import butterknife.OnClick;
 import de.hdodenhof.circleimageview.CircleImageView;
 import icepick.Icepick;
 import icepick.State;
+import io.reactivex.Observer;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.CompositeDisposable;
+import io.reactivex.disposables.Disposable;
 import io.reactivex.observers.DisposableObserver;
 import io.reactivex.schedulers.Schedulers;
 import pl.tajchert.nammu.Nammu;
 import pl.tajchert.nammu.PermissionCallback;
 
 import static com.thetestament.cread.CreadApp.IMAGE_LOAD_FROM_NETWORK_FEED_DESCRIPTION;
+import static com.thetestament.cread.activities.BottomNavigationActivity.AUTHORITY;
+import static com.thetestament.cread.activities.BottomNavigationActivity.mAccount;
 import static com.thetestament.cread.dialog.DialogHelper.getDeletePostDialog;
 import static com.thetestament.cread.helpers.ContentHelper.getMenuActionsBottomSheet;
 import static com.thetestament.cread.helpers.DeletePostHelper.deletepost;
@@ -84,6 +98,7 @@ import static com.thetestament.cread.helpers.FeedHelper.initializeShareDialog;
 import static com.thetestament.cread.helpers.FeedHelper.updateDotSeperatorVisibility;
 import static com.thetestament.cread.helpers.ImageHelper.getImageUri;
 import static com.thetestament.cread.helpers.NetworkHelper.getCommentObservableFromServer;
+import static com.thetestament.cread.utils.Constant.*;
 import static com.thetestament.cread.utils.Constant.CONTENT_TYPE_CAPTURE;
 import static com.thetestament.cread.utils.Constant.CONTENT_TYPE_SHORT;
 import static com.thetestament.cread.utils.Constant.EXTRA_CAPTURE_URL;
@@ -516,6 +531,9 @@ public class FeedDescriptionActivity extends BaseActivity implements listener.On
         initResultBundle();
 
         initViewsFromData();
+
+
+        storeUserActionsData(mFeedData.getEntityID(), USER_ACTION_TYPE_VIEW);
     }
 
     /**
@@ -589,6 +607,108 @@ public class FeedDescriptionActivity extends BaseActivity implements listener.On
         toggleFollowButton(false);
         // show menu options if user is creator
         showMenuOptions();
+    }
+
+
+    private void storeUserActionsData(String entityid, String eventType)
+    {
+         RxUtils.getUserActionsDataObservable(mContext, entityid, eventType)
+                                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribeWith(new Observer() {
+
+                    @Override
+                    public void onSubscribe(Disposable d) {
+
+                        mCompositeDisposable.add(d);
+                    }
+
+                    @Override
+                    public void onNext(Object o) {
+
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+
+                    }
+
+                    @Override
+                    public void onComplete() {
+
+                        /*SharedPreferenceHelper spHelper = new SharedPreferenceHelper(mContext);
+
+                        // check whether the user is logged in
+                        if (spHelper.getUUID() != null && spHelper.getAuthToken() != null) {
+
+                            NotificationsDBFunctions notificationsDBFunctions = new NotificationsDBFunctions(mContext);
+                            notificationsDBFunctions.accessNotificationsDatabase();
+
+                            // update data on server
+                            updateDataOnServer(spHelper.getUUID(),
+                                    spHelper.getAuthToken(),
+                                    notificationsDBFunctions.getUserActionsData(spHelper.getUUID()));
+
+                        }*/
+
+                    }
+
+
+                });
+    }
+
+
+    private void updateDataOnServer(final String uuid, String authkey, JSONArray userActions) {
+
+        JSONObject jsonObject = new JSONObject();
+
+        try {
+            jsonObject.put("uuid", uuid);
+            jsonObject.put("authkey", authkey);
+            jsonObject.put("user_events", userActions);
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+            FirebaseCrash.report(e);
+        }
+
+        AndroidNetworking.post(BuildConfig.URL + "/user-events/save")
+                .addJSONObjectBody(jsonObject)
+                .build()
+                .getAsJSONObject(new JSONObjectRequestListener() {
+                    @Override
+                    public void onResponse(JSONObject response) {
+                        try {
+                            //Token status is invalid
+                            if (response.getString("tokenstatus").equals("invalid")) {
+                                // do nothing
+                            } else {
+                                JSONObject mainData = response.getJSONObject("data");
+
+                                if (mainData.getString("status").equals("done")) {
+
+                                    // data uploaded successfully
+                                    // delete users data
+                                    NotificationsDBFunctions notificationsDBFunctions = new NotificationsDBFunctions(mContext);
+                                    notificationsDBFunctions.accessNotificationsDatabase();
+
+                                    notificationsDBFunctions.deleteUserActionsData(uuid);
+
+                                }
+
+                            }
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                            FirebaseCrash.report(e);
+                        }
+                    }
+
+                    @Override
+                    public void onError(ANError anError) {
+                        anError.printStackTrace();
+                        FirebaseCrash.report(anError);
+                    }
+                });
     }
 
     /**
@@ -679,6 +799,8 @@ public class FeedDescriptionActivity extends BaseActivity implements listener.On
             }
         });
     }
+
+
 
     /**
      * Method to toggle hats off status.

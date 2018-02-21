@@ -1,5 +1,9 @@
 package com.thetestament.cread.activities;
 
+import android.accounts.Account;
+import android.accounts.AccountManager;
+import android.content.ContentResolver;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -7,6 +11,7 @@ import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.BottomNavigationView;
@@ -18,6 +23,7 @@ import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -30,6 +36,7 @@ import com.afollestad.materialdialogs.MaterialDialog;
 import com.google.firebase.analytics.FirebaseAnalytics;
 import com.google.firebase.crash.FirebaseCrash;
 import com.thetestament.cread.BuildConfig;
+import com.thetestament.cread.DataSyncAdapter.AuthenticatorService;
 import com.thetestament.cread.Manifest;
 import com.thetestament.cread.R;
 import com.thetestament.cread.database.NotificationsDBFunctions;
@@ -105,6 +112,19 @@ public class BottomNavigationActivity extends BaseActivity {
 
     View badgeView;
 
+
+    // Constants
+    // The authority for the sync adapter's content provider
+    public static final String AUTHORITY = "com.thetestament.cread.provider";
+    // An account type, in the form of a domain name
+    public static final String ACCOUNT_TYPE = "cread.com";
+    // The account name
+    public static final String ACCOUNT = "Cread";
+    // Instance fields
+    public static Account mAccount;
+
+    private static final String PREF_SETUP_COMPLETE = "setup_complete";
+
     //endregion
 
     @Override
@@ -129,6 +149,15 @@ public class BottomNavigationActivity extends BaseActivity {
             //To load appropriate screen
             loadScreen();
         }
+
+
+
+
+        // to setup account for syncadapter
+        createSyncAccount(this);
+
+
+
         //Initialize navigation view
         initBottomNavigation();
         //Method call
@@ -491,8 +520,6 @@ public class BottomNavigationActivity extends BaseActivity {
     }
 
 
-
-
     /**
      * Method to send analytics data on firebase server.
      *
@@ -734,6 +761,77 @@ public class BottomNavigationActivity extends BaseActivity {
             //Show Badge View
             badgeView.setVisibility(View.GONE);
         }
+    }
+
+
+    /**
+     * Create a new dummy account for the sync adapter
+     *
+     * @param context The application context
+     */
+    public void createSyncAccount(Context context) {
+        /*// Create the account type and default account
+        Account newAccount = new Account(
+                ACCOUNT, ACCOUNT_TYPE);
+        // Get an instance of the Android account manager
+        AccountManager accountManager =
+                (AccountManager) context.getSystemService(
+                        ACCOUNT_SERVICE);
+        *//*
+         * Add the account and account type, no password or user data
+         * If successful, return the Account object, otherwise report an error.
+         *//*
+        if (accountManager.addAccountExplicitly(newAccount, null, null)) {
+            *//*
+             * If you don't set android:syncable="true" in
+             * in your <provider> element in the manifest,
+             * then call context.setIsSyncable(account, AUTHORITY, 1)
+             * here.
+             *//*
+
+            Log.d("account", "createSyncAccount: " + newAccount);
+
+
+        } else {
+            *//*
+             * The account exists or some other error occurred. Log this, report it,
+             * or handle it internally.
+             *//*
+
+        }
+
+
+        return newAccount;*/
+
+
+        boolean newAccount = false;
+        boolean setupComplete = PreferenceManager
+                .getDefaultSharedPreferences(context).getBoolean(PREF_SETUP_COMPLETE, false);
+
+        // Create account, if it's missing. (Either first run, or user has deleted account.)
+        Account account = new Account(ACCOUNT, ACCOUNT_TYPE);
+        AccountManager accountManager =
+                (AccountManager) context.getSystemService(Context.ACCOUNT_SERVICE);
+        if (accountManager.addAccountExplicitly(account, null, null)) {
+            // Inform the system that this account supports sync
+            ContentResolver.setIsSyncable(account, AUTHORITY, 1);
+            // Inform the system that this account is eligible for auto sync when the network is up
+            ContentResolver.setSyncAutomatically(account, AUTHORITY, true);
+            // Recommend a schedule for automatic synchronization. The system may modify this based
+            // on other scheduled syncs and network utilization.
+            ContentResolver.addPeriodicSync(
+                    account, AUTHORITY, new Bundle(),30);
+            newAccount = true;
+        }
+
+        // Schedule an initial sync if we detect problems with either our account or our local
+        // data has been deleted. (Note that it's possible to clear app data WITHOUT affecting
+        // the account list, so wee need to check both.)
+        if (newAccount || !setupComplete) {
+            PreferenceManager.getDefaultSharedPreferences(context).edit()
+                    .putBoolean(PREF_SETUP_COMPLETE, true).commit();
+        }
+
     }
 
    /* private void transFormIntoSquare(int imgWidth, int imgHeight) {

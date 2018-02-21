@@ -1,10 +1,12 @@
 package com.thetestament.cread.utils;
 
+import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 import java.util.TimeZone;
 
 public class TimeUtils {
@@ -68,6 +70,20 @@ public class TimeUtils {
         SimpleDateFormat timeFormatter = new SimpleDateFormat("h:mm a");
         return timeFormatter.format(fDate);
     }
+
+    /**
+     * Return an ISO 8601 combined date and time string for specified date/time
+     *
+     * @param date
+     *            Date
+     * @return String with format "yyyy-MM-dd'T'HH:mm:ss'Z'"
+     */
+    public static String getISO8601StringForDate(Date date) {
+        DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.US);
+        dateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
+        return dateFormat.format(date);
+    }
+
 
 
 }
