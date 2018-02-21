@@ -335,4 +335,11 @@ public class listener {
         void onDelete(int index);
     }
 
+    /**
+     * Interface definition for a callback to be invoked when user scroll for more data.
+     */
+    public interface OnChatRequestLoadMoreListener {
+        void onLoadMore();
+    }
+
 }

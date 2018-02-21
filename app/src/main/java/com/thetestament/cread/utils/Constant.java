@@ -270,5 +270,10 @@ public class Constant {
     public static final String EXTRA_CHAT_DETAILS_DATA = "chatDetailsData";
     public static final String EXTRA_CHAT_LAST_MESSAGE = "chatLastMessage";
     public static final String EXTRA_CHAT_ID = "chatID";
+    public static final String EXTRA_CHAT_DETAILS_CALLED_FROM = "chatCalledFrom";
+    public static final String EXTRA_CHAT_DETAILS_CALLED_FROM_CHAT_LIST = "calledFromChatList";
+    public static final String EXTRA_CHAT_DETAILS_CALLED_FROM_CHAT_REQUEST = "calledFromChatRequest";
+    public static final String EXTRA_CHAT_DETAILS_CALLED_FROM_CHAT_PROFILE = "calledFromChatProfile";
+
     //endregion
 }

@@ -17,7 +17,7 @@ import com.google.firebase.crash.FirebaseCrash;
 import com.thetestament.cread.BuildConfig;
 import com.thetestament.cread.CreadApp;
 import com.thetestament.cread.R;
-import com.thetestament.cread.adapters.ChatListAdapter;
+import com.thetestament.cread.adapters.ChatRequestAdapter;
 import com.thetestament.cread.helpers.SharedPreferenceHelper;
 import com.thetestament.cread.helpers.ViewHelper;
 import com.thetestament.cread.listeners.listener;
@@ -68,7 +68,7 @@ public class ChatRequestActivity extends BaseActivity {
     SharedPreferenceHelper mHelper;
 
     List<ChatListModel> mChatList = new ArrayList<>();
-    ChatListAdapter mAdapter;
+    ChatRequestAdapter mAdapter;
 
     FragmentActivity mContext;
 
@@ -82,7 +82,7 @@ public class ChatRequestActivity extends BaseActivity {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_chat_list);
+        setContentView(R.layout.activity_chat_request);
         //Bind with butterKnife
         ButterKnife.bind(this);
         //Method called
@@ -135,7 +135,7 @@ public class ChatRequestActivity extends BaseActivity {
         //Set layout manger for recyclerView
         recyclerView.setLayoutManager(new LinearLayoutManager(mContext));
         //Set adapter
-        mAdapter = new ChatListAdapter(mChatList, mContext);
+        mAdapter = new ChatRequestAdapter(mChatList, mContext);
         recyclerView.setAdapter(mAdapter);
 
         //Load chat list data
@@ -173,7 +173,7 @@ public class ChatRequestActivity extends BaseActivity {
                 , mHelper.getUUID()
                 , mHelper.getAuthToken()
                 , mLastIndexKey
-                , CreadApp.GET_RESPONSE_FROM_NETWORK_CHAT_LIST)
+                , CreadApp.GET_RESPONSE_FROM_NETWORK_CHAT_REQUEST)
                 //Run on a background thread
                 .subscribeOn(Schedulers.io())
                 //Be notified on the main thread
@@ -200,7 +200,6 @@ public class ChatRequestActivity extends BaseActivity {
                                     chatListData.setReceiverName(dataObj.getString("receivername"));
                                     chatListData.setProfileImgUrl(dataObj.getString("profilepicurl"));
                                     chatListData.setChatID(dataObj.getString("chatid"));
-                                    //chatListData.setFollowStatus(dataObj.getString("status"));
                                     mChatList.add(chatListData);
                                 }
                             }
@@ -250,12 +249,12 @@ public class ChatRequestActivity extends BaseActivity {
     /**
      * Initialize load more listener.
      *
-     * @param adapter ChatListAdapter reference.
+     * @param adapter ChatRequestAdapter reference.
      */
-    private void initLoadMoreListener(ChatListAdapter adapter) {
+    private void initLoadMoreListener(ChatRequestAdapter adapter) {
 
         //Load more data listener
-        adapter.setLoadMoreListener(new listener.OnChatListLoadMoreListener() {
+        adapter.setLoadMoreListener(new listener.OnChatRequestLoadMoreListener() {
             @Override
             public void onLoadMore() {
                 //if more data is available

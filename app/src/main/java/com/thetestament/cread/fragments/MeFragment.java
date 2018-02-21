@@ -111,6 +111,8 @@ import static com.thetestament.cread.helpers.NetworkHelper.getUserDataObservable
 import static com.thetestament.cread.helpers.NetworkHelper.requestServer;
 import static com.thetestament.cread.utils.Constant.CONTENT_TYPE_CAPTURE;
 import static com.thetestament.cread.utils.Constant.CONTENT_TYPE_SHORT;
+import static com.thetestament.cread.utils.Constant.EXTRA_CHAT_DETAILS_CALLED_FROM;
+import static com.thetestament.cread.utils.Constant.EXTRA_CHAT_DETAILS_CALLED_FROM_CHAT_PROFILE;
 import static com.thetestament.cread.utils.Constant.EXTRA_CHAT_DETAILS_DATA;
 import static com.thetestament.cread.utils.Constant.EXTRA_CHAT_ID;
 import static com.thetestament.cread.utils.Constant.EXTRA_CHAT_ITEM_POSITION;
@@ -531,6 +533,7 @@ public class MeFragment extends Fragment implements listener.OnCollaborationList
             bundle.putString(EXTRA_CHAT_USER_NAME, mFirstName);
             bundle.putString(EXTRA_CHAT_ID, "");
             bundle.putInt(EXTRA_CHAT_ITEM_POSITION, 0);
+            bundle.putString(EXTRA_CHAT_DETAILS_CALLED_FROM, EXTRA_CHAT_DETAILS_CALLED_FROM_CHAT_PROFILE);
 
             intent.putExtra(EXTRA_CHAT_DETAILS_DATA, bundle);
             startActivity(intent);
