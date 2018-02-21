@@ -3,6 +3,7 @@ package com.thetestament.cread.activities;
 import android.content.Intent;
 import android.media.MediaPlayer;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.annotation.Nullable;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.content.ContextCompat;
@@ -452,7 +453,7 @@ public class ChatDetailsActivity extends BaseActivity {
         //Add data to list
         mChatDetailsList.add(model);
         //Notify item insertion
-        mAdapter.notifyItemInserted(mChatDetailsList.size() - 1);
+        mAdapter.notifyItemInserted(mChatDetailsList.size());
         // scroll to last item in the recycler view
         recyclerView.smoothScrollToPosition(mChatDetailsList.size());
 
@@ -632,6 +633,7 @@ public class ChatDetailsActivity extends BaseActivity {
                     public void onError(Throwable e) {
                         //Hide progress view
                         progressView.setVisibility(View.GONE);
+                        e.printStackTrace();
                         FirebaseCrash.report(e);
                         //Server error Snack bar
                         ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_server));
@@ -652,14 +654,18 @@ public class ChatDetailsActivity extends BaseActivity {
 
                             // show header
                             if (mRequestMoreData) {
-                                mAdapter.setLoadMoreViewVisibility((ChatDetailsAdapter.HeaderViewHolder) recyclerView.
-                                        findViewHolderForAdapterPosition(0), View.VISIBLE);
-
+                                new Handler().post(new Runnable() {
+                                                       @Override
+                                                       public void run() {
+                                                           mAdapter.setLoadMoreViewVisibility((ChatDetailsAdapter.HeaderViewHolder) recyclerView.
+                                                                   findViewHolderForAdapterPosition(0), View.VISIBLE);
+                                                       }
+                                                   }
+                                );
                             }
                             //Notify changes
                             mAdapter.notifyDataSetChanged();
                             recyclerView.smoothScrollToPosition(mChatDetailsList.size());
-
 
                         }
                     }

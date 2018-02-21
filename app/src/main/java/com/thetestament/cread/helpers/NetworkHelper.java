@@ -103,7 +103,7 @@ public class NetworkHelper {
      */
     public static Observable<JSONObject> getObservableFromServer(String serverURL, String uuid, String authKey, String lastIndexKey, boolean getResponseFromNetwork) {
 
-        // used in feed fragemnt, explore fragment and inspiration activity
+        // used in feed fragemnt, explore fragment and inspiration activity, chat list
 
         Map<String, String> header = new HashMap<>();
         header.put("uuid", uuid);
