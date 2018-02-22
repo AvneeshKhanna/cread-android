@@ -32,6 +32,7 @@ import static com.thetestament.cread.utils.Constant.NOTIFICATION_CATEGORY_CREAD_
 import static com.thetestament.cread.utils.Constant.NOTIFICATION_CATEGORY_CREAD_COLLABORATE;
 import static com.thetestament.cread.utils.Constant.NOTIFICATION_CATEGORY_CREAD_COMMENT;
 import static com.thetestament.cread.utils.Constant.NOTIFICATION_CATEGORY_CREAD_COMMENT_OTHER;
+import static com.thetestament.cread.utils.Constant.NOTIFICATION_CATEGORY_CREAD_FB_FRIEND;
 import static com.thetestament.cread.utils.Constant.NOTIFICATION_CATEGORY_CREAD_FOLLOW;
 import static com.thetestament.cread.utils.Constant.NOTIFICATION_CATEGORY_CREAD_GENERAL;
 import static com.thetestament.cread.utils.Constant.NOTIFICATION_CATEGORY_CREAD_HATSOFF;
@@ -275,6 +276,11 @@ public class UpdatesAdapter extends RecyclerView.Adapter {
                 break;
             case NOTIFICATION_CATEGORY_PROFILE_MENTION_POST:
                 message = updatesModel.getActorName() + " mentioned you in a post";
+                break;
+
+
+            case NOTIFICATION_CATEGORY_CREAD_FB_FRIEND:
+                message = "Your facebook friend " + updatesModel.getActorName() + " is now on Cread!";
                 break;
 
             default:

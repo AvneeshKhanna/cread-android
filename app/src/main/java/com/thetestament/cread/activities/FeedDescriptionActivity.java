@@ -612,49 +612,40 @@ public class FeedDescriptionActivity extends BaseActivity implements listener.On
 
     private void storeUserActionsData(String entityid, String eventType)
     {
-         RxUtils.getUserActionsDataObservable(mContext, entityid, eventType)
-                                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribeWith(new Observer() {
+        // store data only if user and creator are not same
+        if(!mFeedData.getUUID().equals(mHelper.getUUID()))
+        {
+            RxUtils.getUserActionsDataObservable(mContext, entityid, eventType)
+                    .subscribeOn(Schedulers.io())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribeWith(new Observer() {
 
-                    @Override
-                    public void onSubscribe(Disposable d) {
+                        @Override
+                        public void onSubscribe(Disposable d) {
 
-                        mCompositeDisposable.add(d);
-                    }
+                            mCompositeDisposable.add(d);
+                        }
 
-                    @Override
-                    public void onNext(Object o) {
+                        @Override
+                        public void onNext(Object o) {
 
-                    }
+                        }
 
-                    @Override
-                    public void onError(Throwable e) {
+                        @Override
+                        public void onError(Throwable e) {
 
-                    }
+                        }
 
-                    @Override
-                    public void onComplete() {
-
-                        /*SharedPreferenceHelper spHelper = new SharedPreferenceHelper(mContext);
-
-                        // check whether the user is logged in
-                        if (spHelper.getUUID() != null && spHelper.getAuthToken() != null) {
-
-                            NotificationsDBFunctions notificationsDBFunctions = new NotificationsDBFunctions(mContext);
-                            notificationsDBFunctions.accessNotificationsDatabase();
-
-                            // update data on server
-                            updateDataOnServer(spHelper.getUUID(),
-                                    spHelper.getAuthToken(),
-                                    notificationsDBFunctions.getUserActionsData(spHelper.getUUID()));
-
-                        }*/
-
-                    }
+                        @Override
+                        public void onComplete() {
 
 
-                });
+                        }
+
+
+                    });
+        }
+
     }
 
 

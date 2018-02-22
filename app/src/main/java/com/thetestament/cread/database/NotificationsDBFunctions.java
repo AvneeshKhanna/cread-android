@@ -217,18 +217,6 @@ public class NotificationsDBFunctions {
         Date date = new Date();
         String timestamp = TimeUtils.getISO8601StringForDate(date);
 
-
-        /*String insertQuery = "INSERT OR IGNORE INTO " + UserActionsDBEntry.TABLE_NAME + "( " + COLUMN_NAME_ENTITY_ID + COMMA_SEP
-                                                        + UserActionsDBEntry.COLUMN_NAME_ACTOR_ID + COMMA_SEP
-                                                        + UserActionsDBEntry.COLUMN_NAME_ACTION_TYPE + COMMA_SEP
-                                                        + UserActionsDBEntry.COLUMN_NAME_TIMESTAMP
-                                                        +" ) VALUES ( " + "'entityid'" + COMMA_SEP
-                                                        + "'spHelper.getUUID()'" + COMMA_SEP
-                                                        + "'actionType'" + COMMA_SEP
-                                                        + "'timestamp'"
-                                                        + " )" ;*/
-
-
         ContentValues contentValues = new ContentValues();
         contentValues.put(COLUMN_NAME_ENTITY_ID, entityid);
         contentValues.put(COLUMN_NAME_ACTOR_ID, spHelper.getUUID());
@@ -237,14 +225,7 @@ public class NotificationsDBFunctions {
 
         db.insertWithOnConflict(TABLE_NAME, null, contentValues, SQLiteDatabase.CONFLICT_REPLACE);
 
-
-
-
-        /*String updateQuery = "UPDATE " + UserActionsDBEntry.TABLE_NAME + " SET " + UserActionsDBEntry.COLUMN_NAME_TIMESTAMP + " = " + timestamp;
-            db.execSQL(insertQuery);
-            db.execSQL(updateQuery);*/
         db.close();
-        // do whatever you need to (i.e. db query, cursor) to fill it in
 
     }
 

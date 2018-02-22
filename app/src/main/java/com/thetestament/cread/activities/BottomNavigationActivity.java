@@ -47,6 +47,7 @@ import com.thetestament.cread.helpers.BottomNavigationViewHelper;
 import com.thetestament.cread.helpers.SharedPreferenceHelper;
 import com.thetestament.cread.helpers.ViewHelper;
 import com.thetestament.cread.listeners.listener.OnServerRequestedListener;
+import com.thetestament.cread.utils.Constant;
 import com.yalantis.ucrop.UCrop;
 
 import java.io.File;
@@ -63,6 +64,7 @@ import static com.thetestament.cread.helpers.ImageHelper.startImageCropping;
 import static com.thetestament.cread.helpers.NetworkHelper.getRestartHerokuObservable;
 import static com.thetestament.cread.helpers.NetworkHelper.requestServer;
 import static com.thetestament.cread.helpers.ViewHelper.convertToPx;
+import static com.thetestament.cread.utils.Constant.EXTRA_OPEN_SPECIFIC_BOTTOMNAV_FRAGMENT;
 import static com.thetestament.cread.utils.Constant.FIREBASE_EVENT_EXPLORE_CLICKED;
 import static com.thetestament.cread.utils.Constant.FIREBASE_EVENT_FEED_CLICKED;
 import static com.thetestament.cread.utils.Constant.FIREBASE_EVENT_NOTIFICATION_CLICKED;
@@ -150,13 +152,8 @@ public class BottomNavigationActivity extends BaseActivity {
             loadScreen();
         }
 
-
-
-
         // to setup account for syncadapter
         createSyncAccount(this);
-
-
 
         //Initialize navigation view
         initBottomNavigation();
@@ -165,10 +162,29 @@ public class BottomNavigationActivity extends BaseActivity {
     }
 
     @Override
+    protected void onResume() {
+        super.onResume();
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+    }
+
+    @Override
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
 
-        captureSendIntent(mHelper, intent);
+        // for sharing image from gallery
+        if (Intent.ACTION_SEND.equals(intent.getAction())) {
+            captureSendIntent(mHelper, intent);
+        }
+        // when new intent for specific fragment
+        else if (intent.hasExtra(EXTRA_OPEN_SPECIFIC_BOTTOMNAV_FRAGMENT)) {
+
+            initSpecificFragment(intent);
+        }
+
 
     }
 
@@ -302,15 +318,16 @@ public class BottomNavigationActivity extends BaseActivity {
      * Method to load required screen.
      */
     private void loadScreen() {
-        //When app opened normally
-        navigationView.setSelectedItemId(R.id.action_feed);
-        //To open Feed Screen
-        mCurrentFragment = new FeedFragment();
-        //Set fragment tag
-        mFragmentTag = TAG_FEED_FRAGMENT;
-        replaceFragment(mCurrentFragment, mFragmentTag, false);
 
-        mSelectedItemID = R.id.action_feed;
+        // when bottom nav opened to open specific fragment
+        if (getIntent().hasExtra(EXTRA_OPEN_SPECIFIC_BOTTOMNAV_FRAGMENT)) {
+
+            initSpecificFragment(getIntent());
+
+        } else {
+            initFeedFragment();
+        }
+
     }
 
     /**
@@ -770,39 +787,6 @@ public class BottomNavigationActivity extends BaseActivity {
      * @param context The application context
      */
     public void createSyncAccount(Context context) {
-        /*// Create the account type and default account
-        Account newAccount = new Account(
-                ACCOUNT, ACCOUNT_TYPE);
-        // Get an instance of the Android account manager
-        AccountManager accountManager =
-                (AccountManager) context.getSystemService(
-                        ACCOUNT_SERVICE);
-        *//*
-         * Add the account and account type, no password or user data
-         * If successful, return the Account object, otherwise report an error.
-         *//*
-        if (accountManager.addAccountExplicitly(newAccount, null, null)) {
-            *//*
-             * If you don't set android:syncable="true" in
-             * in your <provider> element in the manifest,
-             * then call context.setIsSyncable(account, AUTHORITY, 1)
-             * here.
-             *//*
-
-            Log.d("account", "createSyncAccount: " + newAccount);
-
-
-        } else {
-            *//*
-             * The account exists or some other error occurred. Log this, report it,
-             * or handle it internally.
-             *//*
-
-        }
-
-
-        return newAccount;*/
-
 
         boolean newAccount = false;
         boolean setupComplete = PreferenceManager
@@ -820,7 +804,7 @@ public class BottomNavigationActivity extends BaseActivity {
             // Recommend a schedule for automatic synchronization. The system may modify this based
             // on other scheduled syncs and network utilization.
             ContentResolver.addPeriodicSync(
-                    account, AUTHORITY, new Bundle(),30);
+                    account, AUTHORITY, new Bundle(), 25200);
             newAccount = true;
         }
 
@@ -832,6 +816,37 @@ public class BottomNavigationActivity extends BaseActivity {
                     .putBoolean(PREF_SETUP_COMPLETE, true).commit();
         }
 
+    }
+
+
+    private void initFeedFragment() {
+
+        //When app opened normally
+        navigationView.setSelectedItemId(R.id.action_feed);
+        //To open Feed Screen
+        mCurrentFragment = new FeedFragment();
+        //Set fragment tag
+        mFragmentTag = TAG_FEED_FRAGMENT;
+        replaceFragment(mCurrentFragment, mFragmentTag, false);
+
+        mSelectedItemID = R.id.action_feed;
+    }
+
+
+    private void initSpecificFragment(Intent intent) {
+        switch (intent.getStringExtra(EXTRA_OPEN_SPECIFIC_BOTTOMNAV_FRAGMENT)) {
+
+            case TAG_EXPLORE_FRAGMENT:
+                activateBottomNavigationItem(R.id.action_explore);
+                replaceFragment(new ExploreFragment(), Constant.TAG_EXPLORE_FRAGMENT, false);
+                break;
+            case TAG_ME_FRAGMENT:
+                break;
+            case TAG_FEED_FRAGMENT:
+                break;
+            default:
+                initFeedFragment();
+        }
     }
 
    /* private void transFormIntoSquare(int imgWidth, int imgHeight) {
