@@ -161,6 +161,7 @@ public class ChatDetailsActivity extends BaseActivity {
         //mSocket.disconnect();
         //Remove incoming message listener
         mSocket.off("send-message", inComingListener);
+        mSocket.off(Socket.EVENT_ERROR);
     }
 
     @Override
@@ -383,6 +384,13 @@ public class ChatDetailsActivity extends BaseActivity {
         //Make socket connection
         mSocket.connect();
 
+        mSocket.on(Socket.EVENT_ERROR, new Emitter.Listener() {
+            @Override
+            public void call(Object... args) {
+                //Show error message
+                ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_server));
+            }
+        });
     }
 
     /**
