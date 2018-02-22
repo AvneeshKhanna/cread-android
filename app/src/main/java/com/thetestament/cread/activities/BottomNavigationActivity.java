@@ -173,10 +173,6 @@ public class BottomNavigationActivity extends BaseActivity {
         togglePersonalChatIndicator(mHelper.getPersonalChatIndicatorStatus());
     }
 
-    @Override
-    protected void onResume() {
-        super.onResume();
-    }
 
     @Override
     protected void onStart() {
