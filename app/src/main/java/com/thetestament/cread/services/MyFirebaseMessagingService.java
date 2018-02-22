@@ -30,6 +30,7 @@ import com.thetestament.cread.activities.ChatDetailsActivity;
 import com.thetestament.cread.activities.UpdatesActivity;
 import com.thetestament.cread.fragments.SettingsFragment;
 import com.thetestament.cread.helpers.SharedPreferenceHelper;
+import com.thetestament.cread.utils.ImageRoundCorners;
 import com.thetestament.cread.utils.NotificationDataSaver;
 import com.thetestament.cread.utils.NotificationDataSaver.OnCompleteListener;
 
@@ -429,6 +430,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
                 Picasso
                         .with(getApplicationContext())
                         .load(data.get("from_profilepicurl"))
+                        .transform(new ImageRoundCorners())
                         .error(R.drawable.ic_account_circle_48)
                         .into(remoteViews, R.id.imageUser, mId, mNotification.build());
             }
