@@ -136,7 +136,8 @@ public class BottomNavigationActivity extends BaseActivity {
         initBottomNavigation();
         //Method call
         captureSendIntent(mHelper, getIntent());
-
+        //Add badge view on  me tab icon
+        addPersonalChatIndicator();
     }
 
     @Override
@@ -345,11 +346,9 @@ public class BottomNavigationActivity extends BaseActivity {
                         break;
 
                     case R.id.action_me:
-                        initMeFragment(false);
                         //if new messages are
-                        if (mHelper.getPersonalChatIndicatorStatus()) {
-                            togglePersonalChatIndicator(false);
-                        }
+                        togglePersonalChatIndicator(false);
+                        initMeFragment(false);
                         break;
                 }
                 return true;
@@ -749,12 +748,11 @@ public class BottomNavigationActivity extends BaseActivity {
         }
     }
 
+
     /**
-     * Toggle personal chat indicator.
-     *
-     * @param showIndicator Whether to show indicator or not .
+     * Method to add notification indicator to Me icon.
      */
-    private void togglePersonalChatIndicator(boolean showIndicator) {
+    private void addPersonalChatIndicator() {
         BottomNavigationMenuView bottomNavigationMenuView =
                 (BottomNavigationMenuView) navigationView.getChildAt(0);
 
@@ -763,12 +761,20 @@ public class BottomNavigationActivity extends BaseActivity {
 
         personalChatIndicator = LayoutInflater.from(this)
                 .inflate(R.layout.layout_personal_chat_indicator, bottomNavigationMenuView, false);
-
         itemView.addView(personalChatIndicator);
+    }
 
-        if (!showIndicator) {
+    /**
+     * Toggle personal chat indicator.
+     *
+     * @param showIndicator Whether to show indicator or not .
+     */
+    private void togglePersonalChatIndicator(boolean showIndicator) {
+        if (showIndicator) {
+            personalChatIndicator.findViewById(R.id.notificationsBadge).setVisibility(View.VISIBLE);
+        } else {
             //Hide personal chat indicator
-            itemView.removeView(personalChatIndicator);
+            personalChatIndicator.findViewById(R.id.notificationsBadge).setVisibility(View.GONE);
         }
     }
    /* private void transFormIntoSquare(int imgWidth, int imgHeight) {
