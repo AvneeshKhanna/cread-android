@@ -3,27 +3,54 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:padding="10dp">
+    android:paddingBottom="10dp"
+    android:paddingLeft="16dp"
+    android:paddingRight="10dp"
+    android:paddingTop="10dp">
+
+    <LinearLayout
+        android:id="@+id/creadIconContainer"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp"
+        android:orientation="horizontal">
+
+        <ImageView
+            android:id="@+id/imageCread"
+            android:layout_width="14dp"
+            android:layout_height="14dp"
+            android:src="@drawable/cread_logo" />
+
+        <TextView
+            android:id="@+id/creadText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:paddingLeft="6dp"
+            android:text="@string/text_cread_name"
+            android:textSize="12sp" />
+    </LinearLayout>
 
     <ImageView
         android:id="@+id/imageUser"
         android:layout_width="50dp"
         android:layout_height="50dp"
+        android:layout_below="@+id/creadIconContainer"
         tools:src="@tools:sample/avatars" />
 
     <TextView
         android:id="@+id/textUserName"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_below="@+id/creadIconContainer"
         android:layout_toRightOf="@id/imageUser"
         android:ellipsize="end"
         android:maxLines="1"
         android:paddingLeft="8dp"
-        android:paddingTop="8dp"
+        android:paddingTop="6dp"
         android:textColor="@color/grey_dark"
         android:textSize="16sp"
         tools:text="@tools:sample/full_names" />
-
 
     <TextView
         android:id="@+id/textUserMessage"
@@ -37,4 +64,5 @@
         android:textColor="@color/black_overlay"
         android:textSize="13sp"
         tools:text="Hello cread how are you doing?" />
+
 </RelativeLayout>

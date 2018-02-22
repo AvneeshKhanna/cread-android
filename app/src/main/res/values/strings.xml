@@ -164,5 +164,6 @@
 
     <string name="action_text_filters">Filters</string>
     <string name="text_follow"> \u2022 Follow</string>
+    <string name="text_cread_name">Cread \u2022  New message</string>
 
 </resources>
