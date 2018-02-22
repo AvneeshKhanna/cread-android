@@ -284,7 +284,7 @@ public class ChatRequestActivity extends BaseActivity {
         final boolean[] tokenError = {false};
         final boolean[] connectionError = {false};
 
-        mCompositeDisposable.add(getObservableFromServer(BuildConfig.URL + "/chat-list/list-all"
+        mCompositeDisposable.add(getObservableFromServer(BuildConfig.URL + "/chat-list/load-requests"
                 , mHelper.getUUID()
                 , mHelper.getAuthToken()
                 , mLastIndexKey
@@ -318,7 +318,7 @@ public class ChatRequestActivity extends BaseActivity {
                                     chatListData.setReceiverName(dataObj.getString("receivername"));
                                     chatListData.setProfileImgUrl(dataObj.getString("profilepicurl"));
                                     chatListData.setChatID(dataObj.getString("chatid"));
-                                    //chatListData.setFollowStatus(dataObj.getString("status"));
+
                                     mChatList.add(chatListData);
                                     //Notify changes
                                     mAdapter.notifyItemInserted(mChatList.size() - 1);
