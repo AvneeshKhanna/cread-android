@@ -1,16 +1,12 @@
 package com.thetestament.cread.fragments;
 
 import android.content.Intent;
-import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.widget.SwipeRefreshLayout;
-import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -24,21 +20,16 @@ import android.widget.RelativeLayout;
 
 import com.google.firebase.crash.FirebaseCrash;
 import com.thetestament.cread.R;
-import com.thetestament.cread.activities.CommentsActivity;
 import com.thetestament.cread.activities.FeedDescriptionActivity;
 import com.thetestament.cread.activities.ProfileActivity;
 import com.thetestament.cread.activities.RoyaltiesActivity;
 import com.thetestament.cread.adapters.UpdatesAdapter;
-import com.thetestament.cread.database.NotificationsDBHelper;
-import com.thetestament.cread.database.NotificationsDBSchema;
-import com.thetestament.cread.helpers.NetworkHelper;
 import com.thetestament.cread.helpers.SharedPreferenceHelper;
 import com.thetestament.cread.helpers.ViewHelper;
 import com.thetestament.cread.listeners.listener;
 import com.thetestament.cread.listeners.listener.OnServerRequestedListener;
 import com.thetestament.cread.models.FeedModel;
 import com.thetestament.cread.models.UpdatesModel;
-import com.thetestament.cread.utils.Constant;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -55,23 +46,12 @@ import io.reactivex.disposables.CompositeDisposable;
 
 import static com.thetestament.cread.CreadApp.GET_RESPONSE_FROM_NETWORK_ENTITY_SPECIFIC;
 import static com.thetestament.cread.CreadApp.GET_RESPONSE_FROM_NETWORK_UPDATES;
-import static com.thetestament.cread.database.NotificationsDBSchema.NotificationDBEntry.COLUMN_NAME_ACTOR_USERID;
-import static com.thetestament.cread.database.NotificationsDBSchema.NotificationDBEntry.COLUMN_NAME_CATEGORY;
-import static com.thetestament.cread.database.NotificationsDBSchema.NotificationDBEntry.COLUMN_NAME_DATE;
-import static com.thetestament.cread.database.NotificationsDBSchema.NotificationDBEntry.COLUMN_NAME_ENTITY_ID;
-import static com.thetestament.cread.database.NotificationsDBSchema.NotificationDBEntry.COLUMN_NAME_ENTITY_IMAGE;
-import static com.thetestament.cread.database.NotificationsDBSchema.NotificationDBEntry.COLUMN_NAME_MESSAGE;
-import static com.thetestament.cread.database.NotificationsDBSchema.NotificationDBEntry.COLUMN_NAME_SEEN;
-import static com.thetestament.cread.database.NotificationsDBSchema.NotificationDBEntry.COLUMN_NAME_TIME;
-import static com.thetestament.cread.database.NotificationsDBSchema.NotificationDBEntry.COLUMN_NAME_USER_IMAGE;
-import static com.thetestament.cread.database.NotificationsDBSchema.NotificationDBEntry.TABLE_NAME;
 import static com.thetestament.cread.helpers.FeedHelper.parseEntitySpecificJSON;
 import static com.thetestament.cread.helpers.NetworkHelper.getEntitySpecificObservable;
 import static com.thetestament.cread.helpers.NetworkHelper.getUpdateUnreadObservable;
 import static com.thetestament.cread.helpers.NetworkHelper.getUpdatesObservable;
 import static com.thetestament.cread.helpers.NetworkHelper.requestServer;
 import static com.thetestament.cread.utils.Constant.EXTRA_DATA;
-import static com.thetestament.cread.utils.Constant.EXTRA_ENTITY_ID;
 import static com.thetestament.cread.utils.Constant.EXTRA_FEED_DESCRIPTION_DATA;
 import static com.thetestament.cread.utils.Constant.EXTRA_FROM_UPDATES_COMMENT_MENTION;
 import static com.thetestament.cread.utils.Constant.EXTRA_PROFILE_UUID;
@@ -86,8 +66,6 @@ import static com.thetestament.cread.utils.Constant.NOTIFICATION_CATEGORY_CREAD_
 import static com.thetestament.cread.utils.Constant.NOTIFICATION_CATEGORY_CREAD_TOP_POST;
 import static com.thetestament.cread.utils.Constant.NOTIFICATION_CATEGORY_PROFILE_MENTION_COMMENT;
 import static com.thetestament.cread.utils.Constant.NOTIFICATION_CATEGORY_PROFILE_MENTION_POST;
-import static com.thetestament.cread.utils.Constant.NOTIFICATION_ID_CREAD_FB_FRIEND;
-import static com.thetestament.cread.utils.Constant.REQUEST_CODE_EDIT_POST;
 
 
 
@@ -609,8 +587,7 @@ public class UpdatesFragment extends Fragment {
     }
 
 
-    private void openProfileScreen(UpdatesModel updatesModel)
-    {
+    private void openProfileScreen(UpdatesModel updatesModel) {
         //Launch profile screen
         Intent profileIntent = new Intent(getActivity(), ProfileActivity.class);
         profileIntent.putExtra(EXTRA_PROFILE_UUID, updatesModel.getActorID());

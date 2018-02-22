@@ -35,6 +35,7 @@ import com.thetestament.cread.helpers.ViewHelper;
 import com.thetestament.cread.listeners.listener;
 import com.thetestament.cread.models.ChatDetailsModel;
 import com.thetestament.cread.utils.NotificationUtil;
+import com.thetestament.cread.utils.TimeUtils;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -42,6 +43,7 @@ import org.json.JSONObject;
 
 import java.net.URISyntaxException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import butterknife.BindView;
@@ -489,6 +491,7 @@ public class ChatDetailsActivity extends BaseActivity {
         ChatDetailsModel model = new ChatDetailsModel();
         model.setMessage(message);
         model.setChatUserType(messageType);
+        model.setTimeStamp(TimeUtils.getISO8601StringForDate(new Date()));
         //Add data to list
         mChatDetailsList.add(model);
         //Notify item insertion
@@ -640,6 +643,7 @@ public class ChatDetailsActivity extends BaseActivity {
                                 chatDetailsData.setMessage(dataObj.getString("body"));
                                 chatDetailsData.setMessageID(dataObj.getString("messageid"));
                                 chatDetailsData.setSenderUUID(dataObj.getString("from_uuid"));
+                                chatDetailsData.setTimeStamp(dataObj.getString("regdate"));
                                 mChatId = dataObj.getString("chatid");
 
                                 if (dataObj.getString("from_uuid").equals(mPreferenceHelper.getUUID())) {
@@ -765,6 +769,7 @@ public class ChatDetailsActivity extends BaseActivity {
                                 chatDetailsData.setMessage(dataObj.getString("body"));
                                 chatDetailsData.setMessageID(dataObj.getString("messageid"));
                                 chatDetailsData.setSenderUUID(dataObj.getString("from_uuid"));
+                                chatDetailsData.setTimeStamp(dataObj.getString("regdate"));
 
                                 if (dataObj.getString("from_uuid").equals(mPreferenceHelper.getUUID())) {
                                     chatDetailsData.setChatUserType(VIEW_TYPE_MESSAGE_SENT_VALUE);

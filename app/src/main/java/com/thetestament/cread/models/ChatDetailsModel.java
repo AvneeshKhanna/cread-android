@@ -8,6 +8,7 @@ public class ChatDetailsModel {
     private String message, messageID;
     private String senderUUID, receiverUUID;
     private String chatUserType;
+    private String timeStamp;
 
     public String getMessage() {
         return message;
@@ -50,4 +51,11 @@ public class ChatDetailsModel {
         this.chatUserType = chatUserType;
     }
 
+    public String getTimeStamp() {
+        return timeStamp;
+    }
+
+    public void setTimeStamp(String timeStamp) {
+        this.timeStamp = timeStamp;
+    }
 }

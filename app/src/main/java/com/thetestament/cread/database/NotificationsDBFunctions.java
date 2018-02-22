@@ -6,17 +6,11 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Looper;
 import android.os.NetworkOnMainThreadException;
-import android.support.v4.app.FragmentActivity;
-import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 
-import com.androidnetworking.AndroidNetworking;
-import com.androidnetworking.error.ANError;
-import com.androidnetworking.interfaces.JSONObjectRequestListener;
 import com.google.firebase.crash.FirebaseCrash;
 import com.thetestament.cread.BuildConfig;
 import com.thetestament.cread.database.NotificationsDBSchema.NotificationDBEntry;
-import com.thetestament.cread.helpers.NetworkHelper;
 import com.thetestament.cread.helpers.SharedPreferenceHelper;
 import com.thetestament.cread.utils.TimeUtils;
 
@@ -27,8 +21,7 @@ import org.json.JSONObject;
 import java.util.Date;
 import java.util.concurrent.Callable;
 
-import static com.thetestament.cread.database.NotificationsDBHelper.*;
-import static com.thetestament.cread.database.UserActionsDBSchema.*;
+import static com.thetestament.cread.database.UserActionsDBSchema.UserActionsDBEntry;
 import static com.thetestament.cread.database.UserActionsDBSchema.UserActionsDBEntry.COLUMN_NAME_ACTION_TYPE;
 import static com.thetestament.cread.database.UserActionsDBSchema.UserActionsDBEntry.COLUMN_NAME_ACTOR_ID;
 import static com.thetestament.cread.database.UserActionsDBSchema.UserActionsDBEntry.COLUMN_NAME_ENTITY_ID;
@@ -200,8 +193,7 @@ public class NotificationsDBFunctions {
 
     }
 
-    public void deleteUserActionsData(String userId)
-    {
+    public void deleteUserActionsData(String userId) {
         String selection = UserActionsDBEntry.COLUMN_NAME_ACTOR_ID + " = ?";
         String[] selectionArgs = {userId};
 

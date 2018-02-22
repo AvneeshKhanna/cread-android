@@ -18,6 +18,8 @@ import java.util.List;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
+import static com.thetestament.cread.utils.TimeUtils.getCustomTime;
+
 /**
  * Adapter class to provide a binding from data set to views that are displayed within a chatDetails RecyclerView.
  */
@@ -77,7 +79,7 @@ public class ChatDetailsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
 
         } */
         else {
-            return mChatDetailsList.get(position-1)
+            return mChatDetailsList.get(position - 1)
                     .getChatUserType().equals(VIEW_TYPE_MESSAGE_SENT_VALUE)
                     ? VIEW_TYPE_MESSAGE_SENT : VIEW_TYPE_MESSAGE_RECEIVED;
         }
@@ -106,15 +108,25 @@ public class ChatDetailsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
 
 
         if (holder.getItemViewType() == VIEW_TYPE_MESSAGE_SENT) {
-            ChatDetailsModel data = mChatDetailsList.get(position-1 );
+            ChatDetailsModel data = mChatDetailsList.get(position - 1);
             MessageSentViewHolder sentViewHolder = (MessageSentViewHolder) holder;
-            //set text here
+            //set message here
             sentViewHolder.textSent.setText(data.getMessage());
+            // parsing server date
+            List<String> dateList = getCustomTime(data.getTimeStamp());
+            String timeStamp = dateList.get(1) + " " + dateList.get(0) + " at " + dateList.get(3);
+            // set timestamp
+            sentViewHolder.textTimeStamp.setText(timeStamp);
         } else if (holder.getItemViewType() == VIEW_TYPE_MESSAGE_RECEIVED) {
-            ChatDetailsModel data = mChatDetailsList.get(position-1 );
+            ChatDetailsModel data = mChatDetailsList.get(position - 1);
             MessageReceivedViewHolder receivedViewHolder = (MessageReceivedViewHolder) holder;
-            //set text here
+            //set message here
             receivedViewHolder.textReceived.setText(data.getMessage());
+            // parsing server date
+            List<String> dateList = getCustomTime(data.getTimeStamp());
+            String timeStamp = dateList.get(1) + " " + dateList.get(0) + " at " + dateList.get(3);
+            // set timestamp
+            receivedViewHolder.textTimeStamp.setText(timeStamp);
         } else if (holder.getItemViewType() == VIEW_TYPE_HEADER) {
             HeaderViewHolder headerViewHolder = (HeaderViewHolder) holder;
             //Click functionality
@@ -131,7 +143,7 @@ public class ChatDetailsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
 
     @Override
     public int getItemCount() {
-        return mChatDetailsList.size()+1;
+        return mChatDetailsList.size() + 1;
     }
 
     /**
@@ -158,6 +170,8 @@ public class ChatDetailsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
     static class MessageSentViewHolder extends RecyclerView.ViewHolder {
         @BindView(R.id.textSent)
         TextView textSent;
+        @BindView(R.id.textTime)
+        TextView textTimeStamp;
 
         public MessageSentViewHolder(View itemView) {
             super(itemView);
@@ -169,6 +183,9 @@ public class ChatDetailsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
     static class MessageReceivedViewHolder extends RecyclerView.ViewHolder {
         @BindView(R.id.textReceived)
         TextView textReceived;
+        @BindView(R.id.textTime)
+        TextView textTimeStamp;
+
 
         public MessageReceivedViewHolder(View itemView) {
             super(itemView);
