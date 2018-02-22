@@ -27,6 +27,7 @@ import com.thetestament.cread.helpers.SharedPreferenceHelper;
 import com.thetestament.cread.helpers.ViewHelper;
 import com.thetestament.cread.listeners.listener;
 import com.thetestament.cread.models.ChatListModel;
+import com.thetestament.cread.utils.NotificationUtil;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -506,19 +507,26 @@ public class ChatListActivity extends BaseActivity {
                     if (mIsActivityInForground) {
                         try {
                             message = data.getString("body");
-                            //fixme filter for new chat
                             for (int i = 0; i < mChatList.size(); i++) {
                                 if (mChatList.get(i).getItemType() == ChatListAdapter.VIEW_TYPE_ITEM) {
                                     if (mChatList.get(i).getChatID().equals(data.getString("chatid"))) {
                                         mChatList.get(i).setUnreadStatus(true);
                                         mChatList.get(i).setLastMessage(message);
 
-                                        Collections.swap(mChatList, i, 0);
-                                        mAdapter.notifyItemMoved(i, 0);
-                                        mAdapter.notifyItemChanged(i);
-                                        mAdapter.notifyItemChanged(0);
-
-                                        //todo incoming messages tone
+                                        //if chat request count is zero
+                                        if (mChatRequestCount == 0) {
+                                            Collections.swap(mChatList, i, 0);
+                                            mAdapter.notifyItemMoved(i, 0);
+                                            mAdapter.notifyItemChanged(i);
+                                            mAdapter.notifyItemChanged(0);
+                                        } else {
+                                            Collections.swap(mChatList, i, 1);
+                                            mAdapter.notifyItemMoved(i, 1);
+                                            mAdapter.notifyItemChanged(i);
+                                            mAdapter.notifyItemChanged(1);
+                                        }
+                                        //Play new message sound
+                                        NotificationUtil.notifyNewMessage(mContext, mHelper);
                                         return;
                                     }
                                 }

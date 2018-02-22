@@ -1,13 +1,10 @@
 package com.thetestament.cread.activities;
 
 import android.content.Intent;
-import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.Nullable;
 import android.support.v4.app.FragmentActivity;
-import android.support.v4.app.NavUtils;
-import android.support.v4.app.TaskStackBuilder;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -36,6 +33,7 @@ import com.thetestament.cread.helpers.SharedPreferenceHelper;
 import com.thetestament.cread.helpers.ViewHelper;
 import com.thetestament.cread.listeners.listener;
 import com.thetestament.cread.models.ChatDetailsModel;
+import com.thetestament.cread.utils.NotificationUtil;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -247,7 +245,7 @@ public class ChatDetailsActivity extends BaseActivity {
             //Clear edit text
             etWriteMessage.getText().clear();
             //Play sound track
-            notifyIncomingMessage();
+            NotificationUtil.notifyNewMessage(mContext, mPreferenceHelper);
         } else {
             ViewHelper.getSnackBar(rootView
                     , "Follow " + mBundle.getString(EXTRA_CHAT_USER_NAME) + " to chat");
@@ -427,15 +425,27 @@ public class ChatDetailsActivity extends BaseActivity {
                         message = data.getString("body");
                         chatID = data.getString("chatid");
                     } catch (JSONException e) {
+                        e.printStackTrace();
+                        FirebaseCrash.report(e);
                         return;
                     }
                     if (mChatId.equals(chatID)) {
-                        //Method called
-                        notifyIncomingMessage();
+                        //Play new message sound
+                        NotificationUtil.notifyNewMessage(mContext, mPreferenceHelper);
                         // add the message to view
                         addMessage(message, VIEW_TYPE_MESSAGE_RECEIVED_VALUE);
                     } else {
-                        //todo notification code  here
+                        try {
+                            NotificationUtil.buildNotificationForPersonalChat(mContext
+                                    , data.getString("from_uuid")
+                                    , data.getString("from_name")
+                                    , chatID
+                                    , message
+                                    , mPreferenceHelper);
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                            FirebaseCrash.report(e);
+                        }
                     }
                 }
             });
@@ -481,32 +491,14 @@ public class ChatDetailsActivity extends BaseActivity {
             setResult(RESULT_OK, intent);
         }
 
-        if (mBundle.getString(EXTRA_CHAT_DETAILS_CALLED_FROM).equals(EXTRA_CHAT_DETAILS_CALLED_FROM_CHAT_NOTIFICATION)) {
-            setBackButtonBehaviour();
+        //if this screen was opened by click of notification
+        if (mBundle.getString(EXTRA_CHAT_DETAILS_CALLED_FROM)
+                .equals(EXTRA_CHAT_DETAILS_CALLED_FROM_CHAT_NOTIFICATION)) {
+            //Method called
+            NotificationUtil.getNotificationBackButtonBehaviour(ChatDetailsActivity.this);
         }
         //Navigate back to previous screen
         finish();
-    }
-
-    /**
-     * Method to play a sound when user receives a message.
-     */
-    private void notifyIncomingMessage() {
-        //Play sound if its enabled by user
-        if (mPreferenceHelper.isChatSoundEnabled()) {
-            MediaPlayer mediaPlayer = MediaPlayer.create(mContext, R.raw.sound_one);
-            //Listener for track completion
-            mediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
-                @Override
-                public void onCompletion(MediaPlayer mediaPlayer) {
-                    mediaPlayer.reset();
-                    mediaPlayer.release();
-                    mediaPlayer = null;
-                }
-            });
-            //Play sound
-            mediaPlayer.start();
-        }
     }
 
     /**
@@ -794,24 +786,5 @@ public class ChatDetailsActivity extends BaseActivity {
         );
     }
 
-    /**
-     * Method to set back
-     */
-    private void setBackButtonBehaviour() {
-        Intent upIntent = NavUtils.getParentActivityIntent(this);
-        if (NavUtils.shouldUpRecreateTask(this, upIntent) || isTaskRoot()) {
-            // This activity is NOT part of this app's task, so create a new task
-            // when navigating up, with a synthesized back stack.
-            TaskStackBuilder.create(this)
-                    // Add all of this activity's parents to the back stack
-                    .addNextIntentWithParentStack(upIntent)
-                    // Navigate up to the closest parent
-                    .startActivities();
-        } else {
-            // This activity is part of this app's task, so simply
-            // navigate up to the logical parent activity.
-            NavUtils.navigateUpTo(this, upIntent);
-        }
-    }
     //endregion
 }
