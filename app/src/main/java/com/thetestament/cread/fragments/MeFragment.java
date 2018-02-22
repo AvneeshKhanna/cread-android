@@ -3,6 +3,7 @@ package com.thetestament.cread.fragments;
 import android.app.ActivityOptions;
 import android.content.Context;
 import android.content.Intent;
+import android.content.res.ColorStateList;
 import android.graphics.Bitmap;
 import android.graphics.PorterDuff;
 import android.net.Uri;
@@ -12,11 +13,13 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.CoordinatorLayout;
+import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.view.ViewCompat;
 import android.support.v4.widget.SwipeRefreshLayout;
+import android.support.v7.widget.AppCompatImageView;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -45,6 +48,8 @@ import com.thetestament.cread.BuildConfig;
 import com.thetestament.cread.Manifest;
 import com.thetestament.cread.R;
 import com.thetestament.cread.activities.BottomNavigationActivity;
+import com.thetestament.cread.activities.ChatDetailsActivity;
+import com.thetestament.cread.activities.ChatListActivity;
 import com.thetestament.cread.activities.FollowActivity;
 import com.thetestament.cread.activities.RoyaltiesActivity;
 import com.thetestament.cread.activities.UpdateProfileDetailsActivity;
@@ -107,6 +112,13 @@ import static com.thetestament.cread.helpers.NetworkHelper.getUserDataObservable
 import static com.thetestament.cread.helpers.NetworkHelper.requestServer;
 import static com.thetestament.cread.utils.Constant.CONTENT_TYPE_CAPTURE;
 import static com.thetestament.cread.utils.Constant.CONTENT_TYPE_SHORT;
+import static com.thetestament.cread.utils.Constant.EXTRA_CHAT_DETAILS_CALLED_FROM;
+import static com.thetestament.cread.utils.Constant.EXTRA_CHAT_DETAILS_CALLED_FROM_CHAT_PROFILE;
+import static com.thetestament.cread.utils.Constant.EXTRA_CHAT_DETAILS_DATA;
+import static com.thetestament.cread.utils.Constant.EXTRA_CHAT_ID;
+import static com.thetestament.cread.utils.Constant.EXTRA_CHAT_ITEM_POSITION;
+import static com.thetestament.cread.utils.Constant.EXTRA_CHAT_USER_NAME;
+import static com.thetestament.cread.utils.Constant.EXTRA_CHAT_UUID;
 import static com.thetestament.cread.utils.Constant.EXTRA_DATA;
 import static com.thetestament.cread.utils.Constant.EXTRA_FOLLOW_REQUESTED_UUID;
 import static com.thetestament.cread.utils.Constant.EXTRA_FOLLOW_TYPE;
@@ -166,6 +178,12 @@ public class MeFragment extends Fragment implements listener.OnCollaborationList
     LinearLayout viewNoData;
     @BindView(R.id.progressView)
     View progressView;
+    @BindView(R.id.fabChat)
+    FloatingActionButton fabChat;
+    @BindView(R.id.buttonMessage)
+    AppCompatImageView buttonMessage;
+    @BindView(R.id.containerMessage)
+    LinearLayout containerMessage;
 
     //Chat badge view
     View badgeView;
@@ -375,7 +393,6 @@ public class MeFragment extends Fragment implements listener.OnCollaborationList
         }
     }
 
-
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
 
@@ -476,8 +493,10 @@ public class MeFragment extends Fragment implements listener.OnCollaborationList
             buttonFollow.setEnabled(false);
             //set status to true if its false and vice versa
             mFollowStatus = !mFollowStatus;
-            //toggle follow button
+            //toggle follow and message button
             toggleFollowButton(mFollowStatus, getActivity());
+            toggleMessageButton(mFollowStatus, getActivity());
+
             //Update status on server
             updateFollowStatus();
 
@@ -487,6 +506,48 @@ public class MeFragment extends Fragment implements listener.OnCollaborationList
             FirebaseAnalytics.getInstance(getActivity()).logEvent(FIREBASE_EVENT_FOLLOW_FROM_PROFILE, bundle);
         } else {
             ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_no_connection));
+        }
+    }
+
+    /**
+     * Click functionality to open a chat list screen.
+     */
+    @OnClick(R.id.fabChat)
+    void fabOnClick() {
+        //Open chat list activity
+        Intent intent = new Intent(getActivity(), ChatListActivity.class);
+        startActivity(intent);
+        //if new  message is present
+        if (mHelper.getPersonalChatIndicatorStatus()) {
+            //Change FAB  background color to color accent
+            fabChat.setBackgroundTintList(ColorStateList.valueOf(ContextCompat.getColor(getActivity()
+                    , R.color.colorAccent)));
+            //update flags in SharedPreference
+            mHelper.setPersonalChatIndicatorStatus(false);
+        }
+    }
+
+    /**
+     * Click functionality of message button.
+     */
+    @OnClick(R.id.buttonMessage)
+    void messageOnClick() {
+        //if user is following the user
+        if (mFollowStatus) {
+            //Open ChatDetailsActivity
+            Intent intent = new Intent(getActivity(), ChatDetailsActivity.class);
+            //Set bundle data
+            Bundle bundle = new Bundle();
+            bundle.putString(EXTRA_CHAT_UUID, mRequestedUUID);
+            bundle.putString(EXTRA_CHAT_USER_NAME, mFirstName);
+            bundle.putString(EXTRA_CHAT_ID, "");
+            bundle.putInt(EXTRA_CHAT_ITEM_POSITION, 0);
+            bundle.putString(EXTRA_CHAT_DETAILS_CALLED_FROM, EXTRA_CHAT_DETAILS_CALLED_FROM_CHAT_PROFILE);
+
+            intent.putExtra(EXTRA_CHAT_DETAILS_DATA, bundle);
+            startActivity(intent);
+        } else {
+            ViewHelper.getSnackBar(rootView, "Follow this person to chat");
         }
     }
 
@@ -527,7 +588,6 @@ public class MeFragment extends Fragment implements listener.OnCollaborationList
         ((BottomNavigationActivity) getActivity()).getAddContentBottomSheetDialog();
     }
 
-
     /**
      * Method to initialize views for this screen.
      */
@@ -551,13 +611,22 @@ public class MeFragment extends Fragment implements listener.OnCollaborationList
             isProfileEditable = false;
         }
 
-        //Condition to  toggle visibility of follow button
+        //Condition to toggle visibility of follow button and cha list icon
         if (mHelper.getUUID().equals(mRequestedUUID)) {
             //Hide follow button
             buttonFollow.setVisibility(View.GONE);
+            //Hide message button and container
+            buttonMessage.setVisibility(View.GONE);
+            containerMessage.setVisibility(View.GONE);
+            //Show chat FAB
+            fabChat.setVisibility(View.VISIBLE);
+            //Fab custom behaviour
+            getFabCustomBehaviour(recyclerView);
         } else {
             //Show follow button
             buttonFollow.setVisibility(View.VISIBLE);
+            //Hide chat FAB
+            fabChat.setVisibility(View.GONE);
         }
 
 
@@ -888,8 +957,10 @@ public class MeFragment extends Fragment implements listener.OnCollaborationList
                                 }
                             }
 
-                            //Toggle follow button
+                            //toggle follow and message button
                             toggleFollowButton(mFollowStatus, getActivity());
+                            toggleMessageButton(mFollowStatus, getActivity());
+
                             appBarLayout.setVisibility(View.VISIBLE);
 
                             // check if screen open for first time
@@ -921,6 +992,32 @@ public class MeFragment extends Fragment implements listener.OnCollaborationList
     }
 
     /**
+     * Method to toggle message button tint color and background.
+     *
+     * @param followStatus true if following false otherwise.
+     * @param context      Context to use
+     */
+    private void toggleMessageButton(boolean followStatus, Context context) {
+        if (followStatus) {
+            //Update background color
+            ViewCompat.setBackground(buttonMessage
+                    , ContextCompat.getDrawable(context
+                            , R.drawable.button_outline));
+            //Update image tint
+            buttonMessage.setColorFilter(ContextCompat.getColor(context
+                    , R.color.grey_dark));
+        } else {
+            //Update background color
+            ViewCompat.setBackground(buttonMessage
+                    , ContextCompat.getDrawable(context
+                            , R.drawable.button_filled));
+            //Update image tint
+            buttonMessage.setColorFilter(ContextCompat.getColor(context
+                    , R.color.white));
+        }
+    }
+
+    /**
      * Method to toggle follow button text color , text and background.
      *
      * @param followStatus true if following false otherwise.
@@ -947,6 +1044,7 @@ public class MeFragment extends Fragment implements listener.OnCollaborationList
             buttonFollow.setText("Follow");
         }
     }
+
 
     /**
      * Method to get WRITE_EXTERNAL_STORAGE permission and perform specified operation.
@@ -1045,8 +1143,9 @@ public class MeFragment extends Fragment implements listener.OnCollaborationList
                         buttonFollow.setEnabled(true);
                         //set status to true if its false and vice versa
                         mFollowStatus = !mFollowStatus;
-                        //toggle follow button
+                        //toggle follow and message button
                         toggleFollowButton(mFollowStatus, getActivity());
+                        toggleMessageButton(mFollowStatus, getActivity());
 
                         ViewHelper.getSnackBar(rootView, errorMsg);
                     }
@@ -2109,6 +2208,34 @@ public class MeFragment extends Fragment implements listener.OnCollaborationList
             //Show Badge View
             badgeView.setVisibility(View.VISIBLE);
         }
+    }
+
+    /**
+     * Method to hide and show the FAB depending upon scrolling behaviour of user.
+     *
+     * @param recyclerView View to be scrolled.
+     */
+    private void getFabCustomBehaviour(RecyclerView recyclerView) {
+        //if new message is present
+        if (mHelper.getPersonalChatIndicatorStatus()) {
+            //change fab background color to green
+            fabChat.setBackgroundTintList(ColorStateList.valueOf(ContextCompat.getColor(getActivity()
+                    , R.color.green)));
+        }
+        recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+                super.onScrolled(recyclerView, dx, dy);
+                //Scroll Down
+                if (dy > 0 && fabChat.getVisibility() == View.VISIBLE) {
+                    fabChat.hide();
+                }
+                //Scroll Up
+                else if (dy < 0 && fabChat.getVisibility() != View.VISIBLE) {
+                    fabChat.show();
+                }
+            }
+        });
     }
 
 }

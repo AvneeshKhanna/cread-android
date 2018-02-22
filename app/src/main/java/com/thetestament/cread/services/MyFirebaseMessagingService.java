@@ -11,17 +11,23 @@ import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.preference.PreferenceManager;
 import android.support.v4.app.NotificationCompat;
+import android.support.v4.content.ContextCompat;
 import android.text.TextUtils;
 import android.util.Log;
+import android.widget.RemoteViews;
 
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
+import com.squareup.picasso.Picasso;
 import com.thetestament.cread.BuildConfig;
 import com.thetestament.cread.R;
 import com.thetestament.cread.activities.BottomNavigationActivity;
 import com.thetestament.cread.activities.ProfileActivity;
+import com.thetestament.cread.activities.ChatDetailsActivity;
 import com.thetestament.cread.activities.UpdatesActivity;
 import com.thetestament.cread.fragments.SettingsFragment;
 import com.thetestament.cread.helpers.SharedPreferenceHelper;
@@ -33,6 +39,8 @@ import java.util.Map;
 import io.smooch.ui.ConversationActivity;
 
 import static android.support.v4.app.NotificationManagerCompat.IMPORTANCE_HIGH;
+import static com.thetestament.cread.CreadApp.GET_RESPONSE_FROM_NETWORK_CHAT_DETAILS;
+import static com.thetestament.cread.CreadApp.GET_RESPONSE_FROM_NETWORK_CHAT_LIST;
 import static com.thetestament.cread.CreadApp.GET_RESPONSE_FROM_NETWORK_COLLABORATION_DETAILS;
 import static com.thetestament.cread.CreadApp.GET_RESPONSE_FROM_NETWORK_COMMENTS;
 import static com.thetestament.cread.CreadApp.GET_RESPONSE_FROM_NETWORK_ENTITY_SPECIFIC;
@@ -46,6 +54,13 @@ import static com.thetestament.cread.CreadApp.GET_RESPONSE_FROM_NETWORK_ME;
 import static com.thetestament.cread.CreadApp.GET_RESPONSE_FROM_NETWORK_UPDATES;
 import static com.thetestament.cread.utils.Constant.EXTRA_OPEN_SPECIFIC_BOTTOMNAV_FRAGMENT;
 import static com.thetestament.cread.utils.Constant.EXTRA_PROFILE_UUID;
+import static com.thetestament.cread.utils.Constant.EXTRA_CHAT_DETAILS_CALLED_FROM;
+import static com.thetestament.cread.utils.Constant.EXTRA_CHAT_DETAILS_CALLED_FROM_CHAT_NOTIFICATION;
+import static com.thetestament.cread.utils.Constant.EXTRA_CHAT_DETAILS_DATA;
+import static com.thetestament.cread.utils.Constant.EXTRA_CHAT_ID;
+import static com.thetestament.cread.utils.Constant.EXTRA_CHAT_ITEM_POSITION;
+import static com.thetestament.cread.utils.Constant.EXTRA_CHAT_USER_NAME;
+import static com.thetestament.cread.utils.Constant.EXTRA_CHAT_UUID;
 import static com.thetestament.cread.utils.Constant.NOTIFICATION_BUNDLE_DATA_ACTOR_ID;
 import static com.thetestament.cread.utils.Constant.NOTIFICATION_BUNDLE_DATA_ACTOR_IMAGE;
 import static com.thetestament.cread.utils.Constant.NOTIFICATION_BUNDLE_DATA_CATEGORY;
@@ -65,6 +80,7 @@ import static com.thetestament.cread.utils.Constant.NOTIFICATION_CATEGORY_CREAD_
 import static com.thetestament.cread.utils.Constant.NOTIFICATION_CATEGORY_CREAD_TEAM_CHAT;
 import static com.thetestament.cread.utils.Constant.NOTIFICATION_CATEGORY_CREAD_TOP_POST;
 import static com.thetestament.cread.utils.Constant.NOTIFICATION_CATEGORY_ENGAGEMENT_NOTIFICATIONS;
+import static com.thetestament.cread.utils.Constant.NOTIFICATION_CATEGORY_PERSONAL_CHAT_MESSAGE;
 import static com.thetestament.cread.utils.Constant.NOTIFICATION_CATEGORY_PROFILE_MENTION_COMMENT;
 import static com.thetestament.cread.utils.Constant.NOTIFICATION_CATEGORY_PROFILE_MENTION_POST;
 import static com.thetestament.cread.utils.Constant.NOTIFICATION_CHANNEL_GENERAL;
@@ -79,6 +95,7 @@ import static com.thetestament.cread.utils.Constant.NOTIFICATION_ID_CREAD_HATSOF
 import static com.thetestament.cread.utils.Constant.NOTIFICATION_ID_CREAD_TEAM_CHAT;
 import static com.thetestament.cread.utils.Constant.NOTIFICATION_ID_CREAD_TOP_POST;
 import static com.thetestament.cread.utils.Constant.NOTIFICATION_ID_ENGAGEMENT_NOTIFICATIONS;
+import static com.thetestament.cread.utils.Constant.NOTIFICATION_ID_PERSONAL_CHAT_MESSAGE;
 import static com.thetestament.cread.utils.Constant.NOTIFICATION_ID_PROFILE_MENTION_COMMENT;
 import static com.thetestament.cread.utils.Constant.NOTIFICATION_ID_PROFILE_MENTION_POST;
 import static com.thetestament.cread.utils.Constant.TAG_EXPLORE_FRAGMENT;
@@ -280,6 +297,25 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
 
 
 
+            case NOTIFICATION_CATEGORY_PERSONAL_CHAT_MESSAGE:
+                mId = NOTIFICATION_ID_PERSONAL_CHAT_MESSAGE;
+                intent = new Intent(this, ChatDetailsActivity.class);
+                intent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
+
+                //Set bundle data
+                Bundle bundle = new Bundle();
+                bundle.putString(EXTRA_CHAT_UUID, data.get("from_uuid"));
+                bundle.putString(EXTRA_CHAT_USER_NAME, data.get("from_name"));
+                bundle.putString(EXTRA_CHAT_ID, data.get("chatid"));
+                bundle.putInt(EXTRA_CHAT_ITEM_POSITION, 0);
+                bundle.putString(EXTRA_CHAT_DETAILS_CALLED_FROM, EXTRA_CHAT_DETAILS_CALLED_FROM_CHAT_NOTIFICATION);
+                intent.putExtra(EXTRA_CHAT_DETAILS_DATA, bundle);
+                //Update flags
+                GET_RESPONSE_FROM_NETWORK_CHAT_LIST = true;
+                GET_RESPONSE_FROM_NETWORK_CHAT_DETAILS = true;
+                //set personal chat indicator status
+                spHelper.setPersonalChatIndicatorStatus(true);
+                break;
             default:
                 isValidCategory = false;
                 break;
@@ -311,7 +347,12 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
 
                 if (!key_settings_notifications) {
                 } else {
-                    buildNotification(message, mId, intent);
+                    //If notification is from personal chat
+                    if (category.equals(NOTIFICATION_CATEGORY_PERSONAL_CHAT_MESSAGE)) {
+                        buildNotificationForPersonalChat(message, mId, intent);
+                    } else {
+                        buildNotification(message, mId, intent);
+                    }
                 }
             }
         });
@@ -335,7 +376,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
      * @param message Message to be displayed in notification
      * @param mId     id for notification*
      */
-    private void buildNotification(String message, int mId, Intent intent) {
+    private void buildNotification(String message, final int mId, Intent intent) {
 
         PendingIntent pendingIntent =
                 PendingIntent.getActivity(
@@ -371,6 +412,67 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
         notificationManager.notify(mId, mNotification.build());
     }
 
+
+    /**
+     * Method to shoot notification.
+     *
+     * @param message Message to be displayed in notification
+     * @param mId     id for notification*
+     */
+    private void buildNotificationForPersonalChat(String message, final int mId, Intent intent) {
+
+        PendingIntent pendingIntent =
+                PendingIntent.getActivity(
+                        this,
+                        0,
+                        intent,
+                        PendingIntent.FLAG_UPDATE_CURRENT);
+
+
+        if (Build.VERSION.SDK_INT >= 26) {
+            createNotificationChannel();
+        }
+
+        // create RemoteView
+        final RemoteViews remoteViews = new RemoteViews(getPackageName(), R.layout.layout_notification_personal_chat);
+        remoteViews.setImageViewResource(R.id.imageUser, R.drawable.ic_account_circle_48);
+        remoteViews.setTextViewText(R.id.textUserName, data.get("from_name"));
+        remoteViews.setTextViewText(R.id.textUserMessage, message);
+        remoteViews.setTextColor(R.id.textUserName, ContextCompat.getColor(getApplicationContext(), R.color.grey_dark));
+        remoteViews.setTextColor(R.id.textUserMessage, ContextCompat.getColor(getApplicationContext(), R.color.black_overlay));
+
+        final NotificationCompat.Builder mNotification =
+                new NotificationCompat.Builder(this, NOTIFICATION_CHANNEL_GENERAL)
+                        .setContentTitle(data.get("from_name"))
+                        .setSmallIcon(R.drawable.ic_stat_cread_logo)
+                        .setContentText(message)
+                        .setContent(remoteViews)
+                        .setContentIntent(pendingIntent)
+                        .setAutoCancel(true)
+                        .setDefaults(Notification.DEFAULT_ALL)
+                        .setPriority(IMPORTANCE_HIGH);
+
+
+        // To push notification from background thread
+        Handler handler = new Handler(Looper.getMainLooper());
+        handler.post(new Runnable() {
+            @Override
+            public void run() {
+                Picasso
+                        .with(getApplicationContext())
+                        .load(data.get("from_profilepicurl"))
+                        .error(R.drawable.ic_account_circle_48)
+                        .into(remoteViews, R.id.imageUser, mId, mNotification.build());
+            }
+        });
+
+
+        // Gets an instance of the NotificationManager service
+        NotificationManager notificationManager =
+                (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+        // Builds the notification and issues it.
+        notificationManager.notify(mId, mNotification.build());
+    }
 
     /**
      * creates a notification channel

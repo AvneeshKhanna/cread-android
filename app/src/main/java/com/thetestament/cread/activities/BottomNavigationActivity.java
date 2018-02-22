@@ -9,11 +9,12 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.design.internal.BottomNavigationItemView;
+import android.support.design.internal.BottomNavigationMenuView;
 import android.support.design.widget.BottomNavigationView;
 import android.support.design.widget.BottomSheetDialog;
 import android.support.design.widget.CoordinatorLayout;
@@ -24,6 +25,7 @@ import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -39,7 +41,6 @@ import com.thetestament.cread.BuildConfig;
 import com.thetestament.cread.DataSyncAdapter.AuthenticatorService;
 import com.thetestament.cread.Manifest;
 import com.thetestament.cread.R;
-import com.thetestament.cread.database.NotificationsDBFunctions;
 import com.thetestament.cread.fragments.ExploreFragment;
 import com.thetestament.cread.fragments.FeedFragment;
 import com.thetestament.cread.fragments.MeFragment;
@@ -102,6 +103,8 @@ public class BottomNavigationActivity extends BaseActivity {
     String mFragmentTag;
     Fragment mCurrentFragment;
 
+    View personalChatIndicator;
+
     @State
     int mSelectedItemID;
 
@@ -159,6 +162,15 @@ public class BottomNavigationActivity extends BaseActivity {
         initBottomNavigation();
         //Method call
         captureSendIntent(mHelper, getIntent());
+        //Add badge view on  me tab icon
+        addPersonalChatIndicator();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        //Toggle personal chat indicator
+        togglePersonalChatIndicator(mHelper.getPersonalChatIndicatorStatus());
     }
 
     @Override
@@ -380,6 +392,8 @@ public class BottomNavigationActivity extends BaseActivity {
                         break;
 
                     case R.id.action_me:
+                        //if new messages are
+                        togglePersonalChatIndicator(false);
                         initMeFragment(false);
                         break;
                 }
@@ -849,6 +863,35 @@ public class BottomNavigationActivity extends BaseActivity {
         }
     }
 
+
+    /**
+     * Method to add notification indicator to Me icon.
+     */
+    private void addPersonalChatIndicator() {
+        BottomNavigationMenuView bottomNavigationMenuView =
+                (BottomNavigationMenuView) navigationView.getChildAt(0);
+
+        View v = bottomNavigationMenuView.getChildAt(3);
+        BottomNavigationItemView itemView = (BottomNavigationItemView) v;
+
+        personalChatIndicator = LayoutInflater.from(this)
+                .inflate(R.layout.layout_personal_chat_indicator, bottomNavigationMenuView, false);
+        itemView.addView(personalChatIndicator);
+    }
+
+    /**
+     * Toggle personal chat indicator.
+     *
+     * @param showIndicator Whether to show indicator or not .
+     */
+    private void togglePersonalChatIndicator(boolean showIndicator) {
+        if (showIndicator) {
+            personalChatIndicator.findViewById(R.id.notificationsBadge).setVisibility(View.VISIBLE);
+        } else {
+            //Hide personal chat indicator
+            personalChatIndicator.findViewById(R.id.notificationsBadge).setVisibility(View.GONE);
+        }
+    }
    /* private void transFormIntoSquare(int imgWidth, int imgHeight) {
         int squareSize = 650;
 

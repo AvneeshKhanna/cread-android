@@ -26,6 +26,7 @@ import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.observers.DisposableObserver;
 import io.reactivex.schedulers.Schedulers;
 
+import static com.thetestament.cread.CreadApp.GET_RESPONSE_FROM_NETWORK_CHAT_DETAILS;
 import static com.thetestament.cread.CreadApp.GET_RESPONSE_FROM_NETWORK_COMMENTS;
 import static com.thetestament.cread.CreadApp.GET_RESPONSE_FROM_NETWORK_ENTITY_SPECIFIC;
 import static com.thetestament.cread.CreadApp.GET_RESPONSE_FROM_NETWORK_HATSOFF;
@@ -102,7 +103,7 @@ public class NetworkHelper {
      */
     public static Observable<JSONObject> getObservableFromServer(String serverURL, String uuid, String authKey, String lastIndexKey, boolean getResponseFromNetwork) {
 
-        // used in feed fragemnt, explore fragment and inspiration activity
+        // used in feed fragemnt, explore fragment and inspiration activity, chat list
 
         Map<String, String> header = new HashMap<>();
         header.put("uuid", uuid);
@@ -487,6 +488,83 @@ public class NetworkHelper {
         } else {
             listener.onDeviceOffline();
         }
+    }
+
+
+    /**
+     * Method to return chat details data from the server.
+     *
+     * @param serverURL    URL of the server.
+     * @param receiverUUID UUID of the message receiver.
+     * @param senderUUID   UUID of message sender.
+     * @param lastIndexKey Last index key.
+     */
+    public static Observable<JSONObject> getChatDataObservableFromServer(String serverURL, String receiverUUID, String senderUUID, String lastIndexKey) {
+        Map<String, String> queryParams = new HashMap<>();
+        queryParams.put("to_uuid", receiverUUID);
+        queryParams.put("from_uuid", senderUUID);
+        queryParams.put("lastindexkey", lastIndexKey);
+
+        Rx2ANRequest.GetRequestBuilder requestBuilder = Rx2AndroidNetworking.get(serverURL)
+                .addQueryParameter(queryParams);
+        //if true then load data from network
+        if (GET_RESPONSE_FROM_NETWORK_CHAT_DETAILS) {
+            requestBuilder.getResponseOnlyFromNetwork();
+        }
+
+        return requestBuilder
+                .build()
+                .getJSONObjectObservable();
+    }
+
+
+    /**
+     * Method to return chat request count from the server.
+     *
+     * @param uuid      UUID of user
+     * @param serverURL URL of the server.
+     */
+    public static Observable<JSONObject> getChatRequestCountObservableFromServer(String serverURL, String uuid, boolean getResponseFromNetwork) {
+
+        Map<String, String> header = new HashMap<>();
+        header.put("uuid", uuid);
+
+        Rx2ANRequest.GetRequestBuilder requestBuilder = Rx2AndroidNetworking.get(serverURL)
+                .addHeaders(header)
+                .addQueryParameter(Constant.PLATFORM_KEY, Constant.PLATFORM_VALUE);
+
+        if (getResponseFromNetwork) {
+            requestBuilder.getResponseOnlyFromNetwork();
+        }
+
+        return requestBuilder.build().getJSONObjectObservable();
+    }
+
+
+    /**
+     * Method to return data from the server.
+     *
+     * @param serverURL URL of the server.
+     * @param uuid      UUID of the user.
+     * @param authKey   AuthKey of user.
+     * @param chatID    chat ID of conversation.
+     */
+    public static Observable<JSONObject> getupdateChatReadStatusObservable(String serverURL, String uuid, String authKey, String chatID) {
+
+        JSONObject jsonObject = new JSONObject();
+        try {
+            jsonObject.put("uuid", uuid);
+            jsonObject.put("authkey", authKey);
+            jsonObject.put("chatid", chatID);
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+            FirebaseCrash.report(e);
+        }
+        return Rx2AndroidNetworking.post(serverURL)
+                .addJSONObjectBody(jsonObject)
+                .build()
+                .getJSONObjectObservable();
     }
 
 }

@@ -4,7 +4,8 @@ package com.thetestament.cread.utils;
 public class Constant {
     public static final String MINIMUM_APP_VERSION_KEY = "minimum_app_version";
 
-    //region :Platform key and value con
+
+    //region :Platform key and value constant
     public static final String PLATFORM_KEY = "platform";
     public static final String PLATFORM_VALUE = "android";
     //endregion
@@ -29,6 +30,7 @@ public class Constant {
     public static final int REQUEST_CODE_PREVIEW_ACTIVITY = 1011;
     public static final int REQUEST_CODE_EDIT_POST = 1012;
     public static final int REQUEST_CODE_COMMENT_MENTION = 1013;
+    public static final int REQUEST_CODE_CHAT_DETAILS = 1014;
     //public static final int REQUEST_CODE_EDIT_SHORT = 1013;
     //endregion
 
@@ -151,6 +153,7 @@ public class Constant {
     public static final String NOTIFICATION_CATEGORY_PROFILE_MENTION_COMMENT = "profile-mention-comment";
     public static final String NOTIFICATION_CATEGORY_ENGAGEMENT_NOTIFICATIONS = "engagement-notification";
     public static final String NOTIFICATION_CATEGORY_CREAD_FB_FRIEND = "fb-friend-new";
+    public static final String NOTIFICATION_CATEGORY_PERSONAL_CHAT_MESSAGE = "personal-chat";
 
     //Notification id cread
     public static final int NOTIFICATION_ID_CREAD_FOLLOW = 1000;
@@ -164,8 +167,10 @@ public class Constant {
     public static final int NOTIFICATION_ID_CREAD_TEAM_CHAT = 1008;
     public static final int NOTIFICATION_ID_PROFILE_MENTION_POST = 1009;
     public static final int NOTIFICATION_ID_PROFILE_MENTION_COMMENT = 1010;
+    public static final int NOTIFICATION_ID_PERSONAL_CHAT_MESSAGE = 1011;
     public static final int NOTIFICATION_ID_ENGAGEMENT_NOTIFICATIONS = 1012;
     public static final int NOTIFICATION_ID_CREAD_FB_FRIEND = 1013;
+
 
     public static final String NOTIFICATION_CHANNEL_GENERAL = "generalNotificationChannel";
 
@@ -270,4 +275,18 @@ public class Constant {
 
     public static final String USER_ACTION_TYPE_VIEW = "ENTITY_VIEW";
 
+    //region :Data for chat details screen
+    public static final String EXTRA_CHAT_UUID = "chatUUID";
+    public static final String EXTRA_CHAT_USER_NAME = "chatUserName";
+    public static final String EXTRA_CHAT_ITEM_POSITION = "chatItemPosition";
+    public static final String EXTRA_CHAT_DETAILS_DATA = "chatDetailsData";
+    public static final String EXTRA_CHAT_LAST_MESSAGE = "chatLastMessage";
+    public static final String EXTRA_CHAT_ID = "chatID";
+    public static final String EXTRA_CHAT_DETAILS_CALLED_FROM = "chatCalledFrom";
+    public static final String EXTRA_CHAT_DETAILS_CALLED_FROM_CHAT_LIST = "calledFromChatList";
+    public static final String EXTRA_CHAT_DETAILS_CALLED_FROM_CHAT_REQUEST = "calledFromChatRequest";
+    public static final String EXTRA_CHAT_DETAILS_CALLED_FROM_CHAT_PROFILE = "calledFromChatProfile";
+    public static final String EXTRA_CHAT_DETAILS_CALLED_FROM_CHAT_NOTIFICATION = "calledFromChatNotification";
+
+    //endregion
 }
