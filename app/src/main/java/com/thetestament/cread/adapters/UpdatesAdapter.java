@@ -280,7 +280,7 @@ public class UpdatesAdapter extends RecyclerView.Adapter {
 
 
             case NOTIFICATION_CATEGORY_CREAD_FB_FRIEND:
-                message = "Your facebook friend " + updatesModel.getActorName() + " is now on Cread!";
+                message = "Your Facebook friend " + updatesModel.getActorName() + " is now on Cread!";
                 break;
 
             default:
