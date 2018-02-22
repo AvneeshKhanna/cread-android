@@ -1,16 +1,39 @@
 package com.thetestament.cread.database;
 
 import android.content.ContentValues;
+import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Looper;
 import android.os.NetworkOnMainThreadException;
+import android.support.v4.app.FragmentActivity;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 
+import com.androidnetworking.AndroidNetworking;
+import com.androidnetworking.error.ANError;
+import com.androidnetworking.interfaces.JSONObjectRequestListener;
+import com.google.firebase.crash.FirebaseCrash;
 import com.thetestament.cread.BuildConfig;
 import com.thetestament.cread.database.NotificationsDBSchema.NotificationDBEntry;
+import com.thetestament.cread.helpers.NetworkHelper;
 import com.thetestament.cread.helpers.SharedPreferenceHelper;
+import com.thetestament.cread.utils.TimeUtils;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.util.Date;
+import java.util.concurrent.Callable;
+
+import static com.thetestament.cread.database.NotificationsDBHelper.*;
+import static com.thetestament.cread.database.UserActionsDBSchema.*;
+import static com.thetestament.cread.database.UserActionsDBSchema.UserActionsDBEntry.COLUMN_NAME_ACTION_TYPE;
+import static com.thetestament.cread.database.UserActionsDBSchema.UserActionsDBEntry.COLUMN_NAME_ACTOR_ID;
+import static com.thetestament.cread.database.UserActionsDBSchema.UserActionsDBEntry.COLUMN_NAME_ENTITY_ID;
+import static com.thetestament.cread.database.UserActionsDBSchema.UserActionsDBEntry.COLUMN_NAME_TIMESTAMP;
+import static com.thetestament.cread.database.UserActionsDBSchema.UserActionsDBEntry.TABLE_NAME;
 
 
 
@@ -19,12 +42,12 @@ import com.thetestament.cread.helpers.SharedPreferenceHelper;
 
 public class NotificationsDBFunctions {
 
-    private AppCompatActivity context;
+    private Context context;
     private SQLiteDatabase db;
     private String userId;
 
     //Required constructor
-    public NotificationsDBFunctions(AppCompatActivity context) {
+    public NotificationsDBFunctions(Context context) {
         this.context = context;
         SharedPreferenceHelper spHelper = new SharedPreferenceHelper(context);
         userId = spHelper.getUUID();
@@ -130,5 +153,88 @@ public class NotificationsDBFunctions {
 
         db.close();
 
+    }
+
+
+    public JSONArray getUserActionsData(String userId) {
+
+        JSONArray jsonArray = new JSONArray();
+
+        String selection = UserActionsDBEntry.COLUMN_NAME_ACTOR_ID + " = ?";
+        String[] selectionArgs = {userId};
+
+        Cursor c = db.query(
+                UserActionsDBEntry.TABLE_NAME,                     // The table to query
+                null,                               // The columns to return
+                selection,                                // The columns for the WHERE clause
+                selectionArgs,                            // The values for the WHERE clause
+                null,                                     // don't group the rows
+                null,                                     // don't filter by row groups
+                null                                 // The sort order
+        );
+
+        try {
+
+
+            while (c.moveToNext()) {
+
+                JSONObject jsonObject = new JSONObject();
+
+                jsonObject.put("actor_uuid", c.getString(c.getColumnIndex(UserActionsDBEntry.COLUMN_NAME_ACTOR_ID)));
+                jsonObject.put("entityid", c.getString(c.getColumnIndex(UserActionsDBEntry.COLUMN_NAME_ENTITY_ID)));
+                jsonObject.put("event_type", c.getString(c.getColumnIndex(UserActionsDBEntry.COLUMN_NAME_ACTION_TYPE)));
+                jsonObject.put("regdate", c.getString(c.getColumnIndex(UserActionsDBEntry.COLUMN_NAME_TIMESTAMP)));
+
+                jsonArray.put(jsonObject);
+            }
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+            FirebaseCrash.report(e);
+        }
+
+        c.close();
+        db.close();
+
+        return jsonArray;
+
+    }
+
+    public void deleteUserActionsData(String userId)
+    {
+        String selection = UserActionsDBEntry.COLUMN_NAME_ACTOR_ID + " = ?";
+        String[] selectionArgs = {userId};
+
+        db.delete(TABLE_NAME, selection, selectionArgs);
+
+        db.close();
+    }
+
+    private void getDataFromDatabase(String entityid, String actionType) {
+
+        SharedPreferenceHelper spHelper = new SharedPreferenceHelper(context);
+
+        Date date = new Date();
+        String timestamp = TimeUtils.getISO8601StringForDate(date);
+
+        ContentValues contentValues = new ContentValues();
+        contentValues.put(COLUMN_NAME_ENTITY_ID, entityid);
+        contentValues.put(COLUMN_NAME_ACTOR_ID, spHelper.getUUID());
+        contentValues.put(COLUMN_NAME_ACTION_TYPE, actionType);
+        contentValues.put(COLUMN_NAME_TIMESTAMP, timestamp);
+
+        db.insertWithOnConflict(TABLE_NAME, null, contentValues, SQLiteDatabase.CONFLICT_REPLACE);
+
+        db.close();
+
+    }
+
+    public Callable getData(final String entityid, final String actionType) {
+        return new Callable<Void>() {
+            public Void call() {
+                getDataFromDatabase(entityid, actionType);
+                return null;
+            }
+        };
     }
 }

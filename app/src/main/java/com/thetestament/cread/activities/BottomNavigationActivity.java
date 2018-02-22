@@ -1,11 +1,16 @@
 package com.thetestament.cread.activities;
 
+import android.accounts.Account;
+import android.accounts.AccountManager;
+import android.content.ContentResolver;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.internal.BottomNavigationItemView;
@@ -19,6 +24,7 @@ import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -32,6 +38,7 @@ import com.afollestad.materialdialogs.MaterialDialog;
 import com.google.firebase.analytics.FirebaseAnalytics;
 import com.google.firebase.crash.FirebaseCrash;
 import com.thetestament.cread.BuildConfig;
+import com.thetestament.cread.DataSyncAdapter.AuthenticatorService;
 import com.thetestament.cread.Manifest;
 import com.thetestament.cread.R;
 import com.thetestament.cread.fragments.ExploreFragment;
@@ -41,6 +48,7 @@ import com.thetestament.cread.helpers.BottomNavigationViewHelper;
 import com.thetestament.cread.helpers.SharedPreferenceHelper;
 import com.thetestament.cread.helpers.ViewHelper;
 import com.thetestament.cread.listeners.listener.OnServerRequestedListener;
+import com.thetestament.cread.utils.Constant;
 import com.yalantis.ucrop.UCrop;
 
 import java.io.File;
@@ -57,6 +65,7 @@ import static com.thetestament.cread.helpers.ImageHelper.startImageCropping;
 import static com.thetestament.cread.helpers.NetworkHelper.getRestartHerokuObservable;
 import static com.thetestament.cread.helpers.NetworkHelper.requestServer;
 import static com.thetestament.cread.helpers.ViewHelper.convertToPx;
+import static com.thetestament.cread.utils.Constant.EXTRA_OPEN_SPECIFIC_BOTTOMNAV_FRAGMENT;
 import static com.thetestament.cread.utils.Constant.FIREBASE_EVENT_EXPLORE_CLICKED;
 import static com.thetestament.cread.utils.Constant.FIREBASE_EVENT_FEED_CLICKED;
 import static com.thetestament.cread.utils.Constant.FIREBASE_EVENT_NOTIFICATION_CLICKED;
@@ -108,6 +117,19 @@ public class BottomNavigationActivity extends BaseActivity {
 
     View badgeView;
 
+
+    // Constants
+    // The authority for the sync adapter's content provider
+    public static final String AUTHORITY = "com.thetestament.cread.provider";
+    // An account type, in the form of a domain name
+    public static final String ACCOUNT_TYPE = "cread.com";
+    // The account name
+    public static final String ACCOUNT = "Cread";
+    // Instance fields
+    public static Account mAccount;
+
+    private static final String PREF_SETUP_COMPLETE = "setup_complete";
+
     //endregion
 
     @Override
@@ -132,6 +154,10 @@ public class BottomNavigationActivity extends BaseActivity {
             //To load appropriate screen
             loadScreen();
         }
+
+        // to setup account for syncadapter
+        createSyncAccount(this);
+
         //Initialize navigation view
         initBottomNavigation();
         //Method call
@@ -147,11 +173,26 @@ public class BottomNavigationActivity extends BaseActivity {
         togglePersonalChatIndicator(mHelper.getPersonalChatIndicatorStatus());
     }
 
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+    }
+
     @Override
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
 
-        captureSendIntent(mHelper, intent);
+        // for sharing image from gallery
+        if (Intent.ACTION_SEND.equals(intent.getAction())) {
+            captureSendIntent(mHelper, intent);
+        }
+        // when new intent for specific fragment
+        else if (intent.hasExtra(EXTRA_OPEN_SPECIFIC_BOTTOMNAV_FRAGMENT)) {
+
+            initSpecificFragment(intent);
+        }
+
 
     }
 
@@ -285,15 +326,16 @@ public class BottomNavigationActivity extends BaseActivity {
      * Method to load required screen.
      */
     private void loadScreen() {
-        //When app opened normally
-        navigationView.setSelectedItemId(R.id.action_feed);
-        //To open Feed Screen
-        mCurrentFragment = new FeedFragment();
-        //Set fragment tag
-        mFragmentTag = TAG_FEED_FRAGMENT;
-        replaceFragment(mCurrentFragment, mFragmentTag, false);
 
-        mSelectedItemID = R.id.action_feed;
+        // when bottom nav opened to open specific fragment
+        if (getIntent().hasExtra(EXTRA_OPEN_SPECIFIC_BOTTOMNAV_FRAGMENT)) {
+
+            initSpecificFragment(getIntent());
+
+        } else {
+            initFeedFragment();
+        }
+
     }
 
     /**
@@ -745,6 +787,75 @@ public class BottomNavigationActivity extends BaseActivity {
         } else {
             //Show Badge View
             badgeView.setVisibility(View.GONE);
+        }
+    }
+
+
+    /**
+     * Create a new dummy account for the sync adapter
+     *
+     * @param context The application context
+     */
+    public void createSyncAccount(Context context) {
+
+        boolean newAccount = false;
+        boolean setupComplete = PreferenceManager
+                .getDefaultSharedPreferences(context).getBoolean(PREF_SETUP_COMPLETE, false);
+
+        // Create account, if it's missing. (Either first run, or user has deleted account.)
+        Account account = new Account(ACCOUNT, ACCOUNT_TYPE);
+        AccountManager accountManager =
+                (AccountManager) context.getSystemService(Context.ACCOUNT_SERVICE);
+        if (accountManager.addAccountExplicitly(account, null, null)) {
+            // Inform the system that this account supports sync
+            ContentResolver.setIsSyncable(account, AUTHORITY, 1);
+            // Inform the system that this account is eligible for auto sync when the network is up
+            ContentResolver.setSyncAutomatically(account, AUTHORITY, true);
+            // Recommend a schedule for automatic synchronization. The system may modify this based
+            // on other scheduled syncs and network utilization.
+            ContentResolver.addPeriodicSync(
+                    account, AUTHORITY, new Bundle(), 25200);
+            newAccount = true;
+        }
+
+        // Schedule an initial sync if we detect problems with either our account or our local
+        // data has been deleted. (Note that it's possible to clear app data WITHOUT affecting
+        // the account list, so wee need to check both.)
+        if (newAccount || !setupComplete) {
+            PreferenceManager.getDefaultSharedPreferences(context).edit()
+                    .putBoolean(PREF_SETUP_COMPLETE, true).commit();
+        }
+
+    }
+
+
+    private void initFeedFragment() {
+
+        //When app opened normally
+        navigationView.setSelectedItemId(R.id.action_feed);
+        //To open Feed Screen
+        mCurrentFragment = new FeedFragment();
+        //Set fragment tag
+        mFragmentTag = TAG_FEED_FRAGMENT;
+        replaceFragment(mCurrentFragment, mFragmentTag, false);
+
+        mSelectedItemID = R.id.action_feed;
+    }
+
+
+    private void initSpecificFragment(Intent intent) {
+        switch (intent.getStringExtra(EXTRA_OPEN_SPECIFIC_BOTTOMNAV_FRAGMENT)) {
+
+            case TAG_EXPLORE_FRAGMENT:
+                activateBottomNavigationItem(R.id.action_explore);
+                replaceFragment(new ExploreFragment(), Constant.TAG_EXPLORE_FRAGMENT, false);
+                break;
+            case TAG_ME_FRAGMENT:
+                break;
+            case TAG_FEED_FRAGMENT:
+                break;
+            default:
+                initFeedFragment();
         }
     }
 

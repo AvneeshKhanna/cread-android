@@ -79,12 +79,14 @@ import static com.thetestament.cread.utils.Constant.NOTIFICATION_CATEGORY_CREAD_
 import static com.thetestament.cread.utils.Constant.NOTIFICATION_CATEGORY_CREAD_COLLABORATE;
 import static com.thetestament.cread.utils.Constant.NOTIFICATION_CATEGORY_CREAD_COMMENT;
 import static com.thetestament.cread.utils.Constant.NOTIFICATION_CATEGORY_CREAD_COMMENT_OTHER;
+import static com.thetestament.cread.utils.Constant.NOTIFICATION_CATEGORY_CREAD_FB_FRIEND;
 import static com.thetestament.cread.utils.Constant.NOTIFICATION_CATEGORY_CREAD_FOLLOW;
 import static com.thetestament.cread.utils.Constant.NOTIFICATION_CATEGORY_CREAD_GENERAL;
 import static com.thetestament.cread.utils.Constant.NOTIFICATION_CATEGORY_CREAD_HATSOFF;
 import static com.thetestament.cread.utils.Constant.NOTIFICATION_CATEGORY_CREAD_TOP_POST;
 import static com.thetestament.cread.utils.Constant.NOTIFICATION_CATEGORY_PROFILE_MENTION_COMMENT;
 import static com.thetestament.cread.utils.Constant.NOTIFICATION_CATEGORY_PROFILE_MENTION_POST;
+import static com.thetestament.cread.utils.Constant.NOTIFICATION_ID_CREAD_FB_FRIEND;
 import static com.thetestament.cread.utils.Constant.REQUEST_CODE_EDIT_POST;
 
 
@@ -241,10 +243,7 @@ public class UpdatesFragment extends Fragment {
 
                 switch (updatesModel.getCategory()) {
                     case NOTIFICATION_CATEGORY_CREAD_FOLLOW:
-                        //Launch me fragment
-                        Intent profileIntent = new Intent(getActivity(), ProfileActivity.class);
-                        profileIntent.putExtra(EXTRA_PROFILE_UUID, updatesModel.getActorID());
-                        startActivity(profileIntent);
+                        openProfileScreen(updatesModel);
                         break;
                     case NOTIFICATION_CATEGORY_CREAD_COLLABORATE:
 
@@ -295,6 +294,10 @@ public class UpdatesFragment extends Fragment {
                         // gets feed details and opens details screen
                         getFeedDetails(updatesModel.getEntityID(), true);
                         break;
+
+                    case NOTIFICATION_CATEGORY_CREAD_FB_FRIEND:
+                        // open profile screen
+                        openProfileScreen(updatesModel);
                     default:
                         break;
                 }
@@ -595,12 +598,24 @@ public class UpdatesFragment extends Fragment {
                 break;
             case NOTIFICATION_CATEGORY_PROFILE_MENTION_POST:
                 break;
+            case NOTIFICATION_CATEGORY_CREAD_FB_FRIEND:
+                break;
             default:
                 isValid = false;
         }
 
 
         return isValid;
+    }
+
+
+    private void openProfileScreen(UpdatesModel updatesModel)
+    {
+        //Launch profile screen
+        Intent profileIntent = new Intent(getActivity(), ProfileActivity.class);
+        profileIntent.putExtra(EXTRA_PROFILE_UUID, updatesModel.getActorID());
+        startActivity(profileIntent);
+
     }
 
 

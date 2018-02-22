@@ -26,6 +26,7 @@ import com.squareup.picasso.Picasso;
 import com.thetestament.cread.BuildConfig;
 import com.thetestament.cread.R;
 import com.thetestament.cread.activities.BottomNavigationActivity;
+import com.thetestament.cread.activities.ProfileActivity;
 import com.thetestament.cread.activities.ChatDetailsActivity;
 import com.thetestament.cread.activities.UpdatesActivity;
 import com.thetestament.cread.fragments.SettingsFragment;
@@ -52,6 +53,8 @@ import static com.thetestament.cread.CreadApp.GET_RESPONSE_FROM_NETWORK_INSPIRAT
 import static com.thetestament.cread.CreadApp.GET_RESPONSE_FROM_NETWORK_MAIN;
 import static com.thetestament.cread.CreadApp.GET_RESPONSE_FROM_NETWORK_ME;
 import static com.thetestament.cread.CreadApp.GET_RESPONSE_FROM_NETWORK_UPDATES;
+import static com.thetestament.cread.utils.Constant.EXTRA_OPEN_SPECIFIC_BOTTOMNAV_FRAGMENT;
+import static com.thetestament.cread.utils.Constant.EXTRA_PROFILE_UUID;
 import static com.thetestament.cread.utils.Constant.EXTRA_CHAT_DETAILS_CALLED_FROM;
 import static com.thetestament.cread.utils.Constant.EXTRA_CHAT_DETAILS_CALLED_FROM_CHAT_NOTIFICATION;
 import static com.thetestament.cread.utils.Constant.EXTRA_CHAT_DETAILS_DATA;
@@ -71,11 +74,13 @@ import static com.thetestament.cread.utils.Constant.NOTIFICATION_CATEGORY_CREAD_
 import static com.thetestament.cread.utils.Constant.NOTIFICATION_CATEGORY_CREAD_COLLABORATE;
 import static com.thetestament.cread.utils.Constant.NOTIFICATION_CATEGORY_CREAD_COMMENT;
 import static com.thetestament.cread.utils.Constant.NOTIFICATION_CATEGORY_CREAD_COMMENT_OTHER;
+import static com.thetestament.cread.utils.Constant.NOTIFICATION_CATEGORY_CREAD_FB_FRIEND;
 import static com.thetestament.cread.utils.Constant.NOTIFICATION_CATEGORY_CREAD_FOLLOW;
 import static com.thetestament.cread.utils.Constant.NOTIFICATION_CATEGORY_CREAD_GENERAL;
 import static com.thetestament.cread.utils.Constant.NOTIFICATION_CATEGORY_CREAD_HATSOFF;
 import static com.thetestament.cread.utils.Constant.NOTIFICATION_CATEGORY_CREAD_TEAM_CHAT;
 import static com.thetestament.cread.utils.Constant.NOTIFICATION_CATEGORY_CREAD_TOP_POST;
+import static com.thetestament.cread.utils.Constant.NOTIFICATION_CATEGORY_ENGAGEMENT_NOTIFICATIONS;
 import static com.thetestament.cread.utils.Constant.NOTIFICATION_CATEGORY_PERSONAL_CHAT_MESSAGE;
 import static com.thetestament.cread.utils.Constant.NOTIFICATION_CATEGORY_PROFILE_MENTION_COMMENT;
 import static com.thetestament.cread.utils.Constant.NOTIFICATION_CATEGORY_PROFILE_MENTION_POST;
@@ -84,14 +89,18 @@ import static com.thetestament.cread.utils.Constant.NOTIFICATION_ID_CREAD_BUY;
 import static com.thetestament.cread.utils.Constant.NOTIFICATION_ID_CREAD_COLLABORATE;
 import static com.thetestament.cread.utils.Constant.NOTIFICATION_ID_CREAD_COMMENT;
 import static com.thetestament.cread.utils.Constant.NOTIFICATION_ID_CREAD_COMMENT_OTHER;
+import static com.thetestament.cread.utils.Constant.NOTIFICATION_ID_CREAD_FB_FRIEND;
 import static com.thetestament.cread.utils.Constant.NOTIFICATION_ID_CREAD_FOLLOW;
 import static com.thetestament.cread.utils.Constant.NOTIFICATION_ID_CREAD_GENERAL;
 import static com.thetestament.cread.utils.Constant.NOTIFICATION_ID_CREAD_HATSOFF;
 import static com.thetestament.cread.utils.Constant.NOTIFICATION_ID_CREAD_TEAM_CHAT;
 import static com.thetestament.cread.utils.Constant.NOTIFICATION_ID_CREAD_TOP_POST;
+import static com.thetestament.cread.utils.Constant.NOTIFICATION_ID_ENGAGEMENT_NOTIFICATIONS;
 import static com.thetestament.cread.utils.Constant.NOTIFICATION_ID_PERSONAL_CHAT_MESSAGE;
 import static com.thetestament.cread.utils.Constant.NOTIFICATION_ID_PROFILE_MENTION_COMMENT;
 import static com.thetestament.cread.utils.Constant.NOTIFICATION_ID_PROFILE_MENTION_POST;
+import static com.thetestament.cread.utils.Constant.TAG_EXPLORE_FRAGMENT;
+
 
 public class MyFirebaseMessagingService extends FirebaseMessagingService {
 
@@ -266,6 +275,29 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
                 //set notification indicator status
                 spHelper.setNotifIndicatorStatus(true);
                 break;
+
+            case NOTIFICATION_CATEGORY_ENGAGEMENT_NOTIFICATIONS:
+                mId = NOTIFICATION_ID_ENGAGEMENT_NOTIFICATIONS;
+                resId = R.drawable.ic_cread_notification_general;
+                intent = new Intent(this, BottomNavigationActivity.class);
+                intent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
+                intent.putExtra(EXTRA_OPEN_SPECIFIC_BOTTOMNAV_FRAGMENT, TAG_EXPLORE_FRAGMENT);
+                break;
+
+
+            case NOTIFICATION_CATEGORY_CREAD_FB_FRIEND:
+                mId = NOTIFICATION_ID_CREAD_FB_FRIEND;
+                resId = R.drawable.ic_cread_notification_general;
+                actorUserID = data.get("actorid");
+                actorUserImage = data.get("actorimage");
+                intent = new Intent(this, ProfileActivity.class);
+                intent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
+                intent.putExtra(EXTRA_PROFILE_UUID, actorUserID);
+                GET_RESPONSE_FROM_NETWORK_FIND_FRIENDS = true;
+                break;
+
+
+
             case NOTIFICATION_CATEGORY_PERSONAL_CHAT_MESSAGE:
                 mId = NOTIFICATION_ID_PERSONAL_CHAT_MESSAGE;
                 intent = new Intent(this, ChatDetailsActivity.class);

@@ -9,7 +9,7 @@ public class NotificationsDBSchema {
 
     // To prevent someone from accidentally instantiating this contract class,
     // give it an empty constructor.
-    public NotificationsDBSchema() {
+    private NotificationsDBSchema() {
     }
 
     /* Inner class that defines the table contents */

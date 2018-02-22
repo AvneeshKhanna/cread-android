@@ -8,6 +8,12 @@
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.VIBRATE" />
+    <uses-permission android:name="android.permission.READ_SYNC_SETTINGS" />
+    <uses-permission android:name="android.permission.WRITE_SYNC_SETTINGS" />
+    <uses-permission android:name="android.permission.AUTHENTICATE_ACCOUNTS" />
+    <uses-permission android:name="android.permission.GET_ACCOUNTS" />
+
+
     <uses-permission
         android:name="android.permission.ACCESS_FINE_LOCATION"
         tools:node="remove" />
@@ -410,6 +416,35 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".activities.BottomNavigationActivity" />
         </activity>
+
+        <service android:name="com.thetestament.cread.DataSyncAdapter.AuthenticatorService">
+            <intent-filter>
+                <action android:name="android.accounts.AccountAuthenticator" />
+            </intent-filter>
+            <meta-data
+                android:name="android.accounts.AccountAuthenticator"
+                android:resource="@xml/authenticator" />
+        </service>
+
+
+        <provider
+            android:name="com.thetestament.cread.DataSyncAdapter.StubProvider"
+            android:authorities="com.thetestament.cread.provider"
+            android:label="Stub provider"
+            android:exported="false"
+            android:syncable="true" />
+
+
+        <service
+            android:name="com.thetestament.cread.DataSyncAdapter.SyncService"
+            android:exported="true">
+            <!--android:process=":sync"-->
+            <intent-filter>
+                <action android:name="android.content.SyncAdapter"/>
+            </intent-filter>
+            <meta-data android:name="android.content.SyncAdapter"
+                android:resource="@xml/syncadapter" />
+        </service>
 
         <!--Chat details screen Screen-->
         <activity

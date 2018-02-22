@@ -133,6 +133,8 @@ public class Constant {
     public static final String PAYMENT_STATUS_CONNECTION_TERMINATED = "paymentConnectionTerminated";
     public static final String PAYMENT_STATUS_SERVER_ERROR = "paymentServerError";
 
+    public static final String EXTRA_OPEN_SPECIFIC_BOTTOMNAV_FRAGMENT = "openSpecificBottomNavFragment";
+
 
     //Action
     public static final String ACTION_LOG_OUT = "com.thetestament.cread.ACTION_LOGOUT";
@@ -149,6 +151,8 @@ public class Constant {
     public static final String NOTIFICATION_CATEGORY_CREAD_TEAM_CHAT = "team-chat";
     public static final String NOTIFICATION_CATEGORY_PROFILE_MENTION_POST = "profile-mention-post";
     public static final String NOTIFICATION_CATEGORY_PROFILE_MENTION_COMMENT = "profile-mention-comment";
+    public static final String NOTIFICATION_CATEGORY_ENGAGEMENT_NOTIFICATIONS = "engagement-notification";
+    public static final String NOTIFICATION_CATEGORY_CREAD_FB_FRIEND = "fb-friend-new";
     public static final String NOTIFICATION_CATEGORY_PERSONAL_CHAT_MESSAGE = "personal-chat";
 
     //Notification id cread
@@ -164,6 +168,9 @@ public class Constant {
     public static final int NOTIFICATION_ID_PROFILE_MENTION_POST = 1009;
     public static final int NOTIFICATION_ID_PROFILE_MENTION_COMMENT = 1010;
     public static final int NOTIFICATION_ID_PERSONAL_CHAT_MESSAGE = 1011;
+    public static final int NOTIFICATION_ID_ENGAGEMENT_NOTIFICATIONS = 1012;
+    public static final int NOTIFICATION_ID_CREAD_FB_FRIEND = 1013;
+
 
     public static final String NOTIFICATION_CHANNEL_GENERAL = "generalNotificationChannel";
 
@@ -264,6 +271,9 @@ public class Constant {
     public static final String SHORT_EXTRA_CALLED_FROM_COLLABORATION_SHORT = "calledFromCollaboration";
     public static final String SHORT_EXTRA_CAPTION_TEXT = "shortCaptionText";
     //endregion
+
+
+    public static final String USER_ACTION_TYPE_VIEW = "ENTITY_VIEW";
 
     //region :Data for chat details screen
     public static final String EXTRA_CHAT_UUID = "chatUUID";
