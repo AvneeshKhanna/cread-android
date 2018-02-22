@@ -346,6 +346,12 @@ public class ChatDetailsActivity extends BaseActivity {
             //Method called
             updateChatReadStatus(mChatId, mPreferenceHelper.getUUID(), mPreferenceHelper.getAuthToken());
         }
+        //if this screen called from EXTRA_CHAT_DETAILS_CALLED_FROM_CHAT_NOTIFICATION screen
+        if (!mBundle.getString(EXTRA_CHAT_DETAILS_CALLED_FROM)
+                .equals(EXTRA_CHAT_DETAILS_CALLED_FROM_CHAT_NOTIFICATION)) {
+            //Update flag in sharedPreference
+            mPreferenceHelper.setPersonalChatIndicatorStatus(false);
+        }
     }
 
     /**

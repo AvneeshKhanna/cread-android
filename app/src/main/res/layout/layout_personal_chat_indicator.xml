@@ -1,0 +1,13 @@
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <TextView
+        android:id="@+id/notificationsBadge"
+        android:layout_width="8dp"
+        android:layout_height="8dp"
+        android:layout_gravity="top|center_horizontal"
+        android:layout_marginLeft="8dp"
+        android:layout_marginTop="6dp"
+        android:background="@drawable/dot_shape" />
+</FrameLayout>

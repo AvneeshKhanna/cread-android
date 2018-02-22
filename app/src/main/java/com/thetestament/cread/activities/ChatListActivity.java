@@ -202,6 +202,8 @@ public class ChatListActivity extends BaseActivity {
     private void initView() {
         //SharedPreference reference
         mHelper = new SharedPreferenceHelper(this);
+        //Update flag in sharedPreference
+        mHelper.setPersonalChatIndicatorStatus(false);
         //Obtain context
         mContext = this;
         //Set layout manger for recyclerView

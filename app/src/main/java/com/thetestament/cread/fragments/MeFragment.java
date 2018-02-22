@@ -3,6 +3,7 @@ package com.thetestament.cread.fragments;
 import android.app.ActivityOptions;
 import android.content.Context;
 import android.content.Intent;
+import android.content.res.ColorStateList;
 import android.graphics.Bitmap;
 import android.graphics.PorterDuff;
 import android.net.Uri;
@@ -516,6 +517,14 @@ public class MeFragment extends Fragment implements listener.OnCollaborationList
         //Open chat list activity
         Intent intent = new Intent(getActivity(), ChatListActivity.class);
         startActivity(intent);
+        //if new  message is present
+        if (mHelper.getPersonalChatIndicatorStatus()) {
+            //Change FAB  background color to color accent
+            fabChat.setBackgroundTintList(ColorStateList.valueOf(ContextCompat.getColor(getActivity()
+                    , R.color.colorAccent)));
+            //update flags in SharedPreference
+            mHelper.setPersonalChatIndicatorStatus(false);
+        }
     }
 
     /**
@@ -2207,6 +2216,12 @@ public class MeFragment extends Fragment implements listener.OnCollaborationList
      * @param recyclerView View to be scrolled.
      */
     private void getFabCustomBehaviour(RecyclerView recyclerView) {
+        //if new message is present
+        if (mHelper.getPersonalChatIndicatorStatus()) {
+            //change fab background color to green
+            fabChat.setBackgroundTintList(ColorStateList.valueOf(ContextCompat.getColor(getActivity()
+                    , R.color.green)));
+        }
         recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
             public void onScrolled(RecyclerView recyclerView, int dx, int dy) {

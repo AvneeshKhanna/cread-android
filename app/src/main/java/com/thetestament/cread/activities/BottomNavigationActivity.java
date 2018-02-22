@@ -5,10 +5,11 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.design.internal.BottomNavigationItemView;
+import android.support.design.internal.BottomNavigationMenuView;
 import android.support.design.widget.BottomNavigationView;
 import android.support.design.widget.BottomSheetDialog;
 import android.support.design.widget.CoordinatorLayout;
@@ -18,6 +19,7 @@ import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -32,7 +34,6 @@ import com.google.firebase.crash.FirebaseCrash;
 import com.thetestament.cread.BuildConfig;
 import com.thetestament.cread.Manifest;
 import com.thetestament.cread.R;
-import com.thetestament.cread.database.NotificationsDBFunctions;
 import com.thetestament.cread.fragments.ExploreFragment;
 import com.thetestament.cread.fragments.FeedFragment;
 import com.thetestament.cread.fragments.MeFragment;
@@ -93,6 +94,8 @@ public class BottomNavigationActivity extends BaseActivity {
     String mFragmentTag;
     Fragment mCurrentFragment;
 
+    View personalChatIndicator;
+
     @State
     int mSelectedItemID;
 
@@ -133,6 +136,14 @@ public class BottomNavigationActivity extends BaseActivity {
         initBottomNavigation();
         //Method call
         captureSendIntent(mHelper, getIntent());
+
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        //Toggle personal chat indicator
+        togglePersonalChatIndicator(mHelper.getPersonalChatIndicatorStatus());
     }
 
     @Override
@@ -335,6 +346,10 @@ public class BottomNavigationActivity extends BaseActivity {
 
                     case R.id.action_me:
                         initMeFragment(false);
+                        //if new messages are
+                        if (mHelper.getPersonalChatIndicatorStatus()) {
+                            togglePersonalChatIndicator(false);
+                        }
                         break;
                 }
                 return true;
@@ -489,8 +504,6 @@ public class BottomNavigationActivity extends BaseActivity {
             ViewHelper.getSnackBar(rootView, "Image could not be cropped due to some error");
         }
     }
-
-
 
 
     /**
@@ -736,6 +749,28 @@ public class BottomNavigationActivity extends BaseActivity {
         }
     }
 
+    /**
+     * Toggle personal chat indicator.
+     *
+     * @param showIndicator Whether to show indicator or not .
+     */
+    private void togglePersonalChatIndicator(boolean showIndicator) {
+        BottomNavigationMenuView bottomNavigationMenuView =
+                (BottomNavigationMenuView) navigationView.getChildAt(0);
+
+        View v = bottomNavigationMenuView.getChildAt(3);
+        BottomNavigationItemView itemView = (BottomNavigationItemView) v;
+
+        personalChatIndicator = LayoutInflater.from(this)
+                .inflate(R.layout.layout_personal_chat_indicator, bottomNavigationMenuView, false);
+
+        itemView.addView(personalChatIndicator);
+
+        if (!showIndicator) {
+            //Hide personal chat indicator
+            itemView.removeView(personalChatIndicator);
+        }
+    }
    /* private void transFormIntoSquare(int imgWidth, int imgHeight) {
         int squareSize = 650;
 
