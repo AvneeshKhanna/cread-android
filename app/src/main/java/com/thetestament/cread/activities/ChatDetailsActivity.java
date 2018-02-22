@@ -241,9 +241,9 @@ public class ChatDetailsActivity extends BaseActivity {
             try {
                 jsonObject.put("to_uuid", mBundle.getString(EXTRA_CHAT_UUID));
                 jsonObject.put("from_uuid", mPreferenceHelper.getUUID());
-                jsonObject.put("body", etWriteMessage.getText().toString());
+                jsonObject.put("body", etWriteMessage.getText().toString().trim());
                 jsonObject.put("chatid", mBundle.getString(EXTRA_CHAT_ID));
-                jsonObject.put("from_name", mPreferenceHelper.getFirstName());
+                jsonObject.put("from_name", mPreferenceHelper.getFirstName() + " " + mPreferenceHelper.getLastName());
             } catch (JSONException e) {
                 FirebaseCrash.report(e);
                 e.printStackTrace();
@@ -252,7 +252,7 @@ public class ChatDetailsActivity extends BaseActivity {
             mSocket.emit("send-message", jsonObject);
 
             // add the message to view
-            addMessage(etWriteMessage.getText().toString(), VIEW_TYPE_MESSAGE_SENT_VALUE);
+            addMessage(etWriteMessage.getText().toString().trim(), VIEW_TYPE_MESSAGE_SENT_VALUE);
             //Clear edit text
             etWriteMessage.getText().clear();
             //Play sound track
@@ -573,7 +573,7 @@ public class ChatDetailsActivity extends BaseActivity {
         FollowHelper followHelper = new FollowHelper();
         followHelper.updateFollowStatus(mContext
                 , mCompositeDisposable
-                , mIsFollowingReceiver
+                , !mIsFollowingReceiver
                 , new JSONArray().put(mBundle.getString(EXTRA_CHAT_UUID))
                 , new listener.OnFollowRequestedListener() {
                     @Override
@@ -586,6 +586,7 @@ public class ChatDetailsActivity extends BaseActivity {
                         updateMenuTitleText(menu);
                         //Update flags
                         CreadApp.GET_RESPONSE_FROM_NETWORK_CHAT_REQUEST = true;
+                        CreadApp.GET_RESPONSE_FROM_NETWORK_CHAT_LIST = true;
                     }
 
                     @Override
