@@ -11,6 +11,8 @@ import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.preference.PreferenceManager;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.content.ContextCompat;
@@ -20,6 +22,7 @@ import android.widget.RemoteViews;
 
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
+import com.squareup.picasso.Picasso;
 import com.thetestament.cread.BuildConfig;
 import com.thetestament.cread.R;
 import com.thetestament.cread.activities.BottomNavigationActivity;
@@ -341,7 +344,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
      * @param message Message to be displayed in notification
      * @param mId     id for notification*
      */
-    private void buildNotification(String message, int mId, Intent intent) {
+    private void buildNotification(String message, final int mId, Intent intent) {
 
         PendingIntent pendingIntent =
                 PendingIntent.getActivity(
@@ -384,7 +387,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
      * @param message Message to be displayed in notification
      * @param mId     id for notification*
      */
-    private void buildNotificationForPersonalChat(String message, int mId, Intent intent) {
+    private void buildNotificationForPersonalChat(String message, final int mId, Intent intent) {
 
         PendingIntent pendingIntent =
                 PendingIntent.getActivity(
@@ -406,24 +409,31 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
         remoteViews.setTextColor(R.id.textUserName, ContextCompat.getColor(getApplicationContext(), R.color.grey_dark));
         remoteViews.setTextColor(R.id.textUserMessage, ContextCompat.getColor(getApplicationContext(), R.color.black_overlay));
 
-        NotificationCompat.Builder mNotification =
+        final NotificationCompat.Builder mNotification =
                 new NotificationCompat.Builder(this, NOTIFICATION_CHANNEL_GENERAL)
                         .setContentTitle(data.get("from_name"))
                         .setSmallIcon(R.drawable.ic_stat_cread_logo)
                         .setContentText(message)
-                        .setStyle(new NotificationCompat.BigTextStyle().bigText(message))
-                        .setDefaults(Notification.DEFAULT_ALL)
                         .setContent(remoteViews)
                         .setContentIntent(pendingIntent)
                         .setAutoCancel(true)
+                        .setDefaults(Notification.DEFAULT_ALL)
                         .setPriority(IMPORTANCE_HIGH);
 
 
-       /* Picasso
-                .with(getApplicationContext())
-                .load(data.get("from_profilepicurl"))
-                .error(R.drawable.ic_account_circle_48)
-                .into(remoteViews, R.id.imageUser, mId, mNotification.build());*/
+        // To push notification from background thread
+        Handler handler = new Handler(Looper.getMainLooper());
+        handler.post(new Runnable() {
+            @Override
+            public void run() {
+                Picasso
+                        .with(getApplicationContext())
+                        .load(data.get("from_profilepicurl"))
+                        .error(R.drawable.ic_account_circle_48)
+                        .into(remoteViews, R.id.imageUser, mId, mNotification.build());
+            }
+        });
+
 
         // Gets an instance of the NotificationManager service
         NotificationManager notificationManager =

@@ -47,6 +47,7 @@ import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.observers.DisposableObserver;
 import io.reactivex.schedulers.Schedulers;
 
+import static com.thetestament.cread.CreadApp.GET_RESPONSE_FROM_NETWORK_CHAT_LIST;
 import static com.thetestament.cread.helpers.NetworkHelper.getChatRequestCountObservableFromServer;
 import static com.thetestament.cread.helpers.NetworkHelper.getNetConnectionStatus;
 import static com.thetestament.cread.helpers.NetworkHelper.getObservableFromServer;
@@ -333,6 +334,9 @@ public class ChatListActivity extends BaseActivity {
                             recyclerView.setLayoutAnimation(animation);
                             //Notify changes
                             mAdapter.notifyDataSetChanged();
+
+                            //Update flag
+                            GET_RESPONSE_FROM_NETWORK_CHAT_LIST = false;
                         }
                     }
                 })

@@ -11,6 +11,8 @@ import android.graphics.Color;
 import android.media.MediaPlayer;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.support.v4.app.NavUtils;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.TaskStackBuilder;
@@ -18,6 +20,7 @@ import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.widget.RemoteViews;
 
+import com.squareup.picasso.Picasso;
 import com.thetestament.cread.R;
 import com.thetestament.cread.activities.ChatDetailsActivity;
 import com.thetestament.cread.helpers.SharedPreferenceHelper;
@@ -93,7 +96,7 @@ public class NotificationUtil {
      *
      * @param message Message to be displayed in notification
      */
-    public static void buildNotificationForPersonalChat(Context context, String fromUUID, String fromName, String chatId, String message, SharedPreferenceHelper helper) {
+    public static void buildNotificationForPersonalChat(final Context context, String fromUUID, String fromName, String chatId, String message, SharedPreferenceHelper helper, final String imageUrl) {
 
         Intent intent = new Intent(context, ChatDetailsActivity.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
@@ -131,12 +134,11 @@ public class NotificationUtil {
         remoteViews.setTextColor(R.id.textUserName, ContextCompat.getColor(context, R.color.grey_dark));
         remoteViews.setTextColor(R.id.textUserMessage, ContextCompat.getColor(context, R.color.black_overlay));
 
-        NotificationCompat.Builder mNotification =
+        final NotificationCompat.Builder mNotification =
                 new NotificationCompat.Builder(context, NOTIFICATION_CHANNEL_GENERAL)
                         .setContentTitle(fromName)
                         .setSmallIcon(R.drawable.ic_stat_cread_logo)
                         .setContentText(message)
-                        .setStyle(new NotificationCompat.BigTextStyle().bigText(message))
                         .setDefaults(Notification.DEFAULT_ALL)
                         .setContent(remoteViews)
                         .setContentIntent(pendingIntent)
@@ -144,11 +146,18 @@ public class NotificationUtil {
                         .setPriority(IMPORTANCE_HIGH);
 
 
-       /* Picasso
-                .with(getApplicationContext())
-                .load(data.get("from_profilepicurl"))
-                .error(R.drawable.ic_account_circle_48)
-                .into(remoteViews, R.id.imageUser, mId, mNotification.build());*/
+        // To push notification from background thread
+        Handler handler = new Handler(Looper.getMainLooper());
+        handler.post(new Runnable() {
+            @Override
+            public void run() {
+                Picasso
+                        .with(context)
+                        .load(imageUrl)
+                        .error(R.drawable.ic_account_circle_48)
+                        .into(remoteViews, R.id.imageUser, NOTIFICATION_ID_PERSONAL_CHAT_MESSAGE, mNotification.build());
+            }
+        });
 
         // Gets an instance of the NotificationManager service
         NotificationManager notificationManager =

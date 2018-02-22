@@ -240,6 +240,8 @@ public class ChatRequestActivity extends BaseActivity {
                             recyclerView.setLayoutAnimation(animation);
                             //Notify changes
                             mAdapter.notifyDataSetChanged();
+                            //Update flags
+                            CreadApp.GET_RESPONSE_FROM_NETWORK_CHAT_REQUEST = false;
                         }
                     }
                 })

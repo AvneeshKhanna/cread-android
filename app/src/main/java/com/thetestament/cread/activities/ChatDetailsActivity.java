@@ -26,6 +26,7 @@ import com.github.nkzawa.socketio.client.IO;
 import com.github.nkzawa.socketio.client.Socket;
 import com.google.firebase.crash.FirebaseCrash;
 import com.thetestament.cread.BuildConfig;
+import com.thetestament.cread.CreadApp;
 import com.thetestament.cread.R;
 import com.thetestament.cread.adapters.ChatDetailsAdapter;
 import com.thetestament.cread.helpers.FollowHelper;
@@ -141,7 +142,14 @@ public class ChatDetailsActivity extends BaseActivity {
         //ButterKnife view binding
         ButterKnife.bind(this);
         //Method called
-        initScreen();
+        initScreen(getIntent());
+    }
+
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        //Method called
+        initScreen(intent);
     }
 
     @Override
@@ -292,7 +300,7 @@ public class ChatDetailsActivity extends BaseActivity {
     /**
      * Method to initialize this screen.
      */
-    private void initScreen() {
+    private void initScreen(Intent newIntent) {
         //Obtain context
         mContext = this;
         //Obtain shared preference reference
@@ -301,7 +309,7 @@ public class ChatDetailsActivity extends BaseActivity {
         btnSend.setEnabled(false);
 
         //Method called
-        retrieveIntentData();
+        retrieveIntentData(newIntent);
         initSocketConnection();
         initTextWatcher(etWriteMessage);
 
@@ -320,9 +328,9 @@ public class ChatDetailsActivity extends BaseActivity {
     /**
      * Method to retrieve intent data and perform required operation.
      */
-    private void retrieveIntentData() {
+    private void retrieveIntentData(Intent newIntent) {
         //Retrieve intent data
-        mBundle = getIntent().getBundleExtra(EXTRA_CHAT_DETAILS_DATA);
+        mBundle = newIntent.getBundleExtra(EXTRA_CHAT_DETAILS_DATA);
         mChatId = mBundle.getString(EXTRA_CHAT_ID);
         //Set toolbar title
         getSupportActionBar().setTitle(mBundle.getString(EXTRA_CHAT_USER_NAME));
@@ -447,12 +455,16 @@ public class ChatDetailsActivity extends BaseActivity {
                                     , data.getString("from_name")
                                     , chatID
                                     , message
-                                    , mPreferenceHelper);
+                                    , mPreferenceHelper
+                                    , data.getString("from_profilepicurl"));
                         } catch (JSONException e) {
                             e.printStackTrace();
                             FirebaseCrash.report(e);
                         }
                     }
+                    //Update flags
+                    CreadApp.GET_RESPONSE_FROM_NETWORK_CHAT_DETAILS = true;
+                    CreadApp.GET_RESPONSE_FROM_NETWORK_CHAT_LIST = true;
                 }
             });
         }
@@ -561,6 +573,8 @@ public class ChatDetailsActivity extends BaseActivity {
                         chatRequestContainer.setVisibility(View.GONE);
                         //Method called
                         updateMenuTitleText(menu);
+                        //Update flags
+                        CreadApp.GET_RESPONSE_FROM_NETWORK_CHAT_REQUEST = true;
                     }
 
                     @Override
@@ -671,6 +685,8 @@ public class ChatDetailsActivity extends BaseActivity {
                             //Notify changes
                             mAdapter.notifyDataSetChanged();
                             recyclerView.smoothScrollToPosition(mChatDetailsList.size());
+                            //Update flag
+                            CreadApp.GET_RESPONSE_FROM_NETWORK_CHAT_DETAILS = false;
 
                         }
                     }
