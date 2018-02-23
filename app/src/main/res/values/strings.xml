@@ -74,6 +74,7 @@
     <string name="title_dialog_royalty">Manage Your Royalites</string>
     <string name="text_dialog_royalty">Here\'s your bank of royalties which you earn (10%) for every artpiece that sells. View and manage orders placed by others for your art work. You can redeem your earnings into your Paytm account.</string>
     <string name="title_dialog_share">Share</string>
+    <string name="text_unfollow">Unfollow</string>
 
     //unicodes
     <string name="Rs">\u20B9</string>

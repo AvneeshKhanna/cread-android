@@ -3,6 +3,7 @@ package com.thetestament.cread.activities;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.content.ContextCompat;
@@ -21,6 +22,8 @@ import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import com.afollestad.materialdialogs.DialogAction;
+import com.afollestad.materialdialogs.MaterialDialog;
 import com.github.nkzawa.emitter.Emitter;
 import com.github.nkzawa.socketio.client.IO;
 import com.github.nkzawa.socketio.client.Socket;
@@ -197,8 +200,14 @@ public class ChatDetailsActivity extends BaseActivity {
                 navigateBack();
                 return true;
             case R.id.action_follow_or_block:
-                //Method called
-                updateFollowStatus();
+                //User is already following user show dialog
+                if (mIsFollowingReceiver) {
+                    //Show unfollow confirmation dialog
+                    showUnFollowConfirmationDialog();
+                } else {
+                    //Method called
+                    updateFollowStatus();
+                }
                 return true;
             case R.id.action_toggle_chat_sound:
                 if (mPreferenceHelper.isChatSoundEnabled()) {
@@ -479,6 +488,34 @@ public class ChatDetailsActivity extends BaseActivity {
             });
         }
     };
+
+
+    /**
+     * Method to show confirmation dialog when user tries to unfollow the receiver.
+     */
+    private void showUnFollowConfirmationDialog() {
+        new MaterialDialog.Builder(mContext)
+                .content("Do you want to unfollow " + mBundle.getString(EXTRA_CHAT_USER_NAME) + "?")
+                .positiveText(R.string.text_unfollow)
+                .negativeText(R.string.text_no)
+                .onPositive(new MaterialDialog.SingleButtonCallback() {
+                    @Override
+                    public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
+                        //Dismiss this dialog
+                        dialog.dismiss();
+                        //Method called
+                        updateFollowStatus();
+                    }
+                })
+                .onNegative(new MaterialDialog.SingleButtonCallback() {
+                    @Override
+                    public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
+                        //Dismiss this dialog
+                        dialog.dismiss();
+                    }
+                })
+                .build().show();
+    }
 
     /**
      * Add message to UI
