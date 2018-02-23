@@ -471,10 +471,16 @@ public class ChatListActivity extends BaseActivity {
                         try {
                             mChatRequestCount = jsonObject.getInt("requestcount");
                             //if request count is more zero
-                            if (mChatRequestCount > 0) {
+                            if (mChatRequestCount == 1) {
                                 ChatListModel chatListData = new ChatListModel();
                                 chatListData.setItemType(ChatListAdapter.VIEW_TYPE_HEADER);
                                 chatListData.setLastMessage(mChatRequestCount + " chat request");
+                                mChatList.add(0, chatListData);
+                                mAdapter.notifyItemInserted(0);
+                            } else if (mChatRequestCount > 1) {
+                                ChatListModel chatListData = new ChatListModel();
+                                chatListData.setItemType(ChatListAdapter.VIEW_TYPE_HEADER);
+                                chatListData.setLastMessage(mChatRequestCount + " chat requests");
                                 mChatList.add(0, chatListData);
                                 mAdapter.notifyItemInserted(0);
                             }
@@ -486,8 +492,8 @@ public class ChatListActivity extends BaseActivity {
 
                     @Override
                     public void onError(Throwable e) {
-                        FirebaseCrash.report(e);
                         e.printStackTrace();
+                        FirebaseCrash.report(e);
                     }
 
                     @Override
