@@ -119,14 +119,20 @@ public class ChatListActivity extends BaseActivity {
         super.onResume();
         //Update flag
         mIsActivityInForground = true;
+        initSocketConnection();
     }
 
     @Override
-    protected void onStop() {
-        super.onStop();
+    protected void onPause() {
+        super.onPause();
         //Update flag
         mIsActivityInForground = false;
+        //Disconnect socket connection
+        mSocket.disconnect();
+        //Remove incoming message listener
+        mSocket.off("send-message", inComingListener);
     }
+
 
     @Override
     protected void onDestroy() {
@@ -191,6 +197,7 @@ public class ChatListActivity extends BaseActivity {
                 //Remove incoming message listener
                 mSocket.off("send-message", inComingListener);
                 //Navigate back to previous screen
+                NotificationUtil.getNotificationBackButtonBehaviour(ChatListActivity.this);
                 finish();
                 return true;
             default:
@@ -236,7 +243,12 @@ public class ChatListActivity extends BaseActivity {
         loadChatListData();
         //Initialize load more listener
         initLoadMoreListener(mAdapter);
+    }
 
+    /**
+     * Method to initialize socket for real time messaging.
+     */
+    private void initSocketConnection() {
         //set query parameter
         IO.Options opts = new IO.Options();
         opts.query = "uuid=" + mHelper.getUUID();
@@ -248,10 +260,12 @@ public class ChatListActivity extends BaseActivity {
                 e.printStackTrace();
             }
         }
+
         //Set incoming message listener
         mSocket.on("send-message", inComingListener);
         //Make socket connection
         mSocket.connect();
+
     }
 
     /**
@@ -496,6 +510,11 @@ public class ChatListActivity extends BaseActivity {
                                     mChatList.remove(0);
                                     //Notify changes
                                     mAdapter.notifyItemRemoved(0);
+                                    //If list size is zero
+                                    if (mChatList.size() == 0) {
+                                        //Show no data message
+                                        viewNoData.setVisibility(View.VISIBLE);
+                                    }
                                 } else {
                                     //if request count is one
                                     if (mChatRequestCount == 1) {

@@ -160,15 +160,27 @@ public class ChatDetailsActivity extends BaseActivity {
     }
 
     @Override
+    protected void onResume() {
+        super.onResume();
+        //Method call
+        initSocketConnection();
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        //Disconnect socket connection
+        mSocket.disconnect();
+        //Remove incoming message listener
+        mSocket.off("send-message", inComingListener);
+        mSocket.off(Socket.EVENT_ERROR);
+    }
+
+    @Override
     protected void onDestroy() {
         super.onDestroy();
         //Remove compositeDisposable
         mCompositeDisposable.dispose();
-        //Disconnect socket connection
-        //mSocket.disconnect();
-        //Remove incoming message listener
-        mSocket.off("send-message", inComingListener);
-        mSocket.off(Socket.EVENT_ERROR);
     }
 
     @Override
@@ -324,7 +336,6 @@ public class ChatDetailsActivity extends BaseActivity {
 
         //Method called
         retrieveIntentData(newIntent);
-        initSocketConnection();
         initTextWatcher(etWriteMessage);
 
         //Set layout manger for recyclerView

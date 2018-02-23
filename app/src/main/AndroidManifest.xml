@@ -430,8 +430,8 @@
         <provider
             android:name="com.thetestament.cread.DataSyncAdapter.StubProvider"
             android:authorities="com.thetestament.cread.provider"
-            android:label="Stub provider"
             android:exported="false"
+            android:label="Stub provider"
             android:syncable="true" />
 
 
@@ -440,9 +440,10 @@
             android:exported="true">
             <!--android:process=":sync"-->
             <intent-filter>
-                <action android:name="android.content.SyncAdapter"/>
+                <action android:name="android.content.SyncAdapter" />
             </intent-filter>
-            <meta-data android:name="android.content.SyncAdapter"
+            <meta-data
+                android:name="android.content.SyncAdapter"
                 android:resource="@xml/syncadapter" />
         </service>
 
@@ -454,7 +455,7 @@
             <!--For back navigation-->
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value=".activities.BottomNavigationActivity" />
+                android:value=".activities.ChatListActivity" />
         </activity>
 
         <!--Chat details screen Screen-->

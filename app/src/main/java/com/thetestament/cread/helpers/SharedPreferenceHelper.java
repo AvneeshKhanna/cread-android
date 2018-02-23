@@ -537,7 +537,7 @@ public class SharedPreferenceHelper {
     }
 
     /**
-     * Method to retrieve chat dialog status.
+     * Method to retrieve chat dialog.
      *
      * @return True by default.
      */
@@ -548,13 +548,13 @@ public class SharedPreferenceHelper {
 
 
     /**
-     * Method to update chat dialog status.
+     * Method to update 'Write button' tooltip status.
      *
      * @param status boolean value i.e true or false
      */
     public void updateChatDialogStatus(boolean status) {
         SharedPreferences.Editor editor = mSharedPreferences.edit();
-        editor.putBoolean(mContext.getString(R.string.key_personal_chat_dialog), status);
+        editor.putBoolean(mContext.getString(R.string.key_me_dialog), status);
         editor.apply();
     }
 
