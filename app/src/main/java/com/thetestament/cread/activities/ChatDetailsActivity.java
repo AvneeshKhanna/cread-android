@@ -638,6 +638,20 @@ public class ChatDetailsActivity extends BaseActivity {
                             //Set result ok
                             setResult(RESULT_OK);
                         }
+                        //This screen is opened from user profile
+                        if (mBundle.getString(EXTRA_CHAT_DETAILS_CALLED_FROM)
+                                .equals(EXTRA_CHAT_DETAILS_CALLED_FROM_CHAT_PROFILE)) {
+                            Intent intent = getIntent();
+
+                            Bundle bundle = new Bundle();
+                            bundle.putBoolean(EXTRA_CHAT_FOLLOW_STATUS, mIsFollowingReceiver);
+                            intent.putExtra(EXTRA_CHAT_DETAILS_DATA, bundle);
+                            //Set result ok
+                            setResult(RESULT_OK, intent);
+
+                            //Update flags
+                            CreadApp.GET_RESPONSE_FROM_NETWORK_ME = true;
+                        }
                     }
 
                     @Override

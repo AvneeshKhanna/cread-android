@@ -115,6 +115,7 @@ import static com.thetestament.cread.utils.Constant.CONTENT_TYPE_SHORT;
 import static com.thetestament.cread.utils.Constant.EXTRA_CHAT_DETAILS_CALLED_FROM;
 import static com.thetestament.cread.utils.Constant.EXTRA_CHAT_DETAILS_CALLED_FROM_CHAT_PROFILE;
 import static com.thetestament.cread.utils.Constant.EXTRA_CHAT_DETAILS_DATA;
+import static com.thetestament.cread.utils.Constant.EXTRA_CHAT_FOLLOW_STATUS;
 import static com.thetestament.cread.utils.Constant.EXTRA_CHAT_ID;
 import static com.thetestament.cread.utils.Constant.EXTRA_CHAT_ITEM_POSITION;
 import static com.thetestament.cread.utils.Constant.EXTRA_CHAT_USER_NAME;
@@ -141,6 +142,7 @@ import static com.thetestament.cread.utils.Constant.IMAGE_TYPE_USER_CAPTURE_PIC;
 import static com.thetestament.cread.utils.Constant.ITEM_TYPES.COLLABLIST;
 import static com.thetestament.cread.utils.Constant.ITEM_TYPES.GRID;
 import static com.thetestament.cread.utils.Constant.ITEM_TYPES.LIST;
+import static com.thetestament.cread.utils.Constant.REQUEST_CODE_CHAT_DETAILS_FROM_USER_PROFILE;
 import static com.thetestament.cread.utils.Constant.REQUEST_CODE_FEED_DESCRIPTION_ACTIVITY;
 import static com.thetestament.cread.utils.Constant.REQUEST_CODE_OPEN_GALLERY_FOR_CAPTURE;
 import static com.thetestament.cread.utils.Constant.REQUEST_CODE_ROYALTIES_ACTIVITY;
@@ -373,6 +375,15 @@ public class MeFragment extends Fragment implements listener.OnCollaborationList
                     mAdapter.notifyItemChanged(bundle.getInt("position"));
                 }
                 break;
+            case REQUEST_CODE_CHAT_DETAILS_FROM_USER_PROFILE:
+                if (resultCode == RESULT_OK) {
+                    Bundle bundle = data.getBundleExtra(EXTRA_CHAT_DETAILS_DATA);
+                    mFollowStatus = bundle.getBoolean(EXTRA_CHAT_FOLLOW_STATUS);
+                    //Toggle follow button and message button
+                    toggleFollowButton(mFollowStatus, getActivity());
+                    toggleMessageButton(mFollowStatus, getActivity());
+                }
+                break;
         }
     }
 
@@ -545,7 +556,7 @@ public class MeFragment extends Fragment implements listener.OnCollaborationList
             bundle.putString(EXTRA_CHAT_DETAILS_CALLED_FROM, EXTRA_CHAT_DETAILS_CALLED_FROM_CHAT_PROFILE);
 
             intent.putExtra(EXTRA_CHAT_DETAILS_DATA, bundle);
-            startActivity(intent);
+            startActivityForResult(intent, REQUEST_CODE_CHAT_DETAILS_FROM_USER_PROFILE);
         } else {
             ViewHelper.getSnackBar(rootView, "Follow this person to chat");
         }
