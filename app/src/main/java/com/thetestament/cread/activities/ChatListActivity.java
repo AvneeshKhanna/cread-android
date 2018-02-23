@@ -153,6 +153,11 @@ public class ChatListActivity extends BaseActivity {
                 //Remove item and notify changes
                 mChatList.remove(bundle.getInt(EXTRA_CHAT_ITEM_POSITION));
                 mAdapter.notifyItemRemoved(bundle.getInt(EXTRA_CHAT_ITEM_POSITION));
+                if (mChatList.size() == 0) {
+                    //Show no data message
+                    viewNoData.setVisibility(View.VISIBLE);
+                }
+
             }
         } else if (requestCode == REQUEST_CODE_CHAT_REQUEST && resultCode == RESULT_OK) {
             //Method called

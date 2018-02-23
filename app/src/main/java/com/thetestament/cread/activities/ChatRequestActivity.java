@@ -101,6 +101,8 @@ public class ChatRequestActivity extends BaseActivity {
                 && resultCode == RESULT_OK) {
             //Clear list data
             mChatList.clear();
+            //Notify changes
+            mAdapter.notifyDataSetChanged();
             //Load chat list data
             loadChatListData();
             //Set result ok

@@ -562,6 +562,20 @@ public class ChatDetailsActivity extends BaseActivity {
 
             //Update flag
             CreadApp.GET_RESPONSE_FROM_NETWORK_CHAT_LIST = true;
+        } else if (mBundle.getString(EXTRA_CHAT_DETAILS_CALLED_FROM)
+                .equals(EXTRA_CHAT_DETAILS_CALLED_FROM_CHAT_LIST)) {
+            Intent intent = getIntent();
+
+            Bundle bundle = new Bundle();
+            bundle.putInt(EXTRA_CHAT_ITEM_POSITION, mBundle.getInt(EXTRA_CHAT_ITEM_POSITION));
+            bundle.putString(EXTRA_CHAT_LAST_MESSAGE, mLastMessage);
+            bundle.putBoolean(EXTRA_CHAT_FOLLOW_STATUS, mIsFollowingReceiver);
+            intent.putExtra(EXTRA_CHAT_DETAILS_DATA, bundle);
+
+            setResult(RESULT_OK, intent);
+
+            //Update flag
+            CreadApp.GET_RESPONSE_FROM_NETWORK_CHAT_LIST = true;
         }
 
         //if this screen was opened by click of notification
