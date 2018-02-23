@@ -155,6 +155,8 @@ public class ChatDetailsActivity extends BaseActivity {
     @Override
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
+        //Refresh last index key
+        mLastIndexKey = null;
         //Method called
         initScreen(intent);
     }
@@ -639,6 +641,20 @@ public class ChatDetailsActivity extends BaseActivity {
      * Method to update follow status
      */
     private void updateFollowStatus() {
+        //Disable follow button
+        textRequestChat.setEnabled(false);
+
+        //To show the progress dialog
+        MaterialDialog.Builder builder = new MaterialDialog.Builder(this)
+                .content("Please wait...")
+                .autoDismiss(false)
+                .cancelable(false)
+                .progress(true, 0);
+
+        final MaterialDialog dialog = builder.build();
+        dialog.show();
+
+
         FollowHelper followHelper = new FollowHelper();
         followHelper.updateFollowStatus(mContext
                 , mCompositeDisposable
@@ -647,6 +663,10 @@ public class ChatDetailsActivity extends BaseActivity {
                 , new listener.OnFollowRequestedListener() {
                     @Override
                     public void onFollowSuccess() {
+                        //Hide progress view
+                        dialog.dismiss();
+                        //Enable follow button
+                        textRequestChat.setEnabled(true);
                         //Update flag
                         mIsFollowingReceiver = !mIsFollowingReceiver;
                         //Hide request text and follow button
@@ -683,6 +703,10 @@ public class ChatDetailsActivity extends BaseActivity {
 
                     @Override
                     public void onFollowFailiure(String errorMsg) {
+                        //Hide progress view
+                        dialog.dismiss();
+                        //Enable follow button
+                        textRequestChat.setEnabled(true);
                         //Show error snackBar
                         ViewHelper.getSnackBar(rootView, errorMsg);
                     }

@@ -103,6 +103,9 @@ public class ChatRequestActivity extends BaseActivity {
             mChatList.clear();
             //Notify changes
             mAdapter.notifyDataSetChanged();
+            //Refresh last index key
+            mLastIndexKey = null;
+            mAdapter.setLoaded();
             //Load chat list data
             loadChatListData();
             //Set result ok
