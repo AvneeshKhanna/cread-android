@@ -559,6 +559,9 @@ public class ChatDetailsActivity extends BaseActivity {
             intent.putExtra(EXTRA_CHAT_DETAILS_DATA, bundle);
 
             setResult(RESULT_OK, intent);
+
+            //Update flag
+            CreadApp.GET_RESPONSE_FROM_NETWORK_CHAT_LIST = true;
         }
 
         //if this screen was opened by click of notification
