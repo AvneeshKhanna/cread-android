@@ -369,7 +369,7 @@ public class ChatDetailsActivity extends BaseActivity {
             updateChatReadStatus(mChatId, mPreferenceHelper.getUUID(), mPreferenceHelper.getAuthToken());
         }
         //if this screen called from EXTRA_CHAT_DETAILS_CALLED_FROM_CHAT_NOTIFICATION screen
-        if (!mBundle.getString(EXTRA_CHAT_DETAILS_CALLED_FROM)
+        if (mBundle.getString(EXTRA_CHAT_DETAILS_CALLED_FROM)
                 .equals(EXTRA_CHAT_DETAILS_CALLED_FROM_CHAT_NOTIFICATION)) {
             //Update flag in sharedPreference
             mPreferenceHelper.setPersonalChatIndicatorStatus(false);
@@ -497,7 +497,7 @@ public class ChatDetailsActivity extends BaseActivity {
      */
     private void showUnFollowConfirmationDialog() {
         new MaterialDialog.Builder(mContext)
-                .content("Do you want to unfollow " + mBundle.getString(EXTRA_CHAT_USER_NAME) + "?")
+                .content("Do you want to unfollow " + mBundle.getString(EXTRA_CHAT_USER_NAME) + "? This will move the chat to the chat-requests section")
                 .positiveText(R.string.text_unfollow)
                 .negativeText(R.string.text_no)
                 .onPositive(new MaterialDialog.SingleButtonCallback() {
@@ -562,7 +562,7 @@ public class ChatDetailsActivity extends BaseActivity {
 
             //Update flag
             CreadApp.GET_RESPONSE_FROM_NETWORK_CHAT_LIST = true;
-        } else if (mBundle.getString(EXTRA_CHAT_DETAILS_CALLED_FROM)
+        } else if (!mIsFollowingReceiver && mBundle.getString(EXTRA_CHAT_DETAILS_CALLED_FROM)
                 .equals(EXTRA_CHAT_DETAILS_CALLED_FROM_CHAT_LIST)) {
             Intent intent = getIntent();
 
@@ -642,6 +642,8 @@ public class ChatDetailsActivity extends BaseActivity {
                         chatRequestContainer.setVisibility(View.GONE);
                         //Method called
                         updateMenuTitleText(menu);
+                        //Method called
+                        showFollowStatusSnackBar(mIsFollowingReceiver);
                         //Update flags
                         CreadApp.GET_RESPONSE_FROM_NETWORK_CHAT_REQUEST = true;
                         CreadApp.GET_RESPONSE_FROM_NETWORK_CHAT_LIST = true;
@@ -674,6 +676,19 @@ public class ChatDetailsActivity extends BaseActivity {
                         ViewHelper.getSnackBar(rootView, errorMsg);
                     }
                 });
+    }
+
+    /**
+     * Method to show snack bar when follow status changes.
+     *
+     * @param status True if followed false otherwise.
+     */
+    private void showFollowStatusSnackBar(boolean status) {
+        if (status) {
+            ViewHelper.getSnackBar(rootView, "Followed " + mBundle.getString(EXTRA_CHAT_USER_NAME));
+        } else {
+            ViewHelper.getSnackBar(rootView, "Unfollowed " + mBundle.getString(EXTRA_CHAT_USER_NAME));
+        }
     }
 
     /**

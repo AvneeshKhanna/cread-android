@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:background="@color/white"
@@ -10,7 +11,8 @@
         android:id="@+id/viewFiller"
         android:layout_width="match_parent"
         android:layout_height="160dp"
-        android:scaleType="centerCrop" />
+        android:scaleType="centerCrop"
+        tools:src="@drawable/img_chat_intro_dialog" />
 
     <TextView
         android:id="@+id/textTitle"
@@ -21,7 +23,7 @@
         android:paddingLeft="20dp"
         android:paddingRight="20dp"
         android:paddingTop="25dp"
-        android:text="Welcome to Cread"
+        android:text="Strike Up A Conversation"
         android:textSize="20sp" />
 
     <TextView
@@ -33,6 +35,6 @@
         android:paddingBottom="20dp"
         android:paddingLeft="20dp"
         android:paddingRight="20dp"
-        android:text="Creadjdakkaskkasfkkfkjakjkskldl;;;;;hskd;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;ncxnbvnxbcvnbvncvbncxbvnbcnxbvnxcbnbxcnbhvsduufsdb cjhbxhcjb hxjc bhbcxhvj bhsbsdjvhj bhxbj bsbxhcb h hdsbhxbhbxhxhxhsjhh sbvjhbvjhbxj"
+        android:text="Now you can talk to other Cread users without going anywhere else."
         android:textSize="14sp" />
 </LinearLayout>

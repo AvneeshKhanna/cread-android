@@ -620,6 +620,13 @@ public class MeFragment extends Fragment implements listener.OnCollaborationList
             mRequestedUUID = getArguments().getString("requesteduuid");
             //Disable profile editing
             isProfileEditable = false;
+            //show chat dialog first time
+            if (mHelper.isChatDialogFirstTime()) {
+                //Show dialog here
+                getChatDialog();
+                //Update status
+                mHelper.updateChatDialogStatus(false);
+            }
         }
 
         //Condition to toggle visibility of follow button and cha list icon
@@ -2248,5 +2255,39 @@ public class MeFragment extends Fragment implements listener.OnCollaborationList
             }
         });
     }
+
+    /**
+     * Method to show the chat introduction dialog.
+     */
+    private void getChatDialog() {
+        MaterialDialog dialog = new MaterialDialog.Builder(getActivity())
+                .customView(R.layout.dialog_generic, false)
+                .positiveText(R.string.text_ok)
+                .onPositive(new MaterialDialog.SingleButtonCallback() {
+                    @Override
+                    public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
+                        //Dismiss dialog
+                        dialog.dismiss();
+                        //Update status
+                        mHelper.updateChatDialogStatus(false);
+                    }
+                })
+                .show();
+
+        //Obtain views reference
+        ImageView fillerImage = dialog.getCustomView().findViewById(R.id.viewFiller);
+        TextView textTitle = dialog.getCustomView().findViewById(R.id.textTitle);
+        TextView textDesc = dialog.getCustomView().findViewById(R.id.textDesc);
+
+
+        //Set filler image
+        fillerImage.setImageDrawable(ContextCompat.getDrawable(getActivity(), R.drawable.img_chat_intro_dialog));
+        //Set title text
+        textTitle.setText(getActivity().getString(R.string.title_dialog_chat));
+        //Set description text
+        textDesc.setText(getActivity().getString(R.string.text_dialog_chat_desc));
+
+    }
+
 
 }

@@ -536,4 +536,26 @@ public class SharedPreferenceHelper {
                 .getBoolean(mContext.getString(R.string.key_personal_chat_indicator), false);
     }
 
+    /**
+     * Method to retrieve chat dialog status.
+     *
+     * @return True by default.
+     */
+    public boolean isChatDialogFirstTime() {
+        return mSharedPreferences
+                .getBoolean(mContext.getString(R.string.key_personal_chat_dialog), true);
+    }
+
+
+    /**
+     * Method to update chat dialog status.
+     *
+     * @param status boolean value i.e true or false
+     */
+    public void updateChatDialogStatus(boolean status) {
+        SharedPreferences.Editor editor = mSharedPreferences.edit();
+        editor.putBoolean(mContext.getString(R.string.key_personal_chat_dialog), status);
+        editor.apply();
+    }
+
 }
