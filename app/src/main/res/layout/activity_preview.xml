@@ -51,7 +51,6 @@
                             android:layout_alignParentBottom="true"
                             android:layout_alignParentLeft="true"
                             android:layout_marginBottom="5dp"
-                            android:layout_marginLeft="5dp"
                             android:background="@color/black_overlay">
 
                             <TextView
@@ -87,10 +86,10 @@
 
 
         <LinearLayout
-            android:layout_alignParentBottom="true"
             android:id="@+id/containerPreviewBottom"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
             android:orientation="vertical">
 
             <com.linkedin.android.spyglass.ui.MentionsEditText

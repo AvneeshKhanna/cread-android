@@ -41,8 +41,6 @@
                 android:layout_above="@+id/viewDivider"
                 android:layout_alignParentBottom="true"
                 android:layout_alignParentLeft="true"
-                android:layout_marginBottom="5dp"
-                android:layout_marginLeft="5dp"
                 android:background="@color/black_overlay">
 
                 <TextView
@@ -98,10 +96,11 @@
             android:layout_alignParentBottom="true" />
     </RelativeLayout>
 
-     <!--Font option bottom sheet-->
-     <include layout="@layout/layout_font_bottom_sheet" />
-     <!--Color option bottom sheet-->
-     <include layout="@layout/layout_color_bottom_sheet" />
+    <!--Font option bottom sheet-->
+    <include layout="@layout/layout_font_bottom_sheet" />
+    <!--Color option bottom sheet-->
+    <include layout="@layout/layout_color_bottom_sheet" />
+
     <include
         android:id="@+id/progressView"
         layout="@layout/layout_progress_bar"

@@ -16,6 +16,7 @@ import android.support.v4.widget.NestedScrollView;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.InputType;
+import android.text.TextUtils;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -45,6 +46,7 @@ import com.thetestament.cread.R;
 import com.thetestament.cread.adapters.FilterAdapter;
 import com.thetestament.cread.adapters.PersonMentionAdapter;
 import com.thetestament.cread.dialog.CustomDialog;
+import com.thetestament.cread.helpers.CaptureHelper;
 import com.thetestament.cread.helpers.CustomFilters;
 import com.thetestament.cread.helpers.ImageHelper;
 import com.thetestament.cread.helpers.NetworkHelper;
@@ -1016,6 +1018,14 @@ public class PreviewActivity extends BaseActivity implements QueryTokenReceiver,
                 .progress(true, 0);
         final MaterialDialog dialog = builder.build();
         dialog.show();
+
+        //if watermark is not empty
+        if (!TextUtils.isEmpty(waterMark)) {
+            CaptureHelper.generateSignatureOnCapture(mWaterMarkText
+                    , textWaterMark.getWidth()
+                    , textWaterMark.getHeight()
+                    , imagePreview.getWidth());
+        }
 
         //Configure OkHttpClient for time out
         OkHttpClient okHttpClient = new OkHttpClient().newBuilder()
