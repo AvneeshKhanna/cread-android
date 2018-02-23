@@ -52,6 +52,7 @@ import static com.thetestament.cread.helpers.NetworkHelper.getChatRequestCountOb
 import static com.thetestament.cread.helpers.NetworkHelper.getNetConnectionStatus;
 import static com.thetestament.cread.helpers.NetworkHelper.getObservableFromServer;
 import static com.thetestament.cread.utils.Constant.EXTRA_CHAT_DETAILS_DATA;
+import static com.thetestament.cread.utils.Constant.EXTRA_CHAT_FOLLOW_STATUS;
 import static com.thetestament.cread.utils.Constant.EXTRA_CHAT_ITEM_POSITION;
 import static com.thetestament.cread.utils.Constant.EXTRA_CHAT_LAST_MESSAGE;
 import static com.thetestament.cread.utils.Constant.REQUEST_CODE_CHAT_DETAILS;
@@ -141,11 +142,18 @@ public class ChatListActivity extends BaseActivity {
         if (requestCode == REQUEST_CODE_CHAT_DETAILS && resultCode == RESULT_OK) {
             //Retrieve data
             Bundle bundle = data.getBundleExtra(EXTRA_CHAT_DETAILS_DATA);
-            //Set last message
-            mChatList.get(bundle.getInt(EXTRA_CHAT_ITEM_POSITION))
-                    .setLastMessage(bundle.getString(EXTRA_CHAT_LAST_MESSAGE));
-            //Notify changes
-            mAdapter.notifyItemChanged(bundle.getInt(EXTRA_CHAT_ITEM_POSITION));
+            //if follow status is true
+            if (bundle.getBoolean(EXTRA_CHAT_FOLLOW_STATUS)) {
+                //Set last message
+                mChatList.get(bundle.getInt(EXTRA_CHAT_ITEM_POSITION))
+                        .setLastMessage(bundle.getString(EXTRA_CHAT_LAST_MESSAGE));
+                //Notify changes
+                mAdapter.notifyItemChanged(bundle.getInt(EXTRA_CHAT_ITEM_POSITION));
+            } else {
+                //Remove item and notify changes
+                mChatList.remove(bundle.getInt(EXTRA_CHAT_ITEM_POSITION));
+                mAdapter.notifyItemRemoved(bundle.getInt(EXTRA_CHAT_ITEM_POSITION));
+            }
         } else if (requestCode == REQUEST_CODE_CHAT_REQUEST && resultCode == RESULT_OK) {
             //Method called
             getChatRequestCount(true);

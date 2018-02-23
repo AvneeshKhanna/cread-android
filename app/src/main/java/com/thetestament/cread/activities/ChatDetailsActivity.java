@@ -71,6 +71,7 @@ import static com.thetestament.cread.utils.Constant.EXTRA_CHAT_DETAILS_CALLED_FR
 import static com.thetestament.cread.utils.Constant.EXTRA_CHAT_DETAILS_CALLED_FROM_CHAT_PROFILE;
 import static com.thetestament.cread.utils.Constant.EXTRA_CHAT_DETAILS_CALLED_FROM_CHAT_REQUEST;
 import static com.thetestament.cread.utils.Constant.EXTRA_CHAT_DETAILS_DATA;
+import static com.thetestament.cread.utils.Constant.EXTRA_CHAT_FOLLOW_STATUS;
 import static com.thetestament.cread.utils.Constant.EXTRA_CHAT_ID;
 import static com.thetestament.cread.utils.Constant.EXTRA_CHAT_ITEM_POSITION;
 import static com.thetestament.cread.utils.Constant.EXTRA_CHAT_LAST_MESSAGE;
@@ -554,6 +555,7 @@ public class ChatDetailsActivity extends BaseActivity {
             Bundle bundle = new Bundle();
             bundle.putInt(EXTRA_CHAT_ITEM_POSITION, mBundle.getInt(EXTRA_CHAT_ITEM_POSITION));
             bundle.putString(EXTRA_CHAT_LAST_MESSAGE, mLastMessage);
+            bundle.putBoolean(EXTRA_CHAT_FOLLOW_STATUS, mIsFollowingReceiver);
             intent.putExtra(EXTRA_CHAT_DETAILS_DATA, bundle);
 
             setResult(RESULT_OK, intent);
