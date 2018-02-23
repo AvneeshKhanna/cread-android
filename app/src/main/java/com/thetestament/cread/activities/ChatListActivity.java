@@ -55,6 +55,7 @@ import static com.thetestament.cread.utils.Constant.EXTRA_CHAT_DETAILS_DATA;
 import static com.thetestament.cread.utils.Constant.EXTRA_CHAT_ITEM_POSITION;
 import static com.thetestament.cread.utils.Constant.EXTRA_CHAT_LAST_MESSAGE;
 import static com.thetestament.cread.utils.Constant.REQUEST_CODE_CHAT_DETAILS;
+import static com.thetestament.cread.utils.Constant.REQUEST_CODE_CHAT_REQUEST;
 
 /**
  * Appcompat activity class to show user chat list.
@@ -145,6 +146,9 @@ public class ChatListActivity extends BaseActivity {
                     .setLastMessage(bundle.getString(EXTRA_CHAT_LAST_MESSAGE));
             //Notify changes
             mAdapter.notifyItemChanged(bundle.getInt(EXTRA_CHAT_ITEM_POSITION));
+        } else if (requestCode == REQUEST_CODE_CHAT_REQUEST && resultCode == RESULT_OK) {
+            //Method called
+            getChatRequestCount(true);
         }
     }
 
@@ -214,7 +218,7 @@ public class ChatListActivity extends BaseActivity {
         recyclerView.setAdapter(mAdapter);
 
         //Load chat request count
-        getChatRequestCount();
+        getChatRequestCount(false);
         //Load chat list data
         loadChatListData();
         //Initialize load more listener
@@ -456,8 +460,10 @@ public class ChatListActivity extends BaseActivity {
 
     /**
      * RxJava2 implementation for retrieving chat request count from server.
+     *
+     * @param loadAgain True if data is to be for second time , false otherwise
      */
-    private void getChatRequestCount() {
+    private void getChatRequestCount(final boolean loadAgain) {
         mCompositeDisposable.add(getChatRequestCountObservableFromServer(BuildConfig.URL + "/chat-list/requests-count"
                 , mHelper.getUUID()
                 , true)
@@ -470,20 +476,50 @@ public class ChatListActivity extends BaseActivity {
                     public void onNext(JSONObject jsonObject) {
                         try {
                             mChatRequestCount = jsonObject.getInt("requestcount");
-                            //if request count is more zero
-                            if (mChatRequestCount == 1) {
-                                ChatListModel chatListData = new ChatListModel();
-                                chatListData.setItemType(ChatListAdapter.VIEW_TYPE_HEADER);
-                                chatListData.setLastMessage(mChatRequestCount + " chat request");
-                                mChatList.add(0, chatListData);
-                                mAdapter.notifyItemInserted(0);
-                            } else if (mChatRequestCount > 1) {
-                                ChatListModel chatListData = new ChatListModel();
-                                chatListData.setItemType(ChatListAdapter.VIEW_TYPE_HEADER);
-                                chatListData.setLastMessage(mChatRequestCount + " chat requests");
-                                mChatList.add(0, chatListData);
-                                mAdapter.notifyItemInserted(0);
+                            //Data is loaded for second time
+                            if (loadAgain) {
+                                if (mChatRequestCount == 0) {
+                                    //Remove item
+                                    mChatList.remove(0);
+                                    //Notify changes
+                                    mAdapter.notifyItemRemoved(0);
+                                } else {
+                                    //if request count is one
+                                    if (mChatRequestCount == 1) {
+                                        //Set last message
+                                        mChatList.get(0)
+                                                .setLastMessage(mChatRequestCount + " chat request");
+                                        //Notify changes
+                                        mAdapter.notifyItemChanged(0);
+                                    }
+                                    //Request count is more than one
+                                    else if (mChatRequestCount > 1) {
+                                        //Set last message
+                                        mChatList.get(0)
+                                                .setLastMessage(mChatRequestCount + " chat requests");
+                                        //Notify changes
+                                        mAdapter.notifyItemChanged(0);
+                                    }
+                                }
+                            } else {
+                                //if request count is one
+                                if (mChatRequestCount == 1) {
+                                    ChatListModel chatListData = new ChatListModel();
+                                    chatListData.setItemType(ChatListAdapter.VIEW_TYPE_HEADER);
+                                    chatListData.setLastMessage(mChatRequestCount + " chat request");
+                                    mChatList.add(0, chatListData);
+                                    mAdapter.notifyItemInserted(0);
+                                }
+                                //Request count is more than one
+                                else if (mChatRequestCount > 1) {
+                                    ChatListModel chatListData = new ChatListModel();
+                                    chatListData.setItemType(ChatListAdapter.VIEW_TYPE_HEADER);
+                                    chatListData.setLastMessage(mChatRequestCount + " chat requests");
+                                    mChatList.add(0, chatListData);
+                                    mAdapter.notifyItemInserted(0);
+                                }
                             }
+
                         } catch (JSONException e) {
                             e.printStackTrace();
                             FirebaseCrash.report(e);

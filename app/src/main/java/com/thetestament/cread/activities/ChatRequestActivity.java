@@ -8,6 +8,8 @@ import android.support.design.widget.CoordinatorLayout;
 import android.support.v4.app.FragmentActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.animation.AnimationUtils;
 import android.view.animation.LayoutAnimationController;
@@ -41,10 +43,7 @@ import io.reactivex.schedulers.Schedulers;
 
 import static com.thetestament.cread.helpers.NetworkHelper.getNetConnectionStatus;
 import static com.thetestament.cread.helpers.NetworkHelper.getObservableFromServer;
-import static com.thetestament.cread.utils.Constant.EXTRA_CHAT_DETAILS_DATA;
-import static com.thetestament.cread.utils.Constant.EXTRA_CHAT_ITEM_POSITION;
-import static com.thetestament.cread.utils.Constant.EXTRA_CHAT_LAST_MESSAGE;
-import static com.thetestament.cread.utils.Constant.REQUEST_CODE_CHAT_DETAILS;
+import static com.thetestament.cread.utils.Constant.REQUEST_CODE_CHAT_DETAILS_FROM_CHAT_REQUEST;
 
 /**
  * Appcompat activity class to show requested chat user list.
@@ -98,14 +97,14 @@ public class ChatRequestActivity extends BaseActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == REQUEST_CODE_CHAT_DETAILS && resultCode == RESULT_OK) {
-            //Retrieve data
-            Bundle bundle = data.getBundleExtra(EXTRA_CHAT_DETAILS_DATA);
-            //Set last message
-            mChatList.get(bundle.getInt(EXTRA_CHAT_ITEM_POSITION))
-                    .setLastMessage(bundle.getString(EXTRA_CHAT_LAST_MESSAGE));
-            //Notify changes
-            mAdapter.notifyItemChanged(bundle.getInt(EXTRA_CHAT_ITEM_POSITION));
+        if (requestCode == REQUEST_CODE_CHAT_DETAILS_FROM_CHAT_REQUEST
+                && resultCode == RESULT_OK) {
+            //Clear list data
+            mChatList.clear();
+            //Load chat list data
+            loadChatListData();
+            //Set result ok
+            setResult(RESULT_OK);
         }
     }
 
@@ -120,6 +119,32 @@ public class ChatRequestActivity extends BaseActivity {
         super.onRestoreInstanceState(savedInstanceState);
         Icepick.restoreInstanceState(this, savedInstanceState);
     }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                //Navigate back to previous screen
+                finish();
+                return true;
+
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
+
+    @Override
+    public void onBackPressed() {
+        //super.onBackPressed();
+        //Navigate back to previous screen
+        finish();
+    }
+
     //endregion
 
     //region :Private methods

@@ -66,6 +66,7 @@ import static com.thetestament.cread.helpers.NetworkHelper.getChatDataObservable
 import static com.thetestament.cread.helpers.NetworkHelper.getNetConnectionStatus;
 import static com.thetestament.cread.helpers.NetworkHelper.getupdateChatReadStatusObservable;
 import static com.thetestament.cread.utils.Constant.EXTRA_CHAT_DETAILS_CALLED_FROM;
+import static com.thetestament.cread.utils.Constant.EXTRA_CHAT_DETAILS_CALLED_FROM_CHAT_LIST;
 import static com.thetestament.cread.utils.Constant.EXTRA_CHAT_DETAILS_CALLED_FROM_CHAT_NOTIFICATION;
 import static com.thetestament.cread.utils.Constant.EXTRA_CHAT_DETAILS_CALLED_FROM_CHAT_PROFILE;
 import static com.thetestament.cread.utils.Constant.EXTRA_CHAT_DETAILS_CALLED_FROM_CHAT_REQUEST;
@@ -546,7 +547,8 @@ public class ChatDetailsActivity extends BaseActivity {
      */
     private void navigateBack() {
         //If last message has been updated
-        if (mLastMessageUpdated) {
+        if (mLastMessageUpdated && mBundle.getString(EXTRA_CHAT_DETAILS_CALLED_FROM)
+                .equals(EXTRA_CHAT_DETAILS_CALLED_FROM_CHAT_LIST)) {
             Intent intent = getIntent();
 
             Bundle bundle = new Bundle();
@@ -624,6 +626,13 @@ public class ChatDetailsActivity extends BaseActivity {
                         //Update flags
                         CreadApp.GET_RESPONSE_FROM_NETWORK_CHAT_REQUEST = true;
                         CreadApp.GET_RESPONSE_FROM_NETWORK_CHAT_LIST = true;
+
+                        //This screen is opened from chat request screen
+                        if (mBundle.getString(EXTRA_CHAT_DETAILS_CALLED_FROM)
+                                .equals(EXTRA_CHAT_DETAILS_CALLED_FROM_CHAT_REQUEST)) {
+                            //Set result ok
+                            setResult(RESULT_OK);
+                        }
                     }
 
                     @Override

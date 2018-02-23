@@ -28,7 +28,7 @@ import static com.thetestament.cread.utils.Constant.EXTRA_CHAT_ID;
 import static com.thetestament.cread.utils.Constant.EXTRA_CHAT_ITEM_POSITION;
 import static com.thetestament.cread.utils.Constant.EXTRA_CHAT_USER_NAME;
 import static com.thetestament.cread.utils.Constant.EXTRA_CHAT_UUID;
-import static com.thetestament.cread.utils.Constant.REQUEST_CODE_CHAT_DETAILS;
+import static com.thetestament.cread.utils.Constant.REQUEST_CODE_CHAT_DETAILS_FROM_CHAT_REQUEST;
 
 /**
  * Adapter class to provide a binding from data set to views that are displayed within a chat request RecyclerView.
@@ -148,7 +148,6 @@ public class ChatRequestAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
             public void onClick(View view) {
                 //Open ChatDetailsActivity
                 Intent intent = new Intent(mContext, ChatDetailsActivity.class);
-                //Intent intent = new Intent(mContext, ChatRequestActivity.class);
                 //Set bundle data
                 Bundle bundle = new Bundle();
                 bundle.putString(EXTRA_CHAT_UUID, data.getReceiverUUID());
@@ -159,7 +158,7 @@ public class ChatRequestAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
 
                 intent.putExtra(EXTRA_CHAT_DETAILS_DATA, bundle);
 
-                mContext.startActivityForResult(intent, REQUEST_CODE_CHAT_DETAILS);
+                mContext.startActivityForResult(intent, REQUEST_CODE_CHAT_DETAILS_FROM_CHAT_REQUEST);
 
                 //Update read status of item
                 if (data.getUnreadStatus()) {

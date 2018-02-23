@@ -31,6 +31,8 @@ public class Constant {
     public static final int REQUEST_CODE_EDIT_POST = 1012;
     public static final int REQUEST_CODE_COMMENT_MENTION = 1013;
     public static final int REQUEST_CODE_CHAT_DETAILS = 1014;
+    public static final int REQUEST_CODE_CHAT_DETAILS_FROM_CHAT_REQUEST = 1015;
+    public static final int REQUEST_CODE_CHAT_REQUEST = 1016;
     //public static final int REQUEST_CODE_EDIT_SHORT = 1013;
     //endregion
 

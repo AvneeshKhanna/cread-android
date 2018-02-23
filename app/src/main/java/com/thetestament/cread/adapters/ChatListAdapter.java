@@ -31,6 +31,7 @@ import static com.thetestament.cread.utils.Constant.EXTRA_CHAT_ITEM_POSITION;
 import static com.thetestament.cread.utils.Constant.EXTRA_CHAT_USER_NAME;
 import static com.thetestament.cread.utils.Constant.EXTRA_CHAT_UUID;
 import static com.thetestament.cread.utils.Constant.REQUEST_CODE_CHAT_DETAILS;
+import static com.thetestament.cread.utils.Constant.REQUEST_CODE_CHAT_REQUEST;
 
 /**
  * Adapter class to provide a binding from data set to views that are displayed within a chatList RecyclerView.
@@ -199,7 +200,7 @@ public class ChatListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
             public void onClick(View view) {
                 //Open ChatRequestActivity
                 Intent intent = new Intent(mContext, ChatRequestActivity.class);
-                mContext.startActivity(intent);
+                mContext.startActivityForResult(intent , REQUEST_CODE_CHAT_REQUEST);
             }
         });
     }
