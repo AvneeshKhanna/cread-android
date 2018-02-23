@@ -554,7 +554,7 @@ public class SharedPreferenceHelper {
      */
     public void updateChatDialogStatus(boolean status) {
         SharedPreferences.Editor editor = mSharedPreferences.edit();
-        editor.putBoolean(mContext.getString(R.string.key_me_dialog), status);
+        editor.putBoolean(mContext.getString(R.string.key_personal_chat_dialog), status);
         editor.apply();
     }
 

@@ -36,6 +36,7 @@ import com.thetestament.cread.utils.NotificationDataSaver;
 import com.thetestament.cread.utils.NotificationDataSaver.OnCompleteListener;
 
 import java.util.Map;
+import java.util.UUID;
 
 import io.smooch.ui.ConversationActivity;
 
@@ -300,7 +301,8 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
 
 
             case NOTIFICATION_CATEGORY_PERSONAL_CHAT_MESSAGE:
-                mId = NOTIFICATION_ID_PERSONAL_CHAT_MESSAGE;
+                UUID fromUUID = UUID.fromString(data.get("from_uuid"));
+                mId = fromUUID.hashCode();
                 intent = new Intent(this, ChatDetailsActivity.class);
                 intent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
 
