@@ -26,8 +26,8 @@ import com.squareup.picasso.Picasso;
 import com.thetestament.cread.BuildConfig;
 import com.thetestament.cread.R;
 import com.thetestament.cread.activities.BottomNavigationActivity;
-import com.thetestament.cread.activities.ProfileActivity;
 import com.thetestament.cread.activities.ChatDetailsActivity;
+import com.thetestament.cread.activities.ProfileActivity;
 import com.thetestament.cread.activities.UpdatesActivity;
 import com.thetestament.cread.fragments.SettingsFragment;
 import com.thetestament.cread.helpers.SharedPreferenceHelper;
@@ -42,6 +42,7 @@ import io.smooch.ui.ConversationActivity;
 import static android.support.v4.app.NotificationManagerCompat.IMPORTANCE_HIGH;
 import static com.thetestament.cread.CreadApp.GET_RESPONSE_FROM_NETWORK_CHAT_DETAILS;
 import static com.thetestament.cread.CreadApp.GET_RESPONSE_FROM_NETWORK_CHAT_LIST;
+import static com.thetestament.cread.CreadApp.GET_RESPONSE_FROM_NETWORK_CHAT_REQUEST;
 import static com.thetestament.cread.CreadApp.GET_RESPONSE_FROM_NETWORK_COLLABORATION_DETAILS;
 import static com.thetestament.cread.CreadApp.GET_RESPONSE_FROM_NETWORK_COMMENTS;
 import static com.thetestament.cread.CreadApp.GET_RESPONSE_FROM_NETWORK_ENTITY_SPECIFIC;
@@ -53,8 +54,6 @@ import static com.thetestament.cread.CreadApp.GET_RESPONSE_FROM_NETWORK_INSPIRAT
 import static com.thetestament.cread.CreadApp.GET_RESPONSE_FROM_NETWORK_MAIN;
 import static com.thetestament.cread.CreadApp.GET_RESPONSE_FROM_NETWORK_ME;
 import static com.thetestament.cread.CreadApp.GET_RESPONSE_FROM_NETWORK_UPDATES;
-import static com.thetestament.cread.utils.Constant.EXTRA_OPEN_SPECIFIC_BOTTOMNAV_FRAGMENT;
-import static com.thetestament.cread.utils.Constant.EXTRA_PROFILE_UUID;
 import static com.thetestament.cread.utils.Constant.EXTRA_CHAT_DETAILS_CALLED_FROM;
 import static com.thetestament.cread.utils.Constant.EXTRA_CHAT_DETAILS_CALLED_FROM_CHAT_NOTIFICATION;
 import static com.thetestament.cread.utils.Constant.EXTRA_CHAT_DETAILS_DATA;
@@ -62,6 +61,8 @@ import static com.thetestament.cread.utils.Constant.EXTRA_CHAT_ID;
 import static com.thetestament.cread.utils.Constant.EXTRA_CHAT_ITEM_POSITION;
 import static com.thetestament.cread.utils.Constant.EXTRA_CHAT_USER_NAME;
 import static com.thetestament.cread.utils.Constant.EXTRA_CHAT_UUID;
+import static com.thetestament.cread.utils.Constant.EXTRA_OPEN_SPECIFIC_BOTTOMNAV_FRAGMENT;
+import static com.thetestament.cread.utils.Constant.EXTRA_PROFILE_UUID;
 import static com.thetestament.cread.utils.Constant.NOTIFICATION_BUNDLE_DATA_ACTOR_ID;
 import static com.thetestament.cread.utils.Constant.NOTIFICATION_BUNDLE_DATA_ACTOR_IMAGE;
 import static com.thetestament.cread.utils.Constant.NOTIFICATION_BUNDLE_DATA_CATEGORY;
@@ -82,6 +83,7 @@ import static com.thetestament.cread.utils.Constant.NOTIFICATION_CATEGORY_CREAD_
 import static com.thetestament.cread.utils.Constant.NOTIFICATION_CATEGORY_CREAD_TOP_POST;
 import static com.thetestament.cread.utils.Constant.NOTIFICATION_CATEGORY_ENGAGEMENT_NOTIFICATIONS;
 import static com.thetestament.cread.utils.Constant.NOTIFICATION_CATEGORY_PERSONAL_CHAT_MESSAGE;
+import static com.thetestament.cread.utils.Constant.NOTIFICATION_CATEGORY_PERSONAL_CHAT_REQUEST;
 import static com.thetestament.cread.utils.Constant.NOTIFICATION_CATEGORY_PROFILE_MENTION_COMMENT;
 import static com.thetestament.cread.utils.Constant.NOTIFICATION_CATEGORY_PROFILE_MENTION_POST;
 import static com.thetestament.cread.utils.Constant.NOTIFICATION_CHANNEL_GENERAL;
@@ -297,7 +299,6 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
                 break;
 
 
-
             case NOTIFICATION_CATEGORY_PERSONAL_CHAT_MESSAGE:
                 mId = NOTIFICATION_ID_PERSONAL_CHAT_MESSAGE;
                 intent = new Intent(this, ChatDetailsActivity.class);
@@ -316,6 +317,15 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
                 GET_RESPONSE_FROM_NETWORK_CHAT_DETAILS = true;
                 //set personal chat indicator status
                 spHelper.setPersonalChatIndicatorStatus(true);
+                break;
+            case NOTIFICATION_CATEGORY_PERSONAL_CHAT_REQUEST:
+                //Set personal chat indicator status to true
+                spHelper.setPersonalChatIndicatorStatus(true);
+                //Update flags
+                GET_RESPONSE_FROM_NETWORK_CHAT_LIST = true;
+                GET_RESPONSE_FROM_NETWORK_CHAT_REQUEST = true;
+                //Update flag
+                isValidCategory = false;
                 break;
             default:
                 isValidCategory = false;

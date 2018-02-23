@@ -154,6 +154,7 @@ public class Constant {
     public static final String NOTIFICATION_CATEGORY_ENGAGEMENT_NOTIFICATIONS = "engagement-notification";
     public static final String NOTIFICATION_CATEGORY_CREAD_FB_FRIEND = "fb-friend-new";
     public static final String NOTIFICATION_CATEGORY_PERSONAL_CHAT_MESSAGE = "personal-chat";
+    public static final String NOTIFICATION_CATEGORY_PERSONAL_CHAT_REQUEST = "personal-chat-request";
 
     //Notification id cread
     public static final int NOTIFICATION_ID_CREAD_FOLLOW = 1000;
