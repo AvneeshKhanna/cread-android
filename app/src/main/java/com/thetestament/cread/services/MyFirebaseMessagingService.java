@@ -34,6 +34,7 @@ import com.thetestament.cread.helpers.SharedPreferenceHelper;
 import com.thetestament.cread.utils.ImageRoundCorners;
 import com.thetestament.cread.utils.NotificationDataSaver;
 import com.thetestament.cread.utils.NotificationDataSaver.OnCompleteListener;
+import com.thetestament.cread.utils.NotificationUtil;
 
 import java.util.Map;
 import java.util.UUID;
@@ -99,7 +100,6 @@ import static com.thetestament.cread.utils.Constant.NOTIFICATION_ID_CREAD_HATSOF
 import static com.thetestament.cread.utils.Constant.NOTIFICATION_ID_CREAD_TEAM_CHAT;
 import static com.thetestament.cread.utils.Constant.NOTIFICATION_ID_CREAD_TOP_POST;
 import static com.thetestament.cread.utils.Constant.NOTIFICATION_ID_ENGAGEMENT_NOTIFICATIONS;
-import static com.thetestament.cread.utils.Constant.NOTIFICATION_ID_PERSONAL_CHAT_MESSAGE;
 import static com.thetestament.cread.utils.Constant.NOTIFICATION_ID_PROFILE_MENTION_COMMENT;
 import static com.thetestament.cread.utils.Constant.NOTIFICATION_ID_PROFILE_MENTION_POST;
 import static com.thetestament.cread.utils.Constant.TAG_EXPLORE_FRAGMENT;
@@ -362,7 +362,12 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
                 } else {
                     //If notification is from personal chat
                     if (category.equals(NOTIFICATION_CATEGORY_PERSONAL_CHAT_MESSAGE)) {
-                        buildNotificationForPersonalChat(message, mId, intent);
+                        // buildNotificationForPersonalChat(message, mId, intent);
+                        NotificationUtil.buildNotificationForPersonalChat(getApplicationContext()
+                                , data.get("from_name")
+                                , message
+                                , intent
+                                , data.get("from_profilepicurl"));
                     } else {
                         buildNotification(message, mId, intent);
                     }

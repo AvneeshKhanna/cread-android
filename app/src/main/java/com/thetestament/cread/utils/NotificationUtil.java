@@ -7,20 +7,20 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
+import android.graphics.drawable.Drawable;
 import android.media.MediaPlayer;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Looper;
 import android.support.v4.app.NavUtils;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.TaskStackBuilder;
-import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
-import android.widget.RemoteViews;
 
 import com.squareup.picasso.Picasso;
+import com.squareup.picasso.Target;
 import com.thetestament.cread.R;
 import com.thetestament.cread.activities.ChatDetailsActivity;
 import com.thetestament.cread.helpers.SharedPreferenceHelper;
@@ -96,7 +96,10 @@ public class NotificationUtil {
      *
      * @param message Message to be displayed in notification
      */
-    public static void buildNotificationForPersonalChat(final Context context, String fromUUID, String fromName, String chatId, String message, SharedPreferenceHelper helper, final String imageUrl) {
+    public static void buildNotificationForPersonalChat(final Context context
+            , String fromUUID, final String fromName
+            , String chatId, final String message
+            , SharedPreferenceHelper helper, final String imageUrl) {
 
         Intent intent = new Intent(context, ChatDetailsActivity.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
@@ -114,7 +117,7 @@ public class NotificationUtil {
         //set personal chat indicator status
         helper.setPersonalChatIndicatorStatus(true);
 
-        PendingIntent pendingIntent =
+        final PendingIntent pendingIntent =
                 PendingIntent.getActivity(
                         context,
                         0,
@@ -126,45 +129,74 @@ public class NotificationUtil {
             createNotificationChannel(context);
         }
 
-        // create RemoteView
-        final RemoteViews remoteViews = new RemoteViews(context.getPackageName(), R.layout.layout_notification_personal_chat);
-        remoteViews.setImageViewResource(R.id.imageUser, R.drawable.ic_account_circle_48);
-        remoteViews.setTextViewText(R.id.textUserName, fromName);
-        remoteViews.setTextViewText(R.id.textUserMessage, message);
-        remoteViews.setTextColor(R.id.textUserName, ContextCompat.getColor(context, R.color.grey_dark));
-        remoteViews.setTextColor(R.id.textUserMessage, ContextCompat.getColor(context, R.color.black_overlay));
+        Picasso.with(context)
+                .load(imageUrl)
+                .into(new Target() {
+                    @Override
+                    public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
+                        //Method called
+                        launchNotification(context, fromName, message, bitmap, pendingIntent);
+                    }
 
-        final NotificationCompat.Builder mNotification =
-                new NotificationCompat.Builder(context, NOTIFICATION_CHANNEL_GENERAL)
-                        .setContentTitle(fromName)
-                        .setSmallIcon(R.drawable.ic_stat_cread_logo)
-                        .setContentText(message)
-                        .setDefaults(Notification.DEFAULT_ALL)
-                        .setContent(remoteViews)
-                        .setContentIntent(pendingIntent)
-                        .setAutoCancel(true)
-                        .setPriority(IMPORTANCE_HIGH);
+                    @Override
+                    public void onBitmapFailed(Drawable errorDrawable) {
+                        //Method called
+                        launchNotification(context, fromName, message, R.drawable.ic_cread_notification_general, pendingIntent);
+                    }
 
+                    @Override
+                    public void onPrepareLoad(Drawable placeHolderDrawable) {
 
-        // To push notification from background thread
-        Handler handler = new Handler(Looper.getMainLooper());
-        handler.post(new Runnable() {
-            @Override
-            public void run() {
-                Picasso
-                        .with(context)
-                        .load(imageUrl)
-                        .error(R.drawable.ic_account_circle_48)
-                        .into(remoteViews, R.id.imageUser, NOTIFICATION_ID_PERSONAL_CHAT_MESSAGE, mNotification.build());
-            }
-        });
+                    }
+                });
 
-        // Gets an instance of the NotificationManager service
-        NotificationManager notificationManager =
-                (NotificationManager) context.getSystemService(NOTIFICATION_SERVICE);
-        // Builds the notification and issues it.
-        notificationManager.notify(NOTIFICATION_ID_PERSONAL_CHAT_MESSAGE, mNotification.build());
     }
+
+    /**
+     * Method to shoot personal chat new incoming message notification.
+     *
+     * @param message Message to be displayed in notification
+     */
+    public static void buildNotificationForPersonalChat(final Context context
+            , final String fromName
+            , final String message
+            , Intent intent, String imageUrl) {
+
+        final PendingIntent pendingIntent =
+                PendingIntent.getActivity(
+                        context,
+                        0,
+                        intent,
+                        PendingIntent.FLAG_UPDATE_CURRENT);
+
+
+        if (Build.VERSION.SDK_INT >= 26) {
+            createNotificationChannel(context);
+        }
+
+        Picasso.with(context)
+                .load(imageUrl)
+                .into(new Target() {
+                    @Override
+                    public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
+                        //Method called
+                        launchNotification(context, fromName, message, bitmap, pendingIntent);
+                    }
+
+                    @Override
+                    public void onBitmapFailed(Drawable errorDrawable) {
+                        //Method called
+                        launchNotification(context, fromName, message, R.drawable.ic_cread_notification_general, pendingIntent);
+                    }
+
+                    @Override
+                    public void onPrepareLoad(Drawable placeHolderDrawable) {
+
+                    }
+                });
+
+    }
+
 
     /**
      * Creates a notification channel for personal chat
@@ -190,6 +222,77 @@ public class NotificationUtil {
         mChannel.enableVibration(true);
 
         mNotificationManager.createNotificationChannel(mChannel);
+    }
+
+
+    /**
+     * OverLoaded method to launch notification with.
+     *
+     * @param context       Context to use.
+     * @param fromName      Name of the sender.
+     * @param message       Message to be displayed in notification.
+     * @param bitmap        Bitmap of sender
+     * @param pendingIntent Pending intent.
+     */
+    private static void launchNotification(final Context context
+            , final String fromName
+            , final String message
+            , Bitmap bitmap
+            , PendingIntent pendingIntent) {
+
+        final NotificationCompat.Builder mNotification =
+                new NotificationCompat.Builder(context, NOTIFICATION_CHANNEL_GENERAL)
+                        .setContentTitle(fromName)
+                        .setSmallIcon(R.drawable.ic_stat_cread_logo)
+                        .setContentText(message)
+                        .setStyle(new NotificationCompat.BigTextStyle().bigText(message))
+                        .setDefaults(Notification.DEFAULT_ALL)
+                        .setLargeIcon(bitmap)
+                        .setContentIntent(pendingIntent)
+                        .setAutoCancel(true)
+                        .setPriority(IMPORTANCE_HIGH);
+
+        // Gets an instance of the NotificationManager service
+        NotificationManager notificationManager =
+                (NotificationManager) context.getSystemService(NOTIFICATION_SERVICE);
+        // Builds the notification and issues it.
+        notificationManager.notify(NOTIFICATION_ID_PERSONAL_CHAT_MESSAGE, mNotification.build());
+    }
+
+    /**
+     * OverLoaded method to launch notification with.
+     *
+     * @param context       Context to use.
+     * @param fromName      Name of the sender.
+     * @param message       Message to be displayed in notification.
+     * @param drawableID    Resource ID of error drawable
+     * @param pendingIntent Pending intent.
+     */
+    private static void launchNotification(final Context context
+            , final String fromName
+            , final String message
+            , int drawableID
+            , PendingIntent pendingIntent) {
+
+        final NotificationCompat.Builder mNotification =
+                new NotificationCompat.Builder(context, NOTIFICATION_CHANNEL_GENERAL)
+                        .setContentTitle(fromName)
+                        .setSmallIcon(R.drawable.ic_stat_cread_logo)
+                        .setContentText(message)
+                        .setStyle(new NotificationCompat.BigTextStyle().bigText(message))
+                        .setDefaults(Notification.DEFAULT_ALL)
+                        .setLargeIcon(BitmapFactory.decodeResource(context.getResources(),
+                                drawableID))
+                        .setContentIntent(pendingIntent)
+                        .setAutoCancel(true)
+                        .setPriority(IMPORTANCE_HIGH);
+
+
+        // Gets an instance of the NotificationManager service
+        NotificationManager notificationManager =
+                (NotificationManager) context.getSystemService(NOTIFICATION_SERVICE);
+        // Builds the notification and issues it.
+        notificationManager.notify(NOTIFICATION_ID_PERSONAL_CHAT_MESSAGE, mNotification.build());
     }
 
 }
