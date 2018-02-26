@@ -893,7 +893,7 @@ public class ChatDetailsActivity extends BaseActivity {
                                     findViewHolderForAdapterPosition(0), View.GONE);
                             //chat details list
                             JSONArray chatDetailsArray = mainData.getJSONArray("messages");
-                            for (int i = 0; i < chatDetailsArray.length(); i++) {
+                            for (int i = chatDetailsArray.length()-1; i >= 0; i--) {
                                 JSONObject dataObj = chatDetailsArray.getJSONObject(i);
                                 ChatDetailsModel chatDetailsData = new ChatDetailsModel();
                                 chatDetailsData.setMessage(dataObj.getString("body"));
