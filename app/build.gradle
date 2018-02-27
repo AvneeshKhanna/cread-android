@@ -46,7 +46,7 @@ android {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
             //buildConfigField "String", "URL", '"http://cread-dev-remote.herokuapp.com"'
-            buildConfigField "String", "URL", '"http://34b705c0.ngrok.io"'
+            buildConfigField "String", "URL", '"http://1f01b9a6.ngrok.io"'
             //buildConfigField "String", "URL", '"http://cread-server-dev.ap-northeast-1.elasticbeanstalk.com"'
             buildConfigField "boolean", "VISIBILITY_RESTART_HEROKU_OPTION", "true"
             resValue "string", "RZP_KEY", "rzp_test_Q09427lQA9Ol5g"
@@ -167,7 +167,7 @@ dependencies {
     /*compile 'com.jackandphantom.android:blurimage:1.2.0'*/
 
     //For Socket IO
-    compile ('com.github.nkzawa:socket.io-client:0.3.0'){
+    compile ('io.socket:socket.io-client:1.0.0') {
         // excluding org.json which is provided by Android
         exclude group: 'org.json', module: 'json'
     }

@@ -15,9 +15,6 @@ import android.view.animation.AnimationUtils;
 import android.view.animation.LayoutAnimationController;
 import android.widget.LinearLayout;
 
-import com.github.nkzawa.emitter.Emitter;
-import com.github.nkzawa.socketio.client.IO;
-import com.github.nkzawa.socketio.client.Socket;
 import com.google.firebase.crash.FirebaseCrash;
 import com.thetestament.cread.BuildConfig;
 import com.thetestament.cread.CreadApp;
@@ -33,7 +30,6 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -46,6 +42,8 @@ import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.observers.DisposableObserver;
 import io.reactivex.schedulers.Schedulers;
+import io.socket.client.Socket;
+import io.socket.emitter.Emitter;
 
 import static com.thetestament.cread.CreadApp.GET_RESPONSE_FROM_NETWORK_CHAT_LIST;
 import static com.thetestament.cread.helpers.NetworkHelper.getChatRequestCountObservableFromServer;
@@ -55,6 +53,7 @@ import static com.thetestament.cread.utils.Constant.EXTRA_CHAT_DETAILS_DATA;
 import static com.thetestament.cread.utils.Constant.EXTRA_CHAT_FOLLOW_STATUS;
 import static com.thetestament.cread.utils.Constant.EXTRA_CHAT_ITEM_POSITION;
 import static com.thetestament.cread.utils.Constant.EXTRA_CHAT_LAST_MESSAGE;
+import static com.thetestament.cread.utils.Constant.EXTRA_CHAT_LIST_CALLED_FROM;
 import static com.thetestament.cread.utils.Constant.REQUEST_CODE_CHAT_DETAILS;
 import static com.thetestament.cread.utils.Constant.REQUEST_CODE_CHAT_REQUEST;
 
@@ -63,7 +62,7 @@ import static com.thetestament.cread.utils.Constant.REQUEST_CODE_CHAT_REQUEST;
  */
 
 public class ChatListActivity extends BaseActivity {
-    private Socket mSocket;
+
     //region :Views binding with butter knife
     @BindView(R.id.rootView)
     CoordinatorLayout rootView;
@@ -84,6 +83,8 @@ public class ChatListActivity extends BaseActivity {
 
     FragmentActivity mContext;
 
+    Socket mSocket;
+
     @State
     String mLastIndexKey = null;
     @State
@@ -93,7 +94,7 @@ public class ChatListActivity extends BaseActivity {
      * Flag to maintain this activity foreground status
      */
     @State
-    boolean mIsActivityInForground = true;
+    boolean mIsActivityInForeground = true;
 
 
     /**
@@ -101,6 +102,7 @@ public class ChatListActivity extends BaseActivity {
      */
     @State
     int mChatRequestCount = 0;
+
     //endregion
 
     //region :Overridden Methods
@@ -112,25 +114,21 @@ public class ChatListActivity extends BaseActivity {
         ButterKnife.bind(this);
         //Method called
         initView();
+        initSocketConnection();
     }
 
     @Override
     protected void onResume() {
         super.onResume();
         //Update flag
-        mIsActivityInForground = true;
-        initSocketConnection();
+        mIsActivityInForeground = true;
     }
 
     @Override
     protected void onPause() {
         super.onPause();
         //Update flag
-        mIsActivityInForground = false;
-        //Disconnect socket connection
-        mSocket.disconnect();
-        //Remove incoming message listener
-        mSocket.off("send-message", inComingListener);
+        mIsActivityInForeground = false;
     }
 
     @Override
@@ -138,7 +136,10 @@ public class ChatListActivity extends BaseActivity {
         super.onDestroy();
         //Dispose disposable
         mCompositeDisposable.dispose();
-        //
+        //Remove incoming message listener
+        mSocket.off("send-message", inComingListener);
+        //Disconnect socket connection
+        mSocket.disconnect();
     }
 
     @Override
@@ -200,13 +201,10 @@ public class ChatListActivity extends BaseActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case android.R.id.home:
-                //Disconnect socket connection
-                mSocket.disconnect();
-                //Remove incoming message listener
-                mSocket.off("send-message", inComingListener);
                 //Navigate back to previous screen
-                NotificationUtil.getNotificationBackButtonBehaviour(ChatListActivity.this);
-                //Navigate back to previous screen
+                if (!getIntent().hasExtra(EXTRA_CHAT_LIST_CALLED_FROM)) {
+                    NotificationUtil.getNotificationBackButtonBehaviour(ChatListActivity.this);
+                }
                 finish();
                 return true;
             default:
@@ -218,11 +216,10 @@ public class ChatListActivity extends BaseActivity {
     @Override
     public void onBackPressed() {
         //super.onBackPressed();
-        //Disconnect socket connection
-        mSocket.disconnect();
-        //Remove incoming message listener
-        mSocket.off("send-message", inComingListener);
         //Navigate back to previous screen
+        if (!getIntent().hasExtra(EXTRA_CHAT_LIST_CALLED_FROM)) {
+            NotificationUtil.getNotificationBackButtonBehaviour(ChatListActivity.this);
+        }
         finish();
     }
 
@@ -256,23 +253,19 @@ public class ChatListActivity extends BaseActivity {
      * Method to initialize socket for real time messaging.
      */
     private void initSocketConnection() {
-        //set query parameter
-        IO.Options opts = new IO.Options();
-        opts.query = "uuid=" + mHelper.getUUID();
-        {
-            try {
-                mSocket = IO.socket(BuildConfig.URL, opts);
-            } catch (URISyntaxException e) {
-                FirebaseCrash.report(e);
-                e.printStackTrace();
-            }
-        }
+        //Obtain socket reference
+        //mSocket = ChatUtil.getSocket(mContext);
+        mSocket = CreadApp.getSocketIo();
 
         //Set incoming message listener
         mSocket.on("send-message", inComingListener);
-        //Make socket connection
-        mSocket.connect();
 
+        if (getIntent().hasExtra(EXTRA_CHAT_LIST_CALLED_FROM)) {
+            //Make socket connection
+            if (!mSocket.connected()) {
+                mSocket.connect();
+            }
+        }
     }
 
     /**
@@ -558,46 +551,65 @@ public class ChatListActivity extends BaseActivity {
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-
-                    JSONObject data = (JSONObject) args[0];
-                    String message;
-                    //Activity is  in foreground
-                    if (mIsActivityInForground) {
-                        try {
-                            message = data.getString("body");
-                            for (int i = 0; i < mChatList.size(); i++) {
-                                if (mChatList.get(i).getItemType() == ChatListAdapter.VIEW_TYPE_ITEM) {
-                                    if (mChatList.get(i).getChatID().equals(data.getString("chatid"))) {
-                                        mChatList.get(i).setUnreadStatus(true);
-                                        mChatList.get(i).setLastMessage(message);
-
-                                        //if chat request count is zero
-                                        if (mChatRequestCount == 0) {
-                                            Collections.swap(mChatList, i, 0);
-                                            mAdapter.notifyItemMoved(i, 0);
-                                            mAdapter.notifyItemChanged(i);
-                                            mAdapter.notifyItemChanged(0);
-                                        } else {
-                                            Collections.swap(mChatList, i, 1);
-                                            mAdapter.notifyItemMoved(i, 1);
-                                            mAdapter.notifyItemChanged(i);
-                                            mAdapter.notifyItemChanged(1);
-                                        }
-                                        //Play new message sound
-                                        NotificationUtil.notifyNewMessage(mContext, mHelper);
-                                        return;
-                                    }
-                                }
-                            }
-                        } catch (JSONException e) {
-                            return;
-                        }
+                    try {
+                        //Method called
+                        processIncomingMessage((JSONObject) args[0]);
+                    } catch (JSONException e) {
+                        e.printStackTrace();
                     }
-
                 }
             });
         }
     };
+
+    /**
+     * Method to perform required operation on incoming message.
+     */
+    private void processIncomingMessage(JSONObject incomingData) throws JSONException {
+        JSONObject data = incomingData;
+
+        //Activity is in foreground
+        if (mIsActivityInForeground) {
+            for (int i = 0; i < mChatList.size(); i++) {
+                if (mChatList.get(i).getItemType() == ChatListAdapter.VIEW_TYPE_ITEM) {
+                    if (mChatList.get(i).getChatID().equals(data.getString("chatid"))) {
+                        mChatList.get(i).setUnreadStatus(true);
+                        mChatList.get(i).setLastMessage(data.getString("body"));
+
+                        //if chat request count is zero
+                        if (mChatRequestCount == 0) {
+                            Collections.swap(mChatList, i, 0);
+                            mAdapter.notifyItemMoved(i, 0);
+                            mAdapter.notifyItemChanged(i);
+                            mAdapter.notifyItemChanged(0);
+                        } else {
+                            Collections.swap(mChatList, i, 1);
+                            mAdapter.notifyItemMoved(i, 1);
+                            mAdapter.notifyItemChanged(i);
+                            mAdapter.notifyItemChanged(1);
+                        }
+                        //Play new message sound
+                        NotificationUtil.notifyNewMessage(mContext, mHelper);
+                        return;
+                    }
+                }
+            }
+
+        }
+        //Activity is not visible to user
+        else {
+            //if chat details is not visible
+            if (!CreadApp.isChatDetailsVisible()) {
+                NotificationUtil.buildNotificationForPersonalChat(mContext
+                        , data.getString("from_uuid")
+                        , data.getString("from_name")
+                        , data.getString("chatid")
+                        , data.getString("body")
+                        , mHelper
+                        , data.getString("from_profilepicurl"));
+            }
+        }
+    }
     //endregion
 
 }

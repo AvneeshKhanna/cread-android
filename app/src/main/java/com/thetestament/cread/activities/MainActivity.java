@@ -40,6 +40,7 @@ import com.facebook.login.widget.LoginButton;
 import com.google.firebase.crash.FirebaseCrash;
 import com.google.firebase.iid.FirebaseInstanceId;
 import com.thetestament.cread.BuildConfig;
+import com.thetestament.cread.CreadApp;
 import com.thetestament.cread.R;
 import com.thetestament.cread.adapters.IntroViewPagerAdapter;
 import com.thetestament.cread.helpers.IntroPageTransformerHelper;
@@ -279,6 +280,9 @@ public class MainActivity extends BaseActivity {
                                     spHelper.setLastName(dataObject.getString("lastname"));
 
 
+                                    CreadApp.initSocketIo(MainActivity.this);
+
+
                                     // open the main screen
                                     Intent startIntent = new Intent(MainActivity.this, BottomNavigationActivity.class);
                                     startActivity(startIntent);
@@ -450,6 +454,8 @@ public class MainActivity extends BaseActivity {
                                 // getting first name and last name from graph object
                                 spHelper.setFirstName(graphObject.getString("first_name"));
                                 spHelper.setLastName(graphObject.getString("last_name"));
+
+                                CreadApp.initSocketIo(MainActivity.this);
 
                                 // open the main screen
                                 Intent startIntent = new Intent(MainActivity.this, BottomNavigationActivity.class);
