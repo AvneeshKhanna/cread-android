@@ -849,6 +849,11 @@ public class BottomNavigationActivity extends BaseActivity {
             case TAG_EXPLORE_FRAGMENT:
                 activateBottomNavigationItem(R.id.action_explore);
                 replaceFragment(new ExploreFragment(), Constant.TAG_EXPLORE_FRAGMENT, false);
+                //To open Explore Screen
+                mCurrentFragment = new ExploreFragment();
+                //Set fragment tag
+                mFragmentTag = TAG_EXPLORE_FRAGMENT;
+                replaceFragment(mCurrentFragment, mFragmentTag, false);
                 break;
             case TAG_ME_FRAGMENT:
                 break;
