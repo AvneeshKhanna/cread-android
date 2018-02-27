@@ -396,6 +396,10 @@ public class ExploreFragment extends Fragment implements listener.OnCollaboratio
 
                 else if(itemType == VIEW_TYPE_ITEM)
                 {
+                    MaterialDialog dialog = new MaterialDialog.Builder(getActivity())
+                            .customView(R.layout.dialog_featured_artist_profile, false)
+                            .show();
+
                     ViewHelper.getSnackBar(rootView, "open profile dialog");
                 }
             }
