@@ -356,4 +356,10 @@ public class ImageHelper {
     }
 
 
+    public static String getAWSS3ProfilePicUrl(String uuid)
+    {
+        return "https://s3-ap-northeast-1.amazonaws.com/" + BuildConfig.S3BUCKET + "/Users/" + uuid + "/Profile/display-pic-small.jpg";
+    }
+
+
 }

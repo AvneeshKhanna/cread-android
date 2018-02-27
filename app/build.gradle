@@ -35,6 +35,7 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
             buildConfigField "String", "URL", '"http://cread-server-main.ap-northeast-1.elasticbeanstalk.com"'
             buildConfigField "boolean", "VISIBILITY_RESTART_HEROKU_OPTION", "false"
+            buildConfigField "String", "S3BUCKET", "testamentbucket"
             resValue "string", "RZP_KEY", "rzp_live_R8v2wfBMmMnHVy"
             resValue "bool", "FIREBASE_ANALYTICS_ENABLED", "true"
             resValue "bool", "FIREBASE_CRASHLYTICS_ENABLED", "true"
@@ -46,9 +47,10 @@ android {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
             //buildConfigField "String", "URL", '"http://cread-dev-remote.herokuapp.com"'
-            //buildConfigField "String", "URL", '"http://88ac8cd7.ngrok.io"'
-            buildConfigField "String", "URL", '"http://cread-server-dev.ap-northeast-1.elasticbeanstalk.com"'
+            buildConfigField "String", "URL", '"http://1f01b9a6.ngrok.io"'
+            //buildConfigField "String", "URL", '"http://cread-server-dev.ap-northeast-1.elasticbeanstalk.com"'
             buildConfigField "boolean", "VISIBILITY_RESTART_HEROKU_OPTION", "true"
+            buildConfigField "String", "S3BUCKET", '"testamentbucketdev"'
             resValue "string", "RZP_KEY", "rzp_test_Q09427lQA9Ol5g"
             resValue "bool", "FIREBASE_ANALYTICS_ENABLED", "false"
             resValue "bool", "FIREBASE_CRASHLYTICS_ENABLED", "false"
@@ -127,7 +129,7 @@ dependencies {
     annotationProcessor 'frankiesardo:icepick-processor:3.2.0'
 
     //Circular imageView
-    compile 'de.hdodenhof:circleimageview:2.1.0'
+    compile 'de.hdodenhof:circleimageview:2.2.0'
 
     /*//Sectioned RecyclerView
             compile 'com.github.zhukic:sectioned-recyclerview:0.2.2'*/
