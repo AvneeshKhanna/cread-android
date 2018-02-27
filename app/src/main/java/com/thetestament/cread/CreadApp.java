@@ -1,11 +1,14 @@
 package com.thetestament.cread;
 
+import android.content.Context;
 import android.support.multidex.MultiDexApplication;
 import android.support.v7.app.AppCompatDelegate;
 
 import com.androidnetworking.AndroidNetworking;
+import com.google.firebase.crash.FirebaseCrash;
 import com.thetestament.cread.helpers.SharedPreferenceHelper;
 
+import java.net.URISyntaxException;
 import java.util.List;
 
 import io.smooch.core.CardSummary;
@@ -22,6 +25,8 @@ import io.smooch.core.Settings;
 import io.smooch.core.Smooch;
 import io.smooch.core.SmoochCallback;
 import io.smooch.core.SmoochConnectionStatus;
+import io.socket.client.IO;
+import io.socket.client.Socket;
 import pl.tajchert.nammu.Nammu;
 import uk.co.chrisjenx.calligraphy.CalligraphyConfig;
 
@@ -29,6 +34,8 @@ import uk.co.chrisjenx.calligraphy.CalligraphyConfig;
 public class CreadApp extends MultiDexApplication {
 
     private static CreadApp singleTone;
+    private static io.socket.client.Socket mSocket;
+    private static boolean isChatDetailsVisible = false;
 
     // to determine whether data for the following screens
     // is to be restored from cache or from network
@@ -73,6 +80,8 @@ public class CreadApp extends MultiDexApplication {
 
         //For smooch
         initSmooch();
+        //For socket io
+        initSocketIo(getApplicationContext());
     }
 
     /**
@@ -178,5 +187,38 @@ public class CreadApp extends MultiDexApplication {
         };
         //Set delegate
         Smooch.getConversation().setDelegate(delegate);
+    }
+
+    /**
+     * Method to initialize socket io connection for  global use
+     */
+    public static void initSocketIo(Context context) {
+        //set query parameter
+        IO.Options opts = new IO.Options();
+        opts.forceNew = false;
+        opts.query = "uuid=" + new SharedPreferenceHelper(context).getUUID();
+        {
+            try {
+                mSocket = IO.socket(BuildConfig.URL, opts);
+            } catch (URISyntaxException e) {
+                FirebaseCrash.report(e);
+                e.printStackTrace();
+            }
+        }
+    }
+
+    /**
+     * Method to return Socket io instance
+     */
+    public static Socket getSocketIo() {
+        return mSocket;
+    }
+
+    public static boolean isChatDetailsVisible() {
+        return isChatDetailsVisible;
+    }
+
+    public static void setChatDetailsVisible(boolean chatDetailsVisible) {
+        isChatDetailsVisible = chatDetailsVisible;
     }
 }

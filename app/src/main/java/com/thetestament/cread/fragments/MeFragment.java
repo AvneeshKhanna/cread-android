@@ -118,6 +118,7 @@ import static com.thetestament.cread.utils.Constant.EXTRA_CHAT_DETAILS_DATA;
 import static com.thetestament.cread.utils.Constant.EXTRA_CHAT_FOLLOW_STATUS;
 import static com.thetestament.cread.utils.Constant.EXTRA_CHAT_ID;
 import static com.thetestament.cread.utils.Constant.EXTRA_CHAT_ITEM_POSITION;
+import static com.thetestament.cread.utils.Constant.EXTRA_CHAT_LIST_CALLED_FROM;
 import static com.thetestament.cread.utils.Constant.EXTRA_CHAT_USER_NAME;
 import static com.thetestament.cread.utils.Constant.EXTRA_CHAT_UUID;
 import static com.thetestament.cread.utils.Constant.EXTRA_DATA;
@@ -527,6 +528,7 @@ public class MeFragment extends Fragment implements listener.OnCollaborationList
     void fabOnClick() {
         //Open chat list activity
         Intent intent = new Intent(getActivity(), ChatListActivity.class);
+        intent.putExtra(EXTRA_CHAT_LIST_CALLED_FROM, "MeFragment");
         startActivity(intent);
         //if new  message is present
         if (mHelper.getPersonalChatIndicatorStatus()) {

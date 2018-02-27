@@ -75,8 +75,11 @@ public class NotificationUtil {
      * @param activity AppCompatActivity reference
      */
     public static void getNotificationBackButtonBehaviour(AppCompatActivity activity) {
+
         Intent upIntent = NavUtils.getParentActivityIntent(activity);
-        if (NavUtils.shouldUpRecreateTask(activity, upIntent) || activity.isTaskRoot()) {
+        boolean fi = NavUtils.shouldUpRecreateTask(activity, upIntent);
+        boolean fo =activity.isTaskRoot();
+        if (fi ||fo){
             // This activity is NOT part of this app's task, so create a new task
             // when navigating up, with a synthesized back stack.
             TaskStackBuilder.create(activity)
@@ -84,10 +87,15 @@ public class NotificationUtil {
                     .addNextIntentWithParentStack(upIntent)
                     // Navigate up to the closest parent
                     .startActivities();
-        } else {
+        } else{
             // This activity is part of this app's task, so simply
             // navigate up to the logical parent activity.
-            NavUtils.navigateUpTo(activity, upIntent);
+            TaskStackBuilder.create(activity)
+                    // Add all of this activity's parents to the back stack
+                    .addNextIntentWithParentStack(upIntent)
+                    // Navigate up to the closest parent
+                    .startActivities();
+
         }
     }
 

@@ -24,9 +24,6 @@ import android.widget.TextView;
 
 import com.afollestad.materialdialogs.DialogAction;
 import com.afollestad.materialdialogs.MaterialDialog;
-import com.github.nkzawa.emitter.Emitter;
-import com.github.nkzawa.socketio.client.IO;
-import com.github.nkzawa.socketio.client.Socket;
 import com.google.firebase.crash.FirebaseCrash;
 import com.thetestament.cread.BuildConfig;
 import com.thetestament.cread.CreadApp;
@@ -44,7 +41,6 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -58,6 +54,8 @@ import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.observers.DisposableObserver;
 import io.reactivex.schedulers.Schedulers;
+import io.socket.client.Socket;
+import io.socket.emitter.Emitter;
 
 import static android.view.View.VISIBLE;
 import static com.thetestament.cread.adapters.ChatDetailsAdapter.VIEW_TYPE_MESSAGE_RECEIVED_VALUE;
@@ -122,6 +120,11 @@ public class ChatDetailsActivity extends BaseActivity {
     Menu menu;
 
     /**
+     * Flag to maintain this activity foreground status
+     */
+    @State
+    boolean mIsActivityInForeground = true;
+    /**
      * Flag to maintain last message update status true if last message has been updated ,false otherwise.
      */
     @State
@@ -164,18 +167,19 @@ public class ChatDetailsActivity extends BaseActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        //Method call
-        initSocketConnection();
+        //Update flag
+        mIsActivityInForeground = true;
+        //Toggle visibility
+        CreadApp.setChatDetailsVisible(true);
     }
 
     @Override
     protected void onPause() {
         super.onPause();
-        //Disconnect socket connection
-        mSocket.disconnect();
-        //Remove incoming message listener
-        mSocket.off("send-message", inComingListener);
-        mSocket.off(Socket.EVENT_ERROR);
+        //Update flag
+        mIsActivityInForeground = false;
+        //Toggle visibility
+        CreadApp.setChatDetailsVisible(false);
     }
 
     @Override
@@ -183,6 +187,14 @@ public class ChatDetailsActivity extends BaseActivity {
         super.onDestroy();
         //Remove compositeDisposable
         mCompositeDisposable.dispose();
+        //Remove incoming message listener
+        mSocket.off("send-message", inComingListener);
+        mSocket.off(Socket.EVENT_ERROR);
+        //if called from Receiver profile
+        if (mBundle.getString(EXTRA_CHAT_DETAILS_CALLED_FROM)
+                .equals(EXTRA_CHAT_DETAILS_CALLED_FROM_CHAT_PROFILE)) {
+            mSocket.disconnect();
+        }
     }
 
     @Override
@@ -212,7 +224,6 @@ public class ChatDetailsActivity extends BaseActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case android.R.id.home:
-                //Method called
                 navigateBack();
                 return true;
             case R.id.action_follow_or_block:
@@ -350,6 +361,8 @@ public class ChatDetailsActivity extends BaseActivity {
         loadChatDetailData();
         //Initialize listener
         initLoadMoreListener(mAdapter);
+        //Method call
+        initSocketConnection();
     }
 
     /**
@@ -393,23 +406,21 @@ public class ChatDetailsActivity extends BaseActivity {
      * Method to initialize socket for real time messaging.
      */
     private void initSocketConnection() {
-        //set query parameter
-        IO.Options opts = new IO.Options();
-        opts.query = "uuid=" + mPreferenceHelper.getUUID();
-        {
-            try {
-                mSocket = IO.socket(BuildConfig.URL, opts);
-            } catch (URISyntaxException e) {
-                FirebaseCrash.report(e);
-                e.printStackTrace();
-            }
-        }
+        //mSocket = ChatUtil.getSocket(mContext);
+        mSocket = CreadApp.getSocketIo();
 
         //Set incoming message listener
         mSocket.on("send-message", inComingListener);
-        //Make socket connection
-        mSocket.connect();
-
+        //if its called from notification or receiver profile
+        if (mBundle.getString(EXTRA_CHAT_DETAILS_CALLED_FROM)
+                .equals(EXTRA_CHAT_DETAILS_CALLED_FROM_CHAT_PROFILE)
+                || mBundle.getString(EXTRA_CHAT_DETAILS_CALLED_FROM)
+                .equals(EXTRA_CHAT_DETAILS_CALLED_FROM_CHAT_NOTIFICATION)) {
+            //Make socket connection
+            if (!mSocket.connected()) {
+                mSocket.connect();
+            }
+        }
         mSocket.on(Socket.EVENT_ERROR, new Emitter.Listener() {
             @Override
             public void call(Object... args) {
@@ -465,45 +476,60 @@ public class ChatDetailsActivity extends BaseActivity {
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-
-                    JSONObject data = (JSONObject) args[0];
-                    String message;
-                    String chatID;
                     try {
-                        message = data.getString("body");
-                        chatID = data.getString("chatid");
+                        processIncomingMessage((JSONObject) args[0]);
                     } catch (JSONException e) {
                         e.printStackTrace();
                         FirebaseCrash.report(e);
-                        return;
                     }
-                    if (mChatId.equals(chatID)) {
-                        //Play new message sound
-                        NotificationUtil.notifyNewMessage(mContext, mPreferenceHelper);
-                        // add the message to view
-                        addMessage(message, VIEW_TYPE_MESSAGE_RECEIVED_VALUE);
-                    } else {
-                        try {
-                            NotificationUtil.buildNotificationForPersonalChat(mContext
-                                    , data.getString("from_uuid")
-                                    , data.getString("from_name")
-                                    , chatID
-                                    , message
-                                    , mPreferenceHelper
-                                    , data.getString("from_profilepicurl"));
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                            FirebaseCrash.report(e);
-                        }
-                    }
-                    //Update flags
-                    CreadApp.GET_RESPONSE_FROM_NETWORK_CHAT_DETAILS = true;
-                    CreadApp.GET_RESPONSE_FROM_NETWORK_CHAT_LIST = true;
                 }
             });
         }
     };
 
+    /**
+     * Perform required operation on incoming message.
+     */
+    private void processIncomingMessage(JSONObject jsonObject) throws JSONException {
+
+        JSONObject data = jsonObject;
+        String message;
+        String chatID;
+
+        message = data.getString("body");
+        chatID = data.getString("chatid");
+
+        //if activity is in foreground
+        if (mIsActivityInForeground) {
+            if (mChatId.equals(chatID)) {
+                //Play new message sound
+                NotificationUtil.notifyNewMessage(mContext, mPreferenceHelper);
+                // add the message to view
+                addMessage(message, VIEW_TYPE_MESSAGE_RECEIVED_VALUE);
+            } else {
+
+                NotificationUtil.buildNotificationForPersonalChat(mContext
+                        , data.getString("from_uuid")
+                        , data.getString("from_name")
+                        , chatID
+                        , message
+                        , mPreferenceHelper
+                        , data.getString("from_profilepicurl"));
+
+            }
+        } else {
+            NotificationUtil.buildNotificationForPersonalChat(mContext
+                    , data.getString("from_uuid")
+                    , data.getString("from_name")
+                    , chatID
+                    , message
+                    , mPreferenceHelper
+                    , data.getString("from_profilepicurl"));
+        }
+        //Update flags
+        CreadApp.GET_RESPONSE_FROM_NETWORK_CHAT_DETAILS = true;
+        CreadApp.GET_RESPONSE_FROM_NETWORK_CHAT_LIST = true;
+    }
 
     /**
      * Method to show confirmation dialog when user tries to unfollow the receiver.
@@ -596,9 +622,11 @@ public class ChatDetailsActivity extends BaseActivity {
                 .equals(EXTRA_CHAT_DETAILS_CALLED_FROM_CHAT_NOTIFICATION)) {
             //Method called
             NotificationUtil.getNotificationBackButtonBehaviour(ChatDetailsActivity.this);
+        } else {
+            //Navigate back to previous screen
+            finish();
         }
-        //Navigate back to previous screen
-        finish();
+
     }
 
     /**
@@ -893,7 +921,7 @@ public class ChatDetailsActivity extends BaseActivity {
                                     findViewHolderForAdapterPosition(0), View.GONE);
                             //chat details list
                             JSONArray chatDetailsArray = mainData.getJSONArray("messages");
-                            for (int i = 0; i < chatDetailsArray.length(); i++) {
+                            for (int i = chatDetailsArray.length() - 1; i >= 0; i--) {
                                 JSONObject dataObj = chatDetailsArray.getJSONObject(i);
                                 ChatDetailsModel chatDetailsData = new ChatDetailsModel();
                                 chatDetailsData.setMessage(dataObj.getString("body"));
