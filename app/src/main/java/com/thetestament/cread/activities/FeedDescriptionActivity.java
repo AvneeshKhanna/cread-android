@@ -1,7 +1,6 @@
 package com.thetestament.cread.activities;
 
 
-import android.content.ContentResolver;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Color;
@@ -19,7 +18,6 @@ import android.support.v4.widget.TextViewCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -58,7 +56,6 @@ import com.thetestament.cread.listeners.listener;
 import com.thetestament.cread.listeners.listener.OnContentDeleteListener;
 import com.thetestament.cread.models.CommentsModel;
 import com.thetestament.cread.models.FeedModel;
-import com.thetestament.cread.utils.Constant;
 import com.thetestament.cread.utils.RxUtils;
 import com.yalantis.ucrop.UCrop;
 
@@ -68,8 +65,6 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Observable;
-import java.util.concurrent.Callable;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -87,8 +82,6 @@ import pl.tajchert.nammu.Nammu;
 import pl.tajchert.nammu.PermissionCallback;
 
 import static com.thetestament.cread.CreadApp.IMAGE_LOAD_FROM_NETWORK_FEED_DESCRIPTION;
-import static com.thetestament.cread.activities.BottomNavigationActivity.AUTHORITY;
-import static com.thetestament.cread.activities.BottomNavigationActivity.mAccount;
 import static com.thetestament.cread.dialog.DialogHelper.getDeletePostDialog;
 import static com.thetestament.cread.helpers.ContentHelper.getMenuActionsBottomSheet;
 import static com.thetestament.cread.helpers.DeletePostHelper.deletepost;
@@ -98,7 +91,6 @@ import static com.thetestament.cread.helpers.FeedHelper.initializeShareDialog;
 import static com.thetestament.cread.helpers.FeedHelper.updateDotSeperatorVisibility;
 import static com.thetestament.cread.helpers.ImageHelper.getImageUri;
 import static com.thetestament.cread.helpers.NetworkHelper.getCommentObservableFromServer;
-import static com.thetestament.cread.utils.Constant.*;
 import static com.thetestament.cread.utils.Constant.CONTENT_TYPE_CAPTURE;
 import static com.thetestament.cread.utils.Constant.CONTENT_TYPE_SHORT;
 import static com.thetestament.cread.utils.Constant.EXTRA_CAPTURE_URL;
@@ -119,6 +111,7 @@ import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_CAPTION_TEXT;
 import static com.thetestament.cread.utils.Constant.REQUEST_CODE_COMMENTS_ACTIVITY;
 import static com.thetestament.cread.utils.Constant.REQUEST_CODE_EDIT_POST;
 import static com.thetestament.cread.utils.Constant.REQUEST_CODE_OPEN_GALLERY;
+import static com.thetestament.cread.utils.Constant.USER_ACTION_TYPE_VIEW;
 
 /**
  * Class to show detailed information of explore/feed item.
@@ -746,7 +739,7 @@ public class FeedDescriptionActivity extends BaseActivity implements listener.On
     private void loadCreatorImage(String imageURL, CircleImageView creatorImage) {
         Picasso.with(this)
                 .load(imageURL)
-                .error(R.drawable.ic_account_circle_48)
+                .error(R.drawable.ic_account_circle_100)
                 .into(creatorImage);
     }
 
