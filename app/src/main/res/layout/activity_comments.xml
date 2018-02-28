@@ -12,11 +12,11 @@
 
 
         <android.support.v4.widget.SwipeRefreshLayout
-            android:layout_above="@+id/commentView"
-            android:clipToPadding="true"
             android:id="@+id/swipeRefreshLayout"
             android:layout_width="match_parent"
-            android:layout_height="match_parent">
+            android:layout_height="match_parent"
+            android:layout_above="@+id/commentView"
+            android:clipToPadding="true">
 
             <FrameLayout
                 android:layout_width="match_parent"
@@ -116,10 +116,13 @@
                         android:layout_marginRight="10dp"
                         android:layout_toLeftOf="@+id/buttonPost"
                         android:background="@null"
-                        android:hint="Comment"
+                        android:hint="Type your comment"
                         android:imeOptions="flagNoExtractUi"
-                        android:inputType="textCapSentences"
-                        android:paddingLeft="20dp" />
+                        android:inputType="textMultiLine|textCapSentences"
+                        android:maxLines="5"
+                        android:paddingLeft="10dp"
+                        android:textSize="15sp"
+                        android:textColorHint="@color/grey_custom" />
 
 
                     <!-- <android.support.v7.widget.RecyclerView
