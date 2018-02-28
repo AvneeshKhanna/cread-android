@@ -1,11 +1,8 @@
 package com.thetestament.cread.adapters;
 
-import android.content.Intent;
 import android.graphics.Color;
-import android.os.AsyncTask;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.content.ContextCompat;
-import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -14,8 +11,6 @@ import android.widget.TextView;
 
 import com.squareup.picasso.Picasso;
 import com.thetestament.cread.R;
-import com.thetestament.cread.activities.ProfileActivity;
-import com.thetestament.cread.database.NotificationsDBFunctions;
 import com.thetestament.cread.listeners.listener;
 import com.thetestament.cread.listeners.listener.NotificationItemClick;
 import com.thetestament.cread.models.UpdatesModel;
@@ -27,14 +22,12 @@ import butterknife.ButterKnife;
 import de.hdodenhof.circleimageview.CircleImageView;
 
 import static com.thetestament.cread.utils.Constant.CONTENT_TYPE_CAPTURE;
-import static com.thetestament.cread.utils.Constant.EXTRA_PROFILE_UUID;
 import static com.thetestament.cread.utils.Constant.NOTIFICATION_CATEGORY_CREAD_BUY;
 import static com.thetestament.cread.utils.Constant.NOTIFICATION_CATEGORY_CREAD_COLLABORATE;
 import static com.thetestament.cread.utils.Constant.NOTIFICATION_CATEGORY_CREAD_COMMENT;
 import static com.thetestament.cread.utils.Constant.NOTIFICATION_CATEGORY_CREAD_COMMENT_OTHER;
 import static com.thetestament.cread.utils.Constant.NOTIFICATION_CATEGORY_CREAD_FB_FRIEND;
 import static com.thetestament.cread.utils.Constant.NOTIFICATION_CATEGORY_CREAD_FOLLOW;
-import static com.thetestament.cread.utils.Constant.NOTIFICATION_CATEGORY_CREAD_GENERAL;
 import static com.thetestament.cread.utils.Constant.NOTIFICATION_CATEGORY_CREAD_HATSOFF;
 import static com.thetestament.cread.utils.Constant.NOTIFICATION_CATEGORY_CREAD_TOP_POST;
 import static com.thetestament.cread.utils.Constant.NOTIFICATION_CATEGORY_PROFILE_MENTION_COMMENT;
@@ -211,7 +204,7 @@ public class UpdatesAdapter extends RecyclerView.Adapter {
     private void loadImage(String picUrl, CircleImageView imageView) {
         Picasso.with(mContext)
                 .load(picUrl)
-                .error(R.drawable.ic_account_circle_48)
+                .error(R.drawable.ic_account_circle_100)
                 .into(imageView);
     }
 

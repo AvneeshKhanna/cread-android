@@ -84,6 +84,8 @@ import static com.thetestament.cread.utils.Constant.NOTIFICATION_CATEGORY_CREAD_
 import static com.thetestament.cread.utils.Constant.NOTIFICATION_CATEGORY_CREAD_TEAM_CHAT;
 import static com.thetestament.cread.utils.Constant.NOTIFICATION_CATEGORY_CREAD_TOP_POST;
 import static com.thetestament.cread.utils.Constant.NOTIFICATION_CATEGORY_ENGAGEMENT_NOTIFICATIONS;
+import static com.thetestament.cread.utils.Constant.NOTIFICATION_CATEGORY_FEATURED_ARTIST;
+import static com.thetestament.cread.utils.Constant.NOTIFICATION_CATEGORY_FEATURED_ARTIST_FOLLOWER;
 import static com.thetestament.cread.utils.Constant.NOTIFICATION_CATEGORY_PERSONAL_CHAT_MESSAGE;
 import static com.thetestament.cread.utils.Constant.NOTIFICATION_CATEGORY_PERSONAL_CHAT_REQUEST;
 import static com.thetestament.cread.utils.Constant.NOTIFICATION_CATEGORY_PROFILE_MENTION_COMMENT;
@@ -100,6 +102,8 @@ import static com.thetestament.cread.utils.Constant.NOTIFICATION_ID_CREAD_HATSOF
 import static com.thetestament.cread.utils.Constant.NOTIFICATION_ID_CREAD_TEAM_CHAT;
 import static com.thetestament.cread.utils.Constant.NOTIFICATION_ID_CREAD_TOP_POST;
 import static com.thetestament.cread.utils.Constant.NOTIFICATION_ID_ENGAGEMENT_NOTIFICATIONS;
+import static com.thetestament.cread.utils.Constant.NOTIFICATION_ID_FEATURED_ARTIST;
+import static com.thetestament.cread.utils.Constant.NOTIFICATION_ID_FEATURED_ARTIST_FOLLOWER;
 import static com.thetestament.cread.utils.Constant.NOTIFICATION_ID_PROFILE_MENTION_COMMENT;
 import static com.thetestament.cread.utils.Constant.NOTIFICATION_ID_PROFILE_MENTION_POST;
 import static com.thetestament.cread.utils.Constant.TAG_EXPLORE_FRAGMENT;
@@ -329,6 +333,20 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
                 //Update flag
                 isValidCategory = false;
                 break;
+            case NOTIFICATION_CATEGORY_FEATURED_ARTIST:
+                mId = NOTIFICATION_ID_FEATURED_ARTIST;
+                resId = R.drawable.ic_cread_notification_general;
+                intent = new Intent(this, BottomNavigationActivity.class);
+                intent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
+                intent.putExtra(EXTRA_OPEN_SPECIFIC_BOTTOMNAV_FRAGMENT, TAG_EXPLORE_FRAGMENT);
+                break;
+            case NOTIFICATION_CATEGORY_FEATURED_ARTIST_FOLLOWER:
+                mId = NOTIFICATION_ID_FEATURED_ARTIST_FOLLOWER;
+                resId = R.drawable.ic_cread_notification_general;
+                intent = new Intent(this, BottomNavigationActivity.class);
+                intent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
+                intent.putExtra(EXTRA_OPEN_SPECIFIC_BOTTOMNAV_FRAGMENT, TAG_EXPLORE_FRAGMENT);
+                break;
             default:
                 isValidCategory = false;
                 break;
@@ -453,7 +471,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
 
         // create RemoteView
         final RemoteViews remoteViews = new RemoteViews(getPackageName(), R.layout.layout_notification_personal_chat);
-        remoteViews.setImageViewResource(R.id.imageUser, R.drawable.ic_account_circle_48);
+        remoteViews.setImageViewResource(R.id.imageUser, R.drawable.ic_account_circle_100);
         remoteViews.setTextViewText(R.id.textUserName, data.get("from_name"));
         remoteViews.setTextViewText(R.id.textUserMessage, message);
         remoteViews.setTextColor(R.id.textUserName, ContextCompat.getColor(getApplicationContext(), R.color.grey_dark));
@@ -480,7 +498,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
                         .with(getApplicationContext())
                         .load(data.get("from_profilepicurl"))
                         .transform(new ImageRoundCorners())
-                        .error(R.drawable.ic_account_circle_48)
+                        .error(R.drawable.ic_account_circle_100)
                         .into(remoteViews, R.id.imageUser, mId, mNotification.build());
             }
         });

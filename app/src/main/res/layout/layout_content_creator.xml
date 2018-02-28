@@ -24,7 +24,7 @@
             android:layout_marginLeft="8dp"
             android:scaleType="centerCrop"
             app:civ_border_color="@color/black_defined"
-            tools:src="@drawable/ic_account_circle_48" />
+            tools:src="@drawable/ic_account_circle_100" />
 
         <TextView
             android:id="@+id/textCreatorName"

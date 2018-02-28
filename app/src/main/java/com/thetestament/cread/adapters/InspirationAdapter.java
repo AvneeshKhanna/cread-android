@@ -224,7 +224,7 @@ public class InspirationAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
     private void loadCreatorPic(String picUrl, CircleImageView imageView) {
         Picasso.with(mContext)
                 .load(picUrl)
-                .error(R.drawable.ic_account_circle_48)
+                .error(R.drawable.ic_account_circle_100)
                 .into(imageView);
     }
 

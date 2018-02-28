@@ -149,7 +149,7 @@ public class CapturePreviewActivity extends BaseActivity {
         Picasso.with(this)
                 .load(getImageUri(IMAGE_TYPE_USER_CAPTURE_PIC))
                 .memoryPolicy(MemoryPolicy.NO_CACHE)
-                .error(R.drawable.ic_account_circle_48)
+                .error(R.drawable.ic_account_circle_100)
                 .into(imageCapture);
     }
 

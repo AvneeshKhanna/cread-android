@@ -170,6 +170,8 @@ public class MeFragment extends Fragment implements listener.OnCollaborationList
     TextView textUserName;
     @BindView(R.id.textBio)
     TextView textBio;
+    @BindView(R.id.imageFeatured)
+    AppCompatImageView imageFeatured;
     @BindView(R.id.buttonFollow)
     TextView buttonFollow;
     @BindView(R.id.viewPagerUserStats)
@@ -197,7 +199,7 @@ public class MeFragment extends Fragment implements listener.OnCollaborationList
     @State
     String mEmail, mContactNumber, mWaterMarkStatus;
     @State
-    boolean mFollowStatus, isProfileEditable;
+    boolean mFollowStatus, isProfileEditable, mIsFeatured;
     @State
     String mRequestedUUID;
 
@@ -562,6 +564,12 @@ public class MeFragment extends Fragment implements listener.OnCollaborationList
         }
     }
 
+    @OnClick(R.id.imageFeatured)
+    void featuredOnClick()
+    {
+        ViewHelper.getToolTip(imageFeatured, mFirstName + " is currently a featured artist", getActivity());
+    }
+
     /**
      * Click functionality to launch screen where user can see list of people whom he/she is following.
      */
@@ -905,6 +913,7 @@ public class MeFragment extends Fragment implements listener.OnCollaborationList
                                 mEmail = mainData.getString("email");
                                 mContactNumber = mainData.getString("phone");
                                 mWaterMarkStatus = mainData.getString("watermarkstatus");
+                                mIsFeatured = mainData.getBoolean("featured");
                             }
                         } catch (JSONException e) {
                             e.printStackTrace();
@@ -975,6 +984,17 @@ public class MeFragment extends Fragment implements listener.OnCollaborationList
                                 }
                             }
 
+                            //check featured status
+                            if(mIsFeatured)
+                            {
+                                imageFeatured.setVisibility(View.VISIBLE);
+                            }
+
+                            else
+                            {
+                                imageFeatured.setVisibility(View.GONE);
+                            }
+
                             //toggle follow and message button
                             toggleFollowButton(mFollowStatus, getActivity());
                             toggleMessageButton(mFollowStatus, getActivity());
@@ -1000,12 +1020,12 @@ public class MeFragment extends Fragment implements listener.OnCollaborationList
      * @param imageView View where image to be loaded.
      * @param context   Context to be use.
      */
-    private void loadUserPicture(String picUrl, CircleImageView imageView, Context context) {
+    public static void loadUserPicture(String picUrl, CircleImageView imageView, Context context) {
         Picasso.with(context)
                 .load(picUrl)
                 .memoryPolicy(MemoryPolicy.NO_CACHE)
                 .networkPolicy(NetworkPolicy.NO_CACHE)
-                .error(R.drawable.ic_account_circle_48)
+                .error(R.drawable.ic_account_circle_100)
                 .into(imageView);
     }
 
@@ -2197,6 +2217,10 @@ public class MeFragment extends Fragment implements listener.OnCollaborationList
 
     public static boolean isCountZero(long count) {
         return count == 0;
+    }
+
+    public static boolean isCountOne(long count) {
+        return count == 1;
     }
 
     /**

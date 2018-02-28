@@ -3,7 +3,6 @@ package com.thetestament.cread.adapters;
 import android.support.v4.app.FragmentActivity;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
-import android.view.TextureView;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
@@ -12,7 +11,6 @@ import com.squareup.picasso.Picasso;
 import com.thetestament.cread.R;
 import com.thetestament.cread.helpers.ImageHelper;
 import com.thetestament.cread.helpers.SharedPreferenceHelper;
-import com.thetestament.cread.listeners.listener;
 import com.thetestament.cread.listeners.listener.OnFeatArtistClickedListener;
 import com.thetestament.cread.models.FeaturedArtistsModel;
 
@@ -126,7 +124,7 @@ public class FeaturedArtistsAdapter extends RecyclerView.Adapter<RecyclerView.Vi
     private void loadArstistPic(String picUrl, CircleImageView imageView) {
         Picasso.with(mContext)
                 .load(picUrl)
-                .error(R.drawable.ic_account_circle_48)
+                .error(R.drawable.ic_account_circle_100)
                 .into(imageView);
     }
 

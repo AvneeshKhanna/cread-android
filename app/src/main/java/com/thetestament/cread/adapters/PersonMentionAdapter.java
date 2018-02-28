@@ -79,7 +79,7 @@ public class PersonMentionAdapter extends RecyclerView.Adapter<RecyclerView.View
             loadImageFromPicasso(mContext,
                     itemViewHolder.imagePerson,
                     person.getmPictureURL(),
-                    R.drawable.ic_account_circle_48);
+                    R.drawable.ic_account_circle_100);
 
             // set name
             itemViewHolder.textName.setText(person.getmName());
