@@ -158,6 +158,9 @@ public class Constant {
     public static final String NOTIFICATION_CATEGORY_CREAD_FB_FRIEND = "fb-friend-new";
     public static final String NOTIFICATION_CATEGORY_PERSONAL_CHAT_MESSAGE = "personal-chat";
     public static final String NOTIFICATION_CATEGORY_PERSONAL_CHAT_REQUEST = "personal-chat-request";
+    public static final String NOTIFICATION_CATEGORY_FEATURED_ARTIST = "featured-artist";
+    public static final String NOTIFICATION_CATEGORY_FEATURED_ARTIST_FOLLOWER = "featured-artist-follower";
+
 
     //Notification id cread
     public static final int NOTIFICATION_ID_CREAD_FOLLOW = 1000;
@@ -174,6 +177,8 @@ public class Constant {
     public static final int NOTIFICATION_ID_PERSONAL_CHAT_MESSAGE = 1011;
     public static final int NOTIFICATION_ID_ENGAGEMENT_NOTIFICATIONS = 1012;
     public static final int NOTIFICATION_ID_CREAD_FB_FRIEND = 1013;
+    public static final int NOTIFICATION_ID_FEATURED_ARTIST = 1014;
+    public static final int NOTIFICATION_ID_FEATURED_ARTIST_FOLLOWER = 1015;
 
 
     public static final String NOTIFICATION_CHANNEL_GENERAL = "generalNotificationChannel";

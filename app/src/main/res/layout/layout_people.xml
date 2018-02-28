@@ -9,7 +9,7 @@
         android:id="@+id/imageUser"
         android:layout_width="40dp"
         android:layout_height="40dp"
-        tools:src="@drawable/ic_account_circle_48" />
+        tools:src="@drawable/ic_account_circle_100" />
 
 
     <LinearLayout

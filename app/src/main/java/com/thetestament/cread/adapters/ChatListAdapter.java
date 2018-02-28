@@ -152,7 +152,7 @@ public class ChatListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
     private void loadProfilePicture(String picUrl, CircleImageView imageView) {
         Picasso.with(mContext)
                 .load(picUrl)
-                .error(R.drawable.ic_account_circle_48)
+                .error(R.drawable.ic_account_circle_100)
                 .into(imageView);
     }
 

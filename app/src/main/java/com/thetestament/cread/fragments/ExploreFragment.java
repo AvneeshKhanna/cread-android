@@ -24,6 +24,7 @@ import android.view.ViewGroup;
 import android.view.animation.AnimationUtils;
 import android.view.animation.LayoutAnimationController;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.afollestad.materialdialogs.DialogAction;
@@ -33,14 +34,17 @@ import com.thetestament.cread.BuildConfig;
 import com.thetestament.cread.Manifest;
 import com.thetestament.cread.R;
 import com.thetestament.cread.activities.FindFBFriendsActivity;
+import com.thetestament.cread.activities.ProfileActivity;
 import com.thetestament.cread.activities.SearchActivity;
 import com.thetestament.cread.adapters.ExploreAdapter;
+import com.thetestament.cread.adapters.FeaturedArtistsAdapter;
 import com.thetestament.cread.helpers.FeedHelper;
 import com.thetestament.cread.helpers.FollowHelper;
 import com.thetestament.cread.helpers.ImageHelper;
 import com.thetestament.cread.helpers.SharedPreferenceHelper;
 import com.thetestament.cread.helpers.ViewHelper;
 import com.thetestament.cread.listeners.listener;
+import com.thetestament.cread.models.FeaturedArtistsModel;
 import com.thetestament.cread.models.FeedModel;
 import com.thetestament.cread.utils.Constant;
 import com.yalantis.ucrop.UCrop;
@@ -55,6 +59,7 @@ import java.util.List;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.Unbinder;
+import de.hdodenhof.circleimageview.CircleImageView;
 import icepick.Icepick;
 import icepick.State;
 import io.reactivex.android.schedulers.AndroidSchedulers;
@@ -66,13 +71,22 @@ import pl.tajchert.nammu.PermissionCallback;
 
 import static android.app.Activity.RESULT_OK;
 import static com.thetestament.cread.CreadApp.GET_RESPONSE_FROM_NETWORK_EXPLORE;
+import static com.thetestament.cread.CreadApp.GET_RESPONSE_FROM_NETWORK_FEATURED_ARTISTS;
+import static com.thetestament.cread.CreadApp.GET_RESPONSE_FROM_NETWORK_ME;
+import static com.thetestament.cread.adapters.FeaturedArtistsAdapter.VIEW_TYPE_HEADER;
+import static com.thetestament.cread.adapters.FeaturedArtistsAdapter.VIEW_TYPE_ITEM;
+import static com.thetestament.cread.fragments.MeFragment.isCountOne;
 import static com.thetestament.cread.helpers.FeedHelper.updateFollowForAll;
 import static com.thetestament.cread.helpers.ImageHelper.getImageUri;
+import static com.thetestament.cread.helpers.NetworkHelper.getFeatArtistsObservable;
 import static com.thetestament.cread.helpers.NetworkHelper.getNetConnectionStatus;
 import static com.thetestament.cread.helpers.NetworkHelper.getObservableFromServer;
+import static com.thetestament.cread.helpers.NetworkHelper.getUserDataObservableFromServer;
+import static com.thetestament.cread.helpers.NetworkHelper.requestServer;
 import static com.thetestament.cread.utils.Constant.CONTENT_TYPE_CAPTURE;
 import static com.thetestament.cread.utils.Constant.CONTENT_TYPE_SHORT;
 import static com.thetestament.cread.utils.Constant.EXTRA_DATA;
+import static com.thetestament.cread.utils.Constant.EXTRA_PROFILE_UUID;
 import static com.thetestament.cread.utils.Constant.IMAGE_TYPE_USER_CAPTURE_PIC;
 import static com.thetestament.cread.utils.Constant.ITEM_TYPES.GRID;
 import static com.thetestament.cread.utils.Constant.ITEM_TYPES.LIST;
@@ -90,10 +104,14 @@ public class ExploreFragment extends Fragment implements listener.OnCollaboratio
     RecyclerView recyclerView;
     @BindView(R.id.tabLayout)
     TabLayout tabLayout;
+    @BindView(R.id.recyclerViewFeatArtists)
+    RecyclerView recyclerViewFeatArtists;
 
     CompositeDisposable mCompositeDisposable = new CompositeDisposable();
     List<FeedModel> mExploreDataList = new ArrayList<>();
+    List<FeaturedArtistsModel> mFeatArtistsList = new ArrayList<>();
     ExploreAdapter mAdapter;
+    FeaturedArtistsAdapter mFeatArstistsAdapter;
     SharedPreferenceHelper mHelper;
     private Unbinder mUnbinder;
     private String mLastIndexKey;
@@ -103,6 +121,10 @@ public class ExploreFragment extends Fragment implements listener.OnCollaboratio
 
     @State
     String mEntityID, mEntityType;
+    @State
+    String mFirstName, mLastName, mProfilePicURL;
+    @State
+    long mPostCount, mFollowerCount, mCollaborationCount;
 
     @Nullable
     @Override
@@ -246,6 +268,9 @@ public class ExploreFragment extends Fragment implements listener.OnCollaboratio
 
         //initializes grid view or list view from preferences
         initItemTypePreference();
+        //init feat artists recycler view
+        mFeatArstistsAdapter = new FeaturedArtistsAdapter(getActivity(), mFeatArtistsList);
+        recyclerViewFeatArtists.setAdapter(mFeatArstistsAdapter);
 
         swipeRefreshLayout.setRefreshing(true);
         swipeRefreshLayout.setColorSchemeColors(ContextCompat.getColor(getActivity()
@@ -255,12 +280,17 @@ public class ExploreFragment extends Fragment implements listener.OnCollaboratio
             public void onRefresh() {
                 //Clear data list
                 mExploreDataList.clear();
+                mFeatArtistsList.clear();
                 //Notify for changes
                 mAdapter.notifyDataSetChanged();
+                mFeatArstistsAdapter.notifyDataSetChanged();
+                //hide featured view
+                recyclerViewFeatArtists.setVisibility(View.GONE);
                 mAdapter.setLoaded();
                 //set last index key to nul
                 mLastIndexKey = null;
                 //Load data here
+                getFeaturedArtistsData();
                 loadExploreData();
             }
         });
@@ -268,7 +298,9 @@ public class ExploreFragment extends Fragment implements listener.OnCollaboratio
 
         initTabLayout();
         initListeners();
+        initFeatArtistClickListener();
         //Load data here
+        getFeaturedArtistsData();
         loadExploreData();
     }
 
@@ -362,9 +394,51 @@ public class ExploreFragment extends Fragment implements listener.OnCollaboratio
         initFollowListener();
     }
 
+    private void initFeatArtistClickListener()
+    {
+        mFeatArstistsAdapter.setFeatArtistClickListener(new listener.OnFeatArtistClickedListener() {
+            @Override
+            public void onFeatArtistClicked(int itemType, String uuid) {
+
+                if(itemType == VIEW_TYPE_HEADER)
+                {
+
+                    MaterialDialog dialog = new MaterialDialog.Builder(getActivity())
+                            .customView(R.layout.dialog_generic, false)
+                            .positiveText(getString(R.string.text_ok))
+                            .onPositive(new MaterialDialog.SingleButtonCallback() {
+                                @Override
+                                public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
+                                    dialog.dismiss();
+                                }
+                            })
+                            .show();
+                    //Obtain views reference
+                    ImageView fillerImage = dialog.getCustomView().findViewById(R.id.viewFiller);
+                    TextView textTitle = dialog.getCustomView().findViewById(R.id.textTitle);
+                    TextView textDesc = dialog.getCustomView().findViewById(R.id.textDesc);
+
+                    //Set filler image
+                    fillerImage.setImageDrawable(ContextCompat.getDrawable(getActivity(), R.drawable.img_intro_feat_artist));
+                    //Set title text
+                    textTitle.setText(R.string.text_title_dialog_featured_artist);
+                    //Set description text
+                    textDesc.setText(R.string.text_desc_dialog_featured_artist);
+
+                }
+
+                else if(itemType == VIEW_TYPE_ITEM)
+                {
+                    // load user data and display it in dialog
+                   getFeatArtistDetails(uuid);
+
+                }
+            }
+        });
+    }
+
     /**
      * Initialize load more listener.
-     *
      */
     private void initLoadMoreListener() {
 
@@ -387,6 +461,241 @@ public class ExploreFragment extends Fragment implements listener.OnCollaboratio
                 }
             }
         });
+    }
+
+    private void getFeatArtistDetails(final String uuid)
+    {
+        // show loading dialog
+        final MaterialDialog loadingDialog = new MaterialDialog.Builder(getActivity())
+                .title(getString(R.string.loading_title))
+                .content(getString(R.string.waiting_msg))
+                .progress(true, 0)
+                .show();
+
+        final boolean[] tokenError = {false};
+        final boolean[] connectionError = {false};
+
+        requestServer(mCompositeDisposable,
+                getUserDataObservableFromServer(BuildConfig.URL + "/user-profile/load-profile"
+                        , mHelper.getUUID()
+                        , mHelper.getAuthToken(),
+                        uuid)
+                , getActivity()
+                , new listener.OnServerRequestedListener<JSONObject>() {
+                    @Override
+                    public void onDeviceOffline() {
+
+                        ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_no_connection));
+
+                    }
+
+                    @Override
+                    public void onNextCalled(JSONObject jsonObject) {
+
+                        try {
+                            //Token status is invalid
+                            if (jsonObject.getString("tokenstatus").equals("invalid")) {
+                                tokenError[0] = true;
+                            } else {
+                                JSONObject mainData = jsonObject.getJSONObject("data");
+                                mFirstName = mainData.getString("firstname");
+                                mLastName = mainData.getString("lastname");
+                                mProfilePicURL = mainData.getString("profilepicurl");
+                                mPostCount = mainData.getLong("postcount");
+                                mFollowerCount = mainData.getLong("followercount");
+                                mCollaborationCount = mainData.getLong("collaborationscount");
+                            }
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                            FirebaseCrash.report(e);
+                            connectionError[0] = true;
+                        }
+
+                    }
+
+                    @Override
+                    public void onErrorCalled(Throwable e) {
+                        // dismiss dialog
+                        loadingDialog.dismiss();
+                        FirebaseCrash.report(e);
+                        //Server error Snack bar
+                        ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_server));
+
+                    }
+
+                    @Override
+                    public void onCompleteCalled() {
+                        // dismiss dialog
+                        loadingDialog.dismiss();
+                        // set to false
+                        GET_RESPONSE_FROM_NETWORK_ME = false;
+                        // Token status invalid
+                        if (tokenError[0]) {
+                            ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_invalid_token));
+                        }
+                        //Error occurred
+                        else if (connectionError[0]) {
+                            ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_internal));
+                        } else {
+
+                            // show detail dialog
+                            final MaterialDialog dialog = new MaterialDialog.Builder(getActivity())
+                                    .customView(R.layout.dialog_featured_artist_profile, false)
+                                    .show();
+
+                            // init views
+                            View rootViewDialog = dialog.getCustomView();
+                            TextView artistName =  rootViewDialog.findViewById(R.id.textFeatArtist);
+                            CircleImageView imageArtist =  rootViewDialog.findViewById(R.id.imageFeatArtist);
+                            final TextView textPostsCount =  rootViewDialog.findViewById(R.id.textPostsCount);
+                            final TextView textFollowersCount =  rootViewDialog.findViewById(R.id.textFollowersCount);
+                            final TextView textCollaborationsCount = rootViewDialog.findViewById(R.id.textCollaborationsCount);
+                            TextView textPosts = rootViewDialog.findViewById(R.id.textPosts);
+                            TextView textFollowers = rootViewDialog.findViewById(R.id.textFollowers);
+                            TextView textCollaborations = rootViewDialog.findViewById(R.id.textCollaborations);
+
+                            // set message for text views
+                            String posts = isCountOne(mPostCount) ? "post" : "posts";
+                            String followers = isCountOne(mFollowerCount) ? "follower" : "followers";
+                            String collaborations = isCountOne(mCollaborationCount) ? "collaboration" : "collaborations";
+
+                            // set text
+                            textPosts.setText(posts);
+                            textFollowers.setText(followers);
+                            textCollaborations.setText(collaborations);
+
+                            // set click listner
+                            LinearLayout buttonViewProfile =  rootViewDialog.findViewById(R.id.buttonViewProfile);
+                            buttonViewProfile.setOnClickListener(new View.OnClickListener() {
+                                @Override
+                                public void onClick(View view) {
+
+                                    Intent intent = new Intent(getActivity(), ProfileActivity.class);
+                                    intent.putExtra(EXTRA_PROFILE_UUID, uuid);
+                                    startActivity(intent);
+
+                                    // dismiss dialog
+                                    dialog.dismiss();
+
+                                }
+                            });
+
+
+                            //Load user profile picture
+                            ImageHelper.loadImageFromPicasso(getActivity(), imageArtist, mProfilePicURL, R.drawable.ic_account_circle_100);
+
+                            //if last name is present
+                            if (mLastName != null) {
+                                //Set user name
+                                artistName.setText(mFirstName + " " + mLastName);
+                            } else {
+                                //set user name
+                                artistName.setText(mFirstName);
+                            }
+
+                            new Handler().post(new Runnable() {
+                                                   @Override
+                                                   public void run() {
+                                                       //Set user activity stats
+                                                       textPostsCount.setText(String.valueOf(mPostCount));
+                                                       textFollowersCount.setText(String.valueOf(mFollowerCount));
+                                                       textCollaborationsCount.setText(String.valueOf(mCollaborationCount));
+
+                                                   }
+                                               }
+                            );
+                        }
+                    }
+                }
+        );
+
+
+    }
+
+    private void getFeaturedArtistsData() {
+
+
+        final boolean[] tokenError = {false};
+        final boolean[] connectionError = {false};
+
+
+        requestServer(mCompositeDisposable
+                , getFeatArtistsObservable(BuildConfig.URL + "/featured-artists/load", mHelper.getUUID(), mHelper.getAuthToken(), GET_RESPONSE_FROM_NETWORK_FEATURED_ARTISTS)
+                , getActivity(), new listener.OnServerRequestedListener<JSONObject>() {
+                    @Override
+                    public void onDeviceOffline() {
+
+                        ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_no_connection));
+                    }
+
+                    @Override
+                    public void onNextCalled(JSONObject jsonObject) {
+
+
+                        try {
+                            //Token status is invalid
+                            if (jsonObject.getString("tokenstatus").equals("invalid")) {
+                                tokenError[0] = true;
+                            } else {
+                                JSONObject mainData = jsonObject.getJSONObject("data");
+
+                                //Featured artist list
+                                JSONArray featuredArray = mainData.getJSONArray("featuredlist");
+                                for (int i = 0; i < featuredArray.length(); i++) {
+
+                                    FeaturedArtistsModel data = new FeaturedArtistsModel();
+
+                                    JSONObject dataObj = featuredArray.getJSONObject(i);
+                                    data.setUuid(dataObj.getString("uuid"));
+                                    data.setName(dataObj.getString("name"));
+                                    data.setImageUrl(dataObj.getString("profilepicurl"));
+
+                                    mFeatArtistsList.add(data);
+                                }
+                            }
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                            FirebaseCrash.report(e);
+                            connectionError[0] = true;
+                        }
+                    }
+
+                    @Override
+                    public void onErrorCalled(Throwable e) {
+
+                        swipeRefreshLayout.setRefreshing(false);
+                        FirebaseCrash.report(e);
+                        //Server error Snack bar
+                        ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_server));
+
+                    }
+
+                    @Override
+                    public void onCompleteCalled() {
+
+                        //Dismiss progress indicator
+                        swipeRefreshLayout.setRefreshing(false);
+                        // set to false
+                        GET_RESPONSE_FROM_NETWORK_FEATURED_ARTISTS = false;
+                        // Token status invalid
+                        if (tokenError[0]) {
+                            ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_invalid_token));
+                        }
+                        //Error occurred
+                        else if (connectionError[0]) {
+                            ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_internal));
+                        } else if(mFeatArtistsList.size() == 0) {
+                            // hide feat artists view
+                            recyclerViewFeatArtists.setVisibility(View.GONE);
+
+                        }
+                        else
+                        {   recyclerViewFeatArtists.setVisibility(View.VISIBLE);
+                            mFeatArstistsAdapter.notifyDataSetChanged();
+                        }
+
+                    }
+                });
     }
 
     /**
@@ -682,7 +991,6 @@ public class ExploreFragment extends Fragment implements listener.OnCollaboratio
 
     /**
      * Initialize follow listener.
-     *
      */
     private void initFollowListener() {
         mAdapter.setOnExploreFollowListener(new listener.OnExploreFollowListener() {
@@ -731,7 +1039,6 @@ public class ExploreFragment extends Fragment implements listener.OnCollaboratio
 
     /**
      * Initialize capture listener.
-     *
      */
     private void initCaptureListener() {
         mAdapter.setOnExploreCaptureClickListener(new listener.OnExploreCaptureClickListener() {

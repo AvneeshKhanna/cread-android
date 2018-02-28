@@ -47,18 +47,41 @@
                         android:layout_height="88dp"
                         android:layout_gravity="center"
                         android:transitionName="@string/shared_transition_profile_pic"
-                        tools:src="@drawable/ic_account_circle_48" />
+                        tools:src="@drawable/ic_account_circle_100" />
 
-                    <TextView
-                        android:id="@+id/textUserName"
+                    <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:gravity="center"
-                        android:paddingBottom="5dp"
-                        android:paddingTop="5dp"
-                        android:textColor="@color/grey_dark"
-                        android:textSize="24sp"
-                        tools:text="Gaurav" />
+                        android:orientation="horizontal"
+                        android:gravity="center">
+
+
+                        <TextView
+                            android:id="@+id/textUserName"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:gravity="center"
+                            android:paddingBottom="5dp"
+                            android:paddingTop="5dp"
+                            android:textColor="@color/grey_dark"
+                            android:textSize="24sp"
+                            tools:text="Gaurav" />
+
+                        <android.support.v7.widget.AppCompatImageView
+                            android:id="@+id/imageFeatured"
+                            android:layout_width="24dp"
+                            android:layout_height="24dp"
+                            android:paddingBottom="5dp"
+                            android:paddingTop="5dp"
+                            android:layout_marginLeft="3dp"
+                            app:srcCompat="@drawable/ic_featured_artist"
+                            android:visibility="gone"/>
+
+
+
+                    </LinearLayout>
+
+
 
                     <TextView
                         android:id="@+id/textBio"

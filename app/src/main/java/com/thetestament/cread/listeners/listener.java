@@ -342,4 +342,11 @@ public class listener {
         void onLoadMore();
     }
 
+    /**
+     * Interface definition for a callback to be invoked when user scroll for more data.
+     */
+    public interface OnFeatArtistClickedListener {
+        void onFeatArtistClicked(int itemType, String uuid);
+    }
+
 }

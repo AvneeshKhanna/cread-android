@@ -60,6 +60,7 @@
     // dialog messages
     <string name="processing_title">Processing</string>
     <string name="verif_title">Verifying</string>
+    <string name="loading_title">Loading</string>
     <string name="generating_title">Generating Link</string>
     <string name="waiting_msg">Please wait</string>
     <string name="text_ok">Ok</string>
@@ -170,5 +171,7 @@
     <string name="action_text_filters">Filters</string>
     <string name="text_follow"> \u2022 Follow</string>
     <string name="text_cread_name">Cread \u2022  New message</string>
+    <string name="text_title_dialog_featured_artist">Introducing: Featured Artists</string>
+    <string name="text_desc_dialog_featured_artist">Get an opportunity to be listed amongst the top artists on Cread! All you have to do is post awesome stuff and you might get featured on the top of the feed for everyone to see. We hope to get you the best of the app everyday!</string>
 
 </resources>

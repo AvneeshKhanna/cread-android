@@ -157,7 +157,7 @@ public class UpdateProfileImageActivity extends BaseActivity {
                 .load(imageURL)
                 .networkPolicy(NetworkPolicy.NO_CACHE)
                 .memoryPolicy(MemoryPolicy.NO_CACHE)
-                .error(R.drawable.ic_account_circle_48)
+                .error(R.drawable.ic_account_circle_100)
                 .into(imageProfile, new Callback() {
                     @Override
                     public void onSuccess() {

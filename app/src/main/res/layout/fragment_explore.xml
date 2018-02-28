@@ -3,7 +3,8 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/rootView"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    xmlns:tools="http://schemas.android.com/tools">
 
 
     <android.support.design.widget.AppBarLayout
@@ -26,7 +27,8 @@
                 android:id="@+id/tabLayoutContainer"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:background="@color/white">
+                android:background="@color/white"
+                android:orientation="vertical">
 
                 <android.support.design.widget.TabLayout
                     android:id="@+id/tabLayout"
@@ -40,6 +42,20 @@
                     <android.support.design.widget.TabItem android:icon="@drawable/ic_list" />
 
                 </android.support.design.widget.TabLayout>
+
+                <android.support.v7.widget.RecyclerView
+                    android:id="@+id/recyclerViewFeatArtists"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@color/grey_light"
+                    tools:itemCount="4"
+                    tools:listitem="@layout/item_featured_artists"
+                    android:orientation="horizontal"
+                    app:layoutManager="android.support.v7.widget.LinearLayoutManager"
+                    android:visibility="gone">
+
+                </android.support.v7.widget.RecyclerView>
+
 
             </LinearLayout>
 
