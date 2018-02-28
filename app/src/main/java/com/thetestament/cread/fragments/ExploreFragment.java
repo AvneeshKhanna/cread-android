@@ -555,9 +555,9 @@ public class ExploreFragment extends Fragment implements listener.OnCollaboratio
                             TextView textCollaborations = rootViewDialog.findViewById(R.id.textCollaborations);
 
                             // set message for text views
-                            String posts = isCountOne(mPostCount) ? "post" : "posts";
-                            String followers = isCountOne(mFollowerCount) ? "follower" : "followers";
-                            String collaborations = isCountOne(mCollaborationCount) ? "collaboration" : "collaborations";
+                            String posts = isCountOne(mPostCount) ? "Post" : "Posts";
+                            String followers = isCountOne(mFollowerCount) ? "Follower" : "Followers";
+                            String collaborations = isCountOne(mCollaborationCount) ? "Collaboration" : "Collaborations";
 
                             // set text
                             textPosts.setText(posts);
