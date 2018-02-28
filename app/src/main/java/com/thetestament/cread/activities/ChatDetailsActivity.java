@@ -189,7 +189,7 @@ public class ChatDetailsActivity extends BaseActivity {
         mCompositeDisposable.dispose();
         //Remove incoming message listener
         mSocket.off("send-message", inComingListener);
-        mSocket.off(Socket.EVENT_ERROR);
+        mSocket.off(Socket.EVENT_CONNECT_ERROR);
         //if called from Receiver profile
         if (mBundle.getString(EXTRA_CHAT_DETAILS_CALLED_FROM)
                 .equals(EXTRA_CHAT_DETAILS_CALLED_FROM_CHAT_PROFILE)) {
@@ -421,11 +421,11 @@ public class ChatDetailsActivity extends BaseActivity {
                 mSocket.connect();
             }
         }
-        mSocket.on(Socket.EVENT_ERROR, new Emitter.Listener() {
+        mSocket.on(Socket.EVENT_CONNECT_ERROR, new Emitter.Listener() {
             @Override
             public void call(Object... args) {
                 //Show error message
-                ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_server));
+                ViewHelper.getSnackBar(rootView, getString(R.string.error_chat_connection));
             }
         });
     }
