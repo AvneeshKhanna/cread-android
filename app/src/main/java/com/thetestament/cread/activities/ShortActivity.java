@@ -201,7 +201,7 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
      * Flag to maintain imageWidth
      */
     @State
-    int mImageWidth = 650;
+    int mImageWidth = 900;
 
 
     /**

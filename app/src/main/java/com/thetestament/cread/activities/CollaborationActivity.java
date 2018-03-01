@@ -160,7 +160,7 @@ public class CollaborationActivity extends BaseActivity {
     @State
     String mEntityType;
     @State
-    int mImageWidth = 650;
+    int mImageWidth = 900;
 
 
     /**
