@@ -44,7 +44,9 @@ import java.util.List;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import de.hdodenhof.circleimageview.CircleImageView;
+import io.reactivex.disposables.CompositeDisposable;
 
+import static com.thetestament.cread.helpers.ContentHelper.getMenuActionsBottomSheet;
 import static com.thetestament.cread.helpers.FeedHelper.initCaption;
 import static com.thetestament.cread.helpers.FeedHelper.initSocialActionsCount;
 import static com.thetestament.cread.helpers.FeedHelper.initializeShareDialog;
@@ -74,6 +76,7 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     private Fragment mFeedFragment;
     private boolean mIsLoading;
     private String mUUID;
+    private CompositeDisposable mCompositeDisposable;
 
     private SharedPreferenceHelper mHelper;
 
@@ -89,11 +92,12 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
      * @param mContext  Context to be use.
      * @param mUUID     UUID of the user
      */
-    public FeedAdapter(List<FeedModel> mFeedList, FragmentActivity mContext, String mUUID, Fragment mFeedFragment) {
+    public FeedAdapter(List<FeedModel> mFeedList, FragmentActivity mContext, String mUUID, Fragment mFeedFragment, CompositeDisposable mCompositeDisposable) {
         this.mFeedList = mFeedList;
         this.mContext = mContext;
         this.mUUID = mUUID;
         this.mFeedFragment = mFeedFragment;
+        this.mCompositeDisposable = mCompositeDisposable;
 
         mHelper = new SharedPreferenceHelper(mContext);
     }
@@ -147,7 +151,7 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     }
 
     @Override
-    public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
+    public void onBindViewHolder(RecyclerView.ViewHolder holder, final int position) {
         final FeedModel data = mFeedList.get(position);
 
         if (holder.getItemViewType() == VIEW_TYPE_ITEM) {
@@ -167,6 +171,14 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                     , false
                     , false
                     , null);
+
+            //open bottom sheet on clicking of 3 dots
+            itemViewHolder.buttonMenu.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    getMenuActionsBottomSheet(mContext, position, data, null, false, mCompositeDisposable);
+                }
+            });
 
             //Check whether user has given hats off to this campaign or not
             checkHatsOffStatus(data.getHatsOffStatus(), itemViewHolder);
@@ -591,6 +603,8 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         TextView textCommentsCount;
         @BindView(R.id.dotSeperator)
         TextView dotSeperator;
+        @BindView(R.id.buttonMenu)
+        TextView buttonMenu;
 
 
         //Variable to maintain hats off status

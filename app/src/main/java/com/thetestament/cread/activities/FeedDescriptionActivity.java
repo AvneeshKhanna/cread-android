@@ -28,9 +28,6 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.afollestad.materialdialogs.MaterialDialog;
-import com.androidnetworking.AndroidNetworking;
-import com.androidnetworking.error.ANError;
-import com.androidnetworking.interfaces.JSONObjectRequestListener;
 import com.google.firebase.analytics.FirebaseAnalytics;
 import com.google.firebase.crash.FirebaseCrash;
 import com.squareup.picasso.Callback;
@@ -43,7 +40,6 @@ import com.thetestament.cread.Manifest;
 import com.thetestament.cread.R;
 import com.thetestament.cread.adapters.CommentsAdapter;
 import com.thetestament.cread.adapters.ShareDialogAdapter;
-import com.thetestament.cread.database.NotificationsDBFunctions;
 import com.thetestament.cread.helpers.FeedHelper;
 import com.thetestament.cread.helpers.FollowHelper;
 import com.thetestament.cread.helpers.HatsOffHelper;
@@ -490,7 +486,7 @@ public class FeedDescriptionActivity extends BaseActivity implements listener.On
 
     @OnClick(R.id.buttonMenu)
     void onMenuClick() {
-        getMenuActionsBottomSheet(mContext, mItemPosition, mFeedData, initDeletePostClick());
+        getMenuActionsBottomSheet(mContext, mItemPosition, mFeedData, initDeletePostClick(), isUserCreator, mCompositeDisposable);
     }
 
     /**
@@ -598,8 +594,6 @@ public class FeedDescriptionActivity extends BaseActivity implements listener.On
         isUserCreator = mFeedData.getUUID().equals(mHelper.getUUID());
 
         toggleFollowButton(false);
-        // show menu options if user is creator
-        showMenuOptions();
     }
 
 
@@ -639,60 +633,6 @@ public class FeedDescriptionActivity extends BaseActivity implements listener.On
                     });
         }
 
-    }
-
-
-    private void updateDataOnServer(final String uuid, String authkey, JSONArray userActions) {
-
-        JSONObject jsonObject = new JSONObject();
-
-        try {
-            jsonObject.put("uuid", uuid);
-            jsonObject.put("authkey", authkey);
-            jsonObject.put("user_events", userActions);
-
-        } catch (JSONException e) {
-            e.printStackTrace();
-            FirebaseCrash.report(e);
-        }
-
-        AndroidNetworking.post(BuildConfig.URL + "/user-events/save")
-                .addJSONObjectBody(jsonObject)
-                .build()
-                .getAsJSONObject(new JSONObjectRequestListener() {
-                    @Override
-                    public void onResponse(JSONObject response) {
-                        try {
-                            //Token status is invalid
-                            if (response.getString("tokenstatus").equals("invalid")) {
-                                // do nothing
-                            } else {
-                                JSONObject mainData = response.getJSONObject("data");
-
-                                if (mainData.getString("status").equals("done")) {
-
-                                    // data uploaded successfully
-                                    // delete users data
-                                    NotificationsDBFunctions notificationsDBFunctions = new NotificationsDBFunctions(mContext);
-                                    notificationsDBFunctions.accessNotificationsDatabase();
-
-                                    notificationsDBFunctions.deleteUserActionsData(uuid);
-
-                                }
-
-                            }
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                            FirebaseCrash.report(e);
-                        }
-                    }
-
-                    @Override
-                    public void onError(ANError anError) {
-                        anError.printStackTrace();
-                        FirebaseCrash.report(anError);
-                    }
-                });
     }
 
     /**
@@ -813,17 +753,6 @@ public class FeedDescriptionActivity extends BaseActivity implements listener.On
 
         } else {
             buttonFollow.setVisibility(View.VISIBLE);
-        }
-    }
-
-    /**
-     * If user is creator then it shows menu options
-     */
-    private void showMenuOptions() {
-        if (isUserCreator) {
-            buttonMenu.setVisibility(View.VISIBLE);
-        } else {
-            buttonMenu.setVisibility(View.GONE);
         }
     }
 

@@ -113,6 +113,15 @@ public class listener {
         void onFollowFailiure(String errorMsg);
     }
 
+    /**
+     * Interface definition for a callback to be invoked when user clicks on follow button.
+     */
+    public interface OnDownvoteRequestedListener {
+        void onDownvoteSuccess();
+
+        void onDownvoteFailiure(String errorMsg);
+    }
+
     public interface onDeleteRequestedListener {
 
         void onDeleteSuccess();

@@ -246,7 +246,7 @@ public class FeedFragment extends Fragment implements listener.OnCollaborationLi
         //Set layout manger for recyclerView
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
         //Set adapter
-        mAdapter = new FeedAdapter(mFeedDataList, getActivity(), mHelper.getUUID(), FeedFragment.this);
+        mAdapter = new FeedAdapter(mFeedDataList, getActivity(), mHelper.getUUID(), FeedFragment.this, mCompositeDisposable);
         recyclerView.setAdapter(mAdapter);
 
 
@@ -365,6 +365,7 @@ public class FeedFragment extends Fragment implements listener.OnCollaborationLi
                                             feedData.setCreatorName(dataObj.getString("creatorname"));
                                             feedData.setHatsOffStatus(dataObj.getBoolean("hatsoffstatus"));
                                             feedData.setMerchantable(dataObj.getBoolean("merchantable"));
+                                            feedData.setDownvoteStatus(dataObj.getBoolean("downvotestatus"));
                                             feedData.setHatsOffCount(dataObj.getLong("hatsoffcount"));
                                             feedData.setCommentCount(dataObj.getLong("commentcount"));
                                             feedData.setContentImage(dataObj.getString("entityurl"));
@@ -508,6 +509,7 @@ public class FeedFragment extends Fragment implements listener.OnCollaborationLi
                                     feedData.setCreatorName(dataObj.getString("creatorname"));
                                     feedData.setHatsOffStatus(dataObj.getBoolean("hatsoffstatus"));
                                     feedData.setMerchantable(dataObj.getBoolean("merchantable"));
+                                    feedData.setDownvoteStatus(dataObj.getBoolean("downvotestatus"));
                                     feedData.setHatsOffCount(dataObj.getLong("hatsoffcount"));
                                     feedData.setCommentCount(dataObj.getLong("commentcount"));
                                     feedData.setContentImage(dataObj.getString("entityurl"));

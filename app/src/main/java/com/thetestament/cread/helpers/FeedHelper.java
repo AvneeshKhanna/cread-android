@@ -385,6 +385,7 @@ public class FeedHelper {
         feedData.setCreatorName(dataObj.getString("creatorname"));
         feedData.setHatsOffStatus(dataObj.getBoolean("hatsoffstatus"));
         feedData.setMerchantable(dataObj.getBoolean("merchantable"));
+        feedData.setDownvoteStatus(dataObj.getBoolean("downvotestatus"));
         feedData.setHatsOffCount(dataObj.getLong("hatsoffcount"));
         feedData.setCommentCount(dataObj.getLong("commentcount"));
         feedData.setContentImage(dataObj.getString("entityurl"));

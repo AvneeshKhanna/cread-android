@@ -316,7 +316,7 @@ public class ExploreFragment extends Fragment implements listener.OnCollaboratio
         }
 
         //Set adapter
-        mAdapter = new ExploreAdapter(mExploreDataList, getActivity(), mHelper.getUUID(), ExploreFragment.this, defaultItemType);
+        mAdapter = new ExploreAdapter(mExploreDataList, getActivity(), mHelper.getUUID(), ExploreFragment.this, defaultItemType, mCompositeDisposable);
         recyclerView.setAdapter(mAdapter);
     }
 
@@ -357,7 +357,7 @@ public class ExploreFragment extends Fragment implements listener.OnCollaboratio
                         GridLayoutManager gridLayoutManager = new GridLayoutManager(getActivity(), spanCount);
                         recyclerView.setLayoutManager(gridLayoutManager);
 
-                        mAdapter = new ExploreAdapter(mExploreDataList, getActivity(), mHelper.getUUID(), ExploreFragment.this, GRID);
+                        mAdapter = new ExploreAdapter(mExploreDataList, getActivity(), mHelper.getUUID(), ExploreFragment.this, GRID, mCompositeDisposable);
                         recyclerView.setAdapter(mAdapter);
                         initListeners();
                         break;
@@ -367,7 +367,7 @@ public class ExploreFragment extends Fragment implements listener.OnCollaboratio
                         mHelper.setFeedItemType(Constant.ITEM_TYPES.LIST);
                         // setting layout manager
                         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
-                        mAdapter = new ExploreAdapter(mExploreDataList, getActivity(), mHelper.getUUID(), ExploreFragment.this, Constant.ITEM_TYPES.LIST);
+                        mAdapter = new ExploreAdapter(mExploreDataList, getActivity(), mHelper.getUUID(), ExploreFragment.this, Constant.ITEM_TYPES.LIST, mCompositeDisposable);
                         recyclerView.setAdapter(mAdapter);
                         initListeners();
                         break;
@@ -755,6 +755,7 @@ public class ExploreFragment extends Fragment implements listener.OnCollaboratio
                                     exploreData.setHatsOffStatus(dataObj.getBoolean("hatsoffstatus"));
                                     exploreData.setFollowStatus(dataObj.getBoolean("followstatus"));
                                     exploreData.setMerchantable(dataObj.getBoolean("merchantable"));
+                                    exploreData.setDownvoteStatus(dataObj.getBoolean("downvotestatus"));
                                     exploreData.setHatsOffCount(dataObj.getLong("hatsoffcount"));
                                     exploreData.setCommentCount(dataObj.getLong("commentcount"));
                                     exploreData.setContentImage(dataObj.getString("entityurl"));
@@ -894,6 +895,7 @@ public class ExploreFragment extends Fragment implements listener.OnCollaboratio
                                     exploreData.setHatsOffStatus(dataObj.getBoolean("hatsoffstatus"));
                                     exploreData.setFollowStatus(dataObj.getBoolean("followstatus"));
                                     exploreData.setMerchantable(dataObj.getBoolean("merchantable"));
+                                    exploreData.setDownvoteStatus(dataObj.getBoolean("downvotestatus"));
                                     exploreData.setHatsOffCount(dataObj.getLong("hatsoffcount"));
                                     exploreData.setCommentCount(dataObj.getLong("commentcount"));
                                     exploreData.setContentImage(dataObj.getString("entityurl"));

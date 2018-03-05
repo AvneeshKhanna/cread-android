@@ -40,7 +40,9 @@ import java.util.List;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import de.hdodenhof.circleimageview.CircleImageView;
+import io.reactivex.disposables.CompositeDisposable;
 
+import static com.thetestament.cread.helpers.ContentHelper.getMenuActionsBottomSheet;
 import static com.thetestament.cread.helpers.FeedHelper.setGridItemMargins;
 import static com.thetestament.cread.utils.Constant.EXTRA_DATA;
 import static com.thetestament.cread.utils.Constant.EXTRA_ENTITY_ID;
@@ -68,6 +70,7 @@ public class ExploreAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
     private String mUUID;
     private SharedPreferenceHelper mHelper;
     private ITEM_TYPES mItemType;
+    private CompositeDisposable mCompositeDisposable;
 
 
     private OnExploreLoadMoreListener onExploreLoadMoreListener;
@@ -82,12 +85,13 @@ public class ExploreAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
      * @param mContext     Context to be use.
      * @param mUUID        UUID of user.
      */
-    public ExploreAdapter(List<FeedModel> mExploreList, FragmentActivity mContext, String mUUID, Fragment mExploreFragment, ITEM_TYPES mItemType) {
+    public ExploreAdapter(List<FeedModel> mExploreList, FragmentActivity mContext, String mUUID, Fragment mExploreFragment, ITEM_TYPES mItemType, CompositeDisposable mCompositeDisposable) {
         this.mExploreList = mExploreList;
         this.mContext = mContext;
         this.mUUID = mUUID;
         this.mExploreFragment = mExploreFragment;
         this.mItemType = mItemType;
+        this.mCompositeDisposable = mCompositeDisposable;
 
         mHelper = new SharedPreferenceHelper(mContext);
     }
@@ -146,8 +150,8 @@ public class ExploreAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
     }
 
     @Override
-    public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
-        FeedModel data = mExploreList.get(position);
+    public void onBindViewHolder(RecyclerView.ViewHolder holder, final int position) {
+        final FeedModel data = mExploreList.get(position);
         if (holder.getItemViewType() == VIEW_TYPE_ITEM_LIST) {
             final ListItemViewHolder itemViewHolder = (ListItemViewHolder) holder;
             //Load creator profile picture
@@ -166,6 +170,16 @@ public class ExploreAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
                     , true
                     , false
                     , null);
+
+
+            //open bottom sheet on clicking of 3 dots
+            itemViewHolder.buttonMenu.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    getMenuActionsBottomSheet(mContext, position, data, null, false, mCompositeDisposable);
+                }
+            });
+
 
             //Check follow status
             checkFollowStatus(data, itemViewHolder);
@@ -517,6 +531,8 @@ public class ExploreAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
         TextView buttonCollaborate;
         @BindView(R.id.collabCount)
         TextView collabCount;
+        @BindView(R.id.buttonMenu)
+        TextView buttonMenu;
 
         public ListItemViewHolder(View itemView) {
             super(itemView);

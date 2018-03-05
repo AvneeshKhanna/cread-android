@@ -6,12 +6,15 @@ import android.support.design.widget.BottomSheetDialog;
 import android.support.v4.app.FragmentActivity;
 import android.view.View;
 import android.widget.LinearLayout;
+import android.widget.TextView;
 
 import com.thetestament.cread.R;
 import com.thetestament.cread.activities.PreviewActivity;
 import com.thetestament.cread.activities.ShortActivity;
 import com.thetestament.cread.listeners.listener;
 import com.thetestament.cread.models.FeedModel;
+
+import io.reactivex.disposables.CompositeDisposable;
 
 import static com.thetestament.cread.helpers.DeletePostHelper.showDeleteConfirmationDialog;
 import static com.thetestament.cread.utils.Constant.CONTENT_TYPE_CAPTURE;
@@ -26,10 +29,10 @@ import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_CAPTION_TEXT;
 import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_CONTENT_IMAGE;
 import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_DATA;
 import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_ENTITY_ID;
+import static com.thetestament.cread.utils.Constant.REQUEST_CODE_EDIT_POST;
 import static com.thetestament.cread.utils.Constant.SHORT_EXTRA_CALLED_FROM;
 import static com.thetestament.cread.utils.Constant.SHORT_EXTRA_CALLED_FROM_EDIT_SHORT;
 import static com.thetestament.cread.utils.Constant.SHORT_EXTRA_CAPTION_TEXT;
-import static com.thetestament.cread.utils.Constant.REQUEST_CODE_EDIT_POST;
 
 
 /**
@@ -82,7 +85,7 @@ public class ContentHelper {
      */
 
     public static void getMenuActionsBottomSheet(final FragmentActivity context, final int index
-            , final FeedModel data, final listener.OnContentDeleteListener onContentDeleteListener) {
+            , final FeedModel data, final listener.OnContentDeleteListener onContentDeleteListener, boolean shouldShowCreatorOptions, final CompositeDisposable compositeDisposable) {
 
         final BottomSheetDialog bottomSheetDialog = new BottomSheetDialog(context);
         //inflate this view
@@ -92,30 +95,81 @@ public class ContentHelper {
         bottomSheetDialog.setContentView(sheetView);
         bottomSheetDialog.show();
 
+        // init views
         LinearLayout buttonDelete = sheetView.findViewById(R.id.buttonDelete);
         LinearLayout buttonEdit = sheetView.findViewById(R.id.buttonEdit);
+        LinearLayout buttonDownvote = sheetView.findViewById(R.id.buttonDownvote);
 
-        //Delete button functionality
-        buttonDelete.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                showDeleteConfirmationDialog(context
-                        , index
-                        , data.getEntityID()
-                        , onContentDeleteListener);
-                //Dismiss bottom sheet
-                bottomSheetDialog.dismiss();
-            }
-        });
+        final TextView textDownvote = sheetView.findViewById(R.id.textDownvote);
 
-        buttonEdit.setOnClickListener(new View.OnClickListener() {
+        // set downvote text
+        final DownvoteHelper downvoteHelper = new DownvoteHelper();
+        downvoteHelper.updateDownvoteText(textDownvote, data.isDownvoteStatus());
+
+
+        buttonDownvote.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                //Method called
-                launchContentEditingScreen(data, context);
-                //Dismiss bottom sheet
-                bottomSheetDialog.dismiss();
+                //update text
+                data.setDownvoteStatus(!data.isDownvoteStatus());
+                downvoteHelper.updateDownvoteText(textDownvote, data.isDownvoteStatus());
+
+                downvoteHelper.updateDownvoteStatus(context, compositeDisposable, data.isDownvoteStatus(), data.getEntityID(), new listener.OnDownvoteRequestedListener() {
+                    @Override
+                    public void onDownvoteSuccess() {
+
+                        // do nothing
+
+                    }
+
+                    @Override
+                    public void onDownvoteFailiure(String errorMsg) {
+
+                        ViewHelper.getToast(context, errorMsg);
+                        // revert status
+                        data.setDownvoteStatus(!data.isDownvoteStatus());
+                        downvoteHelper.updateDownvoteText(textDownvote, data.isDownvoteStatus());
+
+                    }
+                });
+
             }
         });
+
+
+        if(shouldShowCreatorOptions)
+        {
+            buttonDelete.setVisibility(View.VISIBLE);
+            buttonEdit.setVisibility(View.VISIBLE);
+
+            //Delete button functionality
+            buttonDelete.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    showDeleteConfirmationDialog(context
+                            , index
+                            , data.getEntityID()
+                            , onContentDeleteListener);
+                    //Dismiss bottom sheet
+                    bottomSheetDialog.dismiss();
+                }
+            });
+
+            buttonEdit.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    //Method called
+                    launchContentEditingScreen(data, context);
+                    //Dismiss bottom sheet
+                    bottomSheetDialog.dismiss();
+                }
+            });
+        }
+
+        else
+        {
+            buttonDelete.setVisibility(View.GONE);
+            buttonEdit.setVisibility(View.GONE);
+        }
     }
 }

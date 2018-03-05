@@ -400,6 +400,30 @@ public class NetworkHelper {
     }
 
 
+    public static Observable<JSONObject> updateDownvoteStatusObservable(String uuid, String authkey, boolean downvote, String entityid) {
+        final JSONObject jsonObject = new JSONObject();
+
+        try {
+
+            jsonObject.put("uuid", uuid);
+            jsonObject.put("authkey", authkey);
+            jsonObject.put("register", downvote);
+            jsonObject.put("entityid", entityid);
+
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+            FirebaseCrash.report(e);
+        }
+
+        return Rx2AndroidNetworking
+                .post(BuildConfig.URL + "/downvote/on-click")
+                .addJSONObjectBody(jsonObject)
+                .build()
+                .getJSONObjectObservable();
+    }
+
+
     public static Observable<JSONObject> getDeletePostObservable(String uuid, String authkey, String entityID) {
         JSONObject jsonObject = new JSONObject();
         try {

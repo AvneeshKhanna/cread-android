@@ -116,7 +116,7 @@
                         android:text="&#8942;"
 
                         android:textAppearance="?android:textAppearanceLarge"
-                        android:visibility="gone" />
+                        android:visibility="visible" />
 
 
                 </LinearLayout>

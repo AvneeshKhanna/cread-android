@@ -690,7 +690,7 @@ public class MeFragment extends Fragment implements listener.OnCollaborationList
                         GridLayoutManager gridLayoutManager = new GridLayoutManager(getActivity(), spanCount);
                         recyclerView.setLayoutManager(gridLayoutManager);
 
-                        mAdapter = new MeAdapter(mUserActivityDataList, getActivity(), mHelper.getUUID(), MeFragment.this, ITEM_TYPES.GRID);
+                        mAdapter = new MeAdapter(mUserActivityDataList, getActivity(), mHelper.getUUID(), MeFragment.this, ITEM_TYPES.GRID, mCompositeDisposable);
                         recyclerView.setAdapter(mAdapter);
                         initListeners(LIST);
                         break;
@@ -699,7 +699,7 @@ public class MeFragment extends Fragment implements listener.OnCollaborationList
                         mHelper.setFeedItemType(LIST);
                         // list layout for all data
                         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
-                        mAdapter = new MeAdapter(mUserActivityDataList, getActivity(), mHelper.getUUID(), MeFragment.this, LIST);
+                        mAdapter = new MeAdapter(mUserActivityDataList, getActivity(), mHelper.getUUID(), MeFragment.this, LIST, mCompositeDisposable);
                         recyclerView.setAdapter(mAdapter);
                         initListeners(LIST);
                         break;
@@ -708,7 +708,7 @@ public class MeFragment extends Fragment implements listener.OnCollaborationList
                         mCollabList.clear();
                         mCollabLastIndexKey = null;
                         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
-                        mAdapter = new MeAdapter(mCollabList, getActivity(), mHelper.getUUID(), MeFragment.this, ITEM_TYPES.COLLABLIST);
+                        mAdapter = new MeAdapter(mCollabList, getActivity(), mHelper.getUUID(), MeFragment.this, ITEM_TYPES.COLLABLIST, mCompositeDisposable);
                         recyclerView.setAdapter(mAdapter);
                         initListeners(COLLABLIST);
                         getCollabData();
@@ -854,7 +854,7 @@ public class MeFragment extends Fragment implements listener.OnCollaborationList
         }
 
         //Set adapter
-        mAdapter = new MeAdapter(mUserActivityDataList, getActivity(), mHelper.getUUID(), MeFragment.this, defaultItemType);
+        mAdapter = new MeAdapter(mUserActivityDataList, getActivity(), mHelper.getUUID(), MeFragment.this, defaultItemType, mCompositeDisposable);
         recyclerView.setAdapter(mAdapter);
     }
 
@@ -1297,6 +1297,7 @@ public class MeFragment extends Fragment implements listener.OnCollaborationList
                                     data.setCreatorName(dataObj.getString("creatorname"));
                                     data.setHatsOffStatus(dataObj.getBoolean("hatsoffstatus"));
                                     data.setMerchantable(dataObj.getBoolean("merchantable"));
+                                    data.setDownvoteStatus(dataObj.getBoolean("downvotestatus"));
                                     data.setHatsOffCount(dataObj.getLong("hatsoffcount"));
                                     data.setCommentCount(dataObj.getLong("commentcount"));
                                     data.setContentImage(dataObj.getString("entityurl"));
@@ -1600,6 +1601,7 @@ public class MeFragment extends Fragment implements listener.OnCollaborationList
             data.setCreatorName(dataObj.getString("creatorname"));
             data.setHatsOffStatus(dataObj.getBoolean("hatsoffstatus"));
             data.setMerchantable(dataObj.getBoolean("merchantable"));
+            data.setDownvoteStatus(dataObj.getBoolean("downvotestatus"));
             data.setHatsOffCount(dataObj.getLong("hatsoffcount"));
             data.setCommentCount(dataObj.getLong("commentcount"));
             data.setContentImage(dataObj.getString("entityurl"));
@@ -1768,6 +1770,7 @@ public class MeFragment extends Fragment implements listener.OnCollaborationList
                                     data.setCreatorName(dataObj.getString("creatorname"));
                                     data.setHatsOffStatus(dataObj.getBoolean("hatsoffstatus"));
                                     data.setMerchantable(dataObj.getBoolean("merchantable"));
+                                    data.setDownvoteStatus(dataObj.getBoolean("downvotestatus"));
                                     data.setHatsOffCount(dataObj.getLong("hatsoffcount"));
                                     data.setCommentCount(dataObj.getLong("commentcount"));
                                     data.setContentImage(dataObj.getString("entityurl"));
