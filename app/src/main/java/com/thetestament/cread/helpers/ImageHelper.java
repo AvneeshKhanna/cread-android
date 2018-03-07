@@ -26,6 +26,7 @@ import com.thetestament.cread.BuildConfig;
 import com.thetestament.cread.R;
 import com.thetestament.cread.activities.CollaborationActivity;
 import com.yalantis.ucrop.UCrop;
+import com.yalantis.ucrop.UCropActivity;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
@@ -173,10 +174,10 @@ public class ImageHelper {
         options.setStatusBarColor(ContextCompat.getColor(context, R.color.colorPrimaryDark));
         //options.setCompressionFormat(Bitmap.CompressFormat.PNG);
         //options.setCompressionQuality(100);
-
+        options.setAllowedGestures(UCropActivity.SCALE, UCropActivity.ROTATE, UCropActivity.SCALE);
         //Launch  image cropping activity
         UCrop.of(sourceUri, destinationUri)
-                .withAspectRatio(1, 1)
+                .withAspectRatio(1,1)
                 .withOptions(options)
                 .useSourceImageAspectRatio()
                 .start(context);
@@ -200,11 +201,11 @@ public class ImageHelper {
         options.setStatusBarColor(ContextCompat.getColor(context, R.color.colorPrimaryDark));
         //options.setCompressionFormat(Bitmap.CompressFormat.PNG);
         //options.setCompressionQuality(100);
-
+        options.setAllowedGestures(UCropActivity.SCALE, UCropActivity.ROTATE, UCropActivity.SCALE);
 
         //Launch  image cropping activity
         UCrop.of(sourceUri, destinationUri)
-                .withAspectRatio(1, 1)
+                .withAspectRatio(1,1)
                 .withOptions(options)
                 .useSourceImageAspectRatio()
                 .start(context, fragment, UCrop.REQUEST_CROP);
@@ -303,10 +304,10 @@ public class ImageHelper {
      * Method to perform square image manipulation.
      *
      * @param croppedImageUri Uri of cropped image
-     * @param context    Context of use.
-     * @param rootView   Layout parent view reference.
-     * @param entityID   entity id of content.
-     * @param entityType Type oif entity.
+     * @param context         Context of use.
+     * @param rootView        Layout parent view reference.
+     * @param entityID        entity id of content.
+     * @param entityType      Type oif entity.
      */
     public static void performSquareImageManipulation(Uri croppedImageUri, Context context, View rootView, String entityID, String entityType) {
         try {
@@ -387,8 +388,7 @@ public class ImageHelper {
                 Intent intent = new Intent(context, CollaborationActivity.class);
                 intent.putExtra(EXTRA_DATA, bundle);
                 context.startActivity(intent);
-            }
-            else if (imageHeight >= 1800 && imageWidth >= 1800) {
+            } else if (imageHeight >= 1800 && imageWidth >= 1800) {
                 //Open preview screen
                 Bundle bundle = new Bundle();
                 bundle.putString(EXTRA_ENTITY_ID, entityID);
@@ -398,8 +398,7 @@ public class ImageHelper {
                 Intent intent = new Intent(context, CollaborationActivity.class);
                 intent.putExtra(EXTRA_DATA, bundle);
                 context.startActivity(intent);
-            }
-            else {
+            } else {
                 getMerchantableDialog(context, entityID, entityType);
             }
         } catch (Exception e) {
