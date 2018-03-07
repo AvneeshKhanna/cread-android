@@ -242,7 +242,9 @@ public class FeedDescriptionActivity extends BaseActivity implements listener.On
                 if (resultCode == RESULT_OK) {
                     //Get cropped image Uri
                     Uri mCroppedImgUri = UCrop.getOutput(data);
-                    ImageHelper.processCroppedImage(mCroppedImgUri, FeedDescriptionActivity.this, rootView, mFeedData.getEntityID(), mFeedData.getContentType());
+
+                    ImageHelper.performSquareImageManipulation(mCroppedImgUri, FeedDescriptionActivity.this
+                            , rootView, mFeedData.getEntityID(), mFeedData.getContentType());
 
                 } else if (resultCode == UCrop.RESULT_ERROR) {
                     ViewHelper.getSnackBar(rootView, "Image could not be cropped due to some error");
@@ -603,11 +605,9 @@ public class FeedDescriptionActivity extends BaseActivity implements listener.On
     }
 
 
-    private void storeUserActionsData(String entityid, String eventType)
-    {
+    private void storeUserActionsData(String entityid, String eventType) {
         // store data only if user and creator are not same
-        if(!mFeedData.getUUID().equals(mHelper.getUUID()))
-        {
+        if (!mFeedData.getUUID().equals(mHelper.getUUID())) {
             RxUtils.getUserActionsDataObservable(mContext, entityid, eventType)
                     .subscribeOn(Schedulers.io())
                     .observeOn(AndroidSchedulers.mainThread())
@@ -718,16 +718,16 @@ public class FeedDescriptionActivity extends BaseActivity implements listener.On
 
 
         requestCreator.into(image, new Callback() {
-                    @Override
-                    public void onSuccess() {
-                        ActivityCompat.startPostponedEnterTransition(FeedDescriptionActivity.this);
-                    }
+            @Override
+            public void onSuccess() {
+                ActivityCompat.startPostponedEnterTransition(FeedDescriptionActivity.this);
+            }
 
-                    @Override
-                    public void onError() {
-                        ActivityCompat.startPostponedEnterTransition(FeedDescriptionActivity.this);
-                    }
-                });
+            @Override
+            public void onError() {
+                ActivityCompat.startPostponedEnterTransition(FeedDescriptionActivity.this);
+            }
+        });
     }
 
     /**
@@ -783,7 +783,6 @@ public class FeedDescriptionActivity extends BaseActivity implements listener.On
             }
         });
     }
-
 
 
     /**

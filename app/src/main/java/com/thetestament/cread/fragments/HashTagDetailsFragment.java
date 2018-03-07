@@ -22,11 +22,7 @@ import android.view.animation.AnimationUtils;
 import android.view.animation.LayoutAnimationController;
 import android.widget.TextView;
 
-import com.androidnetworking.AndroidNetworking;
-import com.androidnetworking.error.ANError;
-import com.androidnetworking.interfaces.JSONObjectRequestListener;
 import com.google.firebase.crash.FirebaseCrash;
-import com.thetestament.cread.BuildConfig;
 import com.thetestament.cread.Manifest;
 import com.thetestament.cread.R;
 import com.thetestament.cread.adapters.ExploreAdapter;
@@ -176,7 +172,7 @@ public class HashTagDetailsFragment extends Fragment implements listener.OnColla
                 if (resultCode == RESULT_OK) {
                     //Get cropped image Uri
                     Uri mCroppedImgUri = UCrop.getOutput(data);
-                    ImageHelper.processCroppedImage(mCroppedImgUri, getActivity(), rootView, mEntityID, mEntityType);
+                    ImageHelper.performSquareImageManipulation(mCroppedImgUri, getActivity(), rootView, mEntityID, mEntityType);
 
                 } else if (resultCode == UCrop.RESULT_ERROR) {
                     ViewHelper.getSnackBar(rootView, "Image could not be cropped due to some error");

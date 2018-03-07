@@ -204,8 +204,7 @@ public class ExploreFragment extends Fragment implements listener.OnCollaboratio
                 if (resultCode == RESULT_OK) {
                     //Get cropped image Uri
                     Uri mCroppedImgUri = UCrop.getOutput(data);
-                    ImageHelper.processCroppedImage(mCroppedImgUri, getActivity(), rootView, mEntityID, mEntityType);
-
+                    ImageHelper.performSquareImageManipulation(mCroppedImgUri, getActivity(), rootView, mEntityID, mEntityType);
                 } else if (resultCode == UCrop.RESULT_ERROR) {
                     ViewHelper.getSnackBar(rootView, "Image could not be cropped due to some error");
                 }
@@ -394,14 +393,12 @@ public class ExploreFragment extends Fragment implements listener.OnCollaboratio
         initFollowListener();
     }
 
-    private void initFeatArtistClickListener()
-    {
+    private void initFeatArtistClickListener() {
         mFeatArstistsAdapter.setFeatArtistClickListener(new listener.OnFeatArtistClickedListener() {
             @Override
             public void onFeatArtistClicked(int itemType, String uuid) {
 
-                if(itemType == VIEW_TYPE_HEADER)
-                {
+                if (itemType == VIEW_TYPE_HEADER) {
 
                     MaterialDialog dialog = new MaterialDialog.Builder(getActivity())
                             .customView(R.layout.dialog_generic, false)
@@ -425,12 +422,9 @@ public class ExploreFragment extends Fragment implements listener.OnCollaboratio
                     //Set description text
                     textDesc.setText(R.string.text_desc_dialog_featured_artist);
 
-                }
-
-                else if(itemType == VIEW_TYPE_ITEM)
-                {
+                } else if (itemType == VIEW_TYPE_ITEM) {
                     // load user data and display it in dialog
-                   getFeatArtistDetails(uuid);
+                    getFeatArtistDetails(uuid);
 
                 }
             }
@@ -463,8 +457,7 @@ public class ExploreFragment extends Fragment implements listener.OnCollaboratio
         });
     }
 
-    private void getFeatArtistDetails(final String uuid)
-    {
+    private void getFeatArtistDetails(final String uuid) {
         // show loading dialog
         final MaterialDialog loadingDialog = new MaterialDialog.Builder(getActivity())
                 .title(getString(R.string.loading_title))
@@ -545,10 +538,10 @@ public class ExploreFragment extends Fragment implements listener.OnCollaboratio
 
                             // init views
                             View rootViewDialog = dialog.getCustomView();
-                            TextView artistName =  rootViewDialog.findViewById(R.id.textFeatArtist);
-                            CircleImageView imageArtist =  rootViewDialog.findViewById(R.id.imageFeatArtist);
-                            final TextView textPostsCount =  rootViewDialog.findViewById(R.id.textPostsCount);
-                            final TextView textFollowersCount =  rootViewDialog.findViewById(R.id.textFollowersCount);
+                            TextView artistName = rootViewDialog.findViewById(R.id.textFeatArtist);
+                            CircleImageView imageArtist = rootViewDialog.findViewById(R.id.imageFeatArtist);
+                            final TextView textPostsCount = rootViewDialog.findViewById(R.id.textPostsCount);
+                            final TextView textFollowersCount = rootViewDialog.findViewById(R.id.textFollowersCount);
                             final TextView textCollaborationsCount = rootViewDialog.findViewById(R.id.textCollaborationsCount);
                             TextView textPosts = rootViewDialog.findViewById(R.id.textPosts);
                             TextView textFollowers = rootViewDialog.findViewById(R.id.textFollowers);
@@ -565,7 +558,7 @@ public class ExploreFragment extends Fragment implements listener.OnCollaboratio
                             textCollaborations.setText(collaborations);
 
                             // set click listner
-                            LinearLayout buttonViewProfile =  rootViewDialog.findViewById(R.id.buttonViewProfile);
+                            LinearLayout buttonViewProfile = rootViewDialog.findViewById(R.id.buttonViewProfile);
                             buttonViewProfile.setOnClickListener(new View.OnClickListener() {
                                 @Override
                                 public void onClick(View view) {
@@ -684,13 +677,12 @@ public class ExploreFragment extends Fragment implements listener.OnCollaboratio
                         //Error occurred
                         else if (connectionError[0]) {
                             ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_internal));
-                        } else if(mFeatArtistsList.size() == 0) {
+                        } else if (mFeatArtistsList.size() == 0) {
                             // hide feat artists view
                             recyclerViewFeatArtists.setVisibility(View.GONE);
 
-                        }
-                        else
-                        {   recyclerViewFeatArtists.setVisibility(View.VISIBLE);
+                        } else {
+                            recyclerViewFeatArtists.setVisibility(View.VISIBLE);
                             mFeatArstistsAdapter.notifyDataSetChanged();
                         }
 

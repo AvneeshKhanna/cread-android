@@ -7,6 +7,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
@@ -24,7 +25,6 @@ import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -38,13 +38,14 @@ import com.afollestad.materialdialogs.MaterialDialog;
 import com.google.firebase.analytics.FirebaseAnalytics;
 import com.google.firebase.crash.FirebaseCrash;
 import com.thetestament.cread.BuildConfig;
-import com.thetestament.cread.DataSyncAdapter.AuthenticatorService;
 import com.thetestament.cread.Manifest;
 import com.thetestament.cread.R;
 import com.thetestament.cread.fragments.ExploreFragment;
 import com.thetestament.cread.fragments.FeedFragment;
 import com.thetestament.cread.fragments.MeFragment;
 import com.thetestament.cread.helpers.BottomNavigationViewHelper;
+import com.thetestament.cread.helpers.CaptureHelper;
+import com.thetestament.cread.helpers.ImageHelper;
 import com.thetestament.cread.helpers.SharedPreferenceHelper;
 import com.thetestament.cread.helpers.ViewHelper;
 import com.thetestament.cread.listeners.listener.OnServerRequestedListener;
@@ -52,6 +53,7 @@ import com.thetestament.cread.utils.Constant;
 import com.yalantis.ucrop.UCrop;
 
 import java.io.File;
+import java.io.IOException;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -59,7 +61,7 @@ import icepick.Icepick;
 import icepick.State;
 import io.reactivex.disposables.CompositeDisposable;
 
-import static com.thetestament.cread.helpers.ImageHelper.compressCroppedImg;
+import static com.thetestament.cread.helpers.ImageHelper.compressSpecific;
 import static com.thetestament.cread.helpers.ImageHelper.getImageUri;
 import static com.thetestament.cread.helpers.ImageHelper.startImageCropping;
 import static com.thetestament.cread.helpers.NetworkHelper.getRestartHerokuObservable;
@@ -89,7 +91,7 @@ import static com.thetestament.cread.utils.Constant.TAG_ME_FRAGMENT;
 
 public class BottomNavigationActivity extends BaseActivity {
 
-    //region Butter knife view binding
+    //region -Butter knife view binding
     @BindView(R.id.rootView)
     CoordinatorLayout rootView;
     @BindView(R.id.toolBar)
@@ -98,7 +100,7 @@ public class BottomNavigationActivity extends BaseActivity {
     BottomNavigationView navigationView;
     //endregion
 
-    //region :Fields and constants
+    //region -Fields and constants
     @State
     String mFragmentTag;
     Fragment mCurrentFragment;
@@ -132,6 +134,7 @@ public class BottomNavigationActivity extends BaseActivity {
 
     //endregion
 
+    //region -Overridden methods
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -155,7 +158,7 @@ public class BottomNavigationActivity extends BaseActivity {
             loadScreen();
         }
 
-        // to setup account for syncadapter
+        //To setup account for sync adapter
         createSyncAccount(this);
 
         //Initialize navigation view
@@ -173,7 +176,6 @@ public class BottomNavigationActivity extends BaseActivity {
         togglePersonalChatIndicator(mHelper.getPersonalChatIndicatorStatus());
     }
 
-
     @Override
     protected void onStart() {
         super.onStart();
@@ -182,18 +184,14 @@ public class BottomNavigationActivity extends BaseActivity {
     @Override
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
-
         // for sharing image from gallery
         if (Intent.ACTION_SEND.equals(intent.getAction())) {
             captureSendIntent(mHelper, intent);
         }
         // when new intent for specific fragment
         else if (intent.hasExtra(EXTRA_OPEN_SPECIFIC_BOTTOMNAV_FRAGMENT)) {
-
             initSpecificFragment(intent);
         }
-
-
     }
 
     @Override
@@ -213,12 +211,12 @@ public class BottomNavigationActivity extends BaseActivity {
                 if (resultCode == RESULT_OK) {
                     //Get cropped image Uri
                     Uri mCroppedImgUri = UCrop.getOutput(data);
-                    processCroppedImage(mCroppedImgUri);
+                    //Method call
+                    performSquareImageManipulation(mCroppedImgUri);
                     //Finish this screen if called from other apps
                     if (mCalledFromSendIntent) {
                         finish();
                     }
-
                 } else if (resultCode == UCrop.RESULT_ERROR) {
                     ViewHelper.getSnackBar(rootView, "Image could not be cropped due to some error");
                 }
@@ -232,11 +230,9 @@ public class BottomNavigationActivity extends BaseActivity {
                 break;
             case REQUEST_CODE_EDIT_POST:
                 if (resultCode == RESULT_OK) {
-
                     initMeFragment(true);
                 }
                 break;
-
             default:
                 super.onActivityResult(requestCode, resultCode, data);
         }
@@ -285,11 +281,11 @@ public class BottomNavigationActivity extends BaseActivity {
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu_cread, menu);
 
-        // set visibility of restart heroku option according to build config
-        menu.findItem(R.id.action_restart_heroku).setVisible(BuildConfig.VISIBILITY_RESTART_HEROKU_OPTION);
+        //Set visibility of restart heroku option according to build config
+        menu.findItem(R.id.action_restart_heroku)
+                .setVisible(BuildConfig.VISIBILITY_RESTART_HEROKU_OPTION);
 
         setupBadge(menu);
-
         super.onCreateOptionsMenu(menu);
         return true;
     }
@@ -322,20 +318,20 @@ public class BottomNavigationActivity extends BaseActivity {
 
     }
 
+    //endregion
+
+    //region -Private methods
+
     /**
      * Method to load required screen.
      */
     private void loadScreen() {
-
-        // when bottom nav opened to open specific fragment
+        //When bottom nav opened to open specific fragment
         if (getIntent().hasExtra(EXTRA_OPEN_SPECIFIC_BOTTOMNAV_FRAGMENT)) {
-
             initSpecificFragment(getIntent());
-
         } else {
             initFeedFragment();
         }
-
     }
 
     /**
@@ -520,12 +516,20 @@ public class BottomNavigationActivity extends BaseActivity {
             BitmapFactory.decodeFile(new File(uri.getPath()).getAbsolutePath(), options);
             int imageHeight = options.outHeight;
             int imageWidth = options.outWidth;
-
-            //If resolution of image is greater than 1800x1800 then compress this image
-            if (imageHeight >= 1800 && imageWidth >= 1800) {
+            //TODO fix compression
+            //If resolution of image is greater than 3000x13000 then compress this image
+            if (imageHeight >= 3000 && imageWidth >= 3000) {
                 //Compress image
-                compressCroppedImg(uri, this, IMAGE_TYPE_USER_CAPTURE_PIC);
+                compressSpecific(uri, this, IMAGE_TYPE_USER_CAPTURE_PIC);
+                //Open preview screen
+                Bundle bundle = new Bundle();
+                bundle.putString(PREVIEW_EXTRA_MERCHANTABLE, "1");
+                bundle.putString(PREVIEW_EXTRA_CALLED_FROM, PREVIEW_EXTRA_CALLED_FROM_CAPTURE);
 
+                Intent intent = new Intent(BottomNavigationActivity.this, PreviewActivity.class);
+                intent.putExtra(PREVIEW_EXTRA_DATA, bundle);
+                startActivity(intent);
+            } else if (imageHeight >= 1800 && imageWidth >= 1800) {
                 //Open preview screen
                 Bundle bundle = new Bundle();
                 bundle.putString(PREVIEW_EXTRA_MERCHANTABLE, "1");
@@ -537,11 +541,9 @@ public class BottomNavigationActivity extends BaseActivity {
             } else {
                 getMerchantableDialog();
             }
-        } catch (
-                Exception e)
-
-        {
+        } catch (Exception e) {
             e.printStackTrace();
+            FirebaseCrash.report(e);
             ViewHelper.getSnackBar(rootView, "Image could not be cropped due to some error");
         }
     }
@@ -631,7 +633,7 @@ public class BottomNavigationActivity extends BaseActivity {
     }
 
     /**
-     * Method to show intro dialog when user land on this screen for the first time.
+     * Method to show dialog when user tries to upload low resolution image.
      */
     private void getMerchantableDialog() {
         new MaterialDialog.Builder(this)
@@ -648,11 +650,6 @@ public class BottomNavigationActivity extends BaseActivity {
                 .onPositive(new MaterialDialog.SingleButtonCallback() {
                     @Override
                     public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
-                        //open preview screen
-                        //Intent intent = new Intent(BottomNavigationActivity.this, CapturePreviewActivity.class);
-                        //intent.putExtra("isMerchantable", "0");
-                        //startActivity(intent);
-
                         //Open preview screen
                         Bundle bundle = new Bundle();
                         bundle.putString(PREVIEW_EXTRA_MERCHANTABLE, "0");
@@ -679,13 +676,11 @@ public class BottomNavigationActivity extends BaseActivity {
                 new OnServerRequestedListener<String>() {
                     @Override
                     public void onDeviceOffline() {
-
                         ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_no_connection));
                     }
 
                     @Override
                     public void onNextCalled(String response) {
-
                         ViewHelper.getSnackBar(rootView, response);
                     }
 
@@ -693,7 +688,6 @@ public class BottomNavigationActivity extends BaseActivity {
                     public void onErrorCalled(Throwable e) {
                         e.printStackTrace();
                         FirebaseCrash.report(e);
-
                         ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_server));
                     }
 
@@ -728,10 +722,8 @@ public class BottomNavigationActivity extends BaseActivity {
      */
     private void captureSendIntent(SharedPreferenceHelper helper, Intent intent) {
         // Get intent, action and MIME type
-
         String action = intent.getAction();
         String type = intent.getType();
-
 
         //User is not logged in
         if (TextUtils.isEmpty(helper.getAuthToken()) && TextUtils.isEmpty(helper.getUUID())) {
@@ -750,8 +742,6 @@ public class BottomNavigationActivity extends BaseActivity {
                     //Retrieve image uri
                     Uri imageUri = intent.getParcelableExtra(Intent.EXTRA_STREAM);
                     if (imageUri != null) {
-                        //Update flag
-                        mCalledFromSendIntent = true;
                         // To crop the received image
                         startImageCropping(this, imageUri, getImageUri(IMAGE_TYPE_USER_CAPTURE_PIC));
                     }
@@ -760,11 +750,10 @@ public class BottomNavigationActivity extends BaseActivity {
         }
     }
 
-
     /**
      * Method to setup updates icon badge indicator and its functionality.
      *
-     * @param menu Bottomnavigation menu.
+     * @param menu BottomNavigation menu.
      */
     private void setupBadge(final Menu menu) {
         //Action layout of chat icon
@@ -778,7 +767,6 @@ public class BottomNavigationActivity extends BaseActivity {
                 onOptionsItemSelected(menu.findItem(R.id.action_updates));
             }
         });
-
 
         //Toggle visibility of dot indicator
         if (mHelper.shouldShowNotifIndicator()) {
@@ -797,7 +785,6 @@ public class BottomNavigationActivity extends BaseActivity {
      * @param context The application context
      */
     public void createSyncAccount(Context context) {
-
         boolean newAccount = false;
         boolean setupComplete = PreferenceManager
                 .getDefaultSharedPreferences(context).getBoolean(PREF_SETUP_COMPLETE, false);
@@ -830,7 +817,6 @@ public class BottomNavigationActivity extends BaseActivity {
 
 
     private void initFeedFragment() {
-
         //When app opened normally
         navigationView.setSelectedItemId(R.id.action_feed);
         //To open Feed Screen
@@ -845,7 +831,6 @@ public class BottomNavigationActivity extends BaseActivity {
 
     private void initSpecificFragment(Intent intent) {
         switch (intent.getStringExtra(EXTRA_OPEN_SPECIFIC_BOTTOMNAV_FRAGMENT)) {
-
             case TAG_EXPLORE_FRAGMENT:
                 activateBottomNavigationItem(R.id.action_explore);
                 replaceFragment(new ExploreFragment(), Constant.TAG_EXPLORE_FRAGMENT, false);
@@ -893,36 +878,59 @@ public class BottomNavigationActivity extends BaseActivity {
             personalChatIndicator.findViewById(R.id.notificationsBadge).setVisibility(View.GONE);
         }
     }
-   /* private void transFormIntoSquare(int imgWidth, int imgHeight) {
-        int squareSize = 650;
 
-        if (imgWidth < imgHeight) {
-            //Assign variable
-            squareSize = imgHeight;
-        } else if (imgWidth > imgHeight) {
-            //Assign variable
-            squareSize = imgWidth;
-        }
 
-        //Create bitmap
-        Bitmap bitmap = Bitmap.createBitmap(squareSize, squareSize, Bitmap.Config.ARGB_8888);
-        BitmapFactory.Options options = new BitmapFactory.Options();
-        *//*options.inSampleSize;*//*
-        //Create canvas
-        Canvas canvas = new Canvas(bitmap);
-        Paint paint = new Paint();
-        paint.setColor(Color.GREEN);
-        paint.measureText("image danndakalk");
-        //Draw bitmap on canvas
-        canvas.drawBitmap(bitmap, 1f, 1f, paint);
-
+    /**
+     * Method to perform square image manipulation.
+     *
+     * @param croppedImageUri
+     */
+    private void performSquareImageManipulation(Uri croppedImageUri) {
         try {
-            File file = new File(ImageHelper.getImageUri(IMAGE_TYPE_USER_CAPTURE_PIC).getPath());
-            FileOutputStream out = new FileOutputStream(file);
-            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, out);
-            out.close();
+            //Compress image
+            compressSpecific(croppedImageUri, this, IMAGE_TYPE_USER_CAPTURE_PIC);
         } catch (IOException e) {
             e.printStackTrace();
+            FirebaseCrash.report(e);
         }
-    }*/
+        //Decode image file
+        BitmapFactory.Options options = new BitmapFactory.Options();
+        options.inJustDecodeBounds = true;
+        BitmapFactory.decodeFile(ImageHelper.getImageUri(IMAGE_TYPE_USER_CAPTURE_PIC).getPath(), options);
+        int imageHeight = options.outHeight;
+        int imageWidth = options.outWidth;
+
+        int scaleFactor;
+        boolean isLandscape;
+
+        //Image is not available in square from
+        if (imageWidth != imageHeight) {
+            if (imageWidth > imageHeight) {
+                scaleFactor = imageWidth;
+                isLandscape = true;
+            } else {
+                scaleFactor = imageHeight;
+                isLandscape = false;
+            }
+
+            //Decode bitmap
+            Bitmap bitmap = BitmapFactory.decodeFile(new File(croppedImageUri.getPath()).getAbsolutePath());
+
+            //Method call
+            CaptureHelper.createSquareBlurBitmap(BottomNavigationActivity.this
+                    , bitmap
+                    , scaleFactor
+                    , isLandscape);
+
+            //Method call
+            processCroppedImage(ImageHelper.getImageUri(IMAGE_TYPE_USER_CAPTURE_PIC));
+        }
+        //Image is available in square form
+        else {
+            //Method called
+            processCroppedImage(croppedImageUri);
+        }
+    }
+
+    //endregion
 }

@@ -203,7 +203,7 @@ public class FeedFragment extends Fragment implements listener.OnCollaborationLi
                 if (resultCode == RESULT_OK) {
                     //Get cropped image Uri
                     Uri mCroppedImgUri = UCrop.getOutput(data);
-                    ImageHelper.processCroppedImage(mCroppedImgUri, getActivity(), rootView, mEntityID, mEntityType);
+                    ImageHelper.performSquareImageManipulation(mCroppedImgUri, getActivity(), rootView, mEntityID, mEntityType);
                 } else if (resultCode == UCrop.RESULT_ERROR) {
                     ViewHelper.getSnackBar(rootView, "Image could not be cropped due to some error");
                 }

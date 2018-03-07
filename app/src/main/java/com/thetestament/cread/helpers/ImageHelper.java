@@ -20,6 +20,7 @@ import android.widget.ImageView;
 
 import com.afollestad.materialdialogs.DialogAction;
 import com.afollestad.materialdialogs.MaterialDialog;
+import com.google.firebase.crash.FirebaseCrash;
 import com.squareup.picasso.Picasso;
 import com.thetestament.cread.BuildConfig;
 import com.thetestament.cread.R;
@@ -58,7 +59,6 @@ public class ImageHelper {
      * @return uri of Picture.
      **/
     public static Uri getImageUri(String imageType) {
-
         String s;
         if (imageType.equals(IMAGE_TYPE_USER_PROFILE_PIC)) {
             s = "/Cread/Profile/user_profile_pic.jpg";
@@ -131,8 +131,8 @@ public class ImageHelper {
         File compressedFile = new Compressor(context)
                 .setMaxWidth(5000)
                 .setMaxHeight(5000)
-                .setQuality(100)
-                .setCompressFormat(Bitmap.CompressFormat.PNG)
+                .setQuality(40)
+                .setCompressFormat(Bitmap.CompressFormat.JPEG)
                 .setDestinationDirectoryPath(Environment.getExternalStoragePublicDirectory(
                         Environment.DIRECTORY_PICTURES).getAbsolutePath())
                 .compressToFile(sourceFile);
@@ -157,7 +157,7 @@ public class ImageHelper {
 
 
     /**
-     * Method to open image cropper screen.
+     * Method to open image cropper screen with all aspect ration.
      *
      * @param sourceUri      Uri of image to be cropped.
      * @param destinationUri Where image will be saved.
@@ -178,7 +178,59 @@ public class ImageHelper {
         UCrop.of(sourceUri, destinationUri)
                 .withAspectRatio(1, 1)
                 .withOptions(options)
-                /*.useSourceImageAspectRatio()*/
+                .useSourceImageAspectRatio()
+                .start(context);
+    }
+
+
+    /**
+     * Method to open image cropper screen.
+     *
+     * @param sourceUri      Uri of image to be cropped.
+     * @param destinationUri Where image will be saved.
+     * @param context        Context of use usually activity or application.
+     * @param fragment       Fragment reference.
+     */
+    public static void startImageCropping(Context context, Fragment fragment, Uri sourceUri, Uri destinationUri) {
+        //For more information please visit "https://github.com/Yalantis/uCrop"
+        UCrop.Options options = new UCrop.Options();
+        //Change toolbar color
+        options.setToolbarColor(ContextCompat.getColor(context, R.color.colorPrimary));
+        //Change status bar color
+        options.setStatusBarColor(ContextCompat.getColor(context, R.color.colorPrimaryDark));
+        //options.setCompressionFormat(Bitmap.CompressFormat.PNG);
+        //options.setCompressionQuality(100);
+
+
+        //Launch  image cropping activity
+        UCrop.of(sourceUri, destinationUri)
+                .withAspectRatio(1, 1)
+                .withOptions(options)
+                .useSourceImageAspectRatio()
+                .start(context, fragment, UCrop.REQUEST_CROP);
+    }
+
+
+    /**
+     * Method to open image cropper screen with 1:1 aspect ration.
+     *
+     * @param sourceUri      Uri of image to be cropped.
+     * @param destinationUri Where image will be saved.
+     * @param context        Context of use usually activity or application.
+     */
+    public static void startImageCroppingWithSquare(FragmentActivity context, Uri sourceUri, Uri destinationUri) {
+        //For more information please visit "https://github.com/Yalantis/uCrop"
+
+        UCrop.Options options = new UCrop.Options();
+        //Change toolbar color
+        options.setToolbarColor(ContextCompat.getColor(context, R.color.colorPrimary));
+        //Change status bar color
+        options.setStatusBarColor(ContextCompat.getColor(context, R.color.colorPrimaryDark));
+
+        //Launch  image cropping activity
+        UCrop.of(sourceUri, destinationUri)
+                .withAspectRatio(1, 1)
+                .withOptions(options)
                 .start(context);
     }
 
@@ -248,41 +300,73 @@ public class ImageHelper {
     }
 
     /**
-     * Method to open image cropper screen.
+     * Method to perform square image manipulation.
      *
-     * @param sourceUri      Uri of image to be cropped.
-     * @param destinationUri Where image will be saved.
-     * @param context        Context of use usually activity or application.
-     * @param fragment       Fragment reference.
+     * @param croppedImageUri Uri of cropped image
+     * @param context    Context of use.
+     * @param rootView   Layout parent view reference.
+     * @param entityID   entity id of content.
+     * @param entityType Type oif entity.
      */
-    public static void startImageCropping(Context context, Fragment fragment, Uri sourceUri, Uri destinationUri) {
-        //For more information please visit "https://github.com/Yalantis/uCrop"
-        UCrop.Options options = new UCrop.Options();
-        //Change toolbar color
-        options.setToolbarColor(ContextCompat.getColor(context, R.color.colorPrimary));
-        //Change status bar color
-        options.setStatusBarColor(ContextCompat.getColor(context, R.color.colorPrimaryDark));
-        //options.setCompressionFormat(Bitmap.CompressFormat.PNG);
-        //options.setCompressionQuality(100);
+    public static void performSquareImageManipulation(Uri croppedImageUri, Context context, View rootView, String entityID, String entityType) {
+        try {
+            //Compress image
+            compressSpecific(croppedImageUri, context, IMAGE_TYPE_USER_CAPTURE_PIC);
+        } catch (IOException e) {
+            e.printStackTrace();
+            FirebaseCrash.report(e);
+        }
+        //Decode image file
+        BitmapFactory.Options options = new BitmapFactory.Options();
+        options.inJustDecodeBounds = true;
+        BitmapFactory.decodeFile(ImageHelper.getImageUri(IMAGE_TYPE_USER_CAPTURE_PIC).getPath(), options);
+        int imageHeight = options.outHeight;
+        int imageWidth = options.outWidth;
 
+        int scaleFactor;
+        boolean isLandscape;
 
-        //Launch  image cropping activity
-        UCrop.of(sourceUri, destinationUri)
-                .withAspectRatio(1, 1)
-                .withOptions(options)
-               /* .useSourceImageAspectRatio()*/
-                .start(context, fragment, UCrop.REQUEST_CROP);
+        //Image is not available in square from
+        if (imageWidth != imageHeight) {
+            if (imageWidth > imageHeight) {
+                scaleFactor = imageWidth;
+                isLandscape = true;
+            } else {
+                scaleFactor = imageHeight;
+                isLandscape = false;
+            }
+
+            //Decode bitmap
+            Bitmap bitmap = BitmapFactory.decodeFile(new File(croppedImageUri.getPath()).getAbsolutePath());
+
+            //Method call
+            CaptureHelper.createSquareBlurBitmap(context
+                    , bitmap
+                    , scaleFactor
+                    , isLandscape);
+
+            //Method call
+            processCroppedImage(croppedImageUri, context, rootView, entityID, entityType);
+        }
+        //Image is available in square form
+        else {
+            //Method called
+            processCroppedImage(croppedImageUri, context, rootView, entityID, entityType);
+        }
+
     }
+
 
     /**
      * Method to perform required operation on cropped image.
      *
-     * @param uri      Uri of cropped image.
-     * @param context  Context of use.
-     * @param rootView Layout parent view reference.
-     * @param entityID entity id of content.
+     * @param uri        Uri of cropped image.
+     * @param context    Context of use.
+     * @param rootView   Layout parent view reference.
+     * @param entityID   entity id of content.
+     * @param entityType Type oif entity.
      */
-    public static void processCroppedImage(Uri uri, Context context, View rootView, String entityID, String entityType) {
+    private static void processCroppedImage(Uri uri, Context context, View rootView, String entityID, String entityType) {
         try {
             //Decode image file
             BitmapFactory.Options options = new BitmapFactory.Options();
@@ -290,9 +374,9 @@ public class ImageHelper {
             BitmapFactory.decodeFile(new File(uri.getPath()).getAbsolutePath(), options);
             int imageHeight = options.outHeight;
             int imageWidth = options.outWidth;
-
-            //If resolution of image is greater than 1800x1800 then compress this image
-            if (imageHeight >= 1800 && imageWidth >= 1800) {
+            // TODO: fix this
+            //If resolution of image is greater than 3000x3000 then compress this image
+            if (imageHeight >= 3000 && imageWidth >= 3000) {
                 //Compress image
                 compressCroppedImg(uri, context, IMAGE_TYPE_USER_CAPTURE_PIC);
                 Bundle bundle = new Bundle();
@@ -303,7 +387,19 @@ public class ImageHelper {
                 Intent intent = new Intent(context, CollaborationActivity.class);
                 intent.putExtra(EXTRA_DATA, bundle);
                 context.startActivity(intent);
-            } else {
+            }
+            else if (imageHeight >= 1800 && imageWidth >= 1800) {
+                //Open preview screen
+                Bundle bundle = new Bundle();
+                bundle.putString(EXTRA_ENTITY_ID, entityID);
+                bundle.putString(EXTRA_ENTITY_TYPE, entityType);
+                bundle.putString(EXTRA_MERCHANTABLE, "1");
+                //Open preview screen
+                Intent intent = new Intent(context, CollaborationActivity.class);
+                intent.putExtra(EXTRA_DATA, bundle);
+                context.startActivity(intent);
+            }
+            else {
                 getMerchantableDialog(context, entityID, entityType);
             }
         } catch (Exception e) {
@@ -356,8 +452,7 @@ public class ImageHelper {
     }
 
 
-    public static String getAWSS3ProfilePicUrl(String uuid)
-    {
+    public static String getAWSS3ProfilePicUrl(String uuid) {
         return "https://s3-ap-northeast-1.amazonaws.com/" + BuildConfig.S3BUCKET + "/Users/" + uuid + "/Profile/display-pic-small.jpg";
     }
 

@@ -39,7 +39,7 @@ import icepick.State;
 
 import static com.thetestament.cread.helpers.ImageHelper.compressCroppedImg;
 import static com.thetestament.cread.helpers.ImageHelper.getImageUri;
-import static com.thetestament.cread.helpers.ImageHelper.startImageCropping;
+import static com.thetestament.cread.helpers.ImageHelper.startImageCroppingWithSquare;
 import static com.thetestament.cread.utils.Constant.EXTRA_USER_IMAGE_PATH;
 import static com.thetestament.cread.utils.Constant.IMAGE_TYPE_USER_PROFILE_PIC;
 import static com.thetestament.cread.utils.Constant.REQUEST_CODE_OPEN_GALLERY;
@@ -96,7 +96,7 @@ public class UpdateProfileImageActivity extends BaseActivity {
                     //Get uri of selected image
                     mGalleryImgUri = data.getData();
                     // To crop the selected image
-                    startImageCropping(this, mGalleryImgUri, getImageUri(IMAGE_TYPE_USER_PROFILE_PIC));
+                    startImageCroppingWithSquare(this, mGalleryImgUri, getImageUri(IMAGE_TYPE_USER_PROFILE_PIC));
                 } else {
                     ViewHelper.getSnackBar(rootView, "Image from gallery was not attached");
                 }

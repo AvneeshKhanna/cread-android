@@ -302,7 +302,7 @@ public class MeFragment extends Fragment implements listener.OnCollaborationList
                 if (resultCode == RESULT_OK) {
                     //Get cropped image Uri
                     Uri mCroppedImgUri = UCrop.getOutput(data);
-                    ImageHelper.processCroppedImage(mCroppedImgUri
+                    ImageHelper.performSquareImageManipulation(mCroppedImgUri
                             , getActivity()
                             , rootView, mEntityID, mEntityType);
 
@@ -567,8 +567,7 @@ public class MeFragment extends Fragment implements listener.OnCollaborationList
     }
 
     @OnClick(R.id.imageFeatured)
-    void featuredOnClick()
-    {
+    void featuredOnClick() {
         ViewHelper.getToolTip(imageFeatured, mFirstName + " is currently a featured artist", getActivity());
     }
 
@@ -987,13 +986,9 @@ public class MeFragment extends Fragment implements listener.OnCollaborationList
                             }
 
                             //check featured status
-                            if(mIsFeatured)
-                            {
+                            if (mIsFeatured) {
                                 imageFeatured.setVisibility(View.VISIBLE);
-                            }
-
-                            else
-                            {
+                            } else {
                                 imageFeatured.setVisibility(View.GONE);
                             }
 
