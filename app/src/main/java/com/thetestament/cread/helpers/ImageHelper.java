@@ -175,6 +175,7 @@ public class ImageHelper {
         //options.setCompressionFormat(Bitmap.CompressFormat.PNG);
         //options.setCompressionQuality(100);
         options.setAllowedGestures(UCropActivity.SCALE, UCropActivity.ROTATE, UCropActivity.SCALE);
+        options.withMaxResultSize(5000,5000);
         //Launch  image cropping activity
         UCrop.of(sourceUri, destinationUri)
                 .withAspectRatio(1,1)
@@ -202,7 +203,7 @@ public class ImageHelper {
         //options.setCompressionFormat(Bitmap.CompressFormat.PNG);
         //options.setCompressionQuality(100);
         options.setAllowedGestures(UCropActivity.SCALE, UCropActivity.ROTATE, UCropActivity.SCALE);
-
+        options.withMaxResultSize(5000,5000);
         //Launch  image cropping activity
         UCrop.of(sourceUri, destinationUri)
                 .withAspectRatio(1,1)
