@@ -78,8 +78,8 @@
     *;
  }
 
- ## Smooch
- -dontwarn okio.**
- -keep class okio.**
- -keep class com.google.gson.**
- -keepclassmembers enum * { *; }
+#### For Render script ####
+-keepclasseswithmembernames class * {
+    native <methods>;
+}
+-keep class android.support.v8.renderscript.** { *; }

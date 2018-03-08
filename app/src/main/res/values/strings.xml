@@ -47,7 +47,6 @@
     <string name="key_royalty_dialog">royaltyDialog</string>
     <string name="key_gratitude_scroll">gratitudeScroll</string>
     <string name="rating_status">ratingStatus</string>
-    <string name="chat_msg_seen_status">chatMsgSeenStatus</string>
     <string name="key_deep_link">deepLink</string>
     <string name="key_feed_item_type">meItemType</string>
     <string name="key_show_notif_indicator"></string>

@@ -56,6 +56,7 @@ import com.thetestament.cread.activities.UpdateProfileDetailsActivity;
 import com.thetestament.cread.activities.UpdateProfileImageActivity;
 import com.thetestament.cread.adapters.MeAdapter;
 import com.thetestament.cread.adapters.UserStatsPagerAdapter;
+import com.thetestament.cread.helpers.ChatHelper;
 import com.thetestament.cread.helpers.DeletePostHelper;
 import com.thetestament.cread.helpers.FeedHelper;
 import com.thetestament.cread.helpers.FollowHelper;
@@ -94,7 +95,6 @@ import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.observers.DisposableObserver;
 import io.reactivex.schedulers.Schedulers;
-import io.smooch.ui.ConversationActivity;
 import me.relex.circleindicator.CircleIndicator;
 import pl.tajchert.nammu.Nammu;
 import pl.tajchert.nammu.PermissionCallback;
@@ -189,9 +189,6 @@ public class MeFragment extends Fragment implements listener.OnCollaborationList
     AppCompatImageView buttonMessage;
     @BindView(R.id.containerMessage)
     LinearLayout containerMessage;
-
-    //Chat badge view
-    View badgeView;
 
     @State
     String mFirstName, mLastName, mProfilePicURL, mUserBio;
@@ -402,8 +399,6 @@ public class MeFragment extends Fragment implements listener.OnCollaborationList
             if (updatesMenuItem != null) {   //Change action flag for updates icon
                 updatesMenuItem.setShowAsActionFlags(MenuItem.SHOW_AS_ACTION_IF_ROOM);
             }
-            //Method called
-            setupBadge(menu);
         }
     }
 
@@ -415,11 +410,8 @@ public class MeFragment extends Fragment implements listener.OnCollaborationList
                 startRoyaltiesActivity();
                 return true;
             case R.id.action_chat_with_cread:
-                ConversationActivity.show(getActivity());
-                //Update status
-                mHelper.setChatMsgReadStatus(true);
-                //Hide badge view
-                badgeView.setVisibility(View.GONE);
+                //Open chat details screen
+                ChatHelper.openChatWithCreadKalakaar(getActivity());
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
@@ -2218,35 +2210,6 @@ public class MeFragment extends Fragment implements listener.OnCollaborationList
 
     public static boolean isCountOne(long count) {
         return count == 1;
-    }
-
-    /**
-     * Method to setup chat icon badge indicator and its functionality.
-     *
-     * @param menu MeFragment menu.
-     */
-    private void setupBadge(final Menu menu) {
-        //Action layout of chat icon
-        View actionView = menu.findItem(R.id.action_chat_with_cread).getActionView();
-        //Obtain reference of badgeView
-        badgeView = actionView.findViewById(R.id.dotBadge);
-        //Action view click functionality
-        actionView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                onOptionsItemSelected(menu.findItem(R.id.action_chat_with_cread));
-            }
-        });
-
-
-        //Toggle visibility of dot indicator
-        if (mHelper.isChatMsgRead()) {
-            //Hide badge view
-            badgeView.setVisibility(View.GONE);
-        } else {
-            //Show Badge View
-            badgeView.setVisibility(View.VISIBLE);
-        }
     }
 
     /**

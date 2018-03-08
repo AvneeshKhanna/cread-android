@@ -408,27 +408,6 @@ public class SharedPreferenceHelper {
     }
 
     /**
-     * Method to check whether user has seen the chat message or not.
-     *
-     * @return true by default
-     */
-    public boolean isChatMsgRead() {
-        return mSharedPreferences
-                .getBoolean(mContext.getString(R.string.chat_msg_seen_status), true);
-    }
-
-    /**
-     * Method to update chat message seen status.
-     *
-     * @param status boolean value i.e true or false
-     */
-    public void setChatMsgReadStatus(boolean status) {
-        SharedPreferences.Editor editor = mSharedPreferences.edit();
-        editor.putBoolean(mContext.getString(R.string.chat_msg_seen_status), status);
-        editor.apply();
-    }
-
-    /**
      * Method to check whether app has rated by user or not.
      *
      * @return true by default

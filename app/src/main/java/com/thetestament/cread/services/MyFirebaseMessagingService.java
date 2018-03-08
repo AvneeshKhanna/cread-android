@@ -11,18 +11,13 @@ import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Looper;
 import android.preference.PreferenceManager;
 import android.support.v4.app.NotificationCompat;
-import android.support.v4.content.ContextCompat;
 import android.text.TextUtils;
 import android.util.Log;
-import android.widget.RemoteViews;
 
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
-import com.squareup.picasso.Picasso;
 import com.thetestament.cread.BuildConfig;
 import com.thetestament.cread.R;
 import com.thetestament.cread.activities.BottomNavigationActivity;
@@ -31,15 +26,12 @@ import com.thetestament.cread.activities.ProfileActivity;
 import com.thetestament.cread.activities.UpdatesActivity;
 import com.thetestament.cread.fragments.SettingsFragment;
 import com.thetestament.cread.helpers.SharedPreferenceHelper;
-import com.thetestament.cread.utils.ImageRoundCorners;
 import com.thetestament.cread.utils.NotificationDataSaver;
 import com.thetestament.cread.utils.NotificationDataSaver.OnCompleteListener;
 import com.thetestament.cread.utils.NotificationUtil;
 
 import java.util.Map;
 import java.util.UUID;
-
-import io.smooch.ui.ConversationActivity;
 
 import static android.support.v4.app.NotificationManagerCompat.IMPORTANCE_HIGH;
 import static com.thetestament.cread.CreadApp.GET_RESPONSE_FROM_NETWORK_CHAT_DETAILS;
@@ -81,7 +73,6 @@ import static com.thetestament.cread.utils.Constant.NOTIFICATION_CATEGORY_CREAD_
 import static com.thetestament.cread.utils.Constant.NOTIFICATION_CATEGORY_CREAD_FOLLOW;
 import static com.thetestament.cread.utils.Constant.NOTIFICATION_CATEGORY_CREAD_GENERAL;
 import static com.thetestament.cread.utils.Constant.NOTIFICATION_CATEGORY_CREAD_HATSOFF;
-import static com.thetestament.cread.utils.Constant.NOTIFICATION_CATEGORY_CREAD_TEAM_CHAT;
 import static com.thetestament.cread.utils.Constant.NOTIFICATION_CATEGORY_CREAD_TOP_POST;
 import static com.thetestament.cread.utils.Constant.NOTIFICATION_CATEGORY_ENGAGEMENT_NOTIFICATIONS;
 import static com.thetestament.cread.utils.Constant.NOTIFICATION_CATEGORY_FEATURED_ARTIST;
@@ -99,7 +90,6 @@ import static com.thetestament.cread.utils.Constant.NOTIFICATION_ID_CREAD_FB_FRI
 import static com.thetestament.cread.utils.Constant.NOTIFICATION_ID_CREAD_FOLLOW;
 import static com.thetestament.cread.utils.Constant.NOTIFICATION_ID_CREAD_GENERAL;
 import static com.thetestament.cread.utils.Constant.NOTIFICATION_ID_CREAD_HATSOFF;
-import static com.thetestament.cread.utils.Constant.NOTIFICATION_ID_CREAD_TEAM_CHAT;
 import static com.thetestament.cread.utils.Constant.NOTIFICATION_ID_CREAD_TOP_POST;
 import static com.thetestament.cread.utils.Constant.NOTIFICATION_ID_ENGAGEMENT_NOTIFICATIONS;
 import static com.thetestament.cread.utils.Constant.NOTIFICATION_ID_FEATURED_ARTIST;
@@ -228,12 +218,6 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
                 intent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
                 break;
 
-            case NOTIFICATION_CATEGORY_CREAD_TEAM_CHAT:
-                mId = NOTIFICATION_ID_CREAD_TEAM_CHAT;
-                resId = R.drawable.ic_cread_notification_general;
-                intent = new Intent(this, ConversationActivity.class);
-                intent.setFlags(0);
-                break;
             case NOTIFICATION_CATEGORY_CREAD_COMMENT_OTHER:
                 mId = NOTIFICATION_ID_CREAD_COMMENT_OTHER;
                 entityID = data.get("entityid");
@@ -439,69 +423,6 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
                         .setContentIntent(pendingIntent)
                         .setAutoCancel(true)
                         .setPriority(IMPORTANCE_HIGH);
-
-
-        // Gets an instance of the NotificationManager service
-        NotificationManager notificationManager =
-                (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
-        // Builds the notification and issues it.
-        notificationManager.notify(mId, mNotification.build());
-    }
-
-
-    /**
-     * Method to shoot notification.
-     *
-     * @param message Message to be displayed in notification
-     * @param mId     id for notification*
-     */
-    private void buildNotificationForPersonalChat(String message, final int mId, Intent intent) {
-
-        PendingIntent pendingIntent =
-                PendingIntent.getActivity(
-                        this,
-                        0,
-                        intent,
-                        PendingIntent.FLAG_UPDATE_CURRENT);
-
-
-        if (Build.VERSION.SDK_INT >= 26) {
-            createNotificationChannel();
-        }
-
-        // create RemoteView
-        final RemoteViews remoteViews = new RemoteViews(getPackageName(), R.layout.layout_notification_personal_chat);
-        remoteViews.setImageViewResource(R.id.imageUser, R.drawable.ic_account_circle_100);
-        remoteViews.setTextViewText(R.id.textUserName, data.get("from_name"));
-        remoteViews.setTextViewText(R.id.textUserMessage, message);
-        remoteViews.setTextColor(R.id.textUserName, ContextCompat.getColor(getApplicationContext(), R.color.grey_dark));
-        remoteViews.setTextColor(R.id.textUserMessage, ContextCompat.getColor(getApplicationContext(), R.color.black_overlay));
-
-        final NotificationCompat.Builder mNotification =
-                new NotificationCompat.Builder(this, NOTIFICATION_CHANNEL_GENERAL)
-                        .setContentTitle(data.get("from_name"))
-                        .setSmallIcon(R.drawable.ic_stat_cread_logo)
-                        .setContentText(message)
-                        .setContent(remoteViews)
-                        .setContentIntent(pendingIntent)
-                        .setAutoCancel(true)
-                        .setDefaults(Notification.DEFAULT_ALL)
-                        .setPriority(IMPORTANCE_HIGH);
-
-
-        // To push notification from background thread
-        Handler handler = new Handler(Looper.getMainLooper());
-        handler.post(new Runnable() {
-            @Override
-            public void run() {
-                Picasso
-                        .with(getApplicationContext())
-                        .load(data.get("from_profilepicurl"))
-                        .transform(new ImageRoundCorners())
-                        .error(R.drawable.ic_account_circle_100)
-                        .into(remoteViews, R.id.imageUser, mId, mNotification.build());
-            }
-        });
 
 
         // Gets an instance of the NotificationManager service

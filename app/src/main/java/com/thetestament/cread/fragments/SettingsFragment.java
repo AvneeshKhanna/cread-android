@@ -28,6 +28,7 @@ import com.thetestament.cread.activities.AboutUsActivity;
 import com.thetestament.cread.activities.FindFBFriendsActivity;
 import com.thetestament.cread.activities.MainActivity;
 import com.thetestament.cread.activities.WebViewActivity;
+import com.thetestament.cread.helpers.ChatHelper;
 import com.thetestament.cread.helpers.NetworkHelper;
 import com.thetestament.cread.helpers.SharedPreferenceHelper;
 import com.thetestament.cread.helpers.ViewHelper;
@@ -40,7 +41,6 @@ import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.schedulers.Schedulers;
-import io.smooch.ui.ConversationActivity;
 
 import static com.thetestament.cread.helpers.FeedHelper.inviteFriends;
 import static com.thetestament.cread.utils.Constant.EXTRA_WEB_VIEW_TITLE;
@@ -355,8 +355,8 @@ public class SettingsFragment extends PreferenceFragmentCompat {
         preference.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
             @Override
             public boolean onPreferenceClick(Preference preference) {
-                //Start smooch activity
-                ConversationActivity.show(getActivity());
+                //Open chat details screen
+                ChatHelper.openChatWithCreadKalakaar(getActivity());
                 return false;
             }
         });

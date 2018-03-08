@@ -9,22 +9,7 @@ import com.google.firebase.crash.FirebaseCrash;
 import com.thetestament.cread.helpers.SharedPreferenceHelper;
 
 import java.net.URISyntaxException;
-import java.util.List;
 
-import io.smooch.core.CardSummary;
-import io.smooch.core.Conversation;
-import io.smooch.core.ConversationEvent;
-import io.smooch.core.InitializationStatus;
-import io.smooch.core.LoginResult;
-import io.smooch.core.LogoutResult;
-import io.smooch.core.Message;
-import io.smooch.core.MessageAction;
-import io.smooch.core.MessageUploadStatus;
-import io.smooch.core.PaymentStatus;
-import io.smooch.core.Settings;
-import io.smooch.core.Smooch;
-import io.smooch.core.SmoochCallback;
-import io.smooch.core.SmoochConnectionStatus;
 import io.socket.client.IO;
 import io.socket.client.Socket;
 import pl.tajchert.nammu.Nammu;
@@ -78,9 +63,6 @@ public class CreadApp extends MultiDexApplication {
         Nammu.init(getApplicationContext());
         //For vector drawable
         AppCompatDelegate.setCompatVectorFromResourcesEnabled(true);
-
-        //For smooch
-        initSmooch();
         //For socket io
         initSocketIo(getApplicationContext());
     }
@@ -95,100 +77,6 @@ public class CreadApp extends MultiDexApplication {
                 .build());
     }
 
-    /**
-     * Method to initialize smooch.
-     */
-    private void initSmooch() {
-        Settings settings = new Settings("5a65b0084cc508004ba2eba7");
-
-        settings.setFileProviderAuthorities(BuildConfig.APPLICATION_ID + ".provider");
-        Smooch.init(this, settings, new SmoochCallback() {
-            @Override
-            public void run(Response response) {
-            }
-        });
-
-        final SharedPreferenceHelper helper = new SharedPreferenceHelper(getApplicationContext());
-
-        Conversation.Delegate delegate = new Conversation.Delegate() {
-            @Override
-            public void onMessagesReceived(Conversation conversation, List<Message> list) {
-
-            }
-
-            @Override
-            public void onUnreadCountChanged(Conversation conversation, int i) {
-                //if count is greater than zero
-                if (i > 0) {
-                    //Update status
-                    helper.setChatMsgReadStatus(false);
-                }
-            }
-
-            @Override
-            public void onMessagesReset(Conversation conversation, List<Message> list) {
-
-            }
-
-            @Override
-            public void onMessageSent(Message message, MessageUploadStatus messageUploadStatus) {
-
-            }
-
-            @Override
-            public void onConversationEventReceived(ConversationEvent conversationEvent) {
-
-            }
-
-            @Override
-            public void onInitializationStatusChanged(InitializationStatus initializationStatus) {
-
-            }
-
-            @Override
-            public void onLoginComplete(LoginResult loginResult) {
-
-            }
-
-            @Override
-            public void onLogoutComplete(LogoutResult logoutResult) {
-
-            }
-
-            @Override
-            public void onPaymentProcessed(MessageAction messageAction, PaymentStatus paymentStatus) {
-
-            }
-
-            @Override
-            public boolean shouldTriggerAction(MessageAction messageAction) {
-                return false;
-            }
-
-            @Override
-            public void onCardSummaryLoaded(CardSummary cardSummary) {
-
-            }
-
-            @Override
-            public void onSmoochConnectionStatusChanged(SmoochConnectionStatus smoochConnectionStatus) {
-
-            }
-
-            @Override
-            public void onSmoochShown() {
-                //Update  status
-                helper.setChatMsgReadStatus(true);
-            }
-
-            @Override
-            public void onSmoochHidden() {
-
-            }
-        };
-        //Set delegate
-        Smooch.getConversation().setDelegate(delegate);
-    }
 
     /**
      * Method to initialize socket io connection for  global use

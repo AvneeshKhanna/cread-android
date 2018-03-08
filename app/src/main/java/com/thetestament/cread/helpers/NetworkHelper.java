@@ -595,6 +595,4 @@ public class NetworkHelper {
                 .getJSONObjectObservable();
     }
 
-
-
 }

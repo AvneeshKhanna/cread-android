@@ -151,7 +151,6 @@ public class Constant {
     public static final String NOTIFICATION_CATEGORY_CREAD_GENERAL = "general";
     public static final String NOTIFICATION_CATEGORY_CREAD_COMMENT_OTHER = "other-comment";
     public static final String NOTIFICATION_CATEGORY_CREAD_TOP_POST = "top-post";
-    public static final String NOTIFICATION_CATEGORY_CREAD_TEAM_CHAT = "team-chat";
     public static final String NOTIFICATION_CATEGORY_PROFILE_MENTION_POST = "profile-mention-post";
     public static final String NOTIFICATION_CATEGORY_PROFILE_MENTION_COMMENT = "profile-mention-comment";
     public static final String NOTIFICATION_CATEGORY_ENGAGEMENT_NOTIFICATIONS = "engagement-notification";
@@ -297,6 +296,7 @@ public class Constant {
     public static final String EXTRA_CHAT_DETAILS_CALLED_FROM_CHAT_LIST = "calledFromChatList";
     public static final String EXTRA_CHAT_DETAILS_CALLED_FROM_CHAT_REQUEST = "calledFromChatRequest";
     public static final String EXTRA_CHAT_DETAILS_CALLED_FROM_CHAT_PROFILE = "calledFromChatProfile";
+    public static final String EXTRA_CHAT_DETAILS_CALLED_FROM_CHAT_WITH_US = "calledFromChatWithUs";
     public static final String EXTRA_CHAT_DETAILS_CALLED_FROM_CHAT_NOTIFICATION = "calledFromChatNotification";
 
     //endregion
