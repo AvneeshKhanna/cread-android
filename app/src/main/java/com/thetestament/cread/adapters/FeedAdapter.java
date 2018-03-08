@@ -172,13 +172,26 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                     , false
                     , null);
 
-            //open bottom sheet on clicking of 3 dots
-            itemViewHolder.buttonMenu.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    getMenuActionsBottomSheet(mContext, position, data, null, false, mCompositeDisposable);
-                }
-            });
+            // no need for creator options in feed
+            final boolean shouldShowCreatorOptions = false;
+
+            // init content options menu
+            if(!data.isEligibleForDownvote() && !shouldShowCreatorOptions)
+            {
+                itemViewHolder.buttonMenu.setVisibility(View.GONE);
+            }
+
+            else
+            {
+                itemViewHolder.buttonMenu.setVisibility(View.VISIBLE);
+                //open bottom sheet on clicking of 3 dots
+                itemViewHolder.buttonMenu.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        getMenuActionsBottomSheet(mContext, position, data, null, shouldShowCreatorOptions, mCompositeDisposable, new Bundle(), new Intent());
+                    }
+                });
+            }
 
             //Check whether user has given hats off to this campaign or not
             checkHatsOffStatus(data.getHatsOffStatus(), itemViewHolder);
@@ -536,7 +549,6 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         });
     }
 
-
     /**
      * Method to load bitmap image to be shared
      */
@@ -604,7 +616,7 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         @BindView(R.id.dotSeperator)
         TextView dotSeperator;
         @BindView(R.id.buttonMenu)
-        TextView buttonMenu;
+        ImageView buttonMenu;
 
 
         //Variable to maintain hats off status

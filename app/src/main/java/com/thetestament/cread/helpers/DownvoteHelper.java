@@ -1,6 +1,8 @@
 package com.thetestament.cread.helpers;
 
 import android.support.v4.app.FragmentActivity;
+import android.support.v4.content.ContextCompat;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.google.firebase.crash.FirebaseCrash;
@@ -97,15 +99,18 @@ public class DownvoteHelper {
     }
 
 
-    public void updateDownvoteText(TextView view, boolean isDownvoted)
+    public void updateDownvoteText(TextView view, ImageView icon,  boolean isDownvoted, FragmentActivity context)
     {
         if(isDownvoted)
         {
+            view.setTextColor(ContextCompat.getColor(context, R.color.blue_dark));
+            icon.setColorFilter(ContextCompat.getColor(context, R.color.blue_dark));
             view.setText("Downvoted");
         }
 
         else
-        {
+        {   view.setTextColor(ContextCompat.getColor(context, R.color.grey));
+            icon.setColorFilter(ContextCompat.getColor(context, R.color.grey));
             view.setText("Downvote");
         }
     }

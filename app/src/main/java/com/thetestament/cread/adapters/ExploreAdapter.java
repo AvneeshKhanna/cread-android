@@ -171,14 +171,26 @@ public class ExploreAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
                     , false
                     , null);
 
+            // no need for creator options in explore
+            final boolean shouldShowCreatorOptions = false;
 
-            //open bottom sheet on clicking of 3 dots
-            itemViewHolder.buttonMenu.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    getMenuActionsBottomSheet(mContext, position, data, null, false, mCompositeDisposable);
-                }
-            });
+            // init content options menu
+            if(!data.isEligibleForDownvote() && !shouldShowCreatorOptions)
+            {
+                itemViewHolder.buttonMenu.setVisibility(View.GONE);
+            }
+
+            else
+            {
+                itemViewHolder.buttonMenu.setVisibility(View.VISIBLE);
+                //open bottom sheet on clicking of 3 dots
+                itemViewHolder.buttonMenu.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        getMenuActionsBottomSheet(mContext, position, data, null, shouldShowCreatorOptions, mCompositeDisposable, new Bundle(), new Intent());
+                    }
+                });
+            }
 
 
             //Check follow status
@@ -532,7 +544,7 @@ public class ExploreAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
         @BindView(R.id.collabCount)
         TextView collabCount;
         @BindView(R.id.buttonMenu)
-        TextView buttonMenu;
+        ImageView buttonMenu;
 
         public ListItemViewHolder(View itemView) {
             super(itemView);

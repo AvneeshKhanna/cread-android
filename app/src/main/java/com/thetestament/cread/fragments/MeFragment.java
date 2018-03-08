@@ -200,7 +200,7 @@ public class MeFragment extends Fragment implements listener.OnCollaborationList
     @State
     String mEmail, mContactNumber, mWaterMarkStatus;
     @State
-    boolean mFollowStatus, isProfileEditable, mIsFeatured;
+    boolean mFollowStatus, isProfileEditable, mIsFeatured, mCanDownvote;
     @State
     String mRequestedUUID;
 
@@ -358,6 +358,7 @@ public class MeFragment extends Fragment implements listener.OnCollaborationList
                         mCollabList.get(bundle.getInt("position")).setHatsOffStatus(bundle.getBoolean("hatsOffStatus"));
                         mCollabList.get(bundle.getInt("position")).setHatsOffCount(bundle.getLong("hatsOffCount"));
                         mCollabList.get(bundle.getInt("position")).setFollowStatus(bundle.getBoolean("followstatus"));
+                        mCollabList.get(bundle.getInt("position")).setDownvoteStatus(bundle.getBoolean("downvotestatus"));
 
                         updateFollowForAll(mCollabList.get(bundle.getInt("position")), mCollabList);
 
@@ -366,6 +367,7 @@ public class MeFragment extends Fragment implements listener.OnCollaborationList
                         mUserActivityDataList.get(bundle.getInt("position")).setHatsOffCount(bundle.getLong("hatsOffCount"));
                         mUserActivityDataList.get(bundle.getInt("position")).setFollowStatus(bundle.getBoolean("followstatus"));
                         mUserActivityDataList.get(bundle.getInt("position")).setCaption(bundle.getString("caption"));
+                        mUserActivityDataList.get(bundle.getInt("position")).setDownvoteStatus(bundle.getBoolean("downvotestatus"));
 
                         updateFollowForAll(mUserActivityDataList.get(bundle.getInt("position")), mUserActivityDataList);
 
@@ -1283,6 +1285,7 @@ public class MeFragment extends Fragment implements listener.OnCollaborationList
                                 JSONObject mainData = jsonObject.getJSONObject("data");
                                 mRequestMoreData = mainData.getBoolean("requestmore");
                                 mLastIndexKey = mainData.getString("lastindexkey");
+                                mCanDownvote = mainData.getBoolean("candownvote");
                                 //UserActivity array list
                                 JSONArray UserActivityArray = mainData.getJSONArray("items");
                                 for (int i = 0; i < UserActivityArray.length(); i++) {
@@ -1298,6 +1301,7 @@ public class MeFragment extends Fragment implements listener.OnCollaborationList
                                     data.setHatsOffStatus(dataObj.getBoolean("hatsoffstatus"));
                                     data.setMerchantable(dataObj.getBoolean("merchantable"));
                                     data.setDownvoteStatus(dataObj.getBoolean("downvotestatus"));
+                                    data.setEligibleForDownvote(mCanDownvote);
                                     data.setHatsOffCount(dataObj.getLong("hatsoffcount"));
                                     data.setCommentCount(dataObj.getLong("commentcount"));
                                     data.setContentImage(dataObj.getString("entityurl"));
@@ -1586,6 +1590,7 @@ public class MeFragment extends Fragment implements listener.OnCollaborationList
         JSONObject mainData = jsonObject.getJSONObject("data");
         mCollabRequestMoreData = mainData.getBoolean("requestmore");
         mCollabLastIndexKey = mainData.getString("lastindexkey");
+        mCanDownvote = mainData.getBoolean("candownvote");
         //Collab array list
         JSONArray collabArray = mainData.getJSONArray("items");
         for (int i = 0; i < collabArray.length(); i++) {
@@ -1602,6 +1607,7 @@ public class MeFragment extends Fragment implements listener.OnCollaborationList
             data.setHatsOffStatus(dataObj.getBoolean("hatsoffstatus"));
             data.setMerchantable(dataObj.getBoolean("merchantable"));
             data.setDownvoteStatus(dataObj.getBoolean("downvotestatus"));
+            data.setEligibleForDownvote(mCanDownvote);
             data.setHatsOffCount(dataObj.getLong("hatsoffcount"));
             data.setCommentCount(dataObj.getLong("commentcount"));
             data.setContentImage(dataObj.getString("entityurl"));
@@ -1771,6 +1777,7 @@ public class MeFragment extends Fragment implements listener.OnCollaborationList
                                     data.setHatsOffStatus(dataObj.getBoolean("hatsoffstatus"));
                                     data.setMerchantable(dataObj.getBoolean("merchantable"));
                                     data.setDownvoteStatus(dataObj.getBoolean("downvotestatus"));
+                                    data.setEligibleForDownvote(mCanDownvote);
                                     data.setHatsOffCount(dataObj.getLong("hatsoffcount"));
                                     data.setCommentCount(dataObj.getLong("commentcount"));
                                     data.setContentImage(dataObj.getString("entityurl"));

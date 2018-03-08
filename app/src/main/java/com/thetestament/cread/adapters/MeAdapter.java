@@ -496,18 +496,29 @@ public class MeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                 , true
                 , itemViewHolder.lineSepartor);
 
+        // no need for creator options in explore
+        final boolean shouldShowCreatorOptions = mUUID.equals(data.getUUID());
 
-        //open bottom sheet on clicking of 3 dots
-        itemViewHolder.buttonMenu.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                getMenuActionsBottomSheet(mContext, position, data, onContentDeleteListener, mUUID.equals(data.getUUID()), mCompositeDisposable);
-            }
-        });
+        // init content options menu
+        if(!data.isEligibleForDownvote() && !shouldShowCreatorOptions)
+        {
+            itemViewHolder.buttonMenu.setVisibility(View.GONE);
+        }
+
+        else
+        {
+            itemViewHolder.buttonMenu.setVisibility(View.VISIBLE);
+            //open bottom sheet on clicking of 3 dots
+            itemViewHolder.buttonMenu.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    getMenuActionsBottomSheet(mContext, position, data, null, shouldShowCreatorOptions, mCompositeDisposable, new Bundle(), new Intent());
+                }
+            });
+        }
 
         //ItemView onClick functionality
         itemViewOnClick(itemViewHolder.itemView, data, position, false);
-
         //Check whether user has given hats off to this campaign or not
         checkHatsOffStatus(data.getHatsOffStatus(), itemViewHolder);
         //HatsOff onClick functionality
@@ -598,7 +609,7 @@ public class MeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         @BindView(R.id.containerShare)
         LinearLayout containerShare;
         @BindView(R.id.buttonMenu)
-        TextView buttonMenu;
+        ImageView buttonMenu;
         @BindView(R.id.collabCount)
         TextView collabCount;
         @BindView(R.id.lineSeparatorTop)

@@ -90,6 +90,8 @@ public class HashTagDetailsFragment extends Fragment implements listener.OnColla
     int spanCount = 2;
 
     @State
+    boolean mCanDownvote;
+    @State
     String mShortId, hashTag;
 
     @State
@@ -183,6 +185,7 @@ public class HashTagDetailsFragment extends Fragment implements listener.OnColla
                     Bundle bundle = data.getBundleExtra(EXTRA_DATA);
                     //Update data
                     mDataList.get(bundle.getInt("position")).setHatsOffStatus(bundle.getBoolean("hatsOffStatus"));
+                    mDataList.get(bundle.getInt("position")).setDownvoteStatus(bundle.getBoolean("downvotestatus"));
                     mDataList.get(bundle.getInt("position")).setHatsOffCount(bundle.getLong("hatsOffCount"));
                     mDataList.get(bundle.getInt("position")).setFollowStatus(bundle.getBoolean("followstatus"));
                     mDataList.get(bundle.getInt("position")).setCaption(bundle.getString("caption"));
@@ -582,6 +585,7 @@ public class HashTagDetailsFragment extends Fragment implements listener.OnColla
         JSONObject mainData = jsonObject.getJSONObject("data");
         mRequestMoreData = mainData.getBoolean("requestmore");
         mLastIndexKey = mainData.getString("lastindexkey");
+        mCanDownvote = mainData.getBoolean("candownvote");
         //ExploreArray list
         JSONArray exploreArray = mainData.getJSONArray("feed");
         for (int i = 0; i < exploreArray.length(); i++) {
@@ -598,6 +602,7 @@ public class HashTagDetailsFragment extends Fragment implements listener.OnColla
             exploreData.setFollowStatus(dataObj.getBoolean("followstatus"));
             exploreData.setMerchantable(dataObj.getBoolean("merchantable"));
             exploreData.setDownvoteStatus(dataObj.getBoolean("downvotestatus"));
+            exploreData.setEligibleForDownvote(mCanDownvote);
             exploreData.setHatsOffCount(dataObj.getLong("hatsoffcount"));
             exploreData.setCommentCount(dataObj.getLong("commentcount"));
             exploreData.setContentImage(dataObj.getString("entityurl"));

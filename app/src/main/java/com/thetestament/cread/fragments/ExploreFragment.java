@@ -119,6 +119,9 @@ public class ExploreFragment extends Fragment implements listener.OnCollaboratio
     private int spanCount = 2;
     public static Constant.ITEM_TYPES defaultItemType;
 
+
+    @State
+    boolean mCanDownvote;
     @State
     String mEntityID, mEntityType;
     @State
@@ -215,6 +218,7 @@ public class ExploreFragment extends Fragment implements listener.OnCollaboratio
                     Bundle bundle = data.getBundleExtra(EXTRA_DATA);
                     //Update data
                     mExploreDataList.get(bundle.getInt("position")).setHatsOffStatus(bundle.getBoolean("hatsOffStatus"));
+                    mExploreDataList.get(bundle.getInt("position")).setDownvoteStatus(bundle.getBoolean("downvotestatus"));
                     mExploreDataList.get(bundle.getInt("position")).setHatsOffCount(bundle.getLong("hatsOffCount"));
                     mExploreDataList.get(bundle.getInt("position")).setFollowStatus(bundle.getBoolean("followstatus"));
                     mExploreDataList.get(bundle.getInt("position")).setCaption(bundle.getString("caption"));
@@ -740,6 +744,7 @@ public class ExploreFragment extends Fragment implements listener.OnCollaboratio
                                 JSONObject mainData = jsonObject.getJSONObject("data");
                                 mRequestMoreData = mainData.getBoolean("requestmore");
                                 mLastIndexKey = mainData.getString("lastindexkey");
+                                mCanDownvote = mainData.getBoolean("candownvote");
                                 //ExploreArray list
                                 JSONArray exploreArray = mainData.getJSONArray("feed");
                                 for (int i = 0; i < exploreArray.length(); i++) {
@@ -756,6 +761,7 @@ public class ExploreFragment extends Fragment implements listener.OnCollaboratio
                                     exploreData.setFollowStatus(dataObj.getBoolean("followstatus"));
                                     exploreData.setMerchantable(dataObj.getBoolean("merchantable"));
                                     exploreData.setDownvoteStatus(dataObj.getBoolean("downvotestatus"));
+                                    exploreData.setEligibleForDownvote(mCanDownvote);
                                     exploreData.setHatsOffCount(dataObj.getLong("hatsoffcount"));
                                     exploreData.setCommentCount(dataObj.getLong("commentcount"));
                                     exploreData.setContentImage(dataObj.getString("entityurl"));
@@ -896,6 +902,7 @@ public class ExploreFragment extends Fragment implements listener.OnCollaboratio
                                     exploreData.setFollowStatus(dataObj.getBoolean("followstatus"));
                                     exploreData.setMerchantable(dataObj.getBoolean("merchantable"));
                                     exploreData.setDownvoteStatus(dataObj.getBoolean("downvotestatus"));
+                                    exploreData.setEligibleForDownvote(mCanDownvote);
                                     exploreData.setHatsOffCount(dataObj.getLong("hatsoffcount"));
                                     exploreData.setCommentCount(dataObj.getLong("commentcount"));
                                     exploreData.setContentImage(dataObj.getString("entityurl"));
@@ -1002,6 +1009,8 @@ public class ExploreFragment extends Fragment implements listener.OnCollaboratio
             }
         });
     }
+
+    /**
 
     /**
      * Method to update follow status.

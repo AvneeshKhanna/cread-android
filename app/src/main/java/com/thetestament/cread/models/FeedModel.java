@@ -12,7 +12,7 @@ public class FeedModel implements Parcelable {
 
     private String entityID, captureID, shortID;
     private String UUID, creatorName, creatorImage, collabWithUUID, collabWithName, caption;
-    private boolean hatsOffStatus, followStatus, merchantable, isAvailableForCollab, downvoteStatus;
+    private boolean hatsOffStatus, followStatus, merchantable, isAvailableForCollab, downvoteStatus, isEligibleForDownvote;
     private long hatsOffCount, commentCount, collabCount;
     private String contentType;
     private String contentImage;
@@ -136,6 +136,14 @@ public class FeedModel implements Parcelable {
         this.downvoteStatus = downvoteStatus;
     }
 
+    public boolean isEligibleForDownvote() {
+        return isEligibleForDownvote;
+    }
+
+    public void setEligibleForDownvote(boolean eligibleForDownvote) {
+        isEligibleForDownvote = eligibleForDownvote;
+    }
+
     public boolean isAvailableForCollab() {
         return isAvailableForCollab;
     }
@@ -201,6 +209,7 @@ public class FeedModel implements Parcelable {
         parcel.writeByte((byte) (followStatus ? 1 : 0));
         parcel.writeByte((byte) (merchantable ? 1 : 0));
         parcel.writeByte((byte) (downvoteStatus ? 1 : 0));
+        parcel.writeByte((byte) (isEligibleForDownvote ? 1 : 0));
         parcel.writeLong(hatsOffCount);
         parcel.writeLong(commentCount);
         parcel.writeString(contentType);
@@ -238,6 +247,7 @@ public class FeedModel implements Parcelable {
         followStatus = in.readByte() != 0;
         merchantable = in.readByte() != 0;
         downvoteStatus = in.readByte() != 0;
+        isEligibleForDownvote = in.readByte() != 0;
         hatsOffCount = in.readLong();
         commentCount = in.readLong();
         contentType = in.readString();

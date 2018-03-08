@@ -55,6 +55,7 @@
     <string name="key_enable_chat_sound">enableChatSound</string>
     <string name="key_personal_chat_indicator">personalChatIndicator</string>
     <string name="key_personal_chat_dialog">keyPersonalChatDialog</string>
+    <string name="key_downvote_dialog">keyDownvoteDialog</string>
 
 
     // dialog messages
@@ -79,7 +80,10 @@
     <string name="title_dialog_royalty">Manage Your Royalites</string>
     <string name="text_dialog_royalty">Here\'s your bank of royalties which you earn (10%) for every artpiece that sells. View and manage orders placed by others for your art work. You can redeem your earnings into your Paytm account.</string>
     <string name="title_dialog_share">Share</string>
+    <string name="title_dialog_downvote">Anonymous Downvote</string>
+    <string name="text_dialog_downvote_desc">Congratulations! You\'re one of the selected users who have earned the power to anonymously downvote posts. We trust that you can help us in building a clean platform with high standards by downvoting posts which you don\'t find suitable. This privilege is only for nice, active users and we\'re really glad to have you as one! :)</string>
     <string name="text_unfollow">Unfollow</string>
+
 
     //unicodes
     <string name="Rs">\u20B9</string>

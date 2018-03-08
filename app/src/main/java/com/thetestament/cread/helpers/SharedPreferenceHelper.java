@@ -558,4 +558,26 @@ public class SharedPreferenceHelper {
         editor.apply();
     }
 
+    /**
+     * Method to retrieve chat dialog.
+     *
+     * @return True by default.
+     */
+    public boolean isDownvoteDialogFirstTime() {
+        return mSharedPreferences
+                .getBoolean(mContext.getString(R.string.key_downvote_dialog), true);
+    }
+
+
+    /**
+     * Method to update 'Write button' tooltip status.
+     *
+     * @param status boolean value i.e true or false
+     */
+    public void updateDownvoteDialogStatus(boolean status) {
+        SharedPreferences.Editor editor = mSharedPreferences.edit();
+        editor.putBoolean(mContext.getString(R.string.key_downvote_dialog), status);
+        editor.apply();
+    }
+
 }

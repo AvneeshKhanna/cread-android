@@ -27,6 +27,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.afollestad.materialdialogs.DialogAction;
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.google.firebase.analytics.FirebaseAnalytics;
 import com.google.firebase.crash.FirebaseCrash;
@@ -159,7 +160,7 @@ public class FeedDescriptionActivity extends BaseActivity implements listener.On
     @BindView(R.id.buttonFollow)
     TextView buttonFollow;
     @BindView(R.id.buttonMenu)
-    TextView buttonMenu;
+    ImageView buttonMenu;
 
 
     private SharedPreferenceHelper mHelper;
@@ -486,7 +487,7 @@ public class FeedDescriptionActivity extends BaseActivity implements listener.On
 
     @OnClick(R.id.buttonMenu)
     void onMenuClick() {
-        getMenuActionsBottomSheet(mContext, mItemPosition, mFeedData, initDeletePostClick(), isUserCreator, mCompositeDisposable);
+        getMenuActionsBottomSheet(mContext, mItemPosition, mFeedData, initDeletePostClick(), isUserCreator, mCompositeDisposable, resultBundle,  resultIntent);
     }
 
     /**
@@ -537,6 +538,7 @@ public class FeedDescriptionActivity extends BaseActivity implements listener.On
         resultBundle.putBoolean("hatsOffStatus", mFeedData.getHatsOffStatus());
         resultBundle.putBoolean("followstatus", mFeedData.getFollowStatus());
         resultBundle.putBoolean("deletestatus", false);
+        resultBundle.putBoolean("downvotestatus", mFeedData.isDownvoteStatus());
         resultBundle.putString("caption", mFeedData.getCaption());
         resultIntent.putExtra(EXTRA_DATA, resultBundle);
     }
@@ -584,6 +586,13 @@ public class FeedDescriptionActivity extends BaseActivity implements listener.On
         //Show tooltip on have button
         showTooltip();
 
+        // show downvote intro dialog
+        if(mFeedData.isEligibleForDownvote() && mHelper.isDownvoteDialogFirstTime())
+        {
+            // show dialog
+            getDownvoteDialog();
+        }
+
         //If API is greater than LOLLIPOP
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
             //For shared transition
@@ -594,6 +603,9 @@ public class FeedDescriptionActivity extends BaseActivity implements listener.On
         isUserCreator = mFeedData.getUUID().equals(mHelper.getUUID());
 
         toggleFollowButton(false);
+
+        // show menu options if user is creator
+        showMenuOptions();
     }
 
 
@@ -757,6 +769,17 @@ public class FeedDescriptionActivity extends BaseActivity implements listener.On
     }
 
     /**
+     * If user is creator then it shows menu options
+     */
+    private void showMenuOptions() {
+        if (!isUserCreator && !mFeedData.isEligibleForDownvote()) {
+            buttonMenu.setVisibility(View.GONE);
+        } else {
+            buttonMenu.setVisibility(View.VISIBLE);
+        }
+    }
+
+    /**
      * RxJava2 implementation for retrieving comment data from server.
      *
      * @param entityID ID for current story,
@@ -867,6 +890,44 @@ public class FeedDescriptionActivity extends BaseActivity implements listener.On
         }
         //Update status
         mHelper.updateHaveButtonToolTipStatus(false);
+    }
+
+    /**
+     * Method to show the downvote introduction dialog.
+     */
+    private void getDownvoteDialog() {
+        MaterialDialog dialog = new MaterialDialog.Builder(mContext)
+                .customView(R.layout.dialog_generic, false)
+                .positiveText("Show me")
+                .onPositive(new MaterialDialog.SingleButtonCallback() {
+                    @Override
+                    public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
+                        //Dismiss dialog
+                        dialog.dismiss();
+                        //Update status
+                        mHelper.updateDownvoteDialogStatus(false);
+                        //open bottom sheet
+                        getMenuActionsBottomSheet(mContext, mItemPosition, mFeedData, initDeletePostClick(), isUserCreator, mCompositeDisposable, resultBundle,  resultIntent);
+
+                    }
+                })
+                .show();
+        // update key
+        mHelper.updateDownvoteDialogStatus(false);
+
+        //Obtain views reference
+        ImageView fillerImage = dialog.getCustomView().findViewById(R.id.viewFiller);
+        TextView textTitle = dialog.getCustomView().findViewById(R.id.textTitle);
+        TextView textDesc = dialog.getCustomView().findViewById(R.id.textDesc);
+
+
+        //Set filler image
+        fillerImage.setImageDrawable(ContextCompat.getDrawable(mContext, R.drawable.img_intro_dialog_downvote));
+        //Set title text
+        textTitle.setText(mContext.getString(R.string.title_dialog_downvote));
+        //Set description text
+        textDesc.setText(mContext.getString(R.string.text_dialog_downvote_desc));
+
     }
 
     /**
