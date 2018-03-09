@@ -48,6 +48,7 @@ import java.util.List;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import de.hdodenhof.circleimageview.CircleImageView;
+import io.reactivex.disposables.CompositeDisposable;
 
 import static com.thetestament.cread.CreadApp.IMAGE_LOAD_FROM_NETWORK_ME;
 import static com.thetestament.cread.helpers.ContentHelper.getMenuActionsBottomSheet;
@@ -79,6 +80,7 @@ public class MeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     private String mUUID;
     private SharedPreferenceHelper mHelper;
     private ITEM_TYPES mItemType;
+    private CompositeDisposable mCompositeDisposable;
 
     private OnUserActivityLoadMoreListener onLoadMore;
     private OnUserActivityHatsOffListener onHatsOffListener;
@@ -94,12 +96,13 @@ public class MeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
      * @param mContext         Context to be use.
      * @param mUUID            UUID of user.
      */
-    public MeAdapter(List<FeedModel> mUserContentList, FragmentActivity mContext, String mUUID, Fragment mMeFragment, ITEM_TYPES mItemType) {
+    public MeAdapter(List<FeedModel> mUserContentList, FragmentActivity mContext, String mUUID, Fragment mMeFragment, ITEM_TYPES mItemType, CompositeDisposable mCompositeDisposable) {
         this.mUserContentList = mUserContentList;
         this.mContext = mContext;
         this.mUUID = mUUID;
         this.mMeFragment = mMeFragment;
         this.mItemType = mItemType;
+        this.mCompositeDisposable = mCompositeDisposable;
 
         mHelper = new SharedPreferenceHelper(mContext);
     }
@@ -493,20 +496,29 @@ public class MeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                 , true
                 , itemViewHolder.lineSepartor);
 
-        //Initialize context menu button
-        initializeMenuButton(itemViewHolder.buttonMenu, data.getUUID());
+        // no need for creator options in explore
+        final boolean shouldShowCreatorOptions = mUUID.equals(data.getUUID());
 
-        //open bottom sheet on clicking of 3 dots
-        itemViewHolder.buttonMenu.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                getMenuActionsBottomSheet(mContext, position, data, onContentDeleteListener);
-            }
-        });
+        // init content options menu
+        if(!data.isEligibleForDownvote() && !shouldShowCreatorOptions)
+        {
+            itemViewHolder.buttonMenu.setVisibility(View.GONE);
+        }
+
+        else
+        {
+            itemViewHolder.buttonMenu.setVisibility(View.VISIBLE);
+            //open bottom sheet on clicking of 3 dots
+            itemViewHolder.buttonMenu.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    getMenuActionsBottomSheet(mContext, position, data, null, shouldShowCreatorOptions, mCompositeDisposable, new Bundle(), new Intent());
+                }
+            });
+        }
 
         //ItemView onClick functionality
         itemViewOnClick(itemViewHolder.itemView, data, position, false);
-
         //Check whether user has given hats off to this campaign or not
         checkHatsOffStatus(data.getHatsOffStatus(), itemViewHolder);
         //HatsOff onClick functionality
@@ -597,7 +609,7 @@ public class MeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         @BindView(R.id.containerShare)
         LinearLayout containerShare;
         @BindView(R.id.buttonMenu)
-        TextView buttonMenu;
+        ImageView buttonMenu;
         @BindView(R.id.collabCount)
         TextView collabCount;
         @BindView(R.id.lineSeparatorTop)

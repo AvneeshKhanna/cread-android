@@ -200,7 +200,7 @@ public class MeFragment extends Fragment implements listener.OnCollaborationList
     @State
     String mEmail, mContactNumber, mWaterMarkStatus;
     @State
-    boolean mFollowStatus, isProfileEditable, mIsFeatured;
+    boolean mFollowStatus, isProfileEditable, mIsFeatured, mCanDownvote;
     @State
     String mRequestedUUID;
 
@@ -358,6 +358,7 @@ public class MeFragment extends Fragment implements listener.OnCollaborationList
                         mCollabList.get(bundle.getInt("position")).setHatsOffStatus(bundle.getBoolean("hatsOffStatus"));
                         mCollabList.get(bundle.getInt("position")).setHatsOffCount(bundle.getLong("hatsOffCount"));
                         mCollabList.get(bundle.getInt("position")).setFollowStatus(bundle.getBoolean("followstatus"));
+                        mCollabList.get(bundle.getInt("position")).setDownvoteStatus(bundle.getBoolean("downvotestatus"));
 
                         updateFollowForAll(mCollabList.get(bundle.getInt("position")), mCollabList);
 
@@ -366,6 +367,7 @@ public class MeFragment extends Fragment implements listener.OnCollaborationList
                         mUserActivityDataList.get(bundle.getInt("position")).setHatsOffCount(bundle.getLong("hatsOffCount"));
                         mUserActivityDataList.get(bundle.getInt("position")).setFollowStatus(bundle.getBoolean("followstatus"));
                         mUserActivityDataList.get(bundle.getInt("position")).setCaption(bundle.getString("caption"));
+                        mUserActivityDataList.get(bundle.getInt("position")).setDownvoteStatus(bundle.getBoolean("downvotestatus"));
 
                         updateFollowForAll(mUserActivityDataList.get(bundle.getInt("position")), mUserActivityDataList);
 
@@ -690,7 +692,7 @@ public class MeFragment extends Fragment implements listener.OnCollaborationList
                         GridLayoutManager gridLayoutManager = new GridLayoutManager(getActivity(), spanCount);
                         recyclerView.setLayoutManager(gridLayoutManager);
 
-                        mAdapter = new MeAdapter(mUserActivityDataList, getActivity(), mHelper.getUUID(), MeFragment.this, ITEM_TYPES.GRID);
+                        mAdapter = new MeAdapter(mUserActivityDataList, getActivity(), mHelper.getUUID(), MeFragment.this, ITEM_TYPES.GRID, mCompositeDisposable);
                         recyclerView.setAdapter(mAdapter);
                         initListeners(LIST);
                         break;
@@ -699,7 +701,7 @@ public class MeFragment extends Fragment implements listener.OnCollaborationList
                         mHelper.setFeedItemType(LIST);
                         // list layout for all data
                         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
-                        mAdapter = new MeAdapter(mUserActivityDataList, getActivity(), mHelper.getUUID(), MeFragment.this, LIST);
+                        mAdapter = new MeAdapter(mUserActivityDataList, getActivity(), mHelper.getUUID(), MeFragment.this, LIST, mCompositeDisposable);
                         recyclerView.setAdapter(mAdapter);
                         initListeners(LIST);
                         break;
@@ -708,7 +710,7 @@ public class MeFragment extends Fragment implements listener.OnCollaborationList
                         mCollabList.clear();
                         mCollabLastIndexKey = null;
                         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
-                        mAdapter = new MeAdapter(mCollabList, getActivity(), mHelper.getUUID(), MeFragment.this, ITEM_TYPES.COLLABLIST);
+                        mAdapter = new MeAdapter(mCollabList, getActivity(), mHelper.getUUID(), MeFragment.this, ITEM_TYPES.COLLABLIST, mCompositeDisposable);
                         recyclerView.setAdapter(mAdapter);
                         initListeners(COLLABLIST);
                         getCollabData();
@@ -854,7 +856,7 @@ public class MeFragment extends Fragment implements listener.OnCollaborationList
         }
 
         //Set adapter
-        mAdapter = new MeAdapter(mUserActivityDataList, getActivity(), mHelper.getUUID(), MeFragment.this, defaultItemType);
+        mAdapter = new MeAdapter(mUserActivityDataList, getActivity(), mHelper.getUUID(), MeFragment.this, defaultItemType, mCompositeDisposable);
         recyclerView.setAdapter(mAdapter);
     }
 
@@ -1283,6 +1285,7 @@ public class MeFragment extends Fragment implements listener.OnCollaborationList
                                 JSONObject mainData = jsonObject.getJSONObject("data");
                                 mRequestMoreData = mainData.getBoolean("requestmore");
                                 mLastIndexKey = mainData.getString("lastindexkey");
+                                mCanDownvote = mainData.getBoolean("candownvote");
                                 //UserActivity array list
                                 JSONArray UserActivityArray = mainData.getJSONArray("items");
                                 for (int i = 0; i < UserActivityArray.length(); i++) {
@@ -1297,6 +1300,8 @@ public class MeFragment extends Fragment implements listener.OnCollaborationList
                                     data.setCreatorName(dataObj.getString("creatorname"));
                                     data.setHatsOffStatus(dataObj.getBoolean("hatsoffstatus"));
                                     data.setMerchantable(dataObj.getBoolean("merchantable"));
+                                    data.setDownvoteStatus(dataObj.getBoolean("downvotestatus"));
+                                    data.setEligibleForDownvote(mCanDownvote);
                                     data.setHatsOffCount(dataObj.getLong("hatsoffcount"));
                                     data.setCommentCount(dataObj.getLong("commentcount"));
                                     data.setContentImage(dataObj.getString("entityurl"));
@@ -1585,6 +1590,7 @@ public class MeFragment extends Fragment implements listener.OnCollaborationList
         JSONObject mainData = jsonObject.getJSONObject("data");
         mCollabRequestMoreData = mainData.getBoolean("requestmore");
         mCollabLastIndexKey = mainData.getString("lastindexkey");
+        mCanDownvote = mainData.getBoolean("candownvote");
         //Collab array list
         JSONArray collabArray = mainData.getJSONArray("items");
         for (int i = 0; i < collabArray.length(); i++) {
@@ -1600,6 +1606,8 @@ public class MeFragment extends Fragment implements listener.OnCollaborationList
             data.setCreatorName(dataObj.getString("creatorname"));
             data.setHatsOffStatus(dataObj.getBoolean("hatsoffstatus"));
             data.setMerchantable(dataObj.getBoolean("merchantable"));
+            data.setDownvoteStatus(dataObj.getBoolean("downvotestatus"));
+            data.setEligibleForDownvote(mCanDownvote);
             data.setHatsOffCount(dataObj.getLong("hatsoffcount"));
             data.setCommentCount(dataObj.getLong("commentcount"));
             data.setContentImage(dataObj.getString("entityurl"));
@@ -1768,6 +1776,8 @@ public class MeFragment extends Fragment implements listener.OnCollaborationList
                                     data.setCreatorName(dataObj.getString("creatorname"));
                                     data.setHatsOffStatus(dataObj.getBoolean("hatsoffstatus"));
                                     data.setMerchantable(dataObj.getBoolean("merchantable"));
+                                    data.setDownvoteStatus(dataObj.getBoolean("downvotestatus"));
+                                    data.setEligibleForDownvote(mCanDownvote);
                                     data.setHatsOffCount(dataObj.getLong("hatsoffcount"));
                                     data.setCommentCount(dataObj.getLong("commentcount"));
                                     data.setContentImage(dataObj.getString("entityurl"));

@@ -22,11 +22,7 @@ import android.view.animation.AnimationUtils;
 import android.view.animation.LayoutAnimationController;
 import android.widget.TextView;
 
-import com.androidnetworking.AndroidNetworking;
-import com.androidnetworking.error.ANError;
-import com.androidnetworking.interfaces.JSONObjectRequestListener;
 import com.google.firebase.crash.FirebaseCrash;
-import com.thetestament.cread.BuildConfig;
 import com.thetestament.cread.Manifest;
 import com.thetestament.cread.R;
 import com.thetestament.cread.adapters.ExploreAdapter;
@@ -93,6 +89,8 @@ public class HashTagDetailsFragment extends Fragment implements listener.OnColla
     private boolean mRequestMoreData;
     int spanCount = 2;
 
+    @State
+    boolean mCanDownvote;
     @State
     String mShortId, hashTag;
 
@@ -187,6 +185,7 @@ public class HashTagDetailsFragment extends Fragment implements listener.OnColla
                     Bundle bundle = data.getBundleExtra(EXTRA_DATA);
                     //Update data
                     mDataList.get(bundle.getInt("position")).setHatsOffStatus(bundle.getBoolean("hatsOffStatus"));
+                    mDataList.get(bundle.getInt("position")).setDownvoteStatus(bundle.getBoolean("downvotestatus"));
                     mDataList.get(bundle.getInt("position")).setHatsOffCount(bundle.getLong("hatsOffCount"));
                     mDataList.get(bundle.getInt("position")).setFollowStatus(bundle.getBoolean("followstatus"));
                     mDataList.get(bundle.getInt("position")).setCaption(bundle.getString("caption"));
@@ -212,7 +211,7 @@ public class HashTagDetailsFragment extends Fragment implements listener.OnColla
         GridLayoutManager gridLayoutManager = new GridLayoutManager(getActivity(), spanCount);
         recyclerView.setLayoutManager(gridLayoutManager);
         //Set adapter
-        mAdapter = new ExploreAdapter(mDataList, getActivity(), mHelper.getUUID(), HashTagDetailsFragment.this, Constant.ITEM_TYPES.GRID);
+        mAdapter = new ExploreAdapter(mDataList, getActivity(), mHelper.getUUID(), HashTagDetailsFragment.this, Constant.ITEM_TYPES.GRID, mCompositeDisposable);
         recyclerView.setAdapter(mAdapter);
 
         swipeRefreshLayout.setRefreshing(true);
@@ -264,14 +263,14 @@ public class HashTagDetailsFragment extends Fragment implements listener.OnColla
                         GridLayoutManager gridLayoutManager = new GridLayoutManager(getActivity(), spanCount);
                         recyclerView.setLayoutManager(gridLayoutManager);
 
-                        mAdapter = new ExploreAdapter(mDataList, getActivity(), mHelper.getUUID(), HashTagDetailsFragment.this, Constant.ITEM_TYPES.GRID);
+                        mAdapter = new ExploreAdapter(mDataList, getActivity(), mHelper.getUUID(), HashTagDetailsFragment.this, Constant.ITEM_TYPES.GRID, mCompositeDisposable);
                         recyclerView.setAdapter(mAdapter);
                         initListeners();
                         break;
 
                     case 1:
                         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
-                        mAdapter = new ExploreAdapter(mDataList, getActivity(), mHelper.getUUID(), HashTagDetailsFragment.this, Constant.ITEM_TYPES.LIST);
+                        mAdapter = new ExploreAdapter(mDataList, getActivity(), mHelper.getUUID(), HashTagDetailsFragment.this, Constant.ITEM_TYPES.LIST, mCompositeDisposable);
                         recyclerView.setAdapter(mAdapter);
                         initListeners();
                         break;
@@ -586,6 +585,7 @@ public class HashTagDetailsFragment extends Fragment implements listener.OnColla
         JSONObject mainData = jsonObject.getJSONObject("data");
         mRequestMoreData = mainData.getBoolean("requestmore");
         mLastIndexKey = mainData.getString("lastindexkey");
+        mCanDownvote = mainData.getBoolean("candownvote");
         //ExploreArray list
         JSONArray exploreArray = mainData.getJSONArray("feed");
         for (int i = 0; i < exploreArray.length(); i++) {
@@ -601,6 +601,8 @@ public class HashTagDetailsFragment extends Fragment implements listener.OnColla
             exploreData.setHatsOffStatus(dataObj.getBoolean("hatsoffstatus"));
             exploreData.setFollowStatus(dataObj.getBoolean("followstatus"));
             exploreData.setMerchantable(dataObj.getBoolean("merchantable"));
+            exploreData.setDownvoteStatus(dataObj.getBoolean("downvotestatus"));
+            exploreData.setEligibleForDownvote(mCanDownvote);
             exploreData.setHatsOffCount(dataObj.getLong("hatsoffcount"));
             exploreData.setCommentCount(dataObj.getLong("commentcount"));
             exploreData.setContentImage(dataObj.getString("entityurl"));
