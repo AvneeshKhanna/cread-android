@@ -11,17 +11,31 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
+
         <com.thetestament.cread.widgets.SquareView
             android:id="@+id/imageContainer"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:background="@drawable/img_short_default_bg">
+            >
+
 
             <ImageView
                 android:id="@+id/imageShort"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
+                android:background="@drawable/img_short_default_bg"
                 android:scaleType="centerCrop" />
+
+            <android.support.v7.widget.AppCompatImageView
+                android:id="@+id/btnRemoveImage"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:layout_alignParentRight="true"
+                android:layout_margin="5dp"
+                android:background="@drawable/circle_transparent_bg"
+                android:padding="5dp"
+                app:srcCompat="@drawable/ic_close_vector" />
+
 
             <com.thetestament.cread.widgets.CustomEditText
                 android:id="@+id/textShort"

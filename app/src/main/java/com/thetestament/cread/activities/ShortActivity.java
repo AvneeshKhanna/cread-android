@@ -175,6 +175,8 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
     View progressViewInspiration;
     @BindView(R.id.btnInspiration)
     AppCompatImageView buttonInspireMe;
+    @BindView(R.id.btnRemoveImage)
+    AppCompatImageView btnRemoveImage;
 
     //Font bottom sheet
     @BindView(R.id.bottomSheetView)
@@ -322,6 +324,12 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
                     mIsImagePresent = true;
                     //show note textView
                     textNote.setVisibility(View.VISIBLE);
+
+                    //Show button
+                    btnRemoveImage.setVisibility(View.VISIBLE);
+                    //Toggle flags
+                    mIsBgColorPresent = false;
+                    mIsImagePresent = true;
                 }
                 break;
             case REQUEST_CODE_PREVIEW_ACTIVITY:
@@ -641,6 +649,36 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
         //Hide font bottom sheet
         sheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
     }
+
+    /**
+     * Click functionality of remove image button
+     */
+    @OnClick(R.id.btnRemoveImage)
+    void removeImageOnClick() {
+
+        if (mIsImagePresent) {
+            //show note textView
+            textNote.setVisibility(View.INVISIBLE);
+            //Remove image
+            imageShort.setImageDrawable(null);
+            imageShort.setBackground(ContextCompat.getDrawable(mContext, R.drawable.img_short_default_bg));
+        } else {
+            //Hide button
+            btnRemoveImage.setVisibility(View.GONE);
+            //Change text color
+            textShort.setTextColor(ContextCompat.getColor(mContext, R.color.color_grey_600));
+            textShort.setHintTextColor(ContextCompat.getColor(mContext, R.color.color_grey_600));
+            //Remove default bg
+            imageShort.setBackground(null);
+        }
+        //Toggle flags
+        mIsImagePresent = false;
+        //Update value
+        mCaptureID = "";
+        mCaptureUrl = "";
+        mIsMerchantable = true;
+    }
+
     //endregion
 
     //region Private methods
@@ -701,6 +739,8 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
                 textNote.setVisibility(View.VISIBLE);
                 // show image tint
                 imageShort.setColorFilter(ContextCompat.getColor(ShortActivity.this, R.color.transparent_50));
+                //Hide remove image button
+                btnRemoveImage.setVisibility(View.GONE);
             }
             //Called from short editing
             else if (bundle.getString(SHORT_EXTRA_CALLED_FROM).equals(SHORT_EXTRA_CALLED_FROM_EDIT_SHORT)) {
@@ -710,6 +750,9 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
                 mCaptionText = bundle.getString(SHORT_EXTRA_CAPTION_TEXT);
                 mEntityID = bundle.getString(EXTRA_ENTITY_ID);
                 //Update flag
+
+                //Hide remove image button
+                btnRemoveImage.setVisibility(View.GONE);
 
                 mCalledFrom = PREVIEW_EXTRA_CALLED_FROM_EDIT_SHORT;
                 //Method called
@@ -968,6 +1011,12 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
                 mIsImagePresent = true;
                 //show note textView
                 textNote.setVisibility(View.VISIBLE);
+
+                //Show button
+                btnRemoveImage.setVisibility(View.VISIBLE);
+                //Toggle flags
+                mIsBgColorPresent = false;
+                mIsImagePresent = true;
             }
         });
 
@@ -1070,6 +1119,8 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
     private void generateImage() {
         //Hide edit text cursor
         textShort.setCursorVisible(false);
+        //Hide button
+        btnRemoveImage.setVisibility(View.GONE);
 
         float divisionFactor = (float) squareView.getWidth() / mImageWidth;
 
@@ -1136,6 +1187,10 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
         squareView.setDrawingCacheEnabled(false);
         squareView.destroyDrawingCache();
 
+        if (mIsImagePresent) {
+            //show button
+            btnRemoveImage.setVisibility(View.VISIBLE);
+        }
     }
 
     /**
