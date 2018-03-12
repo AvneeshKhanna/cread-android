@@ -82,7 +82,11 @@
     <string name="title_dialog_downvote">Anonymous Downvote</string>
     <string name="text_dialog_downvote_desc">Congratulations! You\'re one of the selected users who have earned the power to anonymously downvote posts. We trust that you can help us in building a clean platform with high standards by downvoting posts which you don\'t find suitable. This privilege is only for nice, active users and we\'re really glad to have you as one! :)</string>
     <string name="text_unfollow">Unfollow</string>
-
+    <string name="text_title_dialog_featured_artist">Introducing: Featured Artists</string>
+    <string name="text_desc_dialog_featured_artist">Get an opportunity to be listed amongst the top artists on Cread! All you have to do is post awesome stuff and you might get featured on the top of the feed for everyone to see. We hope to get you the best of the app everyday!</string>
+    <string name="text_title_dialog_downvote_warning">Downvote</string>
+    <string name="text_desc_dialog_downvote_warning">Are you sure that this post is not suitable for the platform? Downvoting it would limit its visibility for Cread users.</string>
+    <string name="text_dialog_button_cancel">Cancel</string>
 
     //unicodes
     <string name="Rs">\u20B9</string>
@@ -174,7 +178,6 @@
     <string name="action_text_filters">Filters</string>
     <string name="text_follow"> \u2022 Follow</string>
     <string name="text_cread_name">Cread \u2022  New message</string>
-    <string name="text_title_dialog_featured_artist">Introducing: Featured Artists</string>
-    <string name="text_desc_dialog_featured_artist">Get an opportunity to be listed amongst the top artists on Cread! All you have to do is post awesome stuff and you might get featured on the top of the feed for everyone to see. We hope to get you the best of the app everyday!</string>
+
 
 </resources>
