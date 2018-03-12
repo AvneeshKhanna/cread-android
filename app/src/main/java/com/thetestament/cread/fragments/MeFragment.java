@@ -103,7 +103,7 @@ import static android.app.Activity.RESULT_OK;
 import static com.thetestament.cread.CreadApp.GET_RESPONSE_FROM_NETWORK_ME;
 import static com.thetestament.cread.dialog.DialogHelper.getDeletePostDialog;
 import static com.thetestament.cread.fragments.ExploreFragment.defaultItemType;
-import static com.thetestament.cread.helpers.FeedHelper.generateDeepLink;
+import static com.thetestament.cread.helpers.DeepLinkHelper.generateDeepLink;
 import static com.thetestament.cread.helpers.FeedHelper.updateFollowForAll;
 import static com.thetestament.cread.helpers.ImageHelper.getImageUri;
 import static com.thetestament.cread.helpers.NetworkHelper.getNetConnectionStatus;

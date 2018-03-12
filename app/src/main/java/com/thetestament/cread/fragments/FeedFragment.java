@@ -71,7 +71,7 @@ import pl.tajchert.nammu.PermissionCallback;
 import static android.app.Activity.RESULT_OK;
 import static com.thetestament.cread.CreadApp.GET_RESPONSE_FROM_NETWORK_ENTITY_SPECIFIC;
 import static com.thetestament.cread.CreadApp.GET_RESPONSE_FROM_NETWORK_MAIN;
-import static com.thetestament.cread.helpers.FeedHelper.generateDeepLink;
+import static com.thetestament.cread.helpers.DeepLinkHelper.generateDeepLink;
 import static com.thetestament.cread.helpers.FeedHelper.parseEntitySpecificJSON;
 import static com.thetestament.cread.helpers.ImageHelper.getImageUri;
 import static com.thetestament.cread.helpers.NetworkHelper.getEntitySpecificObservable;

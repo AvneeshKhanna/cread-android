@@ -114,12 +114,22 @@ public class listener {
     }
 
     /**
-     * Interface definition for a callback to be invoked when user clicks on follow button.
+     * Interface definition for a callback to be invoked when user clicks on downvote button.
      */
     public interface OnDownvoteRequestedListener {
         void onDownvoteSuccess();
 
         void onDownvoteFailiure(String errorMsg);
+    }
+
+
+    /**
+     * Interface definition for a callback to be invoked when user clicks on coolab invite button.
+     */
+    public interface OnDeepLinkRequestedListener {
+        void onDeepLinkSuccess(String deepLink);
+
+        void onDeepLinkFailiure(String errorMsg);
     }
 
     public interface onDeleteRequestedListener {

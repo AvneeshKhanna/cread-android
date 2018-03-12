@@ -33,7 +33,6 @@ import com.thetestament.cread.activities.ProfileActivity;
 import com.thetestament.cread.activities.ShortActivity;
 import com.thetestament.cread.adapters.ShareDialogAdapter;
 import com.thetestament.cread.listeners.listener;
-import com.thetestament.cread.listeners.listener.OnServerRequestedListener;
 import com.thetestament.cread.listeners.listener.OnShareDialogItemClickedListener;
 import com.thetestament.cread.models.FeedModel;
 import com.thetestament.cread.models.ListItemsDialogModel;
@@ -47,12 +46,9 @@ import java.util.regex.Pattern;
 
 import io.reactivex.Observer;
 import io.reactivex.android.schedulers.AndroidSchedulers;
-import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.schedulers.Schedulers;
 
-import static com.thetestament.cread.helpers.NetworkHelper.getDeepLinkObservable;
-import static com.thetestament.cread.helpers.NetworkHelper.requestServer;
 import static com.thetestament.cread.helpers.ProfileMentionsHelper.setProfileMentionsForViewing;
 import static com.thetestament.cread.helpers.ViewHelper.convertToPx;
 import static com.thetestament.cread.utils.Constant.CONTENT_TYPE_CAPTURE;
@@ -222,21 +218,6 @@ public class FeedHelper {
         return count != 1;
     }
 
-    /**
-     * Method to share deep link via Intent
-     *
-     * @param context context
-     * @param link    link to share
-     */
-    public static void shareDeepLink(FragmentActivity context, String link) {
-        Intent intent = new Intent();
-        intent.setAction(Intent.ACTION_SEND);
-        intent.setType("text/plain");
-        intent.putExtra(Intent.EXTRA_TEXT, link);
-        context.startActivity(Intent.createChooser(intent, "Share Link"));
-    }
-
-
     public static void inviteFriends(FragmentActivity context) {
         Intent intent = new Intent();
         intent.setAction(Intent.ACTION_SEND);
@@ -245,82 +226,6 @@ public class FeedHelper {
         context.startActivity(Intent.createChooser(intent, "Invite Friends"));
     }
 
-    /**
-     * Method to get the deep link from server
-     *
-     * @param context
-     * @param compositeDisposable
-     * @param rootView
-     * @param uuid
-     * @param authkey
-     * @param entityID
-     * @param entityUrl
-     */
-    public static void generateDeepLink(final FragmentActivity context, CompositeDisposable compositeDisposable, final View rootView, String uuid, String authkey, String entityID, String entityUrl, String creatorName) {
-        final MaterialDialog dialog = new MaterialDialog.Builder(context)
-                .title(context.getString(R.string.generating_title))
-                .content(context.getString(R.string.waiting_msg))
-                .progress(true, 0)
-                .show();
-
-        requestServer(compositeDisposable, getDeepLinkObservable(BuildConfig.URL + "/entity-share-link/generate-dynamic-link",
-                uuid,
-                authkey,
-                entityID,
-                entityUrl,
-                creatorName),
-                context,
-                new OnServerRequestedListener<JSONObject>() {
-                    @Override
-                    public void onDeviceOffline() {
-
-                        dialog.dismiss();
-                        ViewHelper.getSnackBar(rootView, context.getString(R.string.error_msg_no_connection));
-
-                    }
-
-                    @Override
-                    public void onNextCalled(JSONObject jsonObject) {
-
-                        dialog.dismiss();
-
-                        try {
-                            //Token status is not valid
-                            if (jsonObject.getString("tokenstatus").equals("invalid")) {
-
-                                ViewHelper.getSnackBar(rootView, context.getString(R.string.error_msg_invalid_token));
-                            }
-                            //Token is valid
-                            else {
-                                JSONObject mainData = jsonObject.getJSONObject("data");
-                                String deepLink = mainData.getString("link");
-
-                                // share link
-                                shareDeepLink(context, deepLink);
-
-                            }
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                            FirebaseCrash.report(e);
-                            ViewHelper.getSnackBar(rootView, context.getString(R.string.error_msg_internal));
-                        }
-                    }
-
-                    @Override
-                    public void onErrorCalled(Throwable e) {
-                        e.printStackTrace();
-                        FirebaseCrash.report(e);
-                        dialog.dismiss();
-                        ViewHelper.getSnackBar(rootView, context.getString(R.string.error_msg_server));
-
-                    }
-
-                    @Override
-                    public void onCompleteCalled() {
-                        // do nothing
-                    }
-                });
-    }
 
     /**
      * Parses the hash tags and creates them as links
