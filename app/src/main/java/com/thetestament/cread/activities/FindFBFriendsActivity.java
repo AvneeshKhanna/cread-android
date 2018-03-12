@@ -2,6 +2,7 @@ package com.thetestament.cread.activities;
 
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.annotation.NonNull;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.view.ViewCompat;
@@ -17,6 +18,8 @@ import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import com.afollestad.materialdialogs.DialogAction;
+import com.afollestad.materialdialogs.MaterialDialog;
 import com.androidnetworking.AndroidNetworking;
 import com.androidnetworking.error.ANError;
 import com.androidnetworking.interfaces.JSONObjectRequestListener;
@@ -29,6 +32,7 @@ import com.thetestament.cread.BuildConfig;
 import com.thetestament.cread.R;
 import com.thetestament.cread.adapters.FBFriendsAdapter;
 import com.thetestament.cread.helpers.FollowHelper;
+import com.thetestament.cread.helpers.LogoutHelper;
 import com.thetestament.cread.helpers.NetworkHelper;
 import com.thetestament.cread.helpers.SharedPreferenceHelper;
 import com.thetestament.cread.helpers.ViewHelper;
@@ -181,10 +185,30 @@ public class FindFBFriendsActivity extends BaseActivity {
 
     private void getFriendsData() {
         if (NetworkHelper.getNetConnectionStatus(FindFBFriendsActivity.this)) {
-
+            AccessToken accessToken = AccessToken.getCurrentAccessToken();
             // checking validity of facebook access token
-            if (AccessToken.getCurrentAccessToken().isExpired()) {
-                ViewHelper.getSnackBar(rootView, "Some problem occured. You'll have to login again.");
+            if (AccessToken.getCurrentAccessToken() == null || AccessToken.getCurrentAccessToken().isExpired()) {
+                swipeRefreshLayout.setRefreshing(false);
+
+                MaterialDialog dialog = new MaterialDialog.Builder(this)
+                        .title("Error")
+                        .content("There is a problem in loading your facebook friends. Please login again to continue.")
+                        .positiveText("Logout")
+                        .negativeText("Cancel")
+                        .onPositive(new MaterialDialog.SingleButtonCallback() {
+                            @Override
+                            public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
+                                // logout
+                                LogoutHelper.performLogOut(FindFBFriendsActivity.this, mCompositeDisposable);
+                            }
+                        })
+                        .onNegative(new MaterialDialog.SingleButtonCallback() {
+                            @Override
+                            public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
+                                 dialog.dismiss();
+                            }
+                        })
+                        .show();
             } else
 
             {

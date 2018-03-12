@@ -113,6 +113,9 @@ public class FeedFragment extends Fragment implements listener.OnCollaborationLi
     private String mLastIndexKey;
     private boolean mRequestMoreData;
 
+
+    @State
+    boolean mCanDownvote;
     @State
     String mEntityID, mEntityType;
     Bitmap mBitmap;
@@ -213,6 +216,7 @@ public class FeedFragment extends Fragment implements listener.OnCollaborationLi
                     Bundle bundle = data.getBundleExtra(EXTRA_DATA);
                     //Update data
                     mFeedDataList.get(bundle.getInt("position")).setHatsOffStatus(bundle.getBoolean("hatsOffStatus"));
+                    mFeedDataList.get(bundle.getInt("position")).setDownvoteStatus(bundle.getBoolean("downvotestatus"));
                     mFeedDataList.get(bundle.getInt("position")).setHatsOffCount(bundle.getLong("hatsOffCount"));
                     //Notify changes
                     mAdapter.notifyItemChanged(bundle.getInt("position"));
@@ -246,7 +250,7 @@ public class FeedFragment extends Fragment implements listener.OnCollaborationLi
         //Set layout manger for recyclerView
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
         //Set adapter
-        mAdapter = new FeedAdapter(mFeedDataList, getActivity(), mHelper.getUUID(), FeedFragment.this);
+        mAdapter = new FeedAdapter(mFeedDataList, getActivity(), mHelper.getUUID(), FeedFragment.this, mCompositeDisposable);
         recyclerView.setAdapter(mAdapter);
 
 
@@ -350,6 +354,7 @@ public class FeedFragment extends Fragment implements listener.OnCollaborationLi
                                         JSONObject mainData = jsonObject.getJSONObject("data");
                                         mRequestMoreData = mainData.getBoolean("requestmore");
                                         mLastIndexKey = mainData.getString("lastindexkey");
+                                        mCanDownvote = mainData.getBoolean("candownvote");
                                         //FeedArray list
                                         JSONArray feedArray = mainData.getJSONArray("feed");
                                         for (int i = 0; i < feedArray.length(); i++) {
@@ -365,6 +370,8 @@ public class FeedFragment extends Fragment implements listener.OnCollaborationLi
                                             feedData.setCreatorName(dataObj.getString("creatorname"));
                                             feedData.setHatsOffStatus(dataObj.getBoolean("hatsoffstatus"));
                                             feedData.setMerchantable(dataObj.getBoolean("merchantable"));
+                                            feedData.setDownvoteStatus(dataObj.getBoolean("downvotestatus"));
+                                            feedData.setEligibleForDownvote(mCanDownvote);
                                             feedData.setHatsOffCount(dataObj.getLong("hatsoffcount"));
                                             feedData.setCommentCount(dataObj.getLong("commentcount"));
                                             feedData.setContentImage(dataObj.getString("entityurl"));
@@ -508,6 +515,8 @@ public class FeedFragment extends Fragment implements listener.OnCollaborationLi
                                     feedData.setCreatorName(dataObj.getString("creatorname"));
                                     feedData.setHatsOffStatus(dataObj.getBoolean("hatsoffstatus"));
                                     feedData.setMerchantable(dataObj.getBoolean("merchantable"));
+                                    feedData.setDownvoteStatus(dataObj.getBoolean("downvotestatus"));
+                                    feedData.setEligibleForDownvote(mCanDownvote);
                                     feedData.setHatsOffCount(dataObj.getLong("hatsoffcount"));
                                     feedData.setCommentCount(dataObj.getLong("commentcount"));
                                     feedData.setContentImage(dataObj.getString("entityurl"));

@@ -119,6 +119,9 @@ public class ExploreFragment extends Fragment implements listener.OnCollaboratio
     private int spanCount = 2;
     public static Constant.ITEM_TYPES defaultItemType;
 
+
+    @State
+    boolean mCanDownvote;
     @State
     String mEntityID, mEntityType;
     @State
@@ -214,6 +217,7 @@ public class ExploreFragment extends Fragment implements listener.OnCollaboratio
                     Bundle bundle = data.getBundleExtra(EXTRA_DATA);
                     //Update data
                     mExploreDataList.get(bundle.getInt("position")).setHatsOffStatus(bundle.getBoolean("hatsOffStatus"));
+                    mExploreDataList.get(bundle.getInt("position")).setDownvoteStatus(bundle.getBoolean("downvotestatus"));
                     mExploreDataList.get(bundle.getInt("position")).setHatsOffCount(bundle.getLong("hatsOffCount"));
                     mExploreDataList.get(bundle.getInt("position")).setFollowStatus(bundle.getBoolean("followstatus"));
                     mExploreDataList.get(bundle.getInt("position")).setCaption(bundle.getString("caption"));
@@ -315,7 +319,7 @@ public class ExploreFragment extends Fragment implements listener.OnCollaboratio
         }
 
         //Set adapter
-        mAdapter = new ExploreAdapter(mExploreDataList, getActivity(), mHelper.getUUID(), ExploreFragment.this, defaultItemType);
+        mAdapter = new ExploreAdapter(mExploreDataList, getActivity(), mHelper.getUUID(), ExploreFragment.this, defaultItemType, mCompositeDisposable);
         recyclerView.setAdapter(mAdapter);
     }
 
@@ -356,7 +360,7 @@ public class ExploreFragment extends Fragment implements listener.OnCollaboratio
                         GridLayoutManager gridLayoutManager = new GridLayoutManager(getActivity(), spanCount);
                         recyclerView.setLayoutManager(gridLayoutManager);
 
-                        mAdapter = new ExploreAdapter(mExploreDataList, getActivity(), mHelper.getUUID(), ExploreFragment.this, GRID);
+                        mAdapter = new ExploreAdapter(mExploreDataList, getActivity(), mHelper.getUUID(), ExploreFragment.this, GRID, mCompositeDisposable);
                         recyclerView.setAdapter(mAdapter);
                         initListeners();
                         break;
@@ -366,7 +370,7 @@ public class ExploreFragment extends Fragment implements listener.OnCollaboratio
                         mHelper.setFeedItemType(Constant.ITEM_TYPES.LIST);
                         // setting layout manager
                         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
-                        mAdapter = new ExploreAdapter(mExploreDataList, getActivity(), mHelper.getUUID(), ExploreFragment.this, Constant.ITEM_TYPES.LIST);
+                        mAdapter = new ExploreAdapter(mExploreDataList, getActivity(), mHelper.getUUID(), ExploreFragment.this, Constant.ITEM_TYPES.LIST, mCompositeDisposable);
                         recyclerView.setAdapter(mAdapter);
                         initListeners();
                         break;
@@ -732,6 +736,7 @@ public class ExploreFragment extends Fragment implements listener.OnCollaboratio
                                 JSONObject mainData = jsonObject.getJSONObject("data");
                                 mRequestMoreData = mainData.getBoolean("requestmore");
                                 mLastIndexKey = mainData.getString("lastindexkey");
+                                mCanDownvote = mainData.getBoolean("candownvote");
                                 //ExploreArray list
                                 JSONArray exploreArray = mainData.getJSONArray("feed");
                                 for (int i = 0; i < exploreArray.length(); i++) {
@@ -747,6 +752,8 @@ public class ExploreFragment extends Fragment implements listener.OnCollaboratio
                                     exploreData.setHatsOffStatus(dataObj.getBoolean("hatsoffstatus"));
                                     exploreData.setFollowStatus(dataObj.getBoolean("followstatus"));
                                     exploreData.setMerchantable(dataObj.getBoolean("merchantable"));
+                                    exploreData.setDownvoteStatus(dataObj.getBoolean("downvotestatus"));
+                                    exploreData.setEligibleForDownvote(mCanDownvote);
                                     exploreData.setHatsOffCount(dataObj.getLong("hatsoffcount"));
                                     exploreData.setCommentCount(dataObj.getLong("commentcount"));
                                     exploreData.setContentImage(dataObj.getString("entityurl"));
@@ -886,6 +893,8 @@ public class ExploreFragment extends Fragment implements listener.OnCollaboratio
                                     exploreData.setHatsOffStatus(dataObj.getBoolean("hatsoffstatus"));
                                     exploreData.setFollowStatus(dataObj.getBoolean("followstatus"));
                                     exploreData.setMerchantable(dataObj.getBoolean("merchantable"));
+                                    exploreData.setDownvoteStatus(dataObj.getBoolean("downvotestatus"));
+                                    exploreData.setEligibleForDownvote(mCanDownvote);
                                     exploreData.setHatsOffCount(dataObj.getLong("hatsoffcount"));
                                     exploreData.setCommentCount(dataObj.getLong("commentcount"));
                                     exploreData.setContentImage(dataObj.getString("entityurl"));
@@ -992,6 +1001,8 @@ public class ExploreFragment extends Fragment implements listener.OnCollaboratio
             }
         });
     }
+
+    /**
 
     /**
      * Method to update follow status.

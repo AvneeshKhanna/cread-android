@@ -5,7 +5,9 @@ import android.os.Bundle;
 import android.support.design.widget.BottomSheetDialog;
 import android.support.v4.app.FragmentActivity;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.TextView;
 
 import com.thetestament.cread.R;
 import com.thetestament.cread.activities.PreviewActivity;
@@ -13,6 +15,9 @@ import com.thetestament.cread.activities.ShortActivity;
 import com.thetestament.cread.listeners.listener;
 import com.thetestament.cread.models.FeedModel;
 
+import io.reactivex.disposables.CompositeDisposable;
+
+import static android.app.Activity.RESULT_OK;
 import static com.thetestament.cread.helpers.DeletePostHelper.showDeleteConfirmationDialog;
 import static com.thetestament.cread.utils.Constant.CONTENT_TYPE_CAPTURE;
 import static com.thetestament.cread.utils.Constant.CONTENT_TYPE_SHORT;
@@ -26,10 +31,10 @@ import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_CAPTION_TEXT;
 import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_CONTENT_IMAGE;
 import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_DATA;
 import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_ENTITY_ID;
+import static com.thetestament.cread.utils.Constant.REQUEST_CODE_EDIT_POST;
 import static com.thetestament.cread.utils.Constant.SHORT_EXTRA_CALLED_FROM;
 import static com.thetestament.cread.utils.Constant.SHORT_EXTRA_CALLED_FROM_EDIT_SHORT;
 import static com.thetestament.cread.utils.Constant.SHORT_EXTRA_CAPTION_TEXT;
-import static com.thetestament.cread.utils.Constant.REQUEST_CODE_EDIT_POST;
 
 
 /**
@@ -82,7 +87,7 @@ public class ContentHelper {
      */
 
     public static void getMenuActionsBottomSheet(final FragmentActivity context, final int index
-            , final FeedModel data, final listener.OnContentDeleteListener onContentDeleteListener) {
+            , final FeedModel data, final listener.OnContentDeleteListener onContentDeleteListener, boolean shouldShowCreatorOptions, final CompositeDisposable compositeDisposable, final Bundle resultBundle, final Intent resultIntent) {
 
         final BottomSheetDialog bottomSheetDialog = new BottomSheetDialog(context);
         //inflate this view
@@ -92,8 +97,36 @@ public class ContentHelper {
         bottomSheetDialog.setContentView(sheetView);
         bottomSheetDialog.show();
 
+        if(shouldShowCreatorOptions && data.isEligibleForDownvote())
+        {
+            //init options
+            initContentCreatorOptions(bottomSheetDialog, sheetView, context, index, data, onContentDeleteListener);
+            initDownvoteOption(sheetView, data, context, resultBundle, resultIntent, compositeDisposable);
+
+        }
+
+        else if(shouldShowCreatorOptions)
+        {
+            initContentCreatorOptions(bottomSheetDialog, sheetView, context, index, data, onContentDeleteListener);
+        }
+
+
+        else if(data.isEligibleForDownvote())
+        {
+            initDownvoteOption(sheetView, data, context, resultBundle, resultIntent, compositeDisposable);
+        }
+    }
+
+
+    private static void initContentCreatorOptions(final BottomSheetDialog bottomSheetDialog, View sheetView, final FragmentActivity context, final int index, final FeedModel data, final listener.OnContentDeleteListener onContentDeleteListener)
+    {
+        // init views
         LinearLayout buttonDelete = sheetView.findViewById(R.id.buttonDelete);
         LinearLayout buttonEdit = sheetView.findViewById(R.id.buttonEdit);
+
+        buttonDelete.setVisibility(View.VISIBLE);
+        buttonEdit.setVisibility(View.VISIBLE);
+
 
         //Delete button functionality
         buttonDelete.setOnClickListener(new View.OnClickListener() {
@@ -117,5 +150,53 @@ public class ContentHelper {
                 bottomSheetDialog.dismiss();
             }
         });
+
+    }
+
+    private static void initDownvoteOption(View sheetView, final FeedModel data, final FragmentActivity context, final Bundle resultBundle, final Intent resultIntent, final CompositeDisposable compositeDisposable)
+    {
+        LinearLayout buttonDownvote = sheetView.findViewById(R.id.buttonDownvote);
+
+        buttonDownvote.setVisibility(View.VISIBLE);
+
+        final TextView textDownvote = sheetView.findViewById(R.id.textDownvote);
+        final ImageView iconDownvote = sheetView.findViewById(R.id.imageDownvote);
+
+        // set downvote text
+        final DownvoteHelper downvoteHelper = new DownvoteHelper();
+        downvoteHelper.updateDownvoteText(textDownvote, iconDownvote, data.isDownvoteStatus(), context);
+
+        // click functionality
+        buttonDownvote.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                //update text
+                data.setDownvoteStatus(!data.isDownvoteStatus());
+                downvoteHelper.updateDownvoteText(textDownvote, iconDownvote, data.isDownvoteStatus(), context);
+
+                downvoteHelper.updateDownvoteStatus(context, compositeDisposable, data.isDownvoteStatus(), data.getEntityID(), new listener.OnDownvoteRequestedListener() {
+                    @Override
+                    public void onDownvoteSuccess() {
+
+                        // do nothing
+                        resultBundle.putBoolean("downvotestatus", data.isDownvoteStatus());
+                        context.setResult(RESULT_OK, resultIntent);
+
+                    }
+
+                    @Override
+                    public void onDownvoteFailiure(String errorMsg) {
+
+                        ViewHelper.getToast(context, errorMsg);
+                        // revert status
+                        data.setDownvoteStatus(!data.isDownvoteStatus());
+                        downvoteHelper.updateDownvoteText(textDownvote, iconDownvote, data.isDownvoteStatus(), context);
+
+                    }
+                });
+
+            }
+        });
+
     }
 }
