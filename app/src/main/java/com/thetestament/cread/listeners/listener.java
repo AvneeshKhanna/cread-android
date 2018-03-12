@@ -4,6 +4,7 @@ import android.graphics.Bitmap;
 import android.graphics.Typeface;
 import android.widget.LinearLayout;
 
+import com.afollestad.materialdialogs.MaterialDialog;
 import com.thetestament.cread.models.CommentsModel;
 import com.thetestament.cread.models.FBFriendsModel;
 import com.thetestament.cread.models.FeedModel;
@@ -127,9 +128,9 @@ public class listener {
      * Interface definition for a callback to be invoked when user clicks on coolab invite button.
      */
     public interface OnDeepLinkRequestedListener {
-        void onDeepLinkSuccess(String deepLink);
+        void onDeepLinkSuccess(String deepLink, MaterialDialog dialog);
 
-        void onDeepLinkFailiure(String errorMsg);
+        void onDeepLinkFailiure(String errorMsg, MaterialDialog dialog);
     }
 
     public interface onDeleteRequestedListener {

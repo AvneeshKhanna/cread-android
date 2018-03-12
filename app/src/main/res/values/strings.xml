@@ -170,7 +170,7 @@
     //invite collab on capture text
     <string name="text_invite_collab_capture">Hey! I just posted an art on Cread! You could write something on it as well. Come and collaborate with me on Cread. :)</string>
     //invite collab on short text
-    <string name="text_invite_collab_short">Hey! I just wrote something nice. Could you make it beautiful with your amazing graphic artistry? Come and collaborate with me on Cread. :)</string>
+    <string name="text_invite_collab_short">Hey! I just wrote something nice. Could you make it more beautiful with your amazing graphic artistry? Come and collaborate with me on Cread. :)</string>
 
     //Transition Shared
     <string name="shared_transition_profile_pic">profilePic</string>

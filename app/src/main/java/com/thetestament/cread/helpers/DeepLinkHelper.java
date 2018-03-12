@@ -1,11 +1,15 @@
 package com.thetestament.cread.helpers;
 
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.drawable.Drawable;
 import android.support.v4.app.FragmentActivity;
 import android.view.View;
 
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.google.firebase.crash.FirebaseCrash;
+import com.squareup.picasso.Picasso;
+import com.squareup.picasso.Target;
 import com.thetestament.cread.BuildConfig;
 import com.thetestament.cread.R;
 import com.thetestament.cread.listeners.listener;
@@ -30,7 +34,7 @@ public class DeepLinkHelper {
 
 
         final MaterialDialog dialog = new MaterialDialog.Builder(context)
-                .title(context.getString(R.string.generating_title))
+                .title("Processing")
                 .content(context.getString(R.string.waiting_msg))
                 .progress(true, 0)
                 .show();
@@ -46,8 +50,7 @@ public class DeepLinkHelper {
                     @Override
                     public void onDeviceOffline() {
 
-                        dialog.dismiss();
-                        onDeepLinkRequestedListener.onDeepLinkFailiure(context.getString(R.string.error_msg_no_connection));
+                        onDeepLinkRequestedListener.onDeepLinkFailiure(context.getString(R.string.error_msg_no_connection), dialog);
 
                     }
 
@@ -60,7 +63,7 @@ public class DeepLinkHelper {
                             //Token status is not valid
                             if (jsonObject.getString("tokenstatus").equals("invalid")) {
 
-                                onDeepLinkRequestedListener.onDeepLinkFailiure(context.getString(R.string.error_msg_invalid_token));
+                                onDeepLinkRequestedListener.onDeepLinkFailiure(context.getString(R.string.error_msg_invalid_token), dialog);
                             }
                             //Token is valid
                             else {
@@ -68,12 +71,12 @@ public class DeepLinkHelper {
                                 JSONObject mainData = jsonObject.getJSONObject("data");
                                 String deepLink = mainData.getString("link");
 
-                                onDeepLinkRequestedListener.onDeepLinkSuccess(deepLink);
+                                onDeepLinkRequestedListener.onDeepLinkSuccess(deepLink, dialog);
                             }
                         } catch (JSONException e) {
                             e.printStackTrace();
                             FirebaseCrash.report(e);
-                            onDeepLinkRequestedListener.onDeepLinkFailiure(context.getString(R.string.error_msg_internal));
+                            onDeepLinkRequestedListener.onDeepLinkFailiure(context.getString(R.string.error_msg_internal), dialog);
 
                         }
                     }
@@ -83,7 +86,7 @@ public class DeepLinkHelper {
                         e.printStackTrace();
                         FirebaseCrash.report(e);
                         dialog.dismiss();
-                        onDeepLinkRequestedListener.onDeepLinkFailiure(context.getString(R.string.error_msg_server));
+                        onDeepLinkRequestedListener.onDeepLinkFailiure(context.getString(R.string.error_msg_server), dialog);
 
                     }
 
@@ -107,8 +110,6 @@ public class DeepLinkHelper {
         intent.setType("text/plain");
         intent.putExtra(Intent.EXTRA_TEXT, text);
         context.startActivity(Intent.createChooser(intent, "Share Link"));
-
-        context.finish();
     }
 
     /**
@@ -134,15 +135,16 @@ public class DeepLinkHelper {
                 , creatorName
                 , new listener.OnDeepLinkRequestedListener() {
                     @Override
-                    public void onDeepLinkSuccess(String deepLink) {
+                    public void onDeepLinkSuccess(String deepLink, MaterialDialog dialog) {
+                        dialog.dismiss();
                         // share link
                         shareDeepLink(context, deepLink);
 
                     }
 
                     @Override
-                    public void onDeepLinkFailiure(String errorMsg) {
-
+                    public void onDeepLinkFailiure(String errorMsg, MaterialDialog dialog) {
+                        dialog.dismiss();
                         ViewHelper.getSnackBar(rootView, errorMsg);
 
                     }
@@ -161,7 +163,7 @@ public class DeepLinkHelper {
      * @param entityID
      * @param entityUrl
      */
-    public static void generateDeepLinkForCollabInvite(final FragmentActivity context, CompositeDisposable compositeDisposable, final View rootView, String uuid, String authkey, String entityID, String entityUrl, String creatorName, final String contentType) {
+    public static void generateDeepLinkForCollabInvite(final FragmentActivity context, CompositeDisposable compositeDisposable, final View rootView, String uuid, String authkey, String entityID, final String entityUrl, String creatorName, final String contentType) {
 
         DeepLinkHelper deepLinkHelper = new DeepLinkHelper();
         deepLinkHelper.getDeepLinkFromServer(context
@@ -173,25 +175,51 @@ public class DeepLinkHelper {
                 , creatorName
                 , new listener.OnDeepLinkRequestedListener() {
                     @Override
-                    public void onDeepLinkSuccess(String deepLink) {
+                    public void onDeepLinkSuccess(final String deepLink, final MaterialDialog dialog) {
                         // check content type
-                        if (contentType.equals(Constant.CONTENT_TYPE_CAPTURE))
 
-                        {   // open share dialog
-                            shareDeepLink(context, context.getString(R.string.text_invite_collab_capture) + "\n\n" + deepLink);
-                        } else
 
-                        {   // open share dialog
-                            shareDeepLink(context, context.getString(R.string.text_invite_collab_short) + "\n\n" + deepLink);
-                        }
+                        Picasso.with(context).load(entityUrl).into(new Target() {
+                            @Override
+                            public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
+
+                                dialog.dismiss();
+
+                                if (contentType.equals(Constant.CONTENT_TYPE_CAPTURE))
+
+                                {
+                                    ShareHelper.collabInviteImage(bitmap, context, context.getString(R.string.text_invite_collab_capture) + "\n\n" + deepLink);
+                                } else
+
+                                {   // open share dialog
+                                    ShareHelper.collabInviteImage(bitmap, context, context.getString(R.string.text_invite_collab_short) + "\n\n" + deepLink);
+                                }
+
+                            }
+
+                            @Override
+                            public void onBitmapFailed(Drawable errorDrawable) {
+                                dialog.dismiss();
+                                ViewHelper.getToast(context, context.getString(R.string.error_msg_internal));
+                                context.finish();
+                            }
+
+                            @Override
+                            public void onPrepareLoad(Drawable placeHolderDrawable) {
+                                dialog.dismiss();
+                                context.finish();
+
+                            }
+                        });
+
 
                     }
 
 
                     @Override
-                    public void onDeepLinkFailiure(String errorMsg) {
-
-                        ViewHelper.getSnackBar(rootView, errorMsg);
+                    public void onDeepLinkFailiure(String errorMsg, MaterialDialog dialog) {
+                        dialog.dismiss();
+                        ViewHelper.getToast(context, errorMsg);
                         context.finish();
                     }
                 });
