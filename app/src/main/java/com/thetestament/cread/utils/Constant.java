@@ -34,6 +34,7 @@ public class Constant {
     public static final int REQUEST_CODE_CHAT_DETAILS_FROM_CHAT_REQUEST = 1015;
     public static final int REQUEST_CODE_CHAT_REQUEST = 1016;
     public static final int REQUEST_CODE_CHAT_DETAILS_FROM_USER_PROFILE = 1016;
+    public static final int REQUEST_CODE_COLLABORATION_INVITATION = 1017;
     //public static final int REQUEST_CODE_EDIT_SHORT = 1013;
     //endregion
 
@@ -216,6 +217,7 @@ public class Constant {
     public static final String FIREBASE_EVENT_SHARED_FROM_MAIN_FEED = "shared_from_main_feed";
     public static final String FIREBASE_EVENT_SHARED_FROM_PROFILE = "shared_from_profile";
     public static final String FIREBASE_EVENT_RATE_US_CLICKED = "rate_us_clicked";
+    public static final String FIREBASE_EVENT_COLLAB_INVITE_CLICKED = "collab_invite_clicked";
     //endregion
 
 

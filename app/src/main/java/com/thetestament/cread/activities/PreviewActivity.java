@@ -1,5 +1,6 @@
 package com.thetestament.cread.activities;
 
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
@@ -96,6 +97,7 @@ import static com.thetestament.cread.CreadApp.GET_RESPONSE_FROM_NETWORK_MAIN;
 import static com.thetestament.cread.CreadApp.GET_RESPONSE_FROM_NETWORK_ME;
 import static com.thetestament.cread.CreadApp.IMAGE_LOAD_FROM_NETWORK_FEED_DESCRIPTION;
 import static com.thetestament.cread.CreadApp.IMAGE_LOAD_FROM_NETWORK_ME;
+import static com.thetestament.cread.dialog.DialogHelper.showCollabInvitationDialog;
 import static com.thetestament.cread.helpers.ImageHelper.getImageUri;
 import static com.thetestament.cread.helpers.NetworkHelper.getSearchObservableServer;
 import static com.thetestament.cread.helpers.NetworkHelper.requestServer;
@@ -103,6 +105,8 @@ import static com.thetestament.cread.helpers.ProfileMentionsHelper.BUCKET;
 import static com.thetestament.cread.helpers.ProfileMentionsHelper.getMentionSpanConfig;
 import static com.thetestament.cread.helpers.ProfileMentionsHelper.setProfileMentionsForEditing;
 import static com.thetestament.cread.helpers.ProfileMentionsHelper.tokenizerConfig;
+import static com.thetestament.cread.utils.Constant.CONTENT_TYPE_CAPTURE;
+import static com.thetestament.cread.utils.Constant.CONTENT_TYPE_SHORT;
 import static com.thetestament.cread.utils.Constant.IMAGE_TYPE_USER_CAPTURE_PIC;
 import static com.thetestament.cread.utils.Constant.IMAGE_TYPE_USER_SHORT_PIC;
 import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_AUTH_KEY;
@@ -135,6 +139,7 @@ import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_TV_WIDTH;
 import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_UUID;
 import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_X_POSITION;
 import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_Y_POSITION;
+import static com.thetestament.cread.utils.Constant.REQUEST_CODE_COLLABORATION_INVITATION;
 import static com.thetestament.cread.utils.Constant.SEARCH_TYPE_PEOPLE;
 import static com.thetestament.cread.utils.Constant.WATERMARK_STATUS_ASK_ALWAYS;
 import static com.thetestament.cread.utils.Constant.WATERMARK_STATUS_NO;
@@ -224,6 +229,8 @@ public class PreviewActivity extends BaseActivity implements QueryTokenReceiver,
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_preview);
         ButterKnife.bind(this);
+        //Get sharedPreference
+        mHelper = new SharedPreferenceHelper(this);
         //initialize this screen
         initScreen();
     }
@@ -282,6 +289,15 @@ public class PreviewActivity extends BaseActivity implements QueryTokenReceiver,
                 return super.onOptionsItemSelected(item);
         }
 
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if (resultCode == REQUEST_CODE_COLLABORATION_INVITATION) {   // finish activity
+            finish();
+        }
     }
 
     @Override
@@ -422,16 +438,12 @@ public class PreviewActivity extends BaseActivity implements QueryTokenReceiver,
         if (mCalledFrom.equals(PREVIEW_EXTRA_CALLED_FROM_CAPTURE)) {
             //Load capture pic
             loadPreviewImage(getImageUri(IMAGE_TYPE_USER_CAPTURE_PIC), imagePreview);
-            //Get sharedPreference
-            mHelper = new SharedPreferenceHelper(this);
             //initialize filter screen
             initFilterView();
             checkWatermarkStatus(mHelper);
         }
         //For capture editing
         else if (mCalledFrom.equals(PREVIEW_EXTRA_CALLED_FROM_EDIT_CAPTURE)) {
-            //Get sharedPreference
-            mHelper = new SharedPreferenceHelper(this);
             //Load capture pic
             loadPreviewImage(Uri.parse(mBundle.getString(PREVIEW_EXTRA_CONTENT_IMAGE)), imagePreview);
             //Setup bottom sheets
@@ -655,7 +667,7 @@ public class PreviewActivity extends BaseActivity implements QueryTokenReceiver,
     /**
      * Method to update capture/collaboration details on server.
      */
-    private void updateData(File imgHighRes, File imgLowRes, String shortID, String uuid, String authToken, String xPosition, String yPosition, String tvWidth, String tvHeight, String text, String textSize, String textColor, String textGravity, String imgWidth, String signature, String merchantable, String font, String bold, String italic, String captionText, String imageTintColor) {
+    private void updateData(File imgHighRes, File imgLowRes, String shortID, final String uuid, final String authToken, String xPosition, String yPosition, String tvWidth, String tvHeight, String text, String textSize, String textColor, String textGravity, String imgWidth, String signature, String merchantable, String font, String bold, String italic, String captionText, String imageTintColor) {
 
         //Configure OkHttpClient for time out
         OkHttpClient okHttpClient = new OkHttpClient().newBuilder()
@@ -733,8 +745,16 @@ public class PreviewActivity extends BaseActivity implements QueryTokenReceiver,
                                     GET_RESPONSE_FROM_NETWORK_ENTITY_SPECIFIC = true;
                                     GET_RESPONSE_FROM_NETWORK_COLLABORATION_DETAILS = true;
 
-                                    //Navigate back to previous market
-                                    finish();
+                                    // open collaboration invitation dialog
+                                    showCollabInvitationDialog(mContext
+                                            , mCompositeDisposable
+                                            , rootView
+                                            , uuid
+                                            , authToken
+                                            , dataObject.getString("entityid")
+                                            , dataObject.getString("captureurl")
+                                            , mHelper.getFirstName()
+                                            , CONTENT_TYPE_CAPTURE);
                                 }
                             }
                         } catch (JSONException e) {
@@ -762,7 +782,7 @@ public class PreviewActivity extends BaseActivity implements QueryTokenReceiver,
     /**
      * Update short image and other details on server.
      */
-    private void updateShort(File file, String captureID, String uuid, String authToken, String xPosition, String yPosition, String tvWidth, String tvHeight, String text, String textSize, String textColor, String textGravity, String imgWidth, String merchantable, String font, String bgColor, String bold, String italic, String captionText, String imageTintColor) {
+    private void updateShort(File file, String captureID, final String uuid, final String authToken, String xPosition, String yPosition, String tvWidth, String tvHeight, String text, String textSize, String textColor, String textGravity, String imgWidth, String merchantable, String font, String bgColor, String bold, String italic, String captionText, String imageTintColor) {
 
         String mMerchantable = null;
 
@@ -847,9 +867,16 @@ public class PreviewActivity extends BaseActivity implements QueryTokenReceiver,
                                     GET_RESPONSE_FROM_NETWORK_ENTITY_SPECIFIC = true;
                                     GET_RESPONSE_FROM_NETWORK_COLLABORATION_DETAILS = true;
 
-
-                                    //Navigate back to previous market
-                                    finish();
+                                    // open collaboration invitation dialog
+                                    showCollabInvitationDialog(mContext
+                                            , mCompositeDisposable
+                                            , rootView
+                                            , uuid
+                                            , authToken
+                                            , dataObject.getString("entityid")
+                                            , dataObject.getString("shorturl")
+                                            , mHelper.getFirstName()
+                                            , CONTENT_TYPE_SHORT);
                                 }
                             }
                         } catch (JSONException e) {
@@ -1008,7 +1035,7 @@ public class PreviewActivity extends BaseActivity implements QueryTokenReceiver,
      * @param waterMark    Watermark of user.
      * @param merchantable Whether product is merchantable or not. 1 if merchantable 0 otherwise.
      */
-    private void uploadCapture(File file, String captionText, String uuid, String authToken, String waterMark, String merchantable) {
+    private void uploadCapture(File file, String captionText, final String uuid, final String authToken, String waterMark, String merchantable) {
         //To show the progress dialog
         MaterialDialog.Builder builder = new MaterialDialog.Builder(this)
                 .title("Uploading your graphic art")
@@ -1063,8 +1090,16 @@ public class PreviewActivity extends BaseActivity implements QueryTokenReceiver,
                                     GET_RESPONSE_FROM_NETWORK_ME = true;
                                     GET_RESPONSE_FROM_NETWORK_INSPIRATION = true;
 
-                                    //finish this activity
-                                    finish();
+                                    // open collaboration invitation dialog
+                                    showCollabInvitationDialog(mContext
+                                            , mCompositeDisposable
+                                            , rootView
+                                            , uuid
+                                            , authToken
+                                            , dataObject.getString("entityid")
+                                            , dataObject.getString("captureurl")
+                                            , mHelper.getFirstName()
+                                            , CONTENT_TYPE_CAPTURE);
                                 }
                             }
                         } catch (JSONException e) {

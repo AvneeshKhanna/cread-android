@@ -105,16 +105,11 @@
                         android:visibility="visible" />
 
 
-                    <TextView
+                    <ImageView
                         android:id="@+id/buttonMenu"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:paddingBottom="5dp"
-                        android:paddingLeft="10dp"
-                        android:paddingRight="10dp"
-                        android:paddingTop="5dp"
-                        android:text="&#8942;"
-
+                        android:layout_width="18dp"
+                        android:layout_height="18dp"
+                        app:srcCompat="@drawable/ic_content_options"
                         android:textAppearance="?android:textAppearanceLarge"
                         android:visibility="gone" />
 

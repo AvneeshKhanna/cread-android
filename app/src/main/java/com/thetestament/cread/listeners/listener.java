@@ -113,6 +113,25 @@ public class listener {
         void onFollowFailiure(String errorMsg);
     }
 
+    /**
+     * Interface definition for a callback to be invoked when user clicks on downvote button.
+     */
+    public interface OnDownvoteRequestedListener {
+        void onDownvoteSuccess();
+
+        void onDownvoteFailiure(String errorMsg);
+    }
+
+
+    /**
+     * Interface definition for a callback to be invoked when user clicks on coolab invite button.
+     */
+    public interface OnDeepLinkRequestedListener {
+        void onDeepLinkSuccess(String deepLink);
+
+        void onDeepLinkFailiure(String errorMsg);
+    }
+
     public interface onDeleteRequestedListener {
 
         void onDeleteSuccess();
@@ -343,7 +362,7 @@ public class listener {
     }
 
     /**
-     * Interface definition for a callback to be invoked when user scroll for more data.
+     * Interface definition for a callback to be invoked when featured artist is clicked.
      */
     public interface OnFeatArtistClickedListener {
         void onFeatArtistClicked(int itemType, String uuid);
