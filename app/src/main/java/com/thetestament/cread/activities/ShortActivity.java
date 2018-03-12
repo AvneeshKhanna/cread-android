@@ -1301,10 +1301,15 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
 
                                 //If capture image is not present
                                 if (TextUtils.isEmpty(responseObject.getString("captureurl")) || responseObject.getString("captureurl").equals("null")) {
-                                    //Change backgroundColor
-                                    imageShort.setBackgroundColor((int) Long.parseLong(responseObject.getString("bgcolor"), 16));
-                                    //Update flag
-                                    mIsBgColorPresent = true;
+
+                                    if (responseObject.getString("bgcolor").equals("FFFFFFFF")) {
+
+                                    } else {
+                                        //Change backgroundColor
+                                        imageShort.setBackgroundColor((int) Long.parseLong(responseObject.getString("bgcolor"), 16));
+                                        //Update flag
+                                        mIsBgColorPresent = true;
+                                    }
                                 } else {
                                     //Update flag
                                     mIsImagePresent = true;
