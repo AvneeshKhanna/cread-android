@@ -182,8 +182,10 @@ public class DeepLinkHelper {
                         Picasso.with(context).load(entityUrl).into(new Target() {
                             @Override
                             public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
-
+                                // dsimiss dialog
                                 dialog.dismiss();
+                                // finish preview activity
+                                context.finish();
 
                                 if (contentType.equals(Constant.CONTENT_TYPE_CAPTURE))
 
@@ -206,8 +208,7 @@ public class DeepLinkHelper {
 
                             @Override
                             public void onPrepareLoad(Drawable placeHolderDrawable) {
-                                dialog.dismiss();
-                                context.finish();
+
 
                             }
                         });
