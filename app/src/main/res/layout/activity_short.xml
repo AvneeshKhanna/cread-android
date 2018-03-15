@@ -44,7 +44,7 @@
                 android:layout_centerInParent="true"
                 android:layout_marginLeft="10dp"
                 android:layout_marginRight="10dp"
-                android:background="@null"
+                android:background="@drawable/protog"
                 android:gravity="left"
                 android:hint="Express yourself"
                 android:inputType="textCapSentences|textMultiLine|textNoSuggestions"
