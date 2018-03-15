@@ -218,6 +218,7 @@ public class Constant {
     public static final String FIREBASE_EVENT_SHARED_FROM_PROFILE = "shared_from_profile";
     public static final String FIREBASE_EVENT_RATE_US_CLICKED = "rate_us_clicked";
     public static final String FIREBASE_EVENT_COLLAB_INVITE_CLICKED = "collab_invite_clicked";
+    public static final String FIREBASE_EVENT_DEEP_LINK_USED = "deep_link_open";
     //endregion
 
 
@@ -302,4 +303,7 @@ public class Constant {
     public static final String EXTRA_CHAT_DETAILS_CALLED_FROM_CHAT_NOTIFICATION = "calledFromChatNotification";
 
     //endregion
+
+    public static final String SHARE_SOURCE_FROM_SHARE = "fromShare";
+    public static final String SHARE_SOURCE_FROM_CREATE = "fromCreate";
 }

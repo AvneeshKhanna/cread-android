@@ -1,12 +1,15 @@
 package com.thetestament.cread.helpers;
 
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.content.ContextCompat;
 import android.widget.ImageView;
-import android.widget.TextView;
 
+import com.afollestad.materialdialogs.DialogAction;
+import com.afollestad.materialdialogs.MaterialDialog;
 import com.google.firebase.crash.FirebaseCrash;
 import com.thetestament.cread.R;
 import com.thetestament.cread.listeners.listener;
@@ -103,22 +106,22 @@ public class DownvoteHelper {
     }
 
 
-    public void updateDownvoteText(TextView view, ImageView icon, boolean isDownvoted, FragmentActivity context) {
+    public void updateDownvoteUI(ImageView icon, boolean isDownvoted, FragmentActivity context) {
         if (isDownvoted) {
-            view.setTextColor(ContextCompat.getColor(context, R.color.blue_dark));
-            icon.setColorFilter(ContextCompat.getColor(context, R.color.blue_dark));
-            view.setText("Downvoted");
+
+            icon.setColorFilter(ContextCompat.getColor(context, R.color.blue));
+
         } else {
-            view.setTextColor(ContextCompat.getColor(context, R.color.grey));
-            icon.setColorFilter(ContextCompat.getColor(context, R.color.grey));
-            view.setText("Downvote");
+
+            icon.setColorFilter(Color.TRANSPARENT);
+
         }
     }
 
-    public void initDownvoteProcess(final FragmentActivity context, final FeedModel data, CompositeDisposable compositeDisposable, final TextView textDownvote, final ImageView iconDownvote, final Bundle resultBundle, final Intent resultIntent) {
+    public void initDownvoteProcess(final FragmentActivity context, final FeedModel data, CompositeDisposable compositeDisposable, final ImageView iconDownvote, final Bundle resultBundle, final Intent resultIntent) {
         //update text
         data.setDownvoteStatus(!data.isDownvoteStatus());
-        updateDownvoteText(textDownvote, iconDownvote, data.isDownvoteStatus(), context);
+        updateDownvoteUI(iconDownvote, data.isDownvoteStatus(), context);
 
         updateDownvoteStatus(context, compositeDisposable, data.isDownvoteStatus(), data.getEntityID(), new listener.OnDownvoteRequestedListener() {
             @Override
@@ -136,10 +139,50 @@ public class DownvoteHelper {
                 ViewHelper.getToast(context, errorMsg);
                 // revert status
                 data.setDownvoteStatus(!data.isDownvoteStatus());
-                updateDownvoteText(textDownvote, iconDownvote, data.isDownvoteStatus(), context);
+                updateDownvoteUI(iconDownvote, data.isDownvoteStatus(), context);
 
             }
         });
+
+    }
+
+
+    public void initDownvoteWarningDialog(final FragmentActivity context, final FeedModel data, final CompositeDisposable compositeDisposable, final ImageView iconDownvote, final Bundle resultBundle, final Intent resultIntent) {
+        //To show the progress dialog
+        MaterialDialog.Builder builder = new MaterialDialog.Builder(context)
+                .title(R.string.text_title_dialog_downvote_warning)
+                .content(R.string.text_desc_dialog_downvote_warning)
+                .positiveText(context.getString(R.string.text_title_dialog_downvote_warning))
+                .negativeText(context.getString(R.string.text_dialog_button_cancel))
+                .onNegative(new MaterialDialog.SingleButtonCallback() {
+                    @Override
+                    public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
+
+                        // do nothing
+                    }
+                })
+                .onPositive(new MaterialDialog.SingleButtonCallback() {
+                    @Override
+                    public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
+                        //dismiss dialog
+                        dialog.dismiss();
+                        // show toast
+                        ViewHelper.getToast(context, "Downvoted");
+
+                        //update downvote status
+                        initDownvoteProcess(context
+                                , data
+                                , compositeDisposable
+                                , iconDownvote
+                                , resultBundle
+                                , resultIntent);
+
+
+                    }
+                });
+
+        final MaterialDialog dialog = builder.build();
+        dialog.show();
 
     }
 

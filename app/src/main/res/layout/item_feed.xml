@@ -149,29 +149,60 @@
 
 
             <LinearLayout
-                android:id="@+id/containerCollabCount"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_alignParentRight="true"
-                android:gravity="center_vertical"
-                android:paddingTop="8dp">
+                android:gravity="center_vertical">
 
-                <android.support.v7.widget.AppCompatImageView
-                    android:id="@+id/iconCollabCount"
-                    android:layout_width="18dp"
-                    android:layout_height="18dp"
-                    app:srcCompat="@drawable/ic_collab" />
+                <ImageView
+                    android:id="@+id/imageDownvote"
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:paddingRight="7dp"
+                    android:paddingTop="8dp"
+                    android:tint="@color/grey_custom"
+                    android:visibility="gone"
+                    app:srcCompat="@drawable/ic_downvote" />
 
 
                 <TextView
-                    android:id="@+id/textCollabCount"
+                    android:id="@+id/dotSeperatorRight"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_alignParentRight="true"
-                    android:paddingLeft="5dp"
-                    android:paddingRight="2dp"
-                    android:text="4"
-                    android:textSize="11sp" />
+                    android:gravity="center_vertical"
+                    android:paddingTop="8dp"
+                    android:text="@string/bullet"
+                    android:textSize="10sp"
+                    android:visibility="gone" />
+
+
+                <LinearLayout
+                    android:id="@+id/containerCollabCount"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_vertical"
+                    android:paddingLeft="7dp"
+                    android:paddingTop="8dp">
+
+                    <android.support.v7.widget.AppCompatImageView
+                        android:id="@+id/iconCollabCount"
+                        android:layout_width="18dp"
+                        android:layout_height="18dp"
+                        app:srcCompat="@drawable/ic_collab" />
+
+
+                    <TextView
+                        android:id="@+id/textCollabCount"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentRight="true"
+                        android:paddingLeft="5dp"
+                        android:paddingRight="2dp"
+                        android:text="4"
+                        android:textSize="11sp" />
+
+                </LinearLayout>
+
 
             </LinearLayout>
 

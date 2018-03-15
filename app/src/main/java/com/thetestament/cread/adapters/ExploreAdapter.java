@@ -42,7 +42,6 @@ import butterknife.ButterKnife;
 import de.hdodenhof.circleimageview.CircleImageView;
 import io.reactivex.disposables.CompositeDisposable;
 
-import static com.thetestament.cread.helpers.ContentHelper.getMenuActionsBottomSheet;
 import static com.thetestament.cread.helpers.FeedHelper.setGridItemMargins;
 import static com.thetestament.cread.utils.Constant.EXTRA_DATA;
 import static com.thetestament.cread.utils.Constant.EXTRA_ENTITY_ID;
@@ -175,7 +174,7 @@ public class ExploreAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
             final boolean shouldShowCreatorOptions = false;
 
             // init content options menu
-            if(!data.isEligibleForDownvote() && !shouldShowCreatorOptions)
+            /*if(!data.isEligibleForDownvote() && !shouldShowCreatorOptions)
             {
                 itemViewHolder.buttonMenu.setVisibility(View.GONE);
             }
@@ -190,7 +189,7 @@ public class ExploreAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
                         getMenuActionsBottomSheet(mContext, position, data, null, shouldShowCreatorOptions, mCompositeDisposable, new Bundle(), new Intent());
                     }
                 });
-            }
+            }*/
 
 
             //Check follow status
@@ -543,8 +542,6 @@ public class ExploreAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
         TextView buttonCollaborate;
         @BindView(R.id.collabCount)
         TextView collabCount;
-        @BindView(R.id.buttonMenu)
-        ImageView buttonMenu;
 
         public ListItemViewHolder(View itemView) {
             super(itemView);

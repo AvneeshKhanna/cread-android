@@ -41,6 +41,7 @@ import com.thetestament.cread.Manifest;
 import com.thetestament.cread.R;
 import com.thetestament.cread.adapters.CommentsAdapter;
 import com.thetestament.cread.adapters.ShareDialogAdapter;
+import com.thetestament.cread.helpers.DownvoteHelper;
 import com.thetestament.cread.helpers.FeedHelper;
 import com.thetestament.cread.helpers.FollowHelper;
 import com.thetestament.cread.helpers.HatsOffHelper;
@@ -86,6 +87,7 @@ import static com.thetestament.cread.helpers.DeletePostHelper.deletepost;
 import static com.thetestament.cread.helpers.FeedHelper.initCaption;
 import static com.thetestament.cread.helpers.FeedHelper.initializeShareDialog;
 import static com.thetestament.cread.helpers.FeedHelper.updateDotSeperatorVisibility;
+import static com.thetestament.cread.helpers.FeedHelper.updateDownvoteAndSeperatorVisibility;
 import static com.thetestament.cread.helpers.ImageHelper.getImageUri;
 import static com.thetestament.cread.helpers.NetworkHelper.getCommentObservableFromServer;
 import static com.thetestament.cread.utils.Constant.CONTENT_TYPE_CAPTURE;
@@ -161,6 +163,10 @@ public class FeedDescriptionActivity extends BaseActivity implements listener.On
     TextView buttonFollow;
     @BindView(R.id.buttonMenu)
     ImageView buttonMenu;
+    @BindView(R.id.imageDownvote)
+    ImageView imageDownvote;
+    @BindView(R.id.dotSeperatorRight)
+    TextView dotSeperatorRight;
 
 
     private SharedPreferenceHelper mHelper;
@@ -492,6 +498,26 @@ public class FeedDescriptionActivity extends BaseActivity implements listener.On
         getMenuActionsBottomSheet(mContext, mItemPosition, mFeedData, initDeletePostClick(), isUserCreator, mCompositeDisposable, resultBundle,  resultIntent);
     }
 
+    @OnClick(R.id.imageDownvote)
+    void onDownvoteClicked() {
+        DownvoteHelper downvoteHelper = new DownvoteHelper();
+
+        // if already downvoted
+        if (mFeedData.isDownvoteStatus()) {
+            downvoteHelper.initDownvoteProcess(mContext
+                    , mFeedData
+                    , mCompositeDisposable
+                    , imageDownvote
+                    , resultBundle
+                    , resultIntent);
+        } else
+
+        {   // show warning dialog
+            downvoteHelper.initDownvoteWarningDialog(mContext, mFeedData, mCompositeDisposable, imageDownvote, resultBundle, resultIntent);
+
+        }
+    }
+
     /**
      * Method to initialize views for this screen.
      */
@@ -608,6 +634,11 @@ public class FeedDescriptionActivity extends BaseActivity implements listener.On
 
         // show menu options if user is creator
         showMenuOptions();
+        //update downvote and dot seperator visibility
+        updateDownvoteAndSeperatorVisibility(mFeedData, dotSeperatorRight, imageDownvote);
+        //check downvote status
+        DownvoteHelper downvoteHelper = new DownvoteHelper();
+        downvoteHelper.updateDownvoteUI(imageDownvote, mFeedData.isDownvoteStatus(), mContext);
     }
 
 
@@ -771,10 +802,10 @@ public class FeedDescriptionActivity extends BaseActivity implements listener.On
      * If user is creator then it shows menu options
      */
     private void showMenuOptions() {
-        if (!isUserCreator && !mFeedData.isEligibleForDownvote()) {
-            buttonMenu.setVisibility(View.GONE);
-        } else {
+        if (isUserCreator) {
             buttonMenu.setVisibility(View.VISIBLE);
+        } else {
+            buttonMenu.setVisibility(View.GONE);
         }
     }
 
@@ -905,8 +936,9 @@ public class FeedDescriptionActivity extends BaseActivity implements listener.On
                         dialog.dismiss();
                         //Update status
                         mHelper.updateDownvoteDialogStatus(false);
-                        //open bottom sheet
-                        getMenuActionsBottomSheet(mContext, mItemPosition, mFeedData, initDeletePostClick(), isUserCreator, mCompositeDisposable, resultBundle,  resultIntent);
+                        //show tooltip
+                        ViewHelper.getToolTip(imageDownvote, "Click to downvote", mContext);
+
 
                     }
                 })

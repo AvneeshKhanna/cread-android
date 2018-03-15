@@ -2,6 +2,7 @@ package com.thetestament.cread.listeners;
 
 import android.graphics.Bitmap;
 import android.graphics.Typeface;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 
 import com.afollestad.materialdialogs.MaterialDialog;
@@ -367,6 +368,10 @@ public class listener {
      */
     public interface OnFeatArtistClickedListener {
         void onFeatArtistClicked(int itemType, String uuid);
+    }
+
+    public interface OnDownvoteClickedListener {
+        void onDownvoteClicked(FeedModel data, int position, ImageView imageDownvote);
     }
 
 }

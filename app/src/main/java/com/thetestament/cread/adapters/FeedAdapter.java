@@ -28,10 +28,12 @@ import com.thetestament.cread.activities.CollaborationDetailsActivity;
 import com.thetestament.cread.activities.CommentsActivity;
 import com.thetestament.cread.activities.HatsOffActivity;
 import com.thetestament.cread.activities.MerchandisingProductsActivity;
+import com.thetestament.cread.helpers.DownvoteHelper;
 import com.thetestament.cread.helpers.FeedHelper;
 import com.thetestament.cread.helpers.NetworkHelper;
 import com.thetestament.cread.helpers.SharedPreferenceHelper;
 import com.thetestament.cread.helpers.ViewHelper;
+import com.thetestament.cread.listeners.listener.OnDownvoteClickedListener;
 import com.thetestament.cread.listeners.listener.OnFeedLoadMoreListener;
 import com.thetestament.cread.listeners.listener.OnHatsOffListener;
 import com.thetestament.cread.listeners.listener.OnShareDialogItemClickedListener;
@@ -46,11 +48,11 @@ import butterknife.ButterKnife;
 import de.hdodenhof.circleimageview.CircleImageView;
 import io.reactivex.disposables.CompositeDisposable;
 
-import static com.thetestament.cread.helpers.ContentHelper.getMenuActionsBottomSheet;
 import static com.thetestament.cread.helpers.FeedHelper.initCaption;
 import static com.thetestament.cread.helpers.FeedHelper.initSocialActionsCount;
 import static com.thetestament.cread.helpers.FeedHelper.initializeShareDialog;
 import static com.thetestament.cread.helpers.FeedHelper.updateDotSeperatorVisibility;
+import static com.thetestament.cread.helpers.FeedHelper.updateDownvoteAndSeperatorVisibility;
 import static com.thetestament.cread.utils.Constant.CONTENT_TYPE_CAPTURE;
 import static com.thetestament.cread.utils.Constant.CONTENT_TYPE_SHORT;
 import static com.thetestament.cread.utils.Constant.EXTRA_CAPTURE_URL;
@@ -84,6 +86,7 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     private OnHatsOffListener onHatsOffListener;
     private OnShareListener onShareListener;
     private OnShareLinkClickedListener onShareLinkClickedListener;
+    private OnDownvoteClickedListener onDownvoteClickedListener;
 
     /**
      * Required constructor.
@@ -131,6 +134,13 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         this.onShareLinkClickedListener = onShareLinkClickedListener;
     }
 
+    /**
+     * Register a callback to be invoked when user clicks on downvote button.
+     */
+    public void setOnDownvoteClickedListener(OnDownvoteClickedListener onDownvoteClickedListener) {
+        this.onDownvoteClickedListener = onDownvoteClickedListener;
+    }
+
     @Override
     public int getItemViewType(int position) {
         return mFeedList.get(position) == null ? VIEW_TYPE_LOADING : VIEW_TYPE_ITEM;
@@ -172,27 +182,11 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                     , false
                     , null);
 
-            // no need for creator options in feed
-            final boolean shouldShowCreatorOptions = false;
-
-            // init content options menu
-            if(!data.isEligibleForDownvote() && !shouldShowCreatorOptions)
-            {
-                itemViewHolder.buttonMenu.setVisibility(View.GONE);
-            }
-
-            else
-            {
-                itemViewHolder.buttonMenu.setVisibility(View.VISIBLE);
-                //open bottom sheet on clicking of 3 dots
-                itemViewHolder.buttonMenu.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        getMenuActionsBottomSheet(mContext, position, data, null, shouldShowCreatorOptions, mCompositeDisposable, new Bundle(), new Intent());
-                    }
-                });
-            }
-
+            //update downvote and dot seperator visibility
+            updateDownvoteAndSeperatorVisibility(data, itemViewHolder.dotSeperatorRight, itemViewHolder.imageDownvote);
+            //check downvote status
+            DownvoteHelper downvoteHelper = new DownvoteHelper();
+            downvoteHelper.updateDownvoteUI(itemViewHolder.imageDownvote, data.isDownvoteStatus(), mContext);
             //Check whether user has given hats off to this campaign or not
             checkHatsOffStatus(data.getHatsOffStatus(), itemViewHolder);
 
@@ -212,6 +206,10 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             hatsOffCountOnClick(itemViewHolder, data);
             //Comment count click functionality
             commentOnClick(itemViewHolder.containerCommentCount, data.getEntityID());
+            // downvote click
+            downvoteOnClick(itemViewHolder.imageDownvote, data, position, itemViewHolder);
+
+
             // initialize hatsoff and comment count
             initSocialActionsCount(mContext,
                     data,
@@ -477,6 +475,16 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         });
     }
 
+    private void downvoteOnClick(ImageView imageView, final FeedModel data, final int position, final ItemViewHolder itemViewHolder) {
+        imageView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                onDownvoteClickedListener.onDownvoteClicked(data, position, itemViewHolder.imageDownvote);
+            }
+        });
+    }
+
 
     /**
      * Caption click listner
@@ -615,9 +623,10 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         TextView textCommentsCount;
         @BindView(R.id.dotSeperator)
         TextView dotSeperator;
-        @BindView(R.id.buttonMenu)
-        ImageView buttonMenu;
-
+        @BindView(R.id.dotSeperatorRight)
+        TextView dotSeperatorRight;
+        @BindView(R.id.imageDownvote)
+        ImageView imageDownvote;
 
         //Variable to maintain hats off status
         private boolean mIsHatsOff = false;
