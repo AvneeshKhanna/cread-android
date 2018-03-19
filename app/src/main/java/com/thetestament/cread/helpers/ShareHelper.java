@@ -5,6 +5,7 @@ import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.graphics.Bitmap;
 import android.net.Uri;
@@ -47,7 +48,7 @@ public class ShareHelper {
         template.setType("image/*");
 
         List<ResolveInfo> candidates = context.getPackageManager().
-                queryIntentActivities(template, 0);
+                queryIntentActivities(template, PackageManager.MATCH_DEFAULT_ONLY);
 
         //Exclude cread app
         for (ResolveInfo resolveInfo : candidates) {
@@ -57,6 +58,7 @@ public class ShareHelper {
                 target.setType("image/*");
                 target.putExtra(Intent.EXTRA_STREAM, uri);
                 target.setPackage(packageName);
+                target.setClassName(packageName, resolveInfo.activityInfo.name);
                 targets.add(target);
             }
         }
@@ -100,7 +102,7 @@ public class ShareHelper {
         template.setType("*/*");
 
         List<ResolveInfo> candidates = context.getPackageManager().
-                queryIntentActivities(template, 0);
+                queryIntentActivities(template, PackageManager.MATCH_DEFAULT_ONLY);
 
         //Exclude cread app
         for (ResolveInfo resolveInfo : candidates) {
@@ -111,6 +113,7 @@ public class ShareHelper {
                 target.putExtra(Intent.EXTRA_STREAM, uri);
                 target.putExtra(Intent.EXTRA_TEXT, shareText);
                 target.setPackage(packageName);
+                target.setClassName(packageName, resolveInfo.activityInfo.name);
                 targets.add(target);
             }
         }
