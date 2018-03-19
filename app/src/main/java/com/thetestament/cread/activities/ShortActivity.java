@@ -8,6 +8,8 @@ import android.graphics.Color;
 import android.graphics.Typeface;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
+import android.graphics.drawable.GradientDrawable;
+import android.graphics.drawable.LayerDrawable;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
@@ -24,7 +26,9 @@ import android.support.v7.widget.AppCompatImageView;
 import android.support.v7.widget.AppCompatSeekBar;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.text.Editable;
 import android.text.TextUtils;
+import android.text.TextWatcher;
 import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.Menu;
@@ -869,6 +873,7 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
                     //Change short text color
                     textShort.setTextColor(selectedColor);
                     textShort.setHintTextColor(selectedColor);
+                    setContentShapeColor(selectedColor);
                 } else if (mColorChooserType.equals("backGroundColor")) {
                     //Change backgroundColor
                     imageShort.setBackgroundColor(selectedColor);
@@ -910,6 +915,30 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
                 hideBottomSheets();
             }
         }));
+    }
+
+    private void initSizeChangeListener() {
+        textShort.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+                int height = textShort.getHeight();
+                int width = textShort.getWidth();
+
+                float ratio = width / height;
+
+            }
+
+            @Override
+            public void afterTextChanged(Editable editable) {
+
+            }
+        });
     }
 
     /**
@@ -1691,6 +1720,18 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
                     }
                 })
         );
+    }
+
+
+    private void setContentShapeColor(int selectedColor) {
+        LayerDrawable layers = (LayerDrawable) ContextCompat.getDrawable(this, R.drawable.bottomtoplines);
+
+
+        GradientDrawable shape = (GradientDrawable) (layers.findDrawableByLayerId(R.id.contentStyleLines));
+        shape.setColor(selectedColor);
+        //shape.setStroke(ViewHelper.convertToPx(this, 1), Color.BLACK);
+
+
     }
     //endregion
 }
