@@ -22,207 +22,225 @@
             app:contentScrim="@color/colorPrimary"
             app:layout_scrollFlags="scroll|exitUntilCollapsed">
 
-            <LinearLayout
-                android:id="@+id/containerUserProfile"
+            <FrameLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:background="@color/white"
-                android:clipChildren="false"
-                android:clipToPadding="false"
-                android:orientation="vertical"
-                app:layout_collapseMode="parallax">
+                android:background="@color/white">
+
 
                 <LinearLayout
+                    android:id="@+id/containerUserProfile"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:background="@color/white"
+                    android:clipChildren="false"
+                    android:clipToPadding="false"
                     android:orientation="vertical"
-                    android:paddingBottom="8dp"
-                    android:paddingLeft="24dp"
-                    android:paddingRight="24dp"
-                    android:paddingTop="24dp">
+                    app:layout_collapseMode="parallax">
 
-                    <de.hdodenhof.circleimageview.CircleImageView
-                        android:id="@+id/imageUser"
-                        android:layout_width="88dp"
-                        android:layout_height="88dp"
-                        android:layout_gravity="center"
-                        android:transitionName="@string/shared_transition_profile_pic"
-                        tools:src="@drawable/ic_account_circle_100" />
 
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:orientation="horizontal"
-                        android:gravity="center">
+                        android:orientation="vertical"
+                        android:paddingBottom="8dp"
+                        android:paddingLeft="24dp"
+                        android:paddingRight="24dp"
+                        android:paddingTop="24dp">
 
+                        <de.hdodenhof.circleimageview.CircleImageView
+                            android:id="@+id/imageUser"
+                            android:layout_width="88dp"
+                            android:layout_height="88dp"
+                            android:layout_gravity="center"
+                            android:transitionName="@string/shared_transition_profile_pic"
+                            tools:src="@drawable/ic_account_circle_100" />
 
-                        <android.support.v7.widget.AppCompatTextView
-                            android:id="@+id/textUserName"
-                            android:layout_width="250dp"
-                            android:layout_height="50dp"
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
                             android:gravity="center"
-                            android:paddingBottom="5dp"
-                            android:paddingTop="5dp"
-                            android:textColor="@color/grey_dark"
-                            android:textSize="24sp"
-                            app:autoSizeTextType="uniform"
-                            tools:text="Gaurav kumar Biswa Kalyan Rath" />
-
-                        <android.support.v7.widget.AppCompatImageView
-                            android:id="@+id/imageFeatured"
-                            android:layout_width="24dp"
-                            android:layout_height="24dp"
-                            android:paddingBottom="5dp"
-                            android:paddingTop="5dp"
-                            android:layout_marginLeft="3dp"
-                            app:srcCompat="@drawable/ic_featured_artist"
-                            android:visibility="gone"/>
+                            android:orientation="horizontal">
 
 
+                            <android.support.v7.widget.AppCompatTextView
+                                android:id="@+id/textUserName"
+                                android:layout_width="250dp"
+                                android:layout_height="50dp"
+                                android:gravity="center"
+                                android:paddingBottom="5dp"
+                                android:paddingTop="5dp"
+                                android:textColor="@color/grey_dark"
+                                android:textSize="24sp"
+                                app:autoSizeTextType="uniform"
+                                app:autoSizeMinTextSize="14sp"
+                                tools:text="Gaurav k" />
 
-                    </LinearLayout>
+                            <android.support.v7.widget.AppCompatImageView
+                                android:id="@+id/imageFeatured"
+                                android:layout_width="24dp"
+                                android:layout_height="24dp"
+                                android:layout_marginLeft="3dp"
+                                android:paddingBottom="5dp"
+                                android:paddingTop="5dp"
+                                android:visibility="gone"
+                                app:srcCompat="@drawable/ic_featured_artist" />
 
 
+                        </LinearLayout>
 
-                    <TextView
-                        android:id="@+id/textBio"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:gravity="center"
-                        android:hint="Write what describes you"
-                        android:textColor="@color/grey"
-                        android:textSize="12sp" />
-
-                    <LinearLayout
-                        android:id="@+id/containerMessage"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="16dp"
-                        android:gravity="center"
-                        android:orientation="horizontal">
 
                         <TextView
-                            android:id="@+id/buttonFollow"
-                            android:layout_width="wrap_content"
+                            android:id="@+id/textBio"
+                            android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:layout_gravity="center"
-                            android:layout_marginRight="8dp"
-                            android:background="@drawable/button_outline"
-                            android:paddingBottom="8dp"
-                            android:paddingLeft="24dp"
-                            android:paddingRight="24dp"
-                            android:paddingTop="8dp"
-                            android:text="Following"
-                            android:textColor="@color/grey_dark"
-                            android:textSize="12sp"
-                            android:visibility="visible" />
+                            android:gravity="center"
+                            android:hint="Write what describes you"
+                            android:textColor="@color/grey"
+                            android:textSize="12sp" />
 
-                        <android.support.v7.widget.AppCompatImageView
-                            android:id="@+id/buttonMessage"
-                            android:layout_width="30dp"
-                            android:layout_height="30dp"
-                            android:background="@drawable/button_outline"
-                            android:scaleType="centerInside"
-                            android:visibility="visible"
-                            app:srcCompat="@drawable/ic_send_mail" />
+                        <LinearLayout
+                            android:id="@+id/containerMessage"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="16dp"
+                            android:gravity="center"
+                            android:orientation="horizontal">
+
+                            <TextView
+                                android:id="@+id/buttonFollow"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_gravity="center"
+                                android:layout_marginRight="8dp"
+                                android:background="@drawable/button_outline"
+                                android:paddingBottom="8dp"
+                                android:paddingLeft="24dp"
+                                android:paddingRight="24dp"
+                                android:paddingTop="8dp"
+                                android:text="Following"
+                                android:textColor="@color/grey_dark"
+                                android:textSize="12sp"
+                                android:visibility="visible" />
+
+                            <android.support.v7.widget.AppCompatImageView
+                                android:id="@+id/buttonMessage"
+                                android:layout_width="30dp"
+                                android:layout_height="30dp"
+                                android:background="@drawable/button_outline"
+                                android:scaleType="centerInside"
+                                android:visibility="visible"
+                                app:srcCompat="@drawable/ic_send_mail" />
+                        </LinearLayout>
+
+
+                        <com.thetestament.cread.utils.UserStatsViewPager
+                            android:id="@+id/viewPagerUserStats"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginBottom="4dp"
+                            android:layout_marginTop="16dp" />
+
+                        <me.relex.circleindicator.CircleIndicator
+                            android:id="@+id/indicator"
+                            android:layout_width="match_parent"
+                            android:layout_height="24dp"
+                            app:ci_drawable="@drawable/active_dot"
+                            app:ci_drawable_unselected="@drawable/inactive_dot"
+                            app:ci_height="3dp"
+                            app:ci_width="3dp" />
+
+
                     </LinearLayout>
 
-
-                    <com.thetestament.cread.utils.UserStatsViewPager
-                        android:id="@+id/viewPagerUserStats"
+                    <View
+                        android:id="@+id/lineSeparator"
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginBottom="4dp"
-                        android:layout_marginTop="16dp" />
+                        android:layout_height="0.3dp"
+                        android:alpha="0.4"
+                        android:background="@color/grey_dark" />
 
-                    <me.relex.circleindicator.CircleIndicator
-                        android:id="@+id/indicator"
+
+                    <android.support.design.widget.TabLayout
+                        android:id="@+id/tabLayout"
                         android:layout_width="match_parent"
-                        android:layout_height="24dp"
-                        app:ci_drawable="@drawable/active_dot"
-                        app:ci_drawable_unselected="@drawable/inactive_dot"
-                        app:ci_height="3dp"
-                        app:ci_width="3dp" />
+                        android:layout_height="48dp"
+                        android:background="@color/white"
+                        app:tabGravity="fill"
+                        app:tabIndicatorColor="@color/colorPrimary"
+                        app:tabIndicatorHeight="2dp"
+                        app:tabMode="fixed" />
+
+                    <!-- <LinearLayout
+                         android:layout_width="match_parent"
+                         android:layout_height="wrap_content"
+                         android:background="@color/grey_light"
+                         android:orientation="horizontal"
+                         android:paddingTop="13dp"
+                         android:paddingBottom="5dp"
+                         android:paddingLeft="10dp"
+                         android:gravity="center">
+
+                         <LinearLayout
+                             android:layout_width="wrap_content"
+                             android:layout_height="wrap_content"
+                             android:layout_gravity="center"
+                             android:gravity="center"
+                             android:orientation="horizontal">
+
+                             <ImageView
+                                 android:layout_width="wrap_content"
+                                 android:layout_height="wrap_content"
+                                 android:layout_gravity="center_horizontal"
+                                 app:srcCompat="@drawable/ic_me_all_tab" />
+
+                             <TextView
+                                 android:layout_width="wrap_content"
+                                 android:layout_height="wrap_content"
+                                 android:layout_marginLeft="10dp"
+                                 android:text="Grid"
+                                 android:textSize="16sp"/>
+
+                             <TextView
+                                 android:layout_width="wrap_content"
+                                 android:layout_height="wrap_content"
+                                 android:layout_marginLeft="20dp"
+                                 android:layout_marginRight="20dp"
+                                 android:textSize="18sp"
+                                 android:text="|"/>
+
+                             <ImageView
+                                 android:layout_width="wrap_content"
+                                 android:layout_height="wrap_content"
+                                 android:layout_gravity="center_horizontal"
+                                 app:srcCompat="@drawable/ic_list" />
+
+                             <TextView
+                                 android:layout_width="wrap_content"
+                                 android:layout_height="wrap_content"
+                                 android:layout_marginLeft="10dp"
+                                 android:textSize="16sp"
+                                 android:text="List"/>
+
+
+
+                         </LinearLayout>
+                     </LinearLayout>-->
 
 
                 </LinearLayout>
 
-                <View
-                    android:id="@+id/lineSeparator"
-                    android:layout_width="match_parent"
-                    android:layout_height="0.3dp"
-                    android:alpha="0.4"
-                    android:background="@color/grey_dark" />
 
-
-                <android.support.design.widget.TabLayout
-                    android:id="@+id/tabLayout"
-                    android:layout_width="match_parent"
-                    android:layout_height="48dp"
+                <android.support.v7.widget.AppCompatImageButton
+                    android:id="@+id/buttonProfileSettings"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="right"
                     android:background="@color/white"
-                    app:tabGravity="fill"
-                    app:tabIndicatorColor="@color/colorPrimary"
-                    app:tabIndicatorHeight="2dp"
-                    app:tabMode="fixed" />
+                    android:padding="10dp"
+                    app:srcCompat="@drawable/ic_profile_settings" />
 
-                <!-- <LinearLayout
-                     android:layout_width="match_parent"
-                     android:layout_height="wrap_content"
-                     android:background="@color/grey_light"
-                     android:orientation="horizontal"
-                     android:paddingTop="13dp"
-                     android:paddingBottom="5dp"
-                     android:paddingLeft="10dp"
-                     android:gravity="center">
-
-                     <LinearLayout
-                         android:layout_width="wrap_content"
-                         android:layout_height="wrap_content"
-                         android:layout_gravity="center"
-                         android:gravity="center"
-                         android:orientation="horizontal">
-
-                         <ImageView
-                             android:layout_width="wrap_content"
-                             android:layout_height="wrap_content"
-                             android:layout_gravity="center_horizontal"
-                             app:srcCompat="@drawable/ic_me_all_tab" />
-
-                         <TextView
-                             android:layout_width="wrap_content"
-                             android:layout_height="wrap_content"
-                             android:layout_marginLeft="10dp"
-                             android:text="Grid"
-                             android:textSize="16sp"/>
-
-                         <TextView
-                             android:layout_width="wrap_content"
-                             android:layout_height="wrap_content"
-                             android:layout_marginLeft="20dp"
-                             android:layout_marginRight="20dp"
-                             android:textSize="18sp"
-                             android:text="|"/>
-
-                         <ImageView
-                             android:layout_width="wrap_content"
-                             android:layout_height="wrap_content"
-                             android:layout_gravity="center_horizontal"
-                             app:srcCompat="@drawable/ic_list" />
-
-                         <TextView
-                             android:layout_width="wrap_content"
-                             android:layout_height="wrap_content"
-                             android:layout_marginLeft="10dp"
-                             android:textSize="16sp"
-                             android:text="List"/>
-
-
-
-                     </LinearLayout>
-                 </LinearLayout>-->
-
-
-            </LinearLayout>
+            </FrameLayout>
 
 
         </android.support.design.widget.CollapsingToolbarLayout>

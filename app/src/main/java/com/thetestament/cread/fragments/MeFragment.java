@@ -32,6 +32,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.AnimationUtils;
 import android.view.animation.LayoutAnimationController;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -189,6 +190,8 @@ public class MeFragment extends Fragment implements listener.OnCollaborationList
     AppCompatImageView buttonMessage;
     @BindView(R.id.containerMessage)
     LinearLayout containerMessage;
+    @BindView(R.id.buttonProfileSettings)
+    ImageButton buttonProfileSettings;
 
     @State
     String mFirstName, mLastName, mProfilePicURL, mUserBio;
@@ -464,7 +467,7 @@ public class MeFragment extends Fragment implements listener.OnCollaborationList
     /**
      * Click functionality to open screen where user can edit his/her profile details.
      */
-    @OnClick(R.id.textUserName)
+    @OnClick(R.id.buttonProfileSettings)
     public void onUserNameClicked() {
         //If profile is editable
         if (isProfileEditable) {
@@ -630,6 +633,8 @@ public class MeFragment extends Fragment implements listener.OnCollaborationList
                 //Update status
                 mHelper.updateChatDialogStatus(false);
             }
+            //hide profile settings icon
+            buttonProfileSettings.setVisibility(View.GONE);
         }
 
         //Condition to toggle visibility of follow button and cha list icon
