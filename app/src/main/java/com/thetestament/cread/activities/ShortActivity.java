@@ -672,6 +672,9 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
             //Change text color
             textShort.setTextColor(ContextCompat.getColor(mContext, R.color.color_grey_600));
             textShort.setHintTextColor(ContextCompat.getColor(mContext, R.color.color_grey_600));
+            textShort.setBackground(ContextCompat.getDrawable(this, R.drawable.leftline));
+            // set content style color
+            setContentShapeColor(ContextCompat.getColor(mContext, R.color.color_grey_600));
             //Remove default bg
             imageShort.setBackground(null);
         }
@@ -681,6 +684,8 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
         mCaptureID = "";
         mCaptureUrl = "";
         mIsMerchantable = true;
+
+
     }
 
     //endregion
@@ -699,6 +704,8 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
 
         //Set default font
         mTextTypeface = ResourcesCompat.getFont(ShortActivity.this, R.font.bohemian_typewriter);
+        //set content style color
+        setContentShapeColor(ContextCompat.getColor(mContext, R.color.color_grey_600));
 
         //set listener
         textShort.setOnEditTextBackListener(this);
@@ -1093,6 +1100,8 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
                                                     textShort.setTextColor(Color.parseColor(hexColorWithoutAlpha));
                                                     //set hint color
                                                     textShort.setHintTextColor(Color.parseColor(hexColorWithoutAlpha));
+                                                    //set content style color
+                                                    setContentShapeColor(Color.parseColor(hexColorWithoutAlpha));
                                                 }
                                             }
                                         });
@@ -1378,6 +1387,10 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
                                 textShort.setText(responseObject.getString("text"));
                                 textShort.setTextColor((int) Long.parseLong(responseObject.getString("textcolor"), 16));
                                 textShort.setTextSize(ViewHelper.pixelsToSp(mContext, (float) responseObject.getDouble("textsize") * factor));
+
+                                //set content style color
+                                //TODO fix
+                                //setContentShapeColor();
 
 
                                 //Update short text typeface
@@ -1727,9 +1740,14 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
         LayerDrawable layers = (LayerDrawable) ContextCompat.getDrawable(this, R.drawable.bottomtoplines);
 
 
-        GradientDrawable shape = (GradientDrawable) (layers.findDrawableByLayerId(R.id.contentStyleLines));
-        shape.setColor(selectedColor);
+        /*GradientDrawable shape = (GradientDrawable) (layers.findDrawableByLayerId(R.id.contentStyleLines));
+        shape.setColor(selectedColor);*/
         //shape.setStroke(ViewHelper.convertToPx(this, 1), Color.BLACK);
+
+        LayerDrawable shape = (LayerDrawable) textShort.getBackground();
+        GradientDrawable gradientDrawable = (GradientDrawable) shape.findDrawableByLayerId(R.id.contentStyleLines);
+        gradientDrawable.setStroke(ViewHelper.convertToPx(this, 1), selectedColor);
+
 
 
     }
