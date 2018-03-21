@@ -2,16 +2,11 @@ package com.thetestament.cread.helpers;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
 import android.support.design.widget.BottomSheetDialog;
 import android.support.v4.app.FragmentActivity;
 import android.view.View;
-import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.TextView;
 
-import com.afollestad.materialdialogs.DialogAction;
-import com.afollestad.materialdialogs.MaterialDialog;
 import com.thetestament.cread.R;
 import com.thetestament.cread.activities.PreviewActivity;
 import com.thetestament.cread.activities.ShortActivity;
@@ -102,12 +97,12 @@ public class ContentHelper {
         if (shouldShowCreatorOptions && data.isEligibleForDownvote()) {
             //init options
             initContentCreatorOptions(bottomSheetDialog, sheetView, context, index, data, onContentDeleteListener);
-            initDownvoteOption(bottomSheetDialog, sheetView, data, context, resultBundle, resultIntent, compositeDisposable);
+            //initDownvoteOption(bottomSheetDialog, sheetView, data, context, resultBundle, resultIntent, compositeDisposable);
 
         } else if (shouldShowCreatorOptions) {
             initContentCreatorOptions(bottomSheetDialog, sheetView, context, index, data, onContentDeleteListener);
         } else if (data.isEligibleForDownvote()) {
-            initDownvoteOption(bottomSheetDialog, sheetView, data, context, resultBundle, resultIntent, compositeDisposable);
+            //initDownvoteOption(bottomSheetDialog, sheetView, data, context, resultBundle, resultIntent, compositeDisposable);
         }
     }
 
@@ -146,77 +141,4 @@ public class ContentHelper {
 
     }
 
-    private static void initDownvoteOption(final BottomSheetDialog bottomSheetDialog, final View sheetView, final FeedModel data, final FragmentActivity context, final Bundle resultBundle, final Intent resultIntent, final CompositeDisposable compositeDisposable) {
-        LinearLayout buttonDownvote = sheetView.findViewById(R.id.buttonDownvote);
-
-        buttonDownvote.setVisibility(View.VISIBLE);
-
-        final TextView textDownvote = sheetView.findViewById(R.id.textDownvote);
-        final ImageView iconDownvote = sheetView.findViewById(R.id.imageDownvote);
-
-        // set downvote text
-        final DownvoteHelper downvoteHelper = new DownvoteHelper();
-        downvoteHelper.updateDownvoteText(textDownvote, iconDownvote, data.isDownvoteStatus(), context);
-
-        // click functionality
-        buttonDownvote.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-
-                // if already downvoted
-                if (data.isDownvoteStatus()) {
-                    downvoteHelper.initDownvoteProcess(context
-                            , data
-                            , compositeDisposable
-                            , textDownvote
-                            , iconDownvote
-                            , resultBundle
-                            , resultIntent);
-                } else
-
-                {
-
-                    //To show the progress dialog
-                    MaterialDialog.Builder builder = new MaterialDialog.Builder(context)
-                            .title(R.string.text_title_dialog_downvote_warning)
-                            .content(R.string.text_desc_dialog_downvote_warning)
-                            .positiveText(context.getString(R.string.text_title_dialog_downvote_warning))
-                            .negativeText(context.getString(R.string.text_dialog_button_cancel))
-                            .onNegative(new MaterialDialog.SingleButtonCallback() {
-                                @Override
-                                public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
-
-                                    // dismiss bottom sheet
-                                    bottomSheetDialog.dismiss();
-                                }
-                            })
-                            .onPositive(new MaterialDialog.SingleButtonCallback() {
-                                @Override
-                                public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
-                                    //dismiss dialog
-                                    dialog.dismiss();
-
-                                    //update downvote status
-                                    downvoteHelper.initDownvoteProcess(context
-                                            , data
-                                            , compositeDisposable
-                                            , textDownvote
-                                            , iconDownvote
-                                            , resultBundle
-                                            , resultIntent);
-
-
-                                }
-                            });
-
-                    final MaterialDialog dialog = builder.build();
-                    dialog.show();
-
-                }
-
-
-            }
-        });
-
-    }
 }

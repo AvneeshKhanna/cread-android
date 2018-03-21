@@ -2,6 +2,7 @@ package com.thetestament.cread.listeners;
 
 import android.graphics.Bitmap;
 import android.graphics.Typeface;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 
 import com.afollestad.materialdialogs.MaterialDialog;
@@ -369,4 +370,17 @@ public class listener {
         void onFeatArtistClicked(int itemType, String uuid);
     }
 
+    public interface OnDownvoteClickedListener {
+        void onDownvoteClicked(FeedModel data, int position, ImageView imageDownvote);
+    }
+
+    /**
+     * Interface definition for a callback to be invoked when user selects template from bottom sheet.
+     */
+    public interface OnTemplateClickListener {
+        /**
+         * @param templateName Name of template
+         **/
+        void onTemplateClick(String templateName);
+    }
 }

@@ -23,6 +23,8 @@ import io.reactivex.disposables.CompositeDisposable;
 
 import static com.thetestament.cread.helpers.NetworkHelper.getDeepLinkObservable;
 import static com.thetestament.cread.helpers.NetworkHelper.requestServer;
+import static com.thetestament.cread.utils.Constant.SHARE_SOURCE_FROM_CREATE;
+import static com.thetestament.cread.utils.Constant.SHARE_SOURCE_FROM_SHARE;
 
 /**
  * Created by prakharchandna on 12/03/18.
@@ -30,7 +32,7 @@ import static com.thetestament.cread.helpers.NetworkHelper.requestServer;
 
 public class DeepLinkHelper {
 
-    public void getDeepLinkFromServer(final FragmentActivity context, CompositeDisposable compositeDisposable, String uuid, String authkey, String entityID, String entityUrl, String creatorName, final OnDeepLinkRequestedListener onDeepLinkRequestedListener) {
+    public void getDeepLinkFromServer(final FragmentActivity context, CompositeDisposable compositeDisposable, String uuid, String authkey, String entityID, String entityUrl, String creatorName, String shareSource, final OnDeepLinkRequestedListener onDeepLinkRequestedListener) {
 
 
         final MaterialDialog dialog = new MaterialDialog.Builder(context)
@@ -44,7 +46,8 @@ public class DeepLinkHelper {
                 authkey,
                 entityID,
                 entityUrl,
-                creatorName),
+                creatorName,
+                shareSource),
                 context,
                 new listener.OnServerRequestedListener<JSONObject>() {
                     @Override
@@ -133,6 +136,7 @@ public class DeepLinkHelper {
                 , entityID
                 , entityUrl
                 , creatorName
+                , SHARE_SOURCE_FROM_SHARE
                 , new listener.OnDeepLinkRequestedListener() {
                     @Override
                     public void onDeepLinkSuccess(String deepLink, MaterialDialog dialog) {
@@ -173,6 +177,7 @@ public class DeepLinkHelper {
                 , entityID
                 , entityUrl
                 , creatorName
+                , SHARE_SOURCE_FROM_CREATE
                 , new listener.OnDeepLinkRequestedListener() {
                     @Override
                     public void onDeepLinkSuccess(final String deepLink, final MaterialDialog dialog) {

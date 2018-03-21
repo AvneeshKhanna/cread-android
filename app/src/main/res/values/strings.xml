@@ -85,7 +85,7 @@
     <string name="text_title_dialog_featured_artist">Introducing: Featured Artists</string>
     <string name="text_desc_dialog_featured_artist">Get an opportunity to be listed amongst the top artists on Cread! All you have to do is post awesome stuff and you might get featured on the top of the feed for everyone to see. We hope to get you the best of the app everyday!</string>
     <string name="text_title_dialog_downvote_warning">Downvote</string>
-    <string name="text_desc_dialog_downvote_warning">Are you sure that this post is not suitable for the platform? Downvoting it would limit its visibility for Cread users.</string>
+    <string name="text_desc_dialog_downvote_warning">Are you sure the post is not suitable? Downvoting would limit its reach for others. Don\'t worry, only we\'ll get to know about it</string>
     <string name="text_dialog_button_cancel">Cancel</string>
     <string name="text_dialog_button_later">Not Now</string>
     <string name="text_dialog_button_invite">Invite</string>

@@ -37,6 +37,7 @@ import com.thetestament.cread.activities.FeedDescriptionActivity;
 import com.thetestament.cread.activities.FindFBFriendsActivity;
 import com.thetestament.cread.activities.SearchActivity;
 import com.thetestament.cread.adapters.FeedAdapter;
+import com.thetestament.cread.helpers.DownvoteHelper;
 import com.thetestament.cread.helpers.FeedHelper;
 import com.thetestament.cread.helpers.HatsOffHelper;
 import com.thetestament.cread.helpers.ImageHelper;
@@ -82,6 +83,7 @@ import static com.thetestament.cread.utils.Constant.CONTENT_TYPE_CAPTURE;
 import static com.thetestament.cread.utils.Constant.CONTENT_TYPE_SHORT;
 import static com.thetestament.cread.utils.Constant.EXTRA_DATA;
 import static com.thetestament.cread.utils.Constant.EXTRA_FEED_DESCRIPTION_DATA;
+import static com.thetestament.cread.utils.Constant.FIREBASE_EVENT_DEEP_LINK_USED;
 import static com.thetestament.cread.utils.Constant.FIREBASE_EVENT_EXPLORE_CLICKED;
 import static com.thetestament.cread.utils.Constant.FIREBASE_EVENT_FIND_FRIENDS;
 import static com.thetestament.cread.utils.Constant.IMAGE_TYPE_USER_CAPTURE_PIC;
@@ -279,6 +281,7 @@ public class FeedFragment extends Fragment implements listener.OnCollaborationLi
         initHatsOffListener(mAdapter);
         initShareListener(mAdapter);
         initShareLinkClickedListener();
+        initDownvoteListener(mAdapter);
         //Load data here
         loadFeedData();
     }
@@ -715,12 +718,46 @@ public class FeedFragment extends Fragment implements listener.OnCollaborationLi
         });
     }
 
+    private void initDownvoteListener(FeedAdapter feedAdapter) {
+        feedAdapter.setOnDownvoteClickedListener(new listener.OnDownvoteClickedListener() {
+            @Override
+            public void onDownvoteClicked(FeedModel data, int position, ImageView imageDownvote) {
+
+                DownvoteHelper downvoteHelper = new DownvoteHelper();
+
+                // if already downvoted
+                if (data.isDownvoteStatus()) {
+                    downvoteHelper.initDownvoteProcess(getActivity()
+                            , data
+                            , mCompositeDisposable
+                            , imageDownvote
+                            , new Bundle()
+                            , new Intent());
+                } else
+
+                {   // show warning dialog
+                    downvoteHelper.initDownvoteWarningDialog(getActivity(), data, mCompositeDisposable, imageDownvote, new Bundle(), new Intent());
+
+                }
+            }
+        });
+    }
+
     private void initDeepLink() {
         // if deep link parse it
         if (mHelper.getDeepLink() != null) {
             Uri deepLinkUri = Uri.parse(mHelper.getDeepLink());
 
             String entityID = deepLinkUri.getQueryParameter("entityid");
+            // get share source from deep link
+            String shareSource = deepLinkUri.getQueryParameter("share_source");
+
+            Bundle bundle = new Bundle();
+            bundle.putString("share_source", shareSource);
+            // log event
+            FirebaseAnalytics
+                    .getInstance(getContext())
+                    .logEvent(FIREBASE_EVENT_DEEP_LINK_USED, bundle);
 
             mHelper.setDeepLink(null);
 

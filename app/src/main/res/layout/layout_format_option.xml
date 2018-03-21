@@ -3,10 +3,14 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    android:background="@color/color_grey_600"
+    android:gravity="center"
     android:orientation="horizontal"
-    android:paddingBottom="10dp"
-    android:weightSum="6">
+    android:paddingBottom="12dp"
+    android:paddingTop="12dp"
+    android:weightSum="7">
 
+    <!--Text alignment container-->
     <ImageView
         android:id="@+id/btnLAlignText"
         android:layout_width="0dp"
@@ -14,7 +18,7 @@
         android:layout_weight="1"
         app:srcCompat="@drawable/ic_format_align_center_32" />
 
-
+    <!--Font container-->
     <ImageView
         android:id="@+id/btnFont"
         android:layout_width="0dp"
@@ -22,6 +26,7 @@
         android:layout_weight="1"
         app:srcCompat="@drawable/ic_format_font_32dp" />
 
+    <!--Background color container-->
     <ImageView
         android:id="@+id/btnFormatBg"
         android:layout_width="0dp"
@@ -29,6 +34,7 @@
         android:layout_weight="1"
         app:srcCompat="@drawable/ic_format_color_fill_32" />
 
+    <!--Text color container-->
     <ImageView
         android:id="@+id/btnFormatTextColor"
         android:layout_width="0dp"
@@ -36,7 +42,15 @@
         android:layout_weight="1"
         app:srcCompat="@drawable/ic_format_color_text_32" />
 
+    <!--Template container-->
+    <ImageView
+        android:id="@+id/btnTemplate"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        app:srcCompat="@drawable/ic_style_vector" />
 
+    <!--Bold container-->
     <LinearLayout
         android:layout_width="0dp"
         android:layout_height="wrap_content"
@@ -57,9 +71,10 @@
             android:layout_gravity="bottom|center"
             android:layout_marginTop="-2dp"
             android:background="@drawable/dot_shape"
-            android:visibility="invisible" />
+            android:visibility="gone" />
     </LinearLayout>
 
+    <!--Italic container-->
     <LinearLayout
         android:layout_width="0dp"
         android:layout_height="wrap_content"
@@ -80,7 +95,7 @@
             android:layout_gravity="bottom|center"
             android:layout_marginTop="-2dp"
             android:background="@drawable/dot_shape"
-            android:visibility="invisible" />
+            android:visibility="gone" />
     </LinearLayout>
 
 </LinearLayout>

@@ -43,16 +43,19 @@ import com.thetestament.cread.Manifest;
 import com.thetestament.cread.R;
 import com.thetestament.cread.adapters.ColorAdapter;
 import com.thetestament.cread.adapters.FontAdapter;
+import com.thetestament.cread.adapters.TemplateAdapter;
 import com.thetestament.cread.dialog.CustomDialog;
 import com.thetestament.cread.helpers.CaptureHelper;
 import com.thetestament.cread.helpers.ColorHelper;
 import com.thetestament.cread.helpers.SharedPreferenceHelper;
+import com.thetestament.cread.helpers.TemplateHelper;
 import com.thetestament.cread.helpers.ViewHelper;
 import com.thetestament.cread.listeners.OnDragTouchListener;
 import com.thetestament.cread.listeners.OnSwipeGestureListener;
 import com.thetestament.cread.listeners.listener;
 import com.thetestament.cread.models.ColorModel;
 import com.thetestament.cread.models.FontModel;
+import com.thetestament.cread.models.TemplateModel;
 import com.thetestament.cread.widgets.SquareView;
 
 import org.json.JSONException;
@@ -99,6 +102,7 @@ import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_ITALIC;
 import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_MERCHANTABLE;
 import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_SHORT_ID;
 import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_SIGNATURE;
+import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_TEMPLATE_NAME;
 import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_TEXT;
 import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_TEXT_COLOR;
 import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_TEXT_GRAVITY;
@@ -119,6 +123,7 @@ import static com.thetestament.cread.utils.Constant.WATERMARK_STATUS_YES;
 
 public class CollaborationActivity extends BaseActivity {
 
+    //region :Views binding with butter knife
     @BindView(R.id.rootView)
     CoordinatorLayout rootView;
     @BindView(R.id.imageContainer)
@@ -148,11 +153,18 @@ public class CollaborationActivity extends BaseActivity {
     NestedScrollView colorBottomSheetView;
     @BindView(R.id.colorRecyclerView)
     RecyclerView colorRecyclerView;
+    //Template bottom sheet
+    @BindView(R.id.templateBottomSheetView)
+    NestedScrollView templateBottomSheetView;
+    @BindView(R.id.templateRecyclerView)
+    RecyclerView templateRecyclerView;
 
-    private BottomSheetBehavior sheetBehavior, colorSheetBehaviour;
+    //endregion
+
+    //region :Fields and constants
+    private BottomSheetBehavior sheetBehavior, colorSheetBehaviour, templateSheetBehaviour;
     //Define font typeface
     private Typeface mTextTypeface;
-
 
     @State
     String mEntityID, mShortID, mIsMerchantable, mSignatureText = "", mFontType = FONT_TYPE_BOHEMIAN_TYPEWRITER;
@@ -197,6 +209,18 @@ public class CollaborationActivity extends BaseActivity {
     @State
     String mImageTintColor = "";
 
+    /**
+     * Flag to maintain templates selection status. True if selected false otherwise
+     */
+    @State
+    boolean mIsTemplateSelected = false;
+
+    /**
+     * Flag to store current selected template name.
+     */
+    @State
+    String mTemplateName = "none";
+
 
     //Initially text gravity is "CENTER"
     TextGravity textGravity = TextGravity.West;
@@ -204,11 +228,16 @@ public class CollaborationActivity extends BaseActivity {
     CompositeDisposable mCompositeDisposable = new CompositeDisposable();
     SharedPreferenceHelper mHelper;
 
+    CollaborationActivity mContext;
+    //endregion
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_collaboration);
         ButterKnife.bind(this);
+        //Obtain reference
+        mContext = this;
         //Obtain reference
         mHelper = new SharedPreferenceHelper(this);
         //initialize this screen
@@ -220,11 +249,14 @@ public class CollaborationActivity extends BaseActivity {
         sheetBehavior.setPeekHeight(0);
         colorSheetBehaviour = BottomSheetBehavior.from(colorBottomSheetView);
         colorSheetBehaviour.setPeekHeight(0);
+        templateSheetBehaviour = BottomSheetBehavior.from(templateBottomSheetView);
+        templateSheetBehaviour.setPeekHeight(0);
         //Set default font
         mTextTypeface = ResourcesCompat.getFont(CollaborationActivity.this, R.font.bohemian_typewriter);
-        //initialise font , color bottomSheet
+        //initialise font , color and template bottomSheet
         initFontLayout();
         initColorLayout();
+        initTemplateLayout();
         //initialize listener
         initSwipeListener();
     }
@@ -378,6 +410,14 @@ public class CollaborationActivity extends BaseActivity {
         colorSheetBehaviour.setState(BottomSheetBehavior.STATE_EXPANDED);
     }
 
+    /**
+     * Click functionality to show template bottom sheet
+     */
+    @OnClick(R.id.btnTemplate)
+    void templateOnClick() {
+        //Show template bottom sheet
+        templateSheetBehaviour.setState(BottomSheetBehavior.STATE_EXPANDED);
+    }
 
     /**
      * Bold button click functionality to set typeface to bold.
@@ -470,6 +510,14 @@ public class CollaborationActivity extends BaseActivity {
         sheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
     }
 
+    /**
+     * Template bottom sheet close button click functionality to hide bottom sheet.
+     */
+    @OnClick(R.id.buttonTemplateClose)
+    void onTemplateCloseBtnClick() {
+        //Hide font bottom sheet
+        templateSheetBehaviour.setState(BottomSheetBehavior.STATE_COLLAPSED);
+    }
 
     /**
      * Used to handle result of askForPermission for capture.
@@ -545,9 +593,9 @@ public class CollaborationActivity extends BaseActivity {
         }
 
         //Set layout manager
-        recyclerView.setLayoutManager(new LinearLayoutManager(CollaborationActivity.this, LinearLayoutManager.HORIZONTAL, false));
+        recyclerView.setLayoutManager(new LinearLayoutManager(mContext, LinearLayoutManager.HORIZONTAL, false));
         //Set adapter
-        FontAdapter fontAdapter = new FontAdapter(mFontDataList, CollaborationActivity.this);
+        FontAdapter fontAdapter = new FontAdapter(mFontDataList, mContext);
         recyclerView.setAdapter(fontAdapter);
 
         //Font click listener
@@ -589,9 +637,9 @@ public class CollaborationActivity extends BaseActivity {
             colorList.add(data);
         }
         //Set layout manager
-        colorRecyclerView.setLayoutManager(new LinearLayoutManager(CollaborationActivity.this, LinearLayoutManager.HORIZONTAL, false));
+        colorRecyclerView.setLayoutManager(new LinearLayoutManager(mContext, LinearLayoutManager.HORIZONTAL, false));
         //Set adapter
-        ColorAdapter colorAdapter = new ColorAdapter(colorList, CollaborationActivity.this);
+        ColorAdapter colorAdapter = new ColorAdapter(colorList, mContext);
         colorRecyclerView.setAdapter(colorAdapter);
 
         //Font click listener
@@ -600,6 +648,43 @@ public class CollaborationActivity extends BaseActivity {
             public void onColorSelected(int selectedColor) {
                 //Change short text color
                 textShort.setTextColor(selectedColor);
+            }
+        });
+    }
+
+    /**
+     * Method to initialize template bottom sheet.
+     */
+    private void initTemplateLayout() {
+        ArrayList<TemplateModel> templateList = new ArrayList<>();
+        //initialize color data list
+        for (String templateName : TemplateHelper.templateList) {
+            TemplateModel data = new TemplateModel();
+            data.setTemplateName(templateName);
+            templateList.add(data);
+        }
+        //Set layout manager
+        templateRecyclerView.setLayoutManager(new LinearLayoutManager(mContext
+                , LinearLayoutManager.HORIZONTAL
+                , false));
+        //Set adapter
+        TemplateAdapter templateAdapter = new TemplateAdapter(templateList, mContext);
+        templateRecyclerView.setAdapter(templateAdapter);
+
+        //Font click listener
+        templateAdapter.setOnTemplateClickListener(new listener.OnTemplateClickListener() {
+            @Override
+            public void onTemplateClick(String templateName) {
+                if (templateName.equals("none")) {
+                    //Update flags
+                    mIsTemplateSelected = false;
+                } else {
+                    //Update flag
+                    mIsTemplateSelected = true;
+                }
+                //Update template name
+                mTemplateName = templateName;
+                //Fixme click functionality goes here
             }
         });
     }
@@ -616,7 +701,7 @@ public class CollaborationActivity extends BaseActivity {
                 switch (mImageTintFlag) {
                     case 0:
                         //Apply tint
-                        imageShort.setColorFilter(ContextCompat.getColor(CollaborationActivity.this, R.color.transparent_30));
+                        imageShort.setColorFilter(ContextCompat.getColor(mContext, R.color.transparent_30));
                         //Update flag
                         mImageTintFlag = 1;
                         //set tint color
@@ -624,7 +709,7 @@ public class CollaborationActivity extends BaseActivity {
                         break;
                     case 1:
                         //Apply tint
-                        imageShort.setColorFilter(ContextCompat.getColor(CollaborationActivity.this, R.color.transparent_50));
+                        imageShort.setColorFilter(ContextCompat.getColor(mContext, R.color.transparent_50));
                         //Update flag
                         mImageTintFlag = 2;
                         //set tint color
@@ -632,7 +717,7 @@ public class CollaborationActivity extends BaseActivity {
                         break;
                     case 2:
                         //Apply tint
-                        imageShort.setColorFilter(ContextCompat.getColor(CollaborationActivity.this, R.color.transparent_70));
+                        imageShort.setColorFilter(ContextCompat.getColor(mContext, R.color.transparent_70));
                         //Update flag
                         mImageTintFlag = 3;
                         //set tint color
@@ -662,7 +747,7 @@ public class CollaborationActivity extends BaseActivity {
                 .into(imageView, new Callback() {
                     @Override
                     public void onSuccess() {
-                        Picasso.with(CollaborationActivity.this)
+                        Picasso.with(mContext)
                                 .load(getImageUri(IMAGE_TYPE_USER_CAPTURE_PIC))
                                 .into(new Target() {
                                     @Override
@@ -963,6 +1048,7 @@ public class CollaborationActivity extends BaseActivity {
                     , String.valueOf(mItalicFlag)
                     , mImageTintColor
                     , PREVIEW_EXTRA_CALLED_FROM_COLLABORATION
+                    , mTemplateName
             );
 
         } catch (IOException e) {
@@ -983,7 +1069,7 @@ public class CollaborationActivity extends BaseActivity {
             , String xPosition, String yPosition, String tvWidth, String tvHeight
             , String text, String textSize, String textColor, String textGravity
             , String imgWidth, String signature, String merchantable, String font
-            , String bold, String italic, String imageTintColor, String calledFrom) {
+            , String bold, String italic, String imageTintColor, String calledFrom, String templateName) {
 
         Intent intent = new Intent(CollaborationActivity.this, PreviewActivity.class);
 
@@ -1008,6 +1094,7 @@ public class CollaborationActivity extends BaseActivity {
         bundle.putString(PREVIEW_EXTRA_ITALIC, italic);
         bundle.putString(PREVIEW_EXTRA_IMAGE_TINT_COLOR, imageTintColor);
         bundle.putString(PREVIEW_EXTRA_CALLED_FROM, calledFrom);
+        bundle.putString(PREVIEW_EXTRA_TEMPLATE_NAME, templateName);
 
         intent.putExtra(PREVIEW_EXTRA_DATA, bundle);
         startActivityForResult(intent, REQUEST_CODE_PREVIEW_ACTIVITY);
@@ -1024,6 +1111,10 @@ public class CollaborationActivity extends BaseActivity {
         //Collapse color bottomSheet if its expanded
         if (colorSheetBehaviour.getState() == BottomSheetBehavior.STATE_EXPANDED) {
             colorSheetBehaviour.setState(BottomSheetBehavior.STATE_COLLAPSED);
+        }
+        //Template color bottomSheet if its expanded
+        if (templateSheetBehaviour.getState() == BottomSheetBehavior.STATE_EXPANDED) {
+            templateSheetBehaviour.setState(BottomSheetBehavior.STATE_COLLAPSED);
         }
     }
 }

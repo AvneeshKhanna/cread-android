@@ -858,6 +858,34 @@ public class FeedHelper {
 
 
     /**
+     * Updates the visibility of the dot separator
+     * based on the values of collab count
+     */
+    public static void updateDownvoteAndSeperatorVisibility(FeedModel data, TextView dotSeperator, ImageView imageDownvote) {
+        long collabCount = data.getCollabCount();
+        boolean canDownvote = data.isEligibleForDownvote();
+
+        // if count is zero remove the dot
+        if ((collabCount == 0 && !canDownvote)
+                || (collabCount != 0 && !canDownvote)
+                || (collabCount == 0 && canDownvote)) {
+            dotSeperator.setVisibility(View.GONE);
+        }
+        // non-zero so show the dot
+        else if (collabCount != 0 && canDownvote) {
+            dotSeperator.setVisibility(View.VISIBLE);
+        }
+
+        // toggle downvote visibility
+        if (canDownvote) {
+            imageDownvote.setVisibility(View.VISIBLE);
+        } else {
+            imageDownvote.setVisibility(View.GONE);
+        }
+    }
+
+
+    /**
      * Method to update follow status for each item occurrence of the followed user
      *
      * @param exploreData

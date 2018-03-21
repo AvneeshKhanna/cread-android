@@ -28,7 +28,7 @@
                 android:layout_height="wrap_content"
                 android:gravity="center_vertical"
                 android:layout_alignParentLeft="true"
-                android:layout_toLeftOf="@+id/contentActions">
+                android:layout_toLeftOf="@+id/buttonCollaborate">
 
                 <LinearLayout
                     android:layout_width="wrap_content"
@@ -73,45 +73,7 @@
             </LinearLayout>
 
 
-            <LinearLayout
-                android:id="@+id/contentActions"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignParentRight="true"
-                android:layout_centerVertical="true"
-                android:layout_marginRight="8dp"
-                android:gravity="center"
-                android:orientation="horizontal">
-
-                <TextView
-                    android:id="@+id/buttonCollaborate"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginRight="8dp"
-                    android:background="@drawable/button_filled"
-                    android:paddingBottom="5dp"
-                    android:paddingLeft="10dp"
-                    android:paddingRight="10dp"
-                    android:paddingTop="5dp"
-                    android:text="Collaborate"
-                    android:textColor="@color/white"
-                    android:textSize="12sp"
-                    android:visibility="gone" />
-
-
-                <ImageView
-                    android:id="@+id/buttonMenu"
-                    android:layout_width="18dp"
-                    android:layout_height="18dp"
-                    app:srcCompat="@drawable/ic_content_options"
-                    android:textAppearance="?android:textAppearanceLarge"
-                    android:visibility="gone" />
-
-
-            </LinearLayout>
-
-
-            <!--<TextView
+            <TextView
                 android:id="@+id/buttonCollaborate"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -125,7 +87,7 @@
                 android:paddingTop="5dp"
                 android:text="Collaborate"
                 android:textColor="@color/white"
-                android:textSize="12sp"/>-->
+                android:textSize="12sp" />
 
         </RelativeLayout>
 
