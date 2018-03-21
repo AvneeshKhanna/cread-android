@@ -50,10 +50,12 @@ import com.thetestament.cread.R;
 import com.thetestament.cread.adapters.ColorAdapter;
 import com.thetestament.cread.adapters.FontAdapter;
 import com.thetestament.cread.adapters.InspirationAdapter;
+import com.thetestament.cread.adapters.TemplateAdapter;
 import com.thetestament.cread.dialog.CustomDialog;
 import com.thetestament.cread.helpers.ColorHelper;
 import com.thetestament.cread.helpers.FontsHelper;
 import com.thetestament.cread.helpers.SharedPreferenceHelper;
+import com.thetestament.cread.helpers.TemplateHelper;
 import com.thetestament.cread.helpers.ViewHelper;
 import com.thetestament.cread.listeners.OnDragTouchListener;
 import com.thetestament.cread.listeners.OnSwipeGestureListener;
@@ -61,6 +63,7 @@ import com.thetestament.cread.listeners.listener;
 import com.thetestament.cread.models.ColorModel;
 import com.thetestament.cread.models.FontModel;
 import com.thetestament.cread.models.InspirationModel;
+import com.thetestament.cread.models.TemplateModel;
 import com.thetestament.cread.utils.Constant;
 import com.thetestament.cread.widgets.CustomEditText;
 import com.thetestament.cread.widgets.CustomEditText.OnEditTextBackListener;
@@ -118,6 +121,7 @@ import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_IMG_WIDTH;
 import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_ITALIC;
 import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_MERCHANTABLE;
 import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_SHORT_ID;
+import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_TEMPLATE_NAME;
 import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_TEXT;
 import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_TEXT_COLOR;
 import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_TEXT_GRAVITY;
@@ -188,10 +192,15 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
     NestedScrollView colorBottomSheetView;
     @BindView(R.id.colorRecyclerView)
     RecyclerView colorRecyclerView;
+    //Template bottom sheet
+    @BindView(R.id.templateBottomSheetView)
+    NestedScrollView templateBottomSheetView;
+    @BindView(R.id.templateRecyclerView)
+    RecyclerView templateRecyclerView;
     //endregion
 
     //region :Fields and constants
-    private BottomSheetBehavior sheetBehavior, colorSheetBehaviour;
+    private BottomSheetBehavior sheetBehavior, colorSheetBehaviour, templateSheetBehaviour;
     //Define font typeface
     private Typeface mTextTypeface;
 
@@ -250,6 +259,18 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
      */
     @State
     int mGravityFlag = 2;
+
+    /**
+     * Flag to maintain templates selection status. True if selected false otherwise
+     */
+    @State
+    boolean mIsTemplateSelected = false;
+
+    /**
+     * Flag to store current selected template name.
+     */
+    @State
+    String mTemplateName = "none";
 
     @State
     String mCalledFrom = PREVIEW_EXTRA_CALLED_FROM_SHORT;
@@ -385,7 +406,7 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
         switch (item.getItemId()) {
             case android.R.id.home:
                 //Show prompt dialog
-                CustomDialog.getBackNavigationDialog(ShortActivity.this
+                CustomDialog.getBackNavigationDialog(mContext
                         , "Discard changes?"
                         , "If you go back now, you will loose your changes.");
                 return true;
@@ -560,6 +581,15 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
     }
 
     /**
+     * Click functionality to show template bottom sheet
+     */
+    @OnClick(R.id.btnTemplate)
+    void templateOnClick() {
+        //Show template bottom sheet
+        templateSheetBehaviour.setState(BottomSheetBehavior.STATE_EXPANDED);
+    }
+
+    /**
      * Bold button click functionality to set typeface to bold.
      */
     @OnClick(R.id.btnFormatTextBold)
@@ -651,6 +681,15 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
     }
 
     /**
+     * Template bottom sheet close button click functionality to hide bottom sheet.
+     */
+    @OnClick(R.id.buttonTemplateClose)
+    void onTemplateCloseBtnClick() {
+        //Hide font bottom sheet
+        templateSheetBehaviour.setState(BottomSheetBehavior.STATE_COLLAPSED);
+    }
+
+    /**
      * Click functionality of remove image button
      */
     @OnClick(R.id.btnRemoveImage)
@@ -681,7 +720,7 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
 
     //endregion
 
-    //region Private methods
+    //region :Private methods
 
     /**
      * Method to initialize view for this screen.
@@ -694,7 +733,7 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
         retrieveData();
 
         //Set default font
-        mTextTypeface = ResourcesCompat.getFont(ShortActivity.this, R.font.bohemian_typewriter);
+        mTextTypeface = ResourcesCompat.getFont(mContext, R.font.bohemian_typewriter);
 
         //set listener
         textShort.setOnEditTextBackListener(this);
@@ -706,14 +745,18 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
         sheetBehavior.setPeekHeight(0);
         colorSheetBehaviour = BottomSheetBehavior.from(colorBottomSheetView);
         colorSheetBehaviour.setPeekHeight(0);
+        templateSheetBehaviour = BottomSheetBehavior.from(templateBottomSheetView);
+        templateSheetBehaviour.setPeekHeight(0);
 
-        //initialise font and color bottomSheet
+
+        //initialise font and color and template bottomSheet
         initFontLayout();
         initColorLayout();
+        initTemplateLayout();
+
         //initialize listener
         initDragListener();
-        initSwipeListener();
-
+        initDoubleTapListener();
     }
 
     /**
@@ -809,9 +852,9 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
         }
 
         //Set layout manager
-        recyclerView.setLayoutManager(new LinearLayoutManager(ShortActivity.this, LinearLayoutManager.HORIZONTAL, false));
+        recyclerView.setLayoutManager(new LinearLayoutManager(mContext, LinearLayoutManager.HORIZONTAL, false));
         //Set adapter
-        FontAdapter fontAdapter = new FontAdapter(mFontDataList, ShortActivity.this);
+        FontAdapter fontAdapter = new FontAdapter(mFontDataList, mContext);
         recyclerView.setAdapter(fontAdapter);
 
         //Font click listener
@@ -856,9 +899,9 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
             colorList.add(data);
         }
         //Set layout manager
-        colorRecyclerView.setLayoutManager(new LinearLayoutManager(ShortActivity.this, LinearLayoutManager.HORIZONTAL, false));
+        colorRecyclerView.setLayoutManager(new LinearLayoutManager(mContext, LinearLayoutManager.HORIZONTAL, false));
         //Set adapter
-        ColorAdapter colorAdapter = new ColorAdapter(colorList, ShortActivity.this);
+        ColorAdapter colorAdapter = new ColorAdapter(colorList, mContext);
         colorRecyclerView.setAdapter(colorAdapter);
 
         //Font click listener
@@ -880,6 +923,44 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
     }
 
     /**
+     * Method to initialize template bottom sheet.
+     */
+    private void initTemplateLayout() {
+        ArrayList<TemplateModel> templateList = new ArrayList<>();
+        //initialize color data list
+        for (String templateName : TemplateHelper.templateList) {
+            TemplateModel data = new TemplateModel();
+            data.setTemplateName(templateName);
+            templateList.add(data);
+        }
+        //Set layout manager
+        templateRecyclerView.setLayoutManager(new LinearLayoutManager(mContext
+                , LinearLayoutManager.HORIZONTAL
+                , false));
+        //Set adapter
+        TemplateAdapter templateAdapter = new TemplateAdapter(templateList, mContext);
+        templateRecyclerView.setAdapter(templateAdapter);
+
+        //Template click listener
+        templateAdapter.setOnTemplateClickListener(new listener.OnTemplateClickListener() {
+            @Override
+            public void onTemplateClick(String templateName) {
+                if (templateName.equals("none")) {
+                    //Update flags
+                    mIsTemplateSelected = false;
+                } else {
+                    //Update flag
+                    mIsTemplateSelected = true;
+                }
+                //Update template name
+                mTemplateName = templateName;
+                //Fixme click functionality goes here
+            }
+        });
+    }
+
+
+    /**
      * Method to initialize  edit text drag listener.
      */
     private void initDragListener() {
@@ -895,7 +976,7 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
                 //Show edit text cursor
                 textShort.setCursorVisible(true);
                 //Add tint to imageView
-                imageShort.setColorFilter(ContextCompat.getColor(ShortActivity.this, R.color.transparent_50));
+                imageShort.setColorFilter(ContextCompat.getColor(mContext, R.color.transparent_50));
                 //Show keyboard
                 InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
                 imm.showSoftInput(textShort, 0);
@@ -915,7 +996,7 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
     /**
      * Method to initialize swipe listener on squareView.
      */
-    private void initSwipeListener() {
+    private void initDoubleTapListener() {
 
         squareView.setOnTouchListener(new OnSwipeGestureListener(this) {
 
@@ -926,7 +1007,7 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
                     switch (mImageTintFlag) {
                         case 0:
                             //Apply tint
-                            imageShort.setColorFilter(ContextCompat.getColor(ShortActivity.this, R.color.transparent_30));
+                            imageShort.setColorFilter(ContextCompat.getColor(mContext, R.color.transparent_30));
                             //Update flag
                             mImageTintFlag = 1;
                             //set tint color
@@ -934,7 +1015,7 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
                             break;
                         case 1:
                             //Apply tint
-                            imageShort.setColorFilter(ContextCompat.getColor(ShortActivity.this, R.color.transparent_50));
+                            imageShort.setColorFilter(ContextCompat.getColor(mContext, R.color.transparent_50));
                             //Update flag
                             mImageTintFlag = 2;
                             //set tint color
@@ -942,7 +1023,7 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
                             break;
                         case 2:
                             //Apply tint
-                            imageShort.setColorFilter(ContextCompat.getColor(ShortActivity.this, R.color.transparent_70));
+                            imageShort.setColorFilter(ContextCompat.getColor(mContext, R.color.transparent_70));
                             //Update flag
                             mImageTintFlag = 3;
                             //set tint color
@@ -1044,7 +1125,7 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
                         imageProgressView.setVisibility(View.GONE);
                         //Add tint to imageView
                         //imageShort.setColorFilter(ContextCompat.getColor(ShortActivity.this, R.color.transparent_50));
-                        Picasso.with(ShortActivity.this).load(imageUrl).into(new Target() {
+                        Picasso.with(mContext).load(imageUrl).into(new Target() {
                             @Override
                             public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
                                 //Get image width
@@ -1176,6 +1257,7 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
                     , mShortID
                     , mCaptionText
                     , mEntityID
+                    , mTemplateName
             );
 
         } catch (IOException e) {
@@ -1201,7 +1283,7 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
             , String text, String textSize, String textColor, String textGravity
             , String imgWidth, String merchantable, String font, String bgColor
             , String bold, String italic, String imageTintColor, String calledFrom
-            , String shortID, String captionText, String entityID) {
+            , String shortID, String captionText, String entityID, String templateName) {
 
         Intent intent = new Intent(ShortActivity.this, PreviewActivity.class);
 
@@ -1229,6 +1311,7 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
         bundle.putString(PREVIEW_EXTRA_SHORT_ID, shortID);
         bundle.putString(PREVIEW_EXTRA_CAPTION_TEXT, captionText);
         bundle.putString(PREVIEW_EXTRA_ENTITY_ID, entityID);
+        bundle.putString(PREVIEW_EXTRA_TEMPLATE_NAME, templateName);
 
 
         intent.putExtra(PREVIEW_EXTRA_DATA, bundle);
@@ -1247,6 +1330,10 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
         //Collapse color bottomSheet if its expanded
         if (colorSheetBehaviour.getState() == BottomSheetBehavior.STATE_EXPANDED) {
             colorSheetBehaviour.setState(BottomSheetBehavior.STATE_COLLAPSED);
+        }
+        //Collapse template bottomSheet if its expanded
+        if (templateSheetBehaviour.getState() == BottomSheetBehavior.STATE_EXPANDED) {
+            templateSheetBehaviour.setState(BottomSheetBehavior.STATE_COLLAPSED);
         }
     }
 

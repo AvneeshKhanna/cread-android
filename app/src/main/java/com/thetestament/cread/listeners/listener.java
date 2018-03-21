@@ -374,4 +374,13 @@ public class listener {
         void onDownvoteClicked(FeedModel data, int position, ImageView imageDownvote);
     }
 
+    /**
+     * Interface definition for a callback to be invoked when user selects template from bottom sheet.
+     */
+    public interface OnTemplateClickListener {
+        /**
+         * @param templateName Name of template
+         **/
+        void onTemplateClick(String templateName);
+    }
 }
