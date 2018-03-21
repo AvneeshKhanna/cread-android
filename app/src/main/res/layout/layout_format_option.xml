@@ -3,11 +3,9 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="@color/color_grey_600"
     android:gravity="center"
     android:orientation="horizontal"
     android:paddingBottom="12dp"
-    android:paddingTop="12dp"
     android:weightSum="7">
 
     <!--Text alignment container-->
@@ -51,7 +49,7 @@
         app:srcCompat="@drawable/ic_style_vector" />
 
     <!--Bold container-->
-    <LinearLayout
+    <FrameLayout
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_weight="1"
@@ -68,18 +66,17 @@
             android:id="@+id/dotBold"
             android:layout_width="6dp"
             android:layout_height="6dp"
-            android:layout_gravity="bottom|center"
-            android:layout_marginTop="-2dp"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="24dp"
             android:background="@drawable/dot_shape"
-            android:visibility="gone" />
-    </LinearLayout>
+            android:visibility="invisible" />
+    </FrameLayout>
 
     <!--Italic container-->
-    <LinearLayout
+    <FrameLayout
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_weight="1"
-        android:orientation="vertical">
+        android:layout_weight="1">
 
         <ImageView
             android:id="@+id/btnFormatTextItalic"
@@ -92,10 +89,10 @@
             android:id="@+id/dotItalic"
             android:layout_width="6dp"
             android:layout_height="6dp"
-            android:layout_gravity="bottom|center"
-            android:layout_marginTop="-2dp"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="24dp"
             android:background="@drawable/dot_shape"
-            android:visibility="gone" />
-    </LinearLayout>
+            android:visibility="invisible" />
+    </FrameLayout>
 
 </LinearLayout>
