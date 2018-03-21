@@ -15,8 +15,7 @@
         <com.thetestament.cread.widgets.SquareView
             android:id="@+id/imageContainer"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            >
+            android:layout_height="wrap_content">
 
 
             <ImageView
@@ -165,5 +164,7 @@
     <include layout="@layout/layout_font_bottom_sheet" />
     <!--Color option bottom sheet-->
     <include layout="@layout/layout_color_bottom_sheet" />
+    <!--Template option bottom sheet-->
+    <include layout="@layout/layout_template_bottom_sheet" />
 
 </android.support.design.widget.CoordinatorLayout>
