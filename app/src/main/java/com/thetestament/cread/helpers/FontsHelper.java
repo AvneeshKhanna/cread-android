@@ -305,9 +305,9 @@ public class FontsHelper {
             case FONT_TYPE_RIBBON:
                 return "Ribbon";
             case FONT_TYPE_THUNDER_PANTS:
-                return "Thunder Pants";
+                return "Thunder";
             case FONT_TYPE_TREND_HANDMADE:
-                return "Trend Handmade";
+                return "Trend";
             case FONT_TYPE_VENERA:
                 return "Venera";
             case FONT_TYPE_VETKA:

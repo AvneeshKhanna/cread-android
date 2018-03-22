@@ -118,6 +118,7 @@ import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_ENTITY_ID;
 import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_FONT;
 import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_IMAGE_TINT_COLOR;
 import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_IMG_WIDTH;
+import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_IS_SHADOW_SELECTED;
 import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_ITALIC;
 import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_MERCHANTABLE;
 import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_SHORT_ID;
@@ -159,6 +160,8 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
     CustomEditText textShort;
     @BindView(R.id.seekBarTextSize)
     AppCompatSeekBar seekBarTextSize;
+    @BindView(R.id.btnFormatShadow)
+    ImageView btnShadow;
     @BindView(R.id.btnLAlignText)
     ImageView btnAlignText;
     @BindView(R.id.dotBold)
@@ -271,6 +274,13 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
      */
     @State
     String mTemplateName = "none";
+
+
+    /**
+     * Flag to maintain shadow  status. 0 if shadow applied 1 otherwise
+     */
+    @State
+    int mIsShadowSelected = 0;
 
     @State
     String mCalledFrom = PREVIEW_EXTRA_CALLED_FROM_SHORT;
@@ -718,6 +728,23 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
         mIsMerchantable = true;
     }
 
+    /**
+     * Shadow button on click
+     */
+    @OnClick(R.id.btnFormatShadow)
+    void shadowBtnOnClick() {
+        if (mIsShadowSelected == 1) {
+            //Update flags
+            mIsShadowSelected = 0;
+            //Apply shadow on text
+            textShort.setShadowLayer(2, 2, 2
+                    , ContextCompat.getColor(mContext, R.color.color_grey_600));
+        } else {
+            mIsShadowSelected = 1;
+            //Remove shadow layer
+            textShort.setShadowLayer(0, 0, 0, 0);
+        }
+    }
     //endregion
 
     //region :Private methods
@@ -843,24 +870,30 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
      * Method to initialize font bottom sheet.
      */
     private void initFontLayout() {
-        ArrayList<FontModel> mFontDataList = new ArrayList<>();
+        final ArrayList<FontModel> mFontDataList = new ArrayList<>();
         //initialize font data list
         for (String fontName : FontsHelper.fontTypes) {
             FontModel data = new FontModel();
             data.setFontName(fontName);
             mFontDataList.add(data);
         }
-
+        final LinearLayoutManager layoutManager = new LinearLayoutManager(mContext
+                , LinearLayoutManager.HORIZONTAL, false);
         //Set layout manager
-        recyclerView.setLayoutManager(new LinearLayoutManager(mContext, LinearLayoutManager.HORIZONTAL, false));
+        recyclerView.setLayoutManager(layoutManager);
         //Set adapter
-        FontAdapter fontAdapter = new FontAdapter(mFontDataList, mContext);
+        FontAdapter fontAdapter = new FontAdapter(mFontDataList
+                , mContext
+                , mHelper.getSelectedFontPosition());
+        //set adapter
         recyclerView.setAdapter(fontAdapter);
+        //Scroll to last selected item position
+        recyclerView.smoothScrollToPosition(mHelper.getSelectedFontPosition());
 
         //Font click listener
         fontAdapter.setOnFontClickListener(new listener.OnFontClickListener() {
             @Override
-            public void onFontClick(Typeface typeface, String fontType) {
+            public void onFontClick(Typeface typeface, String fontType, int itemPosition) {
                 //Set short text typeface
                 if (mItalicFlag == 0 && mBoldFlag == 0) {
                     //Set typeface to bold
@@ -883,6 +916,9 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
                 mFontType = fontType;
                 //Save current selected font in shared preference
                 mHelper.setSelectedFont(mFontType);
+                mHelper.setSelectedFontPosition(itemPosition);
+                //Method called
+                ViewHelper.scrollToNextItemPosition(layoutManager, recyclerView, itemPosition, mFontDataList.size());
             }
         });
     }
@@ -1258,6 +1294,7 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
                     , mCaptionText
                     , mEntityID
                     , mTemplateName
+                    , String.valueOf(mIsShadowSelected)
             );
 
         } catch (IOException e) {
@@ -1283,7 +1320,7 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
             , String text, String textSize, String textColor, String textGravity
             , String imgWidth, String merchantable, String font, String bgColor
             , String bold, String italic, String imageTintColor, String calledFrom
-            , String shortID, String captionText, String entityID, String templateName) {
+            , String shortID, String captionText, String entityID, String templateName, String isShadowSelected) {
 
         Intent intent = new Intent(ShortActivity.this, PreviewActivity.class);
 
@@ -1312,6 +1349,7 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
         bundle.putString(PREVIEW_EXTRA_CAPTION_TEXT, captionText);
         bundle.putString(PREVIEW_EXTRA_ENTITY_ID, entityID);
         bundle.putString(PREVIEW_EXTRA_TEMPLATE_NAME, templateName);
+        bundle.putString(PREVIEW_EXTRA_IS_SHADOW_SELECTED, isShadowSelected);
 
 
         intent.putExtra(PREVIEW_EXTRA_DATA, bundle);
@@ -1779,5 +1817,6 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
                 })
         );
     }
+
     //endregion
 }

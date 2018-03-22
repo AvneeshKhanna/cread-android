@@ -265,6 +265,7 @@ public class Constant {
     public static final String PREVIEW_EXTRA_BG_COLOR = "bgColor";
     public static final String PREVIEW_EXTRA_FONT = "font";
     public static final String PREVIEW_EXTRA_TEMPLATE_NAME = "templateName";
+    public static final String PREVIEW_EXTRA_IS_SHADOW_SELECTED = "shadowSelected";
     public static final String PREVIEW_EXTRA_BOLD = "bold";
     public static final String PREVIEW_EXTRA_ITALIC = "italic";
     public static final String PREVIEW_EXTRA_IMAGE_TINT_COLOR = "imageTintColor";

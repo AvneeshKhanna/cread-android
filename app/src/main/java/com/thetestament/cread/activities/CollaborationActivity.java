@@ -98,6 +98,7 @@ import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_DATA;
 import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_FONT;
 import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_IMAGE_TINT_COLOR;
 import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_IMG_WIDTH;
+import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_IS_SHADOW_SELECTED;
 import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_ITALIC;
 import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_MERCHANTABLE;
 import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_SHORT_ID;
@@ -221,6 +222,11 @@ public class CollaborationActivity extends BaseActivity {
     @State
     String mTemplateName = "none";
 
+    /**
+     * Flag to maintain shadow  status. 0 if shadow applied 1 otherwise
+     */
+    @State
+    int mIsShadowSelected = 0;
 
     //Initially text gravity is "CENTER"
     TextGravity textGravity = TextGravity.West;
@@ -520,6 +526,24 @@ public class CollaborationActivity extends BaseActivity {
     }
 
     /**
+     * Shadow button on click
+     */
+    @OnClick(R.id.btnFormatShadow)
+    void shadowBtnOnClick() {
+        if (mIsShadowSelected == 1) {
+            //Update flags
+            mIsShadowSelected = 0;
+            //Apply shadow on text
+            textShort.setShadowLayer(2, 2, 2
+                    , ContextCompat.getColor(mContext, R.color.color_grey_600));
+        } else {
+            mIsShadowSelected = 1;
+            //Remove shadow layer
+            textShort.setShadowLayer(0, 0, 0, 0);
+        }
+    }
+
+    /**
      * Used to handle result of askForPermission for capture.
      */
     PermissionCallback captureWritePermission = new PermissionCallback() {
@@ -584,7 +608,7 @@ public class CollaborationActivity extends BaseActivity {
      * Method to initialize font bottom sheet
      */
     private void initFontLayout() {
-        ArrayList<FontModel> mFontDataList = new ArrayList<>();
+        final ArrayList<FontModel> mFontDataList = new ArrayList<>();
         //initialize font data list
         for (String fontName : fontTypes) {
             FontModel data = new FontModel();
@@ -592,16 +616,17 @@ public class CollaborationActivity extends BaseActivity {
             mFontDataList.add(data);
         }
 
+        final LinearLayoutManager layoutManager = new LinearLayoutManager(mContext
+                , LinearLayoutManager.HORIZONTAL, false);
         //Set layout manager
-        recyclerView.setLayoutManager(new LinearLayoutManager(mContext, LinearLayoutManager.HORIZONTAL, false));
+        recyclerView.setLayoutManager(layoutManager);
         //Set adapter
-        FontAdapter fontAdapter = new FontAdapter(mFontDataList, mContext);
+        FontAdapter fontAdapter = new FontAdapter(mFontDataList, mContext, mHelper.getSelectedFontPosition());
         recyclerView.setAdapter(fontAdapter);
-
         //Font click listener
         fontAdapter.setOnFontClickListener(new listener.OnFontClickListener() {
             @Override
-            public void onFontClick(Typeface typeface, String fontType) {
+            public void onFontClick(Typeface typeface, String fontType, int itemPosition) {
                 //Set short text typeface
                 if (mItalicFlag == 0 && mBoldFlag == 0) {
                     //Set typeface to normal
@@ -621,6 +646,8 @@ public class CollaborationActivity extends BaseActivity {
                 mTextTypeface = typeface;
                 //Set font type
                 mFontType = fontType;
+                //Method called
+                ViewHelper.scrollToNextItemPosition(layoutManager, recyclerView, itemPosition, mFontDataList.size());
             }
         });
     }
@@ -1049,6 +1076,7 @@ public class CollaborationActivity extends BaseActivity {
                     , mImageTintColor
                     , PREVIEW_EXTRA_CALLED_FROM_COLLABORATION
                     , mTemplateName
+                    , String.valueOf(mIsShadowSelected)
             );
 
         } catch (IOException e) {
@@ -1069,7 +1097,7 @@ public class CollaborationActivity extends BaseActivity {
             , String xPosition, String yPosition, String tvWidth, String tvHeight
             , String text, String textSize, String textColor, String textGravity
             , String imgWidth, String signature, String merchantable, String font
-            , String bold, String italic, String imageTintColor, String calledFrom, String templateName) {
+            , String bold, String italic, String imageTintColor, String calledFrom, String templateName, String isShadowSelected) {
 
         Intent intent = new Intent(CollaborationActivity.this, PreviewActivity.class);
 
@@ -1095,6 +1123,7 @@ public class CollaborationActivity extends BaseActivity {
         bundle.putString(PREVIEW_EXTRA_IMAGE_TINT_COLOR, imageTintColor);
         bundle.putString(PREVIEW_EXTRA_CALLED_FROM, calledFrom);
         bundle.putString(PREVIEW_EXTRA_TEMPLATE_NAME, templateName);
+        bundle.putString(PREVIEW_EXTRA_IS_SHADOW_SELECTED, isShadowSelected);
 
         intent.putExtra(PREVIEW_EXTRA_DATA, bundle);
         startActivityForResult(intent, REQUEST_CODE_PREVIEW_ACTIVITY);

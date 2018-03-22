@@ -51,6 +51,7 @@
     <string name="key_feed_item_type">meItemType</string>
     <string name="key_show_notif_indicator"></string>
     <string name="key_show_selected_font">selectedFont</string>
+    <string name="key_position_selected_font">positionSelectedFont</string>
     <string name="key_enable_chat_sound">enableChatSound</string>
     <string name="key_personal_chat_indicator">personalChatIndicator</string>
     <string name="key_personal_chat_dialog">keyPersonalChatDialog</string>
