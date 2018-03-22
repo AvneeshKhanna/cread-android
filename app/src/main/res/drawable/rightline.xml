@@ -3,8 +3,8 @@
     <item
         android:id="@+id/contentStyleLines"
         android:bottom="-2dp"
-        android:left="1dp"
-        android:right="-2dp"
+        android:left="-2dp"
+        android:right="1dp"
         android:top="-2dp">
         <shape android:shape="rectangle">
             <stroke
