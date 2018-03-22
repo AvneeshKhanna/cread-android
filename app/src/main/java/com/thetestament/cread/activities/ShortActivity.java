@@ -548,7 +548,7 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
                 textGravity = TextGravity.East;
                 if (mIsTemplateSelected) {
                     if (mTemplateName.equals(TEMPLATE_TWO)) {
-                        textShort.setBackground(ContextCompat.getDrawable(mContext, R.drawable.rightline));
+                        textShort.setBackground(ContextCompat.getDrawable(mContext, R.drawable.contentshape_rightline));
                         setContentShapeColor(textShort.getCurrentTextColor());
                     }
                 }
@@ -562,7 +562,7 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
 
                 if (mIsTemplateSelected) {
                     if (mTemplateName.equals(TEMPLATE_TWO)) {
-                        textShort.setBackground(ContextCompat.getDrawable(mContext, R.drawable.leftline));
+                        textShort.setBackground(ContextCompat.getDrawable(mContext, R.drawable.contentshape_leftline));
                         setContentShapeColor(textShort.getCurrentTextColor());
                     }
                 }
@@ -574,7 +574,7 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
                 textGravity = TextGravity.Center;
                 if (mIsTemplateSelected) {
                     if (mTemplateName.equals(TEMPLATE_TWO)) {
-                        textShort.setBackground(ContextCompat.getDrawable(mContext, R.drawable.leftrightlines));
+                        textShort.setBackground(ContextCompat.getDrawable(mContext, R.drawable.contentshape_leftrightlines));
                         setContentShapeColor(textShort.getCurrentTextColor());
                     }
                 }
@@ -1036,19 +1036,19 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
 
                     switch (templateName) {
                         case TEMPLATE_ONE:
-                            textShort.setBackground(ContextCompat.getDrawable(mContext, R.drawable.bottomtoplines));
+                            textShort.setBackground(ContextCompat.getDrawable(mContext, R.drawable.contentshape_bottomtoplines));
                             setContentShapeColor(textShort.getCurrentTextColor());
                             break;
                         case TEMPLATE_TWO:
-                            textShort.setBackground(ContextCompat.getDrawable(mContext, R.drawable.leftline));
+                            textShort.setBackground(ContextCompat.getDrawable(mContext, R.drawable.contentshape_leftline));
                             setContentShapeColor(textShort.getCurrentTextColor());
                             break;
                         case TEMPLATE_THREE:
-                            textShort.setBackground(ContextCompat.getDrawable(mContext, R.drawable.cornerlines));
+                            textShort.setBackground(ContextCompat.getDrawable(mContext, R.drawable.contentshape_cornerlines));
                             setContentShapeColor(textShort.getCurrentTextColor());
                             break;
                         case TEMPLATE_FOUR:
-                            textShort.setBackground(ContextCompat.getDrawable(mContext, R.drawable.quotemarks));
+                            textShort.setBackground(ContextCompat.getDrawable(mContext, R.drawable.contentshape_quotemarks));
                             setContentShapeColor(textShort.getCurrentTextColor());
                             break;
                         case TEMPLATE_FIVE:
@@ -1920,7 +1920,11 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
         );
     }
 
-
+    /**
+     * Sets the color of the content shape
+     *
+     * @param selectedColor color to set on the shape
+     */
     private void setContentShapeColor(int selectedColor) {
 
         if (mTemplateName.equals(TEMPLATE_THREE) || mTemplateName.equals(TEMPLATE_FOUR) || mTemplateName.equals(TEMPLATE_FIVE)) {
