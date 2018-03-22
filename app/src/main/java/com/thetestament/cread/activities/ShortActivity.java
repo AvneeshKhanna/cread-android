@@ -5,9 +5,12 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.Color;
+import android.graphics.PorterDuff;
 import android.graphics.Typeface;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
+import android.graphics.drawable.GradientDrawable;
+import android.graphics.drawable.LayerDrawable;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
@@ -24,7 +27,9 @@ import android.support.v7.widget.AppCompatImageView;
 import android.support.v7.widget.AppCompatSeekBar;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.text.Editable;
 import android.text.TextUtils;
+import android.text.TextWatcher;
 import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.Menu;
@@ -98,6 +103,11 @@ import static com.thetestament.cread.helpers.FontsHelper.FONT_TYPE_BOHEMIAN_TYPE
 import static com.thetestament.cread.helpers.FontsHelper.getFontType;
 import static com.thetestament.cread.helpers.NetworkHelper.getNetConnectionStatus;
 import static com.thetestament.cread.helpers.NetworkHelper.getObservableFromServer;
+import static com.thetestament.cread.helpers.TemplateHelper.TEMPLATE_FIVE;
+import static com.thetestament.cread.helpers.TemplateHelper.TEMPLATE_FOUR;
+import static com.thetestament.cread.helpers.TemplateHelper.TEMPLATE_ONE;
+import static com.thetestament.cread.helpers.TemplateHelper.TEMPLATE_THREE;
+import static com.thetestament.cread.helpers.TemplateHelper.TEMPLATE_TWO;
 import static com.thetestament.cread.utils.Constant.EXTRA_CAPTURE_ID;
 import static com.thetestament.cread.utils.Constant.EXTRA_CAPTURE_URL;
 import static com.thetestament.cread.utils.Constant.EXTRA_DATA;
@@ -526,18 +536,38 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
                 mGravityFlag = 1;
                 //Set gravity variable
                 textGravity = TextGravity.East;
+                if (mIsTemplateSelected) {
+                    if (mTemplateName.equals(TEMPLATE_TWO)) {
+                        textShort.setBackground(ContextCompat.getDrawable(mContext, R.drawable.rightline));
+                        setContentShapeColor(textShort.getCurrentTextColor());
+                    }
+                }
+
                 break;
             case 1:
                 textShort.setGravity(Gravity.LEFT);
                 btnAlignText.setImageDrawable(ContextCompat.getDrawable(this, R.drawable.ic_format_align_left_32));
                 mGravityFlag = 2;
                 textGravity = TextGravity.West;
+
+                if (mIsTemplateSelected) {
+                    if (mTemplateName.equals(TEMPLATE_TWO)) {
+                        textShort.setBackground(ContextCompat.getDrawable(mContext, R.drawable.leftline));
+                        setContentShapeColor(textShort.getCurrentTextColor());
+                    }
+                }
                 break;
             case 2:
                 textShort.setGravity(Gravity.CENTER);
                 btnAlignText.setImageDrawable(ContextCompat.getDrawable(this, R.drawable.ic_format_align_center_32));
                 mGravityFlag = 0;
                 textGravity = TextGravity.Center;
+                if (mIsTemplateSelected) {
+                    if (mTemplateName.equals(TEMPLATE_TWO)) {
+                        textShort.setBackground(ContextCompat.getDrawable(mContext, R.drawable.leftrightlines));
+                        setContentShapeColor(textShort.getCurrentTextColor());
+                    }
+                }
                 break;
         }
     }
@@ -707,6 +737,10 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
             //Change text color
             textShort.setTextColor(ContextCompat.getColor(mContext, R.color.color_grey_600));
             textShort.setHintTextColor(ContextCompat.getColor(mContext, R.color.color_grey_600));
+            // set content style color
+            if (mIsTemplateSelected) {
+                setContentShapeColor(ContextCompat.getColor(mContext, R.color.color_grey_600));
+            }
             //Remove default bg
             imageShort.setBackground(null);
         }
@@ -716,6 +750,8 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
         mCaptureID = "";
         mCaptureUrl = "";
         mIsMerchantable = true;
+
+
     }
 
     //endregion
@@ -912,6 +948,10 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
                     //Change short text color
                     textShort.setTextColor(selectedColor);
                     textShort.setHintTextColor(selectedColor);
+                    if (mIsTemplateSelected) {
+                        setContentShapeColor(selectedColor);
+                    }
+
                 } else if (mColorChooserType.equals("backGroundColor")) {
                     //Change backgroundColor
                     imageShort.setBackgroundColor(selectedColor);
@@ -945,15 +985,45 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
         templateAdapter.setOnTemplateClickListener(new listener.OnTemplateClickListener() {
             @Override
             public void onTemplateClick(String templateName) {
+
+                //Update template name
+                mTemplateName = templateName;
+
                 if (templateName.equals("none")) {
                     //Update flags
                     mIsTemplateSelected = false;
+                    // remove shape background
+                    textShort.setBackground(null);
                 } else {
                     //Update flag
                     mIsTemplateSelected = true;
+
+                    switch (templateName) {
+                        case TEMPLATE_ONE:
+                            textShort.setBackground(ContextCompat.getDrawable(mContext, R.drawable.bottomtoplines));
+                            setContentShapeColor(textShort.getCurrentTextColor());
+                            break;
+                        case TEMPLATE_TWO:
+                            textShort.setBackground(ContextCompat.getDrawable(mContext, R.drawable.leftline));
+                            setContentShapeColor(textShort.getCurrentTextColor());
+                            break;
+                        case TEMPLATE_THREE:
+                            textShort.setBackground(ContextCompat.getDrawable(mContext, R.drawable.cornerlines));
+                            setContentShapeColor(textShort.getCurrentTextColor());
+                            break;
+                        case TEMPLATE_FOUR:
+                            textShort.setBackground(ContextCompat.getDrawable(mContext, R.drawable.quotemarks));
+                            setContentShapeColor(textShort.getCurrentTextColor());
+                            break;
+                        case TEMPLATE_FIVE:
+                            break;
+
+                    }
                 }
-                //Update template name
-                mTemplateName = templateName;
+
+
+
+
                 //Fixme click functionality goes here
             }
         });
@@ -991,6 +1061,30 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
                 hideBottomSheets();
             }
         }));
+    }
+
+    private void initSizeChangeListener() {
+        textShort.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+                int height = textShort.getHeight();
+                int width = textShort.getWidth();
+
+                float ratio = width / height;
+
+            }
+
+            @Override
+            public void afterTextChanged(Editable editable) {
+
+            }
+        });
     }
 
     /**
@@ -1145,6 +1239,10 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
                                                     textShort.setTextColor(Color.parseColor(hexColorWithoutAlpha));
                                                     //set hint color
                                                     textShort.setHintTextColor(Color.parseColor(hexColorWithoutAlpha));
+                                                    // set shape color
+                                                    if (mIsTemplateSelected) {
+                                                        setContentShapeColor(Color.parseColor(hexColorWithoutAlpha));
+                                                    }
                                                 }
                                             }
                                         });
@@ -1436,6 +1534,10 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
                                 textShort.setText(responseObject.getString("text"));
                                 textShort.setTextColor((int) Long.parseLong(responseObject.getString("textcolor"), 16));
                                 textShort.setTextSize(ViewHelper.pixelsToSp(mContext, (float) responseObject.getDouble("textsize") * factor));
+
+                                //set content style color
+                                //TODO fix
+                                //setContentShapeColor();
 
 
                                 //Update short text typeface
@@ -1778,6 +1880,19 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
                     }
                 })
         );
+    }
+
+
+    private void setContentShapeColor(int selectedColor) {
+
+        if (mTemplateName.equals(TEMPLATE_THREE) || mTemplateName.equals(TEMPLATE_FOUR) || mTemplateName.equals(TEMPLATE_FIVE)) {
+            Drawable drawable = textShort.getBackground();
+            drawable.setColorFilter(selectedColor, PorterDuff.Mode.SRC_IN);
+        } else {
+            LayerDrawable layerDrawable = (LayerDrawable) textShort.getBackground();
+            GradientDrawable gradientDrawable = (GradientDrawable) layerDrawable.findDrawableByLayerId(R.id.contentStyleLines);
+            gradientDrawable.setStroke(ViewHelper.convertToPx(this, 1), selectedColor);
+        }
     }
     //endregion
 }
