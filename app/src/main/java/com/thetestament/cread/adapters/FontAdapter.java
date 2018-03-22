@@ -17,6 +17,7 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 
 import static com.thetestament.cread.helpers.FontsHelper.getFontType;
+import static com.thetestament.cread.helpers.FontsHelper.getTypeFaceName;
 
 /**
  * Adapter class to provide a binding from data set to views that are displayed within a Font RecyclerView.
@@ -58,6 +59,7 @@ public class FontAdapter extends RecyclerView.Adapter<FontAdapter.ItemViewHolder
     public void onBindViewHolder(FontAdapter.ItemViewHolder holder, final int position) {
         final FontModel data = mFontDataList.get(position);
         //Set typeface
+        holder.textFont.setText(getTypeFaceName(data.getFontName()));
         holder.textFont.setTypeface(getFontType(data.getFontName(), mContext));
 
         //update font selection indicator
