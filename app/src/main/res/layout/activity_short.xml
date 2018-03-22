@@ -11,12 +11,10 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-
         <com.thetestament.cread.widgets.SquareView
             android:id="@+id/imageContainer"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content">
-
 
             <ImageView
                 android:id="@+id/imageShort"
@@ -119,26 +117,35 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_above="@+id/containerFormatOptions"
-            android:layout_marginBottom="15dp">
+            android:layout_marginBottom="8dp">
 
             <ImageView
                 android:id="@+id/btnFormatTextSize"
                 android:layout_width="25dp"
                 android:layout_height="25dp"
                 android:layout_marginLeft="15dp"
-                android:visibility="invisible"
+                android:visibility="visible"
                 app:srcCompat="@drawable/ic_format_size_32" />
 
             <android.support.v7.widget.AppCompatSeekBar
                 android:id="@+id/seekBarTextSize"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_alignBottom="@+id/btnFormatTextSize"
-                android:layout_alignTop="@+id/btnFormatTextSize"
+                android:layout_centerInParent="true"
+                android:layout_marginLeft="5dp"
+                android:layout_toLeftOf="@+id/btnFormatShadow"
+                android:layout_toRightOf="@+id/btnFormatTextSize"
+                android:visibility="visible" />
+
+            <ImageView
+                android:id="@+id/btnFormatShadow"
+                android:layout_width="25dp"
+                android:layout_height="25dp"
+                android:layout_alignParentRight="true"
                 android:layout_marginLeft="5dp"
                 android:layout_marginRight="10dp"
-                android:layout_toRightOf="@+id/btnFormatTextSize"
-                android:visibility="invisible" />
+                android:visibility="visible"
+                app:srcCompat="@drawable/ic_format_size_32" />
         </RelativeLayout>
 
         <!--Format options-->
@@ -146,24 +153,25 @@
             android:id="@+id/containerFormatOptions"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_alignParentBottom="true">
+            android:layout_alignParentBottom="true"
+            android:layout_marginTop="8dp">
 
             <include
                 android:id="@+id/formatOptions"
                 layout="@layout/layout_format_option"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:visibility="invisible" />
+                android:visibility="visible" />
         </FrameLayout>
 
 
     </RelativeLayout>
 
     <!--Font option bottom sheet-->
-    <include layout="@layout/layout_font_bottom_sheet" />
+     <include layout="@layout/layout_font_bottom_sheet" />
     <!--Color option bottom sheet-->
-    <include layout="@layout/layout_color_bottom_sheet" />
+     <include layout="@layout/layout_color_bottom_sheet" />
     <!--Template option bottom sheet-->
-    <include layout="@layout/layout_template_bottom_sheet" />
+     <include layout="@layout/layout_template_bottom_sheet" />
 
 </android.support.design.widget.CoordinatorLayout>

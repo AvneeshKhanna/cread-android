@@ -5,6 +5,8 @@ import android.content.res.Resources;
 import android.support.design.widget.Snackbar;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.res.ResourcesCompat;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.util.TypedValue;
 import android.view.View;
 import android.widget.Toast;
@@ -63,6 +65,28 @@ public class ViewHelper {
                 .show();
     }
 
+
+    /**
+     * Method to scroll recycler view to next item if last selected item was last visible/first visible item.
+     *
+     * @param layoutManager LinearLayout manger.
+     * @param recyclerView  RecyclerView recycler view reference.
+     * @param itemPosition  Position of selected item in list.
+     * @param listSize      Size of list which contains all the item.
+     */
+    public static void scrollToNextItemPosition(LinearLayoutManager layoutManager, RecyclerView recyclerView, int itemPosition, int listSize) {
+        if ((layoutManager.findLastCompletelyVisibleItemPosition() == itemPosition
+                || layoutManager.findLastVisibleItemPosition() == itemPosition)
+                && (itemPosition != listSize - 1)) {
+            recyclerView.scrollToPosition(itemPosition + 1);
+        }
+
+        if ((layoutManager.findFirstCompletelyVisibleItemPosition() == itemPosition
+                || layoutManager.findFirstVisibleItemPosition() == itemPosition)
+                && (itemPosition != 0)) {
+            recyclerView.smoothScrollToPosition(itemPosition - 1);
+        }
+    }
 
     public static int convertToPx(Context context, int dp) {
         Resources r = context.getResources();

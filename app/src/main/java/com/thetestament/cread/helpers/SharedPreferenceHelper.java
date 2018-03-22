@@ -474,6 +474,26 @@ public class SharedPreferenceHelper {
         addPreferences(mContext.getString(R.string.key_show_selected_font), fontName);
     }
 
+    /**
+     * Method to get previous selected font position stored in shared preferences.
+     *
+     * @return Position of selected font.
+     */
+    public int getSelectedFontPosition() {
+        return mSharedPreferences.getInt(mContext.getString(R.string.key_position_selected_font)
+                , 0);
+    }
+
+    /**
+     * Method to update position of last selected font in shared preferences.
+     *
+     * @param position font to store.
+     */
+    public void setSelectedFontPosition(int position) {
+        SharedPreferences.Editor editor = mSharedPreferences.edit();
+        editor.putInt(mContext.getString(R.string.key_position_selected_font), position);
+        editor.apply();
+    }
 
     /**
      * Method to update chat sound enable status.

@@ -36,9 +36,10 @@ public class FontAdapter extends RecyclerView.Adapter<FontAdapter.ItemViewHolder
      * @param mFontDataList List of font data.
      * @param mContext      Context to be use.
      */
-    public FontAdapter(List<FontModel> mFontDataList, FragmentActivity mContext) {
+    public FontAdapter(List<FontModel> mFontDataList, FragmentActivity mContext, int lastSelectedPosition) {
         this.mFontDataList = mFontDataList;
         this.mContext = mContext;
+        mFontSelected = lastSelectedPosition;
     }
 
     /**
@@ -74,7 +75,7 @@ public class FontAdapter extends RecyclerView.Adapter<FontAdapter.ItemViewHolder
             @Override
             public void onClick(View view) {
                 //Set Listener
-                onFontClickListener.onFontClick(getFontType(data.getFontName(), mContext), data.getFontName());
+                onFontClickListener.onFontClick(getFontType(data.getFontName(), mContext), data.getFontName(), position);
                 //update flag and notify changes
                 mFontSelected = position;
                 notifyDataSetChanged();
