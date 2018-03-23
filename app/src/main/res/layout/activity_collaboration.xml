@@ -94,15 +94,31 @@
                 android:layout_toRightOf="@+id/btnFormatTextSize"
                 android:visibility="visible" />
 
-            <ImageView
+            <!--Shadow container-->
+            <FrameLayout
                 android:id="@+id/btnFormatShadow"
-                android:layout_width="25dp"
-                android:layout_height="25dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
                 android:layout_alignParentRight="true"
-                android:layout_marginLeft="5dp"
-                android:layout_marginRight="10dp"
-                android:visibility="visible"
-                app:srcCompat="@drawable/ic_format_size_32" />
+                android:layout_centerInParent="true"
+                android:paddingLeft="5dp"
+                android:paddingRight="16dp">
+
+                <ImageView
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:tint="@color/grey"
+                    app:srcCompat="@drawable/ic_stroke" />
+
+                <View
+                    android:id="@+id/dotShadow"
+                    android:layout_width="6dp"
+                    android:layout_height="6dp"
+                    android:layout_gravity="center_horizontal"
+                    android:layout_marginTop="22dp"
+                    android:background="@drawable/dot_shape"
+                    android:visibility="invisible" />
+            </FrameLayout>
         </RelativeLayout>
 
         <!--Format option layout-->

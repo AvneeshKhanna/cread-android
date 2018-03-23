@@ -168,8 +168,8 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
     CustomEditText textShort;
     @BindView(R.id.seekBarTextSize)
     AppCompatSeekBar seekBarTextSize;
-    @BindView(R.id.btnFormatShadow)
-    ImageView btnShadow;
+    @BindView(R.id.dotShadow)
+    View dotShadow;
     @BindView(R.id.btnLAlignText)
     ImageView btnAlignText;
     @BindView(R.id.dotBold)
@@ -285,7 +285,7 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
 
 
     /**
-     * Flag to maintain shadow  status. 0 if shadow applied 1 otherwise
+     * Flag to maintain shadow  status. 1 if shadow applied 0 otherwise
      */
     @State
     int mIsShadowSelected = 0;
@@ -770,13 +770,17 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
         if (mIsShadowSelected == 1) {
             //Update flags
             mIsShadowSelected = 0;
-            //Apply shadow on text
-            textShort.setShadowLayer(2, 2, 2
-                    , ContextCompat.getColor(mContext, R.color.color_grey_600));
-        } else {
-            mIsShadowSelected = 1;
             //Remove shadow layer
             textShort.setShadowLayer(0, 0, 0, 0);
+            //Show hide dot shadow
+            dotShadow.setVisibility(View.INVISIBLE);
+        } else {
+            mIsShadowSelected = 1;
+            //Apply shadow on text
+            textShort.setShadowLayer(3, 3, 3
+                    , ContextCompat.getColor(mContext, R.color.color_grey_600));
+            //Show show dot shadow
+            dotShadow.setVisibility(View.VISIBLE);
         }
     }
     //endregion

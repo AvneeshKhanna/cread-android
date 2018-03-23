@@ -143,6 +143,8 @@ public class CollaborationActivity extends BaseActivity {
     View dotBold;
     @BindView(R.id.dotItalic)
     View dotItalic;
+    @BindView(R.id.dotShadow)
+    View dotShadow;
 
     //Font bottom sheet
     @BindView(R.id.bottomSheetView)
@@ -533,13 +535,17 @@ public class CollaborationActivity extends BaseActivity {
         if (mIsShadowSelected == 1) {
             //Update flags
             mIsShadowSelected = 0;
-            //Apply shadow on text
-            textShort.setShadowLayer(2, 2, 2
-                    , ContextCompat.getColor(mContext, R.color.color_grey_600));
-        } else {
-            mIsShadowSelected = 1;
             //Remove shadow layer
             textShort.setShadowLayer(0, 0, 0, 0);
+            //Show hide dot shadow
+            dotShadow.setVisibility(View.INVISIBLE);
+        } else {
+            mIsShadowSelected = 1;
+            //Apply shadow on text
+            textShort.setShadowLayer(3, 3, 3
+                    , ContextCompat.getColor(mContext, R.color.color_grey_600));
+            //Show show dot shadow
+            dotShadow.setVisibility(View.VISIBLE);
         }
     }
 
