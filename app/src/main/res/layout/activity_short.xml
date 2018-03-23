@@ -145,7 +145,7 @@
                 android:layout_height="wrap_content"
                 android:layout_alignParentRight="true"
                 android:layout_centerInParent="true"
-                android:paddingLeft="5dp"
+                android:paddingLeft="8dp"
                 android:paddingRight="16dp">
 
                 <ImageView
@@ -184,10 +184,10 @@
     </RelativeLayout>
 
     <!--Font option bottom sheet-->
-    <include layout="@layout/layout_font_bottom_sheet" />
+    <!--<include layout="@layout/layout_font_bottom_sheet" />-->
     <!--Color option bottom sheet-->
-    <include layout="@layout/layout_color_bottom_sheet" />
+   <!-- <include layout="@layout/layout_color_bottom_sheet" />-->
     <!--Template option bottom sheet-->
-    <include layout="@layout/layout_template_bottom_sheet" />
+    <!--<include layout="@layout/layout_template_bottom_sheet" />-->
 
 </android.support.design.widget.CoordinatorLayout>
