@@ -1,8 +1,12 @@
 package com.thetestament.cread.helpers;
 
 import android.content.Context;
+import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
+import android.graphics.drawable.GradientDrawable;
+import android.graphics.drawable.LayerDrawable;
 import android.support.v4.content.ContextCompat;
+import android.widget.TextView;
 
 import com.thetestament.cread.R;
 
@@ -14,6 +18,18 @@ import com.thetestament.cread.R;
  * Helper class which provides utility methods for template related operations.
  */
 public class TemplateHelper {
+
+    //region :Template shape name
+    public static final String SHAPE_NAME_NONE = "shape_none";
+    public static final String SHAPE_NAME_QUOTE = "shape_quote";
+    public static final String SHAPE_NAME_SIDE_LINE = "shape_side_line";
+    public static final String SHAPE_NAME_TOP_BOTTOM_LINE = "shape_top_bottom_line";
+    public static final String SHAPE_NAME_CORNER_LINE = "shape_corner_line";
+    //endregion
+    public static final int FONT_SIZE_DEFAULT = 16;
+    public static final int FONT_SIZE_SMALL = 18;
+    public static final int FONT_SIZE_MEDIUM = 24;
+    public static final int FONT_SIZE_LARGE = 30;
 
     //region :Template names
     public static final String TEMPLATE_NONE = "none";
@@ -157,4 +173,28 @@ public class TemplateHelper {
     }
 
 
+    /**
+     * Sets the color of the content shape
+     *
+     * @param selectedColor color to set on the shape
+     * @param context       Context to use.
+     * @param shapeName     Name of background shape.
+     * @param textView      TextView/EditText object.
+     */
+    public static void setContentShapeColor(int selectedColor, String shapeName, TextView textView, Context context) {
+
+        switch (shapeName) {
+            case TemplateHelper.SHAPE_NAME_QUOTE:
+            case TemplateHelper.SHAPE_NAME_CORNER_LINE:
+                Drawable drawable = textView.getBackground();
+                drawable.setColorFilter(selectedColor, PorterDuff.Mode.SRC_IN);
+                break;
+            case TemplateHelper.SHAPE_NAME_SIDE_LINE:
+            case TemplateHelper.SHAPE_NAME_TOP_BOTTOM_LINE:
+                LayerDrawable layerDrawable = (LayerDrawable) textView.getBackground();
+                GradientDrawable gradientDrawable = (GradientDrawable) layerDrawable.findDrawableByLayerId(R.id.contentStyleLines);
+                gradientDrawable.setStroke(ViewHelper.convertToPx(context, 1), selectedColor);
+                break;
+        }
+    }
 }

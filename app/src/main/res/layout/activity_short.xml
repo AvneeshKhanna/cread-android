@@ -133,6 +133,8 @@
                 android:layout_height="wrap_content"
                 android:layout_centerInParent="true"
                 android:layout_marginLeft="5dp"
+                android:max="100"
+                android:min="0"
                 android:layout_toLeftOf="@+id/btnFormatShadow"
                 android:layout_toRightOf="@+id/btnFormatTextSize"
                 android:visibility="visible" />

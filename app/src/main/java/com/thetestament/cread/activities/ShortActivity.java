@@ -5,12 +5,9 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.Color;
-import android.graphics.PorterDuff;
 import android.graphics.Typeface;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
-import android.graphics.drawable.GradientDrawable;
-import android.graphics.drawable.LayerDrawable;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
@@ -101,11 +98,29 @@ import static com.thetestament.cread.helpers.FontsHelper.FONT_TYPE_BOHEMIAN_TYPE
 import static com.thetestament.cread.helpers.FontsHelper.getFontType;
 import static com.thetestament.cread.helpers.NetworkHelper.getNetConnectionStatus;
 import static com.thetestament.cread.helpers.NetworkHelper.getObservableFromServer;
+import static com.thetestament.cread.helpers.TemplateHelper.FONT_SIZE_DEFAULT;
+import static com.thetestament.cread.helpers.TemplateHelper.FONT_SIZE_LARGE;
+import static com.thetestament.cread.helpers.TemplateHelper.FONT_SIZE_MEDIUM;
+import static com.thetestament.cread.helpers.TemplateHelper.FONT_SIZE_SMALL;
 import static com.thetestament.cread.helpers.TemplateHelper.TEMPLATE_1;
+import static com.thetestament.cread.helpers.TemplateHelper.TEMPLATE_10;
+import static com.thetestament.cread.helpers.TemplateHelper.TEMPLATE_11;
+import static com.thetestament.cread.helpers.TemplateHelper.TEMPLATE_12;
+import static com.thetestament.cread.helpers.TemplateHelper.TEMPLATE_13;
+import static com.thetestament.cread.helpers.TemplateHelper.TEMPLATE_14;
+import static com.thetestament.cread.helpers.TemplateHelper.TEMPLATE_15;
+import static com.thetestament.cread.helpers.TemplateHelper.TEMPLATE_16;
+import static com.thetestament.cread.helpers.TemplateHelper.TEMPLATE_17;
 import static com.thetestament.cread.helpers.TemplateHelper.TEMPLATE_2;
 import static com.thetestament.cread.helpers.TemplateHelper.TEMPLATE_3;
 import static com.thetestament.cread.helpers.TemplateHelper.TEMPLATE_4;
 import static com.thetestament.cread.helpers.TemplateHelper.TEMPLATE_5;
+import static com.thetestament.cread.helpers.TemplateHelper.TEMPLATE_6;
+import static com.thetestament.cread.helpers.TemplateHelper.TEMPLATE_7;
+import static com.thetestament.cread.helpers.TemplateHelper.TEMPLATE_8;
+import static com.thetestament.cread.helpers.TemplateHelper.TEMPLATE_9;
+import static com.thetestament.cread.helpers.TemplateHelper.TEMPLATE_NONE;
+import static com.thetestament.cread.helpers.TemplateHelper.setContentShapeColor;
 import static com.thetestament.cread.utils.Constant.EXTRA_CAPTURE_ID;
 import static com.thetestament.cread.utils.Constant.EXTRA_CAPTURE_URL;
 import static com.thetestament.cread.utils.Constant.EXTRA_DATA;
@@ -275,13 +290,13 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
      * Flag to maintain templates selection status. True if selected false otherwise
      */
     @State
-    boolean mIsTemplateSelected = false;
+    boolean mIsShapeSelected = false;
 
     /**
      * Flag to store current selected template name.
      */
     @State
-    String mTemplateName = "none";
+    String mShapeName = "none";
 
 
     /**
@@ -325,6 +340,8 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
     InspirationAdapter mAdapter;
     private String mLastIndexKey;
     private boolean mRequestMoreData;
+
+    FontAdapter fontAdapter;
     //endregion
 
     //region :Overridden methods
@@ -544,10 +561,10 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
                 mGravityFlag = 1;
                 //Set gravity variable
                 textGravity = TextGravity.East;
-                if (mIsTemplateSelected) {
-                    if (mTemplateName.equals(TEMPLATE_2)) {
+                if (mIsShapeSelected) {
+                    if (mShapeName.equals(TemplateHelper.SHAPE_NAME_SIDE_LINE)) {
                         textShort.setBackground(ContextCompat.getDrawable(mContext, R.drawable.contentshape_rightline));
-                        setContentShapeColor(textShort.getCurrentTextColor());
+                        setContentShapeColor(textShort.getCurrentTextColor(), mShapeName, textShort, mContext);
                     }
                 }
 
@@ -558,10 +575,10 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
                 mGravityFlag = 2;
                 textGravity = TextGravity.West;
 
-                if (mIsTemplateSelected) {
-                    if (mTemplateName.equals(TEMPLATE_2)) {
+                if (mIsShapeSelected) {
+                    if (mShapeName.equals(TemplateHelper.SHAPE_NAME_SIDE_LINE)) {
                         textShort.setBackground(ContextCompat.getDrawable(mContext, R.drawable.contentshape_leftline));
-                        setContentShapeColor(textShort.getCurrentTextColor());
+                        setContentShapeColor(textShort.getCurrentTextColor(), mShapeName, textShort, mContext);
                     }
                 }
                 break;
@@ -570,10 +587,10 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
                 btnAlignText.setImageDrawable(ContextCompat.getDrawable(this, R.drawable.ic_format_align_center_32));
                 mGravityFlag = 0;
                 textGravity = TextGravity.Center;
-                if (mIsTemplateSelected) {
-                    if (mTemplateName.equals(TEMPLATE_2)) {
+                if (mIsShapeSelected) {
+                    if (mShapeName.equals(TemplateHelper.SHAPE_NAME_SIDE_LINE)) {
                         textShort.setBackground(ContextCompat.getDrawable(mContext, R.drawable.contentshape_leftrightlines));
-                        setContentShapeColor(textShort.getCurrentTextColor());
+                        setContentShapeColor(textShort.getCurrentTextColor(), mShapeName, textShort, mContext);
                     }
                 }
                 break;
@@ -746,8 +763,8 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
             textShort.setTextColor(ContextCompat.getColor(mContext, R.color.color_grey_600));
             textShort.setHintTextColor(ContextCompat.getColor(mContext, R.color.color_grey_600));
             // set content style color
-            if (mIsTemplateSelected) {
-                setContentShapeColor(ContextCompat.getColor(mContext, R.color.color_grey_600));
+            if (mIsShapeSelected) {
+                setContentShapeColor(textShort.getCurrentTextColor(), mShapeName, textShort, mContext);
             }
             //Remove default bg
             imageShort.setBackground(null);
@@ -920,7 +937,7 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
         //Set layout manager
         recyclerView.setLayoutManager(layoutManager);
         //Set adapter
-        FontAdapter fontAdapter = new FontAdapter(mFontDataList
+        fontAdapter = new FontAdapter(mFontDataList
                 , mContext
                 , mHelper.getSelectedFontPosition());
         //set adapter
@@ -989,8 +1006,8 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
                     //Change short text color
                     textShort.setTextColor(selectedColor);
                     textShort.setHintTextColor(selectedColor);
-                    if (mIsTemplateSelected) {
-                        setContentShapeColor(selectedColor);
+                    if (mIsShapeSelected) {
+                        setContentShapeColor(textShort.getCurrentTextColor(), mShapeName, textShort, mContext);
                     }
 
                 } else if (mColorChooserType.equals("backGroundColor")) {
@@ -1032,46 +1049,526 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
                 //Method called
                 ViewHelper.scrollToNextItemPosition(layoutManager, templateRecyclerView, itemPosition, templateList.size());
                 //Update template name
-                mTemplateName = templateName;
+                mShapeName = templateName;
 
-                if (templateName.equals("none")) {
-                    //Update flags
-                    mIsTemplateSelected = false;
-                    // remove shape background
-                    textShort.setBackground(null);
-                } else {
-                    //Update flag
-                    mIsTemplateSelected = true;
+                //Update flag
+                mIsShapeSelected = true;
 
-                    switch (templateName) {
-                        case TEMPLATE_1:
-                            textShort.setBackground(ContextCompat.getDrawable(mContext, R.drawable.contentshape_bottomtoplines));
-                            setContentShapeColor(textShort.getCurrentTextColor());
-                            break;
-                        case TEMPLATE_2:
-                            textShort.setBackground(ContextCompat.getDrawable(mContext, R.drawable.contentshape_leftline));
-                            setContentShapeColor(textShort.getCurrentTextColor());
-                            break;
-                        case TEMPLATE_3:
-                            textShort.setBackground(ContextCompat.getDrawable(mContext, R.drawable.contentshape_cornerlines));
-                            setContentShapeColor(textShort.getCurrentTextColor());
-                            break;
-                        case TEMPLATE_4:
-                            textShort.setBackground(ContextCompat.getDrawable(mContext, R.drawable.contentshape_quotemarks));
-                            setContentShapeColor(textShort.getCurrentTextColor());
-                            break;
-                        case TEMPLATE_5:
-                            break;
+                switch (templateName) {
+                    case TEMPLATE_NONE:
+                        // set font
+                        textShort.setTypeface(ResourcesCompat.getFont(mContext, R.font.bohemian_typewriter), Typeface.NORMAL);
+                        // update bold flag
+                        mBoldFlag = 0;
+                        dotBold.setVisibility(View.INVISIBLE);
+                        // set gravity params
+                        textShort.setGravity(Gravity.LEFT);
+                        //Change button drawable
+                        btnAlignText.setImageDrawable(ContextCompat.getDrawable(mContext, R.drawable.ic_format_align_left_32));
 
-                    }
+                        textGravity = TextGravity.West;
+                        mGravityFlag = 2;
+                        //set font size
+                        textShort.setTextSize(TypedValue.COMPLEX_UNIT_SP, 16);
+                        // update italic status
+                        mItalicFlag = 0;
+                        dotItalic.setVisibility(View.INVISIBLE);
+                        //update shadow
+                        textShort.setShadowLayer(0, 0, 0, 0);
+                        mIsShadowSelected = 0;
+                        dotShadow.setVisibility(View.INVISIBLE);
+                        // update shape
+                        textShort.setBackground(null);
+                        mIsShapeSelected = false;
+                        mShapeName = TemplateHelper.SHAPE_NAME_NONE;
+
+                        //Update text size slider
+                        seekBarTextSize.setProgress(0);
+                        break;
+                    case TEMPLATE_1:
+                        // set font
+                        textShort.setTypeface(ResourcesCompat.getFont(mContext, R.font.amatic_sc_regular), Typeface.BOLD);
+                        // update bold flag
+                        mBoldFlag = 1;
+                        dotBold.setVisibility(View.VISIBLE);
+                        // set gravity params
+                        textShort.setGravity(Gravity.CENTER);
+                        textGravity = TextGravity.Center;
+                        mGravityFlag = 0;
+                        //Change button drawable
+                        btnAlignText.setImageDrawable(ContextCompat.getDrawable(mContext, R.drawable.ic_format_align_center_32));
+                        //set font size
+                        textShort.setTextSize(TypedValue.COMPLEX_UNIT_SP, TemplateHelper.FONT_SIZE_MEDIUM);
+                        // update italic status
+                        mItalicFlag = 0;
+                        dotItalic.setVisibility(View.INVISIBLE);
+                        //update shadow
+                        textShort.setShadowLayer(3, 3, 3, ContextCompat.getColor(mContext, R.color.color_grey_600));
+                        mIsShadowSelected = 1;
+                        dotShadow.setVisibility(View.VISIBLE);
+                        // update shape
+                        textShort.setBackground(null);
+                        mIsShapeSelected = false;
+                        mShapeName = TemplateHelper.SHAPE_NAME_NONE;
+
+                        //Update text size slider
+                        seekBarTextSize.setProgress(FONT_SIZE_MEDIUM - FONT_SIZE_DEFAULT);
+
+                        break;
+                    case TEMPLATE_2:
+                        // set font
+                        textShort.setTypeface(ResourcesCompat.getFont(mContext, R.font.amatic_sc_regular), Typeface.BOLD);
+                        // update bold flag
+                        mBoldFlag = 1;
+                        dotBold.setVisibility(View.VISIBLE);
+                        // set gravity params
+                        textShort.setGravity(Gravity.CENTER);
+                        textGravity = TextGravity.Center;
+                        mGravityFlag = 0;
+                        btnAlignText.setImageDrawable(ContextCompat.getDrawable(mContext, R.drawable.ic_format_align_center_32));
+                        //set font size
+                        textShort.setTextSize(TypedValue.COMPLEX_UNIT_SP, FONT_SIZE_MEDIUM);
+                        // update italic status
+                        // update bold flag
+                        mItalicFlag = 0;
+                        dotItalic.setVisibility(View.INVISIBLE);
+                        //update shadow
+                        textShort.setShadowLayer(3, 3, 3, ContextCompat.getColor(mContext, R.color.color_grey_600));
+                        mIsShadowSelected = 1;
+                        dotShadow.setVisibility(View.VISIBLE);
+                        // update shape
+                        textShort.setBackground(ContextCompat.getDrawable(mContext, R.drawable.contentshape_bottomtoplines));
+                        mIsShapeSelected = true;
+                        mShapeName = TemplateHelper.SHAPE_NAME_TOP_BOTTOM_LINE;
+                        setContentShapeColor(textShort.getCurrentTextColor(), mShapeName, textShort, mContext);
+                        //Update text size slider
+                        seekBarTextSize.setProgress(FONT_SIZE_MEDIUM - FONT_SIZE_DEFAULT);
+
+                        break;
+                    case TEMPLATE_3:
+                        // set font
+                        textShort.setTypeface(ResourcesCompat.getFont(mContext, R.font.blackout_sunrise), Typeface.NORMAL);
+                        // update bold flag
+                        mBoldFlag = 0;
+                        dotBold.setVisibility(View.INVISIBLE);
+                        // set gravity params
+                        textShort.setGravity(Gravity.CENTER);
+                        textGravity = TextGravity.Center;
+                        mGravityFlag = 0;
+                        btnAlignText.setImageDrawable(ContextCompat.getDrawable(mContext, R.drawable.ic_format_align_center_32));
+                        //set font size
+                        textShort.setTextSize(TypedValue.COMPLEX_UNIT_SP, FONT_SIZE_LARGE);
+                        //Update text size slider
+                        seekBarTextSize.setProgress(FONT_SIZE_LARGE - FONT_SIZE_DEFAULT);
+                        // update italic status
+                        mItalicFlag = 0;
+                        dotItalic.setVisibility(View.INVISIBLE);
+                        //update shadow
+                        textShort.setShadowLayer(0, 0, 0, 0);
+                        mIsShadowSelected = 0;
+                        dotShadow.setVisibility(View.INVISIBLE);
+                        // update shape
+                        textShort.setBackground(null);
+                        mIsShapeSelected = false;
+                        mShapeName = TemplateHelper.SHAPE_NAME_NONE;
+
+                        break;
+
+                    case TEMPLATE_4:
+                        // set font
+                        textShort.setTypeface(ResourcesCompat.getFont(mContext, R.font.fressh), Typeface.NORMAL);
+                        // update bold flag
+                        mBoldFlag = 0;
+                        dotBold.setVisibility(View.INVISIBLE);
+                        // set gravity params
+                        textShort.setGravity(Gravity.LEFT);
+                        textGravity = TextGravity.West;
+                        mGravityFlag = 2;
+                        btnAlignText.setImageDrawable(ContextCompat.getDrawable(mContext, R.drawable.ic_format_align_left_32));
+                        //set font size
+                        textShort.setTextSize(TypedValue.COMPLEX_UNIT_SP, FONT_SIZE_MEDIUM);
+                        //Update text size slider
+                        seekBarTextSize.setProgress(FONT_SIZE_MEDIUM - FONT_SIZE_DEFAULT);
+                        // update italic status
+                        mItalicFlag = 0;
+                        dotItalic.setVisibility(View.INVISIBLE);
+                        //update shadow
+                        textShort.setShadowLayer(0, 0, 0, 0);
+                        mIsShadowSelected = 0;
+                        dotShadow.setVisibility(View.INVISIBLE);
+                        // update shape
+                        textShort.setBackground(null);
+                        mIsShapeSelected = false;
+                        mShapeName = TemplateHelper.SHAPE_NAME_NONE;
+                        break;
+                    case TEMPLATE_5:
+                        // set font
+                        textShort.setTypeface(ResourcesCompat.getFont(mContext, R.font.komikaaxis), Typeface.NORMAL);
+                        // update bold flag
+                        mBoldFlag = 0;
+                        dotBold.setVisibility(View.INVISIBLE);
+                        // set gravity params
+                        textShort.setGravity(Gravity.CENTER);
+                        textGravity = TextGravity.Center;
+                        mGravityFlag = 0;
+                        btnAlignText.setImageDrawable(ContextCompat.getDrawable(mContext, R.drawable.ic_format_align_center_32));
+                        //set font size
+                        textShort.setTextSize(TypedValue.COMPLEX_UNIT_SP, FONT_SIZE_SMALL);
+                        //Update text size slider
+                        seekBarTextSize.setProgress(FONT_SIZE_SMALL - FONT_SIZE_DEFAULT);
+                        // update italic status
+                        mItalicFlag = 0;
+                        dotItalic.setVisibility(View.INVISIBLE);
+                        //update shadow
+                        textShort.setShadowLayer(3, 3, 3, ContextCompat.getColor(mContext, R.color.color_grey_600));
+                        mIsShadowSelected = 1;
+                        dotShadow.setVisibility(View.VISIBLE);
+                        // update shape
+                        textShort.setBackground(null);
+                        mIsShapeSelected = false;
+                        mShapeName = TemplateHelper.SHAPE_NAME_NONE;
+                        break;
+                    case TEMPLATE_6:
+                        // set font
+                        textShort.setTypeface(ResourcesCompat.getFont(mContext, R.font.komikaaxis), Typeface.NORMAL);
+                        // update bold flag
+                        mBoldFlag = 0;
+                        dotBold.setVisibility(View.INVISIBLE);
+                        // set gravity params
+                        textShort.setGravity(Gravity.CENTER);
+                        textGravity = TextGravity.Center;
+                        mGravityFlag = 0;
+                        btnAlignText.setImageDrawable(ContextCompat.getDrawable(mContext, R.drawable.ic_format_align_center_32));
+                        //set font size
+                        textShort.setTextSize(TypedValue.COMPLEX_UNIT_SP, FONT_SIZE_SMALL);
+                        //Update text size slider
+                        seekBarTextSize.setProgress(FONT_SIZE_SMALL - FONT_SIZE_DEFAULT);
+                        // update italic status
+                        mItalicFlag = 0;
+                        dotItalic.setVisibility(View.INVISIBLE);
+                        //update shadow
+                        textShort.setShadowLayer(3, 3, 3, ContextCompat.getColor(mContext, R.color.color_grey_600));
+                        mIsShadowSelected = 1;
+                        dotShadow.setVisibility(View.VISIBLE);
+                        // update shape
+                        textShort.setBackground(ContextCompat.getDrawable(mContext, R.drawable.contentshape_bottomtoplines));
+                        mIsShapeSelected = true;
+                        mShapeName = TemplateHelper.SHAPE_NAME_TOP_BOTTOM_LINE;
+                        setContentShapeColor(textShort.getCurrentTextColor(), mShapeName, textShort, mContext);
+                        break;
+                    case TEMPLATE_7:
+                        // set font
+                        textShort.setTypeface(ResourcesCompat.getFont(mContext, R.font.langdon), Typeface.NORMAL);
+                        // update bold flag
+                        mBoldFlag = 0;
+                        dotBold.setVisibility(View.INVISIBLE);
+                        // set gravity params
+                        textShort.setGravity(Gravity.CENTER);
+                        textGravity = TextGravity.Center;
+                        mGravityFlag = 0;
+                        btnAlignText.setImageDrawable(ContextCompat.getDrawable(mContext, R.drawable.ic_format_align_center_32));
+                        //set font size
+                        textShort.setTextSize(TypedValue.COMPLEX_UNIT_SP, FONT_SIZE_LARGE);
+                        //Update text size slider
+                        seekBarTextSize.setProgress(FONT_SIZE_LARGE - FONT_SIZE_DEFAULT);
+                        // update italic status
+                        mItalicFlag = 0;
+                        dotItalic.setVisibility(View.INVISIBLE);
+                        //update shadow
+                        textShort.setShadowLayer(0, 0, 0, 0);
+                        mIsShadowSelected = 0;
+                        dotShadow.setVisibility(View.INVISIBLE);
+                        // update shape
+                        textShort.setBackground(null);
+                        mIsShapeSelected = false;
+                        mShapeName = TemplateHelper.SHAPE_NAME_NONE;
+                        break;
+                    case TEMPLATE_8:
+                        // set font
+                        textShort.setTypeface(ResourcesCompat.getFont(mContext, R.font.a_love_of_thunder), Typeface.NORMAL);
+                        // update bold flag
+                        mBoldFlag = 0;
+                        dotBold.setVisibility(View.INVISIBLE);
+                        // set gravity params
+                        textShort.setGravity(Gravity.CENTER);
+                        textGravity = TextGravity.Center;
+                        mGravityFlag = 0;
+                        //set font size
+                        textShort.setTextSize(TypedValue.COMPLEX_UNIT_SP, FONT_SIZE_LARGE);
+                        //Update text size slider
+                        seekBarTextSize.setProgress(FONT_SIZE_LARGE - FONT_SIZE_DEFAULT);
+                        // update italic status
+                        mItalicFlag = 0;
+                        dotItalic.setVisibility(View.INVISIBLE);
+                        //update shadow
+                        textShort.setShadowLayer(3, 3, 3, ContextCompat.getColor(mContext, R.color.color_grey_600));
+                        mIsShadowSelected = 1;
+                        dotShadow.setVisibility(View.VISIBLE);
+                        // update shape
+                        textShort.setBackground(null);
+                        mIsShapeSelected = false;
+                        mShapeName = TemplateHelper.SHAPE_NAME_NONE;
+                        break;
+                    case TEMPLATE_9:
+                        // set font
+                        textShort.setTypeface(ResourcesCompat.getFont(mContext, R.font.ostrich_rounded), Typeface.NORMAL);
+                        // update bold flag
+                        mBoldFlag = 0;
+                        dotBold.setVisibility(View.INVISIBLE);
+                        // set gravity params
+                        textShort.setGravity(Gravity.LEFT);
+                        textGravity = TextGravity.West;
+                        mGravityFlag = 2;
+                        btnAlignText.setImageDrawable(ContextCompat.getDrawable(mContext, R.drawable.ic_format_align_left_32));
+                        //set font size
+                        textShort.setTextSize(TypedValue.COMPLEX_UNIT_SP, FONT_SIZE_MEDIUM);
+                        //Update text size slider
+                        seekBarTextSize.setProgress(FONT_SIZE_MEDIUM - FONT_SIZE_DEFAULT);
+                        // update italic status
+                        mItalicFlag = 0;
+                        dotItalic.setVisibility(View.INVISIBLE);
+                        //update shadow
+                        textShort.setShadowLayer(0, 0, 0, 0);
+                        mIsShadowSelected = 0;
+                        dotShadow.setVisibility(View.INVISIBLE);
+                        // update shape
+                        textShort.setBackground(null);
+                        mIsShapeSelected = false;
+                        mShapeName = TemplateHelper.SHAPE_NAME_NONE;
+
+                        break;
+                    case TEMPLATE_10:
+
+                        // set font
+                        textShort.setTypeface(ResourcesCompat.getFont(mContext, R.font.ostrich_rounded), Typeface.NORMAL);
+                        // update bold flag
+                        mBoldFlag = 0;
+                        dotBold.setVisibility(View.INVISIBLE);
+                        // set gravity params
+                        textShort.setGravity(Gravity.LEFT);
+                        textGravity = TextGravity.West;
+                        mGravityFlag = 2;
+                        btnAlignText.setImageDrawable(ContextCompat.getDrawable(mContext, R.drawable.ic_format_align_left_32));
+                        //set font size
+                        textShort.setTextSize(TypedValue.COMPLEX_UNIT_SP, FONT_SIZE_MEDIUM);
+                        //Update text size slider
+                        seekBarTextSize.setProgress(FONT_SIZE_MEDIUM - FONT_SIZE_DEFAULT);
+                        // update italic status
+                        mItalicFlag = 0;
+                        dotItalic.setVisibility(View.INVISIBLE);
+                        //update shadow
+                        textShort.setShadowLayer(0, 0, 0, 0);
+                        mIsShadowSelected = 0;
+                        dotShadow.setVisibility(View.INVISIBLE);
+                        // update shape
+                        textShort.setBackground(ContextCompat.getDrawable(mContext, R.drawable.contentshape_leftline));
+                        mIsShapeSelected = true;
+                        mShapeName = TemplateHelper.SHAPE_NAME_SIDE_LINE;
+                        setContentShapeColor(textShort.getCurrentTextColor(), mShapeName, textShort, mContext);
+                        break;
+                    case TEMPLATE_11:
+                        // set font
+                        textShort.setTypeface(ResourcesCompat.getFont(mContext, R.font.pacifico), Typeface.NORMAL);
+                        // update bold flag
+                        mBoldFlag = 0;
+                        dotBold.setVisibility(View.INVISIBLE);
+                        // set gravity params
+                        textShort.setGravity(Gravity.CENTER);
+                        textGravity = TextGravity.Center;
+                        mGravityFlag = 0;
+                        btnAlignText.setImageDrawable(ContextCompat.getDrawable(mContext, R.drawable.ic_format_align_center_32));
+                        //set font size
+                        textShort.setTextSize(TypedValue.COMPLEX_UNIT_SP, FONT_SIZE_MEDIUM);
+                        //Update text size slider
+                        seekBarTextSize.setProgress(FONT_SIZE_MEDIUM - FONT_SIZE_DEFAULT);
+                        // update italic status
+                        mItalicFlag = 0;
+                        dotItalic.setVisibility(View.INVISIBLE);
+                        //update shadow
+                        textShort.setShadowLayer(0, 0, 0, 0);
+                        mIsShadowSelected = 0;
+                        dotShadow.setVisibility(View.INVISIBLE);
+                        // update shape
+                        textShort.setBackground(null);
+                        mIsShapeSelected = false;
+                        mShapeName = TemplateHelper.SHAPE_NAME_NONE;
+
+                        break;
+                    case TEMPLATE_12:
+                        // set font
+                        textShort.setTypeface(ResourcesCompat.getFont(mContext, R.font.pacifico), Typeface.NORMAL);
+                        // update bold flag
+                        mBoldFlag = 0;
+                        dotBold.setVisibility(View.INVISIBLE);
+                        // set gravity params
+                        textShort.setGravity(Gravity.CENTER);
+                        textGravity = TextGravity.Center;
+                        mGravityFlag = 0;
+                        btnAlignText.setImageDrawable(ContextCompat.getDrawable(mContext, R.drawable.ic_format_align_center_32));
+                        //set font size
+                        textShort.setTextSize(TypedValue.COMPLEX_UNIT_SP, FONT_SIZE_MEDIUM);
+                        //Update text size slider
+                        seekBarTextSize.setProgress(FONT_SIZE_MEDIUM - FONT_SIZE_DEFAULT);
+                        // update italic status
+                        mItalicFlag = 0;
+                        dotItalic.setVisibility(View.INVISIBLE);
+                        //update shadow
+                        textShort.setShadowLayer(0, 0, 0, 0);
+                        mIsShadowSelected = 0;
+                        dotShadow.setVisibility(View.INVISIBLE);
+                        // update shape
+                        textShort.setBackground(ContextCompat.getDrawable(mContext, R.drawable.contentshape_quotemarks));
+                        mIsShapeSelected = true;
+                        mShapeName = TemplateHelper.SHAPE_NAME_QUOTE;
+                        setContentShapeColor(textShort.getCurrentTextColor(), mShapeName, textShort, mContext);
+                        break;
+                    case TEMPLATE_13:
+                        // set font
+                        textShort.setTypeface(ResourcesCompat.getFont(mContext, R.font.poiret_one_regular), Typeface.NORMAL);
+                        // update bold flag
+                        mBoldFlag = 0;
+                        dotBold.setVisibility(View.INVISIBLE);
+                        // set gravity params
+                        textShort.setGravity(Gravity.CENTER);
+                        textGravity = TextGravity.Center;
+                        mGravityFlag = 0;
+                        btnAlignText.setImageDrawable(ContextCompat.getDrawable(mContext, R.drawable.ic_format_align_center_32));
+                        //set font size
+                        textShort.setTextSize(TypedValue.COMPLEX_UNIT_SP, FONT_SIZE_LARGE);
+                        //Update text size slider
+                        seekBarTextSize.setProgress(FONT_SIZE_LARGE - FONT_SIZE_DEFAULT);
+                        // update italic status
+                        mItalicFlag = 0;
+                        dotItalic.setVisibility(View.INVISIBLE);
+                        //update shadow
+                        textShort.setShadowLayer(3, 3, 3, ContextCompat.getColor(mContext, R.color.color_grey_600));
+                        mIsShadowSelected = 1;
+                        dotShadow.setVisibility(View.VISIBLE);
+                        // update shape
+                        textShort.setBackground(null);
+                        mIsShapeSelected = false;
+                        mShapeName = TemplateHelper.SHAPE_NAME_NONE;
+
+                        break;
+                    case TEMPLATE_14:
+                        // set font
+                        textShort.setTypeface(ResourcesCompat.getFont(mContext, R.font.poiret_one_regular), Typeface.NORMAL);
+                        // update bold flag
+                        mBoldFlag = 0;
+                        dotBold.setVisibility(View.INVISIBLE);
+                        // set gravity params
+                        textShort.setGravity(Gravity.CENTER);
+                        textGravity = TextGravity.Center;
+                        mGravityFlag = 0;
+                        btnAlignText.setImageDrawable(ContextCompat.getDrawable(mContext, R.drawable.ic_format_align_center_32));
+                        //set font size
+                        textShort.setTextSize(TypedValue.COMPLEX_UNIT_SP, FONT_SIZE_LARGE);
+                        //Update text size slider
+                        seekBarTextSize.setProgress(FONT_SIZE_LARGE - FONT_SIZE_DEFAULT);
+                        // update italic status
+                        mItalicFlag = 0;
+                        dotItalic.setVisibility(View.INVISIBLE);
+                        //update shadow
+                        textShort.setShadowLayer(3, 3, 3, ContextCompat.getColor(mContext, R.color.color_grey_600));
+                        mIsShadowSelected = 1;
+                        dotShadow.setVisibility(View.VISIBLE);
+                        // update shape
+                        textShort.setBackground(ContextCompat.getDrawable(mContext, R.drawable.contentshape_quotemarks));
+                        mIsShapeSelected = true;
+                        mShapeName = TemplateHelper.SHAPE_NAME_QUOTE;
+                        setContentShapeColor(textShort.getCurrentTextColor(), mShapeName, textShort, mContext);
+                        break;
+                    case TEMPLATE_15:
+                        // set font
+                        textShort.setTypeface(ResourcesCompat.getFont(mContext, R.font.blackout_twoam), Typeface.NORMAL);
+                        // update bold flag
+                        mBoldFlag = 0;
+                        dotBold.setVisibility(View.INVISIBLE);
+                        // set gravity params
+                        textShort.setGravity(Gravity.CENTER);
+                        textGravity = TextGravity.Center;
+                        mGravityFlag = 0;
+                        btnAlignText.setImageDrawable(ContextCompat.getDrawable(mContext, R.drawable.ic_format_align_center_32));
+                        //set font size
+                        textShort.setTextSize(TypedValue.COMPLEX_UNIT_SP, FONT_SIZE_LARGE);
+                        //Update text size slider
+                        seekBarTextSize.setProgress(FONT_SIZE_LARGE - FONT_SIZE_DEFAULT);
+                        // update italic status
+                        mItalicFlag = 0;
+                        dotItalic.setVisibility(View.INVISIBLE);
+                        //update shadow
+                        textShort.setShadowLayer(3, 3, 3, ContextCompat.getColor(mContext, R.color.color_grey_600));
+                        mIsShadowSelected = 1;
+                        dotShadow.setVisibility(View.VISIBLE);
+                        // update shape
+                        textShort.setBackground(null);
+                        mIsShapeSelected = false;
+                        mShapeName = TemplateHelper.SHAPE_NAME_NONE;
+                        break;
+                    case TEMPLATE_16:
+                        // set font
+                        textShort.setTypeface(ResourcesCompat.getFont(mContext, R.font.yanone_kaffeesatz), Typeface.NORMAL);
+                        // update bold flag
+                        mBoldFlag = 0;
+                        dotBold.setVisibility(View.INVISIBLE);
+                        // set gravity params
+                        textShort.setGravity(Gravity.CENTER);
+                        textGravity = TextGravity.Center;
+                        mGravityFlag = 0;
+                        btnAlignText.setImageDrawable(ContextCompat.getDrawable(mContext, R.drawable.ic_format_align_center_32));
+                        //set font size
+                        textShort.setTextSize(TypedValue.COMPLEX_UNIT_SP, FONT_SIZE_MEDIUM);
+                        //Update text size slider
+                        seekBarTextSize.setProgress(FONT_SIZE_MEDIUM - FONT_SIZE_DEFAULT);
+                        // update italic status
+                        mItalicFlag = 0;
+                        dotItalic.setVisibility(View.INVISIBLE);
+                        //update shadow
+                        textShort.setShadowLayer(3, 3, 3, ContextCompat.getColor(mContext, R.color.color_grey_600));
+                        mIsShadowSelected = 1;
+                        dotShadow.setVisibility(View.VISIBLE);
+                        // update shape
+                        textShort.setBackground(null);
+                        mIsShapeSelected = false;
+                        mShapeName = TemplateHelper.SHAPE_NAME_NONE;
+
+                        break;
+                    case TEMPLATE_17:
+                        // set font
+                        textShort.setTypeface(ResourcesCompat.getFont(mContext, R.font.yanone_kaffeesatz), Typeface.NORMAL);
+                        // update bold flag
+                        mBoldFlag = 0;
+                        dotBold.setVisibility(View.INVISIBLE);
+                        // set gravity params
+                        textShort.setGravity(Gravity.CENTER);
+                        textGravity = TextGravity.Center;
+                        mGravityFlag = 0;
+                        btnAlignText.setImageDrawable(ContextCompat.getDrawable(mContext, R.drawable.ic_format_align_center_32));
+                        //set font size
+                        textShort.setTextSize(TypedValue.COMPLEX_UNIT_SP, FONT_SIZE_MEDIUM);
+                        //Update text size slider
+                        seekBarTextSize.setProgress(FONT_SIZE_MEDIUM - FONT_SIZE_DEFAULT);
+                        // update italic status
+                        mItalicFlag = 0;
+                        dotItalic.setVisibility(View.INVISIBLE);
+                        //update shadow
+                        textShort.setShadowLayer(3, 3, 3, ContextCompat.getColor(mContext, R.color.color_grey_600));
+                        mIsShadowSelected = 1;
+                        dotShadow.setVisibility(View.VISIBLE);
+                        // update shape
+                        textShort.setBackground(ContextCompat.getDrawable(mContext, R.drawable.contentshape_bottomtoplines));
+                        mIsShapeSelected = true;
+                        mShapeName = TemplateHelper.SHAPE_NAME_TOP_BOTTOM_LINE;
+                        setContentShapeColor(textShort.getCurrentTextColor(), mShapeName, textShort, mContext);
+                        break;
+
+                    default:
+
+
                 }
-
-
-                //Fixme click functionality goes here
             }
         });
     }
-
 
     /**
      * Method to initialize  edit text drag listener.
@@ -1262,8 +1759,8 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
                                                     //set hint color
                                                     textShort.setHintTextColor(Color.parseColor(hexColorWithoutAlpha));
                                                     // set shape color
-                                                    if (mIsTemplateSelected) {
-                                                        setContentShapeColor(Color.parseColor(hexColorWithoutAlpha));
+                                                    if (mIsShapeSelected) {
+                                                        setContentShapeColor(textShort.getCurrentTextColor(), mShapeName, textShort, mContext);
                                                     }
                                                 }
                                             }
@@ -1377,7 +1874,7 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
                     , mShortID
                     , mCaptionText
                     , mEntityID
-                    , mTemplateName
+                    , mShapeName
                     , String.valueOf(mIsShadowSelected)
             );
 
@@ -1559,9 +2056,75 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
                                 textShort.setTextColor((int) Long.parseLong(responseObject.getString("textcolor"), 16));
                                 textShort.setTextSize(ViewHelper.pixelsToSp(mContext, (float) responseObject.getDouble("textsize") * factor));
 
+                                //if text shadow is present
+                                if (responseObject.getLong("textshadow") == 1) {
+                                    //Update flag
+                                    mIsShadowSelected = 1;
+                                    //Show dot indicator
+                                    dotShadow.setVisibility(View.VISIBLE);
+                                    //Apply text shadow
+                                    textShort.setShadowLayer(3, 3, 3
+                                            , ContextCompat.getColor(mContext, R.color.color_grey_600));
+                                }
+
                                 //set content style color
-                                //TODO fix
-                                //setContentShapeColor();
+                                if (!responseObject.getString("shape").equals(TemplateHelper.SHAPE_NAME_NONE)) {
+                                    switch (responseObject.getString("shape")) {
+                                        case TemplateHelper.SHAPE_NAME_QUOTE:
+                                            //set shape
+                                            textShort.setBackground(ContextCompat.getDrawable(mContext, R.drawable.contentshape_quotemarks));
+                                            // set shape color
+                                            setContentShapeColor(textShort.getCurrentTextColor(), mShapeName, textShort, mContext);
+                                            //update flag
+                                            mIsShapeSelected = true;
+                                            // update shape name
+                                            mShapeName = TemplateHelper.SHAPE_NAME_QUOTE;
+                                            break;
+                                        case TemplateHelper.SHAPE_NAME_SIDE_LINE:
+                                            switch (responseObject.getString("textgravity")) {
+                                                case TEXT_GRAVITY_TYPE_LEFT:
+                                                    //set shape
+                                                    textShort.setBackground(ContextCompat.getDrawable(mContext, R.drawable.contentshape_leftline));
+                                                    break;
+
+                                                case TEXT_GRAVITY_TYPE_CENTER:
+                                                    //set shape
+                                                    textShort.setBackground(ContextCompat.getDrawable(mContext, R.drawable.contentshape_leftrightlines));
+                                                    break;
+                                                case TEXT_GRAVITY_TYPE_RIGHT:
+                                                    //set shape
+                                                    textShort.setBackground(ContextCompat.getDrawable(mContext, R.drawable.contentshape_rightline));
+                                                    break;
+                                            }
+                                            // set shape color
+                                            setContentShapeColor(textShort.getCurrentTextColor(), mShapeName, textShort, mContext);
+                                            //update flag
+                                            mIsShapeSelected = true;
+                                            // update shape name
+                                            mShapeName = TemplateHelper.SHAPE_NAME_SIDE_LINE;
+                                            break;
+                                        case TemplateHelper.SHAPE_NAME_TOP_BOTTOM_LINE:
+                                            //set shape
+                                            textShort.setBackground(ContextCompat.getDrawable(mContext, R.drawable.contentshape_bottomtoplines));
+                                            // set shape color
+                                            setContentShapeColor(textShort.getCurrentTextColor(), mShapeName, textShort, mContext);
+                                            //update flag
+                                            mIsShapeSelected = true;
+                                            // update shape name
+                                            mShapeName = TemplateHelper.SHAPE_NAME_TOP_BOTTOM_LINE;
+                                            break;
+                                        case TemplateHelper.SHAPE_NAME_CORNER_LINE:
+                                            //set shape
+                                            textShort.setBackground(ContextCompat.getDrawable(mContext, R.drawable.contentshape_cornerlines));
+                                            // set shape color
+                                            setContentShapeColor(textShort.getCurrentTextColor(), mShapeName, textShort, mContext);
+                                            //update flag
+                                            mIsShapeSelected = true;
+                                            // update shape name
+                                            mShapeName = TemplateHelper.SHAPE_NAME_CORNER_LINE;
+                                            break;
+                                    }
+                                }
 
 
                                 //Update short text typeface
@@ -1904,23 +2467,6 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
                     }
                 })
         );
-    }
-
-    /**
-     * Sets the color of the content shape
-     *
-     * @param selectedColor color to set on the shape
-     */
-    private void setContentShapeColor(int selectedColor) {
-
-        if (mTemplateName.equals(TEMPLATE_3) || mTemplateName.equals(TEMPLATE_4) || mTemplateName.equals(TEMPLATE_5)) {
-            Drawable drawable = textShort.getBackground();
-            drawable.setColorFilter(selectedColor, PorterDuff.Mode.SRC_IN);
-        } else {
-            LayerDrawable layerDrawable = (LayerDrawable) textShort.getBackground();
-            GradientDrawable gradientDrawable = (GradientDrawable) layerDrawable.findDrawableByLayerId(R.id.contentStyleLines);
-            gradientDrawable.setStroke(ViewHelper.convertToPx(this, 1), selectedColor);
-        }
     }
     //endregion
 }
