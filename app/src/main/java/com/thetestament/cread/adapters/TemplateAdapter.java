@@ -60,7 +60,7 @@ public class TemplateAdapter extends RecyclerView.Adapter<TemplateAdapter.ItemVi
         final TemplateModel data = mTemplateList.get(position);
 
         //Set template name
-        holder.textTemplateName.setText(data.getTemplateName());
+        holder.textTemplateName.setText(TemplateHelper.getTemplateName(data.getTemplateName()));
         //Set template image
         holder.imageView.setImageDrawable(TemplateHelper.getTemplateDrawable(data.getTemplateName(), mContext));
 
@@ -70,7 +70,7 @@ public class TemplateAdapter extends RecyclerView.Adapter<TemplateAdapter.ItemVi
             @Override
             public void onClick(View view) {
                 //Set Listener
-                templateClickListener.onTemplateClick(data.getTemplateName(),position);
+                templateClickListener.onTemplateClick(data.getTemplateName(), position);
                 //update flag and notify changes
                 mTemplateSelected = position;
                 notifyDataSetChanged();

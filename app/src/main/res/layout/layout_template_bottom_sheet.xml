@@ -26,6 +26,12 @@
             android:layout_marginTop="5dp"
             android:src="@drawable/ic_close_24" />
 
+        <android.support.v7.widget.AppCompatTextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="8dp"
+            android:text="Select a template" />
+
     </FrameLayout>
 
 

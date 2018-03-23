@@ -101,11 +101,11 @@ import static com.thetestament.cread.helpers.FontsHelper.FONT_TYPE_BOHEMIAN_TYPE
 import static com.thetestament.cread.helpers.FontsHelper.getFontType;
 import static com.thetestament.cread.helpers.NetworkHelper.getNetConnectionStatus;
 import static com.thetestament.cread.helpers.NetworkHelper.getObservableFromServer;
-import static com.thetestament.cread.helpers.TemplateHelper.TEMPLATE_FIVE;
-import static com.thetestament.cread.helpers.TemplateHelper.TEMPLATE_FOUR;
-import static com.thetestament.cread.helpers.TemplateHelper.TEMPLATE_ONE;
-import static com.thetestament.cread.helpers.TemplateHelper.TEMPLATE_THREE;
-import static com.thetestament.cread.helpers.TemplateHelper.TEMPLATE_TWO;
+import static com.thetestament.cread.helpers.TemplateHelper.TEMPLATE_1;
+import static com.thetestament.cread.helpers.TemplateHelper.TEMPLATE_2;
+import static com.thetestament.cread.helpers.TemplateHelper.TEMPLATE_3;
+import static com.thetestament.cread.helpers.TemplateHelper.TEMPLATE_4;
+import static com.thetestament.cread.helpers.TemplateHelper.TEMPLATE_5;
 import static com.thetestament.cread.utils.Constant.EXTRA_CAPTURE_ID;
 import static com.thetestament.cread.utils.Constant.EXTRA_CAPTURE_URL;
 import static com.thetestament.cread.utils.Constant.EXTRA_DATA;
@@ -545,7 +545,7 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
                 //Set gravity variable
                 textGravity = TextGravity.East;
                 if (mIsTemplateSelected) {
-                    if (mTemplateName.equals(TEMPLATE_TWO)) {
+                    if (mTemplateName.equals(TEMPLATE_2)) {
                         textShort.setBackground(ContextCompat.getDrawable(mContext, R.drawable.contentshape_rightline));
                         setContentShapeColor(textShort.getCurrentTextColor());
                     }
@@ -559,7 +559,7 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
                 textGravity = TextGravity.West;
 
                 if (mIsTemplateSelected) {
-                    if (mTemplateName.equals(TEMPLATE_TWO)) {
+                    if (mTemplateName.equals(TEMPLATE_2)) {
                         textShort.setBackground(ContextCompat.getDrawable(mContext, R.drawable.contentshape_leftline));
                         setContentShapeColor(textShort.getCurrentTextColor());
                     }
@@ -571,7 +571,7 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
                 mGravityFlag = 0;
                 textGravity = TextGravity.Center;
                 if (mIsTemplateSelected) {
-                    if (mTemplateName.equals(TEMPLATE_TWO)) {
+                    if (mTemplateName.equals(TEMPLATE_2)) {
                         textShort.setBackground(ContextCompat.getDrawable(mContext, R.drawable.contentshape_leftrightlines));
                         setContentShapeColor(textShort.getCurrentTextColor());
                     }
@@ -1044,23 +1044,23 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
                     mIsTemplateSelected = true;
 
                     switch (templateName) {
-                        case TEMPLATE_ONE:
+                        case TEMPLATE_1:
                             textShort.setBackground(ContextCompat.getDrawable(mContext, R.drawable.contentshape_bottomtoplines));
                             setContentShapeColor(textShort.getCurrentTextColor());
                             break;
-                        case TEMPLATE_TWO:
+                        case TEMPLATE_2:
                             textShort.setBackground(ContextCompat.getDrawable(mContext, R.drawable.contentshape_leftline));
                             setContentShapeColor(textShort.getCurrentTextColor());
                             break;
-                        case TEMPLATE_THREE:
+                        case TEMPLATE_3:
                             textShort.setBackground(ContextCompat.getDrawable(mContext, R.drawable.contentshape_cornerlines));
                             setContentShapeColor(textShort.getCurrentTextColor());
                             break;
-                        case TEMPLATE_FOUR:
+                        case TEMPLATE_4:
                             textShort.setBackground(ContextCompat.getDrawable(mContext, R.drawable.contentshape_quotemarks));
                             setContentShapeColor(textShort.getCurrentTextColor());
                             break;
-                        case TEMPLATE_FIVE:
+                        case TEMPLATE_5:
                             break;
 
                     }
@@ -1913,7 +1913,7 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
      */
     private void setContentShapeColor(int selectedColor) {
 
-        if (mTemplateName.equals(TEMPLATE_THREE) || mTemplateName.equals(TEMPLATE_FOUR) || mTemplateName.equals(TEMPLATE_FIVE)) {
+        if (mTemplateName.equals(TEMPLATE_3) || mTemplateName.equals(TEMPLATE_4) || mTemplateName.equals(TEMPLATE_5)) {
             Drawable drawable = textShort.getBackground();
             drawable.setColorFilter(selectedColor, PorterDuff.Mode.SRC_IN);
         } else {
