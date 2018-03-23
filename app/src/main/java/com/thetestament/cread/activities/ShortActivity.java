@@ -27,9 +27,7 @@ import android.support.v7.widget.AppCompatImageView;
 import android.support.v7.widget.AppCompatSeekBar;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.text.Editable;
 import android.text.TextUtils;
-import android.text.TextWatcher;
 import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.Menu;
@@ -963,7 +961,7 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
      * Method to initialize color bottom sheet.
      */
     private void initColorLayout() {
-        ArrayList<ColorModel> colorList = new ArrayList<>();
+        final ArrayList<ColorModel> colorList = new ArrayList<>();
         //initialize color data list
         for (String colorValue : ColorHelper.colorList) {
             ColorModel data = new ColorModel();
@@ -971,7 +969,10 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
             colorList.add(data);
         }
         //Set layout manager
-        colorRecyclerView.setLayoutManager(new LinearLayoutManager(mContext, LinearLayoutManager.HORIZONTAL, false));
+        final LinearLayoutManager layoutManager = new LinearLayoutManager(mContext
+                , LinearLayoutManager.HORIZONTAL
+                , false);
+        colorRecyclerView.setLayoutManager(layoutManager);
         //Set adapter
         ColorAdapter colorAdapter = new ColorAdapter(colorList, mContext);
         colorRecyclerView.setAdapter(colorAdapter);
@@ -979,7 +980,7 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
         //Font click listener
         colorAdapter.setColorSelectListener(new listener.OnColorSelectListener() {
             @Override
-            public void onColorSelected(int selectedColor) {
+            public void onColorSelected(int selectedColor, int itemPosition) {
                 if (mColorChooserType.equals("texColor")) {
                     //Change short text color
                     textShort.setTextColor(selectedColor);
@@ -994,6 +995,8 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
                     //Update flag
                     mIsBgColorPresent = true;
                 }
+                //Method called
+                ViewHelper.scrollToNextItemPosition(layoutManager, colorRecyclerView, itemPosition, colorList.size());
             }
         });
     }
@@ -1002,7 +1005,7 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
      * Method to initialize template bottom sheet.
      */
     private void initTemplateLayout() {
-        ArrayList<TemplateModel> templateList = new ArrayList<>();
+        final ArrayList<TemplateModel> templateList = new ArrayList<>();
         //initialize color data list
         for (String templateName : TemplateHelper.templateList) {
             TemplateModel data = new TemplateModel();
@@ -1010,9 +1013,10 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
             templateList.add(data);
         }
         //Set layout manager
-        templateRecyclerView.setLayoutManager(new LinearLayoutManager(mContext
+        final LinearLayoutManager layoutManager = new LinearLayoutManager(mContext
                 , LinearLayoutManager.HORIZONTAL
-                , false));
+                , false);
+        templateRecyclerView.setLayoutManager(layoutManager);
         //Set adapter
         TemplateAdapter templateAdapter = new TemplateAdapter(templateList, mContext);
         templateRecyclerView.setAdapter(templateAdapter);
@@ -1020,8 +1024,9 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
         //Template click listener
         templateAdapter.setOnTemplateClickListener(new listener.OnTemplateClickListener() {
             @Override
-            public void onTemplateClick(String templateName) {
-
+            public void onTemplateClick(String templateName, int itemPosition) {
+                //Method called
+                ViewHelper.scrollToNextItemPosition(layoutManager, templateRecyclerView, itemPosition, templateList.size());
                 //Update template name
                 mTemplateName = templateName;
 
@@ -1056,8 +1061,6 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
 
                     }
                 }
-
-
 
 
                 //Fixme click functionality goes here
@@ -1097,30 +1100,6 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
                 hideBottomSheets();
             }
         }));
-    }
-
-    private void initSizeChangeListener() {
-        textShort.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-
-            }
-
-            @Override
-            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-
-                int height = textShort.getHeight();
-                int width = textShort.getWidth();
-
-                float ratio = width / height;
-
-            }
-
-            @Override
-            public void afterTextChanged(Editable editable) {
-
-            }
-        });
     }
 
     /**
@@ -1201,8 +1180,9 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
      */
     private void initInspirationView() {
         //Set layout manger for recyclerView
-        recyclerViewInspiration.setLayoutManager(new LinearLayoutManager(mContext
-                , LinearLayoutManager.HORIZONTAL, false));
+        final LinearLayoutManager layoutManager = new LinearLayoutManager(mContext
+                , LinearLayoutManager.HORIZONTAL, false);
+        recyclerViewInspiration.setLayoutManager(layoutManager);
         //Set adapter
         mAdapter = new InspirationAdapter(mInspirationDataList, this, Constant.INSPIRATION_ITEM_TYPE_SMALL);
         recyclerViewInspiration.setAdapter(mAdapter);
@@ -1210,7 +1190,9 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
         //Setup listener
         mAdapter.setInspirationSelectListener(new listener.OnInspirationSelectListener() {
             @Override
-            public void onInspireImageSelected(InspirationModel model) {
+            public void onInspireImageSelected(InspirationModel model, int itemPosition) {
+                //Method called
+                ViewHelper.scrollToNextItemPosition(layoutManager, recyclerViewInspiration, itemPosition, mInspirationDataList.size());
                 //Retrieve data
                 mCaptureID = model.getCaptureID();
                 mCaptureUrl = model.getCapturePic();

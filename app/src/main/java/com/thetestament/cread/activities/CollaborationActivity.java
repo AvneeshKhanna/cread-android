@@ -656,7 +656,7 @@ public class CollaborationActivity extends BaseActivity {
      * Method to initialize color bottom sheet.
      */
     private void initColorLayout() {
-        ArrayList<ColorModel> colorList = new ArrayList<>();
+        final ArrayList<ColorModel> colorList = new ArrayList<>();
         //initialize color data list
         for (String colorValue : ColorHelper.colorList) {
             ColorModel data = new ColorModel();
@@ -664,7 +664,10 @@ public class CollaborationActivity extends BaseActivity {
             colorList.add(data);
         }
         //Set layout manager
-        colorRecyclerView.setLayoutManager(new LinearLayoutManager(mContext, LinearLayoutManager.HORIZONTAL, false));
+        final LinearLayoutManager layoutManager = new LinearLayoutManager(mContext
+                , LinearLayoutManager.HORIZONTAL
+                , false);
+        colorRecyclerView.setLayoutManager(layoutManager);
         //Set adapter
         ColorAdapter colorAdapter = new ColorAdapter(colorList, mContext);
         colorRecyclerView.setAdapter(colorAdapter);
@@ -672,9 +675,11 @@ public class CollaborationActivity extends BaseActivity {
         //Font click listener
         colorAdapter.setColorSelectListener(new listener.OnColorSelectListener() {
             @Override
-            public void onColorSelected(int selectedColor) {
+            public void onColorSelected(int selectedColor, int itemPosition) {
                 //Change short text color
                 textShort.setTextColor(selectedColor);
+                //Method called
+                ViewHelper.scrollToNextItemPosition(layoutManager, colorRecyclerView, itemPosition, colorList.size());
             }
         });
     }
@@ -683,7 +688,7 @@ public class CollaborationActivity extends BaseActivity {
      * Method to initialize template bottom sheet.
      */
     private void initTemplateLayout() {
-        ArrayList<TemplateModel> templateList = new ArrayList<>();
+        final ArrayList<TemplateModel> templateList = new ArrayList<>();
         //initialize color data list
         for (String templateName : TemplateHelper.templateList) {
             TemplateModel data = new TemplateModel();
@@ -691,9 +696,10 @@ public class CollaborationActivity extends BaseActivity {
             templateList.add(data);
         }
         //Set layout manager
-        templateRecyclerView.setLayoutManager(new LinearLayoutManager(mContext
+        final LinearLayoutManager layoutManager = new LinearLayoutManager(mContext
                 , LinearLayoutManager.HORIZONTAL
-                , false));
+                , false);
+        templateRecyclerView.setLayoutManager(layoutManager);
         //Set adapter
         TemplateAdapter templateAdapter = new TemplateAdapter(templateList, mContext);
         templateRecyclerView.setAdapter(templateAdapter);
@@ -701,7 +707,9 @@ public class CollaborationActivity extends BaseActivity {
         //Font click listener
         templateAdapter.setOnTemplateClickListener(new listener.OnTemplateClickListener() {
             @Override
-            public void onTemplateClick(String templateName) {
+            public void onTemplateClick(String templateName, int itemPosition) {
+                //Method called
+                ViewHelper.scrollToNextItemPosition(layoutManager, templateRecyclerView, itemPosition, templateList.size());
                 if (templateName.equals("none")) {
                     //Update flags
                     mIsTemplateSelected = false;

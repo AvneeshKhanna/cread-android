@@ -120,7 +120,7 @@ public class InspirationAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
             //Load inspiration image
             loadInspirationImage(data.getCapturePic(), itemViewHolder.imageInspiration);
             //ItemView onClick functionality
-            itemViewOnClick(itemViewHolder.itemView, data);
+            itemViewOnClick(itemViewHolder.itemView, data, position);
 
         } else if (holder.getItemViewType() == VIEW_TYPE_ITEM_DETAIL) {
             final ItemViewHolderDetail itemViewHolder = (ItemViewHolderDetail) holder;
@@ -185,12 +185,12 @@ public class InspirationAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
     /**
      * ItemView click functionality.
      */
-    private void itemViewOnClick(View view, final InspirationModel data) {
+    private void itemViewOnClick(View view, final InspirationModel data, final int itemPosition) {
         view.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 //Set listener
-                inspirationSelectListener.onInspireImageSelected(data);
+                inspirationSelectListener.onInspireImageSelected(data, itemPosition);
             }
         });
     }

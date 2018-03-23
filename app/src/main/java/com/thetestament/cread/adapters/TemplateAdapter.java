@@ -70,7 +70,7 @@ public class TemplateAdapter extends RecyclerView.Adapter<TemplateAdapter.ItemVi
             @Override
             public void onClick(View view) {
                 //Set Listener
-                templateClickListener.onTemplateClick(data.getTemplateName());
+                templateClickListener.onTemplateClick(data.getTemplateName(),position);
                 //update flag and notify changes
                 mTemplateSelected = position;
                 notifyDataSetChanged();

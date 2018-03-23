@@ -153,8 +153,7 @@
             android:id="@+id/containerFormatOptions"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_alignParentBottom="true"
-            android:layout_marginTop="8dp">
+            android:layout_alignParentBottom="true">
 
             <include
                 android:id="@+id/formatOptions"
@@ -168,10 +167,10 @@
     </RelativeLayout>
 
     <!--Font option bottom sheet-->
-     <include layout="@layout/layout_font_bottom_sheet" />
+    <include layout="@layout/layout_font_bottom_sheet" />
     <!--Color option bottom sheet-->
-     <include layout="@layout/layout_color_bottom_sheet" />
+    <include layout="@layout/layout_color_bottom_sheet" />
     <!--Template option bottom sheet-->
-     <include layout="@layout/layout_template_bottom_sheet" />
+    <include layout="@layout/layout_template_bottom_sheet" />
 
 </android.support.design.widget.CoordinatorLayout>
