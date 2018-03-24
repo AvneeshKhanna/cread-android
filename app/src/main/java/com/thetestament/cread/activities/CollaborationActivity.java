@@ -274,6 +274,8 @@ public class CollaborationActivity extends BaseActivity {
     SharedPreferenceHelper mHelper;
 
     CollaborationActivity mContext;
+    FontAdapter fontAdapter;
+    TemplateAdapter templateAdapter;
     //endregion
 
     @Override
@@ -453,6 +455,9 @@ public class CollaborationActivity extends BaseActivity {
     void onFontClicked() {
         //Show bottomSheet
         sheetBehavior.setState(BottomSheetBehavior.STATE_EXPANDED);
+        //update font selection
+        fontAdapter.updateSelectedFont(FontsHelper.getFontPosition(mFontType));
+        recyclerView.smoothScrollToPosition(FontsHelper.getFontPosition(mFontType));
     }
 
     /**
@@ -580,6 +585,11 @@ public class CollaborationActivity extends BaseActivity {
     void onTemplateCloseBtnClick() {
         //Hide font bottom sheet
         templateSheetBehaviour.setState(BottomSheetBehavior.STATE_COLLAPSED);
+        if (mIsShapeSelected) {
+            //update template selection
+            templateAdapter.updateSelectedTemplate(TemplateHelper.getTemplatePosition(mShapeName, mFontType));
+            templateRecyclerView.smoothScrollToPosition(TemplateHelper.getTemplatePosition(mShapeName, mFontType));
+        }
     }
 
     /**
@@ -682,7 +692,7 @@ public class CollaborationActivity extends BaseActivity {
         //Set layout manager
         recyclerView.setLayoutManager(layoutManager);
         //Set adapter
-        FontAdapter fontAdapter = new FontAdapter(mFontDataList, mContext, mHelper.getSelectedFontPosition());
+        fontAdapter = new FontAdapter(mFontDataList, mContext, mHelper.getSelectedFontPosition());
         recyclerView.setAdapter(fontAdapter);
         //Font click listener
         fontAdapter.setOnFontClickListener(new listener.OnFontClickListener() {
@@ -765,7 +775,7 @@ public class CollaborationActivity extends BaseActivity {
                 , false);
         templateRecyclerView.setLayoutManager(layoutManager);
         //Set adapter
-        TemplateAdapter templateAdapter = new TemplateAdapter(templateList, mContext);
+        templateAdapter = new TemplateAdapter(templateList, mContext);
         templateRecyclerView.setAdapter(templateAdapter);
 
         //Template click listener
@@ -856,7 +866,6 @@ public class CollaborationActivity extends BaseActivity {
                         //set font size
                         textShort.setTextSize(TypedValue.COMPLEX_UNIT_SP, FONT_SIZE_MEDIUM);
                         // update italic status
-                        // update bold flag
                         mItalicFlag = 0;
                         dotItalic.setVisibility(View.INVISIBLE);
                         //update shadow

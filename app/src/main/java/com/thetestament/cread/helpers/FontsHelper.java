@@ -101,7 +101,7 @@ public class FontsHelper {
             , FONT_TYPE_PACIFICO
             , FONT_TYPE_QUESTA_GRANDE
             , FONT_TYPE_QUICKSAND
-            , FONT_TYPE_RIBBON//
+            , FONT_TYPE_RIBBON
             , FONT_TYPE_THUNDER_PANTS
             , FONT_TYPE_TREND_HANDMADE
             , FONT_TYPE_VENERA
@@ -320,6 +320,110 @@ public class FontsHelper {
                 return "Yonder";
             default:
                 return "Font";
+        }
+    }
+
+    /**
+     * Method to return font position in list.
+     *
+     * @param fontType Font type.
+     */
+    public static int getFontPosition(String fontType) {
+        switch (fontType) {
+            case FONT_TYPE_BOHEMIAN_TYPEWRITER:
+                return 0;
+            case FONT_TYPE_BROTHER_DELUXE:
+                return 1;
+            case FONT_TYPE_MONTSERRAT_REGULAR:
+                return 2;
+            case FONT_TYPE_AMATIC_SC_REGULAR:
+                return 3;
+            case FONT_TYPE_BARLOW_CONDENSED_REGULAR:
+                return 4;
+            case FONT_TYPE_CABIN_SKETCH_REGULAR:
+                return 5;
+            case FONT_TYPE_HELVETICA_NEUE_MEDIUM:
+                return 6;
+            case FONT_TYPE_INDIE_FLOWER:
+                return 7;
+            case FONT_TYPE_POIRET_ONE_REGULAR:
+                return 8;
+            case FONT_TYPE_WALTERTURNCOAT_REGULAR:
+                return 9;
+            case FONT_TYPE_RALEWAY_LIGHT:
+                return 10;
+            case FONT_TYPE_A_LOVE_OF_THUNDER:
+                return 11;
+            case FONT_TYPE_BABAS:
+                return 12;
+            case FONT_TYPE_BELLE_ROSE:
+                return 13;
+            case FONT_TYPE_BLACKOUT_SUNRISE:
+                return 14;
+            case FONT_TYPE_BLACKOUT_TWOAM:
+                return 15;
+            case FONT_TYPE_BRAIN_FLOWER:
+                return 16;
+            case FONT_TYPE_COMFORTAA:
+                return 17;
+            case FONT_TYPE_FOLK_SOLID:
+                return 18;
+            case FONT_TYPE_FRESSH:
+                return 19;
+            case FONT_TYPE_GARAGE_GOTHIC:
+                return 20;
+            case FONT_TYPE_GEO_SANS:
+                return 21;
+            case FONT_TYPE_GROTA_SANS_ROUNDED:
+                return 22;
+            case FONT_TYPE_HOMESTEAD:
+                return 23;
+            case FONT_TYPE_JACKALOPE:
+                return 24;
+            case FONT_TYPE_JOYFUL_JULIANA:
+                return 25;
+            case FONT_TYPE_JUICE:
+                return 26;
+            case FONT_TYPE_KOMIKAAXIS:
+                return 27;
+            case FONT_TYPE_LANGDON:
+                return 28;
+            case FONT_TYPE_LUNCHBOX_BOLD:
+                return 29;
+            case FONT_TYPE_MAVEN:
+                return 30;
+            case FONT_TYPE_METROPOLIS_1920:
+                return 31;
+            case FONT_TYPE_MUSEO_SANS_500:
+                return 32;
+            case FONT_TYPE_NEO_RETRO_DRAW:
+                return 33;
+            case FONT_TYPE_OSTRICH_ROUNDED:
+                return 34;
+            case FONT_TYPE_PACIFICO:
+                return 35;
+            case FONT_TYPE_QUESTA_GRANDE:
+                return 36;
+            case FONT_TYPE_QUICKSAND:
+                return 37;
+            case FONT_TYPE_RIBBON:
+                return 38;
+            case FONT_TYPE_THUNDER_PANTS:
+                return 39;
+            case FONT_TYPE_TREND_HANDMADE:
+                return 40;
+            case FONT_TYPE_VENERA:
+                return 41;
+            case FONT_TYPE_VETKA:
+                return 42;
+            case FONT_TYPE_VINDENCE:
+                return 43;
+            case FONT_TYPE_YANONE_KAFFEESATZ:
+                return 44;
+            case FONT_TYPE_YONDER:
+                return 45;
+            default:
+                return 0;
         }
     }
 }

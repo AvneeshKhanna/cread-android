@@ -197,4 +197,68 @@ public class TemplateHelper {
                 break;
         }
     }
+
+
+    /**
+     * Method to return template position in list.
+     *
+     * @param shapeName shapeName.
+     * @param fontName  Recently applied font name.
+     */
+    public static int getTemplatePosition(String shapeName, String fontName) {
+        switch (fontName) {
+            case FontsHelper.FONT_TYPE_BOHEMIAN_TYPEWRITER:
+                return 0;
+            case FontsHelper.FONT_TYPE_AMATIC_SC_REGULAR:
+                if (shapeName.equals(SHAPE_NAME_NONE)) {
+                    return 1;
+                } else {
+                    return 2;
+                }
+            case FontsHelper.FONT_TYPE_BLACKOUT_SUNRISE:
+                return 3;
+            case FontsHelper.FONT_TYPE_FRESSH:
+                return 4;
+
+            case FontsHelper.FONT_TYPE_KOMIKAAXIS:
+                if (shapeName.equals(SHAPE_NAME_NONE)) {
+                    return 5;
+                } else {
+                    return 6;
+                }
+            case FontsHelper.FONT_TYPE_LANGDON:
+                return 7;
+            case FontsHelper.FONT_TYPE_A_LOVE_OF_THUNDER:
+                return 8;
+            case FontsHelper.FONT_TYPE_OSTRICH_ROUNDED:
+                if (shapeName.equals(SHAPE_NAME_NONE)) {
+                    return 9;
+                } else {
+                    return 10;
+                }
+            case FontsHelper.FONT_TYPE_PACIFICO:
+                if (shapeName.equals(SHAPE_NAME_NONE)) {
+                    return 11;
+                } else {
+                    return 12;
+                }
+
+            case FontsHelper.FONT_TYPE_POIRET_ONE_REGULAR:
+                if (shapeName.equals(SHAPE_NAME_NONE)) {
+                    return 13;
+                } else {
+                    return 14;
+                }
+            case FontsHelper.FONT_TYPE_BLACKOUT_TWOAM:
+                return 15;
+            case FontsHelper.FONT_TYPE_YANONE_KAFFEESATZ:
+                if (shapeName.equals(SHAPE_NAME_NONE)) {
+                    return 16;
+                } else {
+                    return 17;
+                }
+            default:
+                return 0;
+        }
+    }
 }
