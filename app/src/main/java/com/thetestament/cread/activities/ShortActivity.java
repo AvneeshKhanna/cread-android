@@ -768,6 +768,8 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
             }
             //Remove default bg
             imageShort.setBackground(null);
+            imageShort.setBackgroundColor(ContextCompat.getColor(mContext, R.color.white));
+            mIsBgColorPresent = true;
         }
         //Toggle flags
         mIsImagePresent = false;
