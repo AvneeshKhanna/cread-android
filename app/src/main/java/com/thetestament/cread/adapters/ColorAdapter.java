@@ -53,7 +53,7 @@ public class ColorAdapter extends RecyclerView.Adapter<ColorAdapter.ItemViewHold
     }
 
     @Override
-    public void onBindViewHolder(ItemViewHolder holder, int position) {
+    public void onBindViewHolder(ItemViewHolder holder, final int position) {
         final ColorModel data = mColorDataList.get(position);
         //Set color
         holder.colorView.setColorFilter(ColorHelper.getColorValue(data.getColorValue(), mContext));
@@ -62,7 +62,7 @@ public class ColorAdapter extends RecyclerView.Adapter<ColorAdapter.ItemViewHold
             @Override
             public void onClick(View view) {
                 //Set Listener
-                listener.onColorSelected(ColorHelper.getColorValue(data.getColorValue(), mContext));
+                listener.onColorSelected(ColorHelper.getColorValue(data.getColorValue(), mContext), position);
             }
         });
 

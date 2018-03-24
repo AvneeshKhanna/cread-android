@@ -126,10 +126,12 @@ import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_ENTITY_ID;
 import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_FONT;
 import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_IMAGE_TINT_COLOR;
 import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_IMG_WIDTH;
+import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_IS_SHADOW_SELECTED;
 import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_ITALIC;
 import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_MERCHANTABLE;
 import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_SHORT_ID;
 import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_SIGNATURE;
+import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_TEMPLATE_NAME;
 import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_TEXT;
 import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_TEXT_COLOR;
 import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_TEXT_GRAVITY;
@@ -599,6 +601,8 @@ public class PreviewActivity extends BaseActivity implements QueryTokenReceiver,
                     , mBundle.getString(PREVIEW_EXTRA_ITALIC)
                     , mCapInMentionFormat
                     , mBundle.getString(PREVIEW_EXTRA_IMAGE_TINT_COLOR)
+                    , mBundle.getString(PREVIEW_EXTRA_TEMPLATE_NAME)
+                    , mBundle.getString(PREVIEW_EXTRA_IS_SHADOW_SELECTED)
             );
         }
         // short, shcapture
@@ -623,6 +627,8 @@ public class PreviewActivity extends BaseActivity implements QueryTokenReceiver,
                     , mBundle.getString(PREVIEW_EXTRA_ITALIC)
                     , mCapInMentionFormat
                     , mBundle.getString(PREVIEW_EXTRA_IMAGE_TINT_COLOR)
+                    , mBundle.getString(PREVIEW_EXTRA_TEMPLATE_NAME)
+                    , mBundle.getString(PREVIEW_EXTRA_IS_SHADOW_SELECTED)
             );
         }
         // capture
@@ -658,6 +664,8 @@ public class PreviewActivity extends BaseActivity implements QueryTokenReceiver,
                     , mBundle.getString(PREVIEW_EXTRA_ITALIC)
                     , mCapInMentionFormat
                     , mBundle.getString(PREVIEW_EXTRA_IMAGE_TINT_COLOR)
+                    , mBundle.getString(PREVIEW_EXTRA_TEMPLATE_NAME)
+                    , mBundle.getString(PREVIEW_EXTRA_IS_SHADOW_SELECTED)
             );
         } else {
             //do nothing
@@ -667,7 +675,7 @@ public class PreviewActivity extends BaseActivity implements QueryTokenReceiver,
     /**
      * Method to update capture/collaboration details on server.
      */
-    private void updateData(File imgHighRes, File imgLowRes, String shortID, final String uuid, final String authToken, String xPosition, String yPosition, String tvWidth, String tvHeight, String text, String textSize, String textColor, String textGravity, String imgWidth, String signature, String merchantable, String font, String bold, String italic, String captionText, String imageTintColor) {
+    private void updateData(File imgHighRes, File imgLowRes, String shortID, final String uuid, final String authToken, String xPosition, String yPosition, String tvWidth, String tvHeight, String text, String textSize, String textColor, String textGravity, String imgWidth, String signature, String merchantable, String font, String bold, String italic, String captionText, String imageTintColor, String templateName, String isShadowSelected) {
 
         //Configure OkHttpClient for time out
         OkHttpClient okHttpClient = new OkHttpClient().newBuilder()
@@ -713,6 +721,8 @@ public class PreviewActivity extends BaseActivity implements QueryTokenReceiver,
                 .addMultipartParameter("caption", captionText)
                 .addMultipartParameter("imgtintcolor", imageTintColor)
                 .addMultipartParameter("filtername", mFilterName)
+                .addMultipartParameter("shape", templateName)
+                .addMultipartParameter("textshadow", isShadowSelected)
                 .build()
                 .getJSONObjectObservable()
                 .subscribeOn(Schedulers.io())
@@ -782,7 +792,7 @@ public class PreviewActivity extends BaseActivity implements QueryTokenReceiver,
     /**
      * Update short image and other details on server.
      */
-    private void updateShort(File file, String captureID, final String uuid, final String authToken, String xPosition, String yPosition, String tvWidth, String tvHeight, String text, String textSize, String textColor, String textGravity, String imgWidth, String merchantable, String font, String bgColor, String bold, String italic, String captionText, String imageTintColor) {
+    private void updateShort(File file, String captureID, final String uuid, final String authToken, String xPosition, String yPosition, String tvWidth, String tvHeight, String text, String textSize, String textColor, String textGravity, String imgWidth, String merchantable, String font, String bgColor, String bold, String italic, String captionText, String imageTintColor, String templateName, String isShadowSelected) {
 
         String mMerchantable = null;
 
@@ -835,6 +845,8 @@ public class PreviewActivity extends BaseActivity implements QueryTokenReceiver,
                 .addMultipartParameter("caption", captionText)
                 .addMultipartParameter("imgtintcolor", imageTintColor)
                 .addMultipartParameter("filtername", mFilterName)
+                .addMultipartParameter("shape", templateName)
+                .addMultipartParameter("textshadow", isShadowSelected)
                 .build()
                 .getJSONObjectObservable()
                 .subscribeOn(Schedulers.io())
@@ -904,7 +916,7 @@ public class PreviewActivity extends BaseActivity implements QueryTokenReceiver,
     /**
      * Update edited short image and other details on server.
      */
-    private void updateEditedShort(final File file, String entityID, String captureID, String shortID, String uuid, String authToken, String xPosition, String yPosition, String tvWidth, String tvHeight, String text, String textSize, String textColor, String textGravity, String imgWidth, String merchantable, String font, String bgColor, String bold, String italic, final String captionText, String imageTintColor) {
+    private void updateEditedShort(final File file, String entityID, String captureID, String shortID, String uuid, String authToken, String xPosition, String yPosition, String tvWidth, String tvHeight, String text, String textSize, String textColor, String textGravity, String imgWidth, String merchantable, String font, String bgColor, String bold, String italic, final String captionText, String imageTintColor, String templateName, String isShadowSelected) {
 
         String mMerchantable;
 
@@ -958,6 +970,8 @@ public class PreviewActivity extends BaseActivity implements QueryTokenReceiver,
                 .addMultipartParameter("caption", captionText)
                 .addMultipartParameter("imgtintcolor", imageTintColor)
                 .addMultipartParameter("filtername", mFilterName)
+                .addMultipartParameter("shape", templateName)
+                .addMultipartParameter("textshadow", isShadowSelected)
                 .build()
                 .getJSONObjectObservable()
                 .subscribeOn(Schedulers.io())

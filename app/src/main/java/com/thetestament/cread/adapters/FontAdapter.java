@@ -17,6 +17,7 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 
 import static com.thetestament.cread.helpers.FontsHelper.getFontType;
+import static com.thetestament.cread.helpers.FontsHelper.getTypeFaceName;
 
 /**
  * Adapter class to provide a binding from data set to views that are displayed within a Font RecyclerView.
@@ -35,9 +36,10 @@ public class FontAdapter extends RecyclerView.Adapter<FontAdapter.ItemViewHolder
      * @param mFontDataList List of font data.
      * @param mContext      Context to be use.
      */
-    public FontAdapter(List<FontModel> mFontDataList, FragmentActivity mContext) {
+    public FontAdapter(List<FontModel> mFontDataList, FragmentActivity mContext, int lastSelectedPosition) {
         this.mFontDataList = mFontDataList;
         this.mContext = mContext;
+        mFontSelected = lastSelectedPosition;
     }
 
     /**
@@ -58,6 +60,7 @@ public class FontAdapter extends RecyclerView.Adapter<FontAdapter.ItemViewHolder
     public void onBindViewHolder(FontAdapter.ItemViewHolder holder, final int position) {
         final FontModel data = mFontDataList.get(position);
         //Set typeface
+        holder.textFont.setText(getTypeFaceName(data.getFontName()));
         holder.textFont.setTypeface(getFontType(data.getFontName(), mContext));
 
         //update font selection indicator
@@ -72,7 +75,7 @@ public class FontAdapter extends RecyclerView.Adapter<FontAdapter.ItemViewHolder
             @Override
             public void onClick(View view) {
                 //Set Listener
-                onFontClickListener.onFontClick(getFontType(data.getFontName(), mContext), data.getFontName());
+                onFontClickListener.onFontClick(getFontType(data.getFontName(), mContext), data.getFontName(), position);
                 //update flag and notify changes
                 mFontSelected = position;
                 notifyDataSetChanged();
@@ -98,5 +101,17 @@ public class FontAdapter extends RecyclerView.Adapter<FontAdapter.ItemViewHolder
             //Bind view
             ButterKnife.bind(this, itemView);
         }
+    }
+
+    /**
+     * Method to update selected font.
+     *
+     * @param position Position of font in the list.
+     */
+    public void updateSelectedFont(int position) {
+        //Update flag
+        mFontSelected = position;
+        //Notify changes
+        notifyDataSetChanged();
     }
 }

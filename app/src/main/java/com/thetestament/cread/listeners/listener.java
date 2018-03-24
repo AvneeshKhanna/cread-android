@@ -264,7 +264,7 @@ public class listener {
         /**
          * @param typeface Selected typeface
          */
-        void onFontClick(Typeface typeface, String fontType);
+        void onFontClick(Typeface typeface, String fontType, int itemPosition);
     }
 
     /**
@@ -315,7 +315,7 @@ public class listener {
      * Interface definition for a callback to be invoked when user selects color from bottom sheet.
      */
     public interface OnColorSelectListener {
-        void onColorSelected(int selectedColor);
+        void onColorSelected(int selectedColor, int itemPosition);
     }
 
     /**
@@ -329,7 +329,7 @@ public class listener {
      * Interface definition for a callback to be invoked when user selects image from inspiration list.
      */
     public interface OnInspirationSelectListener {
-        void onInspireImageSelected(InspirationModel model);
+        void onInspireImageSelected(InspirationModel model , int itemPosition);
     }
 
     /**
@@ -374,4 +374,14 @@ public class listener {
         void onDownvoteClicked(FeedModel data, int position, ImageView imageDownvote);
     }
 
+    /**
+     * Interface definition for a callback to be invoked when user selects template from bottom sheet.
+     */
+    public interface OnTemplateClickListener {
+        /**
+         * @param templateName Name of template
+         * @param itemPosition Position of item in list
+         **/
+        void onTemplateClick(String templateName, int itemPosition);
+    }
 }

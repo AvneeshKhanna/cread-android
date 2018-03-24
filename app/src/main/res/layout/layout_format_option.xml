@@ -3,48 +3,71 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    android:gravity="center"
     android:orientation="horizontal"
-    android:paddingBottom="10dp"
-    android:weightSum="6">
+    android:weightSum="7">
 
+    <!--Text alignment container-->
     <ImageView
         android:id="@+id/btnLAlignText"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_weight="1"
+        android:paddingBottom="16dp"
+        android:paddingTop="8dp"
         app:srcCompat="@drawable/ic_format_align_center_32" />
 
-
+    <!--Font container-->
     <ImageView
         android:id="@+id/btnFont"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_weight="1"
+        android:paddingBottom="16dp"
+        android:paddingTop="8dp"
         app:srcCompat="@drawable/ic_format_font_32dp" />
 
+    <!--Background color container-->
     <ImageView
         android:id="@+id/btnFormatBg"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_weight="1"
+        android:paddingBottom="16dp"
+        android:paddingTop="8dp"
         app:srcCompat="@drawable/ic_format_color_fill_32" />
 
+    <!--Text color container-->
     <ImageView
         android:id="@+id/btnFormatTextColor"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_weight="1"
+        android:paddingBottom="16dp"
+        android:paddingTop="8dp"
         app:srcCompat="@drawable/ic_format_color_text_32" />
 
-
-    <LinearLayout
+    <!--Template container-->
+    <ImageView
+        android:id="@+id/btnTemplate"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_weight="1"
-        android:orientation="vertical">
+        android:paddingBottom="16dp"
+        android:paddingTop="8dp"
+        app:srcCompat="@drawable/ic_style_vector" />
+
+    <!--Bold container-->
+    <FrameLayout
+        android:id="@+id/btnFormatTextBold"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:orientation="vertical"
+        android:paddingBottom="16dp"
+        android:paddingTop="8dp">
 
         <ImageView
-            android:id="@+id/btnFormatTextBold"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
@@ -54,20 +77,22 @@
             android:id="@+id/dotBold"
             android:layout_width="6dp"
             android:layout_height="6dp"
-            android:layout_gravity="bottom|center"
-            android:layout_marginTop="-2dp"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="24dp"
             android:background="@drawable/dot_shape"
             android:visibility="invisible" />
-    </LinearLayout>
+    </FrameLayout>
 
-    <LinearLayout
+    <!--Italic container-->
+    <FrameLayout
+        android:id="@+id/btnFormatTextItalic"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_weight="1"
-        android:orientation="vertical">
+        android:paddingBottom="16dp"
+        android:paddingTop="8dp">
 
         <ImageView
-            android:id="@+id/btnFormatTextItalic"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
@@ -77,10 +102,10 @@
             android:id="@+id/dotItalic"
             android:layout_width="6dp"
             android:layout_height="6dp"
-            android:layout_gravity="bottom|center"
-            android:layout_marginTop="-2dp"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="24dp"
             android:background="@drawable/dot_shape"
             android:visibility="invisible" />
-    </LinearLayout>
+    </FrameLayout>
 
 </LinearLayout>
