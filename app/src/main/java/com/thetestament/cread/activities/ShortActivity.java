@@ -173,9 +173,6 @@ import static com.thetestament.cread.utils.Constant.SHORT_EXTRA_CALLED_FROM;
 import static com.thetestament.cread.utils.Constant.SHORT_EXTRA_CALLED_FROM_COLLABORATION_SHORT;
 import static com.thetestament.cread.utils.Constant.SHORT_EXTRA_CALLED_FROM_EDIT_SHORT;
 import static com.thetestament.cread.utils.Constant.SHORT_EXTRA_CAPTION_TEXT;
-import static com.thetestament.cread.utils.Constant.TEXT_GRAVITY_TYPE_CENTER;
-import static com.thetestament.cread.utils.Constant.TEXT_GRAVITY_TYPE_LEFT;
-import static com.thetestament.cread.utils.Constant.TEXT_GRAVITY_TYPE_RIGHT;
 
 /**
  * Here user creates his/her shorts and uploads on the server.
@@ -2112,57 +2109,59 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
                                 if (!responseObject.getString("shape").equals(TemplateHelper.SHAPE_NAME_NONE)) {
                                     switch (responseObject.getString("shape")) {
                                         case TemplateHelper.SHAPE_NAME_QUOTE:
-                                            //set shape
-                                            textShort.setBackground(ContextCompat.getDrawable(mContext, R.drawable.contentshape_quotemarks));
-                                            // set shape color
-                                            setContentShapeColor(textShort.getCurrentTextColor(), mShapeName, textShort, mContext);
                                             //update flag
                                             mIsShapeSelected = true;
                                             // update shape name
                                             mShapeName = TemplateHelper.SHAPE_NAME_QUOTE;
+                                            //set shape
+                                            textShort.setBackground(ContextCompat.getDrawable(mContext, R.drawable.contentshape_quotemarks));
+                                            // set shape color
+                                            setContentShapeColor(textShort.getCurrentTextColor(), mShapeName, textShort, mContext);
                                             break;
                                         case TemplateHelper.SHAPE_NAME_SIDE_LINE:
-                                            switch (responseObject.getString("textgravity")) {
-                                                case TEXT_GRAVITY_TYPE_LEFT:
+                                            //update flag
+                                            mIsShapeSelected = true;
+                                            // update shape name
+                                            mShapeName = TemplateHelper.SHAPE_NAME_SIDE_LINE;
+                                            switch (TextGravity.valueOf(responseObject.getString("textgravity"))) {
+                                                case West:
                                                     //set shape
                                                     textShort.setBackground(ContextCompat.getDrawable(mContext, R.drawable.contentshape_leftline));
                                                     break;
 
-                                                case TEXT_GRAVITY_TYPE_CENTER:
+                                                case Center:
                                                     //set shape
                                                     textShort.setBackground(ContextCompat.getDrawable(mContext, R.drawable.contentshape_leftrightlines));
                                                     break;
-                                                case TEXT_GRAVITY_TYPE_RIGHT:
+                                                case East:
                                                     //set shape
                                                     textShort.setBackground(ContextCompat.getDrawable(mContext, R.drawable.contentshape_rightline));
                                                     break;
                                             }
                                             // set shape color
                                             setContentShapeColor(textShort.getCurrentTextColor(), mShapeName, textShort, mContext);
-                                            //update flag
-                                            mIsShapeSelected = true;
-                                            // update shape name
-                                            mShapeName = TemplateHelper.SHAPE_NAME_SIDE_LINE;
                                             break;
                                         case TemplateHelper.SHAPE_NAME_TOP_BOTTOM_LINE:
-                                            //set shape
-                                            textShort.setBackground(ContextCompat.getDrawable(mContext, R.drawable.contentshape_bottomtoplines));
-                                            // set shape color
-                                            setContentShapeColor(textShort.getCurrentTextColor(), mShapeName, textShort, mContext);
+
                                             //update flag
                                             mIsShapeSelected = true;
                                             // update shape name
                                             mShapeName = TemplateHelper.SHAPE_NAME_TOP_BOTTOM_LINE;
-                                            break;
-                                        case TemplateHelper.SHAPE_NAME_CORNER_LINE:
                                             //set shape
-                                            textShort.setBackground(ContextCompat.getDrawable(mContext, R.drawable.contentshape_cornerlines));
+                                            textShort.setBackground(ContextCompat.getDrawable(mContext, R.drawable.contentshape_bottomtoplines));
                                             // set shape color
                                             setContentShapeColor(textShort.getCurrentTextColor(), mShapeName, textShort, mContext);
+
+                                            break;
+                                        case TemplateHelper.SHAPE_NAME_CORNER_LINE:
                                             //update flag
                                             mIsShapeSelected = true;
                                             // update shape name
                                             mShapeName = TemplateHelper.SHAPE_NAME_CORNER_LINE;
+                                            //set shape
+                                            textShort.setBackground(ContextCompat.getDrawable(mContext, R.drawable.contentshape_cornerlines));
+                                            // set shape color
+                                            setContentShapeColor(textShort.getCurrentTextColor(), mShapeName, textShort, mContext);
                                             break;
                                     }
                                 }
@@ -2207,8 +2206,8 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
                                 textShort.setLayoutParams(params);
 
                                 //Update short text gravity
-                                switch (responseObject.getString("textgravity")) {
-                                    case TEXT_GRAVITY_TYPE_CENTER:
+                                switch (TextGravity.valueOf(responseObject.getString("textgravity"))) {
+                                    case Center:
                                         //Set text gravity
                                         textShort.setGravity(Gravity.CENTER);
                                         //Change button drawable
@@ -2218,7 +2217,7 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
                                         //Set gravity variable
                                         textGravity = TextGravity.Center;
                                         break;
-                                    case TEXT_GRAVITY_TYPE_LEFT:
+                                    case West:
                                         //Set text gravity
                                         textShort.setGravity(Gravity.LEFT);
                                         //Change button drawable
@@ -2228,7 +2227,7 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
                                         //Set gravity variable
                                         textGravity = TextGravity.West;
                                         break;
-                                    case TEXT_GRAVITY_TYPE_RIGHT:
+                                    case East:
                                         //Set text gravity
                                         textShort.setGravity(Gravity.RIGHT);
                                         //Change button drawable
