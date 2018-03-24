@@ -33,6 +33,7 @@ import android.view.View;
 import android.view.animation.AnimationUtils;
 import android.view.animation.LayoutAnimationController;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.SeekBar;
@@ -68,6 +69,8 @@ import com.thetestament.cread.utils.Constant;
 import com.thetestament.cread.widgets.CustomEditText;
 import com.thetestament.cread.widgets.CustomEditText.OnEditTextBackListener;
 import com.thetestament.cread.widgets.SquareView;
+import com.wooplr.spotlight.SpotlightView;
+import com.wooplr.spotlight.utils.SpotlightListener;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -215,6 +218,10 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
     AppCompatImageView buttonInspireMe;
     @BindView(R.id.btnRemoveImage)
     AppCompatImageView btnRemoveImage;
+    @BindView(R.id.btnTemplate)
+    AppCompatImageView btnTemplate;
+    @BindView(R.id.btnFormatShadow)
+    FrameLayout btnFormatShadow;
 
     //Font bottom sheet
     @BindView(R.id.bottomSheetView)
@@ -304,7 +311,7 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
      * Flag to store current selected template name.
      */
     @State
-    String mShapeName = "none";
+    String mShapeName = TemplateHelper.SHAPE_NAME_NONE;
 
 
     /**
@@ -840,6 +847,9 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
         //initialize listener
         initDragListener();
         initDoubleTapListener();
+
+        initShowcaseView();
+
     }
 
     /**
@@ -2525,5 +2535,63 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
             signatureStatus = true;
         }
     }
+
+
+    private void initShowcaseView() {
+        SpotlightView templateSpotlight = new SpotlightView.Builder(this)
+                .introAnimationDuration(400)
+                .enableRevealAnimation(true)
+                .performClick(true)
+                .fadeinTextDuration(400)
+                .headingTvColor(Color.parseColor("#eb273f"))
+                .headingTvSize(32)
+                .headingTvText("Templates")
+                .subHeadingTvColor(Color.parseColor("#ffffff"))
+                .subHeadingTvSize(16)
+                .subHeadingTvText("Choose from a wide range of templates to instantly beautify your writings")
+                .maskColor(Color.parseColor("#dc000000"))
+                .target(btnTemplate)
+                .usageId("TEMPLATE")
+                .lineAnimDuration(400)
+                .lineAndArcColor(Color.parseColor("#eb273f"))
+                .dismissOnTouch(true)
+                .dismissOnBackPress(true)
+                .enableDismissAfterShown(true)
+                .setListener(new SpotlightListener() {
+                    @Override
+                    public void onUserClicked(String s) {
+
+                        //Hide font bottom sheet
+                        templateSheetBehaviour.setState(BottomSheetBehavior.STATE_COLLAPSED);
+
+
+                        new SpotlightView.Builder(mContext)
+                                .introAnimationDuration(400)
+                                .enableRevealAnimation(true)
+                                .performClick(true)
+                                .fadeinTextDuration(400)
+                                .headingTvColor(Color.parseColor("#eb273f"))
+                                .headingTvSize(32)
+                                .headingTvText("Text Shadow")
+                                .subHeadingTvColor(Color.parseColor("#ffffff"))
+                                .subHeadingTvSize(16)
+                                .subHeadingTvText("Style your text by giving it a shadow effect")
+                                .maskColor(Color.parseColor("#dc000000"))
+                                .target(btnFormatShadow)
+                                .lineAnimDuration(400)
+                                .lineAndArcColor(Color.parseColor("#eb273f"))
+                                .dismissOnTouch(true)
+                                .dismissOnBackPress(true)
+                                .enableDismissAfterShown(true)
+                                .usageId("SHADOW")
+                                .show();
+
+                    }
+                })
+                .show();
+
+    }
+
+
     //endregion
 }

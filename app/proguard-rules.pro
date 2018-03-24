@@ -83,3 +83,9 @@
     native <methods>;
 }
 -keep class android.support.v8.renderscript.** { *; }
+
+
+##### For showcase view
+ -keep class com.wooplr.spotlight.** { *; }
+ -keep interface com.wooplr.spotlight.**
+ -keep enum com.wooplr.spotlight.**

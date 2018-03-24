@@ -259,7 +259,7 @@ public class CollaborationActivity extends BaseActivity {
      * Flag to store current selected template name.
      */
     @State
-    String mShapeName = "none";
+    String mShapeName = TemplateHelper.SHAPE_NAME_NONE;
 
     /**
      * Flag to maintain shadow  status. 0 if shadow applied 1 otherwise
