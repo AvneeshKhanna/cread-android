@@ -47,6 +47,7 @@ import com.thetestament.cread.adapters.TemplateAdapter;
 import com.thetestament.cread.dialog.CustomDialog;
 import com.thetestament.cread.helpers.CaptureHelper;
 import com.thetestament.cread.helpers.ColorHelper;
+import com.thetestament.cread.helpers.FontsHelper;
 import com.thetestament.cread.helpers.SharedPreferenceHelper;
 import com.thetestament.cread.helpers.TemplateHelper;
 import com.thetestament.cread.helpers.ViewHelper;
@@ -81,7 +82,18 @@ import io.reactivex.schedulers.Schedulers;
 import pl.tajchert.nammu.Nammu;
 import pl.tajchert.nammu.PermissionCallback;
 
+import static com.thetestament.cread.helpers.FontsHelper.FONT_TYPE_AMATIC_SC_REGULAR;
+import static com.thetestament.cread.helpers.FontsHelper.FONT_TYPE_A_LOVE_OF_THUNDER;
+import static com.thetestament.cread.helpers.FontsHelper.FONT_TYPE_BLACKOUT_SUNRISE;
+import static com.thetestament.cread.helpers.FontsHelper.FONT_TYPE_BLACKOUT_TWOAM;
 import static com.thetestament.cread.helpers.FontsHelper.FONT_TYPE_BOHEMIAN_TYPEWRITER;
+import static com.thetestament.cread.helpers.FontsHelper.FONT_TYPE_FRESSH;
+import static com.thetestament.cread.helpers.FontsHelper.FONT_TYPE_KOMIKAAXIS;
+import static com.thetestament.cread.helpers.FontsHelper.FONT_TYPE_LANGDON;
+import static com.thetestament.cread.helpers.FontsHelper.FONT_TYPE_OSTRICH_ROUNDED;
+import static com.thetestament.cread.helpers.FontsHelper.FONT_TYPE_PACIFICO;
+import static com.thetestament.cread.helpers.FontsHelper.FONT_TYPE_POIRET_ONE_REGULAR;
+import static com.thetestament.cread.helpers.FontsHelper.FONT_TYPE_YANONE_KAFFEESATZ;
 import static com.thetestament.cread.helpers.FontsHelper.fontTypes;
 import static com.thetestament.cread.helpers.FontsHelper.getFontType;
 import static com.thetestament.cread.helpers.ImageHelper.getImageUri;
@@ -765,16 +777,13 @@ public class CollaborationActivity extends BaseActivity {
             public void onTemplateClick(String templateName, int itemPosition) {
                 //Method called
                 ViewHelper.scrollToNextItemPosition(layoutManager, templateRecyclerView, itemPosition, templateList.size());
-                //Update template name
-                mShapeName = templateName;
-
-                //Update flag
-                mIsShapeSelected = true;
 
                 switch (templateName) {
                     case TEMPLATE_NONE:
                         // set font
                         textShort.setTypeface(ResourcesCompat.getFont(mContext, R.font.bohemian_typewriter), Typeface.NORMAL);
+                        mFontType = FONT_TYPE_BOHEMIAN_TYPEWRITER;
+                        mTextTypeface = FontsHelper.getFontType(mFontType, mContext);
                         // update bold flag
                         mBoldFlag = 0;
                         dotBold.setVisibility(View.INVISIBLE);
@@ -805,6 +814,8 @@ public class CollaborationActivity extends BaseActivity {
                     case TEMPLATE_1:
                         // set font
                         textShort.setTypeface(ResourcesCompat.getFont(mContext, R.font.amatic_sc_regular), Typeface.BOLD);
+                        mFontType = FONT_TYPE_AMATIC_SC_REGULAR;
+                        mTextTypeface = FontsHelper.getFontType(mFontType, mContext);
                         // update bold flag
                         mBoldFlag = 1;
                         dotBold.setVisibility(View.VISIBLE);
@@ -835,6 +846,8 @@ public class CollaborationActivity extends BaseActivity {
                     case TEMPLATE_2:
                         // set font
                         textShort.setTypeface(ResourcesCompat.getFont(mContext, R.font.amatic_sc_regular), Typeface.BOLD);
+                        mFontType = FONT_TYPE_AMATIC_SC_REGULAR;
+                        mTextTypeface = FontsHelper.getFontType(mFontType, mContext);
                         // update bold flag
                         mBoldFlag = 1;
                         dotBold.setVisibility(View.VISIBLE);
@@ -865,6 +878,8 @@ public class CollaborationActivity extends BaseActivity {
                     case TEMPLATE_3:
                         // set font
                         textShort.setTypeface(ResourcesCompat.getFont(mContext, R.font.blackout_sunrise), Typeface.NORMAL);
+                        mFontType = FONT_TYPE_BLACKOUT_SUNRISE;
+                        mTextTypeface = FontsHelper.getFontType(mFontType, mContext);
                         // update bold flag
                         mBoldFlag = 0;
                         dotBold.setVisibility(View.INVISIBLE);
@@ -894,6 +909,8 @@ public class CollaborationActivity extends BaseActivity {
                     case TEMPLATE_4:
                         // set font
                         textShort.setTypeface(ResourcesCompat.getFont(mContext, R.font.fressh), Typeface.NORMAL);
+                        mFontType = FONT_TYPE_FRESSH;
+                        mTextTypeface = FontsHelper.getFontType(mFontType, mContext);
                         // update bold flag
                         mBoldFlag = 0;
                         dotBold.setVisibility(View.INVISIBLE);
@@ -921,6 +938,8 @@ public class CollaborationActivity extends BaseActivity {
                     case TEMPLATE_5:
                         // set font
                         textShort.setTypeface(ResourcesCompat.getFont(mContext, R.font.komikaaxis), Typeface.NORMAL);
+                        mFontType = FONT_TYPE_KOMIKAAXIS;
+                        mTextTypeface = FontsHelper.getFontType(mFontType, mContext);
                         // update bold flag
                         mBoldFlag = 0;
                         dotBold.setVisibility(View.INVISIBLE);
@@ -948,6 +967,8 @@ public class CollaborationActivity extends BaseActivity {
                     case TEMPLATE_6:
                         // set font
                         textShort.setTypeface(ResourcesCompat.getFont(mContext, R.font.komikaaxis), Typeface.NORMAL);
+                        mFontType = FONT_TYPE_KOMIKAAXIS;
+                        mTextTypeface = FontsHelper.getFontType(mFontType, mContext);
                         // update bold flag
                         mBoldFlag = 0;
                         dotBold.setVisibility(View.INVISIBLE);
@@ -976,6 +997,8 @@ public class CollaborationActivity extends BaseActivity {
                     case TEMPLATE_7:
                         // set font
                         textShort.setTypeface(ResourcesCompat.getFont(mContext, R.font.langdon), Typeface.NORMAL);
+                        mFontType = FONT_TYPE_LANGDON;
+                        mTextTypeface = FontsHelper.getFontType(mFontType, mContext);
                         // update bold flag
                         mBoldFlag = 0;
                         dotBold.setVisibility(View.INVISIBLE);
@@ -1003,6 +1026,8 @@ public class CollaborationActivity extends BaseActivity {
                     case TEMPLATE_8:
                         // set font
                         textShort.setTypeface(ResourcesCompat.getFont(mContext, R.font.a_love_of_thunder), Typeface.NORMAL);
+                        mFontType = FONT_TYPE_A_LOVE_OF_THUNDER;
+                        mTextTypeface = FontsHelper.getFontType(mFontType, mContext);
                         // update bold flag
                         mBoldFlag = 0;
                         dotBold.setVisibility(View.INVISIBLE);
@@ -1029,6 +1054,8 @@ public class CollaborationActivity extends BaseActivity {
                     case TEMPLATE_9:
                         // set font
                         textShort.setTypeface(ResourcesCompat.getFont(mContext, R.font.ostrich_rounded), Typeface.NORMAL);
+                        mFontType = FONT_TYPE_OSTRICH_ROUNDED;
+                        mTextTypeface = FontsHelper.getFontType(mFontType, mContext);
                         // update bold flag
                         mBoldFlag = 0;
                         dotBold.setVisibility(View.INVISIBLE);
@@ -1055,9 +1082,10 @@ public class CollaborationActivity extends BaseActivity {
 
                         break;
                     case TEMPLATE_10:
-
                         // set font
                         textShort.setTypeface(ResourcesCompat.getFont(mContext, R.font.ostrich_rounded), Typeface.NORMAL);
+                        mFontType = FONT_TYPE_OSTRICH_ROUNDED;
+                        mTextTypeface = FontsHelper.getFontType(mFontType, mContext);
                         // update bold flag
                         mBoldFlag = 0;
                         dotBold.setVisibility(View.INVISIBLE);
@@ -1086,6 +1114,8 @@ public class CollaborationActivity extends BaseActivity {
                     case TEMPLATE_11:
                         // set font
                         textShort.setTypeface(ResourcesCompat.getFont(mContext, R.font.pacifico), Typeface.NORMAL);
+                        mFontType = FONT_TYPE_PACIFICO;
+                        mTextTypeface = FontsHelper.getFontType(mFontType, mContext);
                         // update bold flag
                         mBoldFlag = 0;
                         dotBold.setVisibility(View.INVISIBLE);
@@ -1114,6 +1144,8 @@ public class CollaborationActivity extends BaseActivity {
                     case TEMPLATE_12:
                         // set font
                         textShort.setTypeface(ResourcesCompat.getFont(mContext, R.font.pacifico), Typeface.NORMAL);
+                        mFontType = FONT_TYPE_PACIFICO;
+                        mTextTypeface = FontsHelper.getFontType(mFontType, mContext);
                         // update bold flag
                         mBoldFlag = 0;
                         dotBold.setVisibility(View.INVISIBLE);
@@ -1142,6 +1174,8 @@ public class CollaborationActivity extends BaseActivity {
                     case TEMPLATE_13:
                         // set font
                         textShort.setTypeface(ResourcesCompat.getFont(mContext, R.font.poiret_one_regular), Typeface.NORMAL);
+                        mFontType = FONT_TYPE_POIRET_ONE_REGULAR;
+                        mTextTypeface = FontsHelper.getFontType(mFontType, mContext);
                         // update bold flag
                         mBoldFlag = 0;
                         dotBold.setVisibility(View.INVISIBLE);
@@ -1170,6 +1204,8 @@ public class CollaborationActivity extends BaseActivity {
                     case TEMPLATE_14:
                         // set font
                         textShort.setTypeface(ResourcesCompat.getFont(mContext, R.font.poiret_one_regular), Typeface.NORMAL);
+                        mFontType = FONT_TYPE_POIRET_ONE_REGULAR;
+                        mTextTypeface = FontsHelper.getFontType(mFontType, mContext);
                         // update bold flag
                         mBoldFlag = 0;
                         dotBold.setVisibility(View.INVISIBLE);
@@ -1198,6 +1234,8 @@ public class CollaborationActivity extends BaseActivity {
                     case TEMPLATE_15:
                         // set font
                         textShort.setTypeface(ResourcesCompat.getFont(mContext, R.font.blackout_twoam), Typeface.NORMAL);
+                        mFontType = FONT_TYPE_BLACKOUT_TWOAM;
+                        mTextTypeface = FontsHelper.getFontType(mFontType, mContext);
                         // update bold flag
                         mBoldFlag = 0;
                         dotBold.setVisibility(View.INVISIBLE);
@@ -1225,6 +1263,8 @@ public class CollaborationActivity extends BaseActivity {
                     case TEMPLATE_16:
                         // set font
                         textShort.setTypeface(ResourcesCompat.getFont(mContext, R.font.yanone_kaffeesatz), Typeface.NORMAL);
+                        mFontType = FONT_TYPE_YANONE_KAFFEESATZ;
+                        mTextTypeface = FontsHelper.getFontType(mFontType, mContext);
                         // update bold flag
                         mBoldFlag = 0;
                         dotBold.setVisibility(View.INVISIBLE);
@@ -1253,12 +1293,14 @@ public class CollaborationActivity extends BaseActivity {
                     case TEMPLATE_17:
                         // set font
                         textShort.setTypeface(ResourcesCompat.getFont(mContext, R.font.yanone_kaffeesatz), Typeface.NORMAL);
+                        mFontType = FONT_TYPE_YANONE_KAFFEESATZ;
+                        mTextTypeface = FontsHelper.getFontType(mFontType, mContext);
                         // update bold flag
                         mBoldFlag = 0;
                         dotBold.setVisibility(View.INVISIBLE);
                         // set gravity params
                         textShort.setGravity(Gravity.CENTER);
-                        textGravity =TextGravity.Center;
+                        textGravity = TextGravity.Center;
                         mGravityFlag = 0;
                         btnAlignText.setImageDrawable(ContextCompat.getDrawable(mContext, R.drawable.ic_format_align_center_32));
                         //set font size
