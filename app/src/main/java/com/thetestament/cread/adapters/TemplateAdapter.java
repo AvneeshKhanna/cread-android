@@ -104,4 +104,16 @@ public class TemplateAdapter extends RecyclerView.Adapter<TemplateAdapter.ItemVi
             ButterKnife.bind(this, itemView);
         }
     }
+
+    /**
+     * Method to update selected template.
+     *
+     * @param position Position of font in the list.
+     */
+    public void updateSelectedTemplate(int position) {
+        //Update flag
+        mTemplateSelected = position;
+        //Notify changes
+        notifyDataSetChanged();
+    }
 }

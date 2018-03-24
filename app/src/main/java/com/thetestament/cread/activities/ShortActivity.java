@@ -353,6 +353,7 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
     private boolean mRequestMoreData;
 
     FontAdapter fontAdapter;
+    TemplateAdapter templateAdapter;
     //endregion
 
     //region :Overridden methods
@@ -391,29 +392,22 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
                     mIsImagePresent = true;
                     //show note textView
                     textNote.setVisibility(View.VISIBLE);
-
-                    //Show button
+                    //Show remove button
                     btnRemoveImage.setVisibility(View.VISIBLE);
-                    //Toggle flags
-                    mIsBgColorPresent = false;
-                    mIsImagePresent = true;
                 }
                 break;
             case REQUEST_CODE_PREVIEW_ACTIVITY:
                 if (resultCode == RESULT_OK) {
                     //Finish this screen
-
                     if (data != null) {
                         setResult(RESULT_OK, getIntent().putExtra(PREVIEW_EXTRA_CAPTION_TEXT
                                 , data.getStringExtra(PREVIEW_EXTRA_CAPTION_TEXT)));
                     }
-
                     finish();
                 }
                 break;
             default:
                 super.onActivityResult(requestCode, resultCode, data);
-
         }
     }
 
@@ -452,20 +446,11 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
         switch (item.getItemId()) {
             case android.R.id.home:
                 //Show prompt dialog
-                CustomDialog.getBackNavigationDialog(mContext
-                        , "Discard changes?"
-                        , "If you go back now, you will loose your changes.");
+                showBackNavigationDialog();
                 return true;
             case R.id.action_signature:
-                if (signatureStatus) {
-                    String s = textShort.getText().toString();
-                    String removedText = s.replace(mSignatureText, "").trim();
-                    textShort.setText(removedText);
-                    signatureStatus = false;
-                } else {
-                    textShort.setText(textShort.getText() + "\n \n" + mSignatureText);
-                    signatureStatus = true;
-                }
+                //Method call
+                toggleSignatureText();
                 return true;
             case R.id.action_next:
                 //If short text is empty
@@ -489,9 +474,7 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
     @Override
     public void onBackPressed() {
         //Show prompt dialog
-        CustomDialog.getBackNavigationDialog(ShortActivity.this
-                , "Discard changes?"
-                , "If you go back now, you will loose your changes.");
+        showBackNavigationDialog();
     }
 
     /**
@@ -615,6 +598,10 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
     void onFontClicked() {
         //Show font bottomSheet
         sheetBehavior.setState(BottomSheetBehavior.STATE_EXPANDED);
+        //update font selection
+        fontAdapter.updateSelectedFont(FontsHelper.getFontPosition(mFontType));
+        recyclerView.smoothScrollToPosition(FontsHelper.getFontPosition(mFontType));
+
     }
 
     /**
@@ -653,6 +640,11 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
     void templateOnClick() {
         //Show template bottom sheet
         templateSheetBehaviour.setState(BottomSheetBehavior.STATE_EXPANDED);
+        if (mIsShapeSelected) {
+            //update template selection
+            templateAdapter.updateSelectedTemplate(TemplateHelper.getTemplatePosition(mShapeName, mFontType));
+            templateRecyclerView.smoothScrollToPosition(TemplateHelper.getTemplatePosition(mShapeName, mFontType));
+        }
     }
 
     /**
@@ -822,13 +814,13 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
         //obtain shared preference reference
         mHelper = new SharedPreferenceHelper(this);
 
-        //retrieve data
+        //retrieve data from intent
         retrieveData();
 
         //Set default font
         mTextTypeface = ResourcesCompat.getFont(mContext, R.font.bohemian_typewriter);
 
-        //set listener
+        //set editText back listener
         textShort.setOnEditTextBackListener(this);
         //initialize seek bar
         initSeekBar(seekBarTextSize);
@@ -840,7 +832,6 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
         colorSheetBehaviour.setPeekHeight(0);
         templateSheetBehaviour = BottomSheetBehavior.from(templateBottomSheetView);
         templateSheetBehaviour.setPeekHeight(0);
-
 
         //initialise font and color and template bottomSheet
         initFontLayout();
@@ -885,7 +876,6 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
                 mIsMerchantable = bundle.getBoolean(EXTRA_MERCHANTABLE);
                 mCaptionText = bundle.getString(SHORT_EXTRA_CAPTION_TEXT);
                 mEntityID = bundle.getString(EXTRA_ENTITY_ID);
-                //Update flag
 
                 //Hide remove image button
                 btnRemoveImage.setVisibility(View.GONE);
@@ -1050,7 +1040,7 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
                 , false);
         templateRecyclerView.setLayoutManager(layoutManager);
         //Set adapter
-        TemplateAdapter templateAdapter = new TemplateAdapter(templateList, mContext);
+        templateAdapter = new TemplateAdapter(templateList, mContext);
         templateRecyclerView.setAdapter(templateAdapter);
 
         //Template click listener
@@ -2508,6 +2498,31 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
                     }
                 })
         );
+    }
+
+    /**
+     * Method to show dialog when user navigates back from this screen.
+     */
+    private void showBackNavigationDialog() {
+        //Show prompt dialog
+        CustomDialog.getBackNavigationDialog(mContext
+                , "Discard changes?"
+                , "If you go back now, you will loose your changes.");
+    }
+
+    /**
+     * Method to add/remove user signature text from his/her content.
+     */
+    private void toggleSignatureText() {
+        if (signatureStatus) {
+            String s = textShort.getText().toString();
+            String removedText = s.replace(mSignatureText, "").trim();
+            textShort.setText(removedText);
+            signatureStatus = false;
+        } else {
+            textShort.setText(textShort.getText() + "\n \n" + mSignatureText);
+            signatureStatus = true;
+        }
     }
     //endregion
 }

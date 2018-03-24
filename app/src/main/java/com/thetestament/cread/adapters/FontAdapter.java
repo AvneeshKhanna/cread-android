@@ -102,4 +102,16 @@ public class FontAdapter extends RecyclerView.Adapter<FontAdapter.ItemViewHolder
             ButterKnife.bind(this, itemView);
         }
     }
+
+    /**
+     * Method to update selected font.
+     *
+     * @param position Position of font in the list.
+     */
+    public void updateSelectedFont(int position) {
+        //Update flag
+        mFontSelected = position;
+        //Notify changes
+        notifyDataSetChanged();
+    }
 }
