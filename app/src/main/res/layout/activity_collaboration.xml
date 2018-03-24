@@ -131,11 +131,11 @@
     </RelativeLayout>
 
     <!--Font option bottom sheet-->
-  <!--  <include layout="@layout/layout_font_bottom_sheet" />-->
+    <include layout="@layout/layout_font_bottom_sheet" />
     <!--Color option bottom sheet-->
-   <!--  <include layout="@layout/layout_color_bottom_sheet" />-->
+    <include layout="@layout/layout_color_bottom_sheet" />
     <!--Template option bottom sheet-->
-     <!-- <include layout="@layout/layout_template_bottom_sheet" />-->
+    <include layout="@layout/layout_template_bottom_sheet" />
     <include
         android:id="@+id/progressView"
         layout="@layout/layout_progress_bar"
