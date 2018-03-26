@@ -1921,14 +1921,13 @@ public class MeFragment extends Fragment implements listener.OnCollaborationList
      * @param itemPosition Position of current item.
      */
     private void deleteContent(String entityID, final int itemPosition) {
-
         // init dialog
         final MaterialDialog dialog = getDeletePostDialog(getActivity());
 
-        DeletePostHelper.deletepost(getActivity(),
+        DeletePostHelper.deletePost(getActivity(),
                 mCompositeDisposable,
                 entityID,
-                new listener.onDeleteRequestedListener() {
+                new listener.OnDeleteRequestedListener() {
                     @Override
                     public void onDeleteSuccess() {
 
@@ -1946,7 +1945,7 @@ public class MeFragment extends Fragment implements listener.OnCollaborationList
 
 
                     @Override
-                    public void onDeleteFailiure(String errorMsg) {
+                    public void onDeleteFailure(String errorMsg) {
                         dialog.dismiss();
                         ViewHelper.getSnackBar(rootView, errorMsg);
                     }

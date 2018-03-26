@@ -8,7 +8,7 @@ import com.afollestad.materialdialogs.MaterialDialog;
 import com.google.firebase.crash.FirebaseCrash;
 import com.thetestament.cread.R;
 import com.thetestament.cread.listeners.listener;
-import com.thetestament.cread.listeners.listener.onDeleteRequestedListener;
+import com.thetestament.cread.listeners.listener.OnDeleteRequestedListener;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -21,11 +21,20 @@ import static com.thetestament.cread.CreadApp.GET_RESPONSE_FROM_NETWORK_ME;
 import static com.thetestament.cread.helpers.NetworkHelper.getDeletePostObservable;
 import static com.thetestament.cread.helpers.NetworkHelper.requestServer;
 
+/**
+ * Class to provide utility method related to delete post.
+ */
 public class DeletePostHelper {
 
 
-    public static void deletepost(final FragmentActivity context, CompositeDisposable compositeDisposable, String entityID,
-                                  final onDeleteRequestedListener onDeleteRequestedListener) {
+    /**
+     * @param context                   Context to use.
+     * @param compositeDisposable       Composite disposable  reference.
+     * @param entityID                  Entity Id of content to be deleted.
+     * @param OnDeleteRequestedListener Listener reference.
+     */
+    public static void deletePost(final FragmentActivity context, CompositeDisposable compositeDisposable, String entityID,
+                                  final OnDeleteRequestedListener OnDeleteRequestedListener) {
 
         SharedPreferenceHelper spHelper = new SharedPreferenceHelper(context);
 
@@ -35,43 +44,37 @@ public class DeletePostHelper {
                 new listener.OnServerRequestedListener<JSONObject>() {
                     @Override
                     public void onDeviceOffline() {
-
-                        onDeleteRequestedListener.onDeleteFailiure(context.getString(R.string.error_msg_no_connection));
-
+                        OnDeleteRequestedListener.onDeleteFailure(context.getString(R.string.error_msg_no_connection));
                     }
 
                     @Override
                     public void onNextCalled(JSONObject jsonObject) {
-
                         try {
                             //if token status is not invalid
                             if (jsonObject.getString("tokenstatus").equals("invalid")) {
-                                onDeleteRequestedListener.onDeleteFailiure(context.getString(R.string.error_msg_invalid_token));
+                                OnDeleteRequestedListener.onDeleteFailure(context.getString(R.string.error_msg_invalid_token));
                             } else {
                                 JSONObject dataObject = jsonObject.getJSONObject("data");
                                 if (dataObject.getString("status").equals("done")) {
-
                                     GET_RESPONSE_FROM_NETWORK_ME = true;
                                     GET_RESPONSE_FROM_NETWORK_EXPLORE = true;
                                     GET_RESPONSE_FROM_NETWORK_INSPIRATION = true;
-
-                                    onDeleteRequestedListener.onDeleteSuccess();
+                                    OnDeleteRequestedListener.onDeleteSuccess();
                                 }
                             }
                         } catch (JSONException e) {
                             e.printStackTrace();
                             FirebaseCrash.report(e);
-                            onDeleteRequestedListener.onDeleteFailiure(context.getString(R.string.error_msg_internal));
+                            OnDeleteRequestedListener.onDeleteFailure(context.getString(R.string.error_msg_internal));
                         }
                     }
 
                     @Override
                     public void onErrorCalled(Throwable e) {
-
                         //Dismiss dialog
                         e.printStackTrace();
                         FirebaseCrash.report(e);
-                        onDeleteRequestedListener.onDeleteFailiure(context.getString(R.string.error_msg_server));
+                        OnDeleteRequestedListener.onDeleteFailure(context.getString(R.string.error_msg_server));
                     }
 
                     @Override
@@ -86,8 +89,10 @@ public class DeletePostHelper {
     /**
      * Method to show confirmation dialog before deletion.
      *
-     * @param index    position of item in adapter.
-     * @param entityID Entity id of content.
+     * @param context                 Context to use.
+     * @param index                   position of item in adapter.
+     * @param entityID                Entity id of content.
+     * @param onContentDeleteListener OnContentDeleteListener
      */
     public static void showDeleteConfirmationDialog(FragmentActivity context, final int index, final String entityID, final listener.OnContentDeleteListener onContentDeleteListener) {
         new MaterialDialog.Builder(context)
