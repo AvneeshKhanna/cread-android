@@ -1,72 +1,93 @@
 <?xml version="1.0" encoding="utf-8"?>
 <android.support.v7.preference.PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <android.support.v7.preference.Preference
-        android:id="@+id/about"
-        android:defaultValue="true"
-        android:icon="@drawable/ic_menu_about_us"
-        android:key="settings_about_key"
-        android:title="About" />
+    <PreferenceCategory android:title="Sounds">
+
+        <android.support.v7.preference.SwitchPreferenceCompat
+            android:defaultValue="true"
+            android:key="settings_hatsoffsound_key"
+            android:persistent="true"
+            android:title="Hatsoff Sound" />
+
+        <android.support.v7.preference.SwitchPreferenceCompat
+            android:defaultValue="true"
+            android:key="settings_chatsound_key"
+            android:persistent="true"
+            android:title="Chat Sound" />
+
+    </PreferenceCategory>
+
+    <PreferenceCategory android:title="General">
+
+        <android.support.v7.preference.Preference
+            android:id="@+id/about"
+            android:defaultValue="true"
+            android:icon="@drawable/ic_menu_about_us"
+            android:key="settings_about_key"
+            android:title="About" />
 
 
-    <android.support.v7.preference.Preference
-        android:id="@+id/findfbFriends"
-        android:defaultValue="true"
-        android:icon="@drawable/ic_menu_add_friends"
-        android:key="settings_findFriends_key"
-        android:title="Find Facebook Friends" />
+        <android.support.v7.preference.Preference
+            android:id="@+id/findfbFriends"
+            android:defaultValue="true"
+            android:icon="@drawable/ic_menu_add_friends"
+            android:key="settings_findFriends_key"
+            android:title="Find Facebook Friends" />
 
 
-    <android.support.v7.preference.Preference
-        android:id="@+id/inviteFriends"
-        android:defaultValue="true"
-        android:icon="@drawable/ic_invite"
-        android:key="settings_inviteFriends_key"
-        android:title="Invite Friends" />
+        <android.support.v7.preference.Preference
+            android:id="@+id/inviteFriends"
+            android:defaultValue="true"
+            android:icon="@drawable/ic_invite"
+            android:key="settings_inviteFriends_key"
+            android:title="Invite Friends" />
 
 
-    <android.support.v7.preference.SwitchPreferenceCompat
-        android:defaultValue="true"
-        android:icon="@drawable/ic_menu_notification"
-        android:key="settings_notifications_key"
-        android:persistent="true"
-        android:summary="Choose whether you want to receive notifications"
-        android:title="Notifications" />
-
-    <android.support.v7.preference.Preference
-        android:id="@+id/cread_tos"
-        android:defaultValue="true"
-        android:icon="@drawable/ic_menu_terms_of_service"
-        android:key="settings_tos_key"
-        android:title="Terms of Service" />
+        <android.support.v7.preference.SwitchPreferenceCompat
+            android:defaultValue="true"
+            android:icon="@drawable/ic_menu_notification"
+            android:key="settings_notifications_key"
+            android:persistent="true"
+            android:summary="Choose whether you want to receive notifications"
+            android:title="Notifications" />
 
 
-    <android.support.v7.preference.Preference
-        android:id="@+id/rate_us_settings"
-        android:defaultValue="true"
-        android:icon="@drawable/ic_menu_rate_us"
-        android:key="rate_us"
-        android:title="Rate us" />
-
-    <android.support.v7.preference.Preference
-        android:id="@+id/faq_settings"
-        android:defaultValue="true"
-        android:icon="@drawable/ic_menu_faq"
-        android:key="faq"
-        android:title="FAQ" />
-
-    <android.support.v7.preference.Preference
-        android:id="@+id/chat_with_us"
-        android:defaultValue="true"
-        android:icon="@drawable/ic_chat_vector_24"
-        android:key="chatWithUs"
-        android:title="Chat with us" />
+        <android.support.v7.preference.Preference
+            android:id="@+id/cread_tos"
+            android:defaultValue="true"
+            android:icon="@drawable/ic_menu_terms_of_service"
+            android:key="settings_tos_key"
+            android:title="Terms of Service" />
 
 
-    <android.support.v7.preference.Preference
-        android:id="@+id/logout_settings"
-        android:defaultValue="true"
-        android:icon="@drawable/ic_menu_logout"
-        android:key="log_out"
-        android:title="Logout" />
+        <android.support.v7.preference.Preference
+            android:id="@+id/rate_us_settings"
+            android:defaultValue="true"
+            android:icon="@drawable/ic_menu_rate_us"
+            android:key="rate_us"
+            android:title="Rate us" />
+
+        <android.support.v7.preference.Preference
+            android:id="@+id/faq_settings"
+            android:defaultValue="true"
+            android:icon="@drawable/ic_menu_faq"
+            android:key="faq"
+            android:title="FAQ" />
+
+        <android.support.v7.preference.Preference
+            android:id="@+id/chat_with_us"
+            android:defaultValue="true"
+            android:icon="@drawable/ic_chat_vector_24"
+            android:key="chatWithUs"
+            android:title="Chat with us" />
+
+
+        <android.support.v7.preference.Preference
+            android:id="@+id/logout_settings"
+            android:defaultValue="true"
+            android:icon="@drawable/ic_menu_logout"
+            android:key="log_out"
+            android:title="Logout" />
+
+    </PreferenceCategory>
 </android.support.v7.preference.PreferenceScreen>

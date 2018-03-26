@@ -3,9 +3,11 @@ package com.thetestament.cread.helpers;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
+import android.support.annotation.NonNull;
 import android.support.v4.app.FragmentActivity;
 import android.view.View;
 
+import com.afollestad.materialdialogs.DialogAction;
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.google.firebase.crash.FirebaseCrash;
 import com.squareup.picasso.Picasso;
@@ -19,9 +21,11 @@ import com.thetestament.cread.utils.Constant;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import io.reactivex.Observable;
 import io.reactivex.disposables.CompositeDisposable;
 
-import static com.thetestament.cread.helpers.NetworkHelper.getDeepLinkObservable;
+import static com.thetestament.cread.helpers.NetworkHelper.getEntitySpecificDeepLinkObservable;
+import static com.thetestament.cread.helpers.NetworkHelper.getUserSpecificDeepLinkObservable;
 import static com.thetestament.cread.helpers.NetworkHelper.requestServer;
 import static com.thetestament.cread.utils.Constant.SHARE_SOURCE_FROM_CREATE;
 import static com.thetestament.cread.utils.Constant.SHARE_SOURCE_FROM_SHARE;
@@ -32,7 +36,7 @@ import static com.thetestament.cread.utils.Constant.SHARE_SOURCE_FROM_SHARE;
 
 public class DeepLinkHelper {
 
-    public void getDeepLinkFromServer(final FragmentActivity context, CompositeDisposable compositeDisposable, String uuid, String authkey, String entityID, String entityUrl, String creatorName, String shareSource, final OnDeepLinkRequestedListener onDeepLinkRequestedListener) {
+    public void getDeepLinkFromServer(final FragmentActivity context, CompositeDisposable compositeDisposable, Observable<JSONObject> deepLinkObservable, final OnDeepLinkRequestedListener onDeepLinkRequestedListener) {
 
 
         final MaterialDialog dialog = new MaterialDialog.Builder(context)
@@ -41,13 +45,8 @@ public class DeepLinkHelper {
                 .progress(true, 0)
                 .show();
 
-        requestServer(compositeDisposable, getDeepLinkObservable(BuildConfig.URL + "/entity-share-link/generate-dynamic-link",
-                uuid,
-                authkey,
-                entityID,
-                entityUrl,
-                creatorName,
-                shareSource),
+        requestServer(compositeDisposable,
+                deepLinkObservable,
                 context,
                 new listener.OnServerRequestedListener<JSONObject>() {
                     @Override
@@ -131,12 +130,13 @@ public class DeepLinkHelper {
         DeepLinkHelper deepLinkHelper = new DeepLinkHelper();
         deepLinkHelper.getDeepLinkFromServer(context
                 , compositeDisposable
-                , uuid
-                , authkey
-                , entityID
-                , entityUrl
-                , creatorName
-                , SHARE_SOURCE_FROM_SHARE
+                , getEntitySpecificDeepLinkObservable(BuildConfig.URL + "/entity-share-link/generate-dynamic-link",
+                        uuid,
+                        authkey,
+                        entityID,
+                        entityUrl,
+                        creatorName,
+                        SHARE_SOURCE_FROM_SHARE)
                 , new listener.OnDeepLinkRequestedListener() {
                     @Override
                     public void onDeepLinkSuccess(String deepLink, MaterialDialog dialog) {
@@ -172,13 +172,14 @@ public class DeepLinkHelper {
         DeepLinkHelper deepLinkHelper = new DeepLinkHelper();
         deepLinkHelper.getDeepLinkFromServer(context
                 , compositeDisposable
-                , uuid
-                , authkey
-                , entityID
-                , entityUrl
-                , creatorName
-                , SHARE_SOURCE_FROM_CREATE
-                , new listener.OnDeepLinkRequestedListener() {
+                , getEntitySpecificDeepLinkObservable(BuildConfig.URL + "/entity-share-link/generate-dynamic-link",
+                        uuid,
+                        authkey,
+                        entityID,
+                        entityUrl,
+                        creatorName,
+                        SHARE_SOURCE_FROM_CREATE),
+                new listener.OnDeepLinkRequestedListener() {
                     @Override
                     public void onDeepLinkSuccess(final String deepLink, final MaterialDialog dialog) {
                         // check content type
@@ -229,6 +230,44 @@ public class DeepLinkHelper {
                         context.finish();
                     }
                 });
+    }
+
+
+    public static void generateUserSpecificDeepLink(final FragmentActivity context, final CompositeDisposable compositeDisposable, final String uuid, final String authkey) {
+        // show invite dialog
+        final MaterialDialog inviteDialog = new MaterialDialog.Builder(context)
+                .title("Invite Friends")
+                .content(context.getString(R.string.text_desc_dialog_invite_friends))
+                .positiveText("Invite")
+                .onPositive(new MaterialDialog.SingleButtonCallback() {
+                    @Override
+                    public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
+
+                        // generate deep link
+                        DeepLinkHelper deepLinkHelper = new DeepLinkHelper();
+                        deepLinkHelper.getDeepLinkFromServer(context
+                                , compositeDisposable
+                                , getUserSpecificDeepLinkObservable(BuildConfig.URL + "/user-referral/get-referral-link", uuid, authkey)
+                                , new OnDeepLinkRequestedListener() {
+                                    @Override
+                                    public void onDeepLinkSuccess(String deepLink, MaterialDialog dialog) {
+                                        dialog.dismiss();
+                                        // open invite dialog
+                                        FeedHelper.inviteFriends(context, deepLink);
+
+                                    }
+
+                                    @Override
+                                    public void onDeepLinkFailiure(String errorMsg, MaterialDialog dialog) {
+
+                                        dialog.dismiss();
+                                        ViewHelper.getToast(context, errorMsg);
+
+                                    }
+                                });
+                    }
+                })
+                .show();
     }
 
 

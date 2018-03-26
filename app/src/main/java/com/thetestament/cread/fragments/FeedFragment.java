@@ -747,21 +747,27 @@ public class FeedFragment extends Fragment implements listener.OnCollaborationLi
         // if deep link parse it
         if (mHelper.getDeepLink() != null) {
             Uri deepLinkUri = Uri.parse(mHelper.getDeepLink());
-
-            String entityID = deepLinkUri.getQueryParameter("entityid");
-            // get share source from deep link
-            String shareSource = deepLinkUri.getQueryParameter("share_source");
-
-            Bundle bundle = new Bundle();
-            bundle.putString("share_source", shareSource);
-            // log event
-            FirebaseAnalytics
-                    .getInstance(getContext())
-                    .logEvent(FIREBASE_EVENT_DEEP_LINK_USED, bundle);
-
+            // set to null
             mHelper.setDeepLink(null);
 
-            getFeedDetails(entityID);
+            String entityID = deepLinkUri.getQueryParameter("entityid");
+            // if not null
+            // then redirect to entity specific screen
+            if (entityID != null) {
+                // get share source from deep link
+                String shareSource = deepLinkUri.getQueryParameter("share_source");
+
+                Bundle bundle = new Bundle();
+                bundle.putString("share_source", shareSource);
+                // log event
+                FirebaseAnalytics
+                        .getInstance(getContext())
+                        .logEvent(FIREBASE_EVENT_DEEP_LINK_USED, bundle);
+
+
+                getFeedDetails(entityID);
+            }
+
         }
     }
 

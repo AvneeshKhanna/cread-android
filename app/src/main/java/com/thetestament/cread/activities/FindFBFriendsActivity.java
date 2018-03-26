@@ -31,6 +31,7 @@ import com.rx2androidnetworking.Rx2AndroidNetworking;
 import com.thetestament.cread.BuildConfig;
 import com.thetestament.cread.R;
 import com.thetestament.cread.adapters.FBFriendsAdapter;
+import com.thetestament.cread.helpers.DeepLinkHelper;
 import com.thetestament.cread.helpers.FollowHelper;
 import com.thetestament.cread.helpers.LogoutHelper;
 import com.thetestament.cread.helpers.NetworkHelper;
@@ -62,7 +63,6 @@ import static com.thetestament.cread.CreadApp.GET_RESPONSE_FROM_NETWORK_FIND_FRI
 import static com.thetestament.cread.CreadApp.GET_RESPONSE_FROM_NETWORK_FOLLOWING;
 import static com.thetestament.cread.CreadApp.GET_RESPONSE_FROM_NETWORK_MAIN;
 import static com.thetestament.cread.CreadApp.GET_RESPONSE_FROM_NETWORK_ME;
-import static com.thetestament.cread.helpers.FeedHelper.inviteFriends;
 
 public class FindFBFriendsActivity extends BaseActivity {
 
@@ -205,7 +205,7 @@ public class FindFBFriendsActivity extends BaseActivity {
                         .onNegative(new MaterialDialog.SingleButtonCallback() {
                             @Override
                             public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
-                                 dialog.dismiss();
+                                dialog.dismiss();
                             }
                         })
                         .show();
@@ -647,6 +647,9 @@ public class FindFBFriendsActivity extends BaseActivity {
      */
     @OnClick({R.id.buttonInviteFriends, R.id.noDataInvite})
     public void onInviteClicked() {
-        inviteFriends(this);
+        DeepLinkHelper.generateUserSpecificDeepLink(this
+                , mCompositeDisposable
+                , spHelper.getUUID()
+                , spHelper.getAuthToken());
     }
 }

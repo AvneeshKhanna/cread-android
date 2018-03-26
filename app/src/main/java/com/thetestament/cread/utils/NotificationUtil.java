@@ -7,6 +7,7 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
@@ -14,6 +15,7 @@ import android.graphics.drawable.Drawable;
 import android.media.MediaPlayer;
 import android.os.Build;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.v4.app.NavUtils;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.TaskStackBuilder;
@@ -23,6 +25,7 @@ import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Target;
 import com.thetestament.cread.R;
 import com.thetestament.cread.activities.ChatDetailsActivity;
+import com.thetestament.cread.fragments.SettingsFragment;
 import com.thetestament.cread.helpers.SharedPreferenceHelper;
 
 import static android.content.Context.NOTIFICATION_SERVICE;
@@ -51,8 +54,13 @@ public class NotificationUtil {
      * @param mPreferenceHelper SharedPreferenceHelper reference.
      */
     public static void notifyNewMessage(Context context, SharedPreferenceHelper mPreferenceHelper) {
+
+        SharedPreferences defaultSharedPreferences = PreferenceManager
+                .getDefaultSharedPreferences(context);
+        Boolean key_settings_chatsound = defaultSharedPreferences
+                .getBoolean(SettingsFragment.KEY_SETTINGS_CHATSOUND, true);
         //Play sound if its enabled by user
-        if (mPreferenceHelper.isChatSoundEnabled()) {
+        if (key_settings_chatsound) {
             MediaPlayer mediaPlayer = MediaPlayer.create(context, R.raw.sound_one);
             //Listener for track completion
             mediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {

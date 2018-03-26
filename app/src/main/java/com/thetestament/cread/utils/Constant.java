@@ -160,6 +160,7 @@ public class Constant {
     public static final String NOTIFICATION_CATEGORY_PERSONAL_CHAT_REQUEST = "personal-chat-request";
     public static final String NOTIFICATION_CATEGORY_FEATURED_ARTIST = "featured-artist";
     public static final String NOTIFICATION_CATEGORY_FEATURED_ARTIST_FOLLOWER = "featured-artist-follower";
+    public static final String NOTIFICATION_CATEGORY_REFERRAL_SUCCESS = "join-referral";
 
 
     //Notification id cread
@@ -179,6 +180,7 @@ public class Constant {
     public static final int NOTIFICATION_ID_CREAD_FB_FRIEND = 1013;
     public static final int NOTIFICATION_ID_FEATURED_ARTIST = 1014;
     public static final int NOTIFICATION_ID_FEATURED_ARTIST_FOLLOWER = 1015;
+    public static final int NOTIFICATION_ID_REFERRAL_SUCCESS = 1016;
 
 
     public static final String NOTIFICATION_CHANNEL_GENERAL = "generalNotificationChannel";
