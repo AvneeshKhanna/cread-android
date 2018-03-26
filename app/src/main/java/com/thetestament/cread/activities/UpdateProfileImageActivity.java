@@ -51,18 +51,21 @@ import static com.thetestament.cread.utils.Constant.REQUEST_CODE_OPEN_GALLERY;
 
 public class UpdateProfileImageActivity extends BaseActivity {
 
+    //region :Views binding with butter knife
     @BindView(R.id.rootView)
     CoordinatorLayout rootView;
     @BindView(R.id.imageProfile)
     ImageView imageProfile;
+    //endregion
 
+    //region :Fields and constants
     @State
-    Uri mGalleryImgUri;
+    Uri mProcessedImgUri;
     @State
     Uri mCroppedImgUri;
+    //endregion
 
-    private Uri mCompressedUri;
-
+    //region :Overridden method
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -93,12 +96,12 @@ public class UpdateProfileImageActivity extends BaseActivity {
         switch (requestCode) {
             case REQUEST_CODE_OPEN_GALLERY:
                 if (resultCode == RESULT_OK) {
-                    //Get uri of selected image
-                    mGalleryImgUri = data.getData();
                     // To crop the selected image
-                    startImageCroppingWithSquare(this, mGalleryImgUri, getImageUri(IMAGE_TYPE_USER_PROFILE_PIC));
+                    startImageCroppingWithSquare(this, data.getData()
+                            , getImageUri(IMAGE_TYPE_USER_PROFILE_PIC));
                 } else {
-                    ViewHelper.getSnackBar(rootView, "Image from gallery was not attached");
+                    ViewHelper.getSnackBar(rootView
+                            , getString(R.string.error_img_not_attached));
                 }
                 break;
             //For more information please visit "https://github.com/Yalantis/uCrop"
@@ -108,16 +111,9 @@ public class UpdateProfileImageActivity extends BaseActivity {
                     mCroppedImgUri = UCrop.getOutput(data);
                     //Method called
                     processProfilePicture(mCroppedImgUri);
-                    /*try {
-                        mCompressedUri = compressCroppedImg(mCroppedImgUri, this, IMAGE_TYPE_USER_PROFILE_PIC);
-                        //save user profile
-                        saveProfilePicture(new File(mCompressedUri.getPath()));
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                        ViewHelper.getSnackBar(rootView, "Image could not be cropped due to some error");
-                    }*/
                 } else if (resultCode == UCrop.RESULT_ERROR) {
-                    ViewHelper.getSnackBar(rootView, "Image could not be cropped due to some error");
+                    ViewHelper.getSnackBar(rootView
+                            , getString(R.string.error_img_not_cropped));
                 }
                 break;
         }
@@ -136,7 +132,6 @@ public class UpdateProfileImageActivity extends BaseActivity {
             case android.R.id.home:
                 //Navigate back from this screen
                 supportFinishAfterTransition();
-
                 return true;
             case R.id.action_edit:
                 //Launch gallery
@@ -148,9 +143,14 @@ public class UpdateProfileImageActivity extends BaseActivity {
                 return super.onOptionsItemSelected(item);
         }
     }
+    //endregion
+
+    //region :Private methods
 
     /**
      * Method to initialize/load profile picture.
+     *
+     * @param imageURL Url of image to be loaded
      */
     private void loadProfileImage(String imageURL) {
         Picasso.with(this)
@@ -161,12 +161,13 @@ public class UpdateProfileImageActivity extends BaseActivity {
                 .into(imageProfile, new Callback() {
                     @Override
                     public void onSuccess() {
+                        //Show shared transition
                         ActivityCompat.startPostponedEnterTransition(UpdateProfileImageActivity.this);
-
                     }
 
                     @Override
                     public void onError() {
+                        //Show shared transition
                         ActivityCompat.startPostponedEnterTransition(UpdateProfileImageActivity.this);
                     }
                 });
@@ -207,7 +208,7 @@ public class UpdateProfileImageActivity extends BaseActivity {
                                 JSONObject dataObject = response.getJSONObject("data");
                                 if (dataObject.getString("status").equals("done")) {
                                     //Update profile picture
-                                    loadProfileImage(mCompressedUri.toString());
+                                    loadProfileImage(mProcessedImgUri.toString());
                                     Intent returnIntent = getIntent();
                                     Bundle returnData = new Bundle();
                                     returnData.putString(EXTRA_USER_IMAGE_PATH, dataObject.getString("profilepicurl"));
@@ -239,6 +240,7 @@ public class UpdateProfileImageActivity extends BaseActivity {
      * @param croppedImgUri Uri of cropped image.
      */
     private void processProfilePicture(Uri croppedImgUri) {
+        mProcessedImgUri = croppedImgUri;
         //Decode image file
         BitmapFactory.Options options = new BitmapFactory.Options();
         options.inJustDecodeBounds = true;
@@ -247,16 +249,18 @@ public class UpdateProfileImageActivity extends BaseActivity {
         //If resolution of image is greater than 750x750 then compress this image
         if (options.outWidth >= 1250 && options.outHeight >= 1250) {
             try {
-                mCompressedUri = compressCroppedImg(mCroppedImgUri, this, IMAGE_TYPE_USER_PROFILE_PIC);
+                mProcessedImgUri = compressCroppedImg(croppedImgUri, this, IMAGE_TYPE_USER_PROFILE_PIC);
                 //save user profile
-                saveProfilePicture(new File(mCompressedUri.getPath()));
+                saveProfilePicture(new File(mProcessedImgUri.getPath()));
             } catch (IOException e) {
                 e.printStackTrace();
-                ViewHelper.getSnackBar(rootView, "Image could not be cropped due to some error");
+                ViewHelper.getSnackBar(rootView
+                        , getString(R.string.error_img_not_cropped));
             }
         } else {
             //save user profile
-            saveProfilePicture(new File(mCroppedImgUri.getPath()));
+            saveProfilePicture(new File(mProcessedImgUri.getPath()));
         }
     }
+    //endregion
 }
