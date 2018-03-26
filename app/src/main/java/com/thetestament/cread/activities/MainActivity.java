@@ -2,6 +2,7 @@ package com.thetestament.cread.activities;
 
 
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.view.ViewPager;
@@ -78,6 +79,7 @@ public class MainActivity extends BaseActivity {
     String phoneNo;
     MaterialDialog verifyDialog;
     private int[] mLayouts;
+    SharedPreferenceHelper spHelper;
     //  viewpager change listener
     ViewPager.OnPageChangeListener viewPagerPageChangeListener = new ViewPager.OnPageChangeListener() {
 
@@ -103,6 +105,8 @@ public class MainActivity extends BaseActivity {
         //Layout for this screen
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
+        // init shared prefs
+        spHelper = new SharedPreferenceHelper(MainActivity.this);
 
         //For sliders
         initSliders();
@@ -417,13 +421,19 @@ public class MainActivity extends BaseActivity {
         Log.d(TAG, "setUserDetails: phone" + phoneNo);
 
         try {
-
             graphObject.put("phone", phoneNo);
             // processing picture object obtained from graph api
             graphObject.put("picture",
                     graphObject.getJSONObject("picture").getJSONObject("data").getString("url"));
             reqObject.put("userdata", graphObject);
             reqObject.put("fcmtoken", FirebaseInstanceId.getInstance().getToken());
+            // if from deep link
+            // insert data
+            if (spHelper.getDeepLink() != null) {
+                Uri deepLinkUri = Uri.parse(spHelper.getDeepLink());
+                // parse referral code
+                reqObject.put("referral_code", deepLinkUri.getQueryParameter("referral_code"));
+            }
 
 
         } catch (JSONException e) {
@@ -447,7 +457,6 @@ public class MainActivity extends BaseActivity {
                             // phone number verified by account kit doesn't exist already
                             if (dataObject.getString("status").equals("done")) {
 
-                                SharedPreferenceHelper spHelper = new SharedPreferenceHelper(MainActivity.this);
                                 spHelper.setAuthToken(dataObject.getString("authkey"));
                                 spHelper.setUUID(dataObject.getString("uuid"));
 
