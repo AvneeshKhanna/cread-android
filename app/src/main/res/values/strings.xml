@@ -191,5 +191,9 @@
     <string name="text_follow"> \u2022 Follow</string>
     <string name="text_cread_name">Cread \u2022  New message</string>
 
+    <!--Error text-->
+    <string name="error_img_not_attached">Image from gallery was not attached</string>
+    <string name="error_img_not_cropped">Image could not be cropped due to some error</string>
+
 
 </resources>

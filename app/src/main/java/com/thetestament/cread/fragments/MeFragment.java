@@ -956,20 +956,16 @@ public class MeFragment extends Fragment implements listener.OnCollaborationList
                                 textUserName.setText(mFirstName);
                             }
 
-                            new Handler().post(new Runnable() {
-                                                   @Override
-                                                   public void run() {
-                                                       //Set user activity stats
-                                                       ((TextView) viewPagerUserStats.findViewWithTag(POSTS)).setText(String.valueOf(mPostCount));
-                                                       ((TextView) viewPagerUserStats.findViewWithTag(FOLLOWERS)).setText(String.valueOf(mFollowerCount));
-                                                       ((TextView) viewPagerUserStats.findViewWithTag(FOLLOWING)).setText(String.valueOf(mFollowingCount));
-                                                       ((TextView) viewPagerUserStats.findViewWithTag(HATSOFF)).setText(String.valueOf(mHatsoffCount));
-                                                       ((TextView) viewPagerUserStats.findViewWithTag(COMMENT)).setText(String.valueOf(mCommentsCount));
-                                                       ((TextView) viewPagerUserStats.findViewWithTag(COLLABORATIONS)).setText(String.valueOf(mCollaborationCount));
+                            //Set user activity stats
+                            if (viewPagerUserStats != null) {
+                                ((TextView) viewPagerUserStats.findViewWithTag(POSTS)).setText(String.valueOf(mPostCount));
+                                ((TextView) viewPagerUserStats.findViewWithTag(FOLLOWERS)).setText(String.valueOf(mFollowerCount));
+                                ((TextView) viewPagerUserStats.findViewWithTag(FOLLOWING)).setText(String.valueOf(mFollowingCount));
+                                ((TextView) viewPagerUserStats.findViewWithTag(HATSOFF)).setText(String.valueOf(mHatsoffCount));
+                                ((TextView) viewPagerUserStats.findViewWithTag(COMMENT)).setText(String.valueOf(mCommentsCount));
+                                ((TextView) viewPagerUserStats.findViewWithTag(COLLABORATIONS)).setText(String.valueOf(mCollaborationCount));
+                            }
 
-                                                   }
-                                               }
-                            );
 
                             //If user bio present
                             if (mUserBio != null && !mUserBio.isEmpty() && !mUserBio.equals("null")) {
@@ -1925,14 +1921,13 @@ public class MeFragment extends Fragment implements listener.OnCollaborationList
      * @param itemPosition Position of current item.
      */
     private void deleteContent(String entityID, final int itemPosition) {
-
         // init dialog
         final MaterialDialog dialog = getDeletePostDialog(getActivity());
 
-        DeletePostHelper.deletepost(getActivity(),
+        DeletePostHelper.deletePost(getActivity(),
                 mCompositeDisposable,
                 entityID,
-                new listener.onDeleteRequestedListener() {
+                new listener.OnDeleteRequestedListener() {
                     @Override
                     public void onDeleteSuccess() {
 
@@ -1950,7 +1945,7 @@ public class MeFragment extends Fragment implements listener.OnCollaborationList
 
 
                     @Override
-                    public void onDeleteFailiure(String errorMsg) {
+                    public void onDeleteFailure(String errorMsg) {
                         dialog.dismiss();
                         ViewHelper.getSnackBar(rootView, errorMsg);
                     }
@@ -2243,13 +2238,16 @@ public class MeFragment extends Fragment implements listener.OnCollaborationList
             @Override
             public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
                 super.onScrolled(recyclerView, dx, dy);
-                //Scroll Down
-                if (dy > 0 && fabChat.getVisibility() == View.VISIBLE) {
-                    fabChat.hide();
-                }
-                //Scroll Up
-                else if (dy < 0 && fabChat.getVisibility() != View.VISIBLE) {
-                    fabChat.show();
+                //if this view is not null
+                if (fabChat != null) {
+                    //Scroll Down
+                    if (dy > 0 && fabChat.getVisibility() == View.VISIBLE) {
+                        fabChat.hide();
+                    }
+                    //Scroll Up
+                    else if (dy < 0 && fabChat.getVisibility() != View.VISIBLE) {
+                        fabChat.show();
+                    }
                 }
             }
         });

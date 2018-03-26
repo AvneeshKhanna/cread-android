@@ -512,7 +512,7 @@ public class MeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             itemViewHolder.buttonMenu.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    getMenuActionsBottomSheet(mContext, position, data, null, shouldShowCreatorOptions, mCompositeDisposable, new Bundle(), new Intent());
+                    getMenuActionsBottomSheet(mContext, position, data, onContentDeleteListener, shouldShowCreatorOptions, mCompositeDisposable, new Bundle(), new Intent());
                 }
             });
         }

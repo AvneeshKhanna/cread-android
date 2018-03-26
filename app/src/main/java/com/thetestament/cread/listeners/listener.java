@@ -134,11 +134,11 @@ public class listener {
         void onDeepLinkFailiure(String errorMsg, MaterialDialog dialog);
     }
 
-    public interface onDeleteRequestedListener {
+    public interface OnDeleteRequestedListener {
 
         void onDeleteSuccess();
 
-        void onDeleteFailiure(String errorMsg);
+        void onDeleteFailure(String errorMsg);
     }
 
     public interface OnFollowFriendsClickedListener {

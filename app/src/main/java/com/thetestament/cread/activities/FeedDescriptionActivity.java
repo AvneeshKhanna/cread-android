@@ -83,7 +83,7 @@ import static com.thetestament.cread.CreadApp.IMAGE_LOAD_FROM_NETWORK_FEED_DESCR
 import static com.thetestament.cread.dialog.DialogHelper.getDeletePostDialog;
 import static com.thetestament.cread.helpers.ContentHelper.getMenuActionsBottomSheet;
 import static com.thetestament.cread.helpers.DeepLinkHelper.generateDeepLink;
-import static com.thetestament.cread.helpers.DeletePostHelper.deletepost;
+import static com.thetestament.cread.helpers.DeletePostHelper.deletePost;
 import static com.thetestament.cread.helpers.FeedHelper.initCaption;
 import static com.thetestament.cread.helpers.FeedHelper.initializeShareDialog;
 import static com.thetestament.cread.helpers.FeedHelper.updateDotSeperatorVisibility;
@@ -495,7 +495,7 @@ public class FeedDescriptionActivity extends BaseActivity implements listener.On
 
     @OnClick(R.id.buttonMenu)
     void onMenuClick() {
-        getMenuActionsBottomSheet(mContext, mItemPosition, mFeedData, initDeletePostClick(), isUserCreator, mCompositeDisposable, resultBundle,  resultIntent);
+        getMenuActionsBottomSheet(mContext, mItemPosition, mFeedData, initDeletePostClick(), isUserCreator, mCompositeDisposable, resultBundle, resultIntent);
     }
 
     @OnClick(R.id.imageDownvote)
@@ -615,8 +615,7 @@ public class FeedDescriptionActivity extends BaseActivity implements listener.On
         showTooltip();
 
         // show downvote intro dialog
-        if(mFeedData.isEligibleForDownvote() && mHelper.isDownvoteDialogFirstTime())
-        {
+        if (mFeedData.isEligibleForDownvote() && mHelper.isDownvoteDialogFirstTime()) {
             // show dialog
             getDownvoteDialog();
         }
@@ -1025,10 +1024,10 @@ public class FeedDescriptionActivity extends BaseActivity implements listener.On
 
                 final MaterialDialog dialog = getDeletePostDialog(mContext);
 
-                deletepost(mContext,
+                deletePost(mContext,
                         mCompositeDisposable,
                         mFeedData.getEntityID(),
-                        new listener.onDeleteRequestedListener() {
+                        new listener.OnDeleteRequestedListener() {
                             @Override
                             public void onDeleteSuccess() {
                                 dialog.dismiss();
@@ -1041,7 +1040,7 @@ public class FeedDescriptionActivity extends BaseActivity implements listener.On
                             }
 
                             @Override
-                            public void onDeleteFailiure(String errorMsg) {
+                            public void onDeleteFailure(String errorMsg) {
 
                                 dialog.dismiss();
                                 ViewHelper.getSnackBar(rootView, errorMsg);
