@@ -218,11 +218,11 @@ public class FeedHelper {
         return count != 1;
     }
 
-    public static void inviteFriends(FragmentActivity context) {
+    public static void inviteFriends(FragmentActivity context, String deepLink) {
         Intent intent = new Intent();
         intent.setAction(Intent.ACTION_SEND);
         intent.setType("text/plain");
-        intent.putExtra(Intent.EXTRA_TEXT, context.getString(R.string.text_invite_friends));
+        intent.putExtra(Intent.EXTRA_TEXT, context.getResources().getString(R.string.text_invite_friends, deepLink));
         context.startActivity(Intent.createChooser(intent, "Invite Friends"));
     }
 

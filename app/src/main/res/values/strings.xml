@@ -94,7 +94,7 @@
     <string name="text_desc_dialog_capture_collab_invitation">Can you think of a writer/poet who can pen a masterpiece on your graphic art? Invite such a friend to collaborate with you on Cread!</string>
     <string name="text_title_dialog_short_collab_invitation">Know a great graphic artist?</string>
     <string name="text_desc_dialog_short_collab_invitation">Can you think of a terrific photographer/graphic artist who could make your writing look beautiful? Invite such a friend to collaborate with you on Cread!</string>
-
+    <string name="text_desc_dialog_invite_friends">Now invite your friends on Cread using your personalised referral link</string>
 
     //unicodes
     <string name="Rs">\u20B9</string>
@@ -167,7 +167,7 @@
 
 
     // invite friends text
-    <string name="text_invite_friends">Hey! Check out this app where graphic artists collaborate with writers and make beautiful stuff! And if that\'s not enough, they get royalties for every artpiece that sells.\n\nGet your art on Cread now. It\'s fun! \n\n https://goo.gl/Q7zJ1n</string>
+    <string name="text_invite_friends">Hey! Check out this app where graphic artists collaborate with writers and make beautiful stuff! And if that\'s not enough, they get royalties for every artpiece that sells.\n\nGet your art on Cread now. It\'s fun! \n\n  %1$s</string>
     //invite collab on capture text
     <string name="text_invite_collab_capture">Hey! I just posted an art on Cread! You could write something on it as well. Come and collaborate with me on Cread. :)</string>
     //invite collab on short text

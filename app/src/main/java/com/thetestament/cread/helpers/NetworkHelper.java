@@ -287,7 +287,7 @@ public class NetworkHelper {
      * @param entityID  entityID.
      * @param entityURL entityURL
      */
-    public static Observable<JSONObject> getDeepLinkObservable(String serverURL, String uuid, String authKey, String entityID, String entityURL, String creatorName, String shareSource) {
+    public static Observable<JSONObject> getEntitySpecificDeepLinkObservable(String serverURL, String uuid, String authKey, String entityID, String entityURL, String creatorName, String shareSource) {
 
         JSONObject jsonObject = new JSONObject();
         try {
@@ -303,6 +303,26 @@ public class NetworkHelper {
         }
         return Rx2AndroidNetworking.post(serverURL)
                 .addJSONObjectBody(jsonObject)
+                .build()
+                .getJSONObjectObservable();
+    }
+
+    /**
+     * Method to return data from the server.
+     *
+     * @param serverURL URL of the server.
+     * @param uuid      UUID of the user.
+     * @param authKey   AuthKey of user.
+     * @return
+     */
+    public static Observable<JSONObject> getUserSpecificDeepLinkObservable(String serverURL, String uuid, String authKey) {
+
+        Map<String, String> headers = new HashMap<>();
+        headers.put("uuid", uuid);
+        headers.put("authkey", authKey);
+
+        return Rx2AndroidNetworking.get(serverURL)
+                .addHeaders(headers)
                 .build()
                 .getJSONObjectObservable();
     }

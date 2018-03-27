@@ -81,6 +81,7 @@ import static com.thetestament.cread.utils.Constant.NOTIFICATION_CATEGORY_PERSON
 import static com.thetestament.cread.utils.Constant.NOTIFICATION_CATEGORY_PERSONAL_CHAT_REQUEST;
 import static com.thetestament.cread.utils.Constant.NOTIFICATION_CATEGORY_PROFILE_MENTION_COMMENT;
 import static com.thetestament.cread.utils.Constant.NOTIFICATION_CATEGORY_PROFILE_MENTION_POST;
+import static com.thetestament.cread.utils.Constant.NOTIFICATION_CATEGORY_REFERRAL_SUCCESS;
 import static com.thetestament.cread.utils.Constant.NOTIFICATION_CHANNEL_GENERAL;
 import static com.thetestament.cread.utils.Constant.NOTIFICATION_ID_CREAD_BUY;
 import static com.thetestament.cread.utils.Constant.NOTIFICATION_ID_CREAD_COLLABORATE;
@@ -96,6 +97,7 @@ import static com.thetestament.cread.utils.Constant.NOTIFICATION_ID_FEATURED_ART
 import static com.thetestament.cread.utils.Constant.NOTIFICATION_ID_FEATURED_ARTIST_FOLLOWER;
 import static com.thetestament.cread.utils.Constant.NOTIFICATION_ID_PROFILE_MENTION_COMMENT;
 import static com.thetestament.cread.utils.Constant.NOTIFICATION_ID_PROFILE_MENTION_POST;
+import static com.thetestament.cread.utils.Constant.NOTIFICATION_ID_REFERRAL_SUCCESS;
 import static com.thetestament.cread.utils.Constant.TAG_EXPLORE_FRAGMENT;
 
 
@@ -330,6 +332,16 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
                 intent = new Intent(this, BottomNavigationActivity.class);
                 intent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
                 intent.putExtra(EXTRA_OPEN_SPECIFIC_BOTTOMNAV_FRAGMENT, TAG_EXPLORE_FRAGMENT);
+                break;
+            case NOTIFICATION_CATEGORY_REFERRAL_SUCCESS:
+                mId = NOTIFICATION_ID_REFERRAL_SUCCESS;
+                resId = R.drawable.ic_cread_notification_general;
+                actorUserID = data.get("actorid");
+                actorUserImage = data.get("actorimage");
+                intent = new Intent(this, ProfileActivity.class);
+                intent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
+                intent.putExtra(EXTRA_PROFILE_UUID, actorUserID);
+                GET_RESPONSE_FROM_NETWORK_FIND_FRIENDS = true;
                 break;
             default:
                 isValidCategory = false;

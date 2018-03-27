@@ -1,11 +1,15 @@
 package com.thetestament.cread.helpers;
 
 import android.content.Context;
+import android.content.SharedPreferences;
+import android.media.MediaPlayer;
+import android.preference.PreferenceManager;
 
 import com.google.firebase.crash.FirebaseCrash;
 import com.rx2androidnetworking.Rx2AndroidNetworking;
 import com.thetestament.cread.BuildConfig;
 import com.thetestament.cread.R;
+import com.thetestament.cread.fragments.SettingsFragment;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -76,6 +80,30 @@ public class HatsOffHelper {
      * @param isHatsOff boolean true if user has given hats off to campaign, false otherwise.
      */
     public void updateHatsOffStatus(String entityID, boolean isHatsOff) {
+
+        SharedPreferences defaultSharedPreferences = PreferenceManager
+                .getDefaultSharedPreferences(mContext);
+        Boolean key_settings_hatsoffsound = defaultSharedPreferences
+                .getBoolean(SettingsFragment.KEY_SETTINGS_HATSOFFSOUND, true);
+
+        // if hatsoff true play sound
+        if (isHatsOff && key_settings_hatsoffsound) {
+            MediaPlayer mediaPlayer = MediaPlayer.create(mContext, R.raw.hatsoff);
+            //Listener for track completion
+            mediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+                @Override
+                public void onCompletion(MediaPlayer mediaPlayer) {
+                    mediaPlayer.reset();
+                    mediaPlayer.release();
+                    mediaPlayer = null;
+                }
+            });
+            //Play sound
+            mediaPlayer.start();
+        }
+
+
+
         final JSONObject jsonObject = new JSONObject();
         SharedPreferenceHelper helper = new SharedPreferenceHelper(mContext);
 

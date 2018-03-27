@@ -236,19 +236,6 @@ public class ChatDetailsActivity extends BaseActivity {
                     updateFollowStatus();
                 }
                 return true;
-            case R.id.action_toggle_chat_sound:
-                if (mPreferenceHelper.isChatSoundEnabled()) {
-                    //Update status
-                    mPreferenceHelper.updateChatSoundEnableStatus(false);
-                    //Update title text
-                    item.setTitle("Enable chat sound");
-                } else {
-                    //Update status
-                    mPreferenceHelper.updateChatSoundEnableStatus(true);
-                    //Update title text
-                    item.setTitle("Disable chat sound");
-                }
-                return true;
             default:
                 return super.onOptionsItemSelected(item);
         }
@@ -325,14 +312,6 @@ public class ChatDetailsActivity extends BaseActivity {
         } else {
             //Change menu title
             menu.findItem(R.id.action_follow_or_block).setTitle("Follow");
-        }
-        //if sound is enabled for chat
-        if (mPreferenceHelper.isChatSoundEnabled()) {
-            //Change title text
-            menu.findItem(R.id.action_toggle_chat_sound).setTitle("Disable chat sound");
-        } else {
-            //Change title text
-            menu.findItem(R.id.action_toggle_chat_sound).setTitle("Enable chat sound");
         }
     }
 

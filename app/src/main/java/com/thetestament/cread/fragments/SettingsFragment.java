@@ -15,14 +15,11 @@ import com.thetestament.cread.activities.AboutUsActivity;
 import com.thetestament.cread.activities.FindFBFriendsActivity;
 import com.thetestament.cread.activities.WebViewActivity;
 import com.thetestament.cread.helpers.ChatHelper;
-import com.thetestament.cread.helpers.NetworkHelper;
+import com.thetestament.cread.helpers.DeepLinkHelper;
 import com.thetestament.cread.helpers.SharedPreferenceHelper;
 
 import io.reactivex.disposables.CompositeDisposable;
-import io.reactivex.disposables.Disposable;
-import io.reactivex.schedulers.Schedulers;
 
-import static com.thetestament.cread.helpers.FeedHelper.inviteFriends;
 import static com.thetestament.cread.helpers.LogoutHelper.getLogOutDialog;
 import static com.thetestament.cread.utils.Constant.EXTRA_WEB_VIEW_TITLE;
 import static com.thetestament.cread.utils.Constant.EXTRA_WEB_VIEW_URL;
@@ -32,6 +29,8 @@ import static com.thetestament.cread.utils.Constant.FIREBASE_EVENT_RATE_US_CLICK
 public class SettingsFragment extends PreferenceFragmentCompat {
 
     public static final String KEY_SETTINGS_NOTIFICATIONS = "settings_notifications_key";
+    public static final String KEY_SETTINGS_HATSOFFSOUND = "settings_hatsoffsound_key";
+    public static final String KEY_SETTINGS_CHATSOUND = "settings_chatsound_key";
     private CompositeDisposable mCompositeDisposable = new CompositeDisposable();
     SharedPreferenceHelper spHelper;
 
@@ -73,7 +72,10 @@ public class SettingsFragment extends PreferenceFragmentCompat {
         inviteFriends.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
             @Override
             public boolean onPreferenceClick(Preference preference) {
-                inviteFriends(getActivity());
+                DeepLinkHelper.generateUserSpecificDeepLink(getActivity()
+                        , mCompositeDisposable
+                        , spHelper.getUUID()
+                        , spHelper.getAuthToken());
                 return false;
             }
         });
