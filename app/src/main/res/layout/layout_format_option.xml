@@ -7,16 +7,6 @@
     android:weightSum="7">
 
     <!--Text alignment container-->
-    <!--
-        <ImageView
-            android:id="@+id/btnLAlignText"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:paddingBottom="16dp"
-            android:paddingTop="8dp"
-            app:srcCompat="@drawable/ic_format_align_center_32" />
-    -->
     <android.support.v7.widget.AppCompatTextView
         android:id="@+id/btnLAlignText"
         android:layout_width="0dp"
@@ -30,15 +20,6 @@
         android:textSize="10sp" />
 
     <!--Font container-->
-    <!--<ImageView
-        android:id="@+id/btnFont"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_weight="1"
-        android:paddingBottom="16dp"
-        android:paddingTop="8dp"
-        app:srcCompat="@drawable/ic_format_font_32dp" />-->
-
     <android.support.v7.widget.AppCompatTextView
         android:id="@+id/btnFont"
         android:layout_width="0dp"
@@ -52,17 +33,6 @@
         android:textSize="10sp" />
 
     <!--Background color container-->
-    <!--
-        <ImageView
-            android:id="@+id/btnFormatBg"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:paddingBottom="16dp"
-            android:paddingTop="8dp"
-            app:srcCompat="@drawable/ic_format_color_fill_32" />
-    -->
-
     <android.support.v7.widget.AppCompatTextView
         android:id="@+id/btnFormatBg"
         android:layout_width="0dp"
@@ -77,18 +47,6 @@
 
 
     <!--Text color container-->
-    <!--
-        <ImageView
-            android:id="@+id/btnFormatTextColor"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:paddingBottom="16dp"
-            android:paddingTop="8dp"
-            app:srcCompat="@drawable/ic_format_color_text_32" />
-    -->
-
-
     <android.support.v7.widget.AppCompatTextView
         android:id="@+id/btnFormatTextColor"
         android:layout_width="0dp"
@@ -103,15 +61,6 @@
 
 
     <!--Template container-->
-    <!--<ImageView
-        android:id="@+id/btnTemplate"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_weight="1"
-        android:paddingBottom="16dp"
-        android:paddingTop="8dp"
-        app:srcCompat="@drawable/ic_style_vector" />-->
-
     <android.support.v7.widget.AppCompatTextView
         android:id="@+id/btnTemplate"
         android:layout_width="0dp"
@@ -123,32 +72,8 @@
         android:paddingTop="8dp"
         android:text="Style"
         android:textSize="10sp" />
+
     <!--Bold container-->
-    <!--<FrameLayout
-        android:id="@+id/btnFormatTextBold"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_weight="1"
-        android:orientation="vertical"
-        android:paddingBottom="16dp"
-        android:paddingTop="8dp">
-
-        <ImageView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            app:srcCompat="@drawable/ic_format_bold_32" />
-
-        <View
-            android:id="@+id/dotBold"
-            android:layout_width="6dp"
-            android:layout_height="6dp"
-            android:layout_gravity="center_horizontal"
-            android:layout_marginTop="24dp"
-            android:background="@drawable/dot_shape"
-            android:visibility="invisible" />
-    </FrameLayout>-->
-
     <android.support.v7.widget.AppCompatTextView
         android:id="@+id/btnFormatTextBold"
         android:layout_width="0dp"
@@ -163,31 +88,6 @@
 
 
     <!--Italic container-->
-    <!--<FrameLayout
-        android:id="@+id/btnFormatTextItalic"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_weight="1"
-        android:paddingBottom="16dp"
-        android:paddingTop="8dp">
-
-        <ImageView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            app:srcCompat="@drawable/ic_format_italic_32dp" />
-
-        <View
-            android:id="@+id/dotItalic"
-            android:layout_width="6dp"
-            android:layout_height="6dp"
-            android:layout_gravity="center_horizontal"
-            android:layout_marginTop="24dp"
-            android:background="@drawable/dot_shape"
-            android:visibility="invisible" />
-    </FrameLayout>-->
-
-
     <android.support.v7.widget.AppCompatTextView
         android:id="@+id/btnFormatTextItalic"
         android:layout_width="0dp"
