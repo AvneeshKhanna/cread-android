@@ -174,9 +174,9 @@ public class CollaborationActivity extends BaseActivity {
     View viewProgress;
     @BindView(R.id.seekBarTextSize)
     AppCompatSeekBar seekBarTextSize;
-    @BindView(R.id.dotBold)
+    @BindView(R.id.btnFormatTextBold)
     View dotBold;
-    @BindView(R.id.dotItalic)
+    @BindView(R.id.btnFormatTextItalic)
     View dotItalic;
     @BindView(R.id.dotShadow)
     View dotShadow;
