@@ -376,7 +376,7 @@ public class ImageHelper {
             BitmapFactory.decodeFile(new File(uri.getPath()).getAbsolutePath(), options);
             int imageHeight = options.outHeight;
             int imageWidth = options.outWidth;
-            // TODO: fix this
+
             //If resolution of image is greater than 3000x3000 then compress this image
             if (imageHeight >= 3000 && imageWidth >= 3000) {
                 //Compress image

@@ -11,10 +11,62 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
+        <!--Top container-->
+        <RelativeLayout
+            android:id="@+id/topContainer"
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:background="@color/colorPrimary"
+            android:elevation="4dp">
+
+            <android.support.v7.widget.AppCompatTextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
+                android:layout_marginLeft="24dp"
+                android:text="Write"
+                android:textColor="@color/white"
+                android:textSize="18sp" />
+
+            <android.support.v7.widget.AppCompatTextView
+                android:id="@+id/buttonToggleLong"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerInParent="true"
+                android:background="@drawable/button_outline_white"
+                android:gravity="center"
+                android:paddingBottom="4dp"
+                android:paddingLeft="12dp"
+                android:paddingRight="12dp"
+                android:paddingTop="4dp"
+                android:text="Long"
+                android:textColor="@color/white"
+                android:textSize="14sp" />
+
+            <android.support.v7.widget.AppCompatImageView
+                android:id="@+id/buttonCopyright"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:layout_centerVertical="true"
+                android:layout_marginRight="16dp"
+                android:layout_toLeftOf="@+id/buttonNext"
+                app:srcCompat="@drawable/ic_copyright_24" />
+
+            <android.support.v7.widget.AppCompatImageView
+                android:id="@+id/buttonNext"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:layout_alignParentRight="true"
+                android:layout_centerVertical="true"
+                android:layout_marginRight="16dp"
+                app:srcCompat="@drawable/ic_forward_24" />
+        </RelativeLayout>
+
         <com.thetestament.cread.widgets.SquareView
             android:id="@+id/imageContainer"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/topContainer">
 
             <ImageView
                 android:id="@+id/imageShort"
@@ -133,10 +185,10 @@
                 android:layout_height="wrap_content"
                 android:layout_centerInParent="true"
                 android:layout_marginLeft="5dp"
-                android:max="100"
-                android:min="0"
                 android:layout_toLeftOf="@+id/btnFormatShadow"
                 android:layout_toRightOf="@+id/btnFormatTextSize"
+                android:max="100"
+                android:min="0"
                 android:visibility="visible" />
 
 

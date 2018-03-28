@@ -25,11 +25,11 @@ import android.support.v7.widget.AppCompatSeekBar;
 import android.support.v7.widget.AppCompatTextView;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.text.Editable;
 import android.text.TextUtils;
+import android.text.TextWatcher;
 import android.util.TypedValue;
 import android.view.Gravity;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.animation.AnimationUtils;
 import android.view.animation.LayoutAnimationController;
@@ -187,6 +187,12 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
     //region :Views binding with butter knife
     @BindView(R.id.rootView)
     CoordinatorLayout rootView;
+    @BindView(R.id.buttonToggleLong)
+    AppCompatTextView btnToggleLong;
+    @BindView(R.id.buttonCopyright)
+    AppCompatImageView btnCopyRight;
+    @BindView(R.id.buttonNext)
+    AppCompatImageView btnNext;
     @BindView(R.id.imageContainer)
     SquareView squareView;
     @BindView(R.id.imageShort)
@@ -378,6 +384,25 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
         mContext = this;
         //initialize for screen
         initScreen();
+
+        textShort.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int start, int before, int count) {
+                if (charSequence.length() > 50) {
+                    ViewHelper.getSnackBar(rootView, "Long form coming soon!");
+                }
+            }
+
+            @Override
+            public void afterTextChanged(Editable editable) {
+
+            }
+        });
     }
 
     @Override
@@ -447,42 +472,6 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
     }
 
     @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.menu_short, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case android.R.id.home:
-                //Show prompt dialog
-                showBackNavigationDialog();
-                return true;
-            case R.id.action_signature:
-                //Method call
-                toggleSignatureText();
-                return true;
-            case R.id.action_next:
-                //If short text is empty
-                if (TextUtils.getTrimmedLength(textShort.getText().toString()) == 0) {
-                    //Show toast message
-                    ViewHelper.getToast(this, "Short can't be empty. Please Write something.");
-                } else {
-                    //Remove underline
-                    textShort.clearComposingText();
-                    //Remove tint from imageView
-                    removeImageTint();
-                    getRuntimePermission();
-                }
-                return true;
-            default:
-                return super.onOptionsItemSelected(item);
-        }
-
-    }
-
-    @Override
     public void onBackPressed() {
         //Show prompt dialog
         showBackNavigationDialog();
@@ -506,6 +495,32 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
     //endregion
 
     //region :Click functionality
+
+    @OnClick(R.id.buttonToggleLong)
+    void onLongButtonClick() {
+        //fixme func. coming soon
+    }
+
+    @OnClick(R.id.buttonCopyright)
+    void onCopyrightClick() {
+        //Method call
+        toggleSignatureText();
+    }
+
+    @OnClick(R.id.buttonNext)
+    void onNextClick() {
+        //If short text is empty
+        if (TextUtils.getTrimmedLength(textShort.getText().toString()) == 0) {
+            //Show toast message
+            ViewHelper.getToast(this, "Short can't be empty. Please Write something.");
+        } else {
+            //Remove underline
+            textShort.clearComposingText();
+            //Remove tint from imageView
+            removeImageTint();
+            getRuntimePermission();
+        }
+    }
 
     /**
      * Root view click functionality.
@@ -554,7 +569,7 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
      * Functionality to toggle the text gravity.
      */
     @OnClick(R.id.btnLAlignText)
-    void onBtnLAlignTextClicked(AppCompatTextView btnAlignText) {
+    void onBtnLAlignTextClicked() {
 
         switch (mGravityFlag) {
             case 0:
@@ -791,7 +806,7 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
         retrieveData();
 
         //Set default font
-        mTextTypeface =FontsHelper.getFontType(mHelper.getSelectedFont(), mContext);
+        mTextTypeface = FontsHelper.getFontType(mHelper.getSelectedFont(), mContext);
 
         //set editText back listener
         textShort.setOnEditTextBackListener(this);
