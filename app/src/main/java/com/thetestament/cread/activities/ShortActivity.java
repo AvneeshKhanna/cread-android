@@ -22,6 +22,7 @@ import android.support.v4.widget.NestedScrollView;
 import android.support.v7.graphics.Palette;
 import android.support.v7.widget.AppCompatImageView;
 import android.support.v7.widget.AppCompatSeekBar;
+import android.support.v7.widget.AppCompatTextView;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
@@ -197,11 +198,19 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
     @BindView(R.id.dotShadow)
     View dotShadow;
     @BindView(R.id.btnLAlignText)
-    ImageView btnAlignText;
-    @BindView(R.id.dotBold)
-    View dotBold;
-    @BindView(R.id.dotItalic)
-    View dotItalic;
+    AppCompatTextView btnAlignText;
+    @BindView(R.id.btnFont)
+    AppCompatTextView btnFont;
+    @BindView(R.id.btnFormatBg)
+    AppCompatTextView btnFormatBg;
+    @BindView(R.id.btnFormatTextColor)
+    AppCompatTextView btnFormatTextColor;
+    @BindView(R.id.btnTemplate)
+    AppCompatTextView btnTemplate;
+    @BindView(R.id.btnFormatTextBold)
+    AppCompatTextView dotBold;
+    @BindView(R.id.btnFormatTextItalic)
+    AppCompatTextView dotItalic;
     @BindView(R.id.btnFormatTextSize)
     View viewFormatTextSize;
     @BindView(R.id.formatOptions)
@@ -218,8 +227,6 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
     AppCompatImageView buttonInspireMe;
     @BindView(R.id.btnRemoveImage)
     AppCompatImageView btnRemoveImage;
-    @BindView(R.id.btnTemplate)
-    AppCompatImageView btnTemplate;
     @BindView(R.id.btnFormatShadow)
     FrameLayout btnFormatShadow;
 
@@ -547,18 +554,13 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
      * Functionality to toggle the text gravity.
      */
     @OnClick(R.id.btnLAlignText)
-    void onBtnLAlignTextClicked(ImageView btnAlignText) {
+    void onBtnLAlignTextClicked(AppCompatTextView btnAlignText) {
 
         switch (mGravityFlag) {
             case 0:
-                //Set text gravity
-                textShort.setGravity(Gravity.RIGHT);
-                //Change button drawable
-                btnAlignText.setImageDrawable(ContextCompat.getDrawable(this, R.drawable.ic_format_align_right_32));
-                //Change gravity flag
-                mGravityFlag = 1;
-                //Set gravity variable
-                textGravity = TextGravity.East;
+                applyGravity(Gravity.RIGHT, R.drawable.ic_format_align_right_32
+                        , 1, TextGravity.East);
+
                 if (mIsShapeSelected) {
                     if (mShapeName.equals(TemplateHelper.SHAPE_NAME_SIDE_LINE)) {
                         textShort.setBackground(ContextCompat.getDrawable(mContext, R.drawable.contentshape_rightline));
@@ -568,10 +570,8 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
 
                 break;
             case 1:
-                textShort.setGravity(Gravity.LEFT);
-                btnAlignText.setImageDrawable(ContextCompat.getDrawable(this, R.drawable.ic_format_align_left_32));
-                mGravityFlag = 2;
-                textGravity = TextGravity.West;
+                applyGravity(Gravity.LEFT, R.drawable.ic_format_align_left_32
+                        , 2, TextGravity.West);
 
                 if (mIsShapeSelected) {
                     if (mShapeName.equals(TemplateHelper.SHAPE_NAME_SIDE_LINE)) {
@@ -581,10 +581,8 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
                 }
                 break;
             case 2:
-                textShort.setGravity(Gravity.CENTER);
-                btnAlignText.setImageDrawable(ContextCompat.getDrawable(this, R.drawable.ic_format_align_center_32));
-                mGravityFlag = 0;
-                textGravity = TextGravity.Center;
+                applyGravity(Gravity.CENTER, R.drawable.ic_format_align_center_32
+                        , 0, TextGravity.Center);
                 if (mIsShapeSelected) {
                     if (mShapeName.equals(TemplateHelper.SHAPE_NAME_SIDE_LINE)) {
                         textShort.setBackground(ContextCompat.getDrawable(mContext, R.drawable.contentshape_leftrightlines));
@@ -657,37 +655,21 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
     @OnClick(R.id.btnFormatTextBold)
     void boldBtnOnClick() {
         if (mItalicFlag == 0 && mBoldFlag == 0) {
-            //Set typeface to bold
-            textShort.setTypeface(mTextTypeface, Typeface.BOLD);
-            //Update flag
-            mBoldFlag = 1;
-            //Toggle dot views visibility
-            dotBold.setVisibility(View.VISIBLE);
-            dotItalic.setVisibility(View.INVISIBLE);
+            //Method called
+            applyBold(Typeface.BOLD, 1, R.drawable.ic_format_bold_selected
+                    , R.drawable.ic_format_italic_32);
         } else if (mItalicFlag == 0 && mBoldFlag == 1) {
-            //Set typeface to normal
-            textShort.setTypeface(mTextTypeface, Typeface.NORMAL);
-            //Update flag
-            mBoldFlag = 0;
-            //Toggle dot views visibility
-            dotBold.setVisibility(View.INVISIBLE);
-            dotItalic.setVisibility(View.INVISIBLE);
+            //Method called
+            applyBold(Typeface.NORMAL, 0, R.drawable.ic_format_bold_32
+                    , R.drawable.ic_format_italic_32);
         } else if (mItalicFlag == 1 && mBoldFlag == 0) {
-            //Set typeface to bold_italic
-            textShort.setTypeface(mTextTypeface, Typeface.BOLD_ITALIC);
-            //Update flag
-            mBoldFlag = 1;
-            //Toggle dot views visibility
-            dotBold.setVisibility(View.VISIBLE);
-            dotItalic.setVisibility(View.VISIBLE);
+            //Method called
+            applyBold(Typeface.BOLD_ITALIC, 1, R.drawable.ic_format_bold_selected
+                    , R.drawable.ic_format_italic_selected);
         } else if (mItalicFlag == 1 && mBoldFlag == 1) {
-            //Set typeface to italic
-            textShort.setTypeface(mTextTypeface, Typeface.ITALIC);
-            //Update flag
-            mBoldFlag = 0;
-            //Toggle dot views visibility
-            dotBold.setVisibility(View.INVISIBLE);
-            dotItalic.setVisibility(View.VISIBLE);
+            //Method called
+            applyBold(Typeface.BOLD, 0, R.drawable.ic_format_bold_32
+                    , R.drawable.ic_format_italic_selected);
         }
     }
 
@@ -698,37 +680,21 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
     void italicBtnOnclick() {
 
         if (mItalicFlag == 0 && mBoldFlag == 0) {
-            //Set typeface to italic
-            textShort.setTypeface(mTextTypeface, Typeface.ITALIC);
-            //Update flag
-            mItalicFlag = 1;
-            //Toggle dot views visibility
-            dotBold.setVisibility(View.INVISIBLE);
-            dotItalic.setVisibility(View.VISIBLE);
+            //Method call
+            applyItalic(Typeface.ITALIC, 1, R.drawable.ic_format_bold_32
+                    , R.drawable.ic_format_italic_selected);
         } else if (mItalicFlag == 0 && mBoldFlag == 1) {
-            //Set typeface to bold_italic
-            textShort.setTypeface(mTextTypeface, Typeface.BOLD_ITALIC);
-            //Update flag
-            mItalicFlag = 1;
-            //Toggle dot views visibility
-            dotBold.setVisibility(View.VISIBLE);
-            dotItalic.setVisibility(View.VISIBLE);
+            //Method call
+            applyItalic(Typeface.BOLD_ITALIC, 1, R.drawable.ic_format_bold_selected
+                    , R.drawable.ic_format_italic_selected);
         } else if (mItalicFlag == 1 && mBoldFlag == 0) {
-            //Set typeface to normal
-            textShort.setTypeface(mTextTypeface, Typeface.NORMAL);
-            //Update flag
-            mItalicFlag = 0;
-            //Toggle dot views visibility
-            dotBold.setVisibility(View.INVISIBLE);
-            dotItalic.setVisibility(View.INVISIBLE);
+            //Method call
+            applyItalic(Typeface.NORMAL, 0, R.drawable.ic_format_bold_32
+                    , R.drawable.ic_format_italic_32);
         } else if (mItalicFlag == 1 && mBoldFlag == 1) {
-            //Set typeface to bold
-            textShort.setTypeface(mTextTypeface, Typeface.BOLD);
-            //Update flag
-            mItalicFlag = 0;
-            //Toggle dot views visibility
-            dotBold.setVisibility(View.VISIBLE);
-            dotItalic.setVisibility(View.INVISIBLE);
+            //Method call
+            applyItalic(Typeface.BOLD, 0, R.drawable.ic_format_bold_selected
+                    , R.drawable.ic_format_italic_32);
         }
 
     }
@@ -819,12 +785,13 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
     private void initScreen() {
         //obtain shared preference reference
         mHelper = new SharedPreferenceHelper(this);
-
+        //set format option icon
+        setFormatOptionsIcon();
         //retrieve data from intent
         retrieveData();
 
         //Set default font
-        mTextTypeface = ResourcesCompat.getFont(mContext, R.font.bohemian_typewriter);
+        mTextTypeface =FontsHelper.getFontType(mHelper.getSelectedFont(), mContext);
 
         //set editText back listener
         textShort.setOnEditTextBackListener(this);
@@ -850,6 +817,19 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
 
         initShowcaseView();
 
+    }
+
+    /**
+     * Method to set format option icon.
+     */
+    private void setFormatOptionsIcon() {
+        btnAlignText.setCompoundDrawablesWithIntrinsicBounds(0, R.drawable.ic_format_align_left_32, 0, 0);
+        btnFont.setCompoundDrawablesWithIntrinsicBounds(0, R.drawable.ic_format_font_32dp, 0, 0);
+        btnFormatBg.setCompoundDrawablesWithIntrinsicBounds(0, R.drawable.ic_format_color_fill_32, 0, 0);
+        btnFormatTextColor.setCompoundDrawablesWithIntrinsicBounds(0, R.drawable.ic_format_color_text_32, 0, 0);
+        btnTemplate.setCompoundDrawablesWithIntrinsicBounds(0, R.drawable.ic_format_style_32, 0, 0);
+        dotBold.setCompoundDrawablesWithIntrinsicBounds(0, R.drawable.ic_format_bold_32, 0, 0);
+        dotItalic.setCompoundDrawablesWithIntrinsicBounds(0, R.drawable.ic_format_italic_32, 0, 0);
     }
 
     /**
@@ -1061,545 +1041,130 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
 
                 switch (templateName) {
                     case TEMPLATE_NONE:
-                        // set font
-                        textShort.setTypeface(ResourcesCompat.getFont(mContext, R.font.bohemian_typewriter), Typeface.NORMAL);
-                        mFontType = FONT_TYPE_BOHEMIAN_TYPEWRITER;
-                        mTextTypeface = FontsHelper.getFontType(mFontType, mContext);
-                        // update bold flag
-                        mBoldFlag = 0;
-                        dotBold.setVisibility(View.INVISIBLE);
-                        // set gravity params
-                        textShort.setGravity(Gravity.LEFT);
-                        //Change button drawable
-                        btnAlignText.setImageDrawable(ContextCompat.getDrawable(mContext, R.drawable.ic_format_align_left_32));
-
-                        textGravity = TextGravity.West;
-                        mGravityFlag = 2;
-                        //set font size
-                        textShort.setTextSize(TypedValue.COMPLEX_UNIT_SP, 16);
-                        // update italic status
-                        mItalicFlag = 0;
-                        dotItalic.setVisibility(View.INVISIBLE);
-                        //update shadow
-                        textShort.setShadowLayer(0, 0, 0, 0);
-                        mIsShadowSelected = 0;
-                        dotShadow.setVisibility(View.INVISIBLE);
-                        // update shape
-                        textShort.setBackground(null);
-                        mIsShapeSelected = false;
-                        mShapeName = TemplateHelper.SHAPE_NAME_NONE;
-
-                        //Update text size slider
-                        seekBarTextSize.setProgress(0);
+                        //Method called
+                        applyTemplateStyle(R.font.bohemian_typewriter, Typeface.NORMAL, FONT_TYPE_BOHEMIAN_TYPEWRITER, 0
+                                , Gravity.LEFT, R.drawable.ic_format_align_left_32, 2, TextGravity.West
+                                , FONT_SIZE_DEFAULT, 0, 0, false, TemplateHelper.SHAPE_NAME_NONE, 0);
                         break;
                     case TEMPLATE_1:
-                        // set font
-                        textShort.setTypeface(ResourcesCompat.getFont(mContext, R.font.amatic_sc_regular), Typeface.BOLD);
-                        mFontType = FONT_TYPE_AMATIC_SC_REGULAR;
-                        mTextTypeface = FontsHelper.getFontType(mFontType, mContext);
-                        // update bold flag
-                        mBoldFlag = 1;
-                        dotBold.setVisibility(View.VISIBLE);
-                        // set gravity params
-                        textShort.setGravity(Gravity.CENTER);
-                        textGravity = TextGravity.Center;
-                        mGravityFlag = 0;
-                        //Change button drawable
-                        btnAlignText.setImageDrawable(ContextCompat.getDrawable(mContext, R.drawable.ic_format_align_center_32));
-                        //set font size
-                        textShort.setTextSize(TypedValue.COMPLEX_UNIT_SP, TemplateHelper.FONT_SIZE_MEDIUM);
-                        // update italic status
-                        mItalicFlag = 0;
-                        dotItalic.setVisibility(View.INVISIBLE);
-                        //update shadow
-                        textShort.setShadowLayer(3, 3, 3, ContextCompat.getColor(mContext, R.color.color_grey_600));
-                        mIsShadowSelected = 1;
-                        dotShadow.setVisibility(View.VISIBLE);
-                        // update shape
-                        textShort.setBackground(null);
-                        mIsShapeSelected = false;
-                        mShapeName = TemplateHelper.SHAPE_NAME_NONE;
-
-                        //Update text size slider
-                        seekBarTextSize.setProgress(FONT_SIZE_MEDIUM - FONT_SIZE_DEFAULT);
-
+                        //Method called
+                        applyTemplateStyle(R.font.amatic_sc_regular, Typeface.BOLD, FONT_TYPE_AMATIC_SC_REGULAR, 1
+                                , Gravity.CENTER, R.drawable.ic_format_align_center_32, 0, TextGravity.Center
+                                , FONT_SIZE_MEDIUM, 0, 1, false, TemplateHelper.SHAPE_NAME_NONE, 0);
                         break;
                     case TEMPLATE_2:
-                        // set font
-                        textShort.setTypeface(ResourcesCompat.getFont(mContext, R.font.amatic_sc_regular), Typeface.BOLD);
-                        mFontType = FONT_TYPE_AMATIC_SC_REGULAR;
-                        mTextTypeface = FontsHelper.getFontType(mFontType, mContext);
-                        // update bold flag
-                        mBoldFlag = 1;
-                        dotBold.setVisibility(View.VISIBLE);
-                        // set gravity params
-                        textShort.setGravity(Gravity.CENTER);
-                        textGravity = TextGravity.Center;
-                        mGravityFlag = 0;
-                        btnAlignText.setImageDrawable(ContextCompat.getDrawable(mContext, R.drawable.ic_format_align_center_32));
-                        //set font size
-                        textShort.setTextSize(TypedValue.COMPLEX_UNIT_SP, FONT_SIZE_MEDIUM);
-                        // update italic status
-                        // update bold flag
-                        mItalicFlag = 0;
-                        dotItalic.setVisibility(View.INVISIBLE);
-                        //update shadow
-                        textShort.setShadowLayer(3, 3, 3, ContextCompat.getColor(mContext, R.color.color_grey_600));
-                        mIsShadowSelected = 1;
-                        dotShadow.setVisibility(View.VISIBLE);
-                        // update shape
-                        textShort.setBackground(ContextCompat.getDrawable(mContext, R.drawable.contentshape_bottomtoplines));
-                        mIsShapeSelected = true;
-                        mShapeName = TemplateHelper.SHAPE_NAME_TOP_BOTTOM_LINE;
-                        setContentShapeColor(textShort.getCurrentTextColor(), mShapeName, textShort, mContext);
-                        //Update text size slider
-                        seekBarTextSize.setProgress(FONT_SIZE_MEDIUM - FONT_SIZE_DEFAULT);
-
+                        //Method called
+                        applyTemplateStyle(R.font.amatic_sc_regular, Typeface.BOLD, FONT_TYPE_AMATIC_SC_REGULAR, 1
+                                , Gravity.CENTER, R.drawable.ic_format_align_center_32, 0, TextGravity.Center
+                                , FONT_SIZE_MEDIUM, 0, 1, true
+                                , TemplateHelper.SHAPE_NAME_TOP_BOTTOM_LINE, R.drawable.contentshape_bottomtoplines);
                         break;
                     case TEMPLATE_3:
-                        // set font
-                        textShort.setTypeface(ResourcesCompat.getFont(mContext, R.font.blackout_sunrise), Typeface.NORMAL);
-                        mFontType = FONT_TYPE_BLACKOUT_SUNRISE;
-                        mTextTypeface = FontsHelper.getFontType(mFontType, mContext);
-                        // update bold flag
-                        mBoldFlag = 0;
-                        dotBold.setVisibility(View.INVISIBLE);
-                        // set gravity params
-                        textShort.setGravity(Gravity.CENTER);
-                        textGravity = TextGravity.Center;
-                        mGravityFlag = 0;
-                        btnAlignText.setImageDrawable(ContextCompat.getDrawable(mContext, R.drawable.ic_format_align_center_32));
-                        //set font size
-                        textShort.setTextSize(TypedValue.COMPLEX_UNIT_SP, FONT_SIZE_LARGE);
-                        //Update text size slider
-                        seekBarTextSize.setProgress(FONT_SIZE_LARGE - FONT_SIZE_DEFAULT);
-                        // update italic status
-                        mItalicFlag = 0;
-                        dotItalic.setVisibility(View.INVISIBLE);
-                        //update shadow
-                        textShort.setShadowLayer(0, 0, 0, 0);
-                        mIsShadowSelected = 0;
-                        dotShadow.setVisibility(View.INVISIBLE);
-                        // update shape
-                        textShort.setBackground(null);
-                        mIsShapeSelected = false;
-                        mShapeName = TemplateHelper.SHAPE_NAME_NONE;
-
+                        //Method called
+                        applyTemplateStyle(R.font.blackout_sunrise, Typeface.NORMAL, FONT_TYPE_BLACKOUT_SUNRISE, 0
+                                , Gravity.CENTER, R.drawable.ic_format_align_center_32, 0, TextGravity.Center
+                                , FONT_SIZE_LARGE, 0, 0, false, TemplateHelper.SHAPE_NAME_NONE, 0);
                         break;
 
                     case TEMPLATE_4:
-                        // set font
-                        textShort.setTypeface(ResourcesCompat.getFont(mContext, R.font.fressh), Typeface.NORMAL);
-                        mFontType = FONT_TYPE_FRESSH;
-                        mTextTypeface = FontsHelper.getFontType(mFontType, mContext);
-                        // update bold flag
-                        mBoldFlag = 0;
-                        dotBold.setVisibility(View.INVISIBLE);
-                        // set gravity params
-                        textShort.setGravity(Gravity.LEFT);
-                        textGravity = TextGravity.West;
-                        mGravityFlag = 2;
-                        btnAlignText.setImageDrawable(ContextCompat.getDrawable(mContext, R.drawable.ic_format_align_left_32));
-                        //set font size
-                        textShort.setTextSize(TypedValue.COMPLEX_UNIT_SP, FONT_SIZE_MEDIUM);
-                        //Update text size slider
-                        seekBarTextSize.setProgress(FONT_SIZE_MEDIUM - FONT_SIZE_DEFAULT);
-                        // update italic status
-                        mItalicFlag = 0;
-                        dotItalic.setVisibility(View.INVISIBLE);
-                        //update shadow
-                        textShort.setShadowLayer(0, 0, 0, 0);
-                        mIsShadowSelected = 0;
-                        dotShadow.setVisibility(View.INVISIBLE);
-                        // update shape
-                        textShort.setBackground(null);
-                        mIsShapeSelected = false;
-                        mShapeName = TemplateHelper.SHAPE_NAME_NONE;
+                        //Method called
+                        applyTemplateStyle(R.font.fressh, Typeface.NORMAL, FONT_TYPE_FRESSH, 0
+                                , Gravity.LEFT, R.drawable.ic_format_align_left_32, 2, TextGravity.West
+                                , FONT_SIZE_MEDIUM, 0, 0, false, TemplateHelper.SHAPE_NAME_NONE, 0);
                         break;
                     case TEMPLATE_5:
-                        // set font
-                        textShort.setTypeface(ResourcesCompat.getFont(mContext, R.font.komikaaxis), Typeface.NORMAL);
-                        mFontType = FONT_TYPE_KOMIKAAXIS;
-                        mTextTypeface = FontsHelper.getFontType(mFontType, mContext);
-                        // update bold flag
-                        mBoldFlag = 0;
-                        dotBold.setVisibility(View.INVISIBLE);
-                        // set gravity params
-                        textShort.setGravity(Gravity.CENTER);
-                        textGravity = TextGravity.Center;
-                        mGravityFlag = 0;
-                        btnAlignText.setImageDrawable(ContextCompat.getDrawable(mContext, R.drawable.ic_format_align_center_32));
-                        //set font size
-                        textShort.setTextSize(TypedValue.COMPLEX_UNIT_SP, FONT_SIZE_SMALL);
-                        //Update text size slider
-                        seekBarTextSize.setProgress(FONT_SIZE_SMALL - FONT_SIZE_DEFAULT);
-                        // update italic status
-                        mItalicFlag = 0;
-                        dotItalic.setVisibility(View.INVISIBLE);
-                        //update shadow
-                        textShort.setShadowLayer(3, 3, 3, ContextCompat.getColor(mContext, R.color.color_grey_600));
-                        mIsShadowSelected = 1;
-                        dotShadow.setVisibility(View.VISIBLE);
-                        // update shape
-                        textShort.setBackground(null);
-                        mIsShapeSelected = false;
-                        mShapeName = TemplateHelper.SHAPE_NAME_NONE;
+                        //Method called
+                        applyTemplateStyle(R.font.komikaaxis, Typeface.NORMAL, FONT_TYPE_KOMIKAAXIS, 0
+                                , Gravity.CENTER, R.drawable.ic_format_align_center_32, 0, TextGravity.Center
+                                , FONT_SIZE_SMALL, 0, 1, false, TemplateHelper.SHAPE_NAME_NONE, 0);
                         break;
                     case TEMPLATE_6:
-                        // set font
-                        textShort.setTypeface(ResourcesCompat.getFont(mContext, R.font.komikaaxis), Typeface.NORMAL);
-                        mFontType = FONT_TYPE_KOMIKAAXIS;
-                        mTextTypeface = FontsHelper.getFontType(mFontType, mContext);
-                        // update bold flag
-                        mBoldFlag = 0;
-                        dotBold.setVisibility(View.INVISIBLE);
-                        // set gravity params
-                        textShort.setGravity(Gravity.CENTER);
-                        textGravity = TextGravity.Center;
-                        mGravityFlag = 0;
-                        btnAlignText.setImageDrawable(ContextCompat.getDrawable(mContext, R.drawable.ic_format_align_center_32));
-                        //set font size
-                        textShort.setTextSize(TypedValue.COMPLEX_UNIT_SP, FONT_SIZE_SMALL);
-                        //Update text size slider
-                        seekBarTextSize.setProgress(FONT_SIZE_SMALL - FONT_SIZE_DEFAULT);
-                        // update italic status
-                        mItalicFlag = 0;
-                        dotItalic.setVisibility(View.INVISIBLE);
-                        //update shadow
-                        textShort.setShadowLayer(3, 3, 3, ContextCompat.getColor(mContext, R.color.color_grey_600));
-                        mIsShadowSelected = 1;
-                        dotShadow.setVisibility(View.VISIBLE);
-                        // update shape
-                        textShort.setBackground(ContextCompat.getDrawable(mContext, R.drawable.contentshape_bottomtoplines));
-                        mIsShapeSelected = true;
-                        mShapeName = TemplateHelper.SHAPE_NAME_TOP_BOTTOM_LINE;
-                        setContentShapeColor(textShort.getCurrentTextColor(), mShapeName, textShort, mContext);
+                        //Method called
+                        applyTemplateStyle(R.font.komikaaxis, Typeface.NORMAL, FONT_TYPE_KOMIKAAXIS, 0
+                                , Gravity.CENTER, R.drawable.ic_format_align_center_32, 0, TextGravity.Center
+                                , FONT_SIZE_SMALL, 0, 1, true
+                                , TemplateHelper.SHAPE_NAME_TOP_BOTTOM_LINE, R.drawable.contentshape_bottomtoplines);
+
                         break;
                     case TEMPLATE_7:
-                        // set font
-                        textShort.setTypeface(ResourcesCompat.getFont(mContext, R.font.langdon), Typeface.NORMAL);
-                        mFontType = FONT_TYPE_LANGDON;
-                        mTextTypeface = FontsHelper.getFontType(mFontType, mContext);
-                        // update bold flag
-                        mBoldFlag = 0;
-                        dotBold.setVisibility(View.INVISIBLE);
-                        // set gravity params
-                        textShort.setGravity(Gravity.CENTER);
-                        textGravity = TextGravity.Center;
-                        mGravityFlag = 0;
-                        btnAlignText.setImageDrawable(ContextCompat.getDrawable(mContext, R.drawable.ic_format_align_center_32));
-                        //set font size
-                        textShort.setTextSize(TypedValue.COMPLEX_UNIT_SP, FONT_SIZE_LARGE);
-                        //Update text size slider
-                        seekBarTextSize.setProgress(FONT_SIZE_LARGE - FONT_SIZE_DEFAULT);
-                        // update italic status
-                        mItalicFlag = 0;
-                        dotItalic.setVisibility(View.INVISIBLE);
-                        //update shadow
-                        textShort.setShadowLayer(0, 0, 0, 0);
-                        mIsShadowSelected = 0;
-                        dotShadow.setVisibility(View.INVISIBLE);
-                        // update shape
-                        textShort.setBackground(null);
-                        mIsShapeSelected = false;
-                        mShapeName = TemplateHelper.SHAPE_NAME_NONE;
+                        //Method called
+                        applyTemplateStyle(R.font.langdon, Typeface.NORMAL, FONT_TYPE_LANGDON, 0
+                                , Gravity.CENTER, R.drawable.ic_format_align_center_32, 0, TextGravity.Center
+                                , FONT_SIZE_LARGE, 0, 0, false
+                                , TemplateHelper.SHAPE_NAME_NONE, 0);
+
                         break;
                     case TEMPLATE_8:
-                        // set font
-                        textShort.setTypeface(ResourcesCompat.getFont(mContext, R.font.a_love_of_thunder), Typeface.NORMAL);
-                        mFontType = FONT_TYPE_A_LOVE_OF_THUNDER;
-                        mTextTypeface = FontsHelper.getFontType(mFontType, mContext);
-                        // update bold flag
-                        mBoldFlag = 0;
-                        dotBold.setVisibility(View.INVISIBLE);
-                        // set gravity params
-                        textShort.setGravity(Gravity.CENTER);
-                        textGravity = TextGravity.Center;
-                        mGravityFlag = 0;
-                        //set font size
-                        textShort.setTextSize(TypedValue.COMPLEX_UNIT_SP, FONT_SIZE_LARGE);
-                        //Update text size slider
-                        seekBarTextSize.setProgress(FONT_SIZE_LARGE - FONT_SIZE_DEFAULT);
-                        // update italic status
-                        mItalicFlag = 0;
-                        dotItalic.setVisibility(View.INVISIBLE);
-                        //update shadow
-                        textShort.setShadowLayer(3, 3, 3, ContextCompat.getColor(mContext, R.color.color_grey_600));
-                        mIsShadowSelected = 1;
-                        dotShadow.setVisibility(View.VISIBLE);
-                        // update shape
-                        textShort.setBackground(null);
-                        mIsShapeSelected = false;
-                        mShapeName = TemplateHelper.SHAPE_NAME_NONE;
+                        //Method called
+                        applyTemplateStyle(R.font.a_love_of_thunder, Typeface.NORMAL, FONT_TYPE_A_LOVE_OF_THUNDER, 0
+                                , Gravity.CENTER, R.drawable.ic_format_align_center_32, 0, TextGravity.Center
+                                , FONT_SIZE_LARGE, 0, 1, false
+                                , TemplateHelper.SHAPE_NAME_NONE, 0);
+
                         break;
                     case TEMPLATE_9:
-                        // set font
-                        textShort.setTypeface(ResourcesCompat.getFont(mContext, R.font.ostrich_rounded), Typeface.NORMAL);
-                        mFontType = FONT_TYPE_OSTRICH_ROUNDED;
-                        mTextTypeface = FontsHelper.getFontType(mFontType, mContext);
-                        // update bold flag
-                        mBoldFlag = 0;
-                        dotBold.setVisibility(View.INVISIBLE);
-                        // set gravity params
-                        textShort.setGravity(Gravity.LEFT);
-                        textGravity = TextGravity.West;
-                        mGravityFlag = 2;
-                        btnAlignText.setImageDrawable(ContextCompat.getDrawable(mContext, R.drawable.ic_format_align_left_32));
-                        //set font size
-                        textShort.setTextSize(TypedValue.COMPLEX_UNIT_SP, FONT_SIZE_MEDIUM);
-                        //Update text size slider
-                        seekBarTextSize.setProgress(FONT_SIZE_MEDIUM - FONT_SIZE_DEFAULT);
-                        // update italic status
-                        mItalicFlag = 0;
-                        dotItalic.setVisibility(View.INVISIBLE);
-                        //update shadow
-                        textShort.setShadowLayer(0, 0, 0, 0);
-                        mIsShadowSelected = 0;
-                        dotShadow.setVisibility(View.INVISIBLE);
-                        // update shape
-                        textShort.setBackground(null);
-                        mIsShapeSelected = false;
-                        mShapeName = TemplateHelper.SHAPE_NAME_NONE;
+                        //Method called
+                        applyTemplateStyle(R.font.ostrich_rounded, Typeface.NORMAL, FONT_TYPE_OSTRICH_ROUNDED, 0
+                                , Gravity.LEFT, R.drawable.ic_format_align_left_32, 2, TextGravity.West
+                                , FONT_SIZE_MEDIUM, 0, 0, false
+                                , TemplateHelper.SHAPE_NAME_NONE, 0);
 
                         break;
                     case TEMPLATE_10:
-                        // set font
-                        textShort.setTypeface(ResourcesCompat.getFont(mContext, R.font.ostrich_rounded), Typeface.NORMAL);
-                        mFontType = FONT_TYPE_OSTRICH_ROUNDED;
-                        mTextTypeface = FontsHelper.getFontType(mFontType, mContext);
-                        // update bold flag
-                        mBoldFlag = 0;
-                        dotBold.setVisibility(View.INVISIBLE);
-                        // set gravity params
-                        textShort.setGravity(Gravity.LEFT);
-                        textGravity = TextGravity.West;
-                        mGravityFlag = 2;
-                        btnAlignText.setImageDrawable(ContextCompat.getDrawable(mContext, R.drawable.ic_format_align_left_32));
-                        //set font size
-                        textShort.setTextSize(TypedValue.COMPLEX_UNIT_SP, FONT_SIZE_MEDIUM);
-                        //Update text size slider
-                        seekBarTextSize.setProgress(FONT_SIZE_MEDIUM - FONT_SIZE_DEFAULT);
-                        // update italic status
-                        mItalicFlag = 0;
-                        dotItalic.setVisibility(View.INVISIBLE);
-                        //update shadow
-                        textShort.setShadowLayer(0, 0, 0, 0);
-                        mIsShadowSelected = 0;
-                        dotShadow.setVisibility(View.INVISIBLE);
-                        // update shape
-                        textShort.setBackground(ContextCompat.getDrawable(mContext, R.drawable.contentshape_leftline));
-                        mIsShapeSelected = true;
-                        mShapeName = TemplateHelper.SHAPE_NAME_SIDE_LINE;
-                        setContentShapeColor(textShort.getCurrentTextColor(), mShapeName, textShort, mContext);
+                        //Method called
+                        applyTemplateStyle(R.font.ostrich_rounded, Typeface.NORMAL, FONT_TYPE_OSTRICH_ROUNDED, 0
+                                , Gravity.LEFT, R.drawable.ic_format_align_left_32, 2, TextGravity.West
+                                , FONT_SIZE_MEDIUM, 0, 0, false
+                                , TemplateHelper.SHAPE_NAME_SIDE_LINE, R.drawable.contentshape_leftline);
                         break;
                     case TEMPLATE_11:
-                        // set font
-                        textShort.setTypeface(ResourcesCompat.getFont(mContext, R.font.pacifico), Typeface.NORMAL);
-                        mFontType = FONT_TYPE_PACIFICO;
-                        mTextTypeface = FontsHelper.getFontType(mFontType, mContext);
-                        // update bold flag
-                        mBoldFlag = 0;
-                        dotBold.setVisibility(View.INVISIBLE);
-                        // set gravity params
-                        textShort.setGravity(Gravity.CENTER);
-                        textGravity = TextGravity.Center;
-                        mGravityFlag = 0;
-                        btnAlignText.setImageDrawable(ContextCompat.getDrawable(mContext, R.drawable.ic_format_align_center_32));
-                        //set font size
-                        textShort.setTextSize(TypedValue.COMPLEX_UNIT_SP, FONT_SIZE_MEDIUM);
-                        //Update text size slider
-                        seekBarTextSize.setProgress(FONT_SIZE_MEDIUM - FONT_SIZE_DEFAULT);
-                        // update italic status
-                        mItalicFlag = 0;
-                        dotItalic.setVisibility(View.INVISIBLE);
-                        //update shadow
-                        textShort.setShadowLayer(0, 0, 0, 0);
-                        mIsShadowSelected = 0;
-                        dotShadow.setVisibility(View.INVISIBLE);
-                        // update shape
-                        textShort.setBackground(null);
-                        mIsShapeSelected = false;
-                        mShapeName = TemplateHelper.SHAPE_NAME_NONE;
-
+                        //Method called
+                        applyTemplateStyle(R.font.pacifico, Typeface.NORMAL, FONT_TYPE_PACIFICO, 0
+                                , Gravity.CENTER, R.drawable.ic_format_align_center_32, 0, TextGravity.Center
+                                , FONT_SIZE_MEDIUM, 0, 0, false
+                                , TemplateHelper.SHAPE_NAME_NONE, 0);
                         break;
                     case TEMPLATE_12:
-                        // set font
-                        textShort.setTypeface(ResourcesCompat.getFont(mContext, R.font.pacifico), Typeface.NORMAL);
-                        mFontType = FONT_TYPE_PACIFICO;
-                        mTextTypeface = FontsHelper.getFontType(mFontType, mContext);
-                        // update bold flag
-                        mBoldFlag = 0;
-                        dotBold.setVisibility(View.INVISIBLE);
-                        // set gravity params
-                        textShort.setGravity(Gravity.CENTER);
-                        textGravity = TextGravity.Center;
-                        mGravityFlag = 0;
-                        btnAlignText.setImageDrawable(ContextCompat.getDrawable(mContext, R.drawable.ic_format_align_center_32));
-                        //set font size
-                        textShort.setTextSize(TypedValue.COMPLEX_UNIT_SP, FONT_SIZE_MEDIUM);
-                        //Update text size slider
-                        seekBarTextSize.setProgress(FONT_SIZE_MEDIUM - FONT_SIZE_DEFAULT);
-                        // update italic status
-                        mItalicFlag = 0;
-                        dotItalic.setVisibility(View.INVISIBLE);
-                        //update shadow
-                        textShort.setShadowLayer(0, 0, 0, 0);
-                        mIsShadowSelected = 0;
-                        dotShadow.setVisibility(View.INVISIBLE);
-                        // update shape
-                        textShort.setBackground(ContextCompat.getDrawable(mContext, R.drawable.contentshape_quotemarks));
-                        mIsShapeSelected = true;
-                        mShapeName = TemplateHelper.SHAPE_NAME_QUOTE;
-                        setContentShapeColor(textShort.getCurrentTextColor(), mShapeName, textShort, mContext);
+                        //Method called
+                        applyTemplateStyle(R.font.pacifico, Typeface.NORMAL, FONT_TYPE_PACIFICO, 0
+                                , Gravity.CENTER, R.drawable.ic_format_align_center_32, 0, TextGravity.Center
+                                , FONT_SIZE_MEDIUM, 0, 0, true
+                                , TemplateHelper.SHAPE_NAME_QUOTE, R.drawable.contentshape_quotemarks);
                         break;
                     case TEMPLATE_13:
-                        // set font
-                        textShort.setTypeface(ResourcesCompat.getFont(mContext, R.font.poiret_one_regular), Typeface.NORMAL);
-                        mFontType = FONT_TYPE_POIRET_ONE_REGULAR;
-                        mTextTypeface = FontsHelper.getFontType(mFontType, mContext);
-                        // update bold flag
-                        mBoldFlag = 0;
-                        dotBold.setVisibility(View.INVISIBLE);
-                        // set gravity params
-                        textShort.setGravity(Gravity.CENTER);
-                        textGravity = TextGravity.Center;
-                        mGravityFlag = 0;
-                        btnAlignText.setImageDrawable(ContextCompat.getDrawable(mContext, R.drawable.ic_format_align_center_32));
-                        //set font size
-                        textShort.setTextSize(TypedValue.COMPLEX_UNIT_SP, FONT_SIZE_LARGE);
-                        //Update text size slider
-                        seekBarTextSize.setProgress(FONT_SIZE_LARGE - FONT_SIZE_DEFAULT);
-                        // update italic status
-                        mItalicFlag = 0;
-                        dotItalic.setVisibility(View.INVISIBLE);
-                        //update shadow
-                        textShort.setShadowLayer(3, 3, 3, ContextCompat.getColor(mContext, R.color.color_grey_600));
-                        mIsShadowSelected = 1;
-                        dotShadow.setVisibility(View.VISIBLE);
-                        // update shape
-                        textShort.setBackground(null);
-                        mIsShapeSelected = false;
-                        mShapeName = TemplateHelper.SHAPE_NAME_NONE;
-
+                        //Method called
+                        applyTemplateStyle(R.font.poiret_one_regular, Typeface.NORMAL, FONT_TYPE_POIRET_ONE_REGULAR, 0
+                                , Gravity.CENTER, R.drawable.ic_format_align_center_32, 0, TextGravity.Center
+                                , FONT_SIZE_LARGE, 0, 1, false
+                                , TemplateHelper.SHAPE_NAME_NONE, 0);
                         break;
                     case TEMPLATE_14:
-                        // set font
-                        textShort.setTypeface(ResourcesCompat.getFont(mContext, R.font.poiret_one_regular), Typeface.NORMAL);
-                        mFontType = FONT_TYPE_POIRET_ONE_REGULAR;
-                        mTextTypeface = FontsHelper.getFontType(mFontType, mContext);
-                        // update bold flag
-                        mBoldFlag = 0;
-                        dotBold.setVisibility(View.INVISIBLE);
-                        // set gravity params
-                        textShort.setGravity(Gravity.CENTER);
-                        textGravity = TextGravity.Center;
-                        mGravityFlag = 0;
-                        btnAlignText.setImageDrawable(ContextCompat.getDrawable(mContext, R.drawable.ic_format_align_center_32));
-                        //set font size
-                        textShort.setTextSize(TypedValue.COMPLEX_UNIT_SP, FONT_SIZE_LARGE);
-                        //Update text size slider
-                        seekBarTextSize.setProgress(FONT_SIZE_LARGE - FONT_SIZE_DEFAULT);
-                        // update italic status
-                        mItalicFlag = 0;
-                        dotItalic.setVisibility(View.INVISIBLE);
-                        //update shadow
-                        textShort.setShadowLayer(3, 3, 3, ContextCompat.getColor(mContext, R.color.color_grey_600));
-                        mIsShadowSelected = 1;
-                        dotShadow.setVisibility(View.VISIBLE);
-                        // update shape
-                        textShort.setBackground(ContextCompat.getDrawable(mContext, R.drawable.contentshape_quotemarks));
-                        mIsShapeSelected = true;
-                        mShapeName = TemplateHelper.SHAPE_NAME_QUOTE;
-                        setContentShapeColor(textShort.getCurrentTextColor(), mShapeName, textShort, mContext);
+                        //Method called
+                        applyTemplateStyle(R.font.poiret_one_regular, Typeface.NORMAL, FONT_TYPE_POIRET_ONE_REGULAR, 0
+                                , Gravity.CENTER, R.drawable.ic_format_align_center_32, 0, TextGravity.Center
+                                , FONT_SIZE_LARGE, 0, 1, true
+                                , TemplateHelper.SHAPE_NAME_QUOTE, R.drawable.contentshape_quotemarks);
                         break;
                     case TEMPLATE_15:
-                        // set font
-                        textShort.setTypeface(ResourcesCompat.getFont(mContext, R.font.blackout_twoam), Typeface.NORMAL);
-                        mFontType = FONT_TYPE_BLACKOUT_TWOAM;
-                        mTextTypeface = FontsHelper.getFontType(mFontType, mContext);
-                        // update bold flag
-                        mBoldFlag = 0;
-                        dotBold.setVisibility(View.INVISIBLE);
-                        // set gravity params
-                        textShort.setGravity(Gravity.CENTER);
-                        textGravity = TextGravity.Center;
-                        mGravityFlag = 0;
-                        btnAlignText.setImageDrawable(ContextCompat.getDrawable(mContext, R.drawable.ic_format_align_center_32));
-                        //set font size
-                        textShort.setTextSize(TypedValue.COMPLEX_UNIT_SP, FONT_SIZE_LARGE);
-                        //Update text size slider
-                        seekBarTextSize.setProgress(FONT_SIZE_LARGE - FONT_SIZE_DEFAULT);
-                        // update italic status
-                        mItalicFlag = 0;
-                        dotItalic.setVisibility(View.INVISIBLE);
-                        //update shadow
-                        textShort.setShadowLayer(3, 3, 3, ContextCompat.getColor(mContext, R.color.color_grey_600));
-                        mIsShadowSelected = 1;
-                        dotShadow.setVisibility(View.VISIBLE);
-                        // update shape
-                        textShort.setBackground(null);
-                        mIsShapeSelected = false;
-                        mShapeName = TemplateHelper.SHAPE_NAME_NONE;
+                        //Method called
+                        applyTemplateStyle(R.font.blackout_twoam, Typeface.NORMAL, FONT_TYPE_BLACKOUT_TWOAM, 0
+                                , Gravity.CENTER, R.drawable.ic_format_align_center_32, 0, TextGravity.Center
+                                , FONT_SIZE_LARGE, 0, 1, false
+                                , TemplateHelper.SHAPE_NAME_NONE, 0);
                         break;
                     case TEMPLATE_16:
-                        // set font
-                        textShort.setTypeface(ResourcesCompat.getFont(mContext, R.font.yanone_kaffeesatz), Typeface.NORMAL);
-                        mFontType = FONT_TYPE_YANONE_KAFFEESATZ;
-                        mTextTypeface = FontsHelper.getFontType(mFontType, mContext);
-                        // update bold flag
-                        mBoldFlag = 0;
-                        dotBold.setVisibility(View.INVISIBLE);
-                        // set gravity params
-                        textShort.setGravity(Gravity.CENTER);
-                        textGravity = TextGravity.Center;
-                        mGravityFlag = 0;
-                        btnAlignText.setImageDrawable(ContextCompat.getDrawable(mContext, R.drawable.ic_format_align_center_32));
-                        //set font size
-                        textShort.setTextSize(TypedValue.COMPLEX_UNIT_SP, FONT_SIZE_MEDIUM);
-                        //Update text size slider
-                        seekBarTextSize.setProgress(FONT_SIZE_MEDIUM - FONT_SIZE_DEFAULT);
-                        // update italic status
-                        mItalicFlag = 0;
-                        dotItalic.setVisibility(View.INVISIBLE);
-                        //update shadow
-                        textShort.setShadowLayer(3, 3, 3, ContextCompat.getColor(mContext, R.color.color_grey_600));
-                        mIsShadowSelected = 1;
-                        dotShadow.setVisibility(View.VISIBLE);
-                        // update shape
-                        textShort.setBackground(null);
-                        mIsShapeSelected = false;
-                        mShapeName = TemplateHelper.SHAPE_NAME_NONE;
-
+                        //Method called
+                        applyTemplateStyle(R.font.yanone_kaffeesatz, Typeface.NORMAL, FONT_TYPE_YANONE_KAFFEESATZ, 0
+                                , Gravity.CENTER, R.drawable.ic_format_align_center_32, 0, TextGravity.Center
+                                , FONT_SIZE_MEDIUM, 0, 1, false
+                                , TemplateHelper.SHAPE_NAME_NONE, 0);
                         break;
                     case TEMPLATE_17:
-                        // set font
-                        textShort.setTypeface(ResourcesCompat.getFont(mContext, R.font.yanone_kaffeesatz), Typeface.NORMAL);
-                        mFontType = FONT_TYPE_YANONE_KAFFEESATZ;
-                        mTextTypeface = FontsHelper.getFontType(mFontType, mContext);
-                        // update bold flag
-                        mBoldFlag = 0;
-                        dotBold.setVisibility(View.INVISIBLE);
-                        // set gravity params
-                        textShort.setGravity(Gravity.CENTER);
-                        textGravity = TextGravity.Center;
-                        mGravityFlag = 0;
-                        btnAlignText.setImageDrawable(ContextCompat.getDrawable(mContext, R.drawable.ic_format_align_center_32));
-                        //set font size
-                        textShort.setTextSize(TypedValue.COMPLEX_UNIT_SP, FONT_SIZE_MEDIUM);
-                        //Update text size slider
-                        seekBarTextSize.setProgress(FONT_SIZE_MEDIUM - FONT_SIZE_DEFAULT);
-                        // update italic status
-                        mItalicFlag = 0;
-                        dotItalic.setVisibility(View.INVISIBLE);
-                        //update shadow
-                        textShort.setShadowLayer(3, 3, 3, ContextCompat.getColor(mContext, R.color.color_grey_600));
-                        mIsShadowSelected = 1;
-                        dotShadow.setVisibility(View.VISIBLE);
-                        // update shape
-                        textShort.setBackground(ContextCompat.getDrawable(mContext, R.drawable.contentshape_bottomtoplines));
-                        mIsShapeSelected = true;
-                        mShapeName = TemplateHelper.SHAPE_NAME_TOP_BOTTOM_LINE;
-                        setContentShapeColor(textShort.getCurrentTextColor(), mShapeName, textShort, mContext);
+                        //Method called
+                        applyTemplateStyle(R.font.yanone_kaffeesatz, Typeface.NORMAL, FONT_TYPE_YANONE_KAFFEESATZ, 0
+                                , Gravity.CENTER, R.drawable.ic_format_align_center_32, 0, TextGravity.Center
+                                , FONT_SIZE_MEDIUM, 0, 1, true
+                                , TemplateHelper.SHAPE_NAME_TOP_BOTTOM_LINE, R.drawable.contentshape_bottomtoplines);
                         break;
 
                     default:
@@ -2173,27 +1738,27 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
                                 if (mItalicFlag == 0 && mBoldFlag == 0) {
                                     //Set typeface to normal
                                     textShort.setTypeface(getFontType(mFontType, mContext), Typeface.NORMAL);
-                                    //Toggle dot views visibility
-                                    dotBold.setVisibility(View.INVISIBLE);
-                                    dotItalic.setVisibility(View.INVISIBLE);
+                                    //Toggle view selection
+                                    dotBold.setCompoundDrawablesWithIntrinsicBounds(0, R.drawable.ic_format_bold_32, 0, 0);
+                                    dotItalic.setCompoundDrawablesWithIntrinsicBounds(0, R.drawable.ic_format_italic_32, 0, 0);
                                 } else if (mItalicFlag == 0 && mBoldFlag == 1) {
                                     //Set typeface to bold
                                     textShort.setTypeface(getFontType(mFontType, mContext), Typeface.BOLD);
-                                    //Toggle dot views visibility
-                                    dotBold.setVisibility(View.VISIBLE);
-                                    dotItalic.setVisibility(View.INVISIBLE);
+                                    //Toggle view selection
+                                    dotBold.setCompoundDrawablesWithIntrinsicBounds(0, R.drawable.ic_format_bold_selected, 0, 0);
+                                    dotItalic.setCompoundDrawablesWithIntrinsicBounds(0, R.drawable.ic_format_italic_32, 0, 0);
                                 } else if (mItalicFlag == 1 && mBoldFlag == 0) {
                                     //Set typeface to italic
                                     textShort.setTypeface(getFontType(mFontType, mContext), Typeface.ITALIC);
-                                    //Toggle dot views visibility
-                                    dotBold.setVisibility(View.INVISIBLE);
-                                    dotItalic.setVisibility(View.VISIBLE);
+                                    //Toggle view selection
+                                    dotBold.setCompoundDrawablesWithIntrinsicBounds(0, R.drawable.ic_format_bold_32, 0, 0);
+                                    dotItalic.setCompoundDrawablesWithIntrinsicBounds(0, R.drawable.ic_format_italic_selected, 0, 0);
                                 } else if (mItalicFlag == 1 && mBoldFlag == 1) {
                                     //Set typeface to bold_italic
                                     textShort.setTypeface(getFontType(mFontType, mContext), Typeface.BOLD_ITALIC);
-                                    //Toggle dot views visibility
-                                    dotBold.setVisibility(View.VISIBLE);
-                                    dotItalic.setVisibility(View.VISIBLE);
+                                    //Toggle view selection
+                                    dotBold.setCompoundDrawablesWithIntrinsicBounds(0, R.drawable.ic_format_bold_selected, 0, 0);
+                                    dotItalic.setCompoundDrawablesWithIntrinsicBounds(0, R.drawable.ic_format_italic_selected, 0, 0);
                                 }
 
                                 //Obtain x and y position of text
@@ -2210,34 +1775,13 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
                                 //Update short text gravity
                                 switch (TextGravity.valueOf(responseObject.getString("textgravity"))) {
                                     case Center:
-                                        //Set text gravity
-                                        textShort.setGravity(Gravity.CENTER);
-                                        //Change button drawable
-                                        btnAlignText.setImageDrawable(ContextCompat.getDrawable(mContext, R.drawable.ic_format_align_center_32));
-                                        //Change gravity flag
-                                        mGravityFlag = 0;
-                                        //Set gravity variable
-                                        textGravity = TextGravity.Center;
+                                        applyGravity(Gravity.CENTER, R.drawable.ic_format_align_center_32, 0, TextGravity.Center);
                                         break;
                                     case West:
-                                        //Set text gravity
-                                        textShort.setGravity(Gravity.LEFT);
-                                        //Change button drawable
-                                        btnAlignText.setImageDrawable(ContextCompat.getDrawable(mContext, R.drawable.ic_format_align_left_32));
-                                        //Change gravity flag
-                                        mGravityFlag = 2;
-                                        //Set gravity variable
-                                        textGravity = TextGravity.West;
+                                        applyGravity(Gravity.LEFT, R.drawable.ic_format_align_left_32, 2, TextGravity.West);
                                         break;
                                     case East:
-                                        //Set text gravity
-                                        textShort.setGravity(Gravity.RIGHT);
-                                        //Change button drawable
-                                        btnAlignText.setImageDrawable(ContextCompat.getDrawable(mContext, R.drawable.ic_format_align_right_32));
-                                        //Change gravity flag
-                                        mGravityFlag = 1;
-                                        //Set gravity variable
-                                        textGravity = TextGravity.East;
+                                        applyGravity(Gravity.RIGHT, R.drawable.ic_format_align_right_32, 1, TextGravity.East);
                                         break;
                                 }
 
@@ -2536,6 +2080,137 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
         }
     }
 
+
+    /**
+     * Method to apply gravity on text and update required flags.
+     *
+     * @param gravity         Gravity i.e Gravity.LEFT , Gravity.RIGHT and Gravity.CENTER
+     * @param gravityDrawable ID of drawable to be applied.
+     * @param gravityFlag     Gravity status i.e 0 for center , 1 for right and 2 for left.
+     * @param tGravity        Enum gravity  i.e CENTER, WEST and EAST
+     */
+    private void applyGravity(int gravity, int gravityDrawable, int gravityFlag, TextGravity tGravity) {
+        //Set text gravity
+        textShort.setGravity(gravity);
+        //Change button drawable
+        btnAlignText.setCompoundDrawablesWithIntrinsicBounds(0, gravityDrawable, 0, 0);
+        //Change gravity flag
+        mGravityFlag = gravityFlag;
+        //Set gravity variable
+        textGravity = tGravity;
+    }
+
+    /**
+     * Method to apply bold style on text and update required flags.
+     *
+     * @param textStyle      Text style  i.e Typeface.ITALIC , Typeface.BOLD and Typeface.NORMAL
+     * @param boldFlagValue  1 if bold selected 0 otherwise.
+     * @param boldDrawable   Drawable for bold button
+     * @param italicDrawable Drawable for italic button
+     */
+    private void applyBold(int textStyle, int boldFlagValue, int boldDrawable, int italicDrawable) {
+        //Set typeface to bold
+        textShort.setTypeface(mTextTypeface, textStyle);
+        //Update flag
+        mBoldFlag = boldFlagValue;
+        //Toggle view selection
+        dotBold.setCompoundDrawablesWithIntrinsicBounds(0, boldDrawable, 0, 0);
+        dotItalic.setCompoundDrawablesWithIntrinsicBounds(0, italicDrawable, 0, 0);
+    }
+
+    /**
+     * Method to apply italic style on text and update required flags.
+     *
+     * @param textStyle       Text style  i.e Typeface.ITALIC , Typeface.BOLD and Typeface.NORMAL
+     * @param italicFlagValue 1 if italic selected 0 otherwise.
+     * @param boldDrawable    Drawable for bold button
+     * @param italicDrawable  Drawable for italic button
+     */
+    private void applyItalic(int textStyle, int italicFlagValue, int boldDrawable, int italicDrawable) {
+        //Set typeface to bold
+        textShort.setTypeface(mTextTypeface, textStyle);
+        //Update flag
+        mItalicFlag = italicFlagValue;
+        //Toggle view selection
+        dotBold.setCompoundDrawablesWithIntrinsicBounds(0, boldDrawable, 0, 0);
+        dotItalic.setCompoundDrawablesWithIntrinsicBounds(0, italicDrawable, 0, 0);
+    }
+
+    /**
+     * Method to apply selected template style and update required flags.
+     *
+     * @param fontValue       Font to be applied text
+     * @param fontStyle       Font style  i.e Typeface.BOLD , Typeface.ITALIC , Typeface.NORMAL
+     * @param fontType        Type of font
+     * @param boldFlag        1 if bold applied 0 otherwise.
+     * @param gravity         Gravity i.e Gravity.LEFT , Gravity.RIGHT , Gravity.Center
+     * @param gravityDrawable ID of drawable to be applied on text alignment button.
+     * @param gravityFlag     Gravity  0 for center , 1 for right and 2 for left.
+     * @param tGravity        TextGravity i.e WEST , EAST , CENTER
+     * @param fontSize        Font size to be applied
+     * @param italicFlag      1 if italic applied 0 otherwise.
+     * @param shadowFlag      1 if text shadow applied 0 otherwise.
+     * @param isShapeSelected true if shape  selected false otherwise.
+     * @param shapeName       Current selected name
+     * @param shapeID         ID of drawable to be applied for shape.
+     */
+    private void applyTemplateStyle(int fontValue, int fontStyle, String fontType, int boldFlag
+            , int gravity, int gravityDrawable, int gravityFlag, TextGravity tGravity
+            , int fontSize, int italicFlag, int shadowFlag, boolean isShapeSelected
+            , String shapeName, int shapeID) {
+        // set font and update flags
+        textShort.setTypeface(ResourcesCompat.getFont(mContext, fontValue), fontStyle);
+        mFontType = fontType;
+        mTextTypeface = FontsHelper.getFontType(mFontType, mContext);
+
+        // update bold flag
+        mBoldFlag = boldFlag;
+        if (mBoldFlag == 0) {
+            dotBold.setCompoundDrawablesWithIntrinsicBounds(0, R.drawable.ic_format_bold_32, 0, 0);
+        } else {
+            dotBold.setCompoundDrawablesWithIntrinsicBounds(0, R.drawable.ic_format_bold_selected, 0, 0);
+        }
+
+        // set gravity params
+        applyGravity(gravity, gravityDrawable, gravityFlag, tGravity);
+
+        //Update font size and text size slider
+        textShort.setTextSize(TypedValue.COMPLEX_UNIT_SP, fontSize);
+        seekBarTextSize.setProgress(fontSize - FONT_SIZE_DEFAULT);
+
+        // update italic status
+        mItalicFlag = italicFlag;
+        if (mItalicFlag == 0) {
+            dotItalic.setCompoundDrawablesWithIntrinsicBounds(0, R.drawable.ic_format_italic_32, 0, 0);
+        } else {
+            dotItalic.setCompoundDrawablesWithIntrinsicBounds(0, R.drawable.ic_format_italic_selected, 0, 0);
+        }
+
+        //update shadow
+        if (shadowFlag == 0) {
+            textShort.setShadowLayer(0, 0, 0, 0);
+            mIsShadowSelected = 0;
+            dotShadow.setVisibility(View.INVISIBLE);
+        } else {
+            textShort.setShadowLayer(3, 3, 3, ContextCompat.getColor(mContext, R.color.color_grey_600));
+            mIsShadowSelected = 1;
+            dotShadow.setVisibility(View.VISIBLE);
+        }
+
+        //if shape selected
+        if (isShapeSelected) {
+            // update shape
+            textShort.setBackground(ContextCompat.getDrawable(mContext, shapeID));
+            mIsShapeSelected = true;
+            mShapeName = shapeName;
+            setContentShapeColor(textShort.getCurrentTextColor(), mShapeName, textShort, mContext);
+        } else {
+            textShort.setBackground(null);
+            mIsShapeSelected = false;
+            mShapeName = shapeName;
+        }
+
+    }
 
     private void initShowcaseView() {
         SpotlightView templateSpotlight = new SpotlightView.Builder(this)
