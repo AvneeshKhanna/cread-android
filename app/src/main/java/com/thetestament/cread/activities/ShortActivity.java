@@ -1,6 +1,8 @@
 package com.thetestament.cread.activities;
 
+import android.app.Dialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
@@ -20,17 +22,18 @@ import android.support.v4.content.ContextCompat;
 import android.support.v4.content.res.ResourcesCompat;
 import android.support.v4.widget.NestedScrollView;
 import android.support.v7.graphics.Palette;
+import android.support.v7.widget.AppCompatEditText;
 import android.support.v7.widget.AppCompatImageView;
 import android.support.v7.widget.AppCompatSeekBar;
 import android.support.v7.widget.AppCompatTextView;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.text.Editable;
 import android.text.TextUtils;
-import android.text.TextWatcher;
 import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.View;
+import android.view.Window;
+import android.view.WindowManager;
 import android.view.animation.AnimationUtils;
 import android.view.animation.LayoutAnimationController;
 import android.view.inputmethod.InputMethodManager;
@@ -359,6 +362,12 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
     @State
     String mImageTintColor = "";
 
+    /**
+     * Flag to maintain long selection status. True if selected false otherwise
+     */
+    @State
+    boolean mIsLongEnabled = false;
+
 
     CompositeDisposable mCompositeDisposable = new CompositeDisposable();
     SharedPreferenceHelper mHelper;
@@ -371,6 +380,11 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
 
     FontAdapter fontAdapter;
     TemplateAdapter templateAdapter;
+
+    //For long story
+    Dialog fullScreenDialog;
+    AppCompatImageView btnExcerptInfo, btnStoryInfo;
+    String longStoryText = null;
     //endregion
 
     //region :Overridden methods
@@ -384,25 +398,6 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
         mContext = this;
         //initialize for screen
         initScreen();
-
-        textShort.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-
-            }
-
-            @Override
-            public void onTextChanged(CharSequence charSequence, int start, int before, int count) {
-                if (charSequence.length() > 50) {
-                    ViewHelper.getSnackBar(rootView, "Long form coming soon!");
-                }
-            }
-
-            @Override
-            public void afterTextChanged(Editable editable) {
-
-            }
-        });
     }
 
     @Override
@@ -498,7 +493,17 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
 
     @OnClick(R.id.buttonToggleLong)
     void onLongButtonClick() {
-        //fixme func. coming soon
+        if (mIsLongEnabled) {
+            //Update button text
+            btnToggleLong.setText("Short");
+            ViewHelper.getShortToast(mContext,"Short mode selected");
+        } else {
+            //Update button text
+            btnToggleLong.setText("Long");
+            ViewHelper.getShortToast(mContext,"Long mode selected");
+        }
+        //Update flag
+        mIsLongEnabled = !mIsLongEnabled;
     }
 
     @OnClick(R.id.buttonCopyright)
@@ -1203,22 +1208,73 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
 
             @Override
             public void onDragEnd(View view) {
-                //Show edit text cursor
-                textShort.setCursorVisible(true);
-                //Add tint to imageView
-                imageShort.setColorFilter(ContextCompat.getColor(mContext, R.color.transparent_50));
-                //Show keyboard
-                InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-                imm.showSoftInput(textShort, 0);
-                //Remove listener
-                textShort.setOnTouchListener(null);
-                //Toggle visibility
-                formatOptions.setVisibility(View.INVISIBLE);
-                seekBarTextSize.setVisibility(View.INVISIBLE);
-                viewFormatTextSize.setVisibility(View.INVISIBLE);
+                if (mIsLongEnabled) {
+                    fullScreenDialog = new Dialog(mContext);
+                    fullScreenDialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+                    fullScreenDialog.setContentView(R.layout.dialog_long_story);
 
-                //Method call
-                hideBottomSheets();
+                    Window window = fullScreenDialog.getWindow();
+                    window.setLayout(WindowManager.LayoutParams.MATCH_PARENT, WindowManager.LayoutParams.MATCH_PARENT);
+                    window.clearFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND);
+                    window.setBackgroundDrawable(new ColorDrawable(ContextCompat.getColor(mContext, R.color.transparent_70)));
+                    fullScreenDialog.show();
+
+                    //Obtain dialog view
+                    final AppCompatEditText excerptText = fullScreenDialog.findViewById(R.id.textExcerpt);
+                    btnExcerptInfo = fullScreenDialog.findViewById(R.id.btnInfoExcerpt);
+                    final AppCompatEditText storyText = fullScreenDialog.findViewById(R.id.textStory);
+                    btnStoryInfo = fullScreenDialog.findViewById(R.id.btnInfoStory);
+
+                    //Set text
+                    excerptText.setText(textShort.getText());
+                    storyText.setText(longStoryText);
+
+                    //Dialog dismiss listener
+                    fullScreenDialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
+                        @Override
+                        public void onDismiss(DialogInterface dialogInterface) {
+                            textShort.setText(excerptText.getText());
+                            longStoryText = storyText.getText().toString();
+                        }
+                    });
+
+                    //Excerpt info click functionality to show tooltip
+                    btnExcerptInfo.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View view) {
+                            //Show tooltip
+                            ViewHelper.getToolTip(view, "This section contains text which would be displayed on the image", mContext);
+                        }
+                    });
+
+                    //Story info click functionality to show tooltip
+                    btnStoryInfo.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View view) {
+                            //Show tooltip
+                            ViewHelper.getToolTip(view, "This section contains text which would be visible after clicking on the 'More' button", mContext);
+                        }
+                    });
+
+
+                } else {
+                    //Show edit text cursor
+                    textShort.setCursorVisible(true);
+                    //Add tint to imageView
+                    imageShort.setColorFilter(ContextCompat.getColor(mContext, R.color.transparent_50));
+                    //Show keyboard
+                    InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                    imm.showSoftInput(textShort, 0);
+                    //Remove listener
+                    textShort.setOnTouchListener(null);
+                    //Toggle visibility
+                    formatOptions.setVisibility(View.INVISIBLE);
+                    seekBarTextSize.setVisibility(View.INVISIBLE);
+                    viewFormatTextSize.setVisibility(View.INVISIBLE);
+
+                    //Method call
+                    hideBottomSheets();
+                }
             }
         }));
     }

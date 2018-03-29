@@ -47,6 +47,19 @@ public class ViewHelper {
     }
 
     /**
+     * Method to show tooltip for short duration.
+     *
+     * @param context Context to use.
+     * @param message Message to be displayed.
+     */
+    public static void getShortToast(Context context, String message) {
+        Toast.makeText(context
+                , message
+                , Toast.LENGTH_SHORT)
+                .show();
+    }
+
+    /**
      * Method to show tooltip.
      *
      * @param view    View where tooltip to be shown.

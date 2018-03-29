@@ -23,8 +23,8 @@ android {
         resConfigs "en_GB", "en_US"
         vectorDrawables.useSupportLibrary = true
 
-         renderscriptTargetApi 19
-         renderscriptSupportModeEnabled true
+        renderscriptTargetApi 19
+        renderscriptSupportModeEnabled true
 
     }
     buildToolsVersion rootProject.ext.buildToolsVersion
@@ -168,7 +168,7 @@ dependencies {
     /*compile 'com.jackandphantom.android:blurimage:1.2.0'*/
 
     //For Socket IO
-    compile ('io.socket:socket.io-client:1.0.0') {
+    compile('io.socket:socket.io-client:1.0.0') {
         // excluding org.json which is provided by Android
         exclude group: 'org.json', module: 'json'
     }
