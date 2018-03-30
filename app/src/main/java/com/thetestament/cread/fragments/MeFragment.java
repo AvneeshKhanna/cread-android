@@ -956,15 +956,22 @@ public class MeFragment extends Fragment implements listener.OnCollaborationList
                                 textUserName.setText(mFirstName);
                             }
 
-                            //Set user activity stats
-                            if (viewPagerUserStats != null) {
-                                ((TextView) viewPagerUserStats.findViewWithTag(POSTS)).setText(String.valueOf(mPostCount));
-                                ((TextView) viewPagerUserStats.findViewWithTag(FOLLOWERS)).setText(String.valueOf(mFollowerCount));
-                                ((TextView) viewPagerUserStats.findViewWithTag(FOLLOWING)).setText(String.valueOf(mFollowingCount));
-                                ((TextView) viewPagerUserStats.findViewWithTag(HATSOFF)).setText(String.valueOf(mHatsoffCount));
-                                ((TextView) viewPagerUserStats.findViewWithTag(COMMENT)).setText(String.valueOf(mCommentsCount));
-                                ((TextView) viewPagerUserStats.findViewWithTag(COLLABORATIONS)).setText(String.valueOf(mCollaborationCount));
-                            }
+                            new Handler().post(new Runnable() {
+                                                   @Override
+                                                   public void run() {
+                                                       //Set user activity stats
+                                                       if (viewPagerUserStats != null) {
+                                                           ((TextView) viewPagerUserStats.findViewWithTag(POSTS)).setText(String.valueOf(mPostCount));
+                                                           ((TextView) viewPagerUserStats.findViewWithTag(FOLLOWERS)).setText(String.valueOf(mFollowerCount));
+                                                           ((TextView) viewPagerUserStats.findViewWithTag(FOLLOWING)).setText(String.valueOf(mFollowingCount));
+                                                           ((TextView) viewPagerUserStats.findViewWithTag(HATSOFF)).setText(String.valueOf(mHatsoffCount));
+                                                           ((TextView) viewPagerUserStats.findViewWithTag(COMMENT)).setText(String.valueOf(mCommentsCount));
+                                                           ((TextView) viewPagerUserStats.findViewWithTag(COLLABORATIONS)).setText(String.valueOf(mCollaborationCount));
+                                                       }
+
+                                                   }
+                                               }
+                            );
 
 
                             //If user bio present
@@ -995,7 +1002,6 @@ public class MeFragment extends Fragment implements listener.OnCollaborationList
 
                             // check if screen open for first time
                             if (mHelper.isGratitudeFirstTime()) {
-
                                 // scroll to gratitude page
                                 startGratitudeScroll();
                             }
