@@ -2307,20 +2307,20 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
     }
 
     private void initShowcaseView() {
-        SpotlightView templateSpotlight = new SpotlightView.Builder(this)
+        new SpotlightView.Builder(mContext)
                 .introAnimationDuration(400)
                 .enableRevealAnimation(true)
                 .performClick(true)
                 .fadeinTextDuration(400)
                 .headingTvColor(Color.parseColor("#eb273f"))
                 .headingTvSize(32)
-                .headingTvText("Templates")
+                .headingTvText("Story Mode")
                 .subHeadingTvColor(Color.parseColor("#ffffff"))
                 .subHeadingTvSize(16)
-                .subHeadingTvText("Choose from a wide range of templates to instantly beautify your writings")
+                .subHeadingTvText("Click here to toggle between long and short story mode")
                 .maskColor(Color.parseColor("#dc000000"))
-                .target(btnTemplate)
-                .usageId("TEMPLATE")
+                .target(btnToggleLong)
+                .usageId("TOGGLE_LONG_MODE")
                 .lineAnimDuration(400)
                 .lineAndArcColor(Color.parseColor("#eb273f"))
                 .dismissOnTouch(true)
@@ -2332,8 +2332,6 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
 
                         //Hide font bottom sheet
                         templateSheetBehaviour.setState(BottomSheetBehavior.STATE_COLLAPSED);
-
-
                         new SpotlightView.Builder(mContext)
                                 .introAnimationDuration(400)
                                 .enableRevealAnimation(true)
@@ -2341,24 +2339,55 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
                                 .fadeinTextDuration(400)
                                 .headingTvColor(Color.parseColor("#eb273f"))
                                 .headingTvSize(32)
-                                .headingTvText("Text Shadow")
+                                .headingTvText("Templates")
                                 .subHeadingTvColor(Color.parseColor("#ffffff"))
                                 .subHeadingTvSize(16)
-                                .subHeadingTvText("Style your text by giving it a shadow effect")
+                                .subHeadingTvText("Choose from a wide range of templates to instantly beautify your writings")
                                 .maskColor(Color.parseColor("#dc000000"))
-                                .target(btnFormatShadow)
+                                .target(btnTemplate)
+                                .usageId("TEMPLATE")
                                 .lineAnimDuration(400)
                                 .lineAndArcColor(Color.parseColor("#eb273f"))
                                 .dismissOnTouch(true)
                                 .dismissOnBackPress(true)
                                 .enableDismissAfterShown(true)
-                                .usageId("SHADOW")
+                                .setListener(new SpotlightListener() {
+                                    @Override
+                                    public void onUserClicked(String s) {
+
+                                        //Hide font bottom sheet
+                                        templateSheetBehaviour.setState(BottomSheetBehavior.STATE_COLLAPSED);
+
+
+                                        new SpotlightView.Builder(mContext)
+                                                .introAnimationDuration(400)
+                                                .enableRevealAnimation(true)
+                                                .performClick(true)
+                                                .fadeinTextDuration(400)
+                                                .headingTvColor(Color.parseColor("#eb273f"))
+                                                .headingTvSize(32)
+                                                .headingTvText("Text Shadow")
+                                                .subHeadingTvColor(Color.parseColor("#ffffff"))
+                                                .subHeadingTvSize(16)
+                                                .subHeadingTvText("Style your text by giving it a shadow effect")
+                                                .maskColor(Color.parseColor("#dc000000"))
+                                                .target(btnFormatShadow)
+                                                .lineAnimDuration(400)
+                                                .lineAndArcColor(Color.parseColor("#eb273f"))
+                                                .dismissOnTouch(true)
+                                                .dismissOnBackPress(true)
+                                                .enableDismissAfterShown(true)
+                                                .usageId("SHADOW")
+                                                .show();
+
+                                    }
+                                })
+
                                 .show();
 
                     }
                 })
                 .show();
-
     }
 
 
