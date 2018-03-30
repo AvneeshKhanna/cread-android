@@ -128,6 +128,7 @@ import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_IMAGE_TINT_COL
 import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_IMG_WIDTH;
 import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_IS_SHADOW_SELECTED;
 import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_ITALIC;
+import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_LONG_TEXT;
 import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_MERCHANTABLE;
 import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_SHORT_ID;
 import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_SIGNATURE;
@@ -629,6 +630,7 @@ public class PreviewActivity extends BaseActivity implements QueryTokenReceiver,
                     , mBundle.getString(PREVIEW_EXTRA_IMAGE_TINT_COLOR)
                     , mBundle.getString(PREVIEW_EXTRA_TEMPLATE_NAME)
                     , mBundle.getString(PREVIEW_EXTRA_IS_SHADOW_SELECTED)
+                    , mBundle.getString(PREVIEW_EXTRA_LONG_TEXT)
             );
         }
         // capture
@@ -666,6 +668,7 @@ public class PreviewActivity extends BaseActivity implements QueryTokenReceiver,
                     , mBundle.getString(PREVIEW_EXTRA_IMAGE_TINT_COLOR)
                     , mBundle.getString(PREVIEW_EXTRA_TEMPLATE_NAME)
                     , mBundle.getString(PREVIEW_EXTRA_IS_SHADOW_SELECTED)
+                    , mBundle.getString(PREVIEW_EXTRA_LONG_TEXT)
             );
         } else {
             //do nothing
@@ -792,7 +795,7 @@ public class PreviewActivity extends BaseActivity implements QueryTokenReceiver,
     /**
      * Update short image and other details on server.
      */
-    private void updateShort(File file, String captureID, final String uuid, final String authToken, String xPosition, String yPosition, String tvWidth, String tvHeight, String text, String textSize, String textColor, String textGravity, String imgWidth, String merchantable, String font, String bgColor, String bold, String italic, String captionText, String imageTintColor, String templateName, String isShadowSelected) {
+    private void updateShort(File file, String captureID, final String uuid, final String authToken, String xPosition, String yPosition, String tvWidth, String tvHeight, String text, String textSize, String textColor, String textGravity, String imgWidth, String merchantable, String font, String bgColor, String bold, String italic, String captionText, String imageTintColor, String templateName, String isShadowSelected, String longText) {
 
         String mMerchantable = null;
 
@@ -847,6 +850,7 @@ public class PreviewActivity extends BaseActivity implements QueryTokenReceiver,
                 .addMultipartParameter("filtername", mFilterName)
                 .addMultipartParameter("shape", templateName)
                 .addMultipartParameter("textshadow", isShadowSelected)
+                .addMultipartParameter("text_long", longText)
                 .build()
                 .getJSONObjectObservable()
                 .subscribeOn(Schedulers.io())
@@ -916,7 +920,7 @@ public class PreviewActivity extends BaseActivity implements QueryTokenReceiver,
     /**
      * Update edited short image and other details on server.
      */
-    private void updateEditedShort(final File file, String entityID, String captureID, String shortID, String uuid, String authToken, String xPosition, String yPosition, String tvWidth, String tvHeight, String text, String textSize, String textColor, String textGravity, String imgWidth, String merchantable, String font, String bgColor, String bold, String italic, final String captionText, String imageTintColor, String templateName, String isShadowSelected) {
+    private void updateEditedShort(final File file, String entityID, String captureID, String shortID, String uuid, String authToken, String xPosition, String yPosition, String tvWidth, String tvHeight, String text, String textSize, String textColor, String textGravity, String imgWidth, String merchantable, String font, String bgColor, String bold, String italic, final String captionText, String imageTintColor, String templateName, String isShadowSelected, String longText) {
 
         String mMerchantable;
 
@@ -972,6 +976,7 @@ public class PreviewActivity extends BaseActivity implements QueryTokenReceiver,
                 .addMultipartParameter("filtername", mFilterName)
                 .addMultipartParameter("shape", templateName)
                 .addMultipartParameter("textshadow", isShadowSelected)
+                .addMultipartParameter("text_long", longText)
                 .build()
                 .getJSONObjectObservable()
                 .subscribeOn(Schedulers.io())

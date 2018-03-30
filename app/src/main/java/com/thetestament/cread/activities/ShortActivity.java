@@ -161,6 +161,7 @@ import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_IMAGE_TINT_COL
 import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_IMG_WIDTH;
 import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_IS_SHADOW_SELECTED;
 import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_ITALIC;
+import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_LONG_TEXT;
 import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_MERCHANTABLE;
 import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_SHORT_ID;
 import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_TEMPLATE_NAME;
@@ -496,11 +497,14 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
         if (mIsLongEnabled) {
             //Update button text
             btnToggleLong.setText("Short");
-            ViewHelper.getShortToast(mContext,"Short mode selected");
+            ViewHelper.getShortToast(mContext, "Short mode selected");
         } else {
             //Update button text
             btnToggleLong.setText("Long");
-            ViewHelper.getShortToast(mContext,"Long mode selected");
+            ViewHelper.getShortToast(mContext, "Long mode selected");
+            //Hide keyboard
+            InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+            imm.hideSoftInputFromWindow(textShort.getWindowToken(), 0);
         }
         //Update flag
         mIsLongEnabled = !mIsLongEnabled;
@@ -1235,6 +1239,10 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
                         public void onDismiss(DialogInterface dialogInterface) {
                             textShort.setText(excerptText.getText());
                             longStoryText = storyText.getText().toString();
+                            //if count is zero
+                            if (longStoryText.length() == 0) {
+                                longStoryText = null;
+                            }
                         }
                     });
 
@@ -1552,6 +1560,7 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
                     , mEntityID
                     , mShapeName
                     , String.valueOf(mIsShadowSelected)
+                    , longStoryText
             );
 
         } catch (IOException e) {
@@ -1577,7 +1586,8 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
             , String text, String textSize, String textColor, String textGravity
             , String imgWidth, String merchantable, String font, String bgColor
             , String bold, String italic, String imageTintColor, String calledFrom
-            , String shortID, String captionText, String entityID, String templateName, String isShadowSelected) {
+            , String shortID, String captionText, String entityID, String templateName
+            , String isShadowSelected, String longText) {
 
         Intent intent = new Intent(ShortActivity.this, PreviewActivity.class);
 
@@ -1607,7 +1617,7 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
         bundle.putString(PREVIEW_EXTRA_ENTITY_ID, entityID);
         bundle.putString(PREVIEW_EXTRA_TEMPLATE_NAME, templateName);
         bundle.putString(PREVIEW_EXTRA_IS_SHADOW_SELECTED, isShadowSelected);
-
+        bundle.putString(PREVIEW_EXTRA_LONG_TEXT, longText);
 
         intent.putExtra(PREVIEW_EXTRA_DATA, bundle);
         startActivityForResult(intent, REQUEST_CODE_PREVIEW_ACTIVITY);
@@ -1681,6 +1691,18 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
                                 float factor = (float) squareView.getWidth()
                                         / (float) responseObject.getDouble("img_width");
 
+                                //Check for long text availability
+                                if (TextUtils.isEmpty(responseObject.getString("text_long"))
+                                        || responseObject.getString("text_long").equals("null")) {
+                                    mIsLongEnabled = false;
+                                    btnToggleLong.setText("Short");
+                                } else {
+                                    //Toggle flag and update text
+                                    mIsLongEnabled = true;
+                                    btnToggleLong.setText("Long");
+                                    longStoryText = responseObject.getString("text_long");
+                                }
+
                                 //If capture image is not present
                                 if (TextUtils.isEmpty(responseObject.getString("captureurl")) || responseObject.getString("captureurl").equals("null")) {
 
@@ -1721,6 +1743,7 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
                                 mFontType = responseObject.getString("font");
                                 mTextTypeface = getFontType(mFontType, mContext);
                                 mImageWidth = responseObject.getInt("img_width");
+
                                 if (!responseObject.isNull("capid")) {
                                     mCaptureID = responseObject.getString("capid");
                                 }
