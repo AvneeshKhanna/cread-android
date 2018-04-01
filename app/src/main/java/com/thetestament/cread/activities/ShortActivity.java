@@ -333,7 +333,7 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
     ShortActivity mContext;
 
     //ENUM for text gravity
-    private enum TextGravity {
+    public enum TextGravity {
         Center, East, West
     }
 
@@ -1786,7 +1786,7 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
                                 }
 
                                 //Update image tint
-                                if (!TextUtils.isEmpty(responseObject.getString("imgtintcolor")) || responseObject.getString("imgtintcolor").equals("null")) {
+                                if (!TextUtils.isEmpty(responseObject.getString("imgtintcolor")) || !responseObject.getString("imgtintcolor").equals("null")) {
                                     switch (responseObject.getString("imgtintcolor").toUpperCase()) {
                                         case "4D000000":
                                             //Apply tint

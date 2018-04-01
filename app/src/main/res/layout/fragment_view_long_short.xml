@@ -1,0 +1,39 @@
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="com.thetestament.cread.fragments.ViewLongShortFragment">
+
+
+    <ImageView
+        android:id="@+id/contentImage"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:scaleType="centerCrop"
+        android:background="@drawable/img_short_default_bg" />
+
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+
+        <TextView
+            android:id="@+id/textLongShort"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:padding="30dp"
+            android:textColor="@color/white"
+            android:text="Lorem ipsum dolor sit amet, consectetur adipiscing elit. Phasellus sed diam eget ligula faucibus maximus. Nam a nulla nunc. Suspendisse eget convallis erat. Etiam orci mauris, volutpat sed mi id, condimentum auctor turpis. Nam eleifend magna eget ante tempor, sed vestibulum est cursus. Aliquam vulputate massa felis, nec efficitur est fermentum in. Nunc ullamcorper massa non convallis gravida. Maecenas egestas fermentum aliquet. In a ultricies ipsum, id egestas felis. Pellentesque in interdum massa, tempus semper nibh.
+
+Nam orci urna, tincidunt et felis nec, molestie iaculis erat. Duis et venenatis lacus. Aenean diam velit, pellentesque vel accumsan non, luctus vel augue. Nam pellentesque nisi nec ullamcorper dapibus. Aliquam ipsum enim, molestie ut ante nec, semper interdum tortor. In vel purus at metus dignissim scelerisque in in risus. Curabitur molestie in ipsum eget dignissim.
+
+Aliquam quis arcu ac dolor suscipit finibus. Ut tellus enim, ultrices fringilla iaculis id, commodo at purus. In ut risus congue, dignissim lectus ac, molestie lacus. Sed in aliquam orci. Ut sed metus magna. Vivamus eu semper nisl. Curabitur blandit at arcu sit amet scelerisque. Cras quis porttitor tortor. Morbi nisl massa, aliquam eu massa nec, accumsan pharetra tortor. Pellentesque a malesuada quam. Cras ultricies diam eget turpis porta fermentum. Suspendisse varius, odio quis dapibus sodales, tortor magna semper elit, at commodo tellus risus eu lectus. Aliquam vestibulum risus sed lacus eleifend varius. Aliquam euismod lobortis lectus, laoreet faucibus felis tincidunt nec. Nunc maximus felis nibh, at hendrerit dui porta in.
+
+Suspendisse a aliquam purus, quis bibendum nisi. Morbi eleifend lectus nisl, eu porttitor lorem auctor sed. Phasellus at orci id justo sodales suscipit. Donec varius scelerisque turpis vitae sagittis. Nullam sollicitudin nulla ut mauris pretium lobortis. Integer consequat mauris vel sem vehicula bibendum. Vivamus ullamcorper risus vel tristique condimentum.
+
+Nulla sit amet lectus ultricies, viverra massa nec, blandit urna. Aliquam rutrum iaculis sagittis. Donec sagittis congue sapien quis pretium. Donec consectetur dolor nec lacus interdum, at venenatis orci pulvinar. Sed condimentum, velit ac bibendum dignissim, lacus ligula convallis nisi, in volutpat dui orci a arcu. Aliquam venenatis lorem vel mattis laoreet. In hac habitasse platea dictumst. Donec vel imperdiet sapien. Sed tempor mollis risus quis faucibus. Vestibulum vehicula sapien luctus, molestie massa vel, ultrices arcu." />
+
+    </ScrollView>
+
+</FrameLayout>

@@ -11,6 +11,7 @@ import com.thetestament.cread.models.FBFriendsModel;
 import com.thetestament.cread.models.FeedModel;
 import com.thetestament.cread.models.InspirationModel;
 import com.thetestament.cread.models.PersonMentionModel;
+import com.thetestament.cread.models.ShortModel;
 import com.thetestament.cread.models.UpdatesModel;
 import com.thetestament.cread.utils.Constant.GratitudeNumbers;
 
@@ -122,6 +123,15 @@ public class listener {
         void onDownvoteSuccess();
 
         void onDownvoteFailiure(String errorMsg);
+    }
+
+    /**
+     * Interface definition for a callback to be invoked when user clicks on downvote button.
+     */
+    public interface OnLongShortDataRequestedListener {
+        void onLongShortDataSuccess(ShortModel shortModel);
+
+        void onLongShortDataFailiure(String errorMsg);
     }
 
 

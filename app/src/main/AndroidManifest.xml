@@ -12,12 +12,9 @@
     <uses-permission android:name="android.permission.WRITE_SYNC_SETTINGS" />
     <uses-permission android:name="android.permission.AUTHENTICATE_ACCOUNTS" />
     <uses-permission android:name="android.permission.GET_ACCOUNTS" />
-
-
     <uses-permission
         android:name="android.permission.ACCESS_FINE_LOCATION"
         tools:node="remove" />
-
 
     <permission
         android:name="android.permission.WRITE_EXTERNAL_STORAGE"
@@ -33,10 +30,12 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
 
-        <!--Search suggestion provider-->
-        <!--<provider
+        <!-- Search suggestion provider -->
+        <!--
+            <provider
             android:name=".providers.SearchSuggestionProvider"
-            android:authorities="com.thetestament.cread.providers.SearchSuggestionProvider" />-->
+            android:authorities="com.thetestament.cread.providers.SearchSuggestionProvider" />
+        -->
 
         <provider
             android:name="android.support.v4.content.FileProvider"
@@ -48,9 +47,8 @@
                 android:name="android.support.FILE_PROVIDER_PATHS"
                 android:resource="@xml/file_paths" />
         </provider>
-
         <provider
-            android:name="com.thetestament.cread.contentproviders.HashTagProvider"
+            android:name=".contentproviders.HashTagProvider"
             android:authorities="com.thetestament.cread.hashtagdetailsactivity" />
 
         <!-- For facebook sdk start -->
@@ -98,6 +96,7 @@
             android:theme="@style/Theme.AppCompat.Light.NoActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
             <intent-filter>
@@ -127,10 +126,13 @@
             android:launchMode="singleTop"
             android:screenOrientation="portrait"
             android:theme="@style/BottomNavigationActivityTheme">
-            <!--Intent filter to accept image from third party apps-->
+
+            <!-- Intent filter to accept image from third party apps -->
             <intent-filter>
                 <action android:name="android.intent.action.SEND" />
+
                 <data android:mimeType="image/*" />
+
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
@@ -359,122 +361,134 @@
                 android:value=".activities.RoyaltiesActivity" />
         </activity>
 
-        <!--HashTagDetailsActivity-->
+        <!-- HashTagDetailsActivity -->
         <activity android:name=".activities.HashTagDetailsActivity">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".activities.FeedDescriptionActivity" />
+
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
+
                 <category android:name="android.intent.category.DEFAULT" />
+
                 <data
                     android:mimeType="vnd.android.cursor.item/vnd.cc.tag"
                     android:scheme="content" />
             </intent-filter>
         </activity>
 
-        <!--SearchActivity-->
+        <!-- SearchActivity -->
         <activity
             android:name=".activities.SearchActivity"
             android:label="Search"
             android:launchMode="singleTop"
             android:screenOrientation="portrait"
             android:theme="@style/SearchActivityTheme">
-            <!--Default search activity-->
+
+            <!-- Default search activity -->
             <intent-filter>
                 <action android:name="android.intent.action.SEARCH" />
             </intent-filter>
-            <!--Use android system framework-->
+            <!-- Use android system framework -->
             <meta-data
                 android:name="android.app.searchable"
                 android:resource="@xml/searchable" />
-            <!--For back navigation-->
+            <!-- For back navigation -->
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".activities.BottomNavigationActivity" />
         </activity>
 
-        <!--Preview Screen-->
+        <!-- Preview Screen -->
         <activity
             android:name=".activities.PreviewActivity"
             android:label="Preview"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme">
-            <!--For back navigation-->
+
+            <!-- For back navigation -->
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".activities.BottomNavigationActivity" />
         </activity>
 
-        <!--Chat list screen Screen-->
+        <!-- Chat list screen Screen -->
         <activity
             android:name=".activities.ChatListActivity"
             android:label="Chats"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme">
-            <!--For back navigation-->
+
+            <!-- For back navigation -->
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".activities.BottomNavigationActivity" />
         </activity>
 
-        <service android:name="com.thetestament.cread.DataSyncAdapter.AuthenticatorService">
+        <service android:name=".DataSyncAdapter.AuthenticatorService">
             <intent-filter>
                 <action android:name="android.accounts.AccountAuthenticator" />
             </intent-filter>
+
             <meta-data
                 android:name="android.accounts.AccountAuthenticator"
                 android:resource="@xml/authenticator" />
         </service>
 
-
         <provider
-            android:name="com.thetestament.cread.DataSyncAdapter.StubProvider"
+            android:name=".DataSyncAdapter.StubProvider"
             android:authorities="com.thetestament.cread.provider"
             android:exported="false"
             android:label="Stub provider"
             android:syncable="true" />
 
-
         <service
-            android:name="com.thetestament.cread.DataSyncAdapter.SyncService"
+            android:name=".DataSyncAdapter.SyncService"
             android:exported="true">
-            <!--android:process=":sync"-->
+
+            <!-- android:process=":sync" -->
             <intent-filter>
                 <action android:name="android.content.SyncAdapter" />
             </intent-filter>
+
             <meta-data
                 android:name="android.content.SyncAdapter"
                 android:resource="@xml/syncadapter" />
         </service>
 
-        <!--Chat details screen Screen-->
+        <!-- Chat details screen Screen -->
         <activity
             android:name=".activities.ChatDetailsActivity"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme">
-            <!--For back navigation-->
+
+            <!-- For back navigation -->
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".activities.ChatListActivity" />
         </activity>
 
-        <!--Chat details screen Screen-->
+        <!-- Chat details screen Screen -->
         <activity
             android:name=".activities.ChatRequestActivity"
             android:label="Requests"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme">
-            <!--For back navigation-->
+
+            <!-- For back navigation -->
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".activities.ChatListActivity" />
         </activity>
-        <!--<activity
+        <!--
+        <activity
             android:name=".activities.DemoActivity"
             android:theme="@android:style/Theme.Translucent.NoTitleBar" >
-        </activity>-->
+        </activity>
+        -->
 
+        <activity android:name=".activities.ViewLongShortActivity"></activity>
     </application>
 
 </manifest>

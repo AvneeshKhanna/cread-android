@@ -1,14 +1,12 @@
 package com.thetestament.cread.adapters;
 
 
-import android.app.ActivityOptions;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.content.ContextCompat;
-import android.support.v4.view.ViewCompat;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -23,16 +21,19 @@ import com.google.firebase.analytics.FirebaseAnalytics;
 import com.squareup.picasso.Picasso;
 import com.thetestament.cread.R;
 import com.thetestament.cread.activities.CollaborationDetailsActivity;
-import com.thetestament.cread.activities.FeedDescriptionActivity;
 import com.thetestament.cread.activities.ProfileActivity;
+import com.thetestament.cread.activities.ViewLongShortActivity;
 import com.thetestament.cread.helpers.FeedHelper;
+import com.thetestament.cread.helpers.LongShortHelper;
 import com.thetestament.cread.helpers.NetworkHelper;
 import com.thetestament.cread.helpers.SharedPreferenceHelper;
 import com.thetestament.cread.helpers.ViewHelper;
+import com.thetestament.cread.listeners.listener;
 import com.thetestament.cread.listeners.listener.OnExploreCaptureClickListener;
 import com.thetestament.cread.listeners.listener.OnExploreFollowListener;
 import com.thetestament.cread.listeners.listener.OnExploreLoadMoreListener;
 import com.thetestament.cread.models.FeedModel;
+import com.thetestament.cread.models.ShortModel;
 import com.thetestament.cread.utils.Constant.ITEM_TYPES;
 
 import java.util.List;
@@ -46,12 +47,11 @@ import static com.thetestament.cread.helpers.FeedHelper.setGridItemMargins;
 import static com.thetestament.cread.utils.Constant.EXTRA_DATA;
 import static com.thetestament.cread.utils.Constant.EXTRA_ENTITY_ID;
 import static com.thetestament.cread.utils.Constant.EXTRA_ENTITY_TYPE;
-import static com.thetestament.cread.utils.Constant.EXTRA_FEED_DESCRIPTION_DATA;
 import static com.thetestament.cread.utils.Constant.EXTRA_PROFILE_UUID;
+import static com.thetestament.cread.utils.Constant.EXTRA_SHORT_DATA;
 import static com.thetestament.cread.utils.Constant.FIREBASE_EVENT_CAPTURE_CLICKED;
 import static com.thetestament.cread.utils.Constant.FIREBASE_EVENT_FOLLOW_FROM_EXPLORE;
 import static com.thetestament.cread.utils.Constant.FIREBASE_EVENT_WRITE_CLICKED;
-import static com.thetestament.cread.utils.Constant.REQUEST_CODE_FEED_DESCRIPTION_ACTIVITY;
 
 /**
  * Adapter class to provide a binding from data set to views that are displayed within a explore RecyclerView.
@@ -350,7 +350,7 @@ public class ExploreAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
         view.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                //Set transition name
+                /*//Set transition name
                 ViewCompat.setTransitionName(view, feedModel.getEntityID());
 
                 Bundle bundle = new Bundle();
@@ -370,7 +370,26 @@ public class ExploreAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
                             , transitionActivityOptions.toBundle());
                 } else {
                     mExploreFragment.startActivityForResult(intent, REQUEST_CODE_FEED_DESCRIPTION_ACTIVITY);
-                }
+                }*/
+                LongShortHelper longShortHelper = new LongShortHelper();
+                longShortHelper.getLongShortData(mContext, mCompositeDisposable, feedModel.getEntityID(), new listener.OnLongShortDataRequestedListener() {
+                    @Override
+                    public void onLongShortDataSuccess(ShortModel shortModel) {
+                        // open activity and pass data
+                        Intent intent = new Intent(mContext, ViewLongShortActivity.class);
+                        intent.putExtra(EXTRA_SHORT_DATA, shortModel);
+                        mContext.startActivity(intent);
+
+                    }
+
+                    @Override
+                    public void onLongShortDataFailiure(String errorMsg) {
+
+                        ViewHelper.getToast(mContext, errorMsg);
+
+                    }
+                });
+
             }
         });
     }

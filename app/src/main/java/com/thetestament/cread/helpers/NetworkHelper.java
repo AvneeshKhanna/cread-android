@@ -640,4 +640,35 @@ public class NetworkHelper {
                 .getJSONObjectObservable();
     }
 
+
+    /**
+     * Method to return requested data from the server.
+     *
+     * @param serverURL URL of the server
+     * @param uuid      UUID of the user.
+     * @param authKey   Authentication key of the user
+     */
+    public static Observable<JSONObject> getLoadLongShortObservable(String serverURL, String uuid, String authKey, String entityid, boolean getResponseFromNetwork) {
+
+
+        Map<String, String> headers = new HashMap<>();
+        headers.put("uuid", uuid);
+        headers.put("authkey", authKey);
+
+
+        Rx2ANRequest.GetRequestBuilder requestBuilder = Rx2AndroidNetworking.get(serverURL)
+                .addHeaders(headers)
+                .addQueryParameter("entityid", entityid);
+
+        if (getResponseFromNetwork) {
+            requestBuilder.getResponseOnlyFromNetwork();
+        }
+
+        return requestBuilder
+                .build()
+                .getJSONObjectObservable();
+    }
+
+
+
 }

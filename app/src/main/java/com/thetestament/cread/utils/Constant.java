@@ -47,6 +47,7 @@ public class Constant {
     public static final String TAG_HASH_TAG_DETAILS_FRAGMENT = "HashTagDetailsFragment";
     public static final String TAG_SEARCH_PEOPLE_FRAGMENT = "SearchPeopleFragment";
     public static final String TAG_SEARCH_HASH_TAG_FRAGMENT = "SearchHashTagFragment";
+    public static final String TAG_VIEW_LONG_SHORT_FRAGMENT = "ViewLongShortFragment";
     //endregion
 
     //region :Content Types
@@ -138,6 +139,8 @@ public class Constant {
     public static final String PAYMENT_STATUS_SERVER_ERROR = "paymentServerError";
 
     public static final String EXTRA_OPEN_SPECIFIC_BOTTOMNAV_FRAGMENT = "openSpecificBottomNavFragment";
+
+    public static final String EXTRA_SHORT_DATA = "extraShortData";
 
 
     //Action
