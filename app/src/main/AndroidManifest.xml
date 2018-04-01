@@ -255,6 +255,7 @@
             android:name=".activities.ShortActivity"
             android:label="Write"
             android:screenOrientation="portrait"
+            android:theme="@style/NoActionBarTheme"
             android:windowSoftInputMode="stateVisible|adjustPan">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"

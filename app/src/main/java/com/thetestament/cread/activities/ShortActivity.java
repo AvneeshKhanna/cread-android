@@ -1,6 +1,8 @@
 package com.thetestament.cread.activities;
 
+import android.app.Dialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
@@ -20,6 +22,7 @@ import android.support.v4.content.ContextCompat;
 import android.support.v4.content.res.ResourcesCompat;
 import android.support.v4.widget.NestedScrollView;
 import android.support.v7.graphics.Palette;
+import android.support.v7.widget.AppCompatEditText;
 import android.support.v7.widget.AppCompatImageView;
 import android.support.v7.widget.AppCompatSeekBar;
 import android.support.v7.widget.AppCompatTextView;
@@ -28,9 +31,9 @@ import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
 import android.util.TypedValue;
 import android.view.Gravity;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
+import android.view.Window;
+import android.view.WindowManager;
 import android.view.animation.AnimationUtils;
 import android.view.animation.LayoutAnimationController;
 import android.view.inputmethod.InputMethodManager;
@@ -158,6 +161,7 @@ import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_IMAGE_TINT_COL
 import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_IMG_WIDTH;
 import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_IS_SHADOW_SELECTED;
 import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_ITALIC;
+import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_LONG_TEXT;
 import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_MERCHANTABLE;
 import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_SHORT_ID;
 import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_TEMPLATE_NAME;
@@ -187,6 +191,12 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
     //region :Views binding with butter knife
     @BindView(R.id.rootView)
     CoordinatorLayout rootView;
+    @BindView(R.id.buttonToggleLong)
+    AppCompatTextView btnToggleLong;
+    @BindView(R.id.buttonCopyright)
+    AppCompatImageView btnCopyRight;
+    @BindView(R.id.buttonNext)
+    AppCompatImageView btnNext;
     @BindView(R.id.imageContainer)
     SquareView squareView;
     @BindView(R.id.imageShort)
@@ -353,6 +363,12 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
     @State
     String mImageTintColor = "";
 
+    /**
+     * Flag to maintain long selection status. True if selected false otherwise
+     */
+    @State
+    boolean mIsLongEnabled = false;
+
 
     CompositeDisposable mCompositeDisposable = new CompositeDisposable();
     SharedPreferenceHelper mHelper;
@@ -365,6 +381,11 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
 
     FontAdapter fontAdapter;
     TemplateAdapter templateAdapter;
+
+    //For long story
+    Dialog fullScreenDialog;
+    AppCompatImageView btnExcerptInfo, btnStoryInfo;
+    String longStoryText = null;
     //endregion
 
     //region :Overridden methods
@@ -447,42 +468,6 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
     }
 
     @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.menu_short, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case android.R.id.home:
-                //Show prompt dialog
-                showBackNavigationDialog();
-                return true;
-            case R.id.action_signature:
-                //Method call
-                toggleSignatureText();
-                return true;
-            case R.id.action_next:
-                //If short text is empty
-                if (TextUtils.getTrimmedLength(textShort.getText().toString()) == 0) {
-                    //Show toast message
-                    ViewHelper.getToast(this, "Short can't be empty. Please Write something.");
-                } else {
-                    //Remove underline
-                    textShort.clearComposingText();
-                    //Remove tint from imageView
-                    removeImageTint();
-                    getRuntimePermission();
-                }
-                return true;
-            default:
-                return super.onOptionsItemSelected(item);
-        }
-
-    }
-
-    @Override
     public void onBackPressed() {
         //Show prompt dialog
         showBackNavigationDialog();
@@ -506,6 +491,45 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
     //endregion
 
     //region :Click functionality
+
+    @OnClick(R.id.buttonToggleLong)
+    void onLongButtonClick() {
+        if (mIsLongEnabled) {
+            //Update button text
+            btnToggleLong.setText("Short");
+            ViewHelper.getShortToast(mContext, "Short mode selected");
+        } else {
+            //Update button text
+            btnToggleLong.setText("Long");
+            ViewHelper.getShortToast(mContext, "Long mode selected");
+            //Hide keyboard
+            InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+            imm.hideSoftInputFromWindow(textShort.getWindowToken(), 0);
+        }
+        //Update flag
+        mIsLongEnabled = !mIsLongEnabled;
+    }
+
+    @OnClick(R.id.buttonCopyright)
+    void onCopyrightClick() {
+        //Method call
+        toggleSignatureText();
+    }
+
+    @OnClick(R.id.buttonNext)
+    void onNextClick() {
+        //If short text is empty
+        if (TextUtils.getTrimmedLength(textShort.getText().toString()) == 0) {
+            //Show toast message
+            ViewHelper.getToast(this, "Short can't be empty. Please Write something.");
+        } else {
+            //Remove underline
+            textShort.clearComposingText();
+            //Remove tint from imageView
+            removeImageTint();
+            getRuntimePermission();
+        }
+    }
 
     /**
      * Root view click functionality.
@@ -554,7 +578,7 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
      * Functionality to toggle the text gravity.
      */
     @OnClick(R.id.btnLAlignText)
-    void onBtnLAlignTextClicked(AppCompatTextView btnAlignText) {
+    void onBtnLAlignTextClicked() {
 
         switch (mGravityFlag) {
             case 0:
@@ -791,7 +815,7 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
         retrieveData();
 
         //Set default font
-        mTextTypeface =FontsHelper.getFontType(mHelper.getSelectedFont(), mContext);
+        mTextTypeface = FontsHelper.getFontType(mHelper.getSelectedFont(), mContext);
 
         //set editText back listener
         textShort.setOnEditTextBackListener(this);
@@ -1188,22 +1212,77 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
 
             @Override
             public void onDragEnd(View view) {
-                //Show edit text cursor
-                textShort.setCursorVisible(true);
-                //Add tint to imageView
-                imageShort.setColorFilter(ContextCompat.getColor(mContext, R.color.transparent_50));
-                //Show keyboard
-                InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-                imm.showSoftInput(textShort, 0);
-                //Remove listener
-                textShort.setOnTouchListener(null);
-                //Toggle visibility
-                formatOptions.setVisibility(View.INVISIBLE);
-                seekBarTextSize.setVisibility(View.INVISIBLE);
-                viewFormatTextSize.setVisibility(View.INVISIBLE);
+                if (mIsLongEnabled) {
+                    fullScreenDialog = new Dialog(mContext);
+                    fullScreenDialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+                    fullScreenDialog.setContentView(R.layout.dialog_long_story);
 
-                //Method call
-                hideBottomSheets();
+                    Window window = fullScreenDialog.getWindow();
+                    window.setLayout(WindowManager.LayoutParams.MATCH_PARENT, WindowManager.LayoutParams.MATCH_PARENT);
+                    window.clearFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND);
+                    window.setBackgroundDrawable(new ColorDrawable(ContextCompat.getColor(mContext, R.color.transparent_70)));
+                    fullScreenDialog.show();
+
+                    //Obtain dialog view
+                    final AppCompatEditText excerptText = fullScreenDialog.findViewById(R.id.textExcerpt);
+                    btnExcerptInfo = fullScreenDialog.findViewById(R.id.btnInfoExcerpt);
+                    final AppCompatEditText storyText = fullScreenDialog.findViewById(R.id.textStory);
+                    btnStoryInfo = fullScreenDialog.findViewById(R.id.btnInfoStory);
+
+                    //Set text
+                    excerptText.setText(textShort.getText());
+                    storyText.setText(longStoryText);
+
+                    //Dialog dismiss listener
+                    fullScreenDialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
+                        @Override
+                        public void onDismiss(DialogInterface dialogInterface) {
+                            textShort.setText(excerptText.getText());
+                            longStoryText = storyText.getText().toString();
+                            //if count is zero
+                            if (longStoryText.length() == 0) {
+                                longStoryText = null;
+                            }
+                        }
+                    });
+
+                    //Excerpt info click functionality to show tooltip
+                    btnExcerptInfo.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View view) {
+                            //Show tooltip
+                            ViewHelper.getToolTip(view, "This section contains text which would be displayed on the image", mContext);
+                        }
+                    });
+
+                    //Story info click functionality to show tooltip
+                    btnStoryInfo.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View view) {
+                            //Show tooltip
+                            ViewHelper.getToolTip(view, "This section contains text which would be visible after clicking on the 'More' button", mContext);
+                        }
+                    });
+
+
+                } else {
+                    //Show edit text cursor
+                    textShort.setCursorVisible(true);
+                    //Add tint to imageView
+                    imageShort.setColorFilter(ContextCompat.getColor(mContext, R.color.transparent_50));
+                    //Show keyboard
+                    InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                    imm.showSoftInput(textShort, 0);
+                    //Remove listener
+                    textShort.setOnTouchListener(null);
+                    //Toggle visibility
+                    formatOptions.setVisibility(View.INVISIBLE);
+                    seekBarTextSize.setVisibility(View.INVISIBLE);
+                    viewFormatTextSize.setVisibility(View.INVISIBLE);
+
+                    //Method call
+                    hideBottomSheets();
+                }
             }
         }));
     }
@@ -1481,6 +1560,7 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
                     , mEntityID
                     , mShapeName
                     , String.valueOf(mIsShadowSelected)
+                    , longStoryText
             );
 
         } catch (IOException e) {
@@ -1506,7 +1586,8 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
             , String text, String textSize, String textColor, String textGravity
             , String imgWidth, String merchantable, String font, String bgColor
             , String bold, String italic, String imageTintColor, String calledFrom
-            , String shortID, String captionText, String entityID, String templateName, String isShadowSelected) {
+            , String shortID, String captionText, String entityID, String templateName
+            , String isShadowSelected, String longText) {
 
         Intent intent = new Intent(ShortActivity.this, PreviewActivity.class);
 
@@ -1536,7 +1617,7 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
         bundle.putString(PREVIEW_EXTRA_ENTITY_ID, entityID);
         bundle.putString(PREVIEW_EXTRA_TEMPLATE_NAME, templateName);
         bundle.putString(PREVIEW_EXTRA_IS_SHADOW_SELECTED, isShadowSelected);
-
+        bundle.putString(PREVIEW_EXTRA_LONG_TEXT, longText);
 
         intent.putExtra(PREVIEW_EXTRA_DATA, bundle);
         startActivityForResult(intent, REQUEST_CODE_PREVIEW_ACTIVITY);
@@ -1610,6 +1691,18 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
                                 float factor = (float) squareView.getWidth()
                                         / (float) responseObject.getDouble("img_width");
 
+                                //Check for long text availability
+                                if (TextUtils.isEmpty(responseObject.getString("text_long"))
+                                        || responseObject.getString("text_long").equals("null")) {
+                                    mIsLongEnabled = false;
+                                    btnToggleLong.setText("Short");
+                                } else {
+                                    //Toggle flag and update text
+                                    mIsLongEnabled = true;
+                                    btnToggleLong.setText("Long");
+                                    longStoryText = responseObject.getString("text_long");
+                                }
+
                                 //If capture image is not present
                                 if (TextUtils.isEmpty(responseObject.getString("captureurl")) || responseObject.getString("captureurl").equals("null")) {
 
@@ -1650,6 +1743,7 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
                                 mFontType = responseObject.getString("font");
                                 mTextTypeface = getFontType(mFontType, mContext);
                                 mImageWidth = responseObject.getInt("img_width");
+
                                 if (!responseObject.isNull("capid")) {
                                     mCaptureID = responseObject.getString("capid");
                                 }
@@ -2213,20 +2307,20 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
     }
 
     private void initShowcaseView() {
-        SpotlightView templateSpotlight = new SpotlightView.Builder(this)
+        new SpotlightView.Builder(mContext)
                 .introAnimationDuration(400)
                 .enableRevealAnimation(true)
                 .performClick(true)
                 .fadeinTextDuration(400)
                 .headingTvColor(Color.parseColor("#eb273f"))
                 .headingTvSize(32)
-                .headingTvText("Templates")
+                .headingTvText("Story Mode")
                 .subHeadingTvColor(Color.parseColor("#ffffff"))
                 .subHeadingTvSize(16)
-                .subHeadingTvText("Choose from a wide range of templates to instantly beautify your writings")
+                .subHeadingTvText("Click here to toggle between long and short story mode")
                 .maskColor(Color.parseColor("#dc000000"))
-                .target(btnTemplate)
-                .usageId("TEMPLATE")
+                .target(btnToggleLong)
+                .usageId("TOGGLE_LONG_MODE")
                 .lineAnimDuration(400)
                 .lineAndArcColor(Color.parseColor("#eb273f"))
                 .dismissOnTouch(true)
@@ -2238,8 +2332,6 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
 
                         //Hide font bottom sheet
                         templateSheetBehaviour.setState(BottomSheetBehavior.STATE_COLLAPSED);
-
-
                         new SpotlightView.Builder(mContext)
                                 .introAnimationDuration(400)
                                 .enableRevealAnimation(true)
@@ -2247,24 +2339,55 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
                                 .fadeinTextDuration(400)
                                 .headingTvColor(Color.parseColor("#eb273f"))
                                 .headingTvSize(32)
-                                .headingTvText("Text Shadow")
+                                .headingTvText("Templates")
                                 .subHeadingTvColor(Color.parseColor("#ffffff"))
                                 .subHeadingTvSize(16)
-                                .subHeadingTvText("Style your text by giving it a shadow effect")
+                                .subHeadingTvText("Choose from a wide range of templates to instantly beautify your writings")
                                 .maskColor(Color.parseColor("#dc000000"))
-                                .target(btnFormatShadow)
+                                .target(btnTemplate)
+                                .usageId("TEMPLATE")
                                 .lineAnimDuration(400)
                                 .lineAndArcColor(Color.parseColor("#eb273f"))
                                 .dismissOnTouch(true)
                                 .dismissOnBackPress(true)
                                 .enableDismissAfterShown(true)
-                                .usageId("SHADOW")
+                                .setListener(new SpotlightListener() {
+                                    @Override
+                                    public void onUserClicked(String s) {
+
+                                        //Hide font bottom sheet
+                                        templateSheetBehaviour.setState(BottomSheetBehavior.STATE_COLLAPSED);
+
+
+                                        new SpotlightView.Builder(mContext)
+                                                .introAnimationDuration(400)
+                                                .enableRevealAnimation(true)
+                                                .performClick(true)
+                                                .fadeinTextDuration(400)
+                                                .headingTvColor(Color.parseColor("#eb273f"))
+                                                .headingTvSize(32)
+                                                .headingTvText("Text Shadow")
+                                                .subHeadingTvColor(Color.parseColor("#ffffff"))
+                                                .subHeadingTvSize(16)
+                                                .subHeadingTvText("Style your text by giving it a shadow effect")
+                                                .maskColor(Color.parseColor("#dc000000"))
+                                                .target(btnFormatShadow)
+                                                .lineAnimDuration(400)
+                                                .lineAndArcColor(Color.parseColor("#eb273f"))
+                                                .dismissOnTouch(true)
+                                                .dismissOnBackPress(true)
+                                                .enableDismissAfterShown(true)
+                                                .usageId("SHADOW")
+                                                .show();
+
+                                    }
+                                })
+
                                 .show();
 
                     }
                 })
                 .show();
-
     }
 
 

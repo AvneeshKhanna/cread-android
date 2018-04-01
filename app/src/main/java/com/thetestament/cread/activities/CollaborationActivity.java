@@ -135,6 +135,7 @@ import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_IMAGE_TINT_COL
 import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_IMG_WIDTH;
 import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_IS_SHADOW_SELECTED;
 import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_ITALIC;
+import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_LONG_TEXT;
 import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_MERCHANTABLE;
 import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_SHORT_ID;
 import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_SIGNATURE;
@@ -284,6 +285,9 @@ public class CollaborationActivity extends BaseActivity {
     CollaborationActivity mContext;
     FontAdapter fontAdapter;
     TemplateAdapter templateAdapter;
+
+    @State
+    String longStoryText = null;
     //endregion
 
     @Override
@@ -823,7 +827,7 @@ public class CollaborationActivity extends BaseActivity {
                     case TEMPLATE_8:
                         //Method called
                         applyTemplateStyle(R.font.a_love_of_thunder, Typeface.NORMAL, FONT_TYPE_A_LOVE_OF_THUNDER, 0
-                                , Gravity.CENTER, R.drawable.ic_format_align_center_32, 0,TextGravity.Center
+                                , Gravity.CENTER, R.drawable.ic_format_align_center_32, 0, TextGravity.Center
                                 , FONT_SIZE_LARGE, 0, 1, false
                                 , TemplateHelper.SHAPE_NAME_NONE, 0);
 
@@ -839,7 +843,7 @@ public class CollaborationActivity extends BaseActivity {
                     case TEMPLATE_10:
                         //Method called
                         applyTemplateStyle(R.font.ostrich_rounded, Typeface.NORMAL, FONT_TYPE_OSTRICH_ROUNDED, 0
-                                , Gravity.LEFT, R.drawable.ic_format_align_left_32, 2,TextGravity.West
+                                , Gravity.LEFT, R.drawable.ic_format_align_left_32, 2, TextGravity.West
                                 , FONT_SIZE_MEDIUM, 0, 0, false
                                 , TemplateHelper.SHAPE_NAME_SIDE_LINE, R.drawable.contentshape_leftline);
                         break;
@@ -1135,6 +1139,10 @@ public class CollaborationActivity extends BaseActivity {
                             //Token is valid
                             else {
                                 JSONObject responseObject = jsonObject.getJSONObject("data");
+
+                                //retrieve long text
+                                longStoryText = responseObject.getString("text_long");
+
                                 //Retrieve data from server response
                                 mShortID = responseObject.getString("shoid");
                                 String text = responseObject.getString("text");
@@ -1337,6 +1345,7 @@ public class CollaborationActivity extends BaseActivity {
                     , PREVIEW_EXTRA_CALLED_FROM_COLLABORATION
                     , mShapeName
                     , String.valueOf(mIsShadowSelected)
+                    , longStoryText
             );
 
         } catch (IOException e) {
@@ -1357,7 +1366,8 @@ public class CollaborationActivity extends BaseActivity {
             , String xPosition, String yPosition, String tvWidth, String tvHeight
             , String text, String textSize, String textColor, String textGravity
             , String imgWidth, String signature, String merchantable, String font
-            , String bold, String italic, String imageTintColor, String calledFrom, String templateName, String isShadowSelected) {
+            , String bold, String italic, String imageTintColor, String calledFrom
+            , String templateName, String isShadowSelected, String longText) {
 
         Intent intent = new Intent(CollaborationActivity.this, PreviewActivity.class);
 
@@ -1384,6 +1394,7 @@ public class CollaborationActivity extends BaseActivity {
         bundle.putString(PREVIEW_EXTRA_CALLED_FROM, calledFrom);
         bundle.putString(PREVIEW_EXTRA_TEMPLATE_NAME, templateName);
         bundle.putString(PREVIEW_EXTRA_IS_SHADOW_SELECTED, isShadowSelected);
+        bundle.putString(PREVIEW_EXTRA_LONG_TEXT, longText);
 
         intent.putExtra(PREVIEW_EXTRA_DATA, bundle);
         startActivityForResult(intent, REQUEST_CODE_PREVIEW_ACTIVITY);

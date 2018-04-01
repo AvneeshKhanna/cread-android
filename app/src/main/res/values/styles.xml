@@ -24,7 +24,6 @@
         <!--To change the material dialog font-family--><!--
         <item name="md_medium_font">@string/app_font_family_bold</item>
         <item name="md_regular_font">@string/app_font_family_normal</item>-->
-
     </style>
 
 
@@ -39,6 +38,15 @@
          <item name="md_regular_font">@string/app_font_family_normal</item>-->
     </style>
 
+    <!--NoActionBarTheme Theme-->
+    <style name="NoActionBarTheme" parent="Theme.AppCompat.Light.NoActionBar">
+        <item name="colorPrimary">@color/colorPrimary</item>
+        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
+        <item name="colorAccent">@color/colorAccent</item>
+        <!--To change the material dialog font-family--><!--
+        <item name="md_medium_font">@string/app_font_family_bold</item>
+        <item name="md_regular_font">@string/app_font_family_normal</item>-->
+    </style>
 
     <!-- RoyaltiesActivity theme. -->
     <style name="ZeroElevationActivityTheme" parent="AppTheme">
