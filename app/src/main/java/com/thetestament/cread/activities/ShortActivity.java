@@ -2156,7 +2156,7 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
         //Show prompt dialog
         CustomDialog.getBackNavigationDialog(mContext
                 , "Discard changes?"
-                , "If you go back now, you will loose your changes.");
+                , getString(R.string.msg_text_navigate_back));
     }
 
     /**

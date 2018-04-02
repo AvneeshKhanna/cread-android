@@ -181,7 +181,7 @@
     <string name="text_share_image">Do you love #art? Here\'s something great on @cread! Check it out and tell me what you think. :)</string>
     <string name="msg_post_deleted">Post deleted</string>
     <string name="text_msg_share_loggedin">You need to be logged in for sharing the image</string>
-
+    <string name="msg_text_navigate_back">If you go back now, you will lose your changes.</string>
 
     <string name="Smooch_startOfConversation">Here\'s Cread Kalakaar! Kalakaar is an androgynous personality who wants to help you get the most out of the app.</string>
     <string name="Smooch_welcome">Don\'t hesitate! Start talking right away! He/she is a great conversationalist. :)</string>
