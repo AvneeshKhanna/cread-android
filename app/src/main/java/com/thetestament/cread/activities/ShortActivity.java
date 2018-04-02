@@ -1587,7 +1587,7 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
                     , mEntityID
                     , mShapeName
                     , String.valueOf(mIsShadowSelected)
-                    , longStoryText
+                    , longStoryText.trim()
             );
 
         } catch (IOException e) {
@@ -1746,6 +1746,7 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
                                 } else {
                                     //Update flag
                                     mIsImagePresent = true;
+                                    mCaptureUrl = responseObject.getString("captureurl");
                                     //show note text
                                     textNote.setVisibility(View.VISIBLE);
 

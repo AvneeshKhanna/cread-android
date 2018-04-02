@@ -8,9 +8,9 @@
     tools:context=".activities.ShortActivity">
 
     <RelativeLayout
-        android:clickable="true"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:clickable="true">
 
         <!--Top container-->
         <RelativeLayout
@@ -42,27 +42,34 @@
                 android:paddingLeft="12dp"
                 android:paddingRight="12dp"
                 android:paddingTop="4dp"
-                android:text="Short"
+                android:text="@string/text_writing_mode_short"
                 android:textColor="@color/white"
                 android:textSize="14sp" />
 
-            <android.support.v7.widget.AppCompatImageView
+            <android.support.v7.widget.AppCompatTextView
                 android:id="@+id/buttonCopyright"
-                android:layout_width="24dp"
-                android:layout_height="24dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
                 android:layout_centerVertical="true"
-                android:layout_marginRight="16dp"
                 android:layout_toLeftOf="@+id/buttonNext"
-                app:srcCompat="@drawable/ic_copyright_24" />
+                android:drawableLeft="@drawable/ic_copyright_24"
+                android:paddingBottom="8dp"
+                android:paddingLeft="8dp"
+                android:paddingRight="16dp"
+                android:paddingTop="8dp" />
 
-            <android.support.v7.widget.AppCompatImageView
+            <android.support.v7.widget.AppCompatTextView
                 android:id="@+id/buttonNext"
-                android:layout_width="24dp"
-                android:layout_height="24dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
                 android:layout_alignParentRight="true"
                 android:layout_centerVertical="true"
-                android:layout_marginRight="16dp"
-                app:srcCompat="@drawable/ic_forward_24" />
+                android:drawableLeft="@drawable/ic_forward_24"
+                android:paddingBottom="8dp"
+                android:paddingLeft="8dp"
+                android:paddingRight="16dp"
+                android:paddingTop="8dp"
+                android:text="" />
         </RelativeLayout>
 
         <com.thetestament.cread.widgets.SquareView
