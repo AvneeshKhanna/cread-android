@@ -1284,7 +1284,6 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
                         }
                     });
 
-
                 } else {
                     //Show edit text cursor
                     textShort.setCursorVisible(true);
@@ -1555,12 +1554,19 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
                 //Update bg color
                 mShortBgColor = Integer.toHexString(drawable.getColor());
             }
+
+            //Update long text depending upon writing mode
+            if (!mIsLongEnabled) {
+                //Set long story text to empty string
+                longStoryText = "";
+            }
+
             //Open next screen
             goToPreviewScreen(mHelper.getUUID()
                     , mHelper.getAuthToken()
                     , mCaptureID
                     , String.valueOf(textShort.getX() / divisionFactor)
-                    , String.valueOf((textShort.getY() - squareView.getY()+ViewHelper.convertToPx(mContext,56)) / divisionFactor)
+                    , String.valueOf((textShort.getY() - squareView.getY() + ViewHelper.convertToPx(mContext, 56)) / divisionFactor)
                     , String.valueOf(textShort.getWidth() / divisionFactor)
                     , String.valueOf(textShort.getHeight() / divisionFactor)
                     , textShort.getText().toString()
