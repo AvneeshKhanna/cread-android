@@ -1586,7 +1586,7 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
                     , mEntityID
                     , mShapeName
                     , String.valueOf(mIsShadowSelected)
-                    , longStoryText
+                    , longStoryText.trim()
             );
 
         } catch (IOException e) {
