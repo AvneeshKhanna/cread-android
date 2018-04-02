@@ -582,4 +582,27 @@ public class SharedPreferenceHelper {
         editor.apply();
     }
 
+    /**
+     * Method to retrieve spotlight first time run status.
+     *
+     * @return True by default.
+     */
+    public boolean isSpotLightFirstTime() {
+        return mSharedPreferences
+                .getBoolean(mContext.getString(R.string.key_spot_light_first_time)
+                        , true);
+    }
+
+
+    /**
+     * Method to update spotlight  status.
+     *
+     * @param status boolean value i.e true or false
+     */
+    public void updateSpotLightStatus(boolean status) {
+        SharedPreferences.Editor editor = mSharedPreferences.edit();
+        editor.putBoolean(mContext.getString(R.string.key_spot_light_first_time), status);
+        editor.apply();
+    }
+
 }

@@ -57,6 +57,7 @@
     <string name="key_personal_chat_dialog">keyPersonalChatDialog</string>
     <string name="key_downvote_dialog">keyDownvoteDialog</string>
     <string name="key_long_story_dialog_first_time">keyLongStoryDialog</string>
+    <string name="key_spot_light_first_time">keySpotLight</string>
 
 
     // dialog messages

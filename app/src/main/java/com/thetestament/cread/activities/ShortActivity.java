@@ -851,7 +851,16 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
         initDragListener();
         initDoubleTapListener();
 
-        initShowcaseView();
+        //Check for first time run status
+        if (mHelper.isSpotLightFirstTime()) {
+            //Hide keyboard
+            InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+            imm.hideSoftInputFromWindow(textShort.getWindowToken(), 0);
+            //Show spotlightView
+            initShowcaseView();
+            //Update status
+            mHelper.updateSpotLightStatus(false);
+        }
 
     }
 
@@ -2336,6 +2345,9 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
 
     }
 
+    /**
+     * Method to show Spotlight view on required views.
+     */
     private void initShowcaseView() {
         new SpotlightView.Builder(mContext)
                 .introAnimationDuration(400)
