@@ -558,4 +558,28 @@ public class SharedPreferenceHelper {
         editor.apply();
     }
 
+
+    /**
+     * Method to check whether we should show long story dialog or not.
+     *
+     * @return True by default.
+     */
+    public boolean shouldShowLongStoryDialog() {
+        return mSharedPreferences
+                .getBoolean(mContext.getString(R.string.key_long_story_dialog_first_time)
+                        , true);
+    }
+
+
+    /**
+     * Method to update 'LongStory' dialog status.
+     *
+     * @param status boolean value i.e true or false
+     */
+    public void updateLongStoryDialogStatus(boolean status) {
+        SharedPreferences.Editor editor = mSharedPreferences.edit();
+        editor.putBoolean(mContext.getString(R.string.key_long_story_dialog_first_time), status);
+        editor.apply();
+    }
+
 }

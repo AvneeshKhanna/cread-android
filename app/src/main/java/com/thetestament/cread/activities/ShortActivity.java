@@ -386,7 +386,7 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
     //For long story
     Dialog fullScreenDialog;
     AppCompatImageView btnExcerptInfo, btnStoryInfo;
-    String longStoryText = null;
+    String longStoryText = "";
     //endregion
 
     //region :Overridden methods
@@ -497,11 +497,22 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
     void onLongButtonClick() {
         if (mIsLongEnabled) {
             //Update button text
-            btnToggleLong.setText("Short");
+            btnToggleLong.setText(R.string.text_writing_mode_short);
             ViewHelper.getShortToast(mContext, "Short mode selected");
         } else {
+            //If user has clicked this button for first time.
+            if (mHelper.shouldShowLongStoryDialog()) {
+                //Show dialog
+                CustomDialog.getGenericDialog(mContext, getString(R.string.text_got_it)
+                        , getString(R.string.text_dialog_long_story_title)
+                        , getString(R.string.text_dialog_long_story_content)
+                        , R.drawable.img_long_writing_intro_dialog);
+                //Update status
+                mHelper.updateLongStoryDialogStatus(false);
+            }
+
             //Update button text
-            btnToggleLong.setText("Long");
+            btnToggleLong.setText(R.string.text_writing_mode_long);
             ViewHelper.getShortToast(mContext, "Long mode selected");
             //Hide keyboard
             InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
@@ -693,7 +704,7 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
                     , R.drawable.ic_format_italic_selected);
         } else if (mItalicFlag == 1 && mBoldFlag == 1) {
             //Method called
-            applyBold(Typeface.BOLD, 0, R.drawable.ic_format_bold_32
+            applyBold(Typeface.ITALIC, 0, R.drawable.ic_format_bold_32
                     , R.drawable.ic_format_italic_selected);
         }
     }
@@ -1229,6 +1240,7 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
                     btnExcerptInfo = fullScreenDialog.findViewById(R.id.btnInfoExcerpt);
                     final AppCompatEditText storyText = fullScreenDialog.findViewById(R.id.textStory);
                     btnStoryInfo = fullScreenDialog.findViewById(R.id.btnInfoStory);
+                    AppCompatTextView buttonDone = fullScreenDialog.findViewById(R.id.buttonDone);
 
                     //Set text
                     excerptText.setText(textShort.getText());
@@ -1242,7 +1254,7 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
                             longStoryText = storyText.getText().toString();
                             //if count is zero
                             if (longStoryText.length() == 0) {
-                                longStoryText = null;
+                                longStoryText = "";
                             }
                         }
                     });
@@ -1262,6 +1274,14 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
                         public void onClick(View view) {
                             //Show tooltip
                             ViewHelper.getToolTip(view, "This section contains text which would be visible after clicking on the 'More' button", mContext);
+                        }
+                    });
+
+                    //Done button click functionality
+                    buttonDone.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View view) {
+                            fullScreenDialog.dismiss();
                         }
                     });
 
@@ -1541,7 +1561,7 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
                     , mHelper.getAuthToken()
                     , mCaptureID
                     , String.valueOf(textShort.getX() / divisionFactor)
-                    , String.valueOf((textShort.getY() - squareView.getY()) / divisionFactor)
+                    , String.valueOf((textShort.getY() - squareView.getY()+ViewHelper.convertToPx(mContext,56)) / divisionFactor)
                     , String.valueOf(textShort.getWidth() / divisionFactor)
                     , String.valueOf(textShort.getHeight() / divisionFactor)
                     , textShort.getText().toString()
@@ -1698,11 +1718,11 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
                                 if (TextUtils.isEmpty(responseObject.getString("text_long"))
                                         || responseObject.getString("text_long").equals("null")) {
                                     mIsLongEnabled = false;
-                                    btnToggleLong.setText("Short");
+                                    btnToggleLong.setText(R.string.text_writing_mode_short);
                                 } else {
                                     //Toggle flag and update text
                                     mIsLongEnabled = true;
-                                    btnToggleLong.setText("Long");
+                                    btnToggleLong.setText(R.string.text_writing_mode_long);
                                     longStoryText = responseObject.getString("text_long");
                                 }
 
@@ -1859,7 +1879,7 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
                                 }
 
                                 //Obtain x and y position of text
-                                float dy = (float) (responseObject.getDouble("dy") - squareView.getY()) * factor;
+                                float dy = (float) (responseObject.getDouble("dy") - squareView.getY() + ViewHelper.convertToPx(mContext, 56)) * factor;
                                 float dx = (float) (responseObject.getDouble("dx") * factor);
 
                                 //Update textView xPosition  and yPosition
@@ -2159,7 +2179,7 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
         //Show prompt dialog
         CustomDialog.getBackNavigationDialog(mContext
                 , "Discard changes?"
-                , "If you go back now, you will loose your changes.");
+                , getString(R.string.msg_text_navigate_back));
     }
 
     /**
@@ -2317,10 +2337,10 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
                 .fadeinTextDuration(400)
                 .headingTvColor(Color.parseColor("#eb273f"))
                 .headingTvSize(32)
-                .headingTvText("Story Mode")
+                .headingTvText("Writing Mode")
                 .subHeadingTvColor(Color.parseColor("#ffffff"))
                 .subHeadingTvSize(16)
-                .subHeadingTvText("Click here to toggle between long and short story mode")
+                .subHeadingTvText("Switch between long and short writing mode")
                 .maskColor(Color.parseColor("#dc000000"))
                 .target(btnToggleLong)
                 .usageId("TOGGLE_LONG_MODE")
@@ -2392,7 +2412,6 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
                 })
                 .show();
     }
-
 
     //endregion
 }

@@ -24,8 +24,8 @@ public class DialogHelper {
     public static MaterialDialog getDeletePostDialog(FragmentActivity context) {
         //To show the progress dialog
         MaterialDialog.Builder builder = new MaterialDialog.Builder(context)
-                .title("Deleting")
-                .content("Please wait...")
+                /*.title("Deleting")*/
+                .content("Deleting...")
                 .autoDismiss(false)
                 .cancelable(false)
                 .progress(true, 0);

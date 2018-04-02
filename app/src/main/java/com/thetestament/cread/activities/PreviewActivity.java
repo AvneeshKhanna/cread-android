@@ -288,7 +288,7 @@ public class PreviewActivity extends BaseActivity implements QueryTokenReceiver,
                 //Show prompt dialog
                 CustomDialog.getBackNavigationDialog(PreviewActivity.this
                         , "Discard changes?"
-                        , "If you go back now, you will loose your changes.");
+                        , getString(R.string.msg_text_navigate_back));
                 return true;
 
             case R.id.action_filter:
@@ -319,7 +319,7 @@ public class PreviewActivity extends BaseActivity implements QueryTokenReceiver,
             //Show prompt dialog
             CustomDialog.getBackNavigationDialog(PreviewActivity.this
                     , "Discard changes?"
-                    , "If you go back now, you will loose your changes.");
+                    , getString(R.string.msg_text_navigate_back));
         }
     }
 
