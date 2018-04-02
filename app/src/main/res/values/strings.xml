@@ -56,6 +56,7 @@
     <string name="key_personal_chat_indicator">personalChatIndicator</string>
     <string name="key_personal_chat_dialog">keyPersonalChatDialog</string>
     <string name="key_downvote_dialog">keyDownvoteDialog</string>
+    <string name="key_long_story_dialog_first_time">keyLongStoryDialog</string>
 
 
     // dialog messages
@@ -95,7 +96,9 @@
     <string name="text_title_dialog_short_collab_invitation">Know a great graphic artist?</string>
     <string name="text_desc_dialog_short_collab_invitation">Can you think of a terrific photographer/graphic artist who could make your writing look beautiful? Invite such a friend to collaborate with you on Cread!</string>
     <string name="text_desc_dialog_invite_friends">Now invite your friends on Cread using your personalised referral link</string>
-
+    <string name="text_got_it">Got it</string>
+    <string name="text_dialog_long_story_title">Long Form Writing</string>
+    <string name="text_dialog_long_story_content">Now you can include much longer writings without worrying about the writing space. Choose \'Long Mode\' from the top to write poems, stories, articles or anything you like!</string>
     //unicodes
     <string name="Rs">\u20B9</string>
     <string name="bullet">\u25CF</string>

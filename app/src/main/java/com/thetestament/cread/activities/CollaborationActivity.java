@@ -287,7 +287,7 @@ public class CollaborationActivity extends BaseActivity {
     TemplateAdapter templateAdapter;
 
     @State
-    String longStoryText = null;
+    String longStoryText = "";
     //endregion
 
     @Override
@@ -507,7 +507,7 @@ public class CollaborationActivity extends BaseActivity {
                     , R.drawable.ic_format_italic_selected);
         } else if (mItalicFlag == 1 && mBoldFlag == 1) {
             //Method called
-            applyBold(Typeface.BOLD, 0, R.drawable.ic_format_bold_32
+            applyBold(Typeface.ITALIC, 0, R.drawable.ic_format_bold_32
                     , R.drawable.ic_format_italic_selected);
         }
     }
