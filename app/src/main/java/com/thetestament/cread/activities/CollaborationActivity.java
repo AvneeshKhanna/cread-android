@@ -370,7 +370,7 @@ public class CollaborationActivity extends BaseActivity {
                 //Show prompt dialog
                 CustomDialog.getBackNavigationDialog(CollaborationActivity.this
                         , "Discard changes?"
-                        , "If you go back now, you will loose your changes.");
+                         , getString(R.string.msg_text_navigate_back));
                 return true;
             case R.id.action_next:
                 //Check for Write permission
@@ -401,7 +401,7 @@ public class CollaborationActivity extends BaseActivity {
         //Show prompt dialog
         CustomDialog.getBackNavigationDialog(CollaborationActivity.this
                 , "Discard changes?"
-                , "If you go back now, you will loose your changes.");
+                , getString(R.string.msg_text_navigate_back));
     }
 
     @OnClick(R.id.rootView)
