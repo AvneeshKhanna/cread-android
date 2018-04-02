@@ -97,6 +97,7 @@ import static com.thetestament.cread.CreadApp.GET_RESPONSE_FROM_NETWORK_EXPLORE;
 import static com.thetestament.cread.CreadApp.GET_RESPONSE_FROM_NETWORK_INSPIRATION;
 import static com.thetestament.cread.CreadApp.GET_RESPONSE_FROM_NETWORK_MAIN;
 import static com.thetestament.cread.CreadApp.GET_RESPONSE_FROM_NETWORK_ME;
+import static com.thetestament.cread.CreadApp.GET_RESPONSE_FROM_NETWORK_VIEW_LONG_SHORT;
 import static com.thetestament.cread.CreadApp.IMAGE_LOAD_FROM_NETWORK_FEED_DESCRIPTION;
 import static com.thetestament.cread.CreadApp.IMAGE_LOAD_FROM_NETWORK_ME;
 import static com.thetestament.cread.dialog.DialogHelper.showCollabInvitationDialog;
@@ -806,6 +807,7 @@ public class PreviewActivity extends BaseActivity implements QueryTokenReceiver,
                                     GET_RESPONSE_FROM_NETWORK_ME = true;
                                     GET_RESPONSE_FROM_NETWORK_ENTITY_SPECIFIC = true;
                                     GET_RESPONSE_FROM_NETWORK_COLLABORATION_DETAILS = true;
+                                    GET_RESPONSE_FROM_NETWORK_VIEW_LONG_SHORT = true;
 
                                     // open collaboration invitation dialog
                                     showCollabInvitationDialog(mContext
@@ -931,6 +933,7 @@ public class PreviewActivity extends BaseActivity implements QueryTokenReceiver,
                                     GET_RESPONSE_FROM_NETWORK_ME = true;
                                     GET_RESPONSE_FROM_NETWORK_ENTITY_SPECIFIC = true;
                                     GET_RESPONSE_FROM_NETWORK_COLLABORATION_DETAILS = true;
+                                    GET_RESPONSE_FROM_NETWORK_VIEW_LONG_SHORT = true;
 
                                     // open collaboration invitation dialog
                                     showCollabInvitationDialog(mContext
@@ -1056,6 +1059,7 @@ public class PreviewActivity extends BaseActivity implements QueryTokenReceiver,
                                     GET_RESPONSE_FROM_NETWORK_EXPLORE = true;
                                     GET_RESPONSE_FROM_NETWORK_ME = true;
                                     GET_RESPONSE_FROM_NETWORK_ENTITY_SPECIFIC = true;
+                                    GET_RESPONSE_FROM_NETWORK_VIEW_LONG_SHORT = true;
 
 
                                     // to invalidate image cache
@@ -1709,6 +1713,17 @@ public class PreviewActivity extends BaseActivity implements QueryTokenReceiver,
         if (!TextUtils.isEmpty(mBundle.getString(PREVIEW_EXTRA_LONG_TEXT)) && !mBundle.getString(PREVIEW_EXTRA_LONG_TEXT).equals("null")) {
             containerLongShortPreview.setVisibility(View.VISIBLE);
         }
+
+        //show preview tooltip
+        if (mHelper.isLongFormPreviewFirstTime()) {
+            //Show tooltip on preview icon
+            ViewHelper.getToolTip(containerLongShortPreview
+                    , "Tap to see the full writing"
+                    , mContext);
+        }
+
+        //Update status
+        mHelper.updateLongFormPreviewStatus(false);
     }
 
     //endregion

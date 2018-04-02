@@ -14,6 +14,7 @@ import org.json.JSONObject;
 
 import io.reactivex.disposables.CompositeDisposable;
 
+import static com.thetestament.cread.CreadApp.GET_RESPONSE_FROM_NETWORK_VIEW_LONG_SHORT;
 import static com.thetestament.cread.helpers.NetworkHelper.requestServer;
 
 /**
@@ -40,7 +41,7 @@ public class LongShortHelper {
                 spHelper.getUUID()
                 , spHelper.getAuthToken()
                 , entityid
-                , true)
+                , GET_RESPONSE_FROM_NETWORK_VIEW_LONG_SHORT)
                 , context
                 , new listener.OnServerRequestedListener<JSONObject>() {
                     @Override
@@ -107,7 +108,8 @@ public class LongShortHelper {
                     @Override
                     public void onCompleteCalled() {
 
-
+                        // update status
+                        GET_RESPONSE_FROM_NETWORK_VIEW_LONG_SHORT = false;
                     }
                 });
     }

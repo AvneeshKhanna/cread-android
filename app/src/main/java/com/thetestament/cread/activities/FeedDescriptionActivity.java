@@ -673,6 +673,8 @@ public class FeedDescriptionActivity extends BaseActivity implements listener.On
 
         //check long form option
         checkLongFormStatus();
+
+
     }
 
 
@@ -1156,6 +1158,17 @@ public class FeedDescriptionActivity extends BaseActivity implements listener.On
         } else {
             containerLongShortPreview.setVisibility(View.GONE);
         }
+
+        //show preview tooltip
+        if (mHelper.isLongFormPreviewFirstTime()) {
+            //Show tooltip on preview icon
+            ViewHelper.getToolTip(containerLongShortPreview
+                    , "Tap to see the full writing"
+                    , FeedDescriptionActivity.this);
+        }
+
+        //Update status
+        mHelper.updateLongFormPreviewStatus(false);
     }
 
     /**

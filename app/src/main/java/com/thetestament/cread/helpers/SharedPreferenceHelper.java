@@ -558,6 +558,28 @@ public class SharedPreferenceHelper {
         editor.apply();
     }
 
+    /**
+     * Method to retrieve chat dialog.
+     *
+     * @return True by default.
+     */
+    public boolean isLongFormPreviewFirstTime() {
+        return mSharedPreferences
+                .getBoolean(mContext.getString(R.string.key_long_story_preview_first_time), true);
+    }
+
+
+    /**
+     * Method to update 'Write button' tooltip status.
+     *
+     * @param status boolean value i.e true or false
+     */
+    public void updateLongFormPreviewStatus(boolean status) {
+        SharedPreferences.Editor editor = mSharedPreferences.edit();
+        editor.putBoolean(mContext.getString(R.string.key_long_story_preview_first_time), status);
+        editor.apply();
+    }
+
 
     /**
      * Method to check whether we should show long story dialog or not.

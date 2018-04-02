@@ -251,8 +251,13 @@ public class ViewLongShortFragment extends Fragment {
             contentImage.setColorFilter(ContextCompat.getColor(getActivity(), R.color.transparent_50));
             //apply text shadow
             textLongShort.setShadowLayer(3, 3, 3, ContextCompat.getColor(getActivity(), R.color.color_grey_600));
+            // show toast
+            ViewHelper.getToast(mContext, "Reading mode enabled");
 
-        } else {   // set original shadow
+        } else {
+            //show toast
+            ViewHelper.getToast(mContext, "Reading mode disabled");
+            // set original shadow
             applyTextShadow();
             // set original tint
             applyImageTint();

@@ -195,9 +195,9 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
     @BindView(R.id.buttonToggleLong)
     AppCompatTextView btnToggleLong;
     @BindView(R.id.buttonCopyright)
-    AppCompatImageView btnCopyRight;
+    AppCompatTextView btnCopyRight;
     @BindView(R.id.buttonNext)
-    AppCompatImageView btnNext;
+    AppCompatTextView btnNext;
     @BindView(R.id.imageContainer)
     SquareView squareView;
     @BindView(R.id.imageShort)
@@ -851,16 +851,8 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
         initDragListener();
         initDoubleTapListener();
 
-        //Check for first time run status
-        if (mHelper.isSpotLightFirstTime()) {
-            //Hide keyboard
-            InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-            imm.hideSoftInputFromWindow(textShort.getWindowToken(), 0);
-            //Show spotlightView
-            initShowcaseView();
-            //Update status
-            mHelper.updateSpotLightStatus(false);
-        }
+        //init spotlight
+        initShowcaseView();
 
     }
 
