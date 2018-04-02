@@ -375,6 +375,7 @@ public class FeedFragment extends Fragment implements listener.OnCollaborationLi
                                             feedData.setMerchantable(dataObj.getBoolean("merchantable"));
                                             feedData.setDownvoteStatus(dataObj.getBoolean("downvotestatus"));
                                             feedData.setEligibleForDownvote(mCanDownvote);
+                                            feedData.setLongForm(dataObj.getBoolean("long_form"));
                                             feedData.setHatsOffCount(dataObj.getLong("hatsoffcount"));
                                             feedData.setCommentCount(dataObj.getLong("commentcount"));
                                             feedData.setContentImage(dataObj.getString("entityurl"));
@@ -520,6 +521,7 @@ public class FeedFragment extends Fragment implements listener.OnCollaborationLi
                                     feedData.setMerchantable(dataObj.getBoolean("merchantable"));
                                     feedData.setDownvoteStatus(dataObj.getBoolean("downvotestatus"));
                                     feedData.setEligibleForDownvote(mCanDownvote);
+                                    feedData.setLongForm(dataObj.getBoolean("long_form"));
                                     feedData.setHatsOffCount(dataObj.getLong("hatsoffcount"));
                                     feedData.setCommentCount(dataObj.getLong("commentcount"));
                                     feedData.setContentImage(dataObj.getString("entityurl"));
@@ -529,7 +531,6 @@ public class FeedFragment extends Fragment implements listener.OnCollaborationLi
                                     } else {
                                         feedData.setCaption(dataObj.getString("caption"));
                                     }
-
 
                                     if (type.equals(CONTENT_TYPE_CAPTURE)) {
 

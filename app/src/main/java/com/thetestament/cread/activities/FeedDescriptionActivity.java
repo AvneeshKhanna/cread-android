@@ -23,6 +23,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.animation.AnimationUtils;
 import android.view.animation.LayoutAnimationController;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -46,6 +47,7 @@ import com.thetestament.cread.helpers.FeedHelper;
 import com.thetestament.cread.helpers.FollowHelper;
 import com.thetestament.cread.helpers.HatsOffHelper;
 import com.thetestament.cread.helpers.ImageHelper;
+import com.thetestament.cread.helpers.LongShortHelper;
 import com.thetestament.cread.helpers.NetworkHelper;
 import com.thetestament.cread.helpers.ShareHelper;
 import com.thetestament.cread.helpers.SharedPreferenceHelper;
@@ -54,6 +56,7 @@ import com.thetestament.cread.listeners.listener;
 import com.thetestament.cread.listeners.listener.OnContentDeleteListener;
 import com.thetestament.cread.models.CommentsModel;
 import com.thetestament.cread.models.FeedModel;
+import com.thetestament.cread.models.ShortModel;
 import com.thetestament.cread.utils.RxUtils;
 import com.yalantis.ucrop.UCrop;
 
@@ -99,6 +102,7 @@ import static com.thetestament.cread.utils.Constant.EXTRA_ENTITY_ID;
 import static com.thetestament.cread.utils.Constant.EXTRA_ENTITY_TYPE;
 import static com.thetestament.cread.utils.Constant.EXTRA_FEED_DESCRIPTION_DATA;
 import static com.thetestament.cread.utils.Constant.EXTRA_FROM_UPDATES_COMMENT_MENTION;
+import static com.thetestament.cread.utils.Constant.EXTRA_SHORT_DATA;
 import static com.thetestament.cread.utils.Constant.EXTRA_SHORT_UUID;
 import static com.thetestament.cread.utils.Constant.FIREBASE_EVENT_CAPTURE_CLICKED;
 import static com.thetestament.cread.utils.Constant.FIREBASE_EVENT_FOLLOW_FROM_FEED_DESCRIPTION;
@@ -167,6 +171,8 @@ public class FeedDescriptionActivity extends BaseActivity implements listener.On
     ImageView imageDownvote;
     @BindView(R.id.dotSeperatorRight)
     TextView dotSeperatorRight;
+    @BindView(R.id.containerLongShortPreview)
+    FrameLayout containerLongShortPreview;
 
 
     private SharedPreferenceHelper mHelper;
@@ -519,6 +525,32 @@ public class FeedDescriptionActivity extends BaseActivity implements listener.On
     }
 
     /**
+     * Click action for long form preview option
+     */
+    @OnClick(R.id.containerLongShortPreview)
+    void onLongShortPreviewClicked() {
+        LongShortHelper longShortHelper = new LongShortHelper();
+        longShortHelper.getLongShortData(mContext, mCompositeDisposable, mFeedData.getEntityID(), new listener.OnLongShortDataRequestedListener() {
+            @Override
+            public void onLongShortDataSuccess(ShortModel shortModel) {
+                // open activity and pass data
+                Intent intent = new Intent(mContext, ViewLongShortActivity.class);
+                intent.putExtra(EXTRA_SHORT_DATA, shortModel);
+                mContext.startActivity(intent);
+
+            }
+
+            @Override
+            public void onLongShortDataFailiure(String errorMsg) {
+
+                ViewHelper.getToast(mContext, errorMsg);
+
+            }
+        });
+    }
+
+
+    /**
      * Method to initialize views for this screen.
      */
     private void initViews() {
@@ -638,6 +670,9 @@ public class FeedDescriptionActivity extends BaseActivity implements listener.On
         //check downvote status
         DownvoteHelper downvoteHelper = new DownvoteHelper();
         downvoteHelper.updateDownvoteUI(imageDownvote, mFeedData.isDownvoteStatus(), mContext);
+
+        //check long form option
+        checkLongFormStatus();
     }
 
 
@@ -1110,6 +1145,17 @@ public class FeedDescriptionActivity extends BaseActivity implements listener.On
                         ViewHelper.getSnackBar(rootView, errorMsg);
                     }
                 });
+    }
+
+    /**
+     * Checks form of writing and toggles preview option visibility acc.
+     */
+    private void checkLongFormStatus() {
+        if (mFeedData.isLongForm()) {
+            containerLongShortPreview.setVisibility(View.VISIBLE);
+        } else {
+            containerLongShortPreview.setVisibility(View.GONE);
+        }
     }
 
     /**

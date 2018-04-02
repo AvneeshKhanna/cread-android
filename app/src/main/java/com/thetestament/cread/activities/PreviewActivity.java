@@ -21,6 +21,7 @@ import android.text.TextUtils;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -57,6 +58,7 @@ import com.thetestament.cread.helpers.ViewHelper;
 import com.thetestament.cread.listeners.listener;
 import com.thetestament.cread.models.FilterModel;
 import com.thetestament.cread.models.PersonMentionModel;
+import com.thetestament.cread.models.ShortModel;
 import com.zomato.photofilters.imageprocessors.Filter;
 
 import org.json.JSONArray;
@@ -105,8 +107,10 @@ import static com.thetestament.cread.helpers.ProfileMentionsHelper.BUCKET;
 import static com.thetestament.cread.helpers.ProfileMentionsHelper.getMentionSpanConfig;
 import static com.thetestament.cread.helpers.ProfileMentionsHelper.setProfileMentionsForEditing;
 import static com.thetestament.cread.helpers.ProfileMentionsHelper.tokenizerConfig;
+import static com.thetestament.cread.models.ShortModel.convertStringToBool;
 import static com.thetestament.cread.utils.Constant.CONTENT_TYPE_CAPTURE;
 import static com.thetestament.cread.utils.Constant.CONTENT_TYPE_SHORT;
+import static com.thetestament.cread.utils.Constant.EXTRA_SHORT_DATA;
 import static com.thetestament.cread.utils.Constant.IMAGE_TYPE_USER_CAPTURE_PIC;
 import static com.thetestament.cread.utils.Constant.IMAGE_TYPE_USER_SHORT_PIC;
 import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_AUTH_KEY;
@@ -125,6 +129,7 @@ import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_DATA;
 import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_ENTITY_ID;
 import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_FONT;
 import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_IMAGE_TINT_COLOR;
+import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_IMAGE_URL;
 import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_IMG_WIDTH;
 import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_IS_SHADOW_SELECTED;
 import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_ITALIC;
@@ -174,6 +179,8 @@ public class PreviewActivity extends BaseActivity implements QueryTokenReceiver,
     RecyclerView filterRecyclerView;
     @BindView(R.id.recyclerViewMentions)
     RecyclerView recyclerViewMentions;
+    @BindView(R.id.containerLongShortPreview)
+    FrameLayout containerLongShortPreview;
     //endregion
 
     //region :Fields and constants
@@ -404,6 +411,42 @@ public class PreviewActivity extends BaseActivity implements QueryTokenReceiver,
         //Hide bottom sheet
         filterSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
     }
+
+    /**
+     * Long short preview click action
+     */
+    @OnClick(R.id.containerLongShortPreview)
+    void longShortPreviewClick() {
+
+        //initialize short model
+        ShortModel shortModel = new ShortModel();
+        // set image url
+        if (mBundle.getString(PREVIEW_EXTRA_CALLED_FROM).equals(PREVIEW_EXTRA_CALLED_FROM_COLLABORATION)) {
+
+            shortModel.setImageURL(ImageHelper.getImageUri(IMAGE_TYPE_USER_CAPTURE_PIC).toString());
+        } else {
+            shortModel.setImageURL(mBundle.getString(PREVIEW_EXTRA_IMAGE_URL));
+        }
+        // set params
+        shortModel.setContentText(mBundle.getString(PREVIEW_EXTRA_TEXT) + "\n" + mBundle.getString(PREVIEW_EXTRA_LONG_TEXT));
+        shortModel.setBold(convertStringToBool(mBundle.getString(PREVIEW_EXTRA_BOLD)));
+        shortModel.setItalic(convertStringToBool(mBundle.getString(PREVIEW_EXTRA_ITALIC)));
+        shortModel.setBgcolor(mBundle.getString(PREVIEW_EXTRA_BG_COLOR));
+        shortModel.setFont(mBundle.getString(PREVIEW_EXTRA_FONT));
+        shortModel.setImgTintColor(mBundle.getString(PREVIEW_EXTRA_IMAGE_TINT_COLOR));
+        shortModel.setTextSize(Double.valueOf(mBundle.getString(PREVIEW_EXTRA_TEXT_SIZE)));
+        shortModel.setTextColor(mBundle.getString(PREVIEW_EXTRA_TEXT_COLOR));
+        shortModel.setTextGravity(mBundle.getString(PREVIEW_EXTRA_TEXT_GRAVITY));
+        shortModel.setTextShadow(convertStringToBool(mBundle.getString(PREVIEW_EXTRA_IS_SHADOW_SELECTED)));
+        shortModel.setImgWidth(Double.valueOf(mBundle.getString(PREVIEW_EXTRA_IMG_WIDTH)));
+
+        // open activity and pass data
+        Intent intent = new Intent(mContext, ViewLongShortActivity.class);
+        intent.putExtra(EXTRA_SHORT_DATA, shortModel);
+        mContext.startActivity(intent);
+
+
+    }
     //endregion
 
     //region :Private methods
@@ -418,6 +461,8 @@ public class PreviewActivity extends BaseActivity implements QueryTokenReceiver,
         mCalledFrom = mBundle.getString(PREVIEW_EXTRA_CALLED_FROM);
         //Check content type
         checkContentType();
+        //check long short status
+        checkLongShortStatus();
 
         mMentionsAdapter = new PersonMentionAdapter(mSuggestionsList, this);
         recyclerViewMentions.setAdapter(mMentionsAdapter);
@@ -432,6 +477,8 @@ public class PreviewActivity extends BaseActivity implements QueryTokenReceiver,
 
         initLoadMoreSuggestionsListener(mMentionsAdapter);
         initSuggestionsClickListener(mMentionsAdapter);
+
+
     }
 
     /**
@@ -1002,7 +1049,7 @@ public class PreviewActivity extends BaseActivity implements QueryTokenReceiver,
                                 if (dataObject.getString("status").equals("done")) {
                                     ViewHelper.getToast(PreviewActivity.this, "Changes updated successfully.");
 
-                                    //fixme chandna G.............
+
                                     // set feeds data to be loaded from network
                                     // instead of cached data
                                     GET_RESPONSE_FROM_NETWORK_MAIN = true;
@@ -1651,6 +1698,17 @@ public class PreviewActivity extends BaseActivity implements QueryTokenReceiver,
             }
         }
 
+    }
+
+    /**
+     * Checks if the short is a long one
+     * and toggles the long preview option accordingly
+     */
+    private void checkLongShortStatus() {
+        // if short is long show preview option
+        if (!TextUtils.isEmpty(mBundle.getString(PREVIEW_EXTRA_LONG_TEXT)) && !mBundle.getString(PREVIEW_EXTRA_LONG_TEXT).equals("null")) {
+            containerLongShortPreview.setVisibility(View.VISIBLE);
+        }
     }
 
     //endregion

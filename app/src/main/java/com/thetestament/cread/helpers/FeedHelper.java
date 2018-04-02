@@ -292,6 +292,7 @@ public class FeedHelper {
         feedData.setMerchantable(dataObj.getBoolean("merchantable"));
         feedData.setDownvoteStatus(dataObj.getBoolean("downvotestatus"));
         feedData.setEligibleForDownvote(mainObject.getBoolean("candownvote"));
+        feedData.setLongForm(dataObj.getBoolean("long_form"));
         feedData.setHatsOffCount(dataObj.getLong("hatsoffcount"));
         feedData.setCommentCount(dataObj.getLong("commentcount"));
         feedData.setContentImage(dataObj.getString("entityurl"));

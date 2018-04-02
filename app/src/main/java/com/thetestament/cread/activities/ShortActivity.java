@@ -158,6 +158,7 @@ import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_DATA;
 import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_ENTITY_ID;
 import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_FONT;
 import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_IMAGE_TINT_COLOR;
+import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_IMAGE_URL;
 import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_IMG_WIDTH;
 import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_IS_SHADOW_SELECTED;
 import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_ITALIC;
@@ -264,7 +265,7 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
 
 
     @State
-    String mCaptureUrl, mCaptureID = "", mShortID = "", mEntityID = "", mCaptionText = "", mSignatureText, mShortBgColor = "FFFFFFFF", mFontType = FONT_TYPE_BOHEMIAN_TYPEWRITER;
+    String mCaptureUrl = "", mCaptureID = "", mShortID = "", mEntityID = "", mCaptionText = "", mSignatureText, mShortBgColor = "FFFFFFFF", mFontType = FONT_TYPE_BOHEMIAN_TYPEWRITER;
 
     /**
      * Flag to maintain imageWidth
@@ -1618,6 +1619,8 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
         bundle.putString(PREVIEW_EXTRA_TEMPLATE_NAME, templateName);
         bundle.putString(PREVIEW_EXTRA_IS_SHADOW_SELECTED, isShadowSelected);
         bundle.putString(PREVIEW_EXTRA_LONG_TEXT, longText);
+        bundle.putString(PREVIEW_EXTRA_IMAGE_URL, mCaptureUrl);
+
 
         intent.putExtra(PREVIEW_EXTRA_DATA, bundle);
         startActivityForResult(intent, REQUEST_CODE_PREVIEW_ACTIVITY);
@@ -1880,7 +1883,7 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
                                 }
 
                                 //Update image tint
-                                if (!TextUtils.isEmpty(responseObject.getString("imgtintcolor")) || !responseObject.getString("imgtintcolor").equals("null")) {
+                                if (!TextUtils.isEmpty(responseObject.getString("imgtintcolor")) && !responseObject.getString("imgtintcolor").equals("null")) {
                                     switch (responseObject.getString("imgtintcolor").toUpperCase()) {
                                         case "4D000000":
                                             //Apply tint

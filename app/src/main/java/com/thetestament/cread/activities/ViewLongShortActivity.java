@@ -50,8 +50,6 @@ public class ViewLongShortActivity extends BaseActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
 
         switch (item.getItemId()) {
-            case android.R.id.home:
-                return true;
             case R.id.menu_reading_mode:
                 // toggle flag
                 mIsReadingMode = !mIsReadingMode;

@@ -4,7 +4,7 @@
 
     <item
         android:id="@+id/menu_reading_mode"
-        android:title="Reading mode"
-        android:icon="@drawable/ic_receipt"
+        android:title="Reading Mode"
+        android:icon="@drawable/ic_reading_mode"
         app:showAsAction="always"></item>
 </menu>

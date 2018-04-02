@@ -118,7 +118,7 @@ public class ViewLongShortFragment extends Fragment {
                 contentImage.setBackgroundColor((int) Long.parseLong(mShortData.getBgcolor(), 16));
             }
         } else {
-            ImageHelper.loadImageFromPicasso(mContext, contentImage, entityURL, R.drawable.image_placeholder);
+            ImageHelper.loadImageFromPicasso(mContext, contentImage, entityURL, R.drawable.img_short_default_bg);
         }
 
         // apply image tint
@@ -146,12 +146,7 @@ public class ViewLongShortFragment extends Fragment {
         //set bold and italic and font
         applyBoldItalic();
         // apply shadow
-        //if text shadow is present
-        if (mShortData.isTextShadow()) {
-            //Apply text shadow
-            textLongShort.setShadowLayer(3, 3, 3
-                    , ContextCompat.getColor(mContext, R.color.color_grey_600));
-        }
+        applyTextShadow();
         //set text gravity
         applyTextGravity();
     }
@@ -177,7 +172,7 @@ public class ViewLongShortFragment extends Fragment {
     private void applyImageTint() {
         String imageTint = mShortData.getImgTintColor();
         //Update image tint
-        if (!TextUtils.isEmpty(imageTint) || !imageTint.equals("null")) {
+        if (!TextUtils.isEmpty(imageTint) && !imageTint.equals("null")) {
             switch (imageTint.toUpperCase()) {
                 case "4D000000":
                     //Apply tint
@@ -198,6 +193,8 @@ public class ViewLongShortFragment extends Fragment {
                 default:
                     break;
             }
+        } else {   // remove tint
+            contentImage.clearColorFilter();
         }
 
     }
@@ -205,7 +202,7 @@ public class ViewLongShortFragment extends Fragment {
     /**
      * Sets the font and bold and italic on the text
      */
-    public void applyBoldItalic() {
+    private void applyBoldItalic() {
         boolean isBold = mShortData.isBold();
         boolean isItalic = mShortData.isItalic();
 
@@ -228,20 +225,37 @@ public class ViewLongShortFragment extends Fragment {
     }
 
     /**
+     * Sets the text shadow
+     */
+    private void applyTextShadow() {
+        //if text shadow is present
+        if (mShortData.isTextShadow()) {
+            //Apply text shadow
+            textLongShort.setShadowLayer(3, 3, 3
+                    , ContextCompat.getColor(mContext, R.color.color_grey_600));
+        } else {
+            textLongShort.setShadowLayer(0, 0, 0, 0);
+        }
+    }
+
+
+
+
+    /**
      * Initializes the reading mode
      */
     public void toggleReadingMode(boolean isReadingMode) {
 
         if (isReadingMode) {
             //Apply tint
-            contentImage.setColorFilter(ContextCompat.getColor(getActivity(), R.color.transparent_30));
+            contentImage.setColorFilter(ContextCompat.getColor(getActivity(), R.color.transparent_50));
             //apply text shadow
             textLongShort.setShadowLayer(3, 3, 3, ContextCompat.getColor(getActivity(), R.color.color_grey_600));
 
-        } else {   // remove shadow
-            textLongShort.setShadowLayer(0, 0, 0, 0);
-            //remove tint
-            contentImage.clearColorFilter();
+        } else {   // set original shadow
+            applyTextShadow();
+            // set original tint
+            applyImageTint();
         }
     }
 

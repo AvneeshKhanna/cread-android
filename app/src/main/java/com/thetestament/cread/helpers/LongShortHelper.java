@@ -2,6 +2,7 @@ package com.thetestament.cread.helpers;
 
 import android.support.v4.app.FragmentActivity;
 
+import com.afollestad.materialdialogs.MaterialDialog;
 import com.google.firebase.crash.FirebaseCrash;
 import com.thetestament.cread.BuildConfig;
 import com.thetestament.cread.R;
@@ -25,6 +26,14 @@ public class LongShortHelper {
                                  CompositeDisposable compositeDisposable,
                                  String entityid,
                                  final listener.OnLongShortDataRequestedListener onLongShortDataRequestedListener) {
+
+
+        final MaterialDialog dialog = new MaterialDialog.Builder(context)
+                .title("Loading")
+                .content(context.getString(R.string.waiting_msg))
+                .progress(true, 0)
+                .show();
+
         SharedPreferenceHelper spHelper = new SharedPreferenceHelper(context);
 
         requestServer(compositeDisposable, NetworkHelper.getLoadLongShortObservable(BuildConfig.URL + "/entity-manage/load-data-long-form",
@@ -36,7 +45,7 @@ public class LongShortHelper {
                 , new listener.OnServerRequestedListener<JSONObject>() {
                     @Override
                     public void onDeviceOffline() {
-
+                        dialog.dismiss();
                         onLongShortDataRequestedListener.onLongShortDataFailiure(context
                                 .getString(R.string.error_msg_no_connection));
 
@@ -45,6 +54,7 @@ public class LongShortHelper {
                     @Override
                     public void onNextCalled(JSONObject jsonObject) {
 
+                        dialog.dismiss();
 
                         try {
                             //Token status is not valid
@@ -87,7 +97,7 @@ public class LongShortHelper {
 
                     @Override
                     public void onErrorCalled(Throwable e) {
-
+                        dialog.dismiss();
                         e.printStackTrace();
                         FirebaseCrash.report(e);
                         //Set listener

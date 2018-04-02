@@ -179,4 +179,14 @@ public class ShortModel implements Parcelable {
     public static boolean convertIntToBool(int value) {
         return value == 1;
     }
+
+    /**
+     * Converts string to boolean
+     *
+     * @param value String value to convert
+     * @return
+     */
+    public static boolean convertStringToBool(String value) {
+        return convertIntToBool(Integer.parseInt(value));
+    }
 }

@@ -1296,6 +1296,7 @@ public class MeFragment extends Fragment implements listener.OnCollaborationList
                                     data.setMerchantable(dataObj.getBoolean("merchantable"));
                                     data.setDownvoteStatus(dataObj.getBoolean("downvotestatus"));
                                     data.setEligibleForDownvote(mCanDownvote);
+                                    data.setLongForm(dataObj.getBoolean("long_form"));
                                     data.setHatsOffCount(dataObj.getLong("hatsoffcount"));
                                     data.setCommentCount(dataObj.getLong("commentcount"));
                                     data.setContentImage(dataObj.getString("entityurl"));
@@ -1602,6 +1603,7 @@ public class MeFragment extends Fragment implements listener.OnCollaborationList
             data.setMerchantable(dataObj.getBoolean("merchantable"));
             data.setDownvoteStatus(dataObj.getBoolean("downvotestatus"));
             data.setEligibleForDownvote(mCanDownvote);
+            data.setLongForm(dataObj.getBoolean("long_form"));
             data.setHatsOffCount(dataObj.getLong("hatsoffcount"));
             data.setCommentCount(dataObj.getLong("commentcount"));
             data.setContentImage(dataObj.getString("entityurl"));
@@ -1772,6 +1774,7 @@ public class MeFragment extends Fragment implements listener.OnCollaborationList
                                     data.setMerchantable(dataObj.getBoolean("merchantable"));
                                     data.setDownvoteStatus(dataObj.getBoolean("downvotestatus"));
                                     data.setEligibleForDownvote(mCanDownvote);
+                                    data.setLongForm(dataObj.getBoolean("long_form"));
                                     data.setHatsOffCount(dataObj.getLong("hatsoffcount"));
                                     data.setCommentCount(dataObj.getLong("commentcount"));
                                     data.setContentImage(dataObj.getString("entityurl"));

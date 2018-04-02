@@ -12,7 +12,7 @@ public class FeedModel implements Parcelable {
 
     private String entityID, captureID, shortID;
     private String UUID, creatorName, creatorImage, collabWithUUID, collabWithName, caption;
-    private boolean hatsOffStatus, followStatus, merchantable, isAvailableForCollab, downvoteStatus, isEligibleForDownvote;
+    private boolean hatsOffStatus, followStatus, merchantable, isAvailableForCollab, downvoteStatus, isEligibleForDownvote, isLongForm;
     private long hatsOffCount, commentCount, collabCount;
     private String contentType;
     private String contentImage;
@@ -192,6 +192,14 @@ public class FeedModel implements Parcelable {
         this.collaboWithEntityID = collaboWithEntityID;
     }
 
+    public boolean isLongForm() {
+        return isLongForm;
+    }
+
+    public void setLongForm(boolean longForm) {
+        isLongForm = longForm;
+    }
+
     @Override
     public int describeContents() {
         return 0;
@@ -220,6 +228,7 @@ public class FeedModel implements Parcelable {
         parcel.writeLong(getCollabCount());
         parcel.writeString(caption);
         parcel.writeString(collaboWithEntityID);
+        parcel.writeByte((byte) (isLongForm ? 1 : 0));
 
     }
 
@@ -258,6 +267,8 @@ public class FeedModel implements Parcelable {
         collabCount = in.readLong();
         caption = in.readString();
         collaboWithEntityID = in.readString();
+        isLongForm = in.readByte() != 0;
+        ;
     }
 
 }

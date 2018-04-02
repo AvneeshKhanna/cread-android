@@ -603,6 +603,7 @@ public class HashTagDetailsFragment extends Fragment implements listener.OnColla
             exploreData.setMerchantable(dataObj.getBoolean("merchantable"));
             exploreData.setDownvoteStatus(dataObj.getBoolean("downvotestatus"));
             exploreData.setEligibleForDownvote(mCanDownvote);
+            exploreData.setLongForm(dataObj.getBoolean("long_form"));
             exploreData.setHatsOffCount(dataObj.getLong("hatsoffcount"));
             exploreData.setCommentCount(dataObj.getLong("commentcount"));
             exploreData.setContentImage(dataObj.getString("entityurl"));
