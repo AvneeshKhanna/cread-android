@@ -505,7 +505,7 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
                 CustomDialog.getGenericDialog(mContext, getString(R.string.text_got_it)
                         , getString(R.string.text_dialog_long_story_title)
                         , getString(R.string.text_dialog_long_story_content)
-                        , R.drawable.image_placeholder);
+                        , R.drawable.img_long_writing_intro_dialog);
                 //Update status
                 mHelper.updateLongStoryDialogStatus(false);
             }
