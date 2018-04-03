@@ -5,9 +5,8 @@ import android.os.Bundle;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.TextInputLayout;
 import android.support.v4.content.ContextCompat;
-import android.view.Menu;
+import android.support.v7.widget.AppCompatCheckBox;
 import android.view.MenuItem;
-import android.view.View;
 import android.view.WindowManager;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -42,7 +41,6 @@ import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.schedulers.Schedulers;
 
-
 import static com.thetestament.cread.utils.Constant.EXTRA_PRODUCT_CAPTUREUUID;
 import static com.thetestament.cread.utils.Constant.EXTRA_PRODUCT_COLOR;
 import static com.thetestament.cread.utils.Constant.EXTRA_PRODUCT_DELIVERY_CHARGE;
@@ -63,6 +61,8 @@ import static com.thetestament.cread.utils.Constant.EXTRA_SHIPPING_PHONE;
 import static com.thetestament.cread.utils.Constant.EXTRA_SHIPPING_PINCODE;
 import static com.thetestament.cread.utils.Constant.EXTRA_SHIPPING_STATE;
 import static com.thetestament.cread.utils.Constant.FIREBASE_EVENT_MAKE_PAYMENT_CLICKED;
+import static com.thetestament.cread.utils.Constant.PAYMENT_MODE_COD;
+import static com.thetestament.cread.utils.Constant.PAYMENT_MODE_PAY_PORTAL;
 import static com.thetestament.cread.utils.Constant.PAYMENT_STATUS_CONNECTION_TERMINATED;
 import static com.thetestament.cread.utils.Constant.PAYMENT_STATUS_INVALID_TOKEN;
 import static com.thetestament.cread.utils.Constant.PAYMENT_STATUS_SERVER_ERROR;
@@ -122,6 +122,8 @@ public class AddressActivity extends BaseActivity implements PaymentResultListen
     CoordinatorLayout rootView;
     @BindView(R.id.scrollView)
     ScrollView scrollView;
+    @BindView(R.id.checkboxPaymentMode)
+    AppCompatCheckBox checkBoxPaymentMode;
 
     public final String TAG = getClass().getSimpleName();
     private CompositeDisposable mCompositeDisposable = new CompositeDisposable();
@@ -296,16 +298,20 @@ public class AddressActivity extends BaseActivity implements PaymentResultListen
             //scrollView.smoothScrollTo(0, tiPincode.getBottom() - tiPincode.getHeight());
         } else {
             // check net status
-            if(NetworkHelper.getNetConnectionStatus(AddressActivity.this))
-            {
-                startPayment();
+            if (NetworkHelper.getNetConnectionStatus(AddressActivity.this)) {
+                // check payment mode
+                if (checkBoxPaymentMode.isChecked()) {
+                    // COD so update details on server
+                    updatePaymentStatus(null, PAYMENT_MODE_COD);
+                } else {   // Not COD so init razorpay
+                    startPayment();
+                }
+
                 //Log firebase event
                 Bundle bundle = new Bundle();
                 bundle.putString("uuid", mHelper.getUUID());
                 mAnalytics.logEvent(FIREBASE_EVENT_MAKE_PAYMENT_CLICKED, bundle);
-            }
-            else
-            {
+            } else {
                 ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_no_connection));
             }
         }
@@ -348,7 +354,7 @@ public class AddressActivity extends BaseActivity implements PaymentResultListen
         try {
             if (NetworkHelper.getNetConnectionStatus(AddressActivity.this)) {
 
-                updatePaymentStatus(paymentID);
+                updatePaymentStatus(paymentID, PAYMENT_MODE_PAY_PORTAL);
 
             } else
 
@@ -422,7 +428,7 @@ public class AddressActivity extends BaseActivity implements PaymentResultListen
      *
      * @param paymentid razorpay payment id
      */
-    private void updatePaymentStatus(String paymentid) {
+    private void updatePaymentStatus(String paymentid, String paymentMode) {
 
         final MaterialDialog dialog = new MaterialDialog.Builder(AddressActivity.this)
                 .title(getString(R.string.processing_title))
@@ -450,6 +456,7 @@ public class AddressActivity extends BaseActivity implements PaymentResultListen
             data.put("quantity", quantity);
             data.put("billing_name", shipName);
             data.put("billing_alt_contact", shipAltPhone);
+            data.put("payment_mode", paymentMode);
 
             JSONObject shipmentDetails = new JSONObject();
             shipmentDetails.put("ship_addr_1", shipAddr1);

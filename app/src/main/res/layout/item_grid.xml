@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content">
@@ -15,6 +16,28 @@
             android:layout_height="match_parent"
             android:scaleType="centerCrop"
             android:src="@drawable/image_placeholder" />
+
+
+        <FrameLayout
+            android:id="@+id/containerLongShortPreview"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentTop="true"
+            android:padding="5dp"
+            android:visibility="visible">
+
+
+            <android.support.v7.widget.AppCompatImageView
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:layout_alignParentRight="true"
+                android:background="@drawable/circle_transparent_bg"
+                android:padding="5dp"
+                app:srcCompat="@drawable/ic_longshort_preview" />
+
+
+        </FrameLayout>
 
     </com.thetestament.cread.widgets.SquareView>
 

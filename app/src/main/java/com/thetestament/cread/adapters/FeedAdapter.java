@@ -29,14 +29,11 @@ import com.thetestament.cread.activities.CollaborationDetailsActivity;
 import com.thetestament.cread.activities.CommentsActivity;
 import com.thetestament.cread.activities.HatsOffActivity;
 import com.thetestament.cread.activities.MerchandisingProductsActivity;
-import com.thetestament.cread.activities.ViewLongShortActivity;
 import com.thetestament.cread.helpers.DownvoteHelper;
 import com.thetestament.cread.helpers.FeedHelper;
-import com.thetestament.cread.helpers.LongShortHelper;
 import com.thetestament.cread.helpers.NetworkHelper;
 import com.thetestament.cread.helpers.SharedPreferenceHelper;
 import com.thetestament.cread.helpers.ViewHelper;
-import com.thetestament.cread.listeners.listener;
 import com.thetestament.cread.listeners.listener.OnDownvoteClickedListener;
 import com.thetestament.cread.listeners.listener.OnFeedLoadMoreListener;
 import com.thetestament.cread.listeners.listener.OnHatsOffListener;
@@ -44,7 +41,6 @@ import com.thetestament.cread.listeners.listener.OnShareDialogItemClickedListene
 import com.thetestament.cread.listeners.listener.OnShareLinkClickedListener;
 import com.thetestament.cread.listeners.listener.OnShareListener;
 import com.thetestament.cread.models.FeedModel;
-import com.thetestament.cread.models.ShortModel;
 
 import java.util.List;
 
@@ -58,6 +54,8 @@ import static com.thetestament.cread.helpers.FeedHelper.initSocialActionsCount;
 import static com.thetestament.cread.helpers.FeedHelper.initializeShareDialog;
 import static com.thetestament.cread.helpers.FeedHelper.updateDotSeperatorVisibility;
 import static com.thetestament.cread.helpers.FeedHelper.updateDownvoteAndSeperatorVisibility;
+import static com.thetestament.cread.helpers.LongShortHelper.checkLongFormStatus;
+import static com.thetestament.cread.helpers.LongShortHelper.initLongFormPreviewClick;
 import static com.thetestament.cread.utils.Constant.CONTENT_TYPE_CAPTURE;
 import static com.thetestament.cread.utils.Constant.CONTENT_TYPE_SHORT;
 import static com.thetestament.cread.utils.Constant.EXTRA_CAPTURE_URL;
@@ -65,7 +63,6 @@ import static com.thetestament.cread.utils.Constant.EXTRA_CAPTURE_UUID;
 import static com.thetestament.cread.utils.Constant.EXTRA_DATA;
 import static com.thetestament.cread.utils.Constant.EXTRA_ENTITY_ID;
 import static com.thetestament.cread.utils.Constant.EXTRA_ENTITY_TYPE;
-import static com.thetestament.cread.utils.Constant.EXTRA_SHORT_DATA;
 import static com.thetestament.cread.utils.Constant.EXTRA_SHORT_UUID;
 import static com.thetestament.cread.utils.Constant.FIREBASE_EVENT_CAPTURE_CLICKED;
 import static com.thetestament.cread.utils.Constant.FIREBASE_EVENT_HAVE_CLICKED;
@@ -215,9 +212,9 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             // downvote click
             downvoteOnClick(itemViewHolder.imageDownvote, data, position, itemViewHolder);
             //check long form status
-            checkLongFormStatus(itemViewHolder, data);
+            checkLongFormStatus(itemViewHolder.containerLongShortPreview, data);
             //long form on click
-            initLongFormPreviewClick(itemViewHolder.containerLongShortPreview, data);
+            initLongFormPreviewClick(itemViewHolder.containerLongShortPreview, data, mContext, mCompositeDisposable);
 
             // initialize hatsoff and comment count
             initSocialActionsCount(mContext,
@@ -562,53 +559,6 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                 Intent intent = new Intent(mContext, HatsOffActivity.class);
                 intent.putExtra(EXTRA_ENTITY_ID, data.getEntityID());
                 mContext.startActivity(intent);
-            }
-        });
-    }
-
-    /**
-     * Checks whether writing is long form
-     * and toggles the preview option visibility
-     *
-     * @param itemViewHolder
-     * @param data
-     */
-    private void checkLongFormStatus(ItemViewHolder itemViewHolder, FeedModel data) {
-        if (data.isLongForm()) {
-            itemViewHolder.containerLongShortPreview.setVisibility(View.VISIBLE);
-        } else {
-            itemViewHolder.containerLongShortPreview.setVisibility(View.GONE);
-        }
-    }
-
-    /**
-     * sets preview on click listener
-     *
-     * @param view
-     * @param data
-     */
-    private void initLongFormPreviewClick(View view, final FeedModel data) {
-        view.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                LongShortHelper longShortHelper = new LongShortHelper();
-                longShortHelper.getLongShortData(mContext, mCompositeDisposable, data.getEntityID(), new listener.OnLongShortDataRequestedListener() {
-                    @Override
-                    public void onLongShortDataSuccess(ShortModel shortModel) {
-                        // open activity and pass data
-                        Intent intent = new Intent(mContext, ViewLongShortActivity.class);
-                        intent.putExtra(EXTRA_SHORT_DATA, shortModel);
-                        mContext.startActivity(intent);
-
-                    }
-
-                    @Override
-                    public void onLongShortDataFailiure(String errorMsg) {
-
-                        ViewHelper.getToast(mContext, errorMsg);
-
-                    }
-                });
             }
         });
     }

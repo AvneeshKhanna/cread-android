@@ -15,6 +15,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.AnimationUtils;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -54,6 +55,8 @@ import static com.thetestament.cread.CreadApp.IMAGE_LOAD_FROM_NETWORK_ME;
 import static com.thetestament.cread.helpers.ContentHelper.getMenuActionsBottomSheet;
 import static com.thetestament.cread.helpers.FeedHelper.initializeShareDialog;
 import static com.thetestament.cread.helpers.FeedHelper.setGridItemMargins;
+import static com.thetestament.cread.helpers.LongShortHelper.checkLongFormStatus;
+import static com.thetestament.cread.helpers.LongShortHelper.initLongFormPreviewClick;
 import static com.thetestament.cread.utils.Constant.EXTRA_DATA;
 import static com.thetestament.cread.utils.Constant.EXTRA_ENTITY_ID;
 import static com.thetestament.cread.utils.Constant.EXTRA_ENTITY_TYPE;
@@ -191,6 +194,10 @@ public class MeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             loadContentImage(data.getContentImage(), itemViewHolder.imageMe);
             //item click functionality
             itemViewOnClick(itemViewHolder.itemView, data, position, true);
+            //check long form status
+            checkLongFormStatus(itemViewHolder.containerLongShortPreview, data);
+            //long form on click
+            initLongFormPreviewClick(itemViewHolder.containerLongShortPreview, data, mContext, mCompositeDisposable);
         } else if (holder.getItemViewType() == VIEW_TYPE_LOADING) {
             LoadingViewHolder loadingViewHolder = (LoadingViewHolder) holder;
             loadingViewHolder.progressView.setVisibility(View.VISIBLE);
@@ -529,6 +536,12 @@ public class MeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         shareOnClick(itemViewHolder.containerShare, data.getContentImage(), data.getEntityID(), data.getCreatorName(), data);
         //Collaboration count click functionality
         collaborationCountOnClick(itemViewHolder.collabCount, data.getEntityID(), data.getContentType());
+        //check long form status
+        checkLongFormStatus(itemViewHolder.containerLongShortPreview, data);
+        //long form on click
+        initLongFormPreviewClick(itemViewHolder.containerLongShortPreview, data, mContext, mCompositeDisposable);
+
+
     }
 
     /**
@@ -614,6 +627,8 @@ public class MeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         TextView collabCount;
         @BindView(R.id.lineSeparatorTop)
         View lineSepartor;
+        @BindView(R.id.containerLongShortPreview)
+        FrameLayout containerLongShortPreview;
 
         //Variable to maintain hats off status
         private boolean mIsHatsOff = false;
@@ -631,6 +646,8 @@ public class MeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
         @BindView(R.id.imageGrid)
         ImageView imageMe;
+        @BindView(R.id.containerLongShortPreview)
+        FrameLayout containerLongShortPreview;
 
         public GridItemViewHolder(View itemView) {
             super(itemView);

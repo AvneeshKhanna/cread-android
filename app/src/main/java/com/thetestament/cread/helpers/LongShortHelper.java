@@ -1,12 +1,16 @@
 package com.thetestament.cread.helpers;
 
+import android.content.Intent;
 import android.support.v4.app.FragmentActivity;
+import android.view.View;
 
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.google.firebase.crash.FirebaseCrash;
 import com.thetestament.cread.BuildConfig;
 import com.thetestament.cread.R;
+import com.thetestament.cread.activities.ViewLongShortActivity;
 import com.thetestament.cread.listeners.listener;
+import com.thetestament.cread.models.FeedModel;
 import com.thetestament.cread.models.ShortModel;
 
 import org.json.JSONException;
@@ -16,6 +20,7 @@ import io.reactivex.disposables.CompositeDisposable;
 
 import static com.thetestament.cread.CreadApp.GET_RESPONSE_FROM_NETWORK_VIEW_LONG_SHORT;
 import static com.thetestament.cread.helpers.NetworkHelper.requestServer;
+import static com.thetestament.cread.utils.Constant.EXTRA_SHORT_DATA;
 
 /**
  * Created by prakharchandna on 29/03/18.
@@ -112,5 +117,53 @@ public class LongShortHelper {
                         GET_RESPONSE_FROM_NETWORK_VIEW_LONG_SHORT = false;
                     }
                 });
+    }
+
+
+    /**
+     * Checks whether writing is long form
+     * and toggles the preview option visibility
+     *
+     * @param containerLongShortPreview
+     * @param data
+     */
+    public static void checkLongFormStatus(View containerLongShortPreview, FeedModel data) {
+        if (data.isLongForm()) {
+            containerLongShortPreview.setVisibility(View.VISIBLE);
+        } else {
+            containerLongShortPreview.setVisibility(View.GONE);
+        }
+    }
+
+    /**
+     * sets preview on click listener
+     *
+     * @param view
+     * @param data
+     */
+    public static void initLongFormPreviewClick(View view, final FeedModel data, final FragmentActivity context, final CompositeDisposable compositeDisposable) {
+        view.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                LongShortHelper longShortHelper = new LongShortHelper();
+                longShortHelper.getLongShortData(context, compositeDisposable, data.getEntityID(), new listener.OnLongShortDataRequestedListener() {
+                    @Override
+                    public void onLongShortDataSuccess(ShortModel shortModel) {
+                        // open activity and pass data
+                        Intent intent = new Intent(context, ViewLongShortActivity.class);
+                        intent.putExtra(EXTRA_SHORT_DATA, shortModel);
+                        context.startActivity(intent);
+
+                    }
+
+                    @Override
+                    public void onLongShortDataFailiure(String errorMsg) {
+
+                        ViewHelper.getToast(context, errorMsg);
+
+                    }
+                });
+            }
+        });
     }
 }

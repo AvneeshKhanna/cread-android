@@ -131,6 +131,9 @@ public class Constant {
     public static final String EXTRA_MIN_CASH_AMT = "minCashInData";
     public static final String EXTRA_CASH_IN_AMOUNT = "cashInAmount";
 
+    public static final String PAYMENT_MODE_PAY_PORTAL = "PAY_PORTAL";
+    public static final String PAYMENT_MODE_COD = "CASH_ON_DELIVERY";
+
     public static final String EXTRA_FROM_UPDATES_COMMENT_MENTION = "fromUpdatesCommentMention";
 
     public static final String PAYMENT_STATUS_SUCCESS = "paymentSuccess";

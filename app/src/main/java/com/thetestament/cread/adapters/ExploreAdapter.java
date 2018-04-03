@@ -13,6 +13,7 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -43,6 +44,8 @@ import de.hdodenhof.circleimageview.CircleImageView;
 import io.reactivex.disposables.CompositeDisposable;
 
 import static com.thetestament.cread.helpers.FeedHelper.setGridItemMargins;
+import static com.thetestament.cread.helpers.LongShortHelper.checkLongFormStatus;
+import static com.thetestament.cread.helpers.LongShortHelper.initLongFormPreviewClick;
 import static com.thetestament.cread.utils.Constant.EXTRA_DATA;
 import static com.thetestament.cread.utils.Constant.EXTRA_ENTITY_ID;
 import static com.thetestament.cread.utils.Constant.EXTRA_ENTITY_TYPE;
@@ -173,25 +176,6 @@ public class ExploreAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
             // no need for creator options in explore
             final boolean shouldShowCreatorOptions = false;
 
-            // init content options menu
-            /*if(!data.isEligibleForDownvote() && !shouldShowCreatorOptions)
-            {
-                itemViewHolder.buttonMenu.setVisibility(View.GONE);
-            }
-
-            else
-            {
-                itemViewHolder.buttonMenu.setVisibility(View.VISIBLE);
-                //open bottom sheet on clicking of 3 dots
-                itemViewHolder.buttonMenu.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        getMenuActionsBottomSheet(mContext, position, data, null, shouldShowCreatorOptions, mCompositeDisposable, new Bundle(), new Intent());
-                    }
-                });
-            }*/
-
-
             //Check follow status
             checkFollowStatus(data, itemViewHolder);
 
@@ -206,6 +190,12 @@ public class ExploreAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
             //Collaboration count click functionality
             collaborationCountOnClick(itemViewHolder.collabCount, data.getEntityID(), data.getContentType());
 
+            //check long form status
+            checkLongFormStatus(itemViewHolder.containerLongShortPreview, data);
+            //long form on click
+            initLongFormPreviewClick(itemViewHolder.containerLongShortPreview, data, mContext, mCompositeDisposable);
+
+
         } else if (holder.getItemViewType() == VIEW_TYPE_ITEM_GRID) {
             final GridItemViewHolder itemViewHolder = (GridItemViewHolder) holder;
             //Load explore feed image
@@ -216,6 +206,12 @@ public class ExploreAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
             loadFeedImage(data.getContentImage(), itemViewHolder.imageExplore);
 
             itemViewOnClick(itemViewHolder.itemView, data, position, true);
+
+            //check long form status
+            checkLongFormStatus(itemViewHolder.containerLongShortPreview, data);
+            //long form on click
+            initLongFormPreviewClick(itemViewHolder.containerLongShortPreview, data, mContext, mCompositeDisposable);
+
         } else if (holder.getItemViewType() == VIEW_TYPE_LOADING) {
             LoadingViewHolder loadingViewHolder = (LoadingViewHolder) holder;
             loadingViewHolder.progressView.setVisibility(View.VISIBLE);
@@ -542,6 +538,8 @@ public class ExploreAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
         TextView buttonCollaborate;
         @BindView(R.id.collabCount)
         TextView collabCount;
+        @BindView(R.id.containerLongShortPreview)
+        FrameLayout containerLongShortPreview;
 
         public ListItemViewHolder(View itemView) {
             super(itemView);
@@ -554,6 +552,8 @@ public class ExploreAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
 
         @BindView(R.id.imageGrid)
         ImageView imageExplore;
+        @BindView(R.id.containerLongShortPreview)
+        FrameLayout containerLongShortPreview;
 
         public GridItemViewHolder(View itemView) {
             super(itemView);

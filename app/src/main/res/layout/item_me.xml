@@ -83,9 +83,9 @@
                     android:id="@+id/buttonMenu"
                     android:layout_width="18dp"
                     android:layout_height="18dp"
-                    app:srcCompat="@drawable/ic_content_options"
                     android:textAppearance="?android:textAppearanceLarge"
-                    android:visibility="visible" />
+                    android:visibility="visible"
+                    app:srcCompat="@drawable/ic_content_options" />
 
 
             </LinearLayout>
@@ -93,27 +93,54 @@
 
         </RelativeLayout>
 
-
-        <com.thetestament.cread.widgets.SquareView
-            android:id="@+id/imageContainer"
-            android:layout_width="wrap_content"
+        <RelativeLayout
+            android:id="@+id/containerImage"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_below="@+id/containerCreator">
 
-            <ImageView
-                android:id="@+id/imageContent"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:scaleType="centerCrop" />
-        </com.thetestament.cread.widgets.SquareView>
+            <com.thetestament.cread.widgets.SquareView
+                android:id="@+id/imageContainer"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content">
 
+                <ImageView
+                    android:id="@+id/imageContent"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:scaleType="centerCrop" />
+            </com.thetestament.cread.widgets.SquareView>
+
+
+            <FrameLayout
+                android:id="@+id/containerLongShortPreview"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentRight="true"
+                android:layout_alignParentTop="true"
+                android:padding="5dp"
+                android:visibility="visible">
+
+
+                <android.support.v7.widget.AppCompatImageView
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:layout_alignParentRight="true"
+                    android:background="@drawable/circle_transparent_bg"
+                    android:padding="5dp"
+                    app:srcCompat="@drawable/ic_longshort_preview" />
+
+
+            </FrameLayout>
+
+        </RelativeLayout>
 
         <TextView
             android:id="@+id/collabCount"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentRight="true"
-            android:layout_below="@id/imageContainer"
+            android:layout_below="@id/containerImage"
             android:layout_centerVertical="true"
             android:layout_marginRight="16dp"
             android:layout_marginTop="8dp"

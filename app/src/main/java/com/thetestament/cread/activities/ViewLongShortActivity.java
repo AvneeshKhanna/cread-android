@@ -62,6 +62,7 @@ public class ViewLongShortActivity extends BaseActivity {
         }
     }
 
+
     /*Method to initialize this screen*/
     private void initView() {
 
