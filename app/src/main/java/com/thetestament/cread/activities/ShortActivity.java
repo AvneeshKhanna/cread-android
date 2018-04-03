@@ -867,6 +867,8 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
         btnTemplate.setCompoundDrawablesWithIntrinsicBounds(0, R.drawable.ic_format_style_32, 0, 0);
         dotBold.setCompoundDrawablesWithIntrinsicBounds(0, R.drawable.ic_format_bold_32, 0, 0);
         dotItalic.setCompoundDrawablesWithIntrinsicBounds(0, R.drawable.ic_format_italic_32, 0, 0);
+        //set next icon
+        btnNext.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_forward_24, 0, 0, 0);
     }
 
     /**

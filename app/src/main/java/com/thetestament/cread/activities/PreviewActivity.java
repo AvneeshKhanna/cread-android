@@ -429,7 +429,7 @@ public class PreviewActivity extends BaseActivity implements QueryTokenReceiver,
             shortModel.setImageURL(mBundle.getString(PREVIEW_EXTRA_IMAGE_URL));
         }
         // set params
-        shortModel.setContentText(/*mBundle.getString(PREVIEW_EXTRA_TEXT) + "\n" +*/ mBundle.getString(PREVIEW_EXTRA_LONG_TEXT));
+        shortModel.setContentText(mBundle.getString(PREVIEW_EXTRA_LONG_TEXT));
         shortModel.setBold(convertStringToBool(mBundle.getString(PREVIEW_EXTRA_BOLD)));
         shortModel.setItalic(convertStringToBool(mBundle.getString(PREVIEW_EXTRA_ITALIC)));
         shortModel.setBgcolor(mBundle.getString(PREVIEW_EXTRA_BG_COLOR));

@@ -64,7 +64,7 @@
                 android:layout_height="wrap_content"
                 android:layout_alignParentRight="true"
                 android:layout_centerVertical="true"
-                android:drawableLeft="@drawable/ic_forward_24"
+                android:drawableLeft="@drawable/ic_close_24"
                 android:paddingBottom="8dp"
                 android:paddingLeft="8dp"
                 android:paddingRight="16dp"
