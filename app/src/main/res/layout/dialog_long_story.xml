@@ -82,7 +82,7 @@
             android:layout_toLeftOf="@+id/btnInfoStory"
             android:background="@null"
             android:gravity="left|center"
-            android:hint="Rest of the writing can go here"
+            android:hint="Write the full version here"
             android:inputType="textMultiLine|textCapSentences"
             android:scrollbars="vertical"
             android:textColor="@color/white"
