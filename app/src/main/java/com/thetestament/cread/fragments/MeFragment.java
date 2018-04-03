@@ -1473,8 +1473,15 @@ public class MeFragment extends Fragment implements listener.OnCollaborationList
                         else if (connectionError[0]) {
                             ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_internal));
                         } else if (mCollabList.size() == 0) {
-                            //Show no data view
-                            viewNoData.setVisibility(View.VISIBLE);
+                            if (isProfileEditable) {
+                                //Show no data view
+                                viewNoData.setVisibility(View.VISIBLE);
+                            } else {
+                                //Show snack bar
+                                viewNoData.setVisibility(View.GONE);
+                                ViewHelper.getSnackBar(rootView, "No collaboration yet");
+                            }
+
                         } else {
                             // Token status invalid
                             if (tokenError[0]) {
