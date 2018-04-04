@@ -394,4 +394,12 @@ public class listener {
          **/
         void onTemplateClick(String templateName, int itemPosition);
     }
+
+
+    /**
+     * Interface definition for a callback to be invoked when user scroll for more data.
+     */
+    public interface OnRecommendedArtistsLoadMoreListener {
+        void onLoadMore();
+    }
 }

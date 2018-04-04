@@ -458,7 +458,7 @@
                 android:resource="@xml/syncadapter" />
         </service>
 
-        <!-- Chat details screen Screen -->
+        <!-- Chat details screen-->
         <activity
             android:name=".activities.ChatDetailsActivity"
             android:screenOrientation="portrait"
@@ -470,7 +470,7 @@
                 android:value=".activities.ChatListActivity" />
         </activity>
 
-        <!-- Chat details screen Screen -->
+        <!-- Chat details screen-->
         <activity
             android:name=".activities.ChatRequestActivity"
             android:label="Requests"
@@ -482,12 +482,13 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".activities.ChatListActivity" />
         </activity>
-        <!--
+
+        <!--RecommendedArtists screen-->
         <activity
-            android:name=".activities.DemoActivity"
-            android:theme="@android:style/Theme.Translucent.NoTitleBar" >
-        </activity>
-        -->
+            android:name=".activities.RecommendedArtistsActivity"
+            android:label="@string/title_text_recommended_artists_activity"
+            android:screenOrientation="portrait" />
+
 
         <activity android:name=".activities.ViewLongShortActivity"></activity>
     </application>

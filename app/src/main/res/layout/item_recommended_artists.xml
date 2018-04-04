@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.v7.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginBottom="8dp"
+    android:background="@color/white"
+    app:cardCornerRadius="0dp"
+    app:cardElevation="4dp"
+    app:cardPreventCornerOverlap="false"
+    app:cardUseCompatPadding="false"
+    app:contentPadding="16dp">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <!--Artist image-->
+        <de.hdodenhof.circleimageview.CircleImageView
+            android:id="@+id/imageArtist"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            tools:src="@tools:sample/avatars" />
+
+        <!--Artist name-->
+        <android.support.v7.widget.AppCompatTextView
+            android:id="@+id/textArtistName"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_toLeftOf="@+id/buttonFollow"
+            android:layout_toRightOf="@+id/imageArtist"
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:paddingLeft="8dp"
+            android:textColor="@color/black_defined"
+            android:textSize="16sp"
+            tools:text="@tools:sample/full_names" />
+
+        <!--Artist post count-->
+        <android.support.v7.widget.AppCompatTextView
+            android:id="@+id/textPostCount"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/textArtistName"
+            android:layout_toRightOf="@+id/imageArtist"
+            android:paddingLeft="8dp"
+            android:textSize="12sp"
+            tools:text="36 posts" />
+
+        <!--Follow button-->
+        <android.support.v7.widget.AppCompatTextView
+            android:id="@+id/buttonFollow"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:padding="8dp"
+            android:text="Follow"
+            android:textColor="@color/colorPrimary"
+            android:textSize="16sp" />
+
+        <!--Artist bio and image container -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/imageArtist"
+            android:orientation="vertical">
+
+            <!--Artist bio-->
+            <android.support.v7.widget.AppCompatTextView
+                android:id="@+id/textArtistBio"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:maxLines="1"
+                android:paddingTop="8dp"
+                android:textColor="@color/color_grey_600"
+                android:textSize="12sp"
+                tools:text="@tools:sample/lorem/random" />
+
+            <!--Image container-->
+            <LinearLayout
+                android:id="@+id/artistContentContainer"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/textArtistBio"
+                android:layout_marginTop="8dp"
+                android:orientation="horizontal"
+                android:weightSum="4">
+
+                <com.thetestament.cread.widgets.SquareImageView
+                    android:id="@+id/imageArtFirst"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_marginRight="8dp"
+                    android:layout_weight="1"
+                    android:scaleType="fitXY"
+                    tools:src="@tools:sample/backgrounds/scenic" />
+
+                <com.thetestament.cread.widgets.SquareImageView
+                    android:id="@+id/imageArtTwo"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_marginRight="8dp"
+                    android:layout_weight="1"
+                    android:scaleType="fitXY"
+                    tools:src="@tools:sample/backgrounds/scenic" />
+
+                <com.thetestament.cread.widgets.SquareImageView
+                    android:id="@+id/imageArtThree"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_marginRight="8dp"
+                    android:layout_weight="1"
+                    android:scaleType="fitXY"
+                    tools:src="@tools:sample/backgrounds/scenic" />
+
+                <com.thetestament.cread.widgets.SquareImageView
+                    android:id="@+id/imageArtFour"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_marginRight="8dp"
+                    android:layout_weight="1"
+                    android:scaleType="fitXY"
+                    tools:src="@tools:sample/backgrounds/scenic" />
+
+            </LinearLayout>
+        </LinearLayout>
+
+
+    </RelativeLayout>
+</android.support.v7.widget.CardView>
