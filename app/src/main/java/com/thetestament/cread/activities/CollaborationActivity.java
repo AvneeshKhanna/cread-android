@@ -1141,7 +1141,13 @@ public class CollaborationActivity extends BaseActivity {
                                 JSONObject responseObject = jsonObject.getJSONObject("data");
 
                                 //retrieve long text
-                                longStoryText = responseObject.getString("text_long");
+                                if (!TextUtils.isEmpty(responseObject.getString("text_long"))
+                                        && !responseObject.getString("text_long").equals("null")) {
+
+                                    longStoryText = responseObject.getString("text_long");
+
+                                }
+
 
                                 //Retrieve data from server response
                                 mShortID = responseObject.getString("shoid");
@@ -1394,7 +1400,7 @@ public class CollaborationActivity extends BaseActivity {
         bundle.putString(PREVIEW_EXTRA_CALLED_FROM, calledFrom);
         bundle.putString(PREVIEW_EXTRA_TEMPLATE_NAME, templateName);
         bundle.putString(PREVIEW_EXTRA_IS_SHADOW_SELECTED, isShadowSelected);
-        bundle.putString(PREVIEW_EXTRA_LONG_TEXT, longText);
+        bundle.putString(PREVIEW_EXTRA_LONG_TEXT, longText.trim());
 
         intent.putExtra(PREVIEW_EXTRA_DATA, bundle);
         startActivityForResult(intent, REQUEST_CODE_PREVIEW_ACTIVITY);
