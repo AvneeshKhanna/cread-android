@@ -113,7 +113,7 @@ public class listener {
     public interface OnFollowRequestedListener {
         void onFollowSuccess();
 
-        void onFollowFailiure(String errorMsg);
+        void onFollowFailure(String errorMsg);
     }
 
     /**

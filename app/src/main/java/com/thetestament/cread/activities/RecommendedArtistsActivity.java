@@ -311,7 +311,7 @@ public class RecommendedArtistsActivity extends BaseActivity {
                                 }
 
                                 @Override
-                                public void onFollowFailiure(String errorMsg) {
+                                public void onFollowFailure(String errorMsg) {
                                     //Show error message
                                     ViewHelper.getSnackBar(rootView, errorMsg);
                                 }

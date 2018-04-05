@@ -1139,7 +1139,7 @@ public class FeedDescriptionActivity extends BaseActivity implements listener.On
                     }
 
                     @Override
-                    public void onFollowFailiure(String errorMsg) {
+                    public void onFollowFailure(String errorMsg) {
                         //Toggle status
                         mFeedData.setFollowStatus(!mFeedData.getFollowStatus());
                         //Toggle follow button

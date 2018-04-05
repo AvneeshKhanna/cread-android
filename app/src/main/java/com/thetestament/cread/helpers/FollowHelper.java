@@ -23,14 +23,23 @@ import static com.thetestament.cread.CreadApp.GET_RESPONSE_FROM_NETWORK_RECOMMEN
 import static com.thetestament.cread.helpers.NetworkHelper.requestServer;
 import static com.thetestament.cread.helpers.NetworkHelper.updateFollowStatusObservable;
 
+/**
+ * Class to provide utility method for follow related operations.
+ */
 public class FollowHelper {
 
-    public void updateFollowStatus(final FragmentActivity context,
-                                   CompositeDisposable compositeDisposable,
-                                   boolean register,
-                                   JSONArray followees,
-                                   final OnFollowRequestedListener onFollowRequestedListener
-    ) {
+    /**
+     * Method to update follow status.
+     *
+     * @param context                   Context to use.
+     * @param compositeDisposable       CompositeDisposable reference.
+     * @param register                  Whether user want to follow or un-follow, true for follow false otherwise.
+     * @param followees                 List of user to be followed.
+     * @param onFollowRequestedListener OnFollowRequestedListener reference
+     */
+    public void updateFollowStatus(final FragmentActivity context, CompositeDisposable compositeDisposable,
+                                   boolean register, JSONArray followees,
+                                   final OnFollowRequestedListener onFollowRequestedListener) {
 
         SharedPreferenceHelper spHelper = new SharedPreferenceHelper(context);
 
@@ -43,9 +52,8 @@ public class FollowHelper {
                 , new listener.OnServerRequestedListener<JSONObject>() {
                     @Override
                     public void onDeviceOffline() {
-
                         onFollowRequestedListener
-                                .onFollowFailiure(context
+                                .onFollowFailure(context
                                         .getString(R.string.error_msg_no_connection));
                     }
 
@@ -56,13 +64,12 @@ public class FollowHelper {
                             //Token status is not valid
                             if (jsonObject.getString("tokenstatus").equals("invalid")) {
                                 //Set listener
-                                onFollowRequestedListener.onFollowFailiure((context.getString(R.string.error_msg_invalid_token)));
+                                onFollowRequestedListener.onFollowFailure((context.getString(R.string.error_msg_invalid_token)));
                             }
                             //Token is valid
                             else {
                                 JSONObject mainData = jsonObject.getJSONObject("data");
                                 if (mainData.getString("status").equals("done")) {
-
                                     // set feeds data to be loaded from network
                                     // instead of cached data
                                     GET_RESPONSE_FROM_NETWORK_MAIN = true;
@@ -80,25 +87,21 @@ public class FollowHelper {
                             e.printStackTrace();
                             FirebaseCrash.report(e);
                             //Set listener
-                            onFollowRequestedListener.onFollowFailiure((context.getString(R.string.error_msg_internal)));
+                            onFollowRequestedListener.onFollowFailure((context.getString(R.string.error_msg_internal)));
                         }
                     }
 
                     @Override
                     public void onErrorCalled(Throwable e) {
-
                         e.printStackTrace();
                         FirebaseCrash.report(e);
                         //Set listener
-                        onFollowRequestedListener.onFollowFailiure((context.getString(R.string.error_msg_server)));
-
+                        onFollowRequestedListener.onFollowFailure((context.getString(R.string.error_msg_server)));
                     }
 
                     @Override
                     public void onCompleteCalled() {
-
                         //Do nothing
-
                     }
                 });
     }

@@ -709,7 +709,7 @@ public class ChatDetailsActivity extends BaseActivity {
                     }
 
                     @Override
-                    public void onFollowFailiure(String errorMsg) {
+                    public void onFollowFailure(String errorMsg) {
                         //Hide progress view
                         dialog.dismiss();
                         //Enable follow button

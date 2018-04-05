@@ -1174,7 +1174,7 @@ public class MeFragment extends Fragment implements listener.OnCollaborationList
                     }
 
                     @Override
-                    public void onFollowFailiure(String errorMsg) {
+                    public void onFollowFailure(String errorMsg) {
 
                         buttonFollow.setEnabled(true);
                         //set status to true if its false and vice versa

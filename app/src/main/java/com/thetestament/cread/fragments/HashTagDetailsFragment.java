@@ -362,7 +362,7 @@ public class HashTagDetailsFragment extends Fragment implements listener.OnColla
                     }
 
                     @Override
-                    public void onFollowFailiure(String errorMsg) {
+                    public void onFollowFailure(String errorMsg) {
 
                         //set status to true if its false and vice versa
                         exploreData.setFollowStatus(!exploreData.getFollowStatus());
