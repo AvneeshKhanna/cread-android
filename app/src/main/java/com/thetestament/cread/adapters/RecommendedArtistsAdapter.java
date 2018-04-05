@@ -40,6 +40,7 @@ public class RecommendedArtistsAdapter extends RecyclerView.Adapter<RecyclerView
     private boolean mIsLoading;
 
     private listener.OnRecommendedArtistsLoadMoreListener loadMoreListener;
+    private listener.OnFollowClickListener onFollowClickListener;
 
     /**
      * Required constructor.
@@ -57,6 +58,13 @@ public class RecommendedArtistsAdapter extends RecyclerView.Adapter<RecyclerView
      */
     public void setOnRecommendedArtistsLoadMoreListener(listener.OnRecommendedArtistsLoadMoreListener onRecommendedArtistsLoadMoreListener) {
         this.loadMoreListener = onRecommendedArtistsLoadMoreListener;
+    }
+
+    /**
+     * Register a callback to be invoked when user clicks on follow button.
+     */
+    public void setOnFollowClickListener(listener.OnFollowClickListener onFollowClickListener) {
+        this.onFollowClickListener = onFollowClickListener;
     }
 
     @Override
@@ -96,7 +104,7 @@ public class RecommendedArtistsAdapter extends RecyclerView.Adapter<RecyclerView
                     , data.getArtistProfilePic(), R.drawable.ic_account_circle_100);
             //Method called
             setArtistContentImage(data, itemViewHolder.imageContainer);
-            followOnClick(itemViewHolder.buttonFollow);
+            followOnClick(itemViewHolder.buttonFollow, data.getArtistUUID(), position);
             itemViewOnClick(itemViewHolder.itemView, data.getArtistUUID());
 
         } else if (holder.getItemViewType() == VIEW_TYPE_LOADING) {
@@ -240,12 +248,14 @@ public class RecommendedArtistsAdapter extends RecyclerView.Adapter<RecyclerView
      * Follow button click functionality.
      *
      * @param buttonFollow View to be clicked
+     * @param artistUUID   UUID of artists.
+     * @param itemPosition Position of item in the dataList.
      */
-    private void followOnClick(AppCompatTextView buttonFollow) {
+    private void followOnClick(final AppCompatTextView buttonFollow, final String artistUUID, final int itemPosition) {
         buttonFollow.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                //fixme click functionality
+                onFollowClickListener.onFollowClick(artistUUID, itemPosition);
             }
         });
     }
@@ -265,6 +275,13 @@ public class RecommendedArtistsAdapter extends RecyclerView.Adapter<RecyclerView
                 mContext.startActivity(intent);
             }
         });
+    }
+
+    /**
+     * Method is toggle the loading status
+     */
+    public void setLoaded() {
+        mIsLoading = false;
     }
 
 }

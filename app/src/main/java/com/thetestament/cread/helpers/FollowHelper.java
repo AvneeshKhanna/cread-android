@@ -19,6 +19,7 @@ import static com.thetestament.cread.CreadApp.GET_RESPONSE_FROM_NETWORK_FIND_FRI
 import static com.thetestament.cread.CreadApp.GET_RESPONSE_FROM_NETWORK_FOLLOWING;
 import static com.thetestament.cread.CreadApp.GET_RESPONSE_FROM_NETWORK_MAIN;
 import static com.thetestament.cread.CreadApp.GET_RESPONSE_FROM_NETWORK_ME;
+import static com.thetestament.cread.CreadApp.GET_RESPONSE_FROM_NETWORK_RECOMMENDED_ARTISTS;
 import static com.thetestament.cread.helpers.NetworkHelper.requestServer;
 import static com.thetestament.cread.helpers.NetworkHelper.updateFollowStatusObservable;
 
@@ -70,6 +71,7 @@ public class FollowHelper {
                                     GET_RESPONSE_FROM_NETWORK_FIND_FRIENDS = true;
                                     GET_RESPONSE_FROM_NETWORK_FOLLOWING = true;
                                     GET_RESPONSE_FROM_NETWORK_ENTITY_SPECIFIC = true;
+                                    GET_RESPONSE_FROM_NETWORK_RECOMMENDED_ARTISTS = true;
                                     //Set listener
                                     onFollowRequestedListener.onFollowSuccess();
                                 }

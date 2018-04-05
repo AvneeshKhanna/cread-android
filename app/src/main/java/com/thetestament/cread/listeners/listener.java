@@ -339,7 +339,7 @@ public class listener {
      * Interface definition for a callback to be invoked when user selects image from inspiration list.
      */
     public interface OnInspirationSelectListener {
-        void onInspireImageSelected(InspirationModel model , int itemPosition);
+        void onInspireImageSelected(InspirationModel model, int itemPosition);
     }
 
     /**
@@ -401,5 +401,16 @@ public class listener {
      */
     public interface OnRecommendedArtistsLoadMoreListener {
         void onLoadMore();
+    }
+
+    /**
+     * Interface definition for a callback to be invoked when user clicks on follow button from  RecommendedArtists screen.
+     */
+    public interface OnFollowClickListener {
+        /**
+         * @param artistUUId   UUID of artist to be followed.
+         * @param itemPosition Position of item in list.
+         **/
+        void onFollowClick(String artistUUId, int itemPosition);
     }
 }

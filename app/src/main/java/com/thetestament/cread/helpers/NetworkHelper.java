@@ -31,6 +31,7 @@ import static com.thetestament.cread.CreadApp.GET_RESPONSE_FROM_NETWORK_COMMENTS
 import static com.thetestament.cread.CreadApp.GET_RESPONSE_FROM_NETWORK_ENTITY_SPECIFIC;
 import static com.thetestament.cread.CreadApp.GET_RESPONSE_FROM_NETWORK_HATSOFF;
 import static com.thetestament.cread.CreadApp.GET_RESPONSE_FROM_NETWORK_ME;
+import static com.thetestament.cread.CreadApp.GET_RESPONSE_FROM_NETWORK_RECOMMENDED_ARTISTS;
 import static com.thetestament.cread.CreadApp.GET_RESPONSE_FROM_NETWORK_UPDATES;
 
 /**
@@ -616,9 +617,9 @@ public class NetworkHelper {
     /**
      * Method to return requested data from the server.
      *
-     * @param serverURL     URL of the server
-     * @param uuid          UUID of the user.
-     * @param authKey       Authentication key of the user
+     * @param serverURL URL of the server
+     * @param uuid      UUID of the user.
+     * @param authKey   Authentication key of the user
      */
     public static Observable<JSONObject> getFeatArtistsObservable(String serverURL, String uuid, String authKey, boolean getResponseFromNetwork) {
 
@@ -669,6 +670,38 @@ public class NetworkHelper {
                 .getJSONObjectObservable();
     }
 
+
+    /**
+     * Method to return recommended artists data from the server.
+     *
+     * @param serverURL    URL of the server.
+     * @param uuid         UUID of the user.
+     * @param authKey      AuthKey of user.
+     * @param lastIndexKey Last index key.
+     */
+    public static Observable<JSONObject> getRecommendedArtistObservableFromServer(String serverURL, String uuid, String authKey, String lastIndexKey) {
+
+
+        Map<String, String> headers = new HashMap<>();
+        headers.put("uuid", uuid);
+        headers.put("authkey", authKey);
+
+        Map<String, String> queryParams = new HashMap<>();
+        queryParams.put("lastindexkey", lastIndexKey);
+
+        Rx2ANRequest.GetRequestBuilder requestBuilder = Rx2AndroidNetworking.get(serverURL)
+                .addHeaders(headers)
+                .addQueryParameter(queryParams);
+
+
+        if (GET_RESPONSE_FROM_NETWORK_RECOMMENDED_ARTISTS) {
+            requestBuilder.getResponseOnlyFromNetwork();
+        }
+
+        return requestBuilder
+                .build()
+                .getJSONObjectObservable();
+    }
 
 
 }
