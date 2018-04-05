@@ -9,6 +9,8 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.widget.TextViewCompat;
+import android.support.v7.widget.AppCompatTextView;
+import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -29,11 +31,14 @@ import com.thetestament.cread.activities.CollaborationDetailsActivity;
 import com.thetestament.cread.activities.CommentsActivity;
 import com.thetestament.cread.activities.HatsOffActivity;
 import com.thetestament.cread.activities.MerchandisingProductsActivity;
+import com.thetestament.cread.activities.RecommendedArtistsActivity;
 import com.thetestament.cread.helpers.DownvoteHelper;
 import com.thetestament.cread.helpers.FeedHelper;
 import com.thetestament.cread.helpers.NetworkHelper;
 import com.thetestament.cread.helpers.SharedPreferenceHelper;
+import com.thetestament.cread.helpers.SuggestionHelper;
 import com.thetestament.cread.helpers.ViewHelper;
+import com.thetestament.cread.listeners.listener;
 import com.thetestament.cread.listeners.listener.OnDownvoteClickedListener;
 import com.thetestament.cread.listeners.listener.OnFeedLoadMoreListener;
 import com.thetestament.cread.listeners.listener.OnHatsOffListener;
@@ -41,6 +46,7 @@ import com.thetestament.cread.listeners.listener.OnShareDialogItemClickedListene
 import com.thetestament.cread.listeners.listener.OnShareLinkClickedListener;
 import com.thetestament.cread.listeners.listener.OnShareListener;
 import com.thetestament.cread.models.FeedModel;
+import com.thetestament.cread.models.SuggestedArtistsModel;
 
 import java.util.List;
 
@@ -76,6 +82,7 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
     private final int VIEW_TYPE_ITEM = 0;
     private final int VIEW_TYPE_LOADING = 1;
+    private final int VIEW_TYPE_RECOMMENDED_ARTIST = 2;
     private List<FeedModel> mFeedList;
     private FragmentActivity mContext;
     private Fragment mFeedFragment;
@@ -146,7 +153,16 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
     @Override
     public int getItemViewType(int position) {
-        return mFeedList.get(position) == null ? VIEW_TYPE_LOADING : VIEW_TYPE_ITEM;
+        // return mFeedList.get(position) == null ? VIEW_TYPE_LOADING : VIEW_TYPE_ITEM;
+        if (mFeedList.get(position) == null) {
+            return VIEW_TYPE_LOADING;
+        } else {
+            if (position == 2) {
+                return VIEW_TYPE_RECOMMENDED_ARTIST;
+            } else {
+                return VIEW_TYPE_ITEM;
+            }
+        }
     }
 
     @Override
@@ -159,12 +175,16 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             return new LoadingViewHolder(LayoutInflater
                     .from(parent.getContext())
                     .inflate(R.layout.item_load_more, parent, false));
+        } else if (viewType == VIEW_TYPE_RECOMMENDED_ARTIST) {
+            return new RecommendedArtistViewHolder(LayoutInflater
+                    .from(parent.getContext())
+                    .inflate(R.layout.layout_recommended_artists, parent, false));
         }
         return null;
     }
 
     @Override
-    public void onBindViewHolder(RecyclerView.ViewHolder holder, final int position) {
+    public void onBindViewHolder(final RecyclerView.ViewHolder holder, final int position) {
         final FeedModel data = mFeedList.get(position);
 
         if (holder.getItemViewType() == VIEW_TYPE_ITEM) {
@@ -232,6 +252,30 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         } else if (holder.getItemViewType() == VIEW_TYPE_LOADING) {
             LoadingViewHolder loadingViewHolder = (LoadingViewHolder) holder;
             loadingViewHolder.progressView.setVisibility(View.VISIBLE);
+        } else if (holder.getItemViewType() == VIEW_TYPE_RECOMMENDED_ARTIST) {
+            final RecommendedArtistViewHolder viewHolder = (RecommendedArtistViewHolder) holder;
+            SuggestionHelper helper = new SuggestionHelper();
+            helper.getSuggestedArtistStatus(mContext, mCompositeDisposable, new listener.OnSuggestedArtistLoadListener() {
+                @Override
+                public void onSuccess(List<SuggestedArtistsModel> dataList) {
+                    viewHolder.recyclerView.setLayoutManager(new LinearLayoutManager(mContext
+                            , LinearLayoutManager.HORIZONTAL
+                            , false));
+                    viewHolder.recyclerView.setAdapter(new SuggestedArtistsAdapter(dataList, mContext));
+                }
+
+                @Override
+                public void onFailure(String errorMsg) {
+                    ViewHelper.getShortToast(mContext, errorMsg);
+                }
+            });
+            //fixme
+            viewHolder.textShowMoreArtists.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    mContext.startActivity(new Intent(mContext, RecommendedArtistsActivity.class));
+                }
+            });
         }
 
 
@@ -659,6 +703,21 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         }
     }
 
+    //RecommendedArtistViewHolder class
+    static class RecommendedArtistViewHolder extends RecyclerView.ViewHolder {
+
+        @BindView(R.id.textRecommendedArtists)
+        AppCompatTextView textRecommendedArtists;
+        @BindView(R.id.textShowMoreArtists)
+        AppCompatTextView textShowMoreArtists;
+        @BindView(R.id.recyclerViewRecommendedArtists)
+        RecyclerView recyclerView;
+
+        public RecommendedArtistViewHolder(View itemView) {
+            super(itemView);
+            ButterKnife.bind(this, itemView);
+        }
+    }
 
     /**
      * Method to send analytics data on firebase server.
@@ -681,4 +740,5 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         }
 
     }
+
 }

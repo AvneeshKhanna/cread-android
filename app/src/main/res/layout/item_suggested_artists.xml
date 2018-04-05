@@ -27,7 +27,7 @@
         android:layout_marginTop="5dp"
         android:textColor="@color/grey_dark"
         android:textSize="12sp"
-        tools:text="@tools:sample/first_names" />
+        tools:text="@tools:sample/full_names" />
 
 
 </LinearLayout>

@@ -12,8 +12,11 @@ import com.thetestament.cread.models.FeedModel;
 import com.thetestament.cread.models.InspirationModel;
 import com.thetestament.cread.models.PersonMentionModel;
 import com.thetestament.cread.models.ShortModel;
+import com.thetestament.cread.models.SuggestedArtistsModel;
 import com.thetestament.cread.models.UpdatesModel;
 import com.thetestament.cread.utils.Constant.GratitudeNumbers;
+
+import java.util.List;
 
 public class listener {
 
@@ -412,5 +415,21 @@ public class listener {
          * @param itemPosition Position of item in list.
          **/
         void onFollowClick(String artistUUId, int itemPosition);
+    }
+
+    /**
+     * Interface definition for a callback to be invoked when user request for SuggestedArtist data.
+     */
+    public interface OnSuggestedArtistLoadListener {
+
+        /**
+         * List of suggested artist data.
+         */
+        void onSuccess(List<SuggestedArtistsModel> dataList);
+
+        /**
+         * Error message to be displayed.
+         */
+        void onFailure(String errorMsg);
     }
 }

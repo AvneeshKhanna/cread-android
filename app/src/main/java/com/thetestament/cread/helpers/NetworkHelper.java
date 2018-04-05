@@ -703,5 +703,28 @@ public class NetworkHelper {
                 .getJSONObjectObservable();
     }
 
+    /**
+     * Method to return suggested artists data from the server.
+     *
+     * @param serverURL URL of the server.
+     * @param uuid      UUID of the user.
+     * @param authKey   AuthKey of user.
+     */
+    public static Observable<JSONObject> geSuggestedArtiststDataFromServer(String serverURL, String uuid, String authKey) {
+        Map<String, String> headers = new HashMap<>();
+        headers.put("uuid", uuid);
+        headers.put("authkey", authKey);
+
+        Rx2ANRequest.GetRequestBuilder requestBuilder = Rx2AndroidNetworking.get(serverURL)
+                .addHeaders(headers);
+
+        if (GET_RESPONSE_FROM_NETWORK_RECOMMENDED_ARTISTS) {
+            requestBuilder.getResponseOnlyFromNetwork();
+        }
+
+        return requestBuilder
+                .build()
+                .getJSONObjectObservable();
+    }
 
 }
