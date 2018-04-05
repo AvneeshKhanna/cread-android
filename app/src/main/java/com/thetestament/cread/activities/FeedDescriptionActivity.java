@@ -13,7 +13,6 @@ import android.support.design.widget.CoordinatorLayout;
 import android.support.v13.view.ViewCompat;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
-import android.support.v4.widget.NestedScrollView;
 import android.support.v4.widget.TextViewCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
@@ -41,6 +40,7 @@ import com.thetestament.cread.BuildConfig;
 import com.thetestament.cread.Manifest;
 import com.thetestament.cread.R;
 import com.thetestament.cread.adapters.CommentsAdapter;
+import com.thetestament.cread.adapters.MeAdapter;
 import com.thetestament.cread.adapters.ShareDialogAdapter;
 import com.thetestament.cread.helpers.DownvoteHelper;
 import com.thetestament.cread.helpers.FeedHelper;
@@ -57,6 +57,7 @@ import com.thetestament.cread.listeners.listener.OnContentDeleteListener;
 import com.thetestament.cread.models.CommentsModel;
 import com.thetestament.cread.models.FeedModel;
 import com.thetestament.cread.models.ShortModel;
+import com.thetestament.cread.utils.Constant;
 import com.thetestament.cread.utils.RxUtils;
 import com.yalantis.ucrop.UCrop;
 
@@ -93,6 +94,8 @@ import static com.thetestament.cread.helpers.FeedHelper.updateDotSeperatorVisibi
 import static com.thetestament.cread.helpers.FeedHelper.updateDownvoteAndSeperatorVisibility;
 import static com.thetestament.cread.helpers.ImageHelper.getImageUri;
 import static com.thetestament.cread.helpers.NetworkHelper.getCommentObservableFromServer;
+import static com.thetestament.cread.helpers.NetworkHelper.getObservableFromServer;
+import static com.thetestament.cread.helpers.NetworkHelper.requestServer;
 import static com.thetestament.cread.utils.Constant.CONTENT_TYPE_CAPTURE;
 import static com.thetestament.cread.utils.Constant.CONTENT_TYPE_SHORT;
 import static com.thetestament.cread.utils.Constant.EXTRA_CAPTURE_URL;
@@ -155,8 +158,6 @@ public class FeedDescriptionActivity extends BaseActivity implements listener.On
     LinearLayout containerHatsOff;
     @BindView(R.id.lineSeparatorBottom)
     View lineSeparatorBottom;
-    @BindView(R.id.nestedScrollView)
-    NestedScrollView nestedScrollView;
     @BindView(R.id.buttonCollaborate)
     TextView buttonCollaborate;
     @BindView(R.id.textTitle)
@@ -173,6 +174,10 @@ public class FeedDescriptionActivity extends BaseActivity implements listener.On
     TextView dotSeperatorRight;
     @BindView(R.id.containerLongShortPreview)
     FrameLayout containerLongShortPreview;
+    @BindView(R.id.progressBar)
+    View progressBar;
+    @BindView(R.id.recyclerViewMorePosts)
+    RecyclerView recyclerViewMorePosts;
 
 
     private SharedPreferenceHelper mHelper;
@@ -189,11 +194,18 @@ public class FeedDescriptionActivity extends BaseActivity implements listener.On
     boolean isUserCreator;
     @State
     boolean shouldScroll;
+    @State
+    boolean mMorePostsRequestMoreData;
 
     @State
     Bundle resultBundle = new Bundle();
 
+    @State
+    String mMorePostsIndexKey;
+
+    private List<FeedModel> mMorePostsList = new ArrayList<>();
     Intent resultIntent = new Intent();
+    MeAdapter mAdapter;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -673,6 +685,13 @@ public class FeedDescriptionActivity extends BaseActivity implements listener.On
 
         //check long form option
         checkLongFormStatus();
+
+
+        recyclerViewMorePosts.setLayoutManager(new LinearLayoutManager(mContext));
+        mAdapter = new MeAdapter(mMorePostsList, mContext, mHelper.getUUID(), null, Constant.ITEM_TYPES.COLLABLIST, mCompositeDisposable);
+        recyclerViewMorePosts.setAdapter(mAdapter);
+
+        getCollabData();
 
 
     }
@@ -1198,6 +1217,266 @@ public class FeedDescriptionActivity extends BaseActivity implements listener.On
         }
 
         updateDotSeperatorVisibility(mFeedData, dotSeperator);
+    }
+
+
+    /**
+     * Loads the collaboration data
+     */
+    private void getCollabData() {
+        final boolean[] tokenError = {false};
+        final boolean[] connectionError = {false};
+
+        progressBar.setVisibility(View.VISIBLE);
+
+        requestServer(mCompositeDisposable,
+                getObservableFromServer(BuildConfig.URL + "/user-profile/load-collab-timeline",
+                        mHelper.getUUID(),
+                        mHelper.getAuthToken(),
+                        mHelper.getUUID(),
+                        mMorePostsIndexKey,
+                        true),
+                mContext,
+                new listener.OnServerRequestedListener<JSONObject>() {
+                    @Override
+                    public void onDeviceOffline() {
+                        progressBar.setVisibility(View.GONE);
+                        ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_no_connection));
+
+                    }
+
+                    @Override
+                    public void onNextCalled(JSONObject jsonObject) {
+                        try {
+                            //Token status is invalid
+                            if (jsonObject.getString("tokenstatus").equals("invalid")) {
+                                tokenError[0] = true;
+                            } else {
+                                parseCollabData(jsonObject, false);
+                            }
+
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                            FirebaseCrash.report(e);
+                            connectionError[0] = true;
+                            progressBar.setVisibility(View.GONE);
+                        }
+                    }
+
+                    @Override
+                    public void onErrorCalled(Throwable e) {
+
+                        e.printStackTrace();
+                        FirebaseCrash.report(e);
+
+                        progressBar.setVisibility(View.GONE);
+
+                        //Server error Snack bar
+                        ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_server));
+
+                    }
+
+                    @Override
+                    public void onCompleteCalled() {
+
+                        progressBar.setVisibility(View.GONE);
+                        // Token status invalid
+                        if (tokenError[0]) {
+                            ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_invalid_token));
+                        }
+                        //Error occurred
+                        else if (connectionError[0]) {
+                            ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_internal));
+                        } else if (mMorePostsList.size() == 0) {
+                            //fixme
+
+                        } else {
+                            // Token status invalid
+                            if (tokenError[0]) {
+                                ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_invalid_token));
+                            }
+                            //Error occurred
+                            else if (connectionError[0]) {
+                                ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_internal));
+                            } else {
+
+                                //Apply 'Slide Up' animation
+                                int resId = R.anim.layout_animation_from_bottom;
+                                LayoutAnimationController animation = AnimationUtils.loadLayoutAnimation(mContext, resId);
+                                recyclerViewMorePosts.setLayoutAnimation(animation);
+                                mAdapter.notifyDataSetChanged();
+
+                            }
+                        }
+                    }
+                });
+
+    }
+
+    /**
+     * Loads the next set of collab data
+     */
+    private void getNextCollabData() {
+        final boolean[] tokenError = {false};
+        final boolean[] connectionError = {false};
+
+
+        requestServer(mCompositeDisposable,
+                getObservableFromServer(BuildConfig.URL + "/user-profile/load-collab-timeline",
+                        mHelper.getUUID(),
+                        mHelper.getAuthToken(),
+                        mHelper.getUUID(),
+                        mMorePostsIndexKey,
+                        true),
+                mContext,
+                new listener.OnServerRequestedListener<JSONObject>() {
+                    @Override
+                    public void onDeviceOffline() {
+                        ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_no_connection));
+                    }
+
+                    @Override
+                    public void onNextCalled(JSONObject jsonObject) {
+                        try {
+                            //Remove loading item
+                            mMorePostsList.remove(mMorePostsList.size() - 1);
+                            //Notify changes
+                            mAdapter.notifyItemRemoved(mMorePostsList.size());
+
+                            //Token status is invalid
+                            if (jsonObject.getString("tokenstatus").equals("invalid")) {
+                                tokenError[0] = true;
+                            } else {
+
+                                parseCollabData(jsonObject, true);
+                            }
+
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                            FirebaseCrash.report(e);
+                            connectionError[0] = true;
+                        }
+                    }
+
+                    @Override
+                    public void onErrorCalled(Throwable e) {
+
+                        //Remove loading item
+                        mMorePostsList.remove(mMorePostsList.size() - 1);
+                        //Notify changes
+                        mAdapter.notifyItemRemoved(mMorePostsList.size());
+                        FirebaseCrash.report(e);
+                        //Server error Snack bar
+                        ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_server));
+
+                    }
+
+                    @Override
+                    public void onCompleteCalled() {
+
+                        // Token status invalid
+                        if (tokenError[0]) {
+                            ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_invalid_token));
+                        }
+                        //Error occurred
+                        else if (connectionError[0]) {
+                            ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_internal));
+                        } else if (mMorePostsList.size() == 0) {
+                            //Show no data view
+                            //Fixme
+                        } else {
+                            //Notify changes
+                            mAdapter.setLoaded();
+                        }
+
+                    }
+                });
+    }
+
+    private void parseCollabData(JSONObject jsonObject, boolean isLoadMore) throws JSONException {
+
+        JSONObject mainData = jsonObject.getJSONObject("data");
+        mMorePostsRequestMoreData = mainData.getBoolean("requestmore");
+        mMorePostsIndexKey = mainData.getString("lastindexkey");
+
+        //Collab array list
+        JSONArray collabArray = mainData.getJSONArray("items");
+        for (int i = 0; i < collabArray.length(); i++) {
+            JSONObject dataObj = collabArray.getJSONObject(i);
+
+            String type = dataObj.getString("type");
+
+            FeedModel data = new FeedModel();
+            data.setEntityID(dataObj.getString("entityid"));
+            data.setContentType(dataObj.getString("type"));
+            data.setUUID(dataObj.getString("uuid"));
+            data.setCreatorImage(dataObj.getString("profilepicurl"));
+            data.setCreatorName(dataObj.getString("creatorname"));
+            data.setHatsOffStatus(dataObj.getBoolean("hatsoffstatus"));
+            data.setMerchantable(dataObj.getBoolean("merchantable"));
+            data.setDownvoteStatus(dataObj.getBoolean("downvotestatus"));
+            data.setEligibleForDownvote(mainData.getBoolean("candownvote"));
+            data.setLongForm(dataObj.getBoolean("long_form"));
+            data.setHatsOffCount(dataObj.getLong("hatsoffcount"));
+            data.setCommentCount(dataObj.getLong("commentcount"));
+            data.setContentImage(dataObj.getString("entityurl"));
+            data.setFollowStatus(dataObj.getBoolean("followstatus"));
+            data.setCollabCount(dataObj.getLong("collabcount"));
+            if (dataObj.isNull("caption")) {
+                data.setCaption(null);
+            } else {
+                data.setCaption(dataObj.getString("caption"));
+            }
+
+            if (type.equals(CONTENT_TYPE_CAPTURE)) {
+
+                //Retrieve "CAPTURE_ID" if type is capture
+                data.setCaptureID(dataObj.getString("captureid"));
+                // if capture
+                // then if key cpshort exists
+                // not available for collaboration
+                if (!dataObj.isNull("cpshort")) {
+                    JSONObject collabObject = dataObj.getJSONObject("cpshort");
+
+                    data.setAvailableForCollab(false);
+                    // set collaborator details
+                    data.setCollabWithUUID(collabObject.getString("uuid"));
+                    data.setCollabWithName(collabObject.getString("name"));
+                    data.setCollaboWithEntityID(collabObject.getString("entityid"));
+
+                } else {
+                    data.setAvailableForCollab(true);
+                }
+
+            } else if (type.equals(CONTENT_TYPE_SHORT)) {
+
+                //Retrieve "SHORT_ID" if type is short
+                data.setShortID(dataObj.getString("shoid"));
+
+                // if short
+                // then if key shcapture exists
+                // not available for collaboration
+                if (!dataObj.isNull("shcapture")) {
+
+                    JSONObject collabObject = dataObj.getJSONObject("shcapture");
+
+                    data.setAvailableForCollab(false);
+                    // set collaborator details
+                    data.setCollabWithUUID(collabObject.getString("uuid"));
+                    data.setCollabWithName(collabObject.getString("name"));
+                    data.setCollaboWithEntityID(collabObject.getString("entityid"));
+                } else {
+                    data.setAvailableForCollab(true);
+                }
+            }
+
+            mMorePostsList.add(data);
+
+            if (isLoadMore) {
+                //Notify item changes
+                mAdapter.notifyItemInserted(mMorePostsList.size() - 1);
+            }
+        }
     }
 
     /**
