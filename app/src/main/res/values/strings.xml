@@ -208,6 +208,6 @@
     <string name="text_writing_mode_long">Long Mode</string>
 
     <!--Activity title text-->
-    <string name="title_text_recommended_artists_activity">People you may follow</string>
+    <string name="title_text_recommended_artists_activity">Top artists on Cread</string>
 
 </resources>

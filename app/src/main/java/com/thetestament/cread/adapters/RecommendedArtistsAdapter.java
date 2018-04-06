@@ -3,7 +3,6 @@ package com.thetestament.cread.adapters;
 import android.content.Context;
 import android.content.Intent;
 import android.support.v4.app.FragmentActivity;
-import android.support.v7.widget.AppCompatImageView;
 import android.support.v7.widget.AppCompatTextView;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
@@ -104,7 +103,7 @@ public class RecommendedArtistsAdapter extends RecyclerView.Adapter<RecyclerView
                     , data.getArtistProfilePic(), R.drawable.ic_account_circle_100);
             //Method called
             setArtistContentImage(data, itemViewHolder.imageContainer);
-            followOnClick(itemViewHolder.buttonFollow, data.getArtistUUID(), position);
+            followOnClick(itemViewHolder.buttonFollow, data.getArtistUUID(), itemViewHolder.getAdapterPosition());
             itemViewOnClick(itemViewHolder.itemView, data.getArtistUUID());
 
         } else if (holder.getItemViewType() == VIEW_TYPE_LOADING) {
@@ -208,10 +207,10 @@ public class RecommendedArtistsAdapter extends RecyclerView.Adapter<RecyclerView
         //Check for post count
         if (postCount == 1) {
             //Set post count
-            textCount.setText(postCount + "Post");
+            textCount.setText(postCount + " Post");
         } else {
             //Set post count
-            textCount.setText(postCount + "Posts");
+            textCount.setText(postCount + " Posts");
         }
 
     }
@@ -234,14 +233,24 @@ public class RecommendedArtistsAdapter extends RecyclerView.Adapter<RecyclerView
      * @param layout ParentView of imageViews.
      */
     private void setArtistContentImage(RecommendedArtistsModel data, LinearLayout layout) {
-        int index = 0;
-        for (String s : data.getImagesList()) {
-            //Load Artist profile image view
-            loadImageFromUrl(mContext, (AppCompatImageView) layout.getChildAt(index)
-                    , s, R.drawable.image_placeholder);
-            //Increment counter
-            index++;
+        //int index = 0;
+        for (int i = 0; i < data.getImagesList().size(); i++) {
+
+            if (i == 0) {
+                loadImageFromUrl(mContext, (SquareImageView) layout.findViewById(R.id.imageArtFirst)
+                        , data.getImagesList().get(i), R.drawable.image_placeholder);
+            } else if (i == 1) {
+                loadImageFromUrl(mContext, (SquareImageView) layout.findViewById(R.id.imageArtTwo)
+                        , data.getImagesList().get(i), R.drawable.image_placeholder);
+            } else if (i == 2) {
+                loadImageFromUrl(mContext, (SquareImageView) layout.findViewById(R.id.imageArtThree)
+                        , data.getImagesList().get(i), R.drawable.image_placeholder);
+            } else if (i == 3) {
+                loadImageFromUrl(mContext, (SquareImageView) layout.findViewById(R.id.imageArtFour)
+                        , data.getImagesList().get(i), R.drawable.image_placeholder);
+            }
         }
+
     }
 
     /**
@@ -284,4 +293,15 @@ public class RecommendedArtistsAdapter extends RecyclerView.Adapter<RecyclerView
         mIsLoading = false;
     }
 
+    /**
+     * Method to remove particular item from list and notify its changes.
+     *
+     * @param index Position of item to be removed.
+     */
+    public void deleteItem(int index) {
+        mDataList.remove(index);
+        notifyItemRemoved(index);
+        notifyItemRangeChanged(index, mDataList.size());
+
+    }
 }

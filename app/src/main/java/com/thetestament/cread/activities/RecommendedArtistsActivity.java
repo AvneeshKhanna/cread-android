@@ -8,6 +8,9 @@ import android.support.v4.content.ContextCompat;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.view.View;
 import android.view.animation.AnimationUtils;
 import android.view.animation.LayoutAnimationController;
 
@@ -55,6 +58,8 @@ public class RecommendedArtistsActivity extends BaseActivity {
     SwipeRefreshLayout swipeRefreshLayout;
     @BindView(R.id.recyclerView)
     RecyclerView recyclerView;
+    @BindView(R.id.progressView)
+    View progressView;
     //endregion
 
     //region :Fields and constants
@@ -97,6 +102,22 @@ public class RecommendedArtistsActivity extends BaseActivity {
     protected void onRestoreInstanceState(Bundle savedInstanceState) {
         super.onRestoreInstanceState(savedInstanceState);
         Icepick.restoreInstanceState(this, savedInstanceState);
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                finish();
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
     }
     //endregion
 
@@ -173,7 +194,7 @@ public class RecommendedArtistsActivity extends BaseActivity {
         final boolean[] tokenError = {false};
         final boolean[] connectionError = {false};
         //fixme update keys
-        mCompositeDisposable.add(getRecommendedArtistObservableFromServer(BuildConfig.URL + "/recommended_artists/load"
+        mCompositeDisposable.add(getRecommendedArtistObservableFromServer(BuildConfig.URL + "/recommend-users/details"
                 , mHelper.getUUID()
                 , mHelper.getAuthToken()
                 , mLastIndexKey)
@@ -193,7 +214,7 @@ public class RecommendedArtistsActivity extends BaseActivity {
                                 mRequestMoreData = mainData.getBoolean("requestmore");
                                 mLastIndexKey = mainData.getString("lastindexkey");
                                 //Recommended artists list
-                                JSONArray jsonArray = mainData.getJSONArray("list");
+                                JSONArray jsonArray = mainData.getJSONArray("users");
                                 for (int i = 0; i < jsonArray.length(); i++) {
                                     JSONObject dataObj = jsonArray.getJSONObject(i);
                                     RecommendedArtistsModel artistsModel = new RecommendedArtistsModel();
@@ -204,11 +225,11 @@ public class RecommendedArtistsActivity extends BaseActivity {
                                     artistsModel.setArtistBio(dataObj.getString("bio"));
                                     artistsModel.setPostCount(dataObj.getLong("postcount"));
 
-                                    JSONArray contentArray = mainData.getJSONArray("contentlist");
+                                    JSONArray contentArray = dataObj.getJSONArray("posts");
                                     List<String> contentList = new ArrayList<>();
                                     for (int start = 0; start < contentArray.length(); start++) {
                                         JSONObject object = contentArray.getJSONObject(start);
-                                        contentList.add(object.getString("content_img_url"));
+                                        contentList.add(object.getString("entityurl"));
                                     }
                                     artistsModel.setImagesList(contentList);
                                     mDataList.add(artistsModel);
@@ -294,6 +315,8 @@ public class RecommendedArtistsActivity extends BaseActivity {
             public void onFollowClick(String artistUUId, final int itemPosition) {
                 // check net status
                 if (NetworkHelper.getNetConnectionStatus(mContext)) {
+                    //Show progress view
+                    progressView.setVisibility(View.VISIBLE);
 
                     FollowHelper followHelper = new FollowHelper();
                     followHelper.updateFollowStatus(mContext,
@@ -303,20 +326,27 @@ public class RecommendedArtistsActivity extends BaseActivity {
                             new listener.OnFollowRequestedListener() {
                                 @Override
                                 public void onFollowSuccess() {
+                                    //Hide progress view
+                                    progressView.setVisibility(View.GONE);
+
                                     //remove item from list and notify changes
-                                    mDataList.remove(itemPosition);
-                                    mAdapter.notifyItemRemoved(itemPosition);
+                                    mAdapter.deleteItem(itemPosition);
                                     //Show snack bar
                                     ViewHelper.getSnackBar(rootView, "Followed successfully");
                                 }
 
                                 @Override
                                 public void onFollowFailure(String errorMsg) {
+                                    //Hide progress view
+                                    progressView.setVisibility(View.GONE);
                                     //Show error message
                                     ViewHelper.getSnackBar(rootView, errorMsg);
                                 }
                             });
                 } else {
+                    //Hide progress view
+                    progressView.setVisibility(View.GONE);
+                    //Show no connection view
                     ViewHelper.getSnackBar(rootView
                             , getString(R.string.error_msg_no_connection));
                 }
@@ -331,7 +361,7 @@ public class RecommendedArtistsActivity extends BaseActivity {
         final boolean[] tokenError = {false};
         final boolean[] connectionError = {false};
         //fixme Update the keys
-        mCompositeDisposable.add(getRecommendedArtistObservableFromServer(BuildConfig.URL + "/recommended_artists/load"
+        mCompositeDisposable.add(getRecommendedArtistObservableFromServer(BuildConfig.URL + "/recommend-users/details"
                 , mHelper.getUUID()
                 , mHelper.getAuthToken()
                 , mLastIndexKey)
@@ -354,7 +384,7 @@ public class RecommendedArtistsActivity extends BaseActivity {
                                 mRequestMoreData = mainData.getBoolean("requestmore");
                                 mLastIndexKey = mainData.getString("lastindexkey");
                                 //Recommended artists list
-                                JSONArray jsonArray = mainData.getJSONArray("list");
+                                JSONArray jsonArray = mainData.getJSONArray("users");
                                 for (int i = 0; i < jsonArray.length(); i++) {
                                     JSONObject dataObj = jsonArray.getJSONObject(i);
                                     RecommendedArtistsModel artistsModel = new RecommendedArtistsModel();
@@ -365,11 +395,11 @@ public class RecommendedArtistsActivity extends BaseActivity {
                                     artistsModel.setArtistBio(dataObj.getString("bio"));
                                     artistsModel.setPostCount(dataObj.getLong("postcount"));
 
-                                    JSONArray contentArray = mainData.getJSONArray("contentlist");
+                                    JSONArray contentArray = dataObj.getJSONArray("posts");
                                     List<String> contentList = new ArrayList<>();
                                     for (int start = 0; start < contentArray.length(); start++) {
                                         JSONObject object = contentArray.getJSONObject(start);
-                                        contentList.add(object.getString("content_img_url"));
+                                        contentList.add(object.getString("entityurl"));
                                     }
                                     artistsModel.setImagesList(contentList);
                                     mDataList.add(artistsModel);

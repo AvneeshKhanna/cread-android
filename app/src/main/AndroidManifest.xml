@@ -487,8 +487,12 @@
         <activity
             android:name=".activities.RecommendedArtistsActivity"
             android:label="@string/title_text_recommended_artists_activity"
-            android:screenOrientation="portrait" />
-
+            android:screenOrientation="portrait">
+            <!-- For back navigation -->
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".activities.BottomNavigationActivity" />
+        </activity>
 
         <activity android:name=".activities.ViewLongShortActivity"></activity>
     </application>
