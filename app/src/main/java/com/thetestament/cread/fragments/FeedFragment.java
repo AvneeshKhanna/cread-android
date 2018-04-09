@@ -39,15 +39,18 @@ import com.thetestament.cread.activities.FindFBFriendsActivity;
 import com.thetestament.cread.activities.RecommendedArtistsActivity;
 import com.thetestament.cread.activities.SearchActivity;
 import com.thetestament.cread.adapters.FeedAdapter;
+import com.thetestament.cread.adapters.SuggestedArtistsAdapter;
 import com.thetestament.cread.helpers.DownvoteHelper;
 import com.thetestament.cread.helpers.FeedHelper;
 import com.thetestament.cread.helpers.HatsOffHelper;
 import com.thetestament.cread.helpers.ImageHelper;
 import com.thetestament.cread.helpers.ShareHelper;
 import com.thetestament.cread.helpers.SharedPreferenceHelper;
+import com.thetestament.cread.helpers.SuggestionHelper;
 import com.thetestament.cread.helpers.ViewHelper;
 import com.thetestament.cread.listeners.listener;
 import com.thetestament.cread.models.FeedModel;
+import com.thetestament.cread.models.SuggestedArtistsModel;
 import com.thetestament.cread.utils.Constant;
 import com.yalantis.ucrop.UCrop;
 
@@ -529,6 +532,23 @@ public class FeedFragment extends Fragment implements listener.OnCollaborationLi
                         } else if (mFeedDataList.size() == 0) {
                             //fixme suggested artists code here
                             viewNoPosts.setVisibility(View.VISIBLE);
+
+                            SuggestionHelper helper = new SuggestionHelper();
+                            helper.getSuggestedArtistStatus(getActivity(), mCompositeDisposable, new listener.OnSuggestedArtistLoadListener() {
+                                @Override
+                                public void onSuccess(List<SuggestedArtistsModel> dataList) {
+                                    appBarLayout.setVisibility(View.VISIBLE);
+                                    recyclerViewRecommendedArtists.setLayoutManager(new LinearLayoutManager(getActivity()
+                                            , LinearLayoutManager.HORIZONTAL
+                                            , false));
+                                    recyclerViewRecommendedArtists.setAdapter(new SuggestedArtistsAdapter(dataList, getActivity()));
+                                }
+
+                                @Override
+                                public void onFailure(String errorMsg) {
+                                    ViewHelper.getShortToast(getActivity(), errorMsg);
+                                }
+                            });
                         } else {
                             //Apply 'Slide Up' animation
                             int resId = R.anim.layout_animation_from_bottom;
@@ -793,23 +813,27 @@ public class FeedFragment extends Fragment implements listener.OnCollaborationLi
     private void initDownVoteListener(FeedAdapter feedAdapter) {
         feedAdapter.setOnDownvoteClickedListener(new listener.OnDownvoteClickedListener() {
             @Override
-            public void onDownvoteClicked(FeedModel data, int position, ImageView imageDownvote) {
+            public void onDownvoteClicked(FeedModel data, int position, ImageView imageDownVote) {
 
                 DownvoteHelper downvoteHelper = new DownvoteHelper();
 
-                // if already downvoted
+                // if already downVoted
                 if (data.isDownvoteStatus()) {
                     downvoteHelper.initDownvoteProcess(getActivity()
                             , data
                             , mCompositeDisposable
-                            , imageDownvote
+                            , imageDownVote
                             , new Bundle()
                             , new Intent());
                 } else
 
-                {   // show warning dialog
-                    downvoteHelper.initDownvoteWarningDialog(getActivity(), data, mCompositeDisposable, imageDownvote, new Bundle(), new Intent());
-
+                {   // Show warning dialog
+                    downvoteHelper.initDownvoteWarningDialog(getActivity()
+                            , data
+                            , mCompositeDisposable
+                            , imageDownVote
+                            , new Bundle()
+                            , new Intent());
                 }
             }
         });

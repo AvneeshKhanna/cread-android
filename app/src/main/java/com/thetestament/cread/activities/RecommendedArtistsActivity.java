@@ -193,7 +193,7 @@ public class RecommendedArtistsActivity extends BaseActivity {
     private void getRecommendedArtistData() {
         final boolean[] tokenError = {false};
         final boolean[] connectionError = {false};
-        //fixme update keys
+
         mCompositeDisposable.add(getRecommendedArtistObservableFromServer(BuildConfig.URL + "/recommend-users/details"
                 , mHelper.getUUID()
                 , mHelper.getAuthToken()
@@ -360,7 +360,7 @@ public class RecommendedArtistsActivity extends BaseActivity {
     private void loadNextSetOfData() {
         final boolean[] tokenError = {false};
         final boolean[] connectionError = {false};
-        //fixme Update the keys
+
         mCompositeDisposable.add(getRecommendedArtistObservableFromServer(BuildConfig.URL + "/recommend-users/details"
                 , mHelper.getUUID()
                 , mHelper.getAuthToken()

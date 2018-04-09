@@ -35,7 +35,6 @@ import com.thetestament.cread.activities.RecommendedArtistsActivity;
 import com.thetestament.cread.helpers.DownvoteHelper;
 import com.thetestament.cread.helpers.FeedHelper;
 import com.thetestament.cread.helpers.NetworkHelper;
-import com.thetestament.cread.helpers.SharedPreferenceHelper;
 import com.thetestament.cread.helpers.SuggestionHelper;
 import com.thetestament.cread.helpers.ViewHelper;
 import com.thetestament.cread.listeners.listener;
@@ -90,7 +89,6 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     private String mUUID;
     private CompositeDisposable mCompositeDisposable;
 
-    private SharedPreferenceHelper mHelper;
 
     private OnFeedLoadMoreListener onFeedLoadMoreListener;
     private OnHatsOffListener onHatsOffListener;
@@ -111,8 +109,6 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         this.mUUID = mUUID;
         this.mFeedFragment = mFeedFragment;
         this.mCompositeDisposable = mCompositeDisposable;
-
-        mHelper = new SharedPreferenceHelper(mContext);
     }
 
     /**
@@ -145,7 +141,7 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     }
 
     /**
-     * Register a callback to be invoked when user clicks on downvote button.
+     * Register a callback to be invoked when user clicks on down vote button.
      */
     public void setOnDownvoteClickedListener(OnDownvoteClickedListener onDownvoteClickedListener) {
         this.onDownvoteClickedListener = onDownvoteClickedListener;
@@ -157,7 +153,7 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         if (mFeedList.get(position) == null) {
             return VIEW_TYPE_LOADING;
         } else {
-            if (position == 2) {
+            if (position == 1) {
                 return VIEW_TYPE_RECOMMENDED_ARTIST;
             } else {
                 return VIEW_TYPE_ITEM;
@@ -205,9 +201,9 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                     , false
                     , null);
 
-            //update downvote and dot seperator visibility
+            //Update down vote and dot separator visibility
             updateDownvoteAndSeperatorVisibility(data, itemViewHolder.dotSeperatorRight, itemViewHolder.imageDownvote);
-            //check downvote status
+            //check down vote status
             DownvoteHelper downvoteHelper = new DownvoteHelper();
             downvoteHelper.updateDownvoteUI(itemViewHolder.imageDownvote, data.isDownvoteStatus(), mContext);
             //Check whether user has given hats off to this campaign or not
@@ -225,18 +221,18 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             onHaveViewClicked(data, itemViewHolder);
             // caption on click
             onTitleClicked(itemViewHolder.textTitle);
-            // on hatsoff count click
+            // on HatsOff count click
             hatsOffCountOnClick(itemViewHolder, data);
             //Comment count click functionality
             commentOnClick(itemViewHolder.containerCommentCount, data.getEntityID());
-            // downvote click
-            downvoteOnClick(itemViewHolder.imageDownvote, data, position, itemViewHolder);
+            // downVote click
+            downVoteOnClick(itemViewHolder.imageDownvote, data, position, itemViewHolder);
             //check long form status
             checkLongFormStatus(itemViewHolder.containerLongShortPreview, data);
             //long form on click
             initLongFormPreviewClick(itemViewHolder.containerLongShortPreview, data, mContext, mCompositeDisposable);
 
-            // initialize hatsoff and comment count
+            //Initialize HatsOff and comment count
             initSocialActionsCount(mContext,
                     data,
                     itemViewHolder.containerHatsOffCount,
@@ -247,8 +243,6 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
             // initialize caption
             initCaption(mContext, data, itemViewHolder.textTitle);
-
-
         } else if (holder.getItemViewType() == VIEW_TYPE_LOADING) {
             LoadingViewHolder loadingViewHolder = (LoadingViewHolder) holder;
             loadingViewHolder.progressView.setVisibility(View.VISIBLE);
@@ -353,28 +347,6 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             itemViewHolder.mIsRotated = false;
         }
     }
-
-
-    /**
-     * ItemView onClick functionality.
-     *
-     * @param view      View to be clicked.
-     * @param feedModel Data set for current item
-     *//*
-    private void itemViewOnClick(View view, final FeedModel feedModel, final int position) {
-        view.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Bundle bundle = new Bundle();
-                bundle.putParcelable(EXTRA_FEED_DESCRIPTION_DATA, feedModel);
-                bundle.putInt("position", position);
-
-                Intent intent = new Intent(mContext, FeedDescriptionActivity.class);
-                intent.putExtra(EXTRA_DATA, bundle);
-                mFeedFragment.startActivityForResult(intent, REQUEST_CODE_FEED_DESCRIPTION_ACTIVITY);
-            }
-        });
-    }*/
 
     /**
      * Compose onClick functionality.
@@ -525,7 +497,7 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         });
     }
 
-    private void downvoteOnClick(ImageView imageView, final FeedModel data, final int position, final ItemViewHolder itemViewHolder) {
+    private void downVoteOnClick(ImageView imageView, final FeedModel data, final int position, final ItemViewHolder itemViewHolder) {
         imageView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -537,9 +509,9 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
 
     /**
-     * Caption click listner
+     * Caption click listener
      */
-    void onTitleClicked(final TextView textTitle) {
+    private void onTitleClicked(final TextView textTitle) {
 
         textTitle.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -560,8 +532,7 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     /**
      * Have button click functionality.
      */
-
-    public void onHaveViewClicked(final FeedModel data, final ItemViewHolder itemViewHolder) {
+    private void onHaveViewClicked(final FeedModel data, final ItemViewHolder itemViewHolder) {
 
         itemViewHolder.buttonHave.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -594,7 +565,6 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     /**
      * HatsOffCount click functionality to open "HatsOffActivity" screen.
      */
-
     void hatsOffCountOnClick(ItemViewHolder itemViewHolder, final FeedModel data) {
 
         itemViewHolder.containerHatsOffCount.setOnClickListener(new View.OnClickListener() {

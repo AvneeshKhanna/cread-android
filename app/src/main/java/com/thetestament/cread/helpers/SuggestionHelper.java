@@ -44,7 +44,7 @@ public class SuggestionHelper {
         SharedPreferenceHelper spHelper = new SharedPreferenceHelper(context);
         final List<SuggestedArtistsModel> dataLIst = new ArrayList<>();
         //fixme update keys
-        compositeDisposable.add(geSuggestedArtiststDataFromServer(BuildConfig.URL + "/recommended_artists/load"
+        compositeDisposable.add(geSuggestedArtiststDataFromServer(BuildConfig.URL + "/recommend-users/load"
                 , spHelper.getUUID()
                 , spHelper.getAuthToken())
                 //Run on a background thread
@@ -61,7 +61,7 @@ public class SuggestionHelper {
                             } else {
                                 JSONObject mainData = jsonObject.getJSONObject("data");
                                 //Suggested artists list
-                                JSONArray jsonArray = mainData.getJSONArray("list");
+                                JSONArray jsonArray = mainData.getJSONArray("items");
                                 for (int i = 0; i < jsonArray.length(); i++) {
                                     JSONObject dataObj = jsonArray.getJSONObject(i);
                                     SuggestedArtistsModel artistsModel = new SuggestedArtistsModel();

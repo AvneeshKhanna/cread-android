@@ -51,7 +51,7 @@ public class SuggestedArtistsAdapter extends RecyclerView.Adapter<SuggestedArtis
 
     @Override
     public void onBindViewHolder(ItemViewHolder holder, int position) {
-        SuggestedArtistsModel data = new SuggestedArtistsModel();
+        SuggestedArtistsModel data = mDataList.get(position);
         //Set artist name
         holder.textArtistName.setText(data.getArtistName());
         //Load artist profile picture
