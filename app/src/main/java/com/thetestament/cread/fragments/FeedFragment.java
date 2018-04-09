@@ -447,7 +447,8 @@ public class FeedFragment extends Fragment implements listener.OnCollaborationLi
                                 mCanDownvote = mainData.getBoolean("candownvote");
                                 //FeedArray list
                                 JSONArray feedArray = mainData.getJSONArray("feed");
-                                for (int i = 0; i < feedArray.length(); i++) {
+                                int feedArrayLength = feedArray.length();
+                                for (int i = 0; i < feedArrayLength; i++) {
 
                                     JSONObject dataObj = feedArray.getJSONObject(i);
                                     String type = dataObj.getString("type");
@@ -563,7 +564,9 @@ public class FeedFragment extends Fragment implements listener.OnCollaborationLi
                                             , LinearLayoutManager.HORIZONTAL
                                             , false));
                                     //Set adapter
-                                    recyclerViewRecommendedArtists.setAdapter(new SuggestedArtistsAdapter(dataList, getActivity(), FeedFragment.this));
+                                    recyclerViewRecommendedArtists.setAdapter(new SuggestedArtistsAdapter(dataList, getActivity()
+                                            , FeedFragment.this
+                                            , true));
                                 }
 
                                 @Override
@@ -577,6 +580,9 @@ public class FeedFragment extends Fragment implements listener.OnCollaborationLi
                             CoordinatorLayout.LayoutParams params = (CoordinatorLayout.LayoutParams) appBarLayout.getLayoutParams();
                             params.height = 0;
                             appBarLayout.setLayoutParams(params);
+                            //Method called
+                            addSuggestedArtistData();
+
                             //Apply 'Slide Up' animation
                             int resId = R.anim.layout_animation_from_bottom;
                             LayoutAnimationController animation = AnimationUtils.loadLayoutAnimation(getActivity(), resId);
@@ -1035,6 +1041,33 @@ public class FeedFragment extends Fragment implements listener.OnCollaborationLi
                         }
                     }
                 });
+    }
+
+
+    /**
+     * Method to add suggested artist data.
+     */
+    private void addSuggestedArtistData() {
+        //Code to add Suggested artists list
+        int index;
+        int dataSize = mFeedDataList.size();
+        if (dataSize == 1 || dataSize == 2) {
+            index = 1;
+            mFeedDataList.add(index, new FeedModel());
+            mAdapter.updateRecommendedArtistIndex(index);
+        } else if (dataSize == 3 || dataSize == 4) {
+            index = 2;
+            mFeedDataList.add(index, new FeedModel());
+            mAdapter.updateRecommendedArtistIndex(index);
+        } else if (dataSize == 5 || dataSize == 6) {
+            index = 3;
+            mFeedDataList.add(index, new FeedModel());
+            mAdapter.updateRecommendedArtistIndex(index);
+        } else if (dataSize > 9) {
+            index = 7;
+            mFeedDataList.add(index, new FeedModel());
+            mAdapter.updateRecommendedArtistIndex(index);
+        }
     }
 //endregion
 }

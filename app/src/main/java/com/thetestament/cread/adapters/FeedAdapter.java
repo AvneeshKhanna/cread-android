@@ -89,6 +89,11 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     private String mUUID;
     private CompositeDisposable mCompositeDisposable;
 
+    /**
+     * Flag to store 'Recommended Artists' position in list. Default value is 1.
+     */
+    private int recommendedArtistIndex = 5;
+
 
     private OnFeedLoadMoreListener onFeedLoadMoreListener;
     private OnHatsOffListener onHatsOffListener;
@@ -153,7 +158,7 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         if (mFeedList.get(position) == null) {
             return VIEW_TYPE_LOADING;
         } else {
-            if (position == 1) {
+            if (position == recommendedArtistIndex) {
                 return VIEW_TYPE_RECOMMENDED_ARTIST;
             } else {
                 return VIEW_TYPE_ITEM;
@@ -248,22 +253,35 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             loadingViewHolder.progressView.setVisibility(View.VISIBLE);
         } else if (holder.getItemViewType() == VIEW_TYPE_RECOMMENDED_ARTIST) {
             final RecommendedArtistViewHolder viewHolder = (RecommendedArtistViewHolder) holder;
+            //Hide view
+            viewHolder.itemView.setVisibility(View.GONE);
+
             SuggestionHelper helper = new SuggestionHelper();
             helper.getSuggestedArtistStatus(mContext, mCompositeDisposable, new listener.OnSuggestedArtistLoadListener() {
                 @Override
                 public void onSuccess(List<SuggestedArtistsModel> dataList) {
+                    //Show view
+                    viewHolder.itemView.setVisibility(View.VISIBLE);
+                    //Set Layout manager
                     viewHolder.recyclerView.setLayoutManager(new LinearLayoutManager(mContext
                             , LinearLayoutManager.HORIZONTAL
                             , false));
-                    viewHolder.recyclerView.setAdapter(new SuggestedArtistsAdapter(dataList, mContext, mFeedFragment));
+                    //Set adapter
+                    viewHolder.recyclerView.setAdapter(new SuggestedArtistsAdapter(dataList
+                            , mContext
+                            , mFeedFragment
+                            , false));
                 }
 
                 @Override
                 public void onFailure(String errorMsg) {
+                    //Hide view
+                    viewHolder.itemView.setVisibility(View.GONE);
+                    //Show error toast
                     ViewHelper.getShortToast(mContext, errorMsg);
                 }
             });
-            //fixme
+            //Click functionality
             viewHolder.textShowMoreArtists.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
@@ -711,4 +729,12 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
     }
 
+    /**
+     * Method to update RecommendedArtistIndex.
+     *
+     * @param index Index value.
+     */
+    public void updateRecommendedArtistIndex(int index) {
+        recommendedArtistIndex = index;
+    }
 }

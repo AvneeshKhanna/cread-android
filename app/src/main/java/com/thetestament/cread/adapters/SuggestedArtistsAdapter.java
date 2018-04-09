@@ -32,6 +32,7 @@ public class SuggestedArtistsAdapter extends RecyclerView.Adapter<SuggestedArtis
     private List<SuggestedArtistsModel> mDataList;
     private FragmentActivity mContext;
     private Fragment mFeedFragment;
+    private boolean mStartActivityForResult;
 
     /**
      * Required constructor.
@@ -39,10 +40,11 @@ public class SuggestedArtistsAdapter extends RecyclerView.Adapter<SuggestedArtis
      * @param dataList List of SuggestedArtistModel
      * @param context  Context to use.
      */
-    public SuggestedArtistsAdapter(List<SuggestedArtistsModel> dataList, FragmentActivity context, Fragment feedFragment) {
+    public SuggestedArtistsAdapter(List<SuggestedArtistsModel> dataList, FragmentActivity context, Fragment feedFragment, boolean startActivityResult) {
         this.mDataList = dataList;
         this.mContext = context;
         this.mFeedFragment = feedFragment;
+        this.mStartActivityForResult = startActivityResult;
     }
 
     @Override
@@ -97,7 +99,12 @@ public class SuggestedArtistsAdapter extends RecyclerView.Adapter<SuggestedArtis
             public void onClick(View view) {
                 Intent intent = new Intent(mContext, ProfileActivity.class);
                 intent.putExtra(EXTRA_PROFILE_UUID, UUID);
-                mFeedFragment.startActivityForResult(intent, REQUEST_CODE_USER_PROFILE_FROM_FEED);
+                if (mStartActivityForResult) {
+                    mFeedFragment.startActivityForResult(intent, REQUEST_CODE_USER_PROFILE_FROM_FEED);
+                } else {
+                    mContext.startActivity(intent);
+                }
+
             }
         });
     }
