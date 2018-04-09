@@ -1171,6 +1171,8 @@ public class MeFragment extends Fragment implements listener.OnCollaborationList
                             //Set count
                             ((TextView) viewPagerUserStats.findViewWithTag(FOLLOWERS)).setText(String.valueOf(mFollowerCount));
                         }
+                        //Set result ok
+                        getActivity().setResult(RESULT_OK);
                     }
 
                     @Override

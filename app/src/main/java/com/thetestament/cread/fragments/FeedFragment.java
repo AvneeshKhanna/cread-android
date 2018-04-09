@@ -94,6 +94,8 @@ import static com.thetestament.cread.utils.Constant.FIREBASE_EVENT_FIND_FRIENDS;
 import static com.thetestament.cread.utils.Constant.IMAGE_TYPE_USER_CAPTURE_PIC;
 import static com.thetestament.cread.utils.Constant.REQUEST_CODE_FEED_DESCRIPTION_ACTIVITY;
 import static com.thetestament.cread.utils.Constant.REQUEST_CODE_OPEN_GALLERY_FOR_CAPTURE;
+import static com.thetestament.cread.utils.Constant.REQUEST_CODE_RECOMMENDED_ARTISTS_FROM_FEED;
+import static com.thetestament.cread.utils.Constant.REQUEST_CODE_USER_PROFILE_FROM_FEED;
 
 public class FeedFragment extends Fragment implements listener.OnCollaborationListener {
 
@@ -230,6 +232,18 @@ public class FeedFragment extends Fragment implements listener.OnCollaborationLi
                     mAdapter.notifyItemChanged(bundle.getInt("position"));
                 }
                 break;
+            case REQUEST_CODE_RECOMMENDED_ARTISTS_FROM_FEED:
+                if (resultCode == RESULT_OK) {
+                    //Refresh data
+                    loadFeedData();
+                }
+                break;
+            case REQUEST_CODE_USER_PROFILE_FROM_FEED:
+                if (resultCode == RESULT_OK) {
+                    //Refresh data
+                    loadFeedData();
+                }
+                break;
         }
     }
 
@@ -309,9 +323,9 @@ public class FeedFragment extends Fragment implements listener.OnCollaborationLi
      */
     @OnClick(R.id.textShowMoreArtists)
     void onArtistMoreClick() {
-        //Open new screen
-        startActivity(new Intent(getActivity()
-                , RecommendedArtistsActivity.class));
+        //Open RecommendedArtists Screen
+        Intent intent = new Intent(getActivity(), RecommendedArtistsActivity.class);
+        this.startActivityForResult(intent, REQUEST_CODE_RECOMMENDED_ARTISTS_FROM_FEED);
     }
     //endregion
 
@@ -393,6 +407,8 @@ public class FeedFragment extends Fragment implements listener.OnCollaborationLi
         if (getNetConnectionStatus(getActivity())) {
             swipeRefreshLayout.setRefreshing(true);
             //Get data from server
+            //Hide no posts view
+            viewNoPosts.setVisibility(View.GONE);
             getFeedData();
         } else {
             swipeRefreshLayout.setRefreshing(false);
@@ -530,26 +546,37 @@ public class FeedFragment extends Fragment implements listener.OnCollaborationLi
                             ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_internal));
 
                         } else if (mFeedDataList.size() == 0) {
-                            //fixme suggested artists code here
+                            //Show no post view
                             viewNoPosts.setVisibility(View.VISIBLE);
 
                             SuggestionHelper helper = new SuggestionHelper();
                             helper.getSuggestedArtistStatus(getActivity(), mCompositeDisposable, new listener.OnSuggestedArtistLoadListener() {
                                 @Override
                                 public void onSuccess(List<SuggestedArtistsModel> dataList) {
+                                    //Show recommended artists view here
                                     appBarLayout.setVisibility(View.VISIBLE);
+                                    CoordinatorLayout.LayoutParams params = (CoordinatorLayout.LayoutParams) appBarLayout.getLayoutParams();
+                                    params.height = LinearLayout.LayoutParams.WRAP_CONTENT;
+                                    appBarLayout.setLayoutParams(params);
+                                    //Set layout manager
                                     recyclerViewRecommendedArtists.setLayoutManager(new LinearLayoutManager(getActivity()
                                             , LinearLayoutManager.HORIZONTAL
                                             , false));
-                                    recyclerViewRecommendedArtists.setAdapter(new SuggestedArtistsAdapter(dataList, getActivity()));
+                                    //Set adapter
+                                    recyclerViewRecommendedArtists.setAdapter(new SuggestedArtistsAdapter(dataList, getActivity(), FeedFragment.this));
                                 }
 
                                 @Override
                                 public void onFailure(String errorMsg) {
-                                    ViewHelper.getShortToast(getActivity(), errorMsg);
+                                    //Show error snack bar
+                                    ViewHelper.getSnackBar(rootView, errorMsg);
                                 }
                             });
                         } else {
+                            //Hide recommended artist view
+                            CoordinatorLayout.LayoutParams params = (CoordinatorLayout.LayoutParams) appBarLayout.getLayoutParams();
+                            params.height = 0;
+                            appBarLayout.setLayoutParams(params);
                             //Apply 'Slide Up' animation
                             int resId = R.anim.layout_animation_from_bottom;
                             LayoutAnimationController animation = AnimationUtils.loadLayoutAnimation(getActivity(), resId);

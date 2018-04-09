@@ -1,6 +1,7 @@
 package com.thetestament.cread.adapters;
 
 import android.content.Intent;
+import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -20,6 +21,7 @@ import butterknife.ButterKnife;
 import de.hdodenhof.circleimageview.CircleImageView;
 
 import static com.thetestament.cread.utils.Constant.EXTRA_PROFILE_UUID;
+import static com.thetestament.cread.utils.Constant.REQUEST_CODE_USER_PROFILE_FROM_FEED;
 
 
 /**
@@ -29,6 +31,7 @@ public class SuggestedArtistsAdapter extends RecyclerView.Adapter<SuggestedArtis
 
     private List<SuggestedArtistsModel> mDataList;
     private FragmentActivity mContext;
+    private Fragment mFeedFragment;
 
     /**
      * Required constructor.
@@ -36,9 +39,10 @@ public class SuggestedArtistsAdapter extends RecyclerView.Adapter<SuggestedArtis
      * @param dataList List of SuggestedArtistModel
      * @param context  Context to use.
      */
-    public SuggestedArtistsAdapter(List<SuggestedArtistsModel> dataList, FragmentActivity context) {
+    public SuggestedArtistsAdapter(List<SuggestedArtistsModel> dataList, FragmentActivity context, Fragment feedFragment) {
         this.mDataList = dataList;
         this.mContext = context;
+        this.mFeedFragment = feedFragment;
     }
 
     @Override
@@ -93,7 +97,7 @@ public class SuggestedArtistsAdapter extends RecyclerView.Adapter<SuggestedArtis
             public void onClick(View view) {
                 Intent intent = new Intent(mContext, ProfileActivity.class);
                 intent.putExtra(EXTRA_PROFILE_UUID, UUID);
-                mContext.startActivity(intent);
+                mFeedFragment.startActivityForResult(intent, REQUEST_CODE_USER_PROFILE_FROM_FEED);
             }
         });
     }

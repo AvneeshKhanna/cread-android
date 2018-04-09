@@ -264,6 +264,10 @@ public class RecommendedArtistsActivity extends BaseActivity {
                         //Error occurred
                         else if (connectionError[0]) {
                             ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_internal));
+                        }
+                        //If data size is zero
+                        else if (mDataList.size() == 0) {
+                            ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_no_data));
                         } else {
                             //Apply 'Slide Up' animation
                             int resId = R.anim.layout_animation_from_bottom;
@@ -328,11 +332,12 @@ public class RecommendedArtistsActivity extends BaseActivity {
                                 public void onFollowSuccess() {
                                     //Hide progress view
                                     progressView.setVisibility(View.GONE);
-
                                     //remove item from list and notify changes
                                     mAdapter.deleteItem(itemPosition);
                                     //Show snack bar
                                     ViewHelper.getSnackBar(rootView, "Followed successfully");
+                                    //Set result ok
+                                    setResult(RESULT_OK);
                                 }
 
                                 @Override

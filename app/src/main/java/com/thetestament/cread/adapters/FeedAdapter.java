@@ -255,7 +255,7 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                     viewHolder.recyclerView.setLayoutManager(new LinearLayoutManager(mContext
                             , LinearLayoutManager.HORIZONTAL
                             , false));
-                    viewHolder.recyclerView.setAdapter(new SuggestedArtistsAdapter(dataList, mContext));
+                    viewHolder.recyclerView.setAdapter(new SuggestedArtistsAdapter(dataList, mContext, mFeedFragment));
                 }
 
                 @Override
