@@ -95,7 +95,9 @@ import static com.thetestament.cread.utils.Constant.IMAGE_TYPE_USER_CAPTURE_PIC;
 import static com.thetestament.cread.utils.Constant.REQUEST_CODE_FEED_DESCRIPTION_ACTIVITY;
 import static com.thetestament.cread.utils.Constant.REQUEST_CODE_OPEN_GALLERY_FOR_CAPTURE;
 import static com.thetestament.cread.utils.Constant.REQUEST_CODE_RECOMMENDED_ARTISTS_FROM_FEED;
+import static com.thetestament.cread.utils.Constant.REQUEST_CODE_RECOMMENDED_ARTISTS_FROM_FEED_ADAPTER;
 import static com.thetestament.cread.utils.Constant.REQUEST_CODE_USER_PROFILE_FROM_FEED;
+import static com.thetestament.cread.utils.Constant.REQUEST_CODE_USER_PROFILE_FROM_SUGGESTED_ADAPTER;
 
 public class FeedFragment extends Fragment implements listener.OnCollaborationListener {
 
@@ -233,15 +235,17 @@ public class FeedFragment extends Fragment implements listener.OnCollaborationLi
                 }
                 break;
             case REQUEST_CODE_RECOMMENDED_ARTISTS_FROM_FEED:
+            case REQUEST_CODE_USER_PROFILE_FROM_FEED:
                 if (resultCode == RESULT_OK) {
                     //Refresh data
                     loadFeedData();
                 }
                 break;
-            case REQUEST_CODE_USER_PROFILE_FROM_FEED:
+            case REQUEST_CODE_RECOMMENDED_ARTISTS_FROM_FEED_ADAPTER:
+            case REQUEST_CODE_USER_PROFILE_FROM_SUGGESTED_ADAPTER:
                 if (resultCode == RESULT_OK) {
-                    //Refresh data
-                    loadFeedData();
+                    //Notify changes
+                    mAdapter.notifyDataSetChanged();
                 }
                 break;
         }

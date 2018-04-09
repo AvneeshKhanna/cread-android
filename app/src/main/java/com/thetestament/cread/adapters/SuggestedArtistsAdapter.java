@@ -22,6 +22,7 @@ import de.hdodenhof.circleimageview.CircleImageView;
 
 import static com.thetestament.cread.utils.Constant.EXTRA_PROFILE_UUID;
 import static com.thetestament.cread.utils.Constant.REQUEST_CODE_USER_PROFILE_FROM_FEED;
+import static com.thetestament.cread.utils.Constant.REQUEST_CODE_USER_PROFILE_FROM_SUGGESTED_ADAPTER;
 
 
 /**
@@ -102,7 +103,7 @@ public class SuggestedArtistsAdapter extends RecyclerView.Adapter<SuggestedArtis
                 if (mStartActivityForResult) {
                     mFeedFragment.startActivityForResult(intent, REQUEST_CODE_USER_PROFILE_FROM_FEED);
                 } else {
-                    mContext.startActivity(intent);
+                    mFeedFragment.startActivityForResult(intent, REQUEST_CODE_USER_PROFILE_FROM_SUGGESTED_ADAPTER);
                 }
 
             }

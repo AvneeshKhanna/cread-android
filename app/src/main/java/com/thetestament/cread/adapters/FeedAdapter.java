@@ -73,6 +73,7 @@ import static com.thetestament.cread.utils.Constant.FIREBASE_EVENT_CAPTURE_CLICK
 import static com.thetestament.cread.utils.Constant.FIREBASE_EVENT_HAVE_CLICKED;
 import static com.thetestament.cread.utils.Constant.FIREBASE_EVENT_SHARED_FROM_MAIN_FEED;
 import static com.thetestament.cread.utils.Constant.FIREBASE_EVENT_WRITE_CLICKED;
+import static com.thetestament.cread.utils.Constant.REQUEST_CODE_RECOMMENDED_ARTISTS_FROM_FEED_ADAPTER;
 
 /**
  * Adapter class to provide a binding from data set to views that are displayed within a Feed RecyclerView.
@@ -285,7 +286,10 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             viewHolder.textShowMoreArtists.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    mContext.startActivity(new Intent(mContext, RecommendedArtistsActivity.class));
+                    //Open RecommendedArtists Screen
+                    Intent intent = new Intent(mContext, RecommendedArtistsActivity.class);
+                    mFeedFragment.startActivityForResult(intent
+                            , REQUEST_CODE_RECOMMENDED_ARTISTS_FROM_FEED_ADAPTER);
                 }
             });
         }
