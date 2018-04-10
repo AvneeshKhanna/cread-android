@@ -507,7 +507,7 @@ public class MeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         final boolean shouldShowCreatorOptions = mUUID.equals(data.getUUID());
 
         // init content options menu
-        if(!data.isEligibleForDownvote() && !shouldShowCreatorOptions)
+        if (!shouldShowCreatorOptions)
         {
             itemViewHolder.buttonMenu.setVisibility(View.GONE);
         }
@@ -519,7 +519,7 @@ public class MeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             itemViewHolder.buttonMenu.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    getMenuActionsBottomSheet(mContext, position, data, onContentDeleteListener, shouldShowCreatorOptions, mCompositeDisposable, new Bundle(), new Intent());
+                    getMenuActionsBottomSheet(mContext, position, data, onContentDeleteListener, shouldShowCreatorOptions);
                 }
             });
         }

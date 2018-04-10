@@ -153,8 +153,8 @@ public class CommentsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
             // Expand and collapse comments.
             toggleComment(itemViewHolder.textComment);
             //Open creator profile
-            openCreatorProfile(itemViewHolder.textUserName, data.getUuid());
-            openCreatorProfile(itemViewHolder.imageUser, data.getUuid());
+            openCreatorProfile(itemViewHolder.textUserName, data.getUuid(), mContext);
+            openCreatorProfile(itemViewHolder.imageUser, data.getUuid(), mContext);
         } else if (holder instanceof HeaderViewHolder) {
             final HeaderViewHolder headerViewHolder = (HeaderViewHolder) holder;
 
@@ -223,7 +223,7 @@ public class CommentsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
      *
      * @param textComment Comment textView.
      */
-    private void toggleComment(final TextView textComment) {
+    public static void toggleComment(final TextView textComment) {
         textComment.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -244,13 +244,13 @@ public class CommentsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
      * @param view        View to be clicked.
      * @param creatorUUID UUID of the creator.
      */
-    private void openCreatorProfile(View view, final String creatorUUID) {
+    public static void openCreatorProfile(View view, final String creatorUUID, final FragmentActivity context) {
         view.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent = new Intent(mContext, ProfileActivity.class);
+                Intent intent = new Intent(context, ProfileActivity.class);
                 intent.putExtra(EXTRA_PROFILE_UUID, creatorUUID);
-                mContext.startActivity(intent);
+                context.startActivity(intent);
             }
         });
     }

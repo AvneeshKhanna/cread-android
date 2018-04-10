@@ -286,7 +286,7 @@ public class ExploreAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
     }
 
     /**
-     * Follow button collabOnWritingClick functionality
+     * Follow button functionality
      *
      * @param itemPosition index  of the item.
      * @param data         Model for current item.
@@ -380,27 +380,11 @@ public class ExploreAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
      */
     private void toggleFollowButton(boolean followStatus, TextView buttonFollow, String creatorName) {
         if (followStatus) {
-           /* //Change background
-            ViewCompat.setBackground(buttonFollow
-                    , ContextCompat.getDrawable(context
-                            , R.drawable.button_filled));
-            //Change text color
-            buttonFollow.setTextColor(ContextCompat.getColor(context
-                    , R.color.white));
-            //Change text to 'follow'
-            buttonFollow.setText("Follow");*/
             // this case won't happen since follow button won't be visible and therefore user cannot click on it
             // show follow button
             buttonFollow.setVisibility(View.VISIBLE);
 
         } else {
-            /*ViewCompat.setBackground(buttonFollow
-                    , ContextCompat.getDrawable(context
-                            , R.drawable.button_outline));
-            buttonFollow.setTextColor(ContextCompat.getColor(context
-                    , R.color.grey_dark));
-            //Change text to 'following'
-            buttonFollow.setText("Following");*/
             buttonFollow.setVisibility(View.GONE);
             ViewHelper.getToast(mContext, "You are now following " + creatorName);
 
@@ -436,25 +420,8 @@ public class ExploreAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
      */
     private void checkFollowStatus(FeedModel data, ExploreAdapter.ListItemViewHolder itemViewHolder) {
         if (data.getFollowStatus() || mUUID.equals(data.getUUID())) {
-            /*ViewCompat.setBackground(buttonFollow
-                    , ContextCompat.getDrawable(context
-                            , R.drawable.button_outline));
-            buttonFollow.setTextColor(ContextCompat.getColor(context
-                    , R.color.grey_dark));
-            //Change text to 'following'
-            buttonFollow.setText("Following");*/
-            // hide follow button
             itemViewHolder.buttonFollow.setVisibility(View.GONE);
         } else {
-            //Change background
-            /*ViewCompat.setBackground(buttonFollow
-                    , ContextCompat.getDrawable(context
-                            , R.drawable.button_filled));
-            //Change text color
-            buttonFollow.setTextColor(ContextCompat.getColor(context
-                    , R.color.white));
-            //Change text to 'follow'
-            buttonFollow.setText("Follow");*/
             // show follow button
             itemViewHolder.buttonFollow.setVisibility(View.VISIBLE);
         }

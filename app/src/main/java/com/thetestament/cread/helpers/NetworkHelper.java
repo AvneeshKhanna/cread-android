@@ -124,6 +124,38 @@ public class NetworkHelper {
 
 
     /**
+     * Method to return data from the server.
+     *
+     * @param serverURL    URL of the server.
+     * @param uuid         UUID of the user.
+     * @param authKey      AuthKey of user i.e String.*
+     * @param lastIndexKey Last index key
+     */
+    public static Observable<JSONObject> getFeedDescPostsObservableFromServer(String serverURL, String uuid, String authKey, String entityID, String creatorUUID, String collaboratorUUID, String lastIndexKey, boolean getResponseFromNetwork) {
+
+        // used in feed fragemnt, explore fragment and inspiration activity, chat list
+
+        Map<String, String> header = new HashMap<>();
+        header.put("uuid", uuid);
+        header.put("authkey", authKey);
+
+        Rx2ANRequest.GetRequestBuilder requestBuilder = Rx2AndroidNetworking.get(serverURL)
+                .addHeaders(header)
+                .addQueryParameter("lastindexkey", lastIndexKey)
+                .addQueryParameter(Constant.PLATFORM_KEY, Constant.PLATFORM_VALUE)
+                .addQueryParameter("entityid", entityID)
+                .addQueryParameter("creatoruuid", creatorUUID)
+                .addQueryParameter("collaboratoruuid", collaboratorUUID);
+
+        if (getResponseFromNetwork) {
+            requestBuilder.getResponseOnlyFromNetwork();
+        }
+
+        return requestBuilder.build().getJSONObjectObservable();
+    }
+
+
+    /**
      * Reactive approach to retrieve user profile data from server.
      *
      * @param serverURL     URL of the server.
