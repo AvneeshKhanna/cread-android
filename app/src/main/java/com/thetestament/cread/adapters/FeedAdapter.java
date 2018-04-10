@@ -9,6 +9,8 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.widget.TextViewCompat;
+import android.support.v7.widget.AppCompatTextView;
+import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -29,11 +31,13 @@ import com.thetestament.cread.activities.CollaborationDetailsActivity;
 import com.thetestament.cread.activities.CommentsActivity;
 import com.thetestament.cread.activities.HatsOffActivity;
 import com.thetestament.cread.activities.MerchandisingProductsActivity;
+import com.thetestament.cread.activities.RecommendedArtistsActivity;
 import com.thetestament.cread.helpers.DownvoteHelper;
 import com.thetestament.cread.helpers.FeedHelper;
 import com.thetestament.cread.helpers.NetworkHelper;
-import com.thetestament.cread.helpers.SharedPreferenceHelper;
+import com.thetestament.cread.helpers.SuggestionHelper;
 import com.thetestament.cread.helpers.ViewHelper;
+import com.thetestament.cread.listeners.listener;
 import com.thetestament.cread.listeners.listener.OnDownvoteClickedListener;
 import com.thetestament.cread.listeners.listener.OnFeedLoadMoreListener;
 import com.thetestament.cread.listeners.listener.OnHatsOffListener;
@@ -41,6 +45,7 @@ import com.thetestament.cread.listeners.listener.OnShareDialogItemClickedListene
 import com.thetestament.cread.listeners.listener.OnShareLinkClickedListener;
 import com.thetestament.cread.listeners.listener.OnShareListener;
 import com.thetestament.cread.models.FeedModel;
+import com.thetestament.cread.models.SuggestedArtistsModel;
 
 import java.util.List;
 
@@ -68,6 +73,7 @@ import static com.thetestament.cread.utils.Constant.FIREBASE_EVENT_CAPTURE_CLICK
 import static com.thetestament.cread.utils.Constant.FIREBASE_EVENT_HAVE_CLICKED;
 import static com.thetestament.cread.utils.Constant.FIREBASE_EVENT_SHARED_FROM_MAIN_FEED;
 import static com.thetestament.cread.utils.Constant.FIREBASE_EVENT_WRITE_CLICKED;
+import static com.thetestament.cread.utils.Constant.REQUEST_CODE_RECOMMENDED_ARTISTS_FROM_FEED_ADAPTER;
 
 /**
  * Adapter class to provide a binding from data set to views that are displayed within a Feed RecyclerView.
@@ -76,6 +82,7 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
     private final int VIEW_TYPE_ITEM = 0;
     private final int VIEW_TYPE_LOADING = 1;
+    private final int VIEW_TYPE_RECOMMENDED_ARTIST = 2;
     private List<FeedModel> mFeedList;
     private FragmentActivity mContext;
     private Fragment mFeedFragment;
@@ -83,7 +90,11 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     private String mUUID;
     private CompositeDisposable mCompositeDisposable;
 
-    private SharedPreferenceHelper mHelper;
+    /**
+     * Flag to store 'Recommended Artists' position in list. Default value is 1.
+     */
+    private int recommendedArtistIndex = 5;
+
 
     private OnFeedLoadMoreListener onFeedLoadMoreListener;
     private OnHatsOffListener onHatsOffListener;
@@ -104,8 +115,6 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         this.mUUID = mUUID;
         this.mFeedFragment = mFeedFragment;
         this.mCompositeDisposable = mCompositeDisposable;
-
-        mHelper = new SharedPreferenceHelper(mContext);
     }
 
     /**
@@ -138,7 +147,7 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     }
 
     /**
-     * Register a callback to be invoked when user clicks on downvote button.
+     * Register a callback to be invoked when user clicks on down vote button.
      */
     public void setOnDownvoteClickedListener(OnDownvoteClickedListener onDownvoteClickedListener) {
         this.onDownvoteClickedListener = onDownvoteClickedListener;
@@ -146,7 +155,16 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
     @Override
     public int getItemViewType(int position) {
-        return mFeedList.get(position) == null ? VIEW_TYPE_LOADING : VIEW_TYPE_ITEM;
+        // return mFeedList.get(position) == null ? VIEW_TYPE_LOADING : VIEW_TYPE_ITEM;
+        if (mFeedList.get(position) == null) {
+            return VIEW_TYPE_LOADING;
+        } else {
+            if (position == recommendedArtistIndex) {
+                return VIEW_TYPE_RECOMMENDED_ARTIST;
+            } else {
+                return VIEW_TYPE_ITEM;
+            }
+        }
     }
 
     @Override
@@ -159,12 +177,16 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             return new LoadingViewHolder(LayoutInflater
                     .from(parent.getContext())
                     .inflate(R.layout.item_load_more, parent, false));
+        } else if (viewType == VIEW_TYPE_RECOMMENDED_ARTIST) {
+            return new RecommendedArtistViewHolder(LayoutInflater
+                    .from(parent.getContext())
+                    .inflate(R.layout.layout_recommended_artists, parent, false));
         }
         return null;
     }
 
     @Override
-    public void onBindViewHolder(RecyclerView.ViewHolder holder, final int position) {
+    public void onBindViewHolder(final RecyclerView.ViewHolder holder, final int position) {
         final FeedModel data = mFeedList.get(position);
 
         if (holder.getItemViewType() == VIEW_TYPE_ITEM) {
@@ -185,9 +207,9 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                     , false
                     , null);
 
-            //update downvote and dot seperator visibility
+            //Update down vote and dot separator visibility
             updateDownvoteAndSeperatorVisibility(data, itemViewHolder.dotSeperatorRight, itemViewHolder.imageDownvote);
-            //check downvote status
+            //check down vote status
             DownvoteHelper downvoteHelper = new DownvoteHelper();
             downvoteHelper.updateDownvoteUI(itemViewHolder.imageDownvote, data.isDownvoteStatus(), mContext);
             //Check whether user has given hats off to this campaign or not
@@ -205,18 +227,18 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             onHaveViewClicked(data, itemViewHolder);
             // caption on click
             onTitleClicked(itemViewHolder.textTitle);
-            // on hatsoff count click
+            // on HatsOff count click
             hatsOffCountOnClick(itemViewHolder, data);
             //Comment count click functionality
             commentOnClick(itemViewHolder.containerCommentCount, data.getEntityID());
-            // downvote click
-            downvoteOnClick(itemViewHolder.imageDownvote, data, position, itemViewHolder);
+            // downVote click
+            downVoteOnClick(itemViewHolder.imageDownvote, data, position, itemViewHolder);
             //check long form status
             checkLongFormStatus(itemViewHolder.containerLongShortPreview, data);
             //long form on click
             initLongFormPreviewClick(itemViewHolder.containerLongShortPreview, data, mContext, mCompositeDisposable);
 
-            // initialize hatsoff and comment count
+            //Initialize HatsOff and comment count
             initSocialActionsCount(mContext,
                     data,
                     itemViewHolder.containerHatsOffCount,
@@ -227,11 +249,67 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
             // initialize caption
             initCaption(mContext, data, itemViewHolder.textTitle);
-
-
         } else if (holder.getItemViewType() == VIEW_TYPE_LOADING) {
             LoadingViewHolder loadingViewHolder = (LoadingViewHolder) holder;
             loadingViewHolder.progressView.setVisibility(View.VISIBLE);
+        } else if (holder.getItemViewType() == VIEW_TYPE_RECOMMENDED_ARTIST) {
+            final RecommendedArtistViewHolder viewHolder = (RecommendedArtistViewHolder) holder;
+
+            final RecyclerView.LayoutParams params = (RecyclerView.LayoutParams) viewHolder.itemView.getLayoutParams();
+            //Show progressView
+            viewHolder.progressView.setVisibility(View.VISIBLE);
+
+            SuggestionHelper helper = new SuggestionHelper();
+            helper.getSuggestedArtistStatus(mContext, mCompositeDisposable, new listener.OnSuggestedArtistLoadListener() {
+                @Override
+                public void onSuccess(List<SuggestedArtistsModel> dataList) {
+                    //Hide itemView
+                    params.height = LinearLayout.LayoutParams.WRAP_CONTENT;
+                    params.width = LinearLayout.LayoutParams.MATCH_PARENT;
+                    viewHolder.itemView.setLayoutParams(params);
+                    //Hide progressView
+                    viewHolder.progressView.setVisibility(View.GONE);
+                    //Set Layout manager
+                    viewHolder.recyclerView.setLayoutManager(new LinearLayoutManager(mContext
+                            , LinearLayoutManager.HORIZONTAL
+                            , false));
+                    //Set adapter
+                    viewHolder.recyclerView.setAdapter(new SuggestedArtistsAdapter(dataList
+                            , mContext
+                            , mFeedFragment
+                            , false));
+                    if (dataList.size() == 0) {
+                        //Hide itemView
+                        params.height = 0;
+                        params.width = 0;
+                        viewHolder.itemView.setLayoutParams(params);
+                        //Hide view
+                        viewHolder.itemView.setVisibility(View.GONE);
+                    }
+                }
+
+                @Override
+                public void onFailure(String errorMsg) {
+                    //Hide itemView
+                    params.height = 0;
+                    params.width = 0;
+                    viewHolder.itemView.setLayoutParams(params);
+                    //Hide progressView
+                    viewHolder.progressView.setVisibility(View.GONE);
+                    //Show error toast
+                    ViewHelper.getShortToast(mContext, errorMsg);
+                }
+            });
+            //Click functionality
+            viewHolder.textShowMoreArtists.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    //Open RecommendedArtists Screen
+                    Intent intent = new Intent(mContext, RecommendedArtistsActivity.class);
+                    mFeedFragment.startActivityForResult(intent
+                            , REQUEST_CODE_RECOMMENDED_ARTISTS_FROM_FEED_ADAPTER);
+                }
+            });
         }
 
 
@@ -309,28 +387,6 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             itemViewHolder.mIsRotated = false;
         }
     }
-
-
-    /**
-     * ItemView onClick functionality.
-     *
-     * @param view      View to be clicked.
-     * @param feedModel Data set for current item
-     *//*
-    private void itemViewOnClick(View view, final FeedModel feedModel, final int position) {
-        view.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Bundle bundle = new Bundle();
-                bundle.putParcelable(EXTRA_FEED_DESCRIPTION_DATA, feedModel);
-                bundle.putInt("position", position);
-
-                Intent intent = new Intent(mContext, FeedDescriptionActivity.class);
-                intent.putExtra(EXTRA_DATA, bundle);
-                mFeedFragment.startActivityForResult(intent, REQUEST_CODE_FEED_DESCRIPTION_ACTIVITY);
-            }
-        });
-    }*/
 
     /**
      * Compose onClick functionality.
@@ -481,7 +537,7 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         });
     }
 
-    private void downvoteOnClick(ImageView imageView, final FeedModel data, final int position, final ItemViewHolder itemViewHolder) {
+    private void downVoteOnClick(ImageView imageView, final FeedModel data, final int position, final ItemViewHolder itemViewHolder) {
         imageView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -493,9 +549,9 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
 
     /**
-     * Caption click listner
+     * Caption click listener
      */
-    void onTitleClicked(final TextView textTitle) {
+    private void onTitleClicked(final TextView textTitle) {
 
         textTitle.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -516,8 +572,7 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     /**
      * Have button click functionality.
      */
-
-    public void onHaveViewClicked(final FeedModel data, final ItemViewHolder itemViewHolder) {
+    private void onHaveViewClicked(final FeedModel data, final ItemViewHolder itemViewHolder) {
 
         itemViewHolder.buttonHave.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -550,7 +605,6 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     /**
      * HatsOffCount click functionality to open "HatsOffActivity" screen.
      */
-
     void hatsOffCountOnClick(ItemViewHolder itemViewHolder, final FeedModel data) {
 
         itemViewHolder.containerHatsOffCount.setOnClickListener(new View.OnClickListener() {
@@ -659,6 +713,23 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         }
     }
 
+    //RecommendedArtistViewHolder class
+    static class RecommendedArtistViewHolder extends RecyclerView.ViewHolder {
+
+        @BindView(R.id.textRecommendedArtists)
+        AppCompatTextView textRecommendedArtists;
+        @BindView(R.id.textShowMoreArtists)
+        AppCompatTextView textShowMoreArtists;
+        @BindView(R.id.recyclerViewRecommendedArtists)
+        RecyclerView recyclerView;
+        @BindView(R.id.progressView)
+        View progressView;
+
+        public RecommendedArtistViewHolder(View itemView) {
+            super(itemView);
+            ButterKnife.bind(this, itemView);
+        }
+    }
 
     /**
      * Method to send analytics data on firebase server.
@@ -680,5 +751,14 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             FirebaseAnalytics.getInstance(mContext).logEvent(FIREBASE_EVENT_CAPTURE_CLICKED, bundle);
         }
 
+    }
+
+    /**
+     * Method to update RecommendedArtistIndex.
+     *
+     * @param index Index value.
+     */
+    public void updateRecommendedArtistIndex(int index) {
+        recommendedArtistIndex = index;
     }
 }

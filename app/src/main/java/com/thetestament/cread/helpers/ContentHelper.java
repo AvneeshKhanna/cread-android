@@ -13,8 +13,6 @@ import com.thetestament.cread.activities.ShortActivity;
 import com.thetestament.cread.listeners.listener;
 import com.thetestament.cread.models.FeedModel;
 
-import io.reactivex.disposables.CompositeDisposable;
-
 import static com.thetestament.cread.helpers.DeletePostHelper.showDeleteConfirmationDialog;
 import static com.thetestament.cread.utils.Constant.CONTENT_TYPE_CAPTURE;
 import static com.thetestament.cread.utils.Constant.CONTENT_TYPE_SHORT;
@@ -84,7 +82,7 @@ public class ContentHelper {
      */
 
     public static void getMenuActionsBottomSheet(final FragmentActivity context, final int index
-            , final FeedModel data, final listener.OnContentDeleteListener onContentDeleteListener, boolean shouldShowCreatorOptions, final CompositeDisposable compositeDisposable, final Bundle resultBundle, final Intent resultIntent) {
+            , final FeedModel data, final listener.OnContentDeleteListener onContentDeleteListener, boolean shouldShowCreatorOptions) {
 
         final BottomSheetDialog bottomSheetDialog = new BottomSheetDialog(context);
         //inflate this view
@@ -94,15 +92,9 @@ public class ContentHelper {
         bottomSheetDialog.setContentView(sheetView);
         bottomSheetDialog.show();
 
-        if (shouldShowCreatorOptions && data.isEligibleForDownvote()) {
+        if (shouldShowCreatorOptions) {
             //init options
             initContentCreatorOptions(bottomSheetDialog, sheetView, context, index, data, onContentDeleteListener);
-            //initDownvoteOption(bottomSheetDialog, sheetView, data, context, resultBundle, resultIntent, compositeDisposable);
-
-        } else if (shouldShowCreatorOptions) {
-            initContentCreatorOptions(bottomSheetDialog, sheetView, context, index, data, onContentDeleteListener);
-        } else if (data.isEligibleForDownvote()) {
-            //initDownvoteOption(bottomSheetDialog, sheetView, data, context, resultBundle, resultIntent, compositeDisposable);
         }
     }
 

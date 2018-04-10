@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@color/white">
+
+    <android.support.v7.widget.AppCompatTextView
+        android:id="@+id/textRecommendedArtists"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:paddingBottom="8dp"
+        android:paddingLeft="8dp"
+        android:paddingRight="8dp"
+        android:paddingTop="16dp"
+        android:text="You might like to follow"
+        android:textColor="@color/black_defined"
+        android:textSize="14sp" />
+
+    <android.support.v7.widget.AppCompatTextView
+        android:id="@+id/textShowMoreArtists"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:paddingBottom="8dp"
+        android:paddingLeft="8dp"
+        android:paddingRight="16dp"
+        android:paddingTop="16dp"
+        android:text="More"
+        android:textColor="@color/colorPrimary"
+        android:textSize="14sp" />
+
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/recyclerViewRecommendedArtists"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/textRecommendedArtists"
+        android:orientation="horizontal"
+        android:visibility="visible"
+        app:layoutManager="android.support.v7.widget.LinearLayoutManager"
+        tools:itemCount="6"
+        tools:listitem="@layout/item_suggested_artists" />
+
+    <include
+        android:id="@+id/progressView"
+        layout="@layout/layout_progress_bar"
+        android:layout_width="24dp"
+        android:layout_height="24dp"
+        android:layout_centerHorizontal="true"
+        android:layout_centerVertical="true"
+        android:visibility="gone" />
+</RelativeLayout>

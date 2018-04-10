@@ -35,6 +35,10 @@ public class Constant {
     public static final int REQUEST_CODE_CHAT_REQUEST = 1016;
     public static final int REQUEST_CODE_CHAT_DETAILS_FROM_USER_PROFILE = 1016;
     public static final int REQUEST_CODE_COLLABORATION_INVITATION = 1017;
+    public static final int REQUEST_CODE_RECOMMENDED_ARTISTS_FROM_FEED = 1018;
+    public static final int REQUEST_CODE_USER_PROFILE_FROM_FEED = 1019;
+    public static final int REQUEST_CODE_RECOMMENDED_ARTISTS_FROM_FEED_ADAPTER = 1020;
+    public static final int REQUEST_CODE_USER_PROFILE_FROM_SUGGESTED_ADAPTER = 1021;
     //public static final int REQUEST_CODE_EDIT_SHORT = 1013;
     //endregion
 

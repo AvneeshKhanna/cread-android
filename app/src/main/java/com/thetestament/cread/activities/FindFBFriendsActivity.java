@@ -411,7 +411,7 @@ public class FindFBFriendsActivity extends BaseActivity {
                     }
 
                     @Override
-                    public void onFollowFailiure(String errorMsg) {
+                    public void onFollowFailure(String errorMsg) {
 
                         //set status to true if its false and vice versa
                         mFollowStatus = !mFollowStatus;

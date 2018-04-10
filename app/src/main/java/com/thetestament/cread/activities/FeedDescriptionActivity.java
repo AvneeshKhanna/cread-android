@@ -3,60 +3,38 @@ package com.thetestament.cread.activities;
 
 import android.content.Intent;
 import android.graphics.Bitmap;
-import android.graphics.Color;
-import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.CoordinatorLayout;
-import android.support.v13.view.ViewCompat;
-import android.support.v4.app.ActivityCompat;
-import android.support.v4.content.ContextCompat;
-import android.support.v4.widget.NestedScrollView;
-import android.support.v4.widget.TextViewCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.animation.AnimationUtils;
-import android.view.animation.LayoutAnimationController;
-import android.widget.FrameLayout;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
-import android.widget.TextView;
 
-import com.afollestad.materialdialogs.DialogAction;
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.google.firebase.analytics.FirebaseAnalytics;
 import com.google.firebase.crash.FirebaseCrash;
-import com.squareup.picasso.Callback;
-import com.squareup.picasso.NetworkPolicy;
-import com.squareup.picasso.Picasso;
-import com.squareup.picasso.RequestCreator;
-import com.squareup.picasso.Target;
 import com.thetestament.cread.BuildConfig;
 import com.thetestament.cread.Manifest;
 import com.thetestament.cread.R;
-import com.thetestament.cread.adapters.CommentsAdapter;
-import com.thetestament.cread.adapters.ShareDialogAdapter;
+import com.thetestament.cread.adapters.FeedDescriptionAdapter;
 import com.thetestament.cread.helpers.DownvoteHelper;
 import com.thetestament.cread.helpers.FeedHelper;
 import com.thetestament.cread.helpers.FollowHelper;
 import com.thetestament.cread.helpers.HatsOffHelper;
 import com.thetestament.cread.helpers.ImageHelper;
-import com.thetestament.cread.helpers.LongShortHelper;
-import com.thetestament.cread.helpers.NetworkHelper;
 import com.thetestament.cread.helpers.ShareHelper;
 import com.thetestament.cread.helpers.SharedPreferenceHelper;
 import com.thetestament.cread.helpers.ViewHelper;
 import com.thetestament.cread.listeners.listener;
-import com.thetestament.cread.listeners.listener.OnContentDeleteListener;
 import com.thetestament.cread.models.CommentsModel;
 import com.thetestament.cread.models.FeedModel;
-import com.thetestament.cread.models.ShortModel;
 import com.thetestament.cread.utils.RxUtils;
 import com.yalantis.ucrop.UCrop;
 
@@ -69,8 +47,6 @@ import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import butterknife.OnClick;
-import de.hdodenhof.circleimageview.CircleImageView;
 import icepick.Icepick;
 import icepick.State;
 import io.reactivex.Observer;
@@ -82,33 +58,20 @@ import io.reactivex.schedulers.Schedulers;
 import pl.tajchert.nammu.Nammu;
 import pl.tajchert.nammu.PermissionCallback;
 
-import static com.thetestament.cread.CreadApp.IMAGE_LOAD_FROM_NETWORK_FEED_DESCRIPTION;
+import static com.thetestament.cread.CreadApp.GET_RESPONSE_FROM_NETWORK_MORE_POSTS;
 import static com.thetestament.cread.dialog.DialogHelper.getDeletePostDialog;
-import static com.thetestament.cread.helpers.ContentHelper.getMenuActionsBottomSheet;
 import static com.thetestament.cread.helpers.DeepLinkHelper.generateDeepLink;
 import static com.thetestament.cread.helpers.DeletePostHelper.deletePost;
-import static com.thetestament.cread.helpers.FeedHelper.initCaption;
-import static com.thetestament.cread.helpers.FeedHelper.initializeShareDialog;
-import static com.thetestament.cread.helpers.FeedHelper.updateDotSeperatorVisibility;
-import static com.thetestament.cread.helpers.FeedHelper.updateDownvoteAndSeperatorVisibility;
+import static com.thetestament.cread.helpers.FeedHelper.updateFollowForAll;
 import static com.thetestament.cread.helpers.ImageHelper.getImageUri;
 import static com.thetestament.cread.helpers.NetworkHelper.getCommentObservableFromServer;
+import static com.thetestament.cread.helpers.NetworkHelper.getFeedDescPostsObservableFromServer;
+import static com.thetestament.cread.helpers.NetworkHelper.requestServer;
 import static com.thetestament.cread.utils.Constant.CONTENT_TYPE_CAPTURE;
 import static com.thetestament.cread.utils.Constant.CONTENT_TYPE_SHORT;
-import static com.thetestament.cread.utils.Constant.EXTRA_CAPTURE_URL;
-import static com.thetestament.cread.utils.Constant.EXTRA_CAPTURE_UUID;
 import static com.thetestament.cread.utils.Constant.EXTRA_DATA;
-import static com.thetestament.cread.utils.Constant.EXTRA_ENTITY_ID;
-import static com.thetestament.cread.utils.Constant.EXTRA_ENTITY_TYPE;
 import static com.thetestament.cread.utils.Constant.EXTRA_FEED_DESCRIPTION_DATA;
 import static com.thetestament.cread.utils.Constant.EXTRA_FROM_UPDATES_COMMENT_MENTION;
-import static com.thetestament.cread.utils.Constant.EXTRA_SHORT_DATA;
-import static com.thetestament.cread.utils.Constant.EXTRA_SHORT_UUID;
-import static com.thetestament.cread.utils.Constant.FIREBASE_EVENT_CAPTURE_CLICKED;
-import static com.thetestament.cread.utils.Constant.FIREBASE_EVENT_FOLLOW_FROM_FEED_DESCRIPTION;
-import static com.thetestament.cread.utils.Constant.FIREBASE_EVENT_HAVE_CLICKED;
-import static com.thetestament.cread.utils.Constant.FIREBASE_EVENT_SHARED_FROM_FEED_DESCRIPTION;
-import static com.thetestament.cread.utils.Constant.FIREBASE_EVENT_WRITE_CLICKED;
 import static com.thetestament.cread.utils.Constant.IMAGE_TYPE_USER_CAPTURE_PIC;
 import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_CAPTION_TEXT;
 import static com.thetestament.cread.utils.Constant.REQUEST_CODE_COMMENTS_ACTIVITY;
@@ -121,65 +84,25 @@ import static com.thetestament.cread.utils.Constant.USER_ACTION_TYPE_VIEW;
  */
 public class FeedDescriptionActivity extends BaseActivity implements listener.OnCollaborationListener {
 
+    //region: Butterknife view bindings
     @BindView(R.id.rootView)
     CoordinatorLayout rootView;
-    @BindView(R.id.imageCreator)
-    CircleImageView imageCreator;
-    @BindView(R.id.textCreatorName)
-    TextView textCreatorName;
-    @BindView(R.id.contentImage)
-    ImageView image;
-    @BindView(R.id.containerCommentsCount)
-    LinearLayout containerCommentsCount;
-    @BindView(R.id.containerHatsoffCount)
-    LinearLayout containerHatsOffCount;
-    @BindView(R.id.containerCollabCount)
-    LinearLayout containerCollabCount;
-    @BindView(R.id.textHatsOffCount)
-    TextView textHatsoffCount;
-    @BindView(R.id.textCommentsCount)
-    TextView textCommentsCount;
-    @BindView(R.id.textCollabCount)
-    TextView textCollabCount;
-    @BindView(R.id.imageHatsOff)
-    ImageView imageHatsOff;
-    @BindView(R.id.recyclerView)
-    RecyclerView recyclerView;
-    @BindView(R.id.textShowComments)
-    TextView showAllComments;
-    @BindView(R.id.buttonHave)
-    LinearLayout buttonHave;
-    @BindView(R.id.lineSeparatorTop)
-    View lineSeparatorTop;
-    @BindView(R.id.containerHatsOff)
-    LinearLayout containerHatsOff;
-    @BindView(R.id.lineSeparatorBottom)
-    View lineSeparatorBottom;
-    @BindView(R.id.nestedScrollView)
-    NestedScrollView nestedScrollView;
-    @BindView(R.id.buttonCollaborate)
-    TextView buttonCollaborate;
-    @BindView(R.id.textTitle)
-    TextView textTitle;
-    @BindView(R.id.dotSeperator)
-    TextView dotSeperator;
-    @BindView(R.id.buttonFollow)
-    TextView buttonFollow;
-    @BindView(R.id.buttonMenu)
-    ImageView buttonMenu;
-    @BindView(R.id.imageDownvote)
-    ImageView imageDownvote;
-    @BindView(R.id.dotSeperatorRight)
-    TextView dotSeperatorRight;
-    @BindView(R.id.containerLongShortPreview)
-    FrameLayout containerLongShortPreview;
+    @BindView(R.id.recyclerViewPosts)
+    RecyclerView recyclerViewPosts;
+    @BindView(R.id.viewProgress)
+    View progressBar;
+    //endregion
 
-
+    //region: variables and flags
     private SharedPreferenceHelper mHelper;
     private CompositeDisposable mCompositeDisposable = new CompositeDisposable();
     private FeedModel mFeedData;
     private FirebaseAnalytics mFirebaseAnalytics;
     private AppCompatActivity mContext;
+    FeedModel shareSpecificEntity;
+
+    @State
+    String mEntityID, mEntityType;
 
     @State
     int mItemPosition;
@@ -189,12 +112,21 @@ public class FeedDescriptionActivity extends BaseActivity implements listener.On
     boolean isUserCreator;
     @State
     boolean shouldScroll;
+    @State
+    boolean mRequestMoreData;
 
     @State
     Bundle resultBundle = new Bundle();
 
-    Intent resultIntent = new Intent();
+    @State
+    String mLastIndexKey;
 
+    private List<FeedModel> mPostsList = new ArrayList<>();
+    Intent resultIntent = new Intent();
+    FeedDescriptionAdapter mAdapter;
+    //endregion
+
+    //region: Overidden methods
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -253,7 +185,7 @@ public class FeedDescriptionActivity extends BaseActivity implements listener.On
                     Uri mCroppedImgUri = UCrop.getOutput(data);
 
                     ImageHelper.performSquareImageManipulation(mCroppedImgUri, FeedDescriptionActivity.this
-                            , rootView, mFeedData.getEntityID(), mFeedData.getContentType());
+                            , rootView, mEntityID, mEntityType);
 
                 } else if (resultCode == UCrop.RESULT_ERROR) {
                     ViewHelper.getSnackBar(rootView, "Image could not be cropped due to some error");
@@ -263,18 +195,15 @@ public class FeedDescriptionActivity extends BaseActivity implements listener.On
             case REQUEST_CODE_EDIT_POST:
                 if (resultCode == RESULT_OK) {
 
-                    // reload image
-                    // because short can be edited
-                    // and it's image will change
-
-                    loadStoryImage(mFeedData.getContentImage(), image);
-
                     // get edited caption
                     String editedCaption = data.getStringExtra(PREVIEW_EXTRA_CAPTION_TEXT);
 
                     // update the caption
                     mFeedData.setCaption(editedCaption);
-                    initCaption(mContext, mFeedData, textTitle);
+                    mPostsList.set(0, mFeedData);
+                    // editing is only allowed for 0 position
+                    mAdapter.notifyItemChanged(0);
+
 
                     resultBundle.putString("caption", editedCaption);
                     setResult(RESULT_OK, resultIntent);
@@ -318,251 +247,322 @@ public class FeedDescriptionActivity extends BaseActivity implements listener.On
         }
     }
 
-    /**
-     * HatsOffCount click functionality to open "HatsOffActivity" screen.
-     */
-    @OnClick(R.id.containerHatsoffCount)
-    void hatsOffCountOnClick() {
-        Intent intent = new Intent(this, HatsOffActivity.class);
-        intent.putExtra(EXTRA_ENTITY_ID, mFeedData.getEntityID());
-        startActivity(intent);
+
+    @Override
+    public void collaborationOnGraphic() {
+
     }
 
+    @Override
+    public void collaborationOnWriting(String entityID, String entityType) {
 
-    @OnClick(R.id.textTitle)
-    void onTitleClicked() {
-        if (TextViewCompat.getMaxLines(textTitle) == 3) {
-            // expand title
-            textTitle.setMaxLines(Integer.MAX_VALUE);
+        //Set entity id
+        mEntityID = entityID;
+        mEntityType = entityType;
+        //Check for Write permission
+        if (Nammu.checkPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+            //We have permission do whatever you want to do
+            chooseImageFromGallery();
         } else {
-            // collapse title
-            textTitle.setMaxLines(3);
-        }
-    }
-
-    /**
-     * Have button click functionality.
-     */
-    @OnClick(R.id.buttonHave)
-    public void onViewClicked() {
-        if (mFeedData.isMerchantable()) {
-            Intent intent = new Intent(this, MerchandisingProductsActivity.class);
-            intent.putExtra(EXTRA_ENTITY_ID, mFeedData.getEntityID());
-            intent.putExtra(EXTRA_CAPTURE_URL, mFeedData.getContentImage());
-            // getting short uuid and capture uuid
-            if (mFeedData.getContentType().equals(CONTENT_TYPE_SHORT)) {
-                intent.putExtra(EXTRA_SHORT_UUID, mFeedData.getUUID());
-                intent.putExtra(EXTRA_CAPTURE_UUID, mFeedData.getCollabWithUUID());
-            } else if (mFeedData.getContentType().equals(CONTENT_TYPE_CAPTURE)) {
-                intent.putExtra(EXTRA_SHORT_UUID, mFeedData.getCollabWithUUID());
-                intent.putExtra(EXTRA_CAPTURE_UUID, mFeedData.getUUID());
-            }
-            startActivity(intent);
-        } else {
-            ViewHelper.getSnackBar(rootView, "Due to low resolution this image is not available for purchase.");
-        }
-        //Log firebase event
-        setAnalytics(FIREBASE_EVENT_HAVE_CLICKED);
-    }
-
-    /**
-     * Click functionality to open "CommentsActivity" screen.
-     */
-    @OnClick({R.id.containerComment, R.id.textShowComments, R.id.containerCommentsCount})
-    void onCommentsClicked() {
-        Intent intent = new Intent(this, CommentsActivity.class);
-        intent.putExtra(EXTRA_ENTITY_ID, mFeedData.getEntityID());
-        startActivityForResult(intent, REQUEST_CODE_COMMENTS_ACTIVITY);
-    }
-
-    /**
-     * HatsOff Click functionality.
-     */
-    @OnClick(R.id.containerHatsOff)
-    void onContainerHatsOffClicked() {
-        // check net status
-        if (NetworkHelper.getNetConnectionStatus(FeedDescriptionActivity.this)) {
-            //User has already given hats off
-            if (mFeedData.getHatsOffStatus()) {
-                //Animation for hats off
-                imageHatsOff.startAnimation(AnimationUtils.loadAnimation(this, R.anim.reverse_rotate_animation_hats_off_30_degree));
-                //Toggle hatsOff tint
-                imageHatsOff.setColorFilter(Color.TRANSPARENT);
-                //Toggle hatsOff status
-                mFeedData.setHatsOffStatus(!mFeedData.getHatsOffStatus());
-                //Update hatsOffCount
-                mFeedData.setHatsOffCount(mFeedData.getHatsOffCount() - 1);
-                //If hats off count is zero
-                if (mFeedData.getHatsOffCount() < 1) {
-                    containerHatsOffCount.setVisibility(View.GONE);
-                }
-                //hats off count is more than zero
-                else {
-                    //Change hatsOffCount i.e decrease by one
-                    containerHatsOffCount.setVisibility(View.VISIBLE);
-                    textHatsoffCount.setText(String.valueOf(mFeedData.getHatsOffCount()));
-                }
-
+            //We do not own this permission
+            if (Nammu.shouldShowRequestPermissionRationale(this
+                    , Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+                //User already refused to give us this permission or removed it
+                ViewHelper.getToast(this
+                        , getString(R.string.error_msg_capture_permission_denied));
             } else {
-                //Animation for hats off
-                imageHatsOff.startAnimation(AnimationUtils.loadAnimation(this, R.anim.rotate_animation_hats_off_30_degree));
-                //Toggle hatsOff tint
-                imageHatsOff.setColorFilter(ContextCompat.getColor(this, R.color.colorPrimary));
-                //Toggle hatsOff status
-                mFeedData.setHatsOffStatus(!mFeedData.getHatsOffStatus());
-                //Update hatsOffCount
-                mFeedData.setHatsOffCount(mFeedData.getHatsOffCount() + 1);
-                //Change hatsOffCount i.e increase by one
-                containerHatsOffCount.setVisibility(View.VISIBLE);
-                textHatsoffCount.setText(String.valueOf(mFeedData.getHatsOffCount()));
+                //First time asking for permission
+                Nammu.askForPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE, captureWritePermission);
             }
-
-            updateDotSeperatorVisibility(mFeedData, dotSeperator);
-            //update hats off status on server
-            updateHatsOffStatus();
-
-        } else {
-            ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_no_connection));
         }
     }
+    //endregion
 
-    /**
-     * Share button click functionality.
-     */
-    @OnClick(R.id.containerShares)
-    void shareOnClick() {
 
-        ShareDialogAdapter adapter = new ShareDialogAdapter(mContext, initializeShareDialog(mContext));
-        final MaterialDialog dialog = new MaterialDialog.Builder(mContext)
-                .adapter(adapter, null)
-                .show();
-        adapter.setShareDialogItemClickedListener(new listener.OnShareDialogItemClickedListener() {
-            @Override
-            public void onShareDialogItemClicked(int index) {
 
-                // dismiss dialog
-                dialog.dismiss();
-
-                switch (index) {
-                    case 0:
-                        // image sharing
-                        //so load image
-                        loadBitmapForSharing();
-                        break;
-                    case 1:
-                        // link sharing
-                        // get deep link from server
-                        generateDeepLink(mContext,
-                                mCompositeDisposable,
-                                rootView,
-                                mHelper.getUUID(),
-                                mHelper.getAuthToken(),
-                                mFeedData.getEntityID(),
-                                mFeedData.getContentImage(),
-                                mFeedData.getCreatorName());
-                        break;
-
-                }
-            }
-        });
-    }
-
-    /**
-     * Collaboration count click functionality to launch collaborationDetailsActivity.
-     */
-    @OnClick(R.id.containerCollabCount)
-    void collaborationCountOnClick() {
-
-        Bundle bundle = new Bundle();
-        bundle.putString(EXTRA_ENTITY_ID, mFeedData.getEntityID());
-        bundle.putString(EXTRA_ENTITY_TYPE, mFeedData.getContentType());
-
-        Intent intent = new Intent(FeedDescriptionActivity.this, CollaborationDetailsActivity.class);
-        intent.putExtra(EXTRA_DATA, bundle);
-        startActivity(intent);
-    }
-
-    @OnClick(R.id.buttonFollow)
-    void onFollowClick() {
-        // check net status
-        if (NetworkHelper.getNetConnectionStatus(mContext)) {
-            //Toggle status
-            mFeedData.setFollowStatus(!mFeedData.getFollowStatus());
-            //Toggle follow button
-            toggleFollowButton(true);
-            // update status on server
-            updateFollowStatus();
-            //Log firebase event
-            setAnalytics(FIREBASE_EVENT_FOLLOW_FROM_FEED_DESCRIPTION);
-        } else {
-            ViewHelper.getToast(mContext, mContext.getString(R.string.error_msg_no_connection));
-        }
-    }
-
-    @OnClick(R.id.buttonMenu)
-    void onMenuClick() {
-        getMenuActionsBottomSheet(mContext, mItemPosition, mFeedData, initDeletePostClick(), isUserCreator, mCompositeDisposable, resultBundle, resultIntent);
-    }
-
-    @OnClick(R.id.imageDownvote)
-    void onDownvoteClicked() {
-        DownvoteHelper downvoteHelper = new DownvoteHelper();
-
-        // if already downvoted
-        if (mFeedData.isDownvoteStatus()) {
-            downvoteHelper.initDownvoteProcess(mContext
-                    , mFeedData
-                    , mCompositeDisposable
-                    , imageDownvote
-                    , resultBundle
-                    , resultIntent);
-        } else
-
-        {   // show warning dialog
-            downvoteHelper.initDownvoteWarningDialog(mContext, mFeedData, mCompositeDisposable, imageDownvote, resultBundle, resultIntent);
-
-        }
-    }
-
-    /**
-     * Click action for long form preview option
-     */
-    @OnClick(R.id.containerLongShortPreview)
-    void onLongShortPreviewClicked() {
-        LongShortHelper longShortHelper = new LongShortHelper();
-        longShortHelper.getLongShortData(mContext, mCompositeDisposable, mFeedData.getEntityID(), new listener.OnLongShortDataRequestedListener() {
-            @Override
-            public void onLongShortDataSuccess(ShortModel shortModel) {
-                // open activity and pass data
-                Intent intent = new Intent(mContext, ViewLongShortActivity.class);
-                intent.putExtra(EXTRA_SHORT_DATA, shortModel);
-                mContext.startActivity(intent);
-
-            }
-
-            @Override
-            public void onLongShortDataFailiure(String errorMsg) {
-
-                ViewHelper.getToast(mContext, errorMsg);
-
-            }
-        });
-    }
-
+    //region: private methods
 
     /**
      * Method to initialize views for this screen.
      */
     private void initViews() {
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
+
         //Get data from intent
         retrieveIntentData();
-        //Load story image
-        loadStoryImage(mFeedData.getContentImage(), image);
-        //Load creator image
-        loadCreatorImage(mFeedData.getCreatorImage(), imageCreator);
-        //toggle hats off status
-        toggleHatsOffStatus();
+    }
+
+    /**
+     * Initialize load more listener.
+     *
+     * @param adapter FeedAdapter reference.
+     */
+    private void initLoadMoreListener(FeedDescriptionAdapter adapter) {
+
+        adapter.setOnFeedLoadMoreListener(new listener.OnFeedLoadMoreListener() {
+            @Override
+            public void onLoadMore() {
+                if (mRequestMoreData) {
+
+                    new Handler().post(new Runnable() {
+                                           @Override
+                                           public void run() {
+                                               mPostsList.add(null);
+                                               mAdapter.notifyItemInserted(mPostsList.size() - 1);
+                                           }
+                                       }
+                    );
+                    //Load new set of data
+                    getNextPostsData();
+                }
+            }
+        });
+    }
+
+    /**
+     * Initialize share link listener.
+     */
+    private void initShareLinkClickedListener() {
+        mAdapter.setOnShareLinkClickedListener(new listener.OnShareLinkClickedListener() {
+
+
+            @Override
+            public void onShareLinkClicked(String entityID, String entityURL, String creatorName) {
+
+                // generates deep link
+                // and opens the share dialog
+                generateDeepLink(mContext,
+                        mCompositeDisposable,
+                        rootView,
+                        mHelper.getUUID(),
+                        mHelper.getAuthToken(),
+                        entityID,
+                        entityURL,
+                        creatorName);
+            }
+        });
+    }
+
+    /**
+     * Initialize share listener.
+     */
+    private void initShareListener(FeedDescriptionAdapter feedAdapter) {
+        feedAdapter.setOnShareListener(new listener.OnShareListener() {
+            @Override
+            public void onShareClick(Bitmap bitmap, FeedModel data) {
+                mBitmap = bitmap;
+                shareSpecificEntity = data;
+                //Check for Write permission
+                if (Nammu.checkPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+                    //We have permission do whatever you want to do
+                    ShareHelper.sharePost(bitmap, mContext, shareSpecificEntity);
+                } else {
+                    //We do not own this permission
+                    if (Nammu.shouldShowRequestPermissionRationale(mContext
+                            , Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+                        //User already refused to give us this permission or removed it
+                        ViewHelper.getToast(mContext
+                                , getString(R.string.error_msg_share_permission_denied));
+                    } else {
+                        //First time asking for permission
+                        Nammu.askForPermission(mContext, Manifest.permission.WRITE_EXTERNAL_STORAGE, shareWritePermission);
+                    }
+                }
+            }
+        });
+    }
+
+    private void initDownvoteListener(FeedDescriptionAdapter feedAdapter) {
+        feedAdapter.setOnDownvoteClickedListener(new listener.OnDownvoteClickedListener() {
+            @Override
+            public void onDownvoteClicked(FeedModel data, int position, ImageView imageDownvote) {
+
+                DownvoteHelper downvoteHelper = new DownvoteHelper();
+
+                if (position == 0) {
+                    // if already downvoted
+                    if (data.isDownvoteStatus()) {
+                        downvoteHelper.initDownvoteProcess(mContext
+                                , data
+                                , mCompositeDisposable
+                                , imageDownvote
+                                , resultBundle
+                                , resultIntent);
+                    } else
+
+                    {   // show warning dialog
+                        downvoteHelper.initDownvoteWarningDialog(mContext, data, mCompositeDisposable, imageDownvote, resultBundle, resultIntent);
+
+                    }
+                } else {
+                    // if already downvoted
+                    if (data.isDownvoteStatus()) {
+                        downvoteHelper.initDownvoteProcess(mContext
+                                , data
+                                , mCompositeDisposable
+                                , imageDownvote
+                                , new Bundle()
+                                , new Intent());
+                    } else
+
+                    {   // show warning dialog
+                        downvoteHelper.initDownvoteWarningDialog(mContext, data, mCompositeDisposable, imageDownvote, new Bundle(), new Intent());
+
+                    }
+                }
+
+
+            }
+        });
+    }
+
+
+    /**
+     * Initialize hats off listener.
+     *
+     * @param adapter FeedAdapter reference.
+     */
+    private void initHatsOffListener(FeedDescriptionAdapter adapter) {
+        adapter.setHatsOffListener(new listener.OnHatsOffListener() {
+            @Override
+            public void onHatsOffClick(final FeedModel feedData, final int itemPosition) {
+
+                HatsOffHelper hatsOffHelper = new HatsOffHelper(mContext);
+                hatsOffHelper.updateHatsOffStatus(feedData.getEntityID(), feedData.getHatsOffStatus());
+                // On hatsOffSuccessListener
+                hatsOffHelper.setOnHatsOffSuccessListener(new HatsOffHelper.OnHatsOffSuccessListener() {
+                    @Override
+                    public void onSuccess() {
+
+                        if (itemPosition == 0) {
+                            resultBundle.putLong("hatsOffCount", feedData.getHatsOffCount());
+                            resultBundle.putBoolean("hatsOffStatus", feedData.getHatsOffStatus());
+
+                            //Return result ok
+                            setResult(RESULT_OK, resultIntent);
+                        }
+
+                    }
+                });
+                // On hatsOffSuccessListener
+                hatsOffHelper.setOnHatsOffFailureListener(new HatsOffHelper.OnHatsOffFailureListener() {
+                    @Override
+                    public void onFailure(String errorMsg) {
+                        //set status to true if its false and vice versa
+                        feedData.setHatsOffStatus(!feedData.getHatsOffStatus());
+                        //notify changes
+                        mAdapter.notifyItemChanged(itemPosition);
+                        ViewHelper.getSnackBar(rootView, errorMsg);
+                    }
+                });
+            }
+        });
+    }
+
+    /**
+     * Initialize follow listener.
+     */
+    private void initFollowListener() {
+        mAdapter.setOnFollowListener(new listener.OnExploreFollowListener() {
+            @Override
+            public void onFollowClick(FeedModel exploreData, int itemPosition) {
+                updateFollowStatus(exploreData, itemPosition);
+            }
+        });
+    }
+
+    /**
+     * Initialize delete listener
+     * * @param adapter MeAdapter reference.
+     */
+    private void initializeDeleteListener(FeedDescriptionAdapter adapter) {
+        adapter.setOnContentDeleteListener(new listener.OnContentDeleteListener() {
+            @Override
+            public void onDelete(String entityID, int position) {
+
+                deleteContent(entityID, position);
+            }
+        });
+    }
+
+    /**
+     * /**
+     * Method to update follow status.
+     *
+     * @param data         Model of current item
+     * @param itemPosition Position of current item i.e integer
+     */
+    private void updateFollowStatus(final FeedModel data, final int itemPosition) {
+
+        FollowHelper followHelper = new FollowHelper();
+        followHelper.updateFollowStatus(mContext,
+                mCompositeDisposable,
+                data.getFollowStatus(),
+                new JSONArray().put(data.getUUID()),
+                new listener.OnFollowRequestedListener() {
+
+
+                    @Override
+                    public void onFollowSuccess() {
+
+                        // updates follow status in all occurrence of the followed user
+                        updateFollowForAll(data, mPostsList);
+                        mAdapter.notifyDataSetChanged();
+
+                        if (itemPosition == 0) {
+                            resultBundle.putBoolean("followstatus", data.getFollowStatus());
+                            //Return result ok
+                            setResult(RESULT_OK, resultIntent);
+                        }
+
+                    }
+
+                    @Override
+                    public void onFollowFailure(String errorMsg) {
+
+                        //set status to true if its false and vice versa
+                        data.setFollowStatus(!data.getFollowStatus());
+                        //notify changes
+                        mAdapter.notifyItemChanged(itemPosition);
+
+                        ViewHelper.getSnackBar(rootView, errorMsg);
+
+                    }
+                });
+    }
+
+    private void deleteContent(String entityID, final int position) {
+        final MaterialDialog dialog = getDeletePostDialog(mContext);
+
+        deletePost(mContext,
+                mCompositeDisposable,
+                entityID,
+                new listener.OnDeleteRequestedListener() {
+                    @Override
+                    public void onDeleteSuccess() {
+                        dialog.dismiss();
+                        //Remove item from list
+                        mPostsList.remove(position);
+                        //Update adapter
+                        mAdapter.notifyItemRemoved(position);
+
+                        if (position == 0) {
+                            resultBundle.putBoolean("deletestatus", true);
+                            //Return result ok
+                            setResult(RESULT_OK, resultIntent);
+                        }
+                        ViewHelper.getToast(mContext, getString(R.string.msg_post_deleted));
+                        finish();
+                    }
+
+                    @Override
+                    public void onDeleteFailure(String errorMsg) {
+
+                        dialog.dismiss();
+                        ViewHelper.getSnackBar(rootView, errorMsg);
+                    }
+                });
     }
 
     /**
@@ -579,6 +579,23 @@ public class FeedDescriptionActivity extends BaseActivity implements listener.On
 
         // method to initialize the result data
         initResultBundle();
+
+        recyclerViewPosts.setLayoutManager(new LinearLayoutManager(mContext));
+
+        mPostsList.add(mFeedData);
+
+        mAdapter = new FeedDescriptionAdapter(mPostsList, mContext, mCompositeDisposable, shouldScroll);
+        recyclerViewPosts.setAdapter(mAdapter);
+
+        //Initialize listeners
+        initLoadMoreListener(mAdapter);
+        initHatsOffListener(mAdapter);
+        initShareListener(mAdapter);
+        initShareLinkClickedListener();
+        initDownvoteListener(mAdapter);
+        initFollowListener();
+        initializeDeleteListener(mAdapter);
+
 
         initViewsFromData();
 
@@ -604,75 +621,16 @@ public class FeedDescriptionActivity extends BaseActivity implements listener.On
     }
 
     private void initViewsFromData() {
-        FeedHelper.performContentTypeSpecificOperations(mContext
-                , mFeedData
-                , textCollabCount
-                , containerCollabCount
-                , buttonCollaborate
-                , textCreatorName
-                , false
-                , false
-                , null);
 
-        // set caption if it exists
-        // else hide the caption view
-
-        // initialize caption
-        initCaption(mContext, mFeedData, textTitle);
-
-        // update dot visibility
-        updateDotSeperatorVisibility(mFeedData, dotSeperator);
-
-        //Check for hats of count
-        if (mFeedData.getHatsOffCount() > 0) {
-            //Set hatsOff count
-            textHatsoffCount.setText(String.valueOf(mFeedData.getHatsOffCount()));
-        } else {
-            //Hide hatsOff count textView
-            containerHatsOffCount.setVisibility(View.GONE);
-        }
-
-        //Check for comment count
+        //if comments exist load comments data and then more posts data
         if (mFeedData.getCommentCount() > 0) {
-            //Set comment count
-            textCommentsCount.setText(String.valueOf(mFeedData.getCommentCount()));
             //load comments
             getTopComments(mFeedData.getEntityID());
-        } else {
-            containerCommentsCount.setVisibility(View.GONE);
-            showAllComments.setVisibility(View.GONE);
         }
-
-        //Show tooltip on have button
-        showTooltip();
-
-        // show downvote intro dialog
-        if (mFeedData.isEligibleForDownvote() && mHelper.isDownvoteDialogFirstTime()) {
-            // show dialog
-            getDownvoteDialog();
+        // load more posts data straightaway
+        else {
+            getPostsData();
         }
-
-        //If API is greater than LOLLIPOP
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
-            //For shared transition
-            image.setTransitionName(mFeedData.getEntityID());
-            ActivityCompat.postponeEnterTransition(this);
-        }
-        // check if user is the creator
-        isUserCreator = mFeedData.getUUID().equals(mHelper.getUUID());
-
-        toggleFollowButton(false);
-
-        // show menu options if user is creator
-        showMenuOptions();
-        //update downvote and dot seperator visibility
-        updateDownvoteAndSeperatorVisibility(mFeedData, dotSeperatorRight, imageDownvote);
-        //check downvote status
-        DownvoteHelper downvoteHelper = new DownvoteHelper();
-        downvoteHelper.updateDownvoteUI(imageDownvote, mFeedData.isDownvoteStatus(), mContext);
-
-        //check long form option
-        checkLongFormStatus();
 
 
     }
@@ -714,136 +672,6 @@ public class FeedDescriptionActivity extends BaseActivity implements listener.On
 
     }
 
-    /**
-     * Method to load story image.
-     *
-     * @param imgLink Image Url.
-     * @param image   Where image to be displayed.
-     */
-    private void loadStoryImage(String imgLink, ImageView image) {
-
-        if (IMAGE_LOAD_FROM_NETWORK_FEED_DESCRIPTION) {
-            Picasso.with(this).invalidate(mFeedData.getContentImage());
-        }
-
-
-        RequestCreator requestCreator = Picasso.with(this)
-                .load(imgLink)
-                .error(R.drawable.image_placeholder);
-
-        if (IMAGE_LOAD_FROM_NETWORK_FEED_DESCRIPTION) {
-            requestCreator.networkPolicy(NetworkPolicy.NO_CACHE);
-        }
-
-
-        requestCreator.into(image, new Callback() {
-            @Override
-            public void onSuccess() {
-                ActivityCompat.startPostponedEnterTransition(FeedDescriptionActivity.this);
-            }
-
-            @Override
-            public void onError() {
-                ActivityCompat.startPostponedEnterTransition(FeedDescriptionActivity.this);
-            }
-        });
-    }
-
-    /**
-     * Method to load creator profile picture.
-     *
-     * @param creatorImage View where image to be displayed.
-     * @param imageURL     Image url.
-     */
-    private void loadCreatorImage(String imageURL, CircleImageView creatorImage) {
-        Picasso.with(this)
-                .load(imageURL)
-                .error(R.drawable.ic_account_circle_100)
-                .into(creatorImage);
-    }
-
-    /**
-     * Method to load bitmap image to be shared
-     */
-    private void loadBitmapForSharing() {
-        Picasso.with(this).load(mFeedData.getContentImage()).into(new Target() {
-            @Override
-            public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
-                mBitmap = bitmap;
-                //Check for Write permission
-                if (Nammu.checkPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
-                    //We have permission do whatever you want to do
-                    //sharePost(bitmap);
-                    ShareHelper.sharePost(bitmap, FeedDescriptionActivity.this, mFeedData);
-                } else {
-                    //We do not own this permission
-                    if (Nammu.shouldShowRequestPermissionRationale(FeedDescriptionActivity.this
-                            , Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
-                        //User already refused to give us this permission or removed it
-                        ViewHelper.getToast(FeedDescriptionActivity.this
-                                , getString(R.string.error_msg_share_permission_denied));
-                    } else {
-                        //First time asking for permission
-                        Nammu.askForPermission(FeedDescriptionActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE, shareWritePermission);
-                    }
-                }
-                //Log firebase event
-                setAnalytics(FIREBASE_EVENT_SHARED_FROM_FEED_DESCRIPTION);
-            }
-
-            @Override
-            public void onBitmapFailed(Drawable errorDrawable) {
-                ViewHelper.getToast(FeedDescriptionActivity.this, getString(R.string.error_msg_internal));
-            }
-
-            @Override
-            public void onPrepareLoad(Drawable placeHolderDrawable) {
-
-            }
-        });
-    }
-
-
-    /**
-     * Method to toggle hats off status.
-     */
-    private void toggleHatsOffStatus() {
-        if (mFeedData.getHatsOffStatus()) {
-            imageHatsOff.setColorFilter(ContextCompat.getColor(this, R.color.colorPrimary));
-            //Animation for hats off
-            imageHatsOff.startAnimation(AnimationUtils.loadAnimation(this, R.anim.rotate_animation_hats_off_fast));
-        } else {
-            imageHatsOff.setColorFilter(Color.TRANSPARENT);
-            //Animation for hats off
-            imageHatsOff.startAnimation(AnimationUtils.loadAnimation(this, R.anim.reverse_rotate_animation_hats_off_30_degree));
-        }
-    }
-
-    private void toggleFollowButton(boolean showToast) {
-        // toggle visibility of follow button
-        if (mFeedData.getFollowStatus() || isUserCreator) {
-
-            buttonFollow.setVisibility(View.GONE);
-
-            if (showToast) {
-                ViewHelper.getToast(mContext, "You are now following " + mFeedData.getCreatorName());
-            }
-
-        } else {
-            buttonFollow.setVisibility(View.VISIBLE);
-        }
-    }
-
-    /**
-     * If user is creator then it shows menu options
-     */
-    private void showMenuOptions() {
-        if (isUserCreator) {
-            buttonMenu.setVisibility(View.VISIBLE);
-        } else {
-            buttonMenu.setVisibility(View.GONE);
-        }
-    }
 
     /**
      * RxJava2 implementation for retrieving comment data from server.
@@ -851,8 +679,7 @@ public class FeedDescriptionActivity extends BaseActivity implements listener.On
      * @param entityID ID for current story,
      */
     private void getTopComments(String entityID) {
-        //For smooth scrolling
-        ViewCompat.setNestedScrollingEnabled(recyclerView, false);
+
 
         final boolean[] tokenError = {false};
         final boolean[] connectionError = {false};
@@ -900,14 +727,132 @@ public class FeedDescriptionActivity extends BaseActivity implements listener.On
 
                     @Override
                     public void onError(Throwable e) {
-                        //Hide views
-                        recyclerView.setVisibility(View.GONE);
-                        showAllComments.setVisibility(View.GONE);
                         FirebaseCrash.report(e);
                     }
 
                     @Override
                     public void onComplete() {
+
+
+                        // Token status invalid
+                        if (tokenError[0]) {
+                            ViewHelper.getSnackBar(rootView, mContext.getString(R.string.error_msg_invalid_token));
+                        }
+                        //Error occurred
+                        else if (connectionError[0]) {
+                            ViewHelper.getSnackBar(rootView, mContext.getString(R.string.error_msg_internal));
+                        } else {
+
+                            new Handler().post(new Runnable() {
+                                                   @Override
+                                                   public void run() {
+
+                                                       FeedDescriptionAdapter.ItemViewHolder itemViewHolder = (FeedDescriptionAdapter.ItemViewHolder) recyclerViewPosts.findViewHolderForAdapterPosition(0);
+                                                       if (itemViewHolder != null) {
+                                                           //No data
+                                                           if (mCommentsList.size() == 0) {
+                                                               //Hide views
+                                                               itemViewHolder.viewTopComments.setVisibility(View.GONE);
+                                                               itemViewHolder.textShowComments.setVisibility(View.GONE);
+                                                           } else {
+
+
+                                                               //Change visibility
+                                                               itemViewHolder.viewTopComments.setVisibility(View.VISIBLE);
+                                                               itemViewHolder.textShowComments.setVisibility(View.VISIBLE);
+                                                               // update comments view and list
+                                                               mAdapter.updateCommentsList(mCommentsList);
+                                                               mAdapter.updateCommentsView(mCommentsList, itemViewHolder);
+
+                                                               // scroll to bottom if opened from updates comment mention
+                                                               if (shouldScroll) {
+                                                                   itemViewHolder.viewTopComments.requestFocus();
+                                                               }
+                                                           }
+
+                                                       }
+                                                   }
+
+
+                                               }
+                            );
+
+
+                        }
+
+                        // get more posts
+                        getPostsData();
+                    }
+                })
+        );
+    }
+
+
+    /**
+     * Loads the more posts data
+     */
+    private void getPostsData() {
+        final boolean[] tokenError = {false};
+        final boolean[] connectionError = {false};
+
+        progressBar.setVisibility(View.VISIBLE);
+
+        requestServer(mCompositeDisposable,
+                getFeedDescPostsObservableFromServer(BuildConfig.URL + "/recommend-posts/details",
+                        mHelper.getUUID(),
+                        mHelper.getAuthToken(),
+                        mFeedData.getEntityID(),
+                        mFeedData.getUUID(),
+                        mFeedData.getCollabWithUUID(),
+                        mLastIndexKey,
+                        GET_RESPONSE_FROM_NETWORK_MORE_POSTS),
+                mContext,
+                new listener.OnServerRequestedListener<JSONObject>() {
+                    @Override
+                    public void onDeviceOffline() {
+                        progressBar.setVisibility(View.GONE);
+                        ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_no_connection));
+
+                    }
+
+                    @Override
+                    public void onNextCalled(JSONObject jsonObject) {
+                        try {
+                            //Token status is invalid
+                            if (jsonObject.getString("tokenstatus").equals("invalid")) {
+                                tokenError[0] = true;
+                            } else {
+                                parsePostsData(jsonObject, false);
+                            }
+
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                            FirebaseCrash.report(e);
+                            connectionError[0] = true;
+                            progressBar.setVisibility(View.GONE);
+                        }
+                    }
+
+                    @Override
+                    public void onErrorCalled(Throwable e) {
+
+                        e.printStackTrace();
+                        FirebaseCrash.report(e);
+
+                        progressBar.setVisibility(View.GONE);
+
+                        //Server error Snack bar
+                        ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_server));
+
+                    }
+
+                    @Override
+                    public void onCompleteCalled() {
+
+                        progressBar.setVisibility(View.GONE);
+
+                        GET_RESPONSE_FROM_NETWORK_MORE_POSTS = false;
+
                         // Token status invalid
                         if (tokenError[0]) {
                             ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_invalid_token));
@@ -915,107 +860,193 @@ public class FeedDescriptionActivity extends BaseActivity implements listener.On
                         //Error occurred
                         else if (connectionError[0]) {
                             ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_internal));
-                        }
-                        //No data
-                        else if (mCommentsList.size() == 0) {
-                            //Hide views
-                            recyclerView.setVisibility(View.GONE);
-                            showAllComments.setVisibility(View.GONE);
-                        } else {
-                            //Apply 'Slide Up' animation
-                            int resId = R.anim.layout_animation_from_bottom;
-                            LayoutAnimationController animation = AnimationUtils.loadLayoutAnimation(FeedDescriptionActivity.this, resId);
-                            recyclerView.setLayoutAnimation(animation);
+                        } else if (mPostsList.size() == 0) {
+                            //fixme
 
-                            //Change visibility
-                            recyclerView.setVisibility(View.VISIBLE);
-                            showAllComments.setVisibility(View.VISIBLE);
-                            //Set layout manager
-                            recyclerView.setLayoutManager(new LinearLayoutManager(FeedDescriptionActivity.this));
-                            //Set adapter
-                            recyclerView.setAdapter(new CommentsAdapter(mCommentsList, FeedDescriptionActivity.this, mHelper.getUUID(), false));
-                            // scroll to bottom if opened from updates comment mention
-                            if (shouldScroll) {
-                                recyclerView.requestFocus();
+                        } else {
+                            // Token status invalid
+                            if (tokenError[0]) {
+                                ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_invalid_token));
+                            }
+                            //Error occurred
+                            else if (connectionError[0]) {
+                                ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_internal));
+                            } else {
+
+                                mAdapter.notifyItemRangeInserted(1, mPostsList.size());
+
                             }
                         }
                     }
-                })
-        );
+                });
+
     }
 
     /**
-     * Method to show tooltip on have button
+     * Loads the next set of collab data
      */
-    private void showTooltip() {
-        if (mHelper.isHaveButtonTooltipFirstTime()) {
-            //Show tooltip on have button
-            ViewHelper.getToolTip(buttonHave
-                    , "Like the photo? Print and order it!"
-                    , FeedDescriptionActivity.this);
-        }
-        //Update status
-        mHelper.updateHaveButtonToolTipStatus(false);
-    }
+    private void getNextPostsData() {
+        final boolean[] tokenError = {false};
+        final boolean[] connectionError = {false};
 
-    /**
-     * Method to show the downvote introduction dialog.
-     */
-    private void getDownvoteDialog() {
-        MaterialDialog dialog = new MaterialDialog.Builder(mContext)
-                .customView(R.layout.dialog_generic, false)
-                .positiveText("Show me")
-                .onPositive(new MaterialDialog.SingleButtonCallback() {
+
+        requestServer(mCompositeDisposable,
+                getFeedDescPostsObservableFromServer(BuildConfig.URL + "/recommend-posts/details",
+                        mHelper.getUUID(),
+                        mHelper.getAuthToken(),
+                        mFeedData.getEntityID(),
+                        mFeedData.getUUID(),
+                        mFeedData.getCollabWithUUID(),
+                        mLastIndexKey,
+                        GET_RESPONSE_FROM_NETWORK_MORE_POSTS),
+                mContext,
+                new listener.OnServerRequestedListener<JSONObject>() {
                     @Override
-                    public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
-                        //Dismiss dialog
-                        dialog.dismiss();
-                        //Update status
-                        mHelper.updateDownvoteDialogStatus(false);
-                        //show tooltip
-                        ViewHelper.getToolTip(imageDownvote, "Click to downvote", mContext);
+                    public void onDeviceOffline() {
+                        ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_no_connection));
+                    }
 
+                    @Override
+                    public void onNextCalled(JSONObject jsonObject) {
+                        try {
+                            //Remove loading item
+                            mPostsList.remove(mPostsList.size() - 1);
+                            //Notify changes
+                            mAdapter.notifyItemRemoved(mPostsList.size());
+
+                            //Token status is invalid
+                            if (jsonObject.getString("tokenstatus").equals("invalid")) {
+                                tokenError[0] = true;
+                            } else {
+
+                                parsePostsData(jsonObject, true);
+                            }
+
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                            FirebaseCrash.report(e);
+                            connectionError[0] = true;
+                        }
+                    }
+
+                    @Override
+                    public void onErrorCalled(Throwable e) {
+
+                        //Remove loading item
+                        mPostsList.remove(mPostsList.size() - 1);
+                        //Notify changes
+                        mAdapter.notifyItemRemoved(mPostsList.size());
+                        FirebaseCrash.report(e);
+                        //Server error Snack bar
+                        ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_server));
 
                     }
-                })
-                .show();
-        // update key
-        mHelper.updateDownvoteDialogStatus(false);
 
-        //Obtain views reference
-        ImageView fillerImage = dialog.getCustomView().findViewById(R.id.viewFiller);
-        TextView textTitle = dialog.getCustomView().findViewById(R.id.textTitle);
-        TextView textDesc = dialog.getCustomView().findViewById(R.id.textDesc);
+                    @Override
+                    public void onCompleteCalled() {
 
+                        // Token status invalid
+                        if (tokenError[0]) {
+                            ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_invalid_token));
+                        }
+                        //Error occurred
+                        else if (connectionError[0]) {
+                            ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_internal));
+                        } else if (mPostsList.size() == 0) {
+                            //Show no data view
+                            //Fixme
+                        } else {
+                            //Notify changes
+                            mAdapter.setLoaded();
+                        }
 
-        //Set filler image
-        fillerImage.setImageDrawable(ContextCompat.getDrawable(mContext, R.drawable.img_intro_dialog_downvote));
-        //Set title text
-        textTitle.setText(mContext.getString(R.string.title_dialog_downvote));
-        //Set description text
-        textDesc.setText(mContext.getString(R.string.text_dialog_downvote_desc));
-
+                    }
+                });
     }
 
-    /**
-     * Method to send analytics data on firebase server.
-     *
-     * @param firebaseEvent Event type.
-     */
-    private void setAnalytics(String firebaseEvent) {
-        Bundle bundle = new Bundle();
-        bundle.putString("uuid", mHelper.getUUID());
-        if (firebaseEvent.equals(FIREBASE_EVENT_HAVE_CLICKED)) {
-            mFirebaseAnalytics.logEvent(FIREBASE_EVENT_HAVE_CLICKED, bundle);
-        } else if (firebaseEvent.equals(FIREBASE_EVENT_SHARED_FROM_FEED_DESCRIPTION)) {
-            bundle.putString("entity_id", mFeedData.getEntityID());
-            mFirebaseAnalytics.logEvent(FIREBASE_EVENT_SHARED_FROM_FEED_DESCRIPTION, bundle);
-        } else if (firebaseEvent.equals(FIREBASE_EVENT_WRITE_CLICKED)) {
-            bundle.putString("class_name", "feed_description");
-            FirebaseAnalytics.getInstance(mContext).logEvent(FIREBASE_EVENT_WRITE_CLICKED, bundle);
-        } else if (firebaseEvent.equals(FIREBASE_EVENT_CAPTURE_CLICKED)) {
-            bundle.putString("class_name", "feed_description");
-            FirebaseAnalytics.getInstance(mContext).logEvent(FIREBASE_EVENT_CAPTURE_CLICKED, bundle);
+    private void parsePostsData(JSONObject jsonObject, boolean isLoadMore) throws JSONException {
+
+        JSONObject mainData = jsonObject.getJSONObject("data");
+        mRequestMoreData = mainData.getBoolean("requestmore");
+        mLastIndexKey = mainData.getString("lastindexkey");
+
+        //Collab array list
+        JSONArray collabArray = mainData.getJSONArray("items");
+        for (int i = 0; i < collabArray.length(); i++) {
+            JSONObject dataObj = collabArray.getJSONObject(i);
+
+            String type = dataObj.getString("type");
+
+            FeedModel data = new FeedModel();
+            data.setEntityID(dataObj.getString("entityid"));
+            data.setContentType(dataObj.getString("type"));
+            data.setUUID(dataObj.getString("uuid"));
+            data.setCreatorImage(dataObj.getString("profilepicurl"));
+            data.setCreatorName(dataObj.getString("creatorname"));
+            data.setHatsOffStatus(dataObj.getBoolean("hatsoffstatus"));
+            data.setMerchantable(dataObj.getBoolean("merchantable"));
+            data.setDownvoteStatus(dataObj.getBoolean("downvotestatus"));
+            data.setEligibleForDownvote(mainData.getBoolean("candownvote"));
+            data.setLongForm(dataObj.getBoolean("long_form"));
+            data.setHatsOffCount(dataObj.getLong("hatsoffcount"));
+            data.setCommentCount(dataObj.getLong("commentcount"));
+            data.setContentImage(dataObj.getString("entityurl"));
+            data.setFollowStatus(dataObj.getBoolean("followstatus"));
+            data.setCollabCount(dataObj.getLong("collabcount"));
+            if (dataObj.isNull("caption")) {
+                data.setCaption(null);
+            } else {
+                data.setCaption(dataObj.getString("caption"));
+            }
+
+            if (type.equals(CONTENT_TYPE_CAPTURE)) {
+
+                //Retrieve "CAPTURE_ID" if type is capture
+                data.setCaptureID(dataObj.getString("captureid"));
+                // if capture
+                // then if key cpshort exists
+                // not available for collaboration
+                if (!dataObj.isNull("cpshort")) {
+                    JSONObject collabObject = dataObj.getJSONObject("cpshort");
+
+                    data.setAvailableForCollab(false);
+                    // set collaborator details
+                    data.setCollabWithUUID(collabObject.getString("uuid"));
+                    data.setCollabWithName(collabObject.getString("name"));
+                    data.setCollaboWithEntityID(collabObject.getString("entityid"));
+
+                } else {
+                    data.setAvailableForCollab(true);
+                }
+
+            } else if (type.equals(CONTENT_TYPE_SHORT)) {
+
+                //Retrieve "SHORT_ID" if type is short
+                data.setShortID(dataObj.getString("shoid"));
+
+                // if short
+                // then if key shcapture exists
+                // not available for collaboration
+                if (!dataObj.isNull("shcapture")) {
+
+                    JSONObject collabObject = dataObj.getJSONObject("shcapture");
+
+                    data.setAvailableForCollab(false);
+                    // set collaborator details
+                    data.setCollabWithUUID(collabObject.getString("uuid"));
+                    data.setCollabWithName(collabObject.getString("name"));
+                    data.setCollaboWithEntityID(collabObject.getString("entityid"));
+                } else {
+                    data.setAvailableForCollab(true);
+                }
+            }
+
+            mPostsList.add(data);
+
+            if (isLoadMore) {
+                //Notify item changes
+                mAdapter.notifyItemInserted(mPostsList.size() - 1);
+            }
         }
     }
 
@@ -1047,159 +1078,6 @@ public class FeedDescriptionActivity extends BaseActivity implements listener.On
         }
     };
 
-
-    /**
-     * Initializes delete on click listener
-     *
-     * @return
-     */
-    private OnContentDeleteListener initDeletePostClick() {
-
-        OnContentDeleteListener onContentDeleteListener = new OnContentDeleteListener() {
-            @Override
-            public void onDelete(String entityID, int position) {
-
-                final MaterialDialog dialog = getDeletePostDialog(mContext);
-
-                deletePost(mContext,
-                        mCompositeDisposable,
-                        mFeedData.getEntityID(),
-                        new listener.OnDeleteRequestedListener() {
-                            @Override
-                            public void onDeleteSuccess() {
-                                dialog.dismiss();
-
-                                resultBundle.putBoolean("deletestatus", true);
-                                //Return result ok
-                                setResult(RESULT_OK, resultIntent);
-                                ViewHelper.getToast(mContext, getString(R.string.msg_post_deleted));
-                                finish();
-                            }
-
-                            @Override
-                            public void onDeleteFailure(String errorMsg) {
-
-                                dialog.dismiss();
-                                ViewHelper.getSnackBar(rootView, errorMsg);
-                            }
-                        });
-            }
-        };
-
-        return onContentDeleteListener;
-    }
-
-    /**
-     * Method to update hatsOff status on server
-     */
-    private void updateHatsOffStatus() {
-        HatsOffHelper hatsOffHelper = new HatsOffHelper(FeedDescriptionActivity.this);
-        hatsOffHelper.updateHatsOffStatus(mFeedData.getEntityID(), mFeedData.getHatsOffStatus());
-        // On hatsOffSuccessListener
-        hatsOffHelper.setOnHatsOffSuccessListener(new HatsOffHelper.OnHatsOffSuccessListener() {
-            @Override
-            public void onSuccess() {
-
-                resultBundle.putLong("hatsOffCount", mFeedData.getHatsOffCount());
-                resultBundle.putBoolean("hatsOffStatus", mFeedData.getHatsOffStatus());
-
-                //Return result ok
-                setResult(RESULT_OK, resultIntent);
-            }
-        });
-        // On hatsOffSuccessListener
-        hatsOffHelper.setOnHatsOffFailureListener(new HatsOffHelper.OnHatsOffFailureListener() {
-            @Override
-            public void onFailure(String errorMsg) {
-                mFeedData.setHatsOffStatus(!mFeedData.getHatsOffStatus());
-                updateHatsOffCount();
-                toggleHatsOffStatus();
-                ViewHelper.getSnackBar(rootView, errorMsg);
-            }
-        });
-    }
-
-    /**
-     * Method to update follow status.
-     */
-    private void updateFollowStatus() {
-
-        FollowHelper followHelper = new FollowHelper();
-        followHelper.updateFollowStatus(mContext,
-                mCompositeDisposable,
-                mFeedData.getFollowStatus(),
-                new JSONArray().put(mFeedData.getUUID()),
-                new listener.OnFollowRequestedListener() {
-                    @Override
-                    public void onFollowSuccess() {
-
-                        resultBundle.putBoolean("followstatus", mFeedData.getFollowStatus());
-                        //Return result ok
-                        setResult(RESULT_OK, resultIntent);
-                    }
-
-                    @Override
-                    public void onFollowFailiure(String errorMsg) {
-                        //Toggle status
-                        mFeedData.setFollowStatus(!mFeedData.getFollowStatus());
-                        //Toggle follow button
-                        toggleFollowButton(false);
-                        ViewHelper.getSnackBar(rootView, errorMsg);
-                    }
-                });
-    }
-
-    /**
-     * Checks form of writing and toggles preview option visibility acc.
-     */
-    private void checkLongFormStatus() {
-        if (mFeedData.isLongForm()) {
-            containerLongShortPreview.setVisibility(View.VISIBLE);
-        } else {
-            containerLongShortPreview.setVisibility(View.GONE);
-        }
-
-        //show preview tooltip
-        if (mHelper.isLongFormPreviewFirstTime()) {
-            //Show tooltip on preview icon
-            ViewHelper.getToolTip(containerLongShortPreview
-                    , "Tap to see the full writing"
-                    , FeedDescriptionActivity.this);
-        }
-
-        //Update status
-        mHelper.updateLongFormPreviewStatus(false);
-    }
-
-    /**
-     * Method to update hatsOffCount after server response.
-     */
-    private void updateHatsOffCount() {
-        if (mFeedData.getHatsOffStatus()) {
-            //Update hatsOffCount
-            mFeedData.setHatsOffCount(mFeedData.getHatsOffCount() + 1);
-            //Set visibility on and set hatsOff count
-            containerHatsOffCount.setVisibility(View.VISIBLE);
-            textHatsoffCount.setText(String.valueOf(mFeedData.getHatsOffCount()));
-
-
-        } else {
-            //Update hatsOffCount
-            mFeedData.setHatsOffCount(mFeedData.getHatsOffCount() - 1);
-            //If hats off count is zero
-            if (mFeedData.getHatsOffCount() < 1) {
-                containerHatsOffCount.setVisibility(View.GONE);
-            }
-            //hats off count is more than zero
-            else {
-                containerHatsOffCount.setVisibility(View.VISIBLE);
-                textHatsoffCount.setText(String.valueOf(mFeedData.getHatsOffCount()));
-            }
-        }
-
-        updateDotSeperatorVisibility(mFeedData, dotSeperator);
-    }
-
     /**
      * Used to handle result of askForPermission for share
      */
@@ -1207,7 +1085,7 @@ public class FeedDescriptionActivity extends BaseActivity implements listener.On
         @Override
         public void permissionGranted() {
             //sharePost(mBitmap);
-            ShareHelper.sharePost(mBitmap, mContext, mFeedData);
+            ShareHelper.sharePost(mBitmap, mContext, shareSpecificEntity);
         }
 
         @Override
@@ -1217,30 +1095,6 @@ public class FeedDescriptionActivity extends BaseActivity implements listener.On
                     , getString(R.string.error_msg_share_permission_denied));
         }
     };
-
-    @Override
-    public void collaborationOnGraphic() {
-
-    }
-
-    @Override
-    public void collaborationOnWriting(String entityID, String entityType) {
-        //Check for Write permission
-        if (Nammu.checkPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
-            //We have permission do whatever you want to do
-            chooseImageFromGallery();
-        } else {
-            //We do not own this permission
-            if (Nammu.shouldShowRequestPermissionRationale(this
-                    , Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
-                //User already refused to give us this permission or removed it
-                ViewHelper.getToast(this
-                        , getString(R.string.error_msg_capture_permission_denied));
-            } else {
-                //First time asking for permission
-                Nammu.askForPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE, captureWritePermission);
-            }
-        }
-    }
+    //endregion
 
 }

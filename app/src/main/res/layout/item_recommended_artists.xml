@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginBottom="8dp"
+    android:background="@color/white"
+    android:clickable="true"
+    android:foreground="?attr/selectableItemBackground"
+    android:padding="16dp">
+
+    <!--Artist image-->
+    <de.hdodenhof.circleimageview.CircleImageView
+        android:id="@+id/imageArtist"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        tools:src="@tools:sample/avatars" />
+
+    <!--Artist name-->
+    <android.support.v7.widget.AppCompatTextView
+        android:id="@+id/textArtistName"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_toLeftOf="@+id/buttonFollow"
+        android:layout_toRightOf="@+id/imageArtist"
+        android:ellipsize="end"
+        android:maxLines="1"
+        android:paddingLeft="8dp"
+        android:textColor="@color/black_defined"
+        android:textSize="16sp"
+        tools:text="@tools:sample/full_names" />
+
+    <!--Artist post count-->
+    <android.support.v7.widget.AppCompatTextView
+        android:id="@+id/textPostCount"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/textArtistName"
+        android:layout_toRightOf="@+id/imageArtist"
+        android:paddingLeft="8dp"
+        android:textSize="12sp"
+        tools:text="36 posts" />
+
+    <!--Follow button-->
+    <android.support.v7.widget.AppCompatTextView
+        android:id="@+id/buttonFollow"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:clickable="true"
+        android:foreground="?attr/selectableItemBackground"
+        android:padding="8dp"
+        android:text="Follow"
+        android:textColor="@color/colorPrimary"
+        android:textSize="16sp" />
+
+    <!--Artist bio and image container -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/imageArtist"
+        android:orientation="vertical">
+
+        <!--Artist bio-->
+        <android.support.v7.widget.AppCompatTextView
+            android:id="@+id/textArtistBio"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:maxLines="1"
+            android:paddingTop="8dp"
+            android:textColor="@color/color_grey_600"
+            android:textSize="12sp"
+            android:visibility="visible"
+            tools:text="@tools:sample/lorem/random" />
+
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/recyclerViewUserPost"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:orientation="horizontal"
+            app:layoutManager="android.support.v7.widget.LinearLayoutManager"
+            tools:itemCount="6"
+            tools:listitem="@layout/item_user_posts" />
+
+    </LinearLayout>
+
+
+</RelativeLayout>

@@ -274,7 +274,6 @@ public class PreviewActivity extends BaseActivity implements QueryTokenReceiver,
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu_preview, menu);
-
         if (mCalledFrom.equals(PREVIEW_EXTRA_CALLED_FROM_EDIT_CAPTURE)) {
             //Hide filter menu option
             menu.findItem(R.id.action_filter).setVisible(false);
@@ -305,8 +304,8 @@ public class PreviewActivity extends BaseActivity implements QueryTokenReceiver,
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-
-        if (resultCode == REQUEST_CODE_COLLABORATION_INVITATION) {   // finish activity
+        if (resultCode == REQUEST_CODE_COLLABORATION_INVITATION) {
+            // finish activity
             finish();
         }
     }
@@ -326,7 +325,6 @@ public class PreviewActivity extends BaseActivity implements QueryTokenReceiver,
 
     @Override
     public void onReceiveSuggestionsResult(@NonNull SuggestionsResult result, @NonNull String bucket) {
-
         List<? extends Suggestible> suggestions = result.getSuggestions();
         boolean display = suggestions != null && suggestions.size() > 0;
         displaySuggestions(display);
@@ -334,10 +332,8 @@ public class PreviewActivity extends BaseActivity implements QueryTokenReceiver,
 
     @Override
     public void displaySuggestions(boolean display) {
-
         if (display) {
             recyclerViewMentions.setVisibility(RecyclerView.VISIBLE);
-
         } else {
             recyclerViewMentions.setVisibility(RecyclerView.GONE);
         }
@@ -352,13 +348,9 @@ public class PreviewActivity extends BaseActivity implements QueryTokenReceiver,
     @Override
     public List<String> onQueryReceived(@NonNull QueryToken queryToken) {
         List<String> buckets = Arrays.asList(BUCKET);
-
-
         // init query token
         mQueryToken = queryToken;
         subject.onNext(mQueryToken);
-
-
         return buckets;
     }
 
@@ -384,11 +376,8 @@ public class PreviewActivity extends BaseActivity implements QueryTokenReceiver,
     @OnClick(R.id.buttonUpdate)
     void updateOnClick() {
         if (NetworkHelper.getNetConnectionStatus(PreviewActivity.this)) {
-
-
             // get caption in mentions format
             mCapInMentionFormat = ProfileMentionsHelper.convertToMentionsFormat(etCaption);
-
             // edit capture
             if (mCalledFrom.equals(PREVIEW_EXTRA_CALLED_FROM_EDIT_CAPTURE)) {
                 uploadEditedCapture(mCapInMentionFormat
@@ -418,7 +407,6 @@ public class PreviewActivity extends BaseActivity implements QueryTokenReceiver,
      */
     @OnClick(R.id.containerLongShortPreview)
     void longShortPreviewClick() {
-
         //initialize short model
         ShortModel shortModel = new ShortModel();
         // set image url
@@ -445,8 +433,6 @@ public class PreviewActivity extends BaseActivity implements QueryTokenReceiver,
         Intent intent = new Intent(mContext, ViewLongShortActivity.class);
         intent.putExtra(EXTRA_SHORT_DATA, shortModel);
         mContext.startActivity(intent);
-
-
     }
     //endregion
 
@@ -478,8 +464,6 @@ public class PreviewActivity extends BaseActivity implements QueryTokenReceiver,
 
         initLoadMoreSuggestionsListener(mMentionsAdapter);
         initSuggestionsClickListener(mMentionsAdapter);
-
-
     }
 
     /**
@@ -1469,15 +1453,15 @@ public class PreviewActivity extends BaseActivity implements QueryTokenReceiver,
         }
         BitmapFactory.Options opts = new BitmapFactory.Options();
         opts.inMutable = true;
-        //Decode bitmap from file
-        Bitmap bmp = BitmapFactory.decodeFile(imageUri.getPath(), opts);
 
         Filter selectedFilter = adapter.getFilterSelected();
 
         if (selectedFilter != null) {
+            //Decode bitmap from file
+            Bitmap bmp = BitmapFactory.decodeFile(imageUri.getPath(), opts);
+
             //Apply filter on  bitmap
             bmp = selectedFilter.processFilter(bmp);
-
             try {
                 File file = new File(Environment.getExternalStorageDirectory().getPath() + s);
                 file.getParentFile().mkdirs();
@@ -1489,7 +1473,6 @@ public class PreviewActivity extends BaseActivity implements QueryTokenReceiver,
                         e.printStackTrace();
                     }
                 }
-
                 FileOutputStream out = new FileOutputStream(file);
                 bmp.compress(Bitmap.CompressFormat.JPEG, 85, out);
                 out.close();

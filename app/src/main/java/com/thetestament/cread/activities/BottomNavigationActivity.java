@@ -49,7 +49,6 @@ import com.thetestament.cread.helpers.ImageHelper;
 import com.thetestament.cread.helpers.SharedPreferenceHelper;
 import com.thetestament.cread.helpers.ViewHelper;
 import com.thetestament.cread.listeners.listener.OnServerRequestedListener;
-import com.thetestament.cread.utils.Constant;
 import com.yalantis.ucrop.UCrop;
 
 import java.io.File;
@@ -101,22 +100,37 @@ public class BottomNavigationActivity extends BaseActivity {
     //endregion
 
     //region -Fields and constants
+    /**
+     * Flag to maintain tag of currently selected fragment.
+     */
     @State
     String mFragmentTag;
+    /**
+     * Flag to maintain recently selected fragment.
+     */
     Fragment mCurrentFragment;
 
+    /**
+     * View to show dot indicator on 'ME'.
+     */
     View personalChatIndicator;
 
+    /**
+     * Resource ID of currently selected bottomNavigation menu.
+     */
     @State
     int mSelectedItemID;
 
+    /**
+     * Flag to maintain whether this screen is open from third party apps(using intent fillet) or not.
+     */
     @State
     boolean mCalledFromSendIntent = false;
 
     private FirebaseAnalytics mFirebaseAnalytics;
     private SharedPreferenceHelper mHelper;
     private CompositeDisposable mCompositeDisposable = new CompositeDisposable();
-
+    private BottomNavigationActivity mContext;
     View badgeView;
 
 
@@ -129,9 +143,7 @@ public class BottomNavigationActivity extends BaseActivity {
     public static final String ACCOUNT = "Cread";
     // Instance fields
     public static Account mAccount;
-
     private static final String PREF_SETUP_COMPLETE = "setup_complete";
-
     //endregion
 
     //region -Overridden methods
@@ -143,6 +155,8 @@ public class BottomNavigationActivity extends BaseActivity {
         mFirebaseAnalytics = FirebaseAnalytics.getInstance(this);
         //Obtain sharedPreference reference
         mHelper = new SharedPreferenceHelper(this);
+        //Obtain reference of this activity
+        mContext = this;
         //Bind View to this activity
         ButterKnife.bind(this);
         //Set actionbar
@@ -160,12 +174,11 @@ public class BottomNavigationActivity extends BaseActivity {
 
         //To setup account for sync adapter
         createSyncAccount(this);
-
         //Initialize navigation view
         initBottomNavigation();
         //Method call
         captureSendIntent(mHelper, getIntent());
-        //Add badge view on  me tab icon
+        //Add badge view on me tab icon
         addPersonalChatIndicator();
     }
 
@@ -184,11 +197,11 @@ public class BottomNavigationActivity extends BaseActivity {
     @Override
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
-        // for sharing image from gallery
+        // or sharing image from gallery
         if (Intent.ACTION_SEND.equals(intent.getAction())) {
             captureSendIntent(mHelper, intent);
         }
-        // when new intent for specific fragment
+        //When new intent for specific fragment
         else if (intent.hasExtra(EXTRA_OPEN_SPECIFIC_BOTTOMNAV_FRAGMENT)) {
             initSpecificFragment(intent);
         }
@@ -252,7 +265,7 @@ public class BottomNavigationActivity extends BaseActivity {
                 chooseImageFromGallery();
             } else {
                 ViewHelper.getToast(this
-                        , "The app won't function properly since the permission for storage was denied.");
+                        , getString(R.string.error_msg_permission_denied));
             }
         }
     }
@@ -280,8 +293,7 @@ public class BottomNavigationActivity extends BaseActivity {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu_cread, menu);
-
-        //Set visibility of restart heroku option according to build config
+        //Set visibility of restart Heroku option according to build config
         menu.findItem(R.id.action_restart_heroku)
                 .setVisible(BuildConfig.VISIBILITY_RESTART_HEROKU_OPTION);
 
@@ -295,7 +307,7 @@ public class BottomNavigationActivity extends BaseActivity {
         switch (item.getItemId()) {
             case R.id.action_updates:
                 //Open updates screen
-                startActivity(new Intent(BottomNavigationActivity.this, UpdatesActivity.class));
+                startActivity(new Intent(mContext, UpdatesActivity.class));
                 // set status to false
                 mHelper.setNotifIndicatorStatus(false);
                 // hide badge
@@ -306,7 +318,7 @@ public class BottomNavigationActivity extends BaseActivity {
                 return true;
             case R.id.action_settings:
                 //Launch settings activity
-                startActivity(new Intent(this, SettingsActivity.class));
+                startActivity(new Intent(mContext, SettingsActivity.class));
                 return true;
 
             case R.id.action_restart_heroku:
@@ -330,7 +342,7 @@ public class BottomNavigationActivity extends BaseActivity {
         if (getIntent().hasExtra(EXTRA_OPEN_SPECIFIC_BOTTOMNAV_FRAGMENT)) {
             initSpecificFragment(getIntent());
         } else {
-            initFeedFragment();
+            openFeedFragment();
         }
     }
 
@@ -350,7 +362,7 @@ public class BottomNavigationActivity extends BaseActivity {
                         //Set title
                         setTitle("Cread");
                         getSupportActionBar().setElevation(
-                                convertToPx(BottomNavigationActivity.this, 4));
+                                convertToPx(mContext, 4));
                         setTheme(R.style.BottomNavigationActivityTheme);
                         mCurrentFragment = new FeedFragment();
                         //set fragment tag
@@ -434,7 +446,7 @@ public class BottomNavigationActivity extends BaseActivity {
                     getShortDialog();
                 } else {
                     //Open ShortActivity
-                    startActivity(new Intent(BottomNavigationActivity.this, ShortActivity.class));
+                    startActivity(new Intent(mContext, ShortActivity.class));
                 }
                 //Dismiss bottom sheet
                 bottomSheetDialog.dismiss();
@@ -526,7 +538,7 @@ public class BottomNavigationActivity extends BaseActivity {
                 bundle.putString(PREVIEW_EXTRA_MERCHANTABLE, "1");
                 bundle.putString(PREVIEW_EXTRA_CALLED_FROM, PREVIEW_EXTRA_CALLED_FROM_CAPTURE);
 
-                Intent intent = new Intent(BottomNavigationActivity.this, PreviewActivity.class);
+                Intent intent = new Intent(mContext, PreviewActivity.class);
                 intent.putExtra(PREVIEW_EXTRA_DATA, bundle);
                 startActivity(intent);
             } else if (imageHeight >= 1800 && imageWidth >= 1800) {
@@ -535,7 +547,7 @@ public class BottomNavigationActivity extends BaseActivity {
                 bundle.putString(PREVIEW_EXTRA_MERCHANTABLE, "1");
                 bundle.putString(PREVIEW_EXTRA_CALLED_FROM, PREVIEW_EXTRA_CALLED_FROM_CAPTURE);
 
-                Intent intent = new Intent(BottomNavigationActivity.this, PreviewActivity.class);
+                Intent intent = new Intent(mContext, PreviewActivity.class);
                 intent.putExtra(PREVIEW_EXTRA_DATA, bundle);
                 startActivity(intent);
             } else {
@@ -612,7 +624,7 @@ public class BottomNavigationActivity extends BaseActivity {
                     @Override
                     public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
                         //Open ShortActivity
-                        startActivity(new Intent(BottomNavigationActivity.this, ShortActivity.class));
+                        startActivity(new Intent(mContext, ShortActivity.class));
                         dialog.dismiss();
                         //update status
                         mHelper.updateShortIntroStatus(false);
@@ -655,7 +667,7 @@ public class BottomNavigationActivity extends BaseActivity {
                         bundle.putString(PREVIEW_EXTRA_MERCHANTABLE, "0");
                         bundle.putString(PREVIEW_EXTRA_CALLED_FROM, PREVIEW_EXTRA_CALLED_FROM_CAPTURE);
 
-                        Intent intent = new Intent(BottomNavigationActivity.this, PreviewActivity.class);
+                        Intent intent = new Intent(mContext, PreviewActivity.class);
                         intent.putExtra(PREVIEW_EXTRA_DATA, bundle);
                         startActivity(intent);
                         dialog.dismiss();
@@ -702,7 +714,7 @@ public class BottomNavigationActivity extends BaseActivity {
         //Set title
         setTitle("Me");
         getSupportActionBar().setElevation(
-                convertToPx(BottomNavigationActivity.this, 4));
+                convertToPx(mContext, 4));
         setTheme(R.style.BottomNavigationActivityTheme);
         Bundle meBundle = new Bundle();
         meBundle.putString("calledFrom", "BottomNavigationActivity");
@@ -730,8 +742,8 @@ public class BottomNavigationActivity extends BaseActivity {
             //Update flag
             mCalledFromSendIntent = true;
             //Open main screen
-            ViewHelper.getToast(BottomNavigationActivity.this, getString(R.string.text_msg_share_loggedin));
-            startActivity(new Intent(BottomNavigationActivity.this, MainActivity.class));
+            ViewHelper.getToast(mContext, getString(R.string.text_msg_share_loggedin));
+            startActivity(new Intent(mContext, MainActivity.class));
             //Finish this activity
             finish();
         }
@@ -816,7 +828,10 @@ public class BottomNavigationActivity extends BaseActivity {
     }
 
 
-    private void initFeedFragment() {
+    /**
+     * Method to open FeedFragment and initialize required flags/variables.
+     */
+    private void openFeedFragment() {
         //When app opened normally
         navigationView.setSelectedItemId(R.id.action_feed);
         //To open Feed Screen
@@ -824,7 +839,7 @@ public class BottomNavigationActivity extends BaseActivity {
         //Set fragment tag
         mFragmentTag = TAG_FEED_FRAGMENT;
         replaceFragment(mCurrentFragment, mFragmentTag, false);
-
+        //Update flag
         mSelectedItemID = R.id.action_feed;
     }
 
@@ -833,19 +848,20 @@ public class BottomNavigationActivity extends BaseActivity {
         switch (intent.getStringExtra(EXTRA_OPEN_SPECIFIC_BOTTOMNAV_FRAGMENT)) {
             case TAG_EXPLORE_FRAGMENT:
                 activateBottomNavigationItem(R.id.action_explore);
-                replaceFragment(new ExploreFragment(), Constant.TAG_EXPLORE_FRAGMENT, false);
                 //To open Explore Screen
                 mCurrentFragment = new ExploreFragment();
                 //Set fragment tag
                 mFragmentTag = TAG_EXPLORE_FRAGMENT;
                 replaceFragment(mCurrentFragment, mFragmentTag, false);
+                //Update flag
+                mSelectedItemID = R.id.action_explore;
                 break;
             case TAG_ME_FRAGMENT:
                 break;
             case TAG_FEED_FRAGMENT:
                 break;
             default:
-                initFeedFragment();
+                openFeedFragment();
         }
     }
 
@@ -872,6 +888,7 @@ public class BottomNavigationActivity extends BaseActivity {
      */
     private void togglePersonalChatIndicator(boolean showIndicator) {
         if (showIndicator) {
+            //Show personal chat indicator
             personalChatIndicator.findViewById(R.id.notificationsBadge).setVisibility(View.VISIBLE);
         } else {
             //Hide personal chat indicator
@@ -917,7 +934,7 @@ public class BottomNavigationActivity extends BaseActivity {
             Bitmap bitmap = BitmapFactory.decodeFile(new File(croppedImageUri.getPath()).getAbsolutePath());
 
             //Method call
-            CaptureHelper.createSquareBlurBitmap(BottomNavigationActivity.this
+            CaptureHelper.createSquareBlurBitmap(mContext
                     , bitmap
                     , scaleFactor
                     , isLandscape);

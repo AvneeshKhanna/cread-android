@@ -1171,10 +1171,12 @@ public class MeFragment extends Fragment implements listener.OnCollaborationList
                             //Set count
                             ((TextView) viewPagerUserStats.findViewWithTag(FOLLOWERS)).setText(String.valueOf(mFollowerCount));
                         }
+                        //Set result ok
+                        getActivity().setResult(RESULT_OK);
                     }
 
                     @Override
-                    public void onFollowFailiure(String errorMsg) {
+                    public void onFollowFailure(String errorMsg) {
 
                         buttonFollow.setEnabled(true);
                         //set status to true if its false and vice versa

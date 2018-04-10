@@ -1029,7 +1029,7 @@ public class ExploreFragment extends Fragment implements listener.OnCollaboratio
                     }
 
                     @Override
-                    public void onFollowFailiure(String errorMsg) {
+                    public void onFollowFailure(String errorMsg) {
 
                         //set status to true if its false and vice versa
                         exploreData.setFollowStatus(!exploreData.getFollowStatus());
@@ -1113,9 +1113,9 @@ public class ExploreFragment extends Fragment implements listener.OnCollaboratio
         //Set filler image
         fillerImage.setImageDrawable(ContextCompat.getDrawable(getActivity(), R.drawable.img_explore_intro));
         //Set title text
-        textTitle.setText("You complete art.");
+        textTitle.setText("Discover Cread");
         //Set description text
-        textDesc.setText("And the reverse is true as well. Appreciating art is perhaps the greatest of all arts; we hope you find yourself mastering it here. ");
+        textDesc.setText("Find the best of Cread from all around the app. Explore the good stuff everyone is posting by navigating to this section");
     }
 
     @Override

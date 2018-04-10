@@ -175,10 +175,10 @@ public class ImageHelper {
         //options.setCompressionFormat(Bitmap.CompressFormat.PNG);
         //options.setCompressionQuality(100);
         options.setAllowedGestures(UCropActivity.SCALE, UCropActivity.ROTATE, UCropActivity.SCALE);
-        options.withMaxResultSize(5000,5000);
+        options.withMaxResultSize(5000, 5000);
         //Launch  image cropping activity
         UCrop.of(sourceUri, destinationUri)
-                .withAspectRatio(1,1)
+                .withAspectRatio(1, 1)
                 .withOptions(options)
                 .useSourceImageAspectRatio()
                 .start(context);
@@ -203,10 +203,10 @@ public class ImageHelper {
         //options.setCompressionFormat(Bitmap.CompressFormat.PNG);
         //options.setCompressionQuality(100);
         options.setAllowedGestures(UCropActivity.SCALE, UCropActivity.ROTATE, UCropActivity.SCALE);
-        options.withMaxResultSize(5000,5000);
+        options.withMaxResultSize(5000, 5000);
         //Launch  image cropping activity
         UCrop.of(sourceUri, destinationUri)
-                .withAspectRatio(1,1)
+                .withAspectRatio(1, 1)
                 .withOptions(options)
                 .useSourceImageAspectRatio()
                 .start(context, fragment, UCrop.REQUEST_CROP);
@@ -444,6 +444,12 @@ public class ImageHelper {
     }
 
 
+    /**
+     * @param context     Context to use.
+     * @param imageView   View where image to be loaded.
+     * @param url         Url of image.
+     * @param placeholder Resource ID of error placeholder drawable.
+     */
     public static void loadImageFromPicasso(Context context, ImageView imageView, String url, int placeholder) {
         Picasso.with(context)
                 .load(url)

@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
@@ -35,17 +36,21 @@ import com.thetestament.cread.R;
 import com.thetestament.cread.activities.BottomNavigationActivity;
 import com.thetestament.cread.activities.FeedDescriptionActivity;
 import com.thetestament.cread.activities.FindFBFriendsActivity;
+import com.thetestament.cread.activities.RecommendedArtistsActivity;
 import com.thetestament.cread.activities.SearchActivity;
 import com.thetestament.cread.adapters.FeedAdapter;
+import com.thetestament.cread.adapters.SuggestedArtistsAdapter;
 import com.thetestament.cread.helpers.DownvoteHelper;
 import com.thetestament.cread.helpers.FeedHelper;
 import com.thetestament.cread.helpers.HatsOffHelper;
 import com.thetestament.cread.helpers.ImageHelper;
 import com.thetestament.cread.helpers.ShareHelper;
 import com.thetestament.cread.helpers.SharedPreferenceHelper;
+import com.thetestament.cread.helpers.SuggestionHelper;
 import com.thetestament.cread.helpers.ViewHelper;
 import com.thetestament.cread.listeners.listener;
 import com.thetestament.cread.models.FeedModel;
+import com.thetestament.cread.models.SuggestedArtistsModel;
 import com.thetestament.cread.utils.Constant;
 import com.yalantis.ucrop.UCrop;
 
@@ -89,32 +94,37 @@ import static com.thetestament.cread.utils.Constant.FIREBASE_EVENT_FIND_FRIENDS;
 import static com.thetestament.cread.utils.Constant.IMAGE_TYPE_USER_CAPTURE_PIC;
 import static com.thetestament.cread.utils.Constant.REQUEST_CODE_FEED_DESCRIPTION_ACTIVITY;
 import static com.thetestament.cread.utils.Constant.REQUEST_CODE_OPEN_GALLERY_FOR_CAPTURE;
-
+import static com.thetestament.cread.utils.Constant.REQUEST_CODE_RECOMMENDED_ARTISTS_FROM_FEED;
+import static com.thetestament.cread.utils.Constant.REQUEST_CODE_RECOMMENDED_ARTISTS_FROM_FEED_ADAPTER;
+import static com.thetestament.cread.utils.Constant.REQUEST_CODE_USER_PROFILE_FROM_FEED;
+import static com.thetestament.cread.utils.Constant.REQUEST_CODE_USER_PROFILE_FROM_SUGGESTED_ADAPTER;
 
 public class FeedFragment extends Fragment implements listener.OnCollaborationListener {
 
+    //region :Views binding with butter knife
     @BindView(R.id.rootView)
     CoordinatorLayout rootView;
+    @BindView(R.id.appBarLayout)
+    AppBarLayout appBarLayout;
+    @BindView(R.id.recyclerViewRecommendedArtists)
+    RecyclerView recyclerViewRecommendedArtists;
     @BindView(R.id.swipeToRefreshLayout)
     SwipeRefreshLayout swipeRefreshLayout;
     @BindView(R.id.recyclerView)
     RecyclerView recyclerView;
+    @BindView(R.id.view_no_posts)
+    LinearLayout viewNoPosts;
+    //endregion
 
+    //region :Fields and constants
     CompositeDisposable mCompositeDisposable = new CompositeDisposable();
     List<FeedModel> mFeedDataList = new ArrayList<>();
     FeedAdapter mAdapter;
     SharedPreferenceHelper mHelper;
-    @BindView(R.id.findfbFriendsButton)
-    TextView findfbFriendsButton;
-    @BindView(R.id.explorePeopleButton)
-    TextView explorePeopleButton;
-    @BindView(R.id.view_no_posts)
-    LinearLayout viewNoPosts;
 
     private Unbinder mUnbinder;
     private String mLastIndexKey;
     private boolean mRequestMoreData;
-
 
     @State
     boolean mCanDownvote;
@@ -122,8 +132,9 @@ public class FeedFragment extends Fragment implements listener.OnCollaborationLi
     String mEntityID, mEntityType;
     Bitmap mBitmap;
     FeedModel entitySpecificData;
+    //endregion
 
-
+    //region :Overridden methods
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -142,16 +153,15 @@ public class FeedFragment extends Fragment implements listener.OnCollaborationLi
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        //ButterKnife view binding
-        mUnbinder = ButterKnife.bind(this, view);
-        initScreen();
 
+        initScreen();
         //This screen opened for first time
         if (mHelper.isWelcomeFirstTime()) {
             //Show welcome dialog
             // and then check deep link status
             showWelcomeMessage();
-        } else {   // not the first time
+        } else {
+            // not the first time
             // so check for deep link directly
             initDeepLink();
         }
@@ -224,6 +234,20 @@ public class FeedFragment extends Fragment implements listener.OnCollaborationLi
                     mAdapter.notifyItemChanged(bundle.getInt("position"));
                 }
                 break;
+            case REQUEST_CODE_RECOMMENDED_ARTISTS_FROM_FEED:
+            case REQUEST_CODE_USER_PROFILE_FROM_FEED:
+                if (resultCode == RESULT_OK) {
+                    //Refresh data
+                    loadFeedData();
+                }
+                break;
+            case REQUEST_CODE_RECOMMENDED_ARTISTS_FROM_FEED_ADAPTER:
+            case REQUEST_CODE_USER_PROFILE_FROM_SUGGESTED_ADAPTER:
+                if (resultCode == RESULT_OK) {
+                    //Notify changes
+                    mAdapter.notifyDataSetChanged();
+                }
+                break;
         }
     }
 
@@ -244,6 +268,72 @@ public class FeedFragment extends Fragment implements listener.OnCollaborationLi
                 return super.onOptionsItemSelected(item);
         }
     }
+
+    @Override
+    public void collaborationOnGraphic() {
+
+    }
+
+    @Override
+    public void collaborationOnWriting(String entityID, String entityType) {
+        mEntityID = entityID;
+        mEntityType = entityType;
+        //Check for Write permission
+        if (Nammu.checkPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+            //We have permission do whatever you want to do
+            ImageHelper.chooseImageFromGallery(FeedFragment.this);
+        } else {
+            //We do not own this permission
+            if (Nammu.shouldShowRequestPermissionRationale(FeedFragment.this
+                    , Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+                //User already refused to give us this permission or removed it
+                ViewHelper.getToast(getActivity()
+                        , getString(R.string.error_msg_capture_permission_denied));
+            } else {
+                //First time asking for permission
+                Nammu.askForPermission(FeedFragment.this, Manifest.permission.WRITE_EXTERNAL_STORAGE, captureWritePermission);
+            }
+        }
+    }
+    //endregion
+
+    //region :Click functionality
+
+    /**
+     * Click functionality to open FindFBFriend activity.
+     */
+    @OnClick(R.id.findfbFriendsButton)
+    public void onFindFBFriendsClicked() {
+        //Open FindFBFriendsActivity screen
+        startActivity(new Intent(getActivity()
+                , FindFBFriendsActivity.class));
+        //Log firebase event
+        setAnalytics(FIREBASE_EVENT_FIND_FRIENDS);
+    }
+
+    /**
+     * Click functionality to open explore fragment
+     */
+    @OnClick(R.id.explorePeopleButton)
+    public void onExploreFriendsClicked() {
+        ((BottomNavigationActivity) getActivity()).activateBottomNavigationItem(R.id.action_explore);
+        ((BottomNavigationActivity) getActivity()).replaceFragment(new ExploreFragment(), Constant.TAG_EXPLORE_FRAGMENT, false);
+        //Log firebase event
+        setAnalytics(FIREBASE_EVENT_EXPLORE_CLICKED);
+    }
+
+    /**
+     * <p>Click functionality to open a new screen where user can see list of artists whom he/she can follow.</p>
+     */
+    @OnClick(R.id.textShowMoreArtists)
+    void onArtistMoreClick() {
+        //Open RecommendedArtists Screen
+        Intent intent = new Intent(getActivity(), RecommendedArtistsActivity.class);
+        this.startActivityForResult(intent, REQUEST_CODE_RECOMMENDED_ARTISTS_FROM_FEED);
+    }
+    //endregion
+
+    //region :Private methods
 
     /**
      * Method to initialize swipe to refresh view.
@@ -281,13 +371,13 @@ public class FeedFragment extends Fragment implements listener.OnCollaborationLi
         initHatsOffListener(mAdapter);
         initShareListener(mAdapter);
         initShareLinkClickedListener();
-        initDownvoteListener(mAdapter);
+        initDownVoteListener(mAdapter);
         //Load data here
         loadFeedData();
     }
 
     /**
-     * Initialize load more listener.
+     * Initialize load more listener to retrieve next set of data from server if its available.
      *
      * @param adapter FeedAdapter reference.
      */
@@ -321,6 +411,8 @@ public class FeedFragment extends Fragment implements listener.OnCollaborationLi
         if (getNetConnectionStatus(getActivity())) {
             swipeRefreshLayout.setRefreshing(true);
             //Get data from server
+            //Hide no posts view
+            viewNoPosts.setVisibility(View.GONE);
             getFeedData();
         } else {
             swipeRefreshLayout.setRefreshing(false);
@@ -330,7 +422,7 @@ public class FeedFragment extends Fragment implements listener.OnCollaborationLi
     }
 
     /**
-     * RxJava2 implementation for retrieving feed data
+     * RxJava2 implementation for retrieving feed data.
      */
     private void getFeedData() {
         final boolean[] tokenError = {false};
@@ -340,137 +432,169 @@ public class FeedFragment extends Fragment implements listener.OnCollaborationLi
                 , mHelper.getUUID()
                 , mHelper.getAuthToken()
                 , mLastIndexKey
-                , GET_RESPONSE_FROM_NETWORK_MAIN
-                )
-                        //Run on a background thread
-                        .subscribeOn(Schedulers.io())
-                        //Be notified on the main thread
-                        .observeOn(AndroidSchedulers.mainThread())
-                        .subscribeWith(new DisposableObserver<JSONObject>() {
-                            @Override
-                            public void onNext(JSONObject jsonObject) {
-                                try {
-                                    //Token status is invalid
-                                    if (jsonObject.getString("tokenstatus").equals("invalid")) {
-                                        tokenError[0] = true;
+                , GET_RESPONSE_FROM_NETWORK_MAIN)
+                //Run on a background thread
+                .subscribeOn(Schedulers.io())
+                //Be notified on the main thread
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribeWith(new DisposableObserver<JSONObject>() {
+                    @Override
+                    public void onNext(JSONObject jsonObject) {
+                        try {
+                            //Token status is invalid
+                            if (jsonObject.getString("tokenstatus").equals("invalid")) {
+                                tokenError[0] = true;
+                            } else {
+                                JSONObject mainData = jsonObject.getJSONObject("data");
+                                mRequestMoreData = mainData.getBoolean("requestmore");
+                                mLastIndexKey = mainData.getString("lastindexkey");
+                                mCanDownvote = mainData.getBoolean("candownvote");
+                                //FeedArray list
+                                JSONArray feedArray = mainData.getJSONArray("feed");
+                                int feedArrayLength = feedArray.length();
+                                for (int i = 0; i < feedArrayLength; i++) {
+
+                                    JSONObject dataObj = feedArray.getJSONObject(i);
+                                    String type = dataObj.getString("type");
+
+                                    FeedModel feedData = new FeedModel();
+                                    feedData.setEntityID(dataObj.getString("entityid"));
+                                    feedData.setContentType(dataObj.getString("type"));
+                                    feedData.setUUID(dataObj.getString("uuid"));
+                                    feedData.setCreatorImage(dataObj.getString("profilepicurl"));
+                                    feedData.setCreatorName(dataObj.getString("creatorname"));
+                                    feedData.setHatsOffStatus(dataObj.getBoolean("hatsoffstatus"));
+                                    feedData.setMerchantable(dataObj.getBoolean("merchantable"));
+                                    feedData.setDownvoteStatus(dataObj.getBoolean("downvotestatus"));
+                                    feedData.setEligibleForDownvote(mCanDownvote);
+                                    feedData.setLongForm(dataObj.getBoolean("long_form"));
+                                    feedData.setHatsOffCount(dataObj.getLong("hatsoffcount"));
+                                    feedData.setCommentCount(dataObj.getLong("commentcount"));
+                                    feedData.setContentImage(dataObj.getString("entityurl"));
+                                    feedData.setCollabCount(dataObj.getLong("collabcount"));
+                                    if (dataObj.isNull("caption")) {
+                                        feedData.setCaption(null);
                                     } else {
-                                        JSONObject mainData = jsonObject.getJSONObject("data");
-                                        mRequestMoreData = mainData.getBoolean("requestmore");
-                                        mLastIndexKey = mainData.getString("lastindexkey");
-                                        mCanDownvote = mainData.getBoolean("candownvote");
-                                        //FeedArray list
-                                        JSONArray feedArray = mainData.getJSONArray("feed");
-                                        for (int i = 0; i < feedArray.length(); i++) {
+                                        feedData.setCaption(dataObj.getString("caption"));
+                                    }
 
-                                            JSONObject dataObj = feedArray.getJSONObject(i);
-                                            String type = dataObj.getString("type");
+                                    if (type.equals(CONTENT_TYPE_CAPTURE)) {
 
-                                            FeedModel feedData = new FeedModel();
-                                            feedData.setEntityID(dataObj.getString("entityid"));
-                                            feedData.setContentType(dataObj.getString("type"));
-                                            feedData.setUUID(dataObj.getString("uuid"));
-                                            feedData.setCreatorImage(dataObj.getString("profilepicurl"));
-                                            feedData.setCreatorName(dataObj.getString("creatorname"));
-                                            feedData.setHatsOffStatus(dataObj.getBoolean("hatsoffstatus"));
-                                            feedData.setMerchantable(dataObj.getBoolean("merchantable"));
-                                            feedData.setDownvoteStatus(dataObj.getBoolean("downvotestatus"));
-                                            feedData.setEligibleForDownvote(mCanDownvote);
-                                            feedData.setLongForm(dataObj.getBoolean("long_form"));
-                                            feedData.setHatsOffCount(dataObj.getLong("hatsoffcount"));
-                                            feedData.setCommentCount(dataObj.getLong("commentcount"));
-                                            feedData.setContentImage(dataObj.getString("entityurl"));
-                                            feedData.setCollabCount(dataObj.getLong("collabcount"));
-                                            if (dataObj.isNull("caption")) {
-                                                feedData.setCaption(null);
-                                            } else {
-                                                feedData.setCaption(dataObj.getString("caption"));
-                                            }
+                                        //Retrieve "CAPTURE_ID" if type is capture
+                                        feedData.setCaptureID(dataObj.getString("captureid"));
+                                        // if capture
+                                        // then if key cpshort exists
+                                        // not available for collaboration
+                                        if (!dataObj.isNull("cpshort")) {
+                                            JSONObject collabObject = dataObj.getJSONObject("cpshort");
 
-                                            if (type.equals(CONTENT_TYPE_CAPTURE)) {
+                                            feedData.setAvailableForCollab(false);
+                                            // set collaborator details
+                                            feedData.setCollabWithUUID(collabObject.getString("uuid"));
+                                            feedData.setCollabWithName(collabObject.getString("name"));
+                                            feedData.setCollaboWithEntityID(collabObject.getString("entityid"));
+                                        } else {
+                                            feedData.setAvailableForCollab(true);
+                                        }
 
-                                                //Retrieve "CAPTURE_ID" if type is capture
-                                                feedData.setCaptureID(dataObj.getString("captureid"));
-                                                // if capture
-                                                // then if key cpshort exists
-                                                // not available for collaboration
-                                                if (!dataObj.isNull("cpshort")) {
-                                                    JSONObject collabObject = dataObj.getJSONObject("cpshort");
+                                    } else if (type.equals(CONTENT_TYPE_SHORT)) {
+                                        //Retrieve "SHORT_ID" if type is short
+                                        feedData.setShortID(dataObj.getString("shoid"));
 
-                                                    feedData.setAvailableForCollab(false);
-                                                    // set collaborator details
-                                                    feedData.setCollabWithUUID(collabObject.getString("uuid"));
-                                                    feedData.setCollabWithName(collabObject.getString("name"));
-                                                    feedData.setCollaboWithEntityID(collabObject.getString("entityid"));
+                                        // if short
+                                        // then if key shcapture exists
+                                        // not available for collaboration
+                                        if (!dataObj.isNull("shcapture")) {
 
-                                                } else {
-                                                    feedData.setAvailableForCollab(true);
-                                                }
+                                            JSONObject collabObject = dataObj.getJSONObject("shcapture");
 
-                                            } else if (type.equals(CONTENT_TYPE_SHORT)) {
-
-                                                //Retrieve "SHORT_ID" if type is short
-                                                feedData.setShortID(dataObj.getString("shoid"));
-
-                                                // if short
-                                                // then if key shcapture exists
-                                                // not available for collaboration
-                                                if (!dataObj.isNull("shcapture")) {
-
-                                                    JSONObject collabObject = dataObj.getJSONObject("shcapture");
-
-                                                    feedData.setAvailableForCollab(false);
-                                                    // set collaborator details
-                                                    feedData.setCollabWithUUID(collabObject.getString("uuid"));
-                                                    feedData.setCollabWithName(collabObject.getString("name"));
-                                                    feedData.setCollaboWithEntityID(collabObject.getString("entityid"));
-                                                } else {
-                                                    feedData.setAvailableForCollab(true);
-                                                }
-                                            }
-
-                                            mFeedDataList.add(feedData);
+                                            feedData.setAvailableForCollab(false);
+                                            // set collaborator details
+                                            feedData.setCollabWithUUID(collabObject.getString("uuid"));
+                                            feedData.setCollabWithName(collabObject.getString("name"));
+                                            feedData.setCollaboWithEntityID(collabObject.getString("entityid"));
+                                        } else {
+                                            feedData.setAvailableForCollab(true);
                                         }
                                     }
-                                } catch (JSONException e) {
-                                    e.printStackTrace();
-                                    FirebaseCrash.report(e);
-                                    connectionError[0] = true;
+
+                                    mFeedDataList.add(feedData);
                                 }
                             }
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                            FirebaseCrash.report(e);
+                            connectionError[0] = true;
+                        }
+                    }
 
-                            @Override
-                            public void onError(Throwable e) {
-                                swipeRefreshLayout.setRefreshing(false);
-                                FirebaseCrash.report(e);
-                                //Server error Snack bar
-                                ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_server));
-                            }
+                    @Override
+                    public void onError(Throwable e) {
+                        swipeRefreshLayout.setRefreshing(false);
+                        FirebaseCrash.report(e);
+                        //Server error Snack bar
+                        ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_server));
+                    }
 
-                            @Override
-                            public void onComplete() {
-                                //Dismiss progress indicator
-                                swipeRefreshLayout.setRefreshing(false);
-                                // set to false
-                                GET_RESPONSE_FROM_NETWORK_MAIN = false;
-                                // Token status invalid
-                                if (tokenError[0]) {
-                                    ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_invalid_token));
+                    @Override
+                    public void onComplete() {
+                        //Dismiss progress indicator
+                        swipeRefreshLayout.setRefreshing(false);
+                        // set to false
+                        GET_RESPONSE_FROM_NETWORK_MAIN = false;
+                        // Token status invalid
+                        if (tokenError[0]) {
+                            ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_invalid_token));
+                        }
+                        //Error occurred
+                        else if (connectionError[0]) {
+                            ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_internal));
+
+                        } else if (mFeedDataList.size() == 0) {
+                            //Show no post view
+                            viewNoPosts.setVisibility(View.VISIBLE);
+
+                            SuggestionHelper helper = new SuggestionHelper();
+                            helper.getSuggestedArtistStatus(getActivity(), mCompositeDisposable, new listener.OnSuggestedArtistLoadListener() {
+                                @Override
+                                public void onSuccess(List<SuggestedArtistsModel> dataList) {
+                                    //Show recommended artists view here
+                                    appBarLayout.setVisibility(View.VISIBLE);
+                                    CoordinatorLayout.LayoutParams params = (CoordinatorLayout.LayoutParams) appBarLayout.getLayoutParams();
+                                    params.height = LinearLayout.LayoutParams.WRAP_CONTENT;
+                                    appBarLayout.setLayoutParams(params);
+                                    //Set layout manager
+                                    recyclerViewRecommendedArtists.setLayoutManager(new LinearLayoutManager(getActivity()
+                                            , LinearLayoutManager.HORIZONTAL
+                                            , false));
+                                    //Set adapter
+                                    recyclerViewRecommendedArtists.setAdapter(new SuggestedArtistsAdapter(dataList, getActivity()
+                                            , FeedFragment.this
+                                            , true));
                                 }
-                                //Error occurred
-                                else if (connectionError[0]) {
-                                    ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_internal));
 
-                                } else if (mFeedDataList.size() == 0) {
-                                    viewNoPosts.setVisibility(View.VISIBLE);
-                                } else {
-                                    //Apply 'Slide Up' animation
-                                    int resId = R.anim.layout_animation_from_bottom;
-                                    LayoutAnimationController animation = AnimationUtils.loadLayoutAnimation(getActivity(), resId);
-                                    recyclerView.setLayoutAnimation(animation);
-                                    mAdapter.notifyDataSetChanged();
+                                @Override
+                                public void onFailure(String errorMsg) {
+                                    //Show error snack bar
+                                    ViewHelper.getSnackBar(rootView, errorMsg);
                                 }
-                            }
-                        })
+                            });
+                        } else {
+                            //Hide recommended artist view
+                            CoordinatorLayout.LayoutParams params = (CoordinatorLayout.LayoutParams) appBarLayout.getLayoutParams();
+                            params.height = 0;
+                            appBarLayout.setLayoutParams(params);
+                            //Method called
+                            addSuggestedArtistData();
+
+                            //Apply 'Slide Up' animation
+                            int resId = R.anim.layout_animation_from_bottom;
+                            LayoutAnimationController animation = AnimationUtils.loadLayoutAnimation(getActivity(), resId);
+                            recyclerView.setLayoutAnimation(animation);
+                            mAdapter.notifyDataSetChanged();
+                        }
+                    }
+                })
         );
     }
 
@@ -647,7 +771,6 @@ public class FeedFragment extends Fragment implements listener.OnCollaborationLi
         });
     }
 
-
     /**
      * Used to handle result of askForPermission for capture.
      */
@@ -719,31 +842,43 @@ public class FeedFragment extends Fragment implements listener.OnCollaborationLi
         });
     }
 
-    private void initDownvoteListener(FeedAdapter feedAdapter) {
+    /**
+     * Initialize down vote listener.
+     *
+     * @param feedAdapter FeedAdapter reference
+     */
+    private void initDownVoteListener(FeedAdapter feedAdapter) {
         feedAdapter.setOnDownvoteClickedListener(new listener.OnDownvoteClickedListener() {
             @Override
-            public void onDownvoteClicked(FeedModel data, int position, ImageView imageDownvote) {
+            public void onDownvoteClicked(FeedModel data, int position, ImageView imageDownVote) {
 
                 DownvoteHelper downvoteHelper = new DownvoteHelper();
 
-                // if already downvoted
+                // if already downVoted
                 if (data.isDownvoteStatus()) {
                     downvoteHelper.initDownvoteProcess(getActivity()
                             , data
                             , mCompositeDisposable
-                            , imageDownvote
+                            , imageDownVote
                             , new Bundle()
                             , new Intent());
                 } else
 
-                {   // show warning dialog
-                    downvoteHelper.initDownvoteWarningDialog(getActivity(), data, mCompositeDisposable, imageDownvote, new Bundle(), new Intent());
-
+                {   // Show warning dialog
+                    downvoteHelper.initDownvoteWarningDialog(getActivity()
+                            , data
+                            , mCompositeDisposable
+                            , imageDownVote
+                            , new Bundle()
+                            , new Intent());
                 }
             }
         });
     }
 
+    /**
+     * Initialize deep link functionality.
+     */
     private void initDeepLink() {
         // if deep link parse it
         if (mHelper.getDeepLink() != null) {
@@ -821,20 +956,6 @@ public class FeedFragment extends Fragment implements listener.OnCollaborationLi
         textDesc.setText("Cread is a Social platform where artists can collaborate and showcase their work to earn recognition, goodwill and revenues.");
     }
 
-    @OnClick(R.id.findfbFriendsButton)
-    public void onFindFBFriendsClicked() {
-        startActivity(new Intent(getActivity(), FindFBFriendsActivity.class));
-        //Log firebase event
-        setAnalytics(FIREBASE_EVENT_FIND_FRIENDS);
-    }
-
-    @OnClick(R.id.explorePeopleButton)
-    public void onExploreFriendsClicked() {
-        ((BottomNavigationActivity) getActivity()).activateBottomNavigationItem(R.id.action_explore);
-        ((BottomNavigationActivity) getActivity()).replaceFragment(new ExploreFragment(), Constant.TAG_EXPLORE_FRAGMENT, false);
-        //Log firebase event
-        setAnalytics(FIREBASE_EVENT_EXPLORE_CLICKED);
-    }
 
     /**
      * Method to send analytics data on firebase server.
@@ -879,8 +1000,6 @@ public class FeedFragment extends Fragment implements listener.OnCollaborationLi
 
                     @Override
                     public void onNextCalled(JSONObject jsonObject) {
-
-
                         try {
                             //Token status is invalid
                             if (jsonObject.getString("tokenstatus").equals("invalid")) {
@@ -897,7 +1016,6 @@ public class FeedFragment extends Fragment implements listener.OnCollaborationLi
 
                     @Override
                     public void onErrorCalled(Throwable e) {
-
                         FirebaseCrash.report(e);
                         //Server error Snack bar
                         ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_server));
@@ -905,9 +1023,7 @@ public class FeedFragment extends Fragment implements listener.OnCollaborationLi
 
                     @Override
                     public void onCompleteCalled() {
-
                         GET_RESPONSE_FROM_NETWORK_ENTITY_SPECIFIC = false;
-
                         // Token status invalid
                         if (tokenError[0]) {
                             ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_invalid_token));
@@ -932,30 +1048,30 @@ public class FeedFragment extends Fragment implements listener.OnCollaborationLi
     }
 
 
-    @Override
-    public void collaborationOnGraphic() {
-
-    }
-
-    @Override
-    public void collaborationOnWriting(String entityID, String entityType) {
-        mEntityID = entityID;
-        mEntityType = entityType;
-        //Check for Write permission
-        if (Nammu.checkPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
-            //We have permission do whatever you want to do
-            ImageHelper.chooseImageFromGallery(FeedFragment.this);
-        } else {
-            //We do not own this permission
-            if (Nammu.shouldShowRequestPermissionRationale(FeedFragment.this
-                    , Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
-                //User already refused to give us this permission or removed it
-                ViewHelper.getToast(getActivity()
-                        , getString(R.string.error_msg_capture_permission_denied));
-            } else {
-                //First time asking for permission
-                Nammu.askForPermission(FeedFragment.this, Manifest.permission.WRITE_EXTERNAL_STORAGE, captureWritePermission);
-            }
+    /**
+     * Method to add suggested artist data.
+     */
+    private void addSuggestedArtistData() {
+        //Code to add Suggested artists list
+        int index;
+        int dataSize = mFeedDataList.size();
+        if (dataSize == 1 || dataSize == 2) {
+            index = 1;
+            mFeedDataList.add(index, new FeedModel());
+            mAdapter.updateRecommendedArtistIndex(index);
+        } else if (dataSize == 3 || dataSize == 4) {
+            index = 2;
+            mFeedDataList.add(index, new FeedModel());
+            mAdapter.updateRecommendedArtistIndex(index);
+        } else if (dataSize == 5 || dataSize == 6) {
+            index = 3;
+            mFeedDataList.add(index, new FeedModel());
+            mAdapter.updateRecommendedArtistIndex(index);
+        } else if (dataSize > 9) {
+            index = 7;
+            mFeedDataList.add(index, new FeedModel());
+            mAdapter.updateRecommendedArtistIndex(index);
         }
     }
+//endregion
 }
