@@ -15,7 +15,7 @@
         android:paddingLeft="8dp"
         android:paddingRight="8dp"
         android:paddingTop="16dp"
-        android:text="You might like follow"
+        android:text="You might like to follow"
         android:textColor="@color/black_defined"
         android:textSize="14sp" />
 

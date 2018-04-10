@@ -53,7 +53,7 @@
         android:layout_height="match_parent"
         android:orientation="vertical"
         android:paddingTop="24dp"
-        android:visibility="gone"
+        android:visibility="visible"
         app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
         <ImageView
@@ -80,7 +80,7 @@
             android:layout_marginRight="30dp"
             android:layout_marginTop="15dp"
             android:gravity="center_horizontal"
-            android:text="Discover new people or find your Facebook friends on Cread"
+            android:text="Post from people who you follow will be shown here"
             android:textColor="@color/grey_dark"
             android:textSize="14sp" />
 
