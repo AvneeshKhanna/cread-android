@@ -278,239 +278,7 @@ public class FeedDescriptionActivity extends BaseActivity implements listener.On
     }
     //endregion
 
-    //region: On click methods
-    /**
-     * HatsOffCount click functionality to open "HatsOffActivity" screen.
-     *//*
-    @OnClick(R.id.containerHatsoffCount)
-    void hatsOffCountOnClick() {
-        Intent intent = new Intent(this, HatsOffActivity.class);
-        intent.putExtra(EXTRA_ENTITY_ID, mFeedData.getEntityID());
-        startActivity(intent);
-    }
 
-
-    @OnClick(R.id.textTitle)
-    void onTitleClicked() {
-        if (TextViewCompat.getMaxLines(textTitle) == 3) {
-            // expand title
-            textTitle.setMaxLines(Integer.MAX_VALUE);
-        } else {
-            // collapse title
-            textTitle.setMaxLines(3);
-        }
-    }
-
-    *//**
-     * Have button click functionality.
-     *//*
-    @OnClick(R.id.buttonHave)
-    public void onViewClicked() {
-        if (mFeedData.isMerchantable()) {
-            Intent intent = new Intent(this, MerchandisingProductsActivity.class);
-            intent.putExtra(EXTRA_ENTITY_ID, mFeedData.getEntityID());
-            intent.putExtra(EXTRA_CAPTURE_URL, mFeedData.getContentImage());
-            // getting short uuid and capture uuid
-            if (mFeedData.getContentType().equals(CONTENT_TYPE_SHORT)) {
-                intent.putExtra(EXTRA_SHORT_UUID, mFeedData.getUUID());
-                intent.putExtra(EXTRA_CAPTURE_UUID, mFeedData.getCollabWithUUID());
-            } else if (mFeedData.getContentType().equals(CONTENT_TYPE_CAPTURE)) {
-                intent.putExtra(EXTRA_SHORT_UUID, mFeedData.getCollabWithUUID());
-                intent.putExtra(EXTRA_CAPTURE_UUID, mFeedData.getUUID());
-            }
-            startActivity(intent);
-        } else {
-            ViewHelper.getSnackBar(rootView, "Due to low resolution this image is not available for purchase.");
-        }
-        //Log firebase event
-        setAnalytics(FIREBASE_EVENT_HAVE_CLICKED);
-    }
-
-    *//**
-     * Click functionality to open "CommentsActivity" screen.
-     *//*
-    @OnClick({R.id.containerComment, R.id.textShowComments, R.id.containerCommentsCount})
-    void onCommentsClicked() {
-        Intent intent = new Intent(this, CommentsActivity.class);
-        intent.putExtra(EXTRA_ENTITY_ID, mFeedData.getEntityID());
-        startActivityForResult(intent, REQUEST_CODE_COMMENTS_ACTIVITY);
-    }
-
-    *//**
-     * HatsOff Click functionality.
-     *//*
-    @OnClick(R.id.containerHatsOff)
-    void onContainerHatsOffClicked() {
-        // check net status
-        if (NetworkHelper.getNetConnectionStatus(FeedDescriptionActivity.this)) {
-            //User has already given hats off
-            if (mFeedData.getHatsOffStatus()) {
-                //Animation for hats off
-                imageHatsOff.startAnimation(AnimationUtils.loadAnimation(this, R.anim.reverse_rotate_animation_hats_off_30_degree));
-                //Toggle hatsOff tint
-                imageHatsOff.setColorFilter(Color.TRANSPARENT);
-                //Toggle hatsOff status
-                mFeedData.setHatsOffStatus(!mFeedData.getHatsOffStatus());
-                //Update hatsOffCount
-                mFeedData.setHatsOffCount(mFeedData.getHatsOffCount() - 1);
-                //If hats off count is zero
-                if (mFeedData.getHatsOffCount() < 1) {
-                    containerHatsOffCount.setVisibility(View.GONE);
-                }
-                //hats off count is more than zero
-                else {
-                    //Change hatsOffCount i.e decrease by one
-                    containerHatsOffCount.setVisibility(View.VISIBLE);
-                    textHatsoffCount.setText(String.valueOf(mFeedData.getHatsOffCount()));
-                }
-
-            } else {
-                //Animation for hats off
-                imageHatsOff.startAnimation(AnimationUtils.loadAnimation(this, R.anim.rotate_animation_hats_off_30_degree));
-                //Toggle hatsOff tint
-                imageHatsOff.setColorFilter(ContextCompat.getColor(this, R.color.colorPrimary));
-                //Toggle hatsOff status
-                mFeedData.setHatsOffStatus(!mFeedData.getHatsOffStatus());
-                //Update hatsOffCount
-                mFeedData.setHatsOffCount(mFeedData.getHatsOffCount() + 1);
-                //Change hatsOffCount i.e increase by one
-                containerHatsOffCount.setVisibility(View.VISIBLE);
-                textHatsoffCount.setText(String.valueOf(mFeedData.getHatsOffCount()));
-            }
-
-            updateDotSeperatorVisibility(mFeedData, dotSeperator);
-            //update hats off status on server
-            updateHatsOffStatus();
-
-        } else {
-            ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_no_connection));
-        }
-    }
-
-    *//**
-     * Share button click functionality.
-     *//*
-    @OnClick(R.id.containerShares)
-    void shareOnClick() {
-
-        ShareDialogAdapter adapter = new ShareDialogAdapter(mContext, initializeShareDialog(mContext));
-        final MaterialDialog dialog = new MaterialDialog.Builder(mContext)
-                .adapter(adapter, null)
-                .show();
-        adapter.setShareDialogItemClickedListener(new listener.OnShareDialogItemClickedListener() {
-            @Override
-            public void onShareDialogItemClicked(int index) {
-
-                // dismiss dialog
-                dialog.dismiss();
-
-                switch (index) {
-                    case 0:
-                        // image sharing
-                        //so load image
-                        loadBitmapForSharing();
-                        break;
-                    case 1:
-                        // link sharing
-                        // get deep link from server
-                        generateDeepLink(mContext,
-                                mCompositeDisposable,
-                                rootView,
-                                mHelper.getUUID(),
-                                mHelper.getAuthToken(),
-                                mFeedData.getEntityID(),
-                                mFeedData.getContentImage(),
-                                mFeedData.getCreatorName());
-                        break;
-
-                }
-            }
-        });
-    }
-
-    *//**
-     * Collaboration count click functionality to launch collaborationDetailsActivity.
-     *//*
-    @OnClick(R.id.containerCollabCount)
-    void collaborationCountOnClick() {
-
-        Bundle bundle = new Bundle();
-        bundle.putString(EXTRA_ENTITY_ID, mFeedData.getEntityID());
-        bundle.putString(EXTRA_ENTITY_TYPE, mFeedData.getContentType());
-
-        Intent intent = new Intent(FeedDescriptionActivity.this, CollaborationDetailsActivity.class);
-        intent.putExtra(EXTRA_DATA, bundle);
-        startActivity(intent);
-    }
-
-    @OnClick(R.id.buttonFollow)
-    void onFollowClick() {
-        // check net status
-        if (NetworkHelper.getNetConnectionStatus(mContext)) {
-            //Toggle status
-            mFeedData.setFollowStatus(!mFeedData.getFollowStatus());
-            //Toggle follow button
-            toggleFollowButton(true);
-            // update status on server
-            updateFollowStatus();
-            //Log firebase event
-            setAnalytics(FIREBASE_EVENT_FOLLOW_FROM_FEED_DESCRIPTION);
-        } else {
-            ViewHelper.getToast(mContext, mContext.getString(R.string.error_msg_no_connection));
-        }
-    }
-
-    @OnClick(R.id.buttonMenu)
-    void onMenuClick() {
-        getMenuActionsBottomSheet(mContext, mItemPosition, mFeedData, initDeletePostClick(), isUserCreator, mCompositeDisposable, resultBundle, resultIntent);
-    }
-
-    @OnClick(R.id.imageDownvote)
-    void onDownvoteClicked() {
-        DownvoteHelper downvoteHelper = new DownvoteHelper();
-
-        // if already downvoted
-        if (mFeedData.isDownvoteStatus()) {
-            downvoteHelper.initDownvoteProcess(mContext
-                    , mFeedData
-                    , mCompositeDisposable
-                    , imageDownvote
-                    , resultBundle
-                    , resultIntent);
-        } else
-
-        {   // show warning dialog
-            downvoteHelper.initDownvoteWarningDialog(mContext, mFeedData, mCompositeDisposable, imageDownvote, resultBundle, resultIntent);
-
-        }
-    }
-
-    *//**
-     * Click action for long form preview option
-     *//*
-    @OnClick(R.id.containerLongShortPreview)
-    void onLongShortPreviewClicked() {
-        LongShortHelper longShortHelper = new LongShortHelper();
-        longShortHelper.getLongShortData(mContext, mCompositeDisposable, mFeedData.getEntityID(), new listener.OnLongShortDataRequestedListener() {
-            @Override
-            public void onLongShortDataSuccess(ShortModel shortModel) {
-                // open activity and pass data
-                Intent intent = new Intent(mContext, ViewLongShortActivity.class);
-                intent.putExtra(EXTRA_SHORT_DATA, shortModel);
-                mContext.startActivity(intent);
-
-            }
-
-            @Override
-            public void onLongShortDataFailiure(String errorMsg) {
-
-                ViewHelper.getToast(mContext, errorMsg);
-
-            }
-        });
-    }
-*/
-    //endregion
 
     //region: private methods
 
@@ -733,6 +501,8 @@ public class FeedDescriptionActivity extends BaseActivity implements listener.On
                 data.getFollowStatus(),
                 new JSONArray().put(data.getUUID()),
                 new listener.OnFollowRequestedListener() {
+
+
                     @Override
                     public void onFollowSuccess() {
 
@@ -741,7 +511,7 @@ public class FeedDescriptionActivity extends BaseActivity implements listener.On
                         mAdapter.notifyDataSetChanged();
 
                         if (itemPosition == 0) {
-                            resultBundle.putBoolean("followstatus", mFeedData.getFollowStatus());
+                            resultBundle.putBoolean("followstatus", data.getFollowStatus());
                             //Return result ok
                             setResult(RESULT_OK, resultIntent);
                         }
@@ -749,7 +519,7 @@ public class FeedDescriptionActivity extends BaseActivity implements listener.On
                     }
 
                     @Override
-                    public void onFollowFailiure(String errorMsg) {
+                    public void onFollowFailure(String errorMsg) {
 
                         //set status to true if its false and vice versa
                         data.setFollowStatus(!data.getFollowStatus());
