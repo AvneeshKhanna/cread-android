@@ -229,9 +229,8 @@ public class RecommendedArtistsActivity extends BaseActivity {
                                     JSONArray contentArray = dataObj.getJSONArray("posts");
                                     List<UserPostModel> contentList = new ArrayList<>();
                                     for (int start = 0; start < contentArray.length(); start++) {
-                                        JSONObject object = contentArray.getJSONObject(start);
                                         UserPostModel postModel = new UserPostModel();
-                                        postModel.setPostURL(object.getString("entityurl"));
+                                        postModel.setPostURL(contentArray.getString(start));
                                         contentList.add(postModel);
                                     }
                                     artistsModel.setUserPostList(contentList);
@@ -406,9 +405,8 @@ public class RecommendedArtistsActivity extends BaseActivity {
                                     JSONArray contentArray = dataObj.getJSONArray("posts");
                                     List<UserPostModel> contentList = new ArrayList<>();
                                     for (int start = 0; start < contentArray.length(); start++) {
-                                        JSONObject object = contentArray.getJSONObject(start);
                                         UserPostModel postModel = new UserPostModel();
-                                        postModel.setPostURL(object.getString("entityurl"));
+                                        postModel.setPostURL(contentArray.getString(start));
                                         contentList.add(postModel);
                                     }
                                     artistsModel.setUserPostList(contentList);
