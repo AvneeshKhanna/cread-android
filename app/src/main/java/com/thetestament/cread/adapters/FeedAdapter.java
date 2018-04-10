@@ -254,8 +254,8 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             loadingViewHolder.progressView.setVisibility(View.VISIBLE);
         } else if (holder.getItemViewType() == VIEW_TYPE_RECOMMENDED_ARTIST) {
             final RecommendedArtistViewHolder viewHolder = (RecommendedArtistViewHolder) holder;
-            //Hide view
-            //viewHolder.itemView.setVisibility(View.GONE);
+
+            final RecyclerView.LayoutParams params = (RecyclerView.LayoutParams) viewHolder.itemView.getLayoutParams();
             //Show progressView
             viewHolder.progressView.setVisibility(View.VISIBLE);
 
@@ -263,8 +263,10 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             helper.getSuggestedArtistStatus(mContext, mCompositeDisposable, new listener.OnSuggestedArtistLoadListener() {
                 @Override
                 public void onSuccess(List<SuggestedArtistsModel> dataList) {
-                    //Show view
-                    viewHolder.itemView.setVisibility(View.VISIBLE);
+                    //Hide itemView
+                    params.height = LinearLayout.LayoutParams.WRAP_CONTENT;
+                    params.width = LinearLayout.LayoutParams.MATCH_PARENT;
+                    viewHolder.itemView.setLayoutParams(params);
                     //Hide progressView
                     viewHolder.progressView.setVisibility(View.GONE);
                     //Set Layout manager
@@ -276,12 +278,22 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                             , mContext
                             , mFeedFragment
                             , false));
+                    if (dataList.size() == 0) {
+                        //Hide itemView
+                        params.height = 0;
+                        params.width = 0;
+                        viewHolder.itemView.setLayoutParams(params);
+                        //Hide view
+                        viewHolder.itemView.setVisibility(View.GONE);
+                    }
                 }
 
                 @Override
                 public void onFailure(String errorMsg) {
-                    //Hide view
-                    viewHolder.itemView.setVisibility(View.GONE);
+                    //Hide itemView
+                    params.height = 0;
+                    params.width = 0;
+                    viewHolder.itemView.setLayoutParams(params);
                     //Hide progressView
                     viewHolder.progressView.setVisibility(View.GONE);
                     //Show error toast
