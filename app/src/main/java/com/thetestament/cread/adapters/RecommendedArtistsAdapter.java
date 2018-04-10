@@ -4,20 +4,19 @@ import android.content.Context;
 import android.content.Intent;
 import android.support.v4.app.FragmentActivity;
 import android.support.v7.widget.AppCompatTextView;
+import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 
 import com.squareup.picasso.Picasso;
 import com.thetestament.cread.R;
 import com.thetestament.cread.activities.ProfileActivity;
 import com.thetestament.cread.listeners.listener;
 import com.thetestament.cread.models.RecommendedArtistsModel;
-import com.thetestament.cread.widgets.SquareImageView;
 
 import java.util.List;
 
@@ -102,7 +101,7 @@ public class RecommendedArtistsAdapter extends RecyclerView.Adapter<RecyclerView
             loadImageFromUrl(mContext, itemViewHolder.imageArtist
                     , data.getArtistProfilePic(), R.drawable.ic_account_circle_100);
             //Method called
-            setArtistContentImage(data, itemViewHolder.imageContainer);
+            setArtistContentImage(data, itemViewHolder.recyclerView);
             followOnClick(itemViewHolder.buttonFollow, data.getArtistUUID(), itemViewHolder.getAdapterPosition());
             itemViewOnClick(itemViewHolder.itemView, data.getArtistUUID());
 
@@ -131,16 +130,8 @@ public class RecommendedArtistsAdapter extends RecyclerView.Adapter<RecyclerView
         AppCompatTextView buttonFollow;
         @BindView(R.id.textArtistBio)
         AppCompatTextView textArtistBio;
-        @BindView(R.id.artistContentContainer)
-        LinearLayout imageContainer;
-        @BindView(R.id.imageArtFirst)
-        SquareImageView imageArtFirst;
-        @BindView(R.id.imageArtTwo)
-        SquareImageView imageArtTwo;
-        @BindView(R.id.imageArtThree)
-        SquareImageView imageArtThree;
-        @BindView(R.id.imageArtFour)
-        SquareImageView imageArtFour;
+        @BindView(R.id.recyclerViewUserPost)
+        RecyclerView recyclerView;
 
         public ItemViewHolder(View itemView) {
             super(itemView);
@@ -185,7 +176,7 @@ public class RecommendedArtistsAdapter extends RecyclerView.Adapter<RecyclerView
      */
     private void setArtistBio(String artistBio, AppCompatTextView textBio) {
         //Check null and empty string
-        if (TextUtils.isEmpty(artistBio)) {
+        if (TextUtils.isEmpty(artistBio) || artistBio.equals("null")) {
             //Hide bio textView
             textBio.setVisibility(View.GONE);
         } else {
@@ -229,28 +220,16 @@ public class RecommendedArtistsAdapter extends RecyclerView.Adapter<RecyclerView
     }
 
     /**
-     * @param data   Instance of RecommendedArtistsModel.
-     * @param layout ParentView of imageViews.
+     * @param data         Instance of RecommendedArtistsModel.
+     * @param recyclerView User post recyclerView.
      */
-    private void setArtistContentImage(RecommendedArtistsModel data, LinearLayout layout) {
-        //int index = 0;
-        for (int i = 0; i < data.getImagesList().size(); i++) {
+    private void setArtistContentImage(RecommendedArtistsModel data, RecyclerView recyclerView) {
 
-            if (i == 0) {
-                loadImageFromUrl(mContext, (SquareImageView) layout.findViewById(R.id.imageArtFirst)
-                        , data.getImagesList().get(i), R.drawable.image_placeholder);
-            } else if (i == 1) {
-                loadImageFromUrl(mContext, (SquareImageView) layout.findViewById(R.id.imageArtTwo)
-                        , data.getImagesList().get(i), R.drawable.image_placeholder);
-            } else if (i == 2) {
-                loadImageFromUrl(mContext, (SquareImageView) layout.findViewById(R.id.imageArtThree)
-                        , data.getImagesList().get(i), R.drawable.image_placeholder);
-            } else if (i == 3) {
-                loadImageFromUrl(mContext, (SquareImageView) layout.findViewById(R.id.imageArtFour)
-                        , data.getImagesList().get(i), R.drawable.image_placeholder);
-            }
-        }
-
+        //Set layout manager
+        recyclerView.setLayoutManager(new LinearLayoutManager(mContext
+                , LinearLayoutManager.HORIZONTAL, false));
+        //Set adapter
+        recyclerView.setAdapter(new UserPostAdapter(data.getUserPostList(), mContext));
     }
 
     /**

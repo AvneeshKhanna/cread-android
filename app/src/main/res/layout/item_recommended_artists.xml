@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
@@ -66,60 +67,23 @@
             android:id="@+id/textArtistBio"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:ellipsize="end"
             android:maxLines="1"
             android:paddingTop="8dp"
             android:textColor="@color/color_grey_600"
             android:textSize="12sp"
+            android:visibility="visible"
             tools:text="@tools:sample/lorem/random" />
 
-        <!--Image container-->
-        <LinearLayout
-            android:id="@+id/artistContentContainer"
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/recyclerViewUserPost"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_below="@+id/textArtistBio"
             android:layout_marginTop="8dp"
             android:orientation="horizontal"
-            android:weightSum="4">
+            app:layoutManager="android.support.v7.widget.LinearLayoutManager"
+            tools:itemCount="6"
+            tools:listitem="@layout/item_user_posts" />
 
-            <com.thetestament.cread.widgets.SquareImageView
-                android:id="@+id/imageArtFirst"
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_marginRight="8dp"
-                android:layout_weight="1"
-                android:scaleType="fitXY"
-                tools:src="@tools:sample/backgrounds/scenic" />
-
-            <com.thetestament.cread.widgets.SquareImageView
-                android:id="@+id/imageArtTwo"
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_marginRight="8dp"
-                android:layout_weight="1"
-                android:scaleType="fitXY"
-                tools:src="@tools:sample/backgrounds/scenic" />
-
-            <com.thetestament.cread.widgets.SquareImageView
-                android:id="@+id/imageArtThree"
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_marginRight="8dp"
-                android:layout_weight="1"
-                android:scaleType="fitXY"
-                tools:src="@tools:sample/backgrounds/scenic" />
-
-            <com.thetestament.cread.widgets.SquareImageView
-                android:id="@+id/imageArtFour"
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_marginRight="8dp"
-                android:layout_weight="1"
-                android:scaleType="fitXY"
-                tools:src="@tools:sample/backgrounds/scenic" />
-
-        </LinearLayout>
     </LinearLayout>
 
 

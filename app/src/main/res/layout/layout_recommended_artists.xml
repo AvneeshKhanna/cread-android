@@ -42,4 +42,13 @@
         app:layoutManager="android.support.v7.widget.LinearLayoutManager"
         tools:itemCount="6"
         tools:listitem="@layout/item_suggested_artists" />
+
+    <include
+        android:id="@+id/progressView"
+        layout="@layout/layout_progress_bar"
+        android:layout_width="24dp"
+        android:layout_height="24dp"
+        android:layout_centerHorizontal="true"
+        android:layout_centerVertical="true"
+        android:visibility="gone" />
 </RelativeLayout>

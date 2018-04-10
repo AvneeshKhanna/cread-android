@@ -24,6 +24,7 @@ import com.thetestament.cread.helpers.SharedPreferenceHelper;
 import com.thetestament.cread.helpers.ViewHelper;
 import com.thetestament.cread.listeners.listener;
 import com.thetestament.cread.models.RecommendedArtistsModel;
+import com.thetestament.cread.models.UserPostModel;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -226,12 +227,14 @@ public class RecommendedArtistsActivity extends BaseActivity {
                                     artistsModel.setPostCount(dataObj.getLong("postcount"));
 
                                     JSONArray contentArray = dataObj.getJSONArray("posts");
-                                    List<String> contentList = new ArrayList<>();
+                                    List<UserPostModel> contentList = new ArrayList<>();
                                     for (int start = 0; start < contentArray.length(); start++) {
                                         JSONObject object = contentArray.getJSONObject(start);
-                                        contentList.add(object.getString("entityurl"));
+                                        UserPostModel postModel = new UserPostModel();
+                                        postModel.setPostURL(object.getString("entityurl"));
+                                        contentList.add(postModel);
                                     }
-                                    artistsModel.setImagesList(contentList);
+                                    artistsModel.setUserPostList(contentList);
                                     mDataList.add(artistsModel);
                                 }
                             }
@@ -401,12 +404,14 @@ public class RecommendedArtistsActivity extends BaseActivity {
                                     artistsModel.setPostCount(dataObj.getLong("postcount"));
 
                                     JSONArray contentArray = dataObj.getJSONArray("posts");
-                                    List<String> contentList = new ArrayList<>();
+                                    List<UserPostModel> contentList = new ArrayList<>();
                                     for (int start = 0; start < contentArray.length(); start++) {
                                         JSONObject object = contentArray.getJSONObject(start);
-                                        contentList.add(object.getString("entityurl"));
+                                        UserPostModel postModel = new UserPostModel();
+                                        postModel.setPostURL(object.getString("entityurl"));
+                                        contentList.add(postModel);
                                     }
-                                    artistsModel.setImagesList(contentList);
+                                    artistsModel.setUserPostList(contentList);
                                     mDataList.add(artistsModel);
                                 }
                             }

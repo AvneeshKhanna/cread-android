@@ -9,7 +9,7 @@ import java.util.List;
 public class RecommendedArtistsModel {
     private String artistName, artistProfilePic, artistBio, artistUUID;
     private long postCount;
-    private List<String> imagesList;
+    private List<UserPostModel> userPostList;
 
 
     public String getArtistName() {
@@ -52,11 +52,11 @@ public class RecommendedArtistsModel {
         this.postCount = postCount;
     }
 
-    public List<String> getImagesList() {
-        return imagesList;
+    public List<UserPostModel> getUserPostList() {
+        return userPostList;
     }
 
-    public void setImagesList(List<String> imagesList) {
-        this.imagesList = imagesList;
+    public void setUserPostList(List<UserPostModel> userPostList) {
+        this.userPostList = userPostList;
     }
 }

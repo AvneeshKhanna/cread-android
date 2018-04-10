@@ -255,7 +255,9 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         } else if (holder.getItemViewType() == VIEW_TYPE_RECOMMENDED_ARTIST) {
             final RecommendedArtistViewHolder viewHolder = (RecommendedArtistViewHolder) holder;
             //Hide view
-            viewHolder.itemView.setVisibility(View.GONE);
+            //viewHolder.itemView.setVisibility(View.GONE);
+            //Show progressView
+            viewHolder.progressView.setVisibility(View.VISIBLE);
 
             SuggestionHelper helper = new SuggestionHelper();
             helper.getSuggestedArtistStatus(mContext, mCompositeDisposable, new listener.OnSuggestedArtistLoadListener() {
@@ -263,6 +265,8 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                 public void onSuccess(List<SuggestedArtistsModel> dataList) {
                     //Show view
                     viewHolder.itemView.setVisibility(View.VISIBLE);
+                    //Hide progressView
+                    viewHolder.progressView.setVisibility(View.GONE);
                     //Set Layout manager
                     viewHolder.recyclerView.setLayoutManager(new LinearLayoutManager(mContext
                             , LinearLayoutManager.HORIZONTAL
@@ -278,6 +282,8 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                 public void onFailure(String errorMsg) {
                     //Hide view
                     viewHolder.itemView.setVisibility(View.GONE);
+                    //Hide progressView
+                    viewHolder.progressView.setVisibility(View.GONE);
                     //Show error toast
                     ViewHelper.getShortToast(mContext, errorMsg);
                 }
@@ -704,6 +710,8 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         AppCompatTextView textShowMoreArtists;
         @BindView(R.id.recyclerViewRecommendedArtists)
         RecyclerView recyclerView;
+        @BindView(R.id.progressView)
+        View progressView;
 
         public RecommendedArtistViewHolder(View itemView) {
             super(itemView);
