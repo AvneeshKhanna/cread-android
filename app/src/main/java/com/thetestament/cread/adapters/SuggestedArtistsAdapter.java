@@ -10,7 +10,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.thetestament.cread.R;
-import com.thetestament.cread.activities.ProfileActivity;
+import com.thetestament.cread.activities.RecommendedArtistsActivity;
 import com.thetestament.cread.helpers.ImageHelper;
 import com.thetestament.cread.models.SuggestedArtistsModel;
 
@@ -20,7 +20,6 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import de.hdodenhof.circleimageview.CircleImageView;
 
-import static com.thetestament.cread.utils.Constant.EXTRA_PROFILE_UUID;
 import static com.thetestament.cread.utils.Constant.REQUEST_CODE_USER_PROFILE_FROM_FEED;
 import static com.thetestament.cread.utils.Constant.REQUEST_CODE_USER_PROFILE_FROM_SUGGESTED_ADAPTER;
 
@@ -98,8 +97,7 @@ public class SuggestedArtistsAdapter extends RecyclerView.Adapter<SuggestedArtis
         itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent = new Intent(mContext, ProfileActivity.class);
-                intent.putExtra(EXTRA_PROFILE_UUID, UUID);
+                Intent intent = new Intent(mContext, RecommendedArtistsActivity.class);
                 if (mStartActivityForResult) {
                     mFeedFragment.startActivityForResult(intent, REQUEST_CODE_USER_PROFILE_FROM_FEED);
                 } else {
