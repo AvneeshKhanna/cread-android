@@ -1067,7 +1067,13 @@ public class FeedFragment extends Fragment implements listener.OnCollaborationLi
             index = 3;
             mFeedDataList.add(index, new FeedModel());
             mAdapter.updateRecommendedArtistIndex(index);
-        } else if (dataSize > 9) {
+        }
+        else if (dataSize == 7 || dataSize == 8 || dataSize == 9) {
+            index = 5;
+            mFeedDataList.add(index, new FeedModel());
+            mAdapter.updateRecommendedArtistIndex(index);
+        }
+        else if (dataSize > 9) {
             index = 7;
             mFeedDataList.add(index, new FeedModel());
             mAdapter.updateRecommendedArtistIndex(index);
