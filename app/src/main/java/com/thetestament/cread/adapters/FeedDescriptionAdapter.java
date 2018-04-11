@@ -179,10 +179,10 @@ public class FeedDescriptionAdapter extends RecyclerView.Adapter {
 
     @Override
     public int getItemViewType(int position) {
-        if (isPositionHeader(position)) {
-            return VIEW_TYPE_HEADER;
-        } else if (mFeedList.get(position) == null) {
+        if (mFeedList.get(position) == null) {
             return VIEW_TYPE_LOADING;
+        } else if (isPositionHeader(position)) {
+            return VIEW_TYPE_HEADER;
         } else {
             return VIEW_TYPE_ITEM;
         }
@@ -315,7 +315,7 @@ public class FeedDescriptionAdapter extends RecyclerView.Adapter {
             }
 
             // show downvote intro dialog
-            if (data.isEligibleForDownvote() && mHelper.isDownvoteDialogFirstTime() && position == 0) {
+            if (data.isEligibleForDownvote() && mHelper.isDownvoteDialogFirstTime()) {
                 // show dialog
                 getDownvoteDialog(itemViewHolder);
             }
@@ -326,10 +326,10 @@ public class FeedDescriptionAdapter extends RecyclerView.Adapter {
         } else if (holder.getItemViewType() == VIEW_TYPE_HEADER) {
             HeaderViewHolder headerViewHolder = (HeaderViewHolder) holder;
 
-            // if size is greater than 1
+            // if size is greater than 2 (original data and header are present in the list)
             // more posts exist
             // set text
-            if (mFeedList.size() > 1) {
+            if (mFeedList.size() > 2) {
                 // set visible
                 headerViewHolder.textHeader.setVisibility(View.VISIBLE);
 
@@ -343,7 +343,9 @@ public class FeedDescriptionAdapter extends RecyclerView.Adapter {
                     collabFName = collabName.split(" ")[0];
                 }
 
-                String morePostsText = collabName == null || originalData.getUUID().equals(originalData.getCollabWithUUID()) ? "More from " + creatorFName : "More from " + creatorFName + " and " + collabFName;
+                String morePostsText = collabName == null
+                        || originalData.getUUID().equals(originalData.getCollabWithUUID())
+                        ? "More from " + creatorFName : "More from " + creatorFName + " and " + collabFName;
                 headerViewHolder.textHeader.setText(morePostsText);
             } else {
                 // hide view

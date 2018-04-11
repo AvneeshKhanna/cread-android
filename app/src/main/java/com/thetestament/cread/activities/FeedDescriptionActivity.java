@@ -1,6 +1,7 @@
 package com.thetestament.cread.activities;
 
 
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.net.Uri;
@@ -89,8 +90,6 @@ public class FeedDescriptionActivity extends BaseActivity implements listener.On
     CoordinatorLayout rootView;
     @BindView(R.id.recyclerViewPosts)
     RecyclerView recyclerViewPosts;
-    @BindView(R.id.viewProgress)
-    View progressBar;
     //endregion
 
     //region: variables and flags
@@ -580,9 +579,10 @@ public class FeedDescriptionActivity extends BaseActivity implements listener.On
         // method to initialize the result data
         initResultBundle();
 
-        recyclerViewPosts.setLayoutManager(new LinearLayoutManager(mContext));
+        recyclerViewPosts.setLayoutManager(new WrapContentLinearLayoutManager(mContext));
 
         mPostsList.add(mFeedData);
+        mPostsList.add(null);
 
         mAdapter = new FeedDescriptionAdapter(mPostsList, mContext, mCompositeDisposable, shouldScroll);
         recyclerViewPosts.setAdapter(mAdapter);
@@ -621,6 +621,7 @@ public class FeedDescriptionActivity extends BaseActivity implements listener.On
     }
 
     private void initViewsFromData() {
+
 
         //if comments exist load comments data and then more posts data
         if (mFeedData.getCommentCount() > 0) {
@@ -795,7 +796,8 @@ public class FeedDescriptionActivity extends BaseActivity implements listener.On
         final boolean[] tokenError = {false};
         final boolean[] connectionError = {false};
 
-        progressBar.setVisibility(View.VISIBLE);
+        //progressBar.setVisibility(View.VISIBLE);
+
 
         requestServer(mCompositeDisposable,
                 getFeedDescPostsObservableFromServer(BuildConfig.URL + "/recommend-posts/details",
@@ -810,7 +812,6 @@ public class FeedDescriptionActivity extends BaseActivity implements listener.On
                 new listener.OnServerRequestedListener<JSONObject>() {
                     @Override
                     public void onDeviceOffline() {
-                        progressBar.setVisibility(View.GONE);
                         ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_no_connection));
 
                     }
@@ -818,6 +819,12 @@ public class FeedDescriptionActivity extends BaseActivity implements listener.On
                     @Override
                     public void onNextCalled(JSONObject jsonObject) {
                         try {
+
+                            //Remove loading item
+                            mPostsList.remove(mPostsList.size() - 1);
+                            //Notify changes
+                            mAdapter.notifyItemRemoved(mPostsList.size());
+
                             //Token status is invalid
                             if (jsonObject.getString("tokenstatus").equals("invalid")) {
                                 tokenError[0] = true;
@@ -829,7 +836,6 @@ public class FeedDescriptionActivity extends BaseActivity implements listener.On
                             e.printStackTrace();
                             FirebaseCrash.report(e);
                             connectionError[0] = true;
-                            progressBar.setVisibility(View.GONE);
                         }
                     }
 
@@ -839,7 +845,10 @@ public class FeedDescriptionActivity extends BaseActivity implements listener.On
                         e.printStackTrace();
                         FirebaseCrash.report(e);
 
-                        progressBar.setVisibility(View.GONE);
+                        //Remove loading item
+                        mPostsList.remove(mPostsList.size() - 1);
+                        //Notify changes
+                        mAdapter.notifyItemRemoved(mPostsList.size());
 
                         //Server error Snack bar
                         ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_server));
@@ -849,7 +858,6 @@ public class FeedDescriptionActivity extends BaseActivity implements listener.On
                     @Override
                     public void onCompleteCalled() {
 
-                        progressBar.setVisibility(View.GONE);
 
                         GET_RESPONSE_FROM_NETWORK_MORE_POSTS = false;
 
@@ -872,7 +880,9 @@ public class FeedDescriptionActivity extends BaseActivity implements listener.On
                             else if (connectionError[0]) {
                                 ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_internal));
                             } else {
-
+                                // add more header text
+                                mPostsList.add(1, new FeedModel());
+                                mAdapter.setLoaded();
                                 mAdapter.notifyItemRangeInserted(1, mPostsList.size());
 
                             }
@@ -1046,6 +1056,23 @@ public class FeedDescriptionActivity extends BaseActivity implements listener.On
             if (isLoadMore) {
                 //Notify item changes
                 mAdapter.notifyItemInserted(mPostsList.size() - 1);
+            }
+        }
+    }
+
+    public class WrapContentLinearLayoutManager extends LinearLayoutManager {
+
+        public WrapContentLinearLayoutManager(Context context) {
+            super(context);
+        }
+
+        @Override
+        public void onLayoutChildren(RecyclerView.Recycler recycler, RecyclerView.State state) {
+            try {
+                super.onLayoutChildren(recycler, state);
+            } catch (IndexOutOfBoundsException e) {
+                e.printStackTrace();
+                FirebaseCrash.report(e);
             }
         }
     }
