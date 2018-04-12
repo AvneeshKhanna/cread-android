@@ -432,4 +432,20 @@ public class listener {
          */
         void onFailure(String errorMsg);
     }
+
+    /**
+     * Interface definition for a callback to be invoked when user request for HashTagOfTheDay data.
+     */
+    public interface OnHashTagOfTheDayLoadListener {
+
+        /**
+         * @param hashTagOfTheDay hashTag.
+         */
+        void onSuccess(String hashTagOfTheDay);
+
+        /**
+         * Error message to be displayed.
+         */
+        void onFailure(String errorMsg);
+    }
 }

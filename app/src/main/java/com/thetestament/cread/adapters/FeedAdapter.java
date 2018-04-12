@@ -91,7 +91,7 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     private CompositeDisposable mCompositeDisposable;
 
     /**
-     * Flag to store 'Recommended Artists' position in list. Default value is 1.
+     * Flag to store 'Recommended Artists' position in list. Default value is 5.
      */
     private int recommendedArtistIndex = 5;
 
@@ -260,7 +260,7 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             viewHolder.progressView.setVisibility(View.VISIBLE);
 
             SuggestionHelper helper = new SuggestionHelper();
-            helper.getSuggestedArtistStatus(mContext, mCompositeDisposable, new listener.OnSuggestedArtistLoadListener() {
+            helper.getSuggestedArtist(mContext, mCompositeDisposable, new listener.OnSuggestedArtistLoadListener() {
                 @Override
                 public void onSuccess(List<SuggestedArtistsModel> dataList) {
                     //Hide itemView

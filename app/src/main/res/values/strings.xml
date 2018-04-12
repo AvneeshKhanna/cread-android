@@ -69,6 +69,7 @@
     <string name="generating_title">Generating Link</string>
     <string name="waiting_msg">Please wait</string>
     <string name="text_ok">Ok</string>
+    <string name="text_create">Create</string>
     <string name="text_yes">Yes</string>
     <string name="text_no">No</string>
     <string name="text_color">Color</string>

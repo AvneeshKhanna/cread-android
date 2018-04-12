@@ -23,8 +23,15 @@
             app:contentScrim="@color/colorPrimary"
             app:layout_scrollFlags="scroll|exitUntilCollapsed">
 
-            <include layout="@layout/layout_recommended_artists" />
+            <include
+                android:id="@+id/layoutSuggestedArtists"
+                layout="@layout/layout_recommended_artists"
+                android:visibility="visible" />
 
+            <include
+                android:id="@+id/layoutHashTagOfTheDay"
+                layout="@layout/layout_hash_tag_of_the_day"
+                android:visibility="visible" />
         </android.support.design.widget.CollapsingToolbarLayout>
 
 
@@ -41,6 +48,7 @@
             android:id="@+id/recyclerView"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+            android:layoutAnimation="@anim/layout_animation_from_bottom"
             app:layoutManager="android.support.v7.widget.LinearLayoutManager"
             tools:itemCount="6"
             tools:listitem="@layout/item_feed" />
