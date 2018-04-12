@@ -1109,10 +1109,10 @@ public class FeedFragment extends Fragment implements listener.OnCollaborationLi
                     @Override
                     public void onSuccess(String hashTagOfTheDay) {
                         //Set text
-                        textHashTagOfTheDay.setText("#"+hashTagOfTheDay);
+                        textHashTagOfTheDay.setText("#" + hashTagOfTheDay);
                         //Set hash tag of the day
                         FeedHelper feedHelper = new FeedHelper();
-                        feedHelper.setHashTags(textHashTagOfTheDay, getActivity());
+                        feedHelper.setHashTags(textHashTagOfTheDay, getActivity(), R.color.colorPrimary);
                         //Set View
                         CoordinatorLayout.LayoutParams params = (CoordinatorLayout.LayoutParams) appBarLayout.getLayoutParams();
                         params.height = LinearLayout.LayoutParams.WRAP_CONTENT;

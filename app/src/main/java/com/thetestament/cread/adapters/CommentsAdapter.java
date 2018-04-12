@@ -119,7 +119,7 @@ public class CommentsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
 
             // set hash tags on comment
             FeedHelper feedHelper = new FeedHelper();
-            feedHelper.setHashTags(itemViewHolder.textComment, mContext);
+            feedHelper.setHashTags(itemViewHolder.textComment, mContext,R.color.blue_dark);
 
             //Load profile picture
             loadProfilePic(data.getProfilePicUrl(), itemViewHolder.imageUser);

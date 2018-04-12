@@ -230,11 +230,12 @@ public class FeedHelper {
     /**
      * Parses the hash tags and creates them as links
      *
-     * @param textView text view which contains the text from which hash tags are parsed
-     * @param context  context
+     * @param textView    text view which contains the text from which hash tags are parsed
+     * @param context     context
+     * @param textColorID Resource ID of color to be applied on hash tags.
      */
-    public void setHashTags(TextView textView, FragmentActivity context) {
-        textView.setLinkTextColor(ContextCompat.getColor(context, R.color.blue_dark));
+    public void setHashTags(TextView textView, FragmentActivity context, int textColorID) {
+        textView.setLinkTextColor(ContextCompat.getColor(context, textColorID));
         //Pattern to find if there's a hash tag in the message
         //i.e. any word starting with a # and containing letter or numbers or _
         Pattern tagMatcher = Pattern.compile("\\#\\w+", Pattern.CASE_INSENSITIVE);
@@ -797,7 +798,7 @@ public class FeedHelper {
 
             // set hash tags
             FeedHelper feedHelper = new FeedHelper();
-            feedHelper.setHashTags(textView, context);
+            feedHelper.setHashTags(textView, context, R.color.blue_dark);
 
         } else {
             textView.setVisibility(View.GONE);

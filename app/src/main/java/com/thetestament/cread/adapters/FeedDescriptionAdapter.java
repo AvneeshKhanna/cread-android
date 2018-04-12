@@ -486,7 +486,7 @@ public class FeedDescriptionAdapter extends RecyclerView.Adapter {
 
             // set hash tags on comment
             FeedHelper feedHelper = new FeedHelper();
-            feedHelper.setHashTags(textComment, mContext);
+            feedHelper.setHashTags(textComment, mContext,R.color.blue_dark);
 
             // Expand and collapse comments.
             toggleComment(textComment);
