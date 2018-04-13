@@ -742,7 +742,7 @@ public class NetworkHelper {
      * @param uuid      UUID of the user.
      * @param authKey   AuthKey of user.
      */
-    public static Observable<JSONObject> geSuggestedArtiststDataFromServer(String serverURL, String uuid, String authKey) {
+    public static Observable<JSONObject> geSuggestedArtistsDataFromServer(String serverURL, String uuid, String authKey) {
         Map<String, String> headers = new HashMap<>();
         headers.put("uuid", uuid);
         headers.put("authkey", authKey);

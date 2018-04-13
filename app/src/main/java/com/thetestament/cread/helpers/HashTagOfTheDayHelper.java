@@ -3,48 +3,46 @@ package com.thetestament.cread.helpers;
 import android.support.v4.app.FragmentActivity;
 
 import com.google.firebase.crash.FirebaseCrash;
+import com.rx2androidnetworking.Rx2ANRequest;
+import com.rx2androidnetworking.Rx2AndroidNetworking;
 import com.thetestament.cread.BuildConfig;
 import com.thetestament.cread.R;
 import com.thetestament.cread.listeners.listener;
-import com.thetestament.cread.models.SuggestedArtistsModel;
 
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
+import io.reactivex.Observable;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.observers.DisposableObserver;
 import io.reactivex.schedulers.Schedulers;
 
-import static com.thetestament.cread.CreadApp.GET_RESPONSE_FROM_NETWORK_RECOMMENDED_ARTISTS;
-import static com.thetestament.cread.helpers.NetworkHelper.geSuggestedArtistsDataFromServer;
+import static com.thetestament.cread.CreadApp.GET_RESPONSE_FROM_NETWORK_HASHTAG_OF_THE_DAY;
 
 /**
- * A helper class to provide utility methods for Artist suggestion.
+ * A helper class to provide utility methods for HashTagOfTheDay.
  */
 
-public class SuggestionHelper {
+public class HashTagOfTheDayHelper {
 
     /**
-     * Method to retrieve SuggestedList data.
+     * Method to retrieve HashTahOfTheDay data.
      *
      * @param context             Context to use.
      * @param compositeDisposable CompositeDisposable reference.
-     * @param listener            OnSuggestedArtistLoadListener reference
+     * @param listener            OnHashTagOfTheDayLoadListener reference
      */
-    public void getSuggestedArtist(final FragmentActivity context
+    public void getHatsOfTheDay(final FragmentActivity context
             , CompositeDisposable compositeDisposable
-            , final listener.OnSuggestedArtistLoadListener listener) {
+            , final listener.OnHashTagOfTheDayLoadListener listener) {
 
         //Obtain SharedPreferenceHelper reference
         SharedPreferenceHelper spHelper = new SharedPreferenceHelper(context);
-        final List<SuggestedArtistsModel> dataLIst = new ArrayList<>();
-
-        compositeDisposable.add(geSuggestedArtistsDataFromServer(BuildConfig.URL + "/recommend-users/load"
+        compositeDisposable.add(getHatsOfTheDayDataFromServer(BuildConfig.URL + "/hashtag/day/load"
                 , spHelper.getUUID()
                 , spHelper.getAuthToken())
                 //Run on a background thread
@@ -60,18 +58,7 @@ public class SuggestionHelper {
                                 listener.onFailure(context.getString(R.string.error_msg_invalid_token));
                             } else {
                                 JSONObject mainData = jsonObject.getJSONObject("data");
-                                //Suggested artists list
-                                JSONArray jsonArray = mainData.getJSONArray("items");
-                                for (int i = 0; i < jsonArray.length(); i++) {
-                                    JSONObject dataObj = jsonArray.getJSONObject(i);
-                                    SuggestedArtistsModel artistsModel = new SuggestedArtistsModel();
-                                    //Set artists property
-                                    artistsModel.setArtistUUID(dataObj.getString("uuid"));
-                                    artistsModel.setArtistName(dataObj.getString("name"));
-                                    artistsModel.setArtistProfilePic(dataObj.getString("profilepicurl"));
-                                    dataLIst.add(artistsModel);
-                                }
-                                listener.onSuccess(dataLIst);
+                                listener.onSuccess(mainData.getString("htag"));
                             }
                         } catch (JSONException e) {
                             e.printStackTrace();
@@ -89,10 +76,35 @@ public class SuggestionHelper {
 
                     @Override
                     public void onComplete() {
-                        //Set to false
-                        GET_RESPONSE_FROM_NETWORK_RECOMMENDED_ARTISTS = false;
+                        //Update flag
+                        GET_RESPONSE_FROM_NETWORK_HASHTAG_OF_THE_DAY = false;
                     }
                 }));
+    }
+
+
+    /**
+     * Method to return HashTahOfTheDay data from the server.
+     *
+     * @param serverURL URL of the server.
+     * @param uuid      UUID of the user.
+     * @param authKey   AuthKey of user.
+     */
+    public static Observable<JSONObject> getHatsOfTheDayDataFromServer(String serverURL, String uuid, String authKey) {
+        Map<String, String> headers = new HashMap<>();
+        headers.put("uuid", uuid);
+        headers.put("authkey", authKey);
+
+        Rx2ANRequest.GetRequestBuilder requestBuilder = Rx2AndroidNetworking.get(serverURL)
+                .addHeaders(headers);
+
+        if (GET_RESPONSE_FROM_NETWORK_HASHTAG_OF_THE_DAY) {
+            requestBuilder.getResponseOnlyFromNetwork();
+        }
+
+        return requestBuilder
+                .build()
+                .getJSONObjectObservable();
     }
 
 }

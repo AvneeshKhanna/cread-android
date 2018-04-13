@@ -12,8 +12,10 @@ import android.support.design.widget.CoordinatorLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.widget.SwipeRefreshLayout;
+import android.support.v7.widget.AppCompatTextView;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -42,6 +44,7 @@ import com.thetestament.cread.adapters.FeedAdapter;
 import com.thetestament.cread.adapters.SuggestedArtistsAdapter;
 import com.thetestament.cread.helpers.DownvoteHelper;
 import com.thetestament.cread.helpers.FeedHelper;
+import com.thetestament.cread.helpers.HashTagOfTheDayHelper;
 import com.thetestament.cread.helpers.HatsOffHelper;
 import com.thetestament.cread.helpers.ImageHelper;
 import com.thetestament.cread.helpers.ShareHelper;
@@ -114,6 +117,13 @@ public class FeedFragment extends Fragment implements listener.OnCollaborationLi
     RecyclerView recyclerView;
     @BindView(R.id.view_no_posts)
     LinearLayout viewNoPosts;
+    @BindView(R.id.textHashTagOfTheDay)
+    AppCompatTextView textHashTagOfTheDay;
+    @BindView(R.id.layoutHashTagOfTheDay)
+    View viewHashTagOfTheDay;
+    @BindView(R.id.layoutSuggestedArtists)
+    View viewSuggestedArtists;
+
     //endregion
 
     //region :Fields and constants
@@ -132,6 +142,9 @@ public class FeedFragment extends Fragment implements listener.OnCollaborationLi
     String mEntityID, mEntityType;
     Bitmap mBitmap;
     FeedModel entitySpecificData;
+
+    @State
+    String textHashTagOFTheDay = "";
     //endregion
 
     //region :Overridden methods
@@ -330,6 +343,15 @@ public class FeedFragment extends Fragment implements listener.OnCollaborationLi
         //Open RecommendedArtists Screen
         Intent intent = new Intent(getActivity(), RecommendedArtistsActivity.class);
         this.startActivityForResult(intent, REQUEST_CODE_RECOMMENDED_ARTISTS_FROM_FEED);
+    }
+
+    /**
+     * Click functionality to show HashTagOgTheDay infoDialog
+     */
+    @OnClick(R.id.buttonInfo)
+    void infoButtonOnClick() {
+        //Show dialog here
+        getHashTagOfTheDayInfoDialog(textHashTagOFTheDay);
     }
     //endregion
 
@@ -550,17 +572,19 @@ public class FeedFragment extends Fragment implements listener.OnCollaborationLi
                         //Error occurred
                         else if (connectionError[0]) {
                             ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_internal));
-
                         } else if (mFeedDataList.size() == 0) {
                             //Show no post view
                             viewNoPosts.setVisibility(View.VISIBLE);
 
                             SuggestionHelper helper = new SuggestionHelper();
-                            helper.getSuggestedArtistStatus(getActivity(), mCompositeDisposable, new listener.OnSuggestedArtistLoadListener() {
+                            helper.getSuggestedArtist(getActivity(), mCompositeDisposable, new listener.OnSuggestedArtistLoadListener() {
                                 @Override
                                 public void onSuccess(List<SuggestedArtistsModel> dataList) {
-                                    //Show recommended artists view here
+                                    //Toggle view visibility
                                     appBarLayout.setVisibility(View.VISIBLE);
+                                    viewSuggestedArtists.setVisibility(View.VISIBLE);
+                                    viewHashTagOfTheDay.setVisibility(View.GONE);
+                                    //Show recommended artists view here
                                     CoordinatorLayout.LayoutParams params = (CoordinatorLayout.LayoutParams) appBarLayout.getLayoutParams();
                                     params.height = LinearLayout.LayoutParams.WRAP_CONTENT;
                                     appBarLayout.setLayoutParams(params);
@@ -587,6 +611,7 @@ public class FeedFragment extends Fragment implements listener.OnCollaborationLi
                             appBarLayout.setLayoutParams(params);
                             //Method called
                             addSuggestedArtistData();
+                            addHashTagOfTheDayItem();
 
                             //Apply 'Slide Up' animation
                             int resId = R.anim.layout_animation_from_bottom;
@@ -1069,17 +1094,96 @@ public class FeedFragment extends Fragment implements listener.OnCollaborationLi
             index = 3;
             mFeedDataList.add(index, new FeedModel());
             mAdapter.updateRecommendedArtistIndex(index);
-        }
-        else if (dataSize == 7 || dataSize == 8 || dataSize == 9) {
+        } else if (dataSize == 7 || dataSize == 8 || dataSize == 9) {
             index = 5;
             mFeedDataList.add(index, new FeedModel());
             mAdapter.updateRecommendedArtistIndex(index);
-        }
-        else if (dataSize > 9) {
+        } else if (dataSize > 9) {
             index = 7;
             mFeedDataList.add(index, new FeedModel());
             mAdapter.updateRecommendedArtistIndex(index);
         }
+    }
+
+    /**
+     * Method to retrieve HashTagOgTheDay text and show it to user.
+     */
+    private void addHashTagOfTheDayItem() {
+        HashTagOfTheDayHelper hashTagOfTheDayHelper = new HashTagOfTheDayHelper();
+        hashTagOfTheDayHelper.getHatsOfTheDay(getActivity(), mCompositeDisposable
+                , new listener.OnHashTagOfTheDayLoadListener() {
+                    @Override
+                    public void onSuccess(String hashTagOfTheDay) {
+                        if (!TextUtils.isEmpty(hashTagOfTheDay) || !hashTagOfTheDay.equals("null")) {
+                            //Set text
+                            textHashTagOfTheDay.setText("#" + hashTagOfTheDay);
+                            textHashTagOFTheDay = textHashTagOfTheDay.getText().toString();
+                            //Set hash tag of the day
+                            FeedHelper feedHelper = new FeedHelper();
+                            feedHelper.setHashTags(textHashTagOfTheDay, getActivity(), R.color.colorPrimary);
+                            //Set View
+                            CoordinatorLayout.LayoutParams params = (CoordinatorLayout.LayoutParams) appBarLayout.getLayoutParams();
+                            params.height = LinearLayout.LayoutParams.WRAP_CONTENT;
+                            appBarLayout.setLayoutParams(params);
+                            //Toggle view visibility
+                            appBarLayout.setVisibility(View.VISIBLE);
+                            viewSuggestedArtists.setVisibility(View.GONE);
+                            viewHashTagOfTheDay.setVisibility(View.VISIBLE);
+
+                            //Check for first time run status
+                            if (mHelper.isHashTagOfTheDayFirstTime()) {
+                                //Show dialog
+                                getHashTagOfTheDayInfoDialog(hashTagOfTheDay);
+                                //Update flag
+                                mHelper.updateHashTagOfTheDayStatus(false);
+                            }
+                        }
+                    }
+
+                    @Override
+                    public void onFailure(String errorMsg) {
+                        //Show snack abr
+                        ViewHelper.getSnackBar(rootView, errorMsg);
+                    }
+                });
+    }
+
+    /**
+     * Method to show HashTagOfTheDay info dialog.
+     */
+    private void getHashTagOfTheDayInfoDialog(String hashTagText) {
+        MaterialDialog dialog = new MaterialDialog.Builder(getActivity())
+                .customView(R.layout.dialog_generic, false)
+                .positiveText(R.string.text_create)
+                .negativeText(R.string.text_ok)
+                .onPositive(new MaterialDialog.SingleButtonCallback() {
+                    @Override
+                    public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
+                        //Dismiss dialog
+                        dialog.dismiss();
+                        //Open add content bottomSheet
+                        ((BottomNavigationActivity) getActivity()).getAddContentBottomSheetDialog();
+                    }
+                })
+                .onNegative(new MaterialDialog.SingleButtonCallback() {
+                    @Override
+                    public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
+                        //Dismiss dialog
+                        dialog.dismiss();
+                    }
+                })
+
+                .show();
+        //Obtain views reference
+        ImageView fillerImage = dialog.getCustomView().findViewById(R.id.viewFiller);
+        TextView textTitle = dialog.getCustomView().findViewById(R.id.textTitle);
+        TextView textDesc = dialog.getCustomView().findViewById(R.id.textDesc);
+        //Set filler image
+        fillerImage.setImageDrawable(ContextCompat.getDrawable(getActivity(), R.drawable.img_hash_tag_dialog));
+        //Set title text
+        textTitle.setText("Hashtag for Today");
+        //Set description text
+        textDesc.setText("Upload something with " + hashTagText + " as hashtag in your caption and your post will get featured under this hashtag for today");
     }
 //endregion
 }
