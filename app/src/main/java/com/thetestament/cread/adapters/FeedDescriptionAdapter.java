@@ -62,6 +62,7 @@ import static com.thetestament.cread.helpers.FeedHelper.initCaption;
 import static com.thetestament.cread.helpers.FeedHelper.initializeShareDialog;
 import static com.thetestament.cread.helpers.FeedHelper.updateDotSeperatorVisibility;
 import static com.thetestament.cread.helpers.FeedHelper.updateDownvoteAndSeperatorVisibility;
+import static com.thetestament.cread.helpers.FeedHelper.updatePostTimestamp;
 import static com.thetestament.cread.helpers.LongShortHelper.checkLongFormStatus;
 import static com.thetestament.cread.helpers.LongShortHelper.initLongFormPreviewClick;
 import static com.thetestament.cread.utils.Constant.CONTENT_TYPE_CAPTURE;
@@ -320,6 +321,9 @@ public class FeedDescriptionAdapter extends RecyclerView.Adapter {
                 getDownvoteDialog(itemViewHolder);
             }
 
+            // init post timestamp
+            updatePostTimestamp(itemViewHolder.textTimeStamp, data);
+
         } else if (holder.getItemViewType() == VIEW_TYPE_LOADING) {
             LoadingViewHolder loadingViewHolder = (LoadingViewHolder) holder;
             loadingViewHolder.progressView.setVisibility(View.VISIBLE);
@@ -429,6 +433,8 @@ public class FeedDescriptionAdapter extends RecyclerView.Adapter {
         public LinearLayout viewTopComments;
         @BindView(R.id.textShowComments)
         public TextView textShowComments;
+        @BindView(R.id.textTimestamp)
+        TextView textTimeStamp;
 
         //Variable to maintain hats off status
         private boolean mIsHatsOff = false;

@@ -55,6 +55,7 @@ import static com.thetestament.cread.CreadApp.IMAGE_LOAD_FROM_NETWORK_ME;
 import static com.thetestament.cread.helpers.ContentHelper.getMenuActionsBottomSheet;
 import static com.thetestament.cread.helpers.FeedHelper.initializeShareDialog;
 import static com.thetestament.cread.helpers.FeedHelper.setGridItemMargins;
+import static com.thetestament.cread.helpers.FeedHelper.updatePostTimestamp;
 import static com.thetestament.cread.helpers.LongShortHelper.checkLongFormStatus;
 import static com.thetestament.cread.helpers.LongShortHelper.initLongFormPreviewClick;
 import static com.thetestament.cread.utils.Constant.EXTRA_DATA;
@@ -540,7 +541,8 @@ public class MeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         checkLongFormStatus(itemViewHolder.containerLongShortPreview, data);
         //long form on click
         initLongFormPreviewClick(itemViewHolder.containerLongShortPreview, data, mContext, mCompositeDisposable);
-
+        // init post timestamp
+        updatePostTimestamp(itemViewHolder.textTimeStamp, data);
 
     }
 
@@ -629,6 +631,8 @@ public class MeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         View lineSepartor;
         @BindView(R.id.containerLongShortPreview)
         FrameLayout containerLongShortPreview;
+        @BindView(R.id.textTimestamp)
+        TextView textTimeStamp;
 
         //Variable to maintain hats off status
         private boolean mIsHatsOff = false;

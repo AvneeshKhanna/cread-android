@@ -754,6 +754,7 @@ public class ExploreFragment extends Fragment implements listener.OnCollaboratio
                                     exploreData.setMerchantable(dataObj.getBoolean("merchantable"));
                                     exploreData.setDownvoteStatus(dataObj.getBoolean("downvotestatus"));
                                     exploreData.setEligibleForDownvote(mCanDownvote);
+                                    exploreData.setPostTimeStamp(dataObj.getString("regdate"));
                                     exploreData.setLongForm(dataObj.getBoolean("long_form"));
                                     exploreData.setHatsOffCount(dataObj.getLong("hatsoffcount"));
                                     exploreData.setCommentCount(dataObj.getLong("commentcount"));
@@ -896,6 +897,7 @@ public class ExploreFragment extends Fragment implements listener.OnCollaboratio
                                     exploreData.setMerchantable(dataObj.getBoolean("merchantable"));
                                     exploreData.setDownvoteStatus(dataObj.getBoolean("downvotestatus"));
                                     exploreData.setEligibleForDownvote(mCanDownvote);
+                                    exploreData.setPostTimeStamp(dataObj.getString("regdate"));
                                     exploreData.setLongForm(dataObj.getBoolean("long_form"));
                                     exploreData.setHatsOffCount(dataObj.getLong("hatsoffcount"));
                                     exploreData.setCommentCount(dataObj.getLong("commentcount"));

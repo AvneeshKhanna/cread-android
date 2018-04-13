@@ -59,6 +59,7 @@ import static com.thetestament.cread.helpers.FeedHelper.initSocialActionsCount;
 import static com.thetestament.cread.helpers.FeedHelper.initializeShareDialog;
 import static com.thetestament.cread.helpers.FeedHelper.updateDotSeperatorVisibility;
 import static com.thetestament.cread.helpers.FeedHelper.updateDownvoteAndSeperatorVisibility;
+import static com.thetestament.cread.helpers.FeedHelper.updatePostTimestamp;
 import static com.thetestament.cread.helpers.LongShortHelper.checkLongFormStatus;
 import static com.thetestament.cread.helpers.LongShortHelper.initLongFormPreviewClick;
 import static com.thetestament.cread.utils.Constant.CONTENT_TYPE_CAPTURE;
@@ -249,6 +250,8 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
             // initialize caption
             initCaption(mContext, data, itemViewHolder.textTitle);
+            // init post timestamp
+            updatePostTimestamp(itemViewHolder.textTimeStamp, data);
         } else if (holder.getItemViewType() == VIEW_TYPE_LOADING) {
             LoadingViewHolder loadingViewHolder = (LoadingViewHolder) holder;
             loadingViewHolder.progressView.setVisibility(View.VISIBLE);
@@ -690,6 +693,8 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         ImageView imageDownvote;
         @BindView(R.id.containerLongShortPreview)
         FrameLayout containerLongShortPreview;
+        @BindView(R.id.textTimestamp)
+        TextView textTimeStamp;
 
         //Variable to maintain hats off status
         private boolean mIsHatsOff = false;

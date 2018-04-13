@@ -36,11 +36,13 @@ import com.thetestament.cread.listeners.listener;
 import com.thetestament.cread.listeners.listener.OnShareDialogItemClickedListener;
 import com.thetestament.cread.models.FeedModel;
 import com.thetestament.cread.models.ListItemsDialogModel;
+import com.thetestament.cread.utils.TimeUtils;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.regex.Pattern;
 
@@ -61,6 +63,7 @@ import static com.thetestament.cread.utils.Constant.EXTRA_PROFILE_UUID;
 import static com.thetestament.cread.utils.Constant.SHORT_EXTRA_CALLED_FROM;
 import static com.thetestament.cread.utils.Constant.SHORT_EXTRA_CALLED_FROM_COLLABORATION_SHORT;
 import static com.thetestament.cread.utils.Constant.URI_HASH_TAG_ACTIVITY;
+import static com.thetestament.cread.utils.TimeUtils.getCustomTime;
 
 
 /**
@@ -292,6 +295,7 @@ public class FeedHelper {
         feedData.setMerchantable(dataObj.getBoolean("merchantable"));
         feedData.setDownvoteStatus(dataObj.getBoolean("downvotestatus"));
         feedData.setEligibleForDownvote(mainObject.getBoolean("candownvote"));
+        feedData.setPostTimeStamp(dataObj.getString("regdate"));
         feedData.setLongForm(dataObj.getBoolean("long_form"));
         feedData.setHatsOffCount(dataObj.getLong("hatsoffcount"));
         feedData.setCommentCount(dataObj.getLong("commentcount"));
@@ -898,6 +902,34 @@ public class FeedHelper {
                 f.setFollowStatus(exploreData.getFollowStatus());
             }
         }
+    }
+
+    /**
+     * Initializes timestamp of the post
+     *
+     * @param viewTimeStamp view where timestamp is to be updated
+     * @param data          Data
+     */
+    public static void updatePostTimestamp(TextView viewTimeStamp, FeedModel data) {
+        // get curremt date
+        Date date = new Date();
+        // convert it to ISO
+        String currentISO = TimeUtils.getISO8601StringForDate(date);
+        // get individual units
+        List<String> currentDateList = getCustomTime(currentISO);
+        // parsing server date
+        List<String> dateList = getCustomTime(data.getPostTimeStamp());
+        String timeStamp = "";
+
+        // if date and month are same include 'today' in the timestamp
+        if (currentDateList.get(0).equals(dateList.get(0)) && currentDateList.get(1).equals(dateList.get(1))) {
+            timeStamp = "Today" + " at " + dateList.get(3);
+        } else {
+            timeStamp = dateList.get(1) + " " + dateList.get(0) + " at " + dateList.get(3);
+        }
+
+        // set timestamp
+        viewTimeStamp.setText(timeStamp);
     }
 
 }

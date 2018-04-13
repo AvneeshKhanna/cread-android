@@ -1298,6 +1298,7 @@ public class MeFragment extends Fragment implements listener.OnCollaborationList
                                     data.setMerchantable(dataObj.getBoolean("merchantable"));
                                     data.setDownvoteStatus(dataObj.getBoolean("downvotestatus"));
                                     data.setEligibleForDownvote(mCanDownvote);
+                                    data.setPostTimeStamp(dataObj.getString("regdate"));
                                     data.setLongForm(dataObj.getBoolean("long_form"));
                                     data.setHatsOffCount(dataObj.getLong("hatsoffcount"));
                                     data.setCommentCount(dataObj.getLong("commentcount"));
@@ -1612,6 +1613,7 @@ public class MeFragment extends Fragment implements listener.OnCollaborationList
             data.setMerchantable(dataObj.getBoolean("merchantable"));
             data.setDownvoteStatus(dataObj.getBoolean("downvotestatus"));
             data.setEligibleForDownvote(mCanDownvote);
+            data.setPostTimeStamp(dataObj.getString("regdate"));
             data.setLongForm(dataObj.getBoolean("long_form"));
             data.setHatsOffCount(dataObj.getLong("hatsoffcount"));
             data.setCommentCount(dataObj.getLong("commentcount"));
@@ -1783,6 +1785,7 @@ public class MeFragment extends Fragment implements listener.OnCollaborationList
                                     data.setMerchantable(dataObj.getBoolean("merchantable"));
                                     data.setDownvoteStatus(dataObj.getBoolean("downvotestatus"));
                                     data.setEligibleForDownvote(mCanDownvote);
+                                    data.setPostTimeStamp(dataObj.getString("regdate"));
                                     data.setLongForm(dataObj.getBoolean("long_form"));
                                     data.setHatsOffCount(dataObj.getLong("hatsoffcount"));
                                     data.setCommentCount(dataObj.getLong("commentcount"));

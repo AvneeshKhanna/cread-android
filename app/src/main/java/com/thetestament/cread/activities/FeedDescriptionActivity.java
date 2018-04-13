@@ -997,6 +997,7 @@ public class FeedDescriptionActivity extends BaseActivity implements listener.On
             data.setMerchantable(dataObj.getBoolean("merchantable"));
             data.setDownvoteStatus(dataObj.getBoolean("downvotestatus"));
             data.setEligibleForDownvote(mainData.getBoolean("candownvote"));
+            data.setPostTimeStamp(dataObj.getString("regdate"));
             data.setLongForm(dataObj.getBoolean("long_form"));
             data.setHatsOffCount(dataObj.getLong("hatsoffcount"));
             data.setCommentCount(dataObj.getLong("commentcount"));

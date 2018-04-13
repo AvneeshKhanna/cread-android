@@ -10,7 +10,7 @@ import android.os.Parcelable;
 
 public class FeedModel implements Parcelable {
 
-    private String entityID, captureID, shortID;
+    private String entityID, captureID, shortID, postTimeStamp;
     private String UUID, creatorName, creatorImage, collabWithUUID, collabWithName, caption;
     private boolean hatsOffStatus, followStatus, merchantable, isAvailableForCollab, downvoteStatus, isEligibleForDownvote, isLongForm;
     private long hatsOffCount, commentCount, collabCount;
@@ -200,6 +200,14 @@ public class FeedModel implements Parcelable {
         isLongForm = longForm;
     }
 
+    public String getPostTimeStamp() {
+        return postTimeStamp;
+    }
+
+    public void setPostTimeStamp(String postTimeStamp) {
+        this.postTimeStamp = postTimeStamp;
+    }
+
     @Override
     public int describeContents() {
         return 0;
@@ -229,6 +237,7 @@ public class FeedModel implements Parcelable {
         parcel.writeString(caption);
         parcel.writeString(collaboWithEntityID);
         parcel.writeByte((byte) (isLongForm ? 1 : 0));
+        parcel.writeString(postTimeStamp);
 
     }
 
@@ -268,7 +277,7 @@ public class FeedModel implements Parcelable {
         caption = in.readString();
         collaboWithEntityID = in.readString();
         isLongForm = in.readByte() != 0;
-        ;
+        postTimeStamp = in.readString();
     }
 
 }

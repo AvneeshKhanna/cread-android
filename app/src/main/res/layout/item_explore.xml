@@ -27,8 +27,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_alignParentLeft="true"
-                android:layout_toLeftOf="@+id/buttonCollaborate"
-                android:gravity="center_vertical">
+                android:layout_toLeftOf="@+id/buttonCollaborate">
 
                 <LinearLayout
                     android:layout_width="wrap_content"
@@ -58,16 +57,33 @@
 
                 </LinearLayout>
 
-
-                <TextView
-                    android:id="@+id/textCreatorName"
+                <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:paddingLeft="8dp"
-                    android:paddingRight="8dp"
-                    android:textColor="@color/grey"
-                    android:textSize="14sp"
-                    tools:text="Biswa Kalyan wrote a short" />
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:id="@+id/textCreatorName"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:paddingLeft="8dp"
+                        android:paddingRight="8dp"
+                        android:textColor="@color/grey"
+                        android:textSize="14sp"
+                        tools:text="Cread is the best app" />
+
+                    <TextView
+                        android:id="@+id/textTimestamp"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="5dp"
+                        android:paddingLeft="8dp"
+                        android:text="08 March at 5:00"
+                        android:textColor="@color/grey_custom"
+                        android:textSize="12sp" />
+
+
+                </LinearLayout>
 
 
             </LinearLayout>

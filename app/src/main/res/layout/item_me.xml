@@ -28,8 +28,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_alignParentLeft="true"
-                android:layout_toLeftOf="@+id/contentActions"
-                android:gravity="center_vertical">
+                android:layout_toLeftOf="@+id/contentActions">
 
                 <de.hdodenhof.circleimageview.CircleImageView
                     android:id="@+id/imageCreator"
@@ -40,15 +39,34 @@
                     app:civ_border_color="@color/black_defined"
                     tools:src="@drawable/ic_account_circle_100" />
 
-                <TextView
-                    android:id="@+id/textCreatorName"
+
+                <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:paddingLeft="8dp"
-                    android:paddingRight="8dp"
-                    android:textColor="@color/grey"
-                    android:textSize="14sp"
-                    tools:text="The Cread" />
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:id="@+id/textCreatorName"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:paddingLeft="8dp"
+                        android:paddingRight="8dp"
+                        android:textColor="@color/grey"
+                        android:textSize="14sp"
+                        tools:text="Cread is the best app" />
+
+                    <TextView
+                        android:id="@+id/textTimestamp"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="08 March at 5:00"
+                        android:textColor="@color/grey_custom"
+                        android:layout_marginTop="5dp"
+                        android:paddingLeft="8dp"
+                        android:textSize="12sp" />
+
+
+                </LinearLayout>
 
 
             </LinearLayout>

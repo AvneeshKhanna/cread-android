@@ -44,6 +44,7 @@ import de.hdodenhof.circleimageview.CircleImageView;
 import io.reactivex.disposables.CompositeDisposable;
 
 import static com.thetestament.cread.helpers.FeedHelper.setGridItemMargins;
+import static com.thetestament.cread.helpers.FeedHelper.updatePostTimestamp;
 import static com.thetestament.cread.helpers.LongShortHelper.checkLongFormStatus;
 import static com.thetestament.cread.helpers.LongShortHelper.initLongFormPreviewClick;
 import static com.thetestament.cread.utils.Constant.EXTRA_DATA;
@@ -194,6 +195,8 @@ public class ExploreAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
             checkLongFormStatus(itemViewHolder.containerLongShortPreview, data);
             //long form on click
             initLongFormPreviewClick(itemViewHolder.containerLongShortPreview, data, mContext, mCompositeDisposable);
+            // init post timestamp
+            updatePostTimestamp(itemViewHolder.textTimeStamp, data);
 
 
         } else if (holder.getItemViewType() == VIEW_TYPE_ITEM_GRID) {
@@ -507,6 +510,8 @@ public class ExploreAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
         TextView collabCount;
         @BindView(R.id.containerLongShortPreview)
         FrameLayout containerLongShortPreview;
+        @BindView(R.id.textTimestamp)
+        TextView textTimeStamp;
 
         public ListItemViewHolder(View itemView) {
             super(itemView);
