@@ -74,8 +74,7 @@ public class TimeUtils {
     /**
      * Return an ISO 8601 combined date and time string for specified date/time
      *
-     * @param date
-     *            Date
+     * @param date Date
      * @return String with format "yyyy-MM-dd'T'HH:mm:ss'Z'"
      */
     public static String getISO8601StringForDate(Date date) {
@@ -83,7 +82,6 @@ public class TimeUtils {
         dateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
         return dateFormat.format(date);
     }
-
 
 
 }

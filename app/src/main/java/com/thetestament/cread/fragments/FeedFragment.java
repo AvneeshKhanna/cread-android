@@ -15,6 +15,7 @@ import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.AppCompatTextView;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -141,6 +142,9 @@ public class FeedFragment extends Fragment implements listener.OnCollaborationLi
     String mEntityID, mEntityType;
     Bitmap mBitmap;
     FeedModel entitySpecificData;
+
+    @State
+    String textHashTagOFTheDay = "";
     //endregion
 
     //region :Overridden methods
@@ -347,7 +351,7 @@ public class FeedFragment extends Fragment implements listener.OnCollaborationLi
     @OnClick(R.id.buttonInfo)
     void infoButtonOnClick() {
         //Show dialog here
-        getHashTagOfTheDayInfoDialog();
+        getHashTagOfTheDayInfoDialog(textHashTagOFTheDay);
     }
     //endregion
 
@@ -1108,19 +1112,30 @@ public class FeedFragment extends Fragment implements listener.OnCollaborationLi
                 , new listener.OnHashTagOfTheDayLoadListener() {
                     @Override
                     public void onSuccess(String hashTagOfTheDay) {
-                        //Set text
-                        textHashTagOfTheDay.setText("#" + hashTagOfTheDay);
-                        //Set hash tag of the day
-                        FeedHelper feedHelper = new FeedHelper();
-                        feedHelper.setHashTags(textHashTagOfTheDay, getActivity(), R.color.colorPrimary);
-                        //Set View
-                        CoordinatorLayout.LayoutParams params = (CoordinatorLayout.LayoutParams) appBarLayout.getLayoutParams();
-                        params.height = LinearLayout.LayoutParams.WRAP_CONTENT;
-                        appBarLayout.setLayoutParams(params);
-                        //Toggle view visibility
-                        appBarLayout.setVisibility(View.VISIBLE);
-                        viewSuggestedArtists.setVisibility(View.GONE);
-                        viewHashTagOfTheDay.setVisibility(View.VISIBLE);
+                        if (!TextUtils.isEmpty(hashTagOfTheDay) || !hashTagOfTheDay.equals("null")) {
+                            //Set text
+                            textHashTagOfTheDay.setText("#" + hashTagOfTheDay);
+                            textHashTagOFTheDay = textHashTagOfTheDay.getText().toString();
+                            //Set hash tag of the day
+                            FeedHelper feedHelper = new FeedHelper();
+                            feedHelper.setHashTags(textHashTagOfTheDay, getActivity(), R.color.colorPrimary);
+                            //Set View
+                            CoordinatorLayout.LayoutParams params = (CoordinatorLayout.LayoutParams) appBarLayout.getLayoutParams();
+                            params.height = LinearLayout.LayoutParams.WRAP_CONTENT;
+                            appBarLayout.setLayoutParams(params);
+                            //Toggle view visibility
+                            appBarLayout.setVisibility(View.VISIBLE);
+                            viewSuggestedArtists.setVisibility(View.GONE);
+                            viewHashTagOfTheDay.setVisibility(View.VISIBLE);
+
+                            //Check for first time run status
+                            if (mHelper.isHashTagOfTheDayFirstTime()) {
+                                //Show dialog
+                                getHashTagOfTheDayInfoDialog(hashTagOfTheDay);
+                                //Update flag
+                                mHelper.updateHashTagOfTheDayStatus(false);
+                            }
+                        }
                     }
 
                     @Override
@@ -1134,7 +1149,7 @@ public class FeedFragment extends Fragment implements listener.OnCollaborationLi
     /**
      * Method to show HashTagOfTheDay info dialog.
      */
-    private void getHashTagOfTheDayInfoDialog() {
+    private void getHashTagOfTheDayInfoDialog(String hashTagText) {
         MaterialDialog dialog = new MaterialDialog.Builder(getActivity())
                 .customView(R.layout.dialog_generic, false)
                 .positiveText(R.string.text_create)
@@ -1161,13 +1176,12 @@ public class FeedFragment extends Fragment implements listener.OnCollaborationLi
         ImageView fillerImage = dialog.getCustomView().findViewById(R.id.viewFiller);
         TextView textTitle = dialog.getCustomView().findViewById(R.id.textTitle);
         TextView textDesc = dialog.getCustomView().findViewById(R.id.textDesc);
-        //fixme change this
         //Set filler image
-        fillerImage.setImageDrawable(ContextCompat.getDrawable(getActivity(), R.drawable.image_placeholder));
+        fillerImage.setImageDrawable(ContextCompat.getDrawable(getActivity(), R.drawable.img_hash_tag_dialog));
         //Set title text
-        textTitle.setText("Title text here");
+        textTitle.setText("Hashtag for Today");
         //Set description text
-        textDesc.setText("Description text here");
+        textDesc.setText("Upload something with " + hashTagText + " as hashtag in your caption and your post will get featured under this hashtag for today");
     }
 //endregion
 }

@@ -60,6 +60,7 @@
     <string name="key_long_story_dialog_first_time">keyLongStoryDialog</string>
     <string name="key_long_story_preview_first_time">keyLongStoryPreview</string>
     <string name="key_spot_light_first_time">keySpotLight</string>
+    <string name="key_htod_first_time">keyHtod</string>
 
 
     // dialog messages
