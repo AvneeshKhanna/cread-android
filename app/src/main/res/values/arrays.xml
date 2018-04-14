@@ -5,4 +5,11 @@
         <item>No</item>
         <item>Ask Always</item>
     </string-array>
+
+    <string-array name="long_form_sounds">
+        <item>None</item>
+        <item>Sad</item>
+        <item>Happy</item>
+        <item>Neutral</item>
+    </string-array>
 </resources>

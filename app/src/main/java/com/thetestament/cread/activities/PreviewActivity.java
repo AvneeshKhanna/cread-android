@@ -1,8 +1,10 @@
 package com.thetestament.cread.activities;
 
 import android.content.Intent;
+import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
@@ -182,6 +184,8 @@ public class PreviewActivity extends BaseActivity implements QueryTokenReceiver,
     RecyclerView recyclerViewMentions;
     @BindView(R.id.containerLongShortPreview)
     FrameLayout containerLongShortPreview;
+    @BindView(R.id.containerLongShortSound)
+    FrameLayout containerLongShortSound;
     //endregion
 
     //region :Fields and constants
@@ -231,6 +235,7 @@ public class PreviewActivity extends BaseActivity implements QueryTokenReceiver,
     List<PersonMentionModel> mSuggestionsList = new ArrayList<>();
     PersonMentionAdapter mMentionsAdapter;
     FragmentActivity mContext = PreviewActivity.this;
+    MediaPlayer mediaPlayer;
 
     //endregion
 
@@ -433,6 +438,51 @@ public class PreviewActivity extends BaseActivity implements QueryTokenReceiver,
         Intent intent = new Intent(mContext, ViewLongShortActivity.class);
         intent.putExtra(EXTRA_SHORT_DATA, shortModel);
         mContext.startActivity(intent);
+    }
+
+    @OnClick(R.id.containerLongShortSound)
+    void longShortSoundClick() {
+        mediaPlayer = MediaPlayer.create(mContext, R.raw.hatsoff);
+        //Play sound
+        mediaPlayer.start();
+
+        new MaterialDialog.Builder(this)
+                .title("Choose a sound for long form")
+                .items(R.array.long_form_sounds)
+                .itemsCallbackSingleChoice(-1, new MaterialDialog.ListCallbackSingleChoice() {
+                    @Override
+                    public boolean onSelection(MaterialDialog dialog, View view, int which, CharSequence text) {
+                        /**
+                         * If you use alwaysCallSingleChoiceCallback(), which is discussed below,
+                         * returning false here won't allow the newly selected radio button to actually be selected.
+                         **/
+                        Resources res = getResources();
+                        ArrayList<String> sounds = new ArrayList<>(Arrays.asList(res.getStringArray(R.array.long_form_sounds)));
+
+
+                        return true;
+                    }
+                })
+                .onPositive(new MaterialDialog.SingleButtonCallback() {
+                    @Override
+                    public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
+                        mediaPlayer.reset();
+                        mediaPlayer.release();
+                        mediaPlayer = null;
+                    }
+                })
+                .onNegative(new MaterialDialog.SingleButtonCallback() {
+                    @Override
+                    public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
+                        mediaPlayer.reset();
+                        mediaPlayer.release();
+                        mediaPlayer = null;
+                    }
+                })
+                .alwaysCallSingleChoiceCallback()
+                .positiveText("Apply")
+                .negativeText("Cancel")
+                .show();
     }
     //endregion
 
@@ -1695,6 +1745,8 @@ public class PreviewActivity extends BaseActivity implements QueryTokenReceiver,
         // if short is long show preview option
         if (!TextUtils.isEmpty(mBundle.getString(PREVIEW_EXTRA_LONG_TEXT)) && !mBundle.getString(PREVIEW_EXTRA_LONG_TEXT).equals("null")) {
             containerLongShortPreview.setVisibility(View.VISIBLE);
+            containerLongShortSound.setVisibility(View.VISIBLE);
+
         }
 
         //show preview tooltip
