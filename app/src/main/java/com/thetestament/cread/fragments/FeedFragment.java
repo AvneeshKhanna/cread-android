@@ -1114,7 +1114,7 @@ public class FeedFragment extends Fragment implements listener.OnCollaborationLi
                 , new listener.OnHashTagOfTheDayLoadListener() {
                     @Override
                     public void onSuccess(String hashTagOfTheDay) {
-                        if (!TextUtils.isEmpty(hashTagOfTheDay) || !hashTagOfTheDay.equals("null")) {
+                        if (!TextUtils.isEmpty(hashTagOfTheDay) && !hashTagOfTheDay.equals("null")) {
                             //Set text
                             textHashTagOfTheDay.setText("#" + hashTagOfTheDay);
                             textHashTagOFTheDay = textHashTagOfTheDay.getText().toString();
