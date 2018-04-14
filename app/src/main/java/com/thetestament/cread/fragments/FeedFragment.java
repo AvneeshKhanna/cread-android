@@ -1133,7 +1133,7 @@ public class FeedFragment extends Fragment implements listener.OnCollaborationLi
                             //Check for first time run status
                             if (mHelper.isHashTagOfTheDayFirstTime()) {
                                 //Show dialog
-                                getHashTagOfTheDayInfoDialog(hashTagOfTheDay);
+                                getHashTagOfTheDayInfoDialog("#" + hashTagOfTheDay);
                                 //Update flag
                                 mHelper.updateHashTagOfTheDayStatus(false);
                             }
@@ -1183,7 +1183,7 @@ public class FeedFragment extends Fragment implements listener.OnCollaborationLi
         //Set title text
         textTitle.setText("Hashtag for Today");
         //Set description text
-        textDesc.setText("Upload something with " + hashTagText + " as hashtag in your caption and your post will get featured under this hashtag for today");
+        textDesc.setText("Create an artwork with " + hashTagText + " in your caption and your post will get featured under this hashtag for today");
     }
 //endregion
 }
