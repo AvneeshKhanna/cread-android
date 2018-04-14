@@ -14,8 +14,8 @@ android {
         applicationId "com.thetestament.cread"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 53
-        versionName "1.6.8"
+        versionCode 55
+        versionName "1.7.0"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         // Enabling multi-dex support.
         multiDexEnabled true
