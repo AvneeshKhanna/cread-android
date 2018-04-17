@@ -59,6 +59,7 @@ import com.thetestament.cread.adapters.TemplateAdapter;
 import com.thetestament.cread.dialog.CustomDialog;
 import com.thetestament.cread.helpers.ColorHelper;
 import com.thetestament.cread.helpers.FontsHelper;
+import com.thetestament.cread.helpers.LongShortHelper;
 import com.thetestament.cread.helpers.SharedPreferenceHelper;
 import com.thetestament.cread.helpers.TemplateHelper;
 import com.thetestament.cread.helpers.ViewHelper;
@@ -148,6 +149,7 @@ import static com.thetestament.cread.utils.Constant.EXTRA_MERCHANTABLE;
 import static com.thetestament.cread.utils.Constant.FIREBASE_EVENT_INSPIRATION_CLICKED;
 import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_AUTH_KEY;
 import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_BG_COLOR;
+import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_BG_SOUND;
 import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_BOLD;
 import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_CALLED_FROM;
 import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_CALLED_FROM_EDIT_SHORT;
@@ -369,6 +371,12 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
      */
     @State
     boolean mIsLongEnabled = false;
+
+    /**
+     * Flag to store long form sound
+     */
+    @State
+    String mBgSound = LongShortHelper.LONG_FORM_SOUND_NONE;
 
 
     CompositeDisposable mCompositeDisposable = new CompositeDisposable();
@@ -1591,6 +1599,7 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
                     , mShapeName
                     , String.valueOf(mIsShadowSelected)
                     , longStoryText.trim()
+                    , mBgSound
             );
 
         } catch (IOException e) {
@@ -1617,7 +1626,7 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
             , String imgWidth, String merchantable, String font, String bgColor
             , String bold, String italic, String imageTintColor, String calledFrom
             , String shortID, String captionText, String entityID, String templateName
-            , String isShadowSelected, String longText) {
+            , String isShadowSelected, String longText, String bgSound) {
 
         Intent intent = new Intent(ShortActivity.this, PreviewActivity.class);
 
@@ -1649,6 +1658,7 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
         bundle.putString(PREVIEW_EXTRA_IS_SHADOW_SELECTED, isShadowSelected);
         bundle.putString(PREVIEW_EXTRA_LONG_TEXT, longText);
         bundle.putString(PREVIEW_EXTRA_IMAGE_URL, mCaptureUrl);
+        bundle.putString(PREVIEW_EXTRA_BG_SOUND, mBgSound);
 
 
         intent.putExtra(PREVIEW_EXTRA_DATA, bundle);
@@ -1734,6 +1744,8 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
                                     btnToggleLong.setText(R.string.text_writing_mode_long);
                                     longStoryText = responseObject.getString("text_long");
                                 }
+                                // get sound from response
+                                mBgSound = responseObject.getString("bg_sound");
 
                                 //If capture image is not present
                                 if (TextUtils.isEmpty(responseObject.getString("captureurl")) || responseObject.getString("captureurl").equals("null")) {

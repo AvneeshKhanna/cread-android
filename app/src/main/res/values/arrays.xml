@@ -8,8 +8,7 @@
 
     <string-array name="long_form_sounds">
         <item>None</item>
-        <item>Sad</item>
-        <item>Happy</item>
-        <item>Neutral</item>
+        <item>Bittersweet</item>
+        <item>Moonlight Reprise</item>
     </string-array>
 </resources>

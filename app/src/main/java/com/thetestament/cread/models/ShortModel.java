@@ -10,7 +10,7 @@ import android.os.Parcelable;
 public class ShortModel implements Parcelable {
 
 
-    String contentText, bgcolor, font, imgTintColor, textColor, textGravity, imageURL;
+    String contentText, bgcolor, font, imgTintColor, textColor, textGravity, imageURL, bgSound;
     boolean bold, italic, textShadow;
     double textSize, imgWidth;
 
@@ -116,6 +116,14 @@ public class ShortModel implements Parcelable {
         this.imgWidth = imgWidth;
     }
 
+    public String getBgSound() {
+        return bgSound;
+    }
+
+    public void setBgSound(String bgSound) {
+        this.bgSound = bgSound;
+    }
+
     @Override
     public int describeContents() {
         return 0;
@@ -136,6 +144,7 @@ public class ShortModel implements Parcelable {
         parcel.writeByte((byte) (textShadow ? 1 : 0));
         parcel.writeDouble(textSize);
         parcel.writeDouble(imgWidth);
+        parcel.writeString(bgSound);
 
 
     }
@@ -168,6 +177,7 @@ public class ShortModel implements Parcelable {
         textShadow = in.readByte() != 0;
         textSize = in.readDouble();
         imgWidth = in.readDouble();
+        bgSound = in.readString();
     }
 
     /**

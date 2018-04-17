@@ -605,25 +605,25 @@ public class SharedPreferenceHelper {
     }
 
     /**
-     * Method to retrieve spotlight first time run status.
+     * Method to retrieve long form background sound first time run status.
      *
      * @return True by default.
      */
-    public boolean isSpotLightFirstTime() {
+    public boolean isLongFormSoundFirstTime() {
         return mSharedPreferences
-                .getBoolean(mContext.getString(R.string.key_spot_light_first_time)
+                .getBoolean(mContext.getString(R.string.key_long_form_sound_first_time)
                         , true);
     }
 
 
     /**
-     * Method to update spotlight  status.
+     * Method to update long form sound  status.
      *
      * @param status boolean value i.e true or false
      */
-    public void updateSpotLightStatus(boolean status) {
+    public void updateLongFormSoundStatus(boolean status) {
         SharedPreferences.Editor editor = mSharedPreferences.edit();
-        editor.putBoolean(mContext.getString(R.string.key_spot_light_first_time), status);
+        editor.putBoolean(mContext.getString(R.string.key_long_form_sound_first_time), status);
         editor.apply();
     }
 

@@ -1,7 +1,10 @@
 package com.thetestament.cread.fragments;
 
+import android.content.res.AssetFileDescriptor;
 import android.graphics.Typeface;
+import android.media.MediaPlayer;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -19,8 +22,11 @@ import android.widget.TextView;
 import com.thetestament.cread.R;
 import com.thetestament.cread.activities.ShortActivity;
 import com.thetestament.cread.helpers.ImageHelper;
+import com.thetestament.cread.helpers.LongShortHelper;
 import com.thetestament.cread.helpers.ViewHelper;
 import com.thetestament.cread.models.ShortModel;
+
+import java.io.IOException;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -47,6 +53,7 @@ public class ViewLongShortFragment extends Fragment {
     private Unbinder mUnbinder;
     CompositeDisposable mCompositeDisposable = new CompositeDisposable();
     private FragmentActivity mContext;
+    MediaPlayer mediaPlayer = new MediaPlayer();
 
     @State
     ShortModel mShortData;
@@ -98,6 +105,9 @@ public class ViewLongShortFragment extends Fragment {
 
         // apply style
         applyStyling();
+        // play sound
+        playSound(PreferenceManager.getDefaultSharedPreferences(getActivity())
+                .getBoolean(SettingsFragment.KEY_SETTINGS_LONGFORMSOUND, true));
     }
 
 
@@ -239,8 +249,6 @@ public class ViewLongShortFragment extends Fragment {
     }
 
 
-
-
     /**
      * Initializes the reading mode
      */
@@ -262,6 +270,88 @@ public class ViewLongShortFragment extends Fragment {
             // set original tint
             applyImageTint();
         }
+    }
+
+    public void toggleSoundMode(boolean isSoundEnabled) {
+
+        // enable toggling only if sound is not none
+        if (!mShortData.getBgSound().equals(LongShortHelper.LONG_FORM_SOUND_NONE)) {
+            // if sound is enabled from settings or this screen
+            if (isSoundEnabled) {
+                // start
+                mediaPlayer.start();
+                // set looping
+                mediaPlayer.setLooping(true);
+            } else {
+                // pause sound
+                mediaPlayer.pause();
+            }
+
+        }
+    }
+
+    /**
+     * Frees the media player instance
+     */
+    public void releaseMediaPlayer() {
+        if (mediaPlayer != null) {
+            // reset to idle state
+            mediaPlayer.reset();
+            // release
+            mediaPlayer.release();
+            // set to null
+            mediaPlayer = null;
+        }
+
+    }
+
+    /**
+     * Initializes the media player and plays sound if sound enabled is true
+     *
+     * @param isSoundEnabled
+     */
+    public void initMediaPlayer(boolean isSoundEnabled) {
+
+        // create new instance only if null
+        if (mediaPlayer == null) {
+            // create instance
+            mediaPlayer = new MediaPlayer();
+            // play sound
+            playSound(isSoundEnabled);
+        }
+
+    }
+
+    /**
+     * Sets the audio source and plays sound if sound enabled is true
+     *
+     * @param isSoundEnabled
+     */
+    public void playSound(boolean isSoundEnabled) {
+
+        if (!mShortData.getBgSound().equals(LongShortHelper.LONG_FORM_SOUND_NONE)) {
+            AssetFileDescriptor afd = getResources().openRawResourceFd(getResources().getIdentifier(mShortData.getBgSound(), "raw", getActivity().getPackageName()));
+            if (afd == null) return;
+            try {
+                // set data source
+                mediaPlayer.setDataSource(afd.getFileDescriptor(), afd.getStartOffset(), afd.getLength());
+                afd.close();
+                // prepare media player
+                mediaPlayer.prepare();
+            } catch (IOException e) {
+                e.printStackTrace();
+
+            }
+            // start only if enabled from settings or from this screen
+            if (isSoundEnabled) {
+                // start
+                mediaPlayer.start();
+                //set looping
+                mediaPlayer.setLooping(true);
+
+            }
+        }
+
     }
 
 

@@ -494,7 +494,10 @@
                 android:value=".activities.BottomNavigationActivity" />
         </activity>
 
-        <activity android:name=".activities.ViewLongShortActivity"></activity>
+        <activity
+            android:name=".activities.ViewLongShortActivity"
+            android:theme="@style/AppTheme"
+            android:screenOrientation="portrait"></activity>
     </application>
 
 </manifest>

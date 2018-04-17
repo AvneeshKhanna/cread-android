@@ -31,6 +31,7 @@ public class SettingsFragment extends PreferenceFragmentCompat {
     public static final String KEY_SETTINGS_NOTIFICATIONS = "settings_notifications_key";
     public static final String KEY_SETTINGS_HATSOFFSOUND = "settings_hatsoffsound_key";
     public static final String KEY_SETTINGS_CHATSOUND = "settings_chatsound_key";
+    public static final String KEY_SETTINGS_LONGFORMSOUND = "settings_longformsound_key";
     private CompositeDisposable mCompositeDisposable = new CompositeDisposable();
     SharedPreferenceHelper spHelper;
 

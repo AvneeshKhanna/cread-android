@@ -87,6 +87,7 @@ public class LongShortHelper {
                                 shortModel.setTextShadow(ShortModel.convertIntToBool(mainData.getInt("textshadow")));
                                 shortModel.setImageURL(mainData.getString("entityurl"));
                                 shortModel.setImgWidth(mainData.getDouble("img_width"));
+                                shortModel.setBgSound(mainData.getString("bg_sound"));
 
                                 //Set listener
                                 onLongShortDataRequestedListener.onLongShortDataSuccess(shortModel);
@@ -166,4 +167,8 @@ public class LongShortHelper {
             }
         });
     }
+
+
+    // Long form sounds
+    public static final String LONG_FORM_SOUND_NONE = "none";
 }

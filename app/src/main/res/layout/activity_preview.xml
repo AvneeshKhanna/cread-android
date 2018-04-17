@@ -104,7 +104,7 @@
                                 android:layout_alignParentRight="true"
                                 android:background="@drawable/circle_transparent_bg"
                                 android:padding="5dp"
-                                app:srcCompat="@drawable/ic_longshort_preview" />
+                                app:srcCompat="@drawable/ic_menu_sound_enabled" />
 
 
                         </FrameLayout>
