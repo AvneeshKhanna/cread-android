@@ -166,7 +166,7 @@ public class FeedDescriptionActivity extends BaseActivity implements listener.On
             case REQUEST_CODE_COMMENTS_ACTIVITY:
                 if (resultCode == RESULT_OK) {
                     //Load comments data
-                    getTopComments(mFeedData.getEntityID());
+                    getTopComments(mFeedData.getEntityID(), false);
                 }
                 break;
             case REQUEST_CODE_OPEN_GALLERY:
@@ -626,7 +626,7 @@ public class FeedDescriptionActivity extends BaseActivity implements listener.On
         //if comments exist load comments data and then more posts data
         if (mFeedData.getCommentCount() > 0) {
             //load comments
-            getTopComments(mFeedData.getEntityID());
+            getTopComments(mFeedData.getEntityID(), true);
         }
         // load more posts data straightaway
         else {
@@ -679,7 +679,7 @@ public class FeedDescriptionActivity extends BaseActivity implements listener.On
      *
      * @param entityID ID for current story,
      */
-    private void getTopComments(String entityID) {
+    private void getTopComments(String entityID, final boolean shouldGetPostsData) {
 
 
         final boolean[] tokenError = {false};
@@ -780,9 +780,12 @@ public class FeedDescriptionActivity extends BaseActivity implements listener.On
 
 
                         }
+                        // if should get posts data
+                        if (shouldGetPostsData) {
+                            // get more posts
+                            getPostsData();
+                        }
 
-                        // get more posts
-                        getPostsData();
                     }
                 })
         );
