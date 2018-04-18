@@ -48,6 +48,7 @@ import com.thetestament.cread.dialog.CustomDialog;
 import com.thetestament.cread.helpers.CaptureHelper;
 import com.thetestament.cread.helpers.ColorHelper;
 import com.thetestament.cread.helpers.FontsHelper;
+import com.thetestament.cread.helpers.LongShortHelper;
 import com.thetestament.cread.helpers.SharedPreferenceHelper;
 import com.thetestament.cread.helpers.TemplateHelper;
 import com.thetestament.cread.helpers.ViewHelper;
@@ -126,6 +127,7 @@ import static com.thetestament.cread.utils.Constant.EXTRA_ENTITY_TYPE;
 import static com.thetestament.cread.utils.Constant.EXTRA_MERCHANTABLE;
 import static com.thetestament.cread.utils.Constant.IMAGE_TYPE_USER_CAPTURE_PIC;
 import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_AUTH_KEY;
+import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_BG_SOUND;
 import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_BOLD;
 import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_CALLED_FROM;
 import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_CALLED_FROM_COLLABORATION;
@@ -288,6 +290,12 @@ public class CollaborationActivity extends BaseActivity {
 
     @State
     String longStoryText = "";
+
+    /**
+     * Flag to store long form sound
+     */
+    @State
+    String mBgSound = LongShortHelper.LONG_FORM_SOUND_NONE;
     //endregion
 
     @Override
@@ -1148,6 +1156,9 @@ public class CollaborationActivity extends BaseActivity {
 
                                 }
 
+                                // get sound from response
+                                mBgSound = responseObject.getString("bg_sound");
+
 
                                 //Retrieve data from server response
                                 mShortID = responseObject.getString("shoid");
@@ -1352,6 +1363,7 @@ public class CollaborationActivity extends BaseActivity {
                     , mShapeName
                     , String.valueOf(mIsShadowSelected)
                     , longStoryText
+                    , mBgSound
             );
 
         } catch (IOException e) {
@@ -1373,7 +1385,7 @@ public class CollaborationActivity extends BaseActivity {
             , String text, String textSize, String textColor, String textGravity
             , String imgWidth, String signature, String merchantable, String font
             , String bold, String italic, String imageTintColor, String calledFrom
-            , String templateName, String isShadowSelected, String longText) {
+            , String templateName, String isShadowSelected, String longText, String bgSound) {
 
         Intent intent = new Intent(CollaborationActivity.this, PreviewActivity.class);
 
@@ -1401,6 +1413,7 @@ public class CollaborationActivity extends BaseActivity {
         bundle.putString(PREVIEW_EXTRA_TEMPLATE_NAME, templateName);
         bundle.putString(PREVIEW_EXTRA_IS_SHADOW_SELECTED, isShadowSelected);
         bundle.putString(PREVIEW_EXTRA_LONG_TEXT, longText.trim());
+        bundle.putString(PREVIEW_EXTRA_BG_SOUND, mBgSound);
 
         intent.putExtra(PREVIEW_EXTRA_DATA, bundle);
         startActivityForResult(intent, REQUEST_CODE_PREVIEW_ACTIVITY);

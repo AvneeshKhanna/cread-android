@@ -15,6 +15,13 @@
             android:persistent="true"
             android:title="Chat Sound" />
 
+        <android.support.v7.preference.SwitchPreferenceCompat
+            android:defaultValue="true"
+            android:key="settings_longformsound_key"
+            android:persistent="true"
+            android:title="Writing Background Music"
+            android:summary="Choose if background music plays by default when you read the long version of any writing" />
+
     </PreferenceCategory>
 
     <PreferenceCategory android:title="General">

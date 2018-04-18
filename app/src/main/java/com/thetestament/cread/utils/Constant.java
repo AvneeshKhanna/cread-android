@@ -278,6 +278,7 @@ public class Constant {
     public static final String PREVIEW_EXTRA_FONT = "font";
     public static final String PREVIEW_EXTRA_TEMPLATE_NAME = "templateName";
     public static final String PREVIEW_EXTRA_IS_SHADOW_SELECTED = "shadowSelected";
+    public static final String PREVIEW_EXTRA_BG_SOUND = "bgSound";
     public static final String PREVIEW_EXTRA_LONG_TEXT = "longText";
     public static final String PREVIEW_EXTRA_IMAGE_URL = "imageURL";
     public static final String PREVIEW_EXTRA_BOLD = "bold";

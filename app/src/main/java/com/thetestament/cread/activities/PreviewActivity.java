@@ -1,8 +1,11 @@
 package com.thetestament.cread.activities;
 
 import android.content.Intent;
+import android.content.res.AssetFileDescriptor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Color;
+import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
@@ -51,6 +54,7 @@ import com.thetestament.cread.dialog.CustomDialog;
 import com.thetestament.cread.helpers.CaptureHelper;
 import com.thetestament.cread.helpers.CustomFilters;
 import com.thetestament.cread.helpers.ImageHelper;
+import com.thetestament.cread.helpers.LongShortHelper;
 import com.thetestament.cread.helpers.NetworkHelper;
 import com.thetestament.cread.helpers.ProfileMentionsHelper;
 import com.thetestament.cread.helpers.SharedPreferenceHelper;
@@ -59,6 +63,7 @@ import com.thetestament.cread.listeners.listener;
 import com.thetestament.cread.models.FilterModel;
 import com.thetestament.cread.models.PersonMentionModel;
 import com.thetestament.cread.models.ShortModel;
+import com.wooplr.spotlight.SpotlightView;
 import com.zomato.photofilters.imageprocessors.Filter;
 
 import org.json.JSONArray;
@@ -116,6 +121,7 @@ import static com.thetestament.cread.utils.Constant.IMAGE_TYPE_USER_CAPTURE_PIC;
 import static com.thetestament.cread.utils.Constant.IMAGE_TYPE_USER_SHORT_PIC;
 import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_AUTH_KEY;
 import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_BG_COLOR;
+import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_BG_SOUND;
 import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_BOLD;
 import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_CALLED_FROM;
 import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_CALLED_FROM_CAPTURE;
@@ -182,6 +188,8 @@ public class PreviewActivity extends BaseActivity implements QueryTokenReceiver,
     RecyclerView recyclerViewMentions;
     @BindView(R.id.containerLongShortPreview)
     FrameLayout containerLongShortPreview;
+    @BindView(R.id.containerLongShortSound)
+    FrameLayout containerLongShortSound;
     //endregion
 
     //region :Fields and constants
@@ -216,8 +224,15 @@ public class PreviewActivity extends BaseActivity implements QueryTokenReceiver,
     @State
     String mFilterName = "original";
 
+    /**
+     * Flag to store long form sound
+     */
+    @State
+    String mBgSound = LongShortHelper.LONG_FORM_SOUND_NONE;
+
     @State
     String mCapInMentionFormat;
+
 
     @State
     boolean mRequestMoreSuggestionsData = false;
@@ -231,6 +246,7 @@ public class PreviewActivity extends BaseActivity implements QueryTokenReceiver,
     List<PersonMentionModel> mSuggestionsList = new ArrayList<>();
     PersonMentionAdapter mMentionsAdapter;
     FragmentActivity mContext = PreviewActivity.this;
+    MediaPlayer mediaPlayer;
 
     //endregion
 
@@ -250,6 +266,27 @@ public class PreviewActivity extends BaseActivity implements QueryTokenReceiver,
     protected void onDestroy() {
         super.onDestroy();
         mCompositeDisposable.dispose();
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+
+        if (mediaPlayer != null) {
+            mediaPlayer.reset();
+            mediaPlayer.release();
+            mediaPlayer = null;
+        }
+
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        if (mediaPlayer == null) {
+            mediaPlayer = new MediaPlayer();
+        }
     }
 
     @Override
@@ -428,11 +465,115 @@ public class PreviewActivity extends BaseActivity implements QueryTokenReceiver,
         shortModel.setTextGravity(mBundle.getString(PREVIEW_EXTRA_TEXT_GRAVITY));
         shortModel.setTextShadow(convertStringToBool(mBundle.getString(PREVIEW_EXTRA_IS_SHADOW_SELECTED)));
         shortModel.setImgWidth(Double.valueOf(mBundle.getString(PREVIEW_EXTRA_IMG_WIDTH)));
+        shortModel.setBgSound(mBgSound);
 
         // open activity and pass data
         Intent intent = new Intent(mContext, ViewLongShortActivity.class);
         intent.putExtra(EXTRA_SHORT_DATA, shortModel);
         mContext.startActivity(intent);
+    }
+
+    @OnClick(R.id.containerLongShortSound)
+    void longShortSoundClick() {
+
+        mediaPlayer = new MediaPlayer();
+
+        // get sounds
+        ArrayList<String> sounds = new ArrayList<>(Arrays.asList((getResources().getStringArray(R.array.long_form_sounds))));
+        // get sounds in res form
+        ArrayList<String> processedSounds = new ArrayList<>();
+        for (String sound : sounds) {
+            processedSounds.add(sound.toLowerCase().replace(" ", "_"));
+        }
+        // get selected index
+        int selectedIndex = processedSounds.indexOf(mBgSound);
+        // show dialog
+        new MaterialDialog.Builder(this)
+                .title("Choose a background music for reading")
+                .canceledOnTouchOutside(false)
+                .cancelable(false)
+                .items(R.array.long_form_sounds)
+                .itemsCallbackSingleChoice(selectedIndex, new MaterialDialog.ListCallbackSingleChoice() {
+                    @Override
+                    public boolean onSelection(MaterialDialog dialog, View view, int which, CharSequence text) {
+
+                        // process sound name
+                        // convert to lowercase
+                        // replace space with '_'
+                        String processedSoundName = text.toString().toLowerCase().replace(" ", "_");
+
+                        AssetFileDescriptor afd;
+
+                        switch (processedSoundName) {
+                            case LongShortHelper.LONG_FORM_SOUND_NONE:
+                                // reset
+                                mediaPlayer.reset();
+                                mBgSound = LongShortHelper.LONG_FORM_SOUND_NONE;
+                                break;
+                            default:
+                                // for all other sounds
+                                // reset to idle state
+                                mediaPlayer.reset();
+                                // get source name
+                                afd = getResources().openRawResourceFd(getResources().getIdentifier(processedSoundName, "raw", getPackageName()));
+                                if (afd == null) break;
+                                try {
+                                    // set data source
+                                    mediaPlayer.setDataSource(afd.getFileDescriptor(), afd.getStartOffset(), afd.getLength());
+                                    afd.close();
+                                    // prepare media player
+                                    mediaPlayer.prepare();
+                                } catch (IOException e) {
+                                    e.printStackTrace();
+
+                                }
+                                // start
+                                mediaPlayer.start();
+                                //set loop
+                                mediaPlayer.setLooping(true);
+                                // set value
+                                mBgSound = processedSoundName;
+                                break;
+                        }
+
+                        return true;
+                    }
+                })
+                .onPositive(new MaterialDialog.SingleButtonCallback() {
+                    @Override
+                    public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
+                        mediaPlayer.reset();
+                        mediaPlayer.release();
+                        mediaPlayer = null;
+
+                        //show sound preview tooltip
+                        if (mHelper.isLongFormSoundFirstTime()) {
+                            //Show tooltip on sound preview icon
+                            ViewHelper.getToolTip(containerLongShortPreview
+                                    , "Tap to preview your writing with background music"
+                                    , mContext);
+                        }
+
+                        //Update status
+                        mHelper.updateLongFormSoundStatus(false);
+
+
+                    }
+                })
+                .onNegative(new MaterialDialog.SingleButtonCallback() {
+                    @Override
+                    public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
+                        mediaPlayer.reset();
+                        mediaPlayer.release();
+                        mediaPlayer = null;
+
+                        mBgSound = LongShortHelper.LONG_FORM_SOUND_NONE;
+                    }
+                })
+                .alwaysCallSingleChoiceCallback()
+                .positiveText("Apply")
+                .negativeText("Cancel")
+                .show();
     }
     //endregion
 
@@ -495,11 +636,15 @@ public class PreviewActivity extends BaseActivity implements QueryTokenReceiver,
             //Set caption text
             etCaption.setText(mBundle.getString(PREVIEW_EXTRA_CAPTION_TEXT));
             setProfileMentionsForEditing(mContext, mBundle.getString(PREVIEW_EXTRA_CAPTION_TEXT), etCaption);
+            //set bg sound for long form
+            mBgSound = mBundle.getString(PREVIEW_EXTRA_BG_SOUND);
         } else {
             //initialize filter screen
             initFilterView();
             //Load short pic
             loadPreviewImage(getImageUri(IMAGE_TYPE_USER_SHORT_PIC), imagePreview);
+            //set bg sound for long form
+            mBgSound = mBundle.getString(PREVIEW_EXTRA_BG_SOUND);
         }
     }
 
@@ -760,6 +905,7 @@ public class PreviewActivity extends BaseActivity implements QueryTokenReceiver,
                 .addMultipartParameter("shape", templateName)
                 .addMultipartParameter("textshadow", isShadowSelected)
                 .addMultipartParameter("text_long", longText)
+                .addMultipartParameter("bg_sound", mBgSound)
                 .build()
                 .getJSONObjectObservable()
                 .subscribeOn(Schedulers.io())
@@ -886,6 +1032,7 @@ public class PreviewActivity extends BaseActivity implements QueryTokenReceiver,
                 .addMultipartParameter("shape", templateName)
                 .addMultipartParameter("textshadow", isShadowSelected)
                 .addMultipartParameter("text_long", longText)
+                .addMultipartParameter("bg_sound", mBgSound)
                 .build()
                 .getJSONObjectObservable()
                 .subscribeOn(Schedulers.io())
@@ -1013,6 +1160,7 @@ public class PreviewActivity extends BaseActivity implements QueryTokenReceiver,
                 .addMultipartParameter("shape", templateName)
                 .addMultipartParameter("textshadow", isShadowSelected)
                 .addMultipartParameter("text_long", longText)
+                .addMultipartParameter("bg_sound", mBgSound)
                 .build()
                 .getJSONObjectObservable()
                 .subscribeOn(Schedulers.io())
@@ -1695,18 +1843,54 @@ public class PreviewActivity extends BaseActivity implements QueryTokenReceiver,
         // if short is long show preview option
         if (!TextUtils.isEmpty(mBundle.getString(PREVIEW_EXTRA_LONG_TEXT)) && !mBundle.getString(PREVIEW_EXTRA_LONG_TEXT).equals("null")) {
             containerLongShortPreview.setVisibility(View.VISIBLE);
+
+            // show sound view only in tje case of short and edit short
+            if (mCalledFrom.equals(PREVIEW_EXTRA_CALLED_FROM_EDIT_SHORT) || mCalledFrom.equals(PREVIEW_EXTRA_CALLED_FROM_SHORT)) {
+                containerLongShortSound.setVisibility(View.VISIBLE);
+            } else {
+                containerLongShortSound.setVisibility(View.GONE);
+            }
+
+            //show preview tooltip
+            if (mHelper.isLongFormPreviewFirstTime()) {
+                //Show tooltip on preview icon
+                ViewHelper.getToolTip(containerLongShortPreview
+                        , "Tap to see the full writing"
+                        , mContext);
+            }
+
+            //Update status
+            mHelper.updateLongFormPreviewStatus(false);
+
+            if (mCalledFrom.equals(PREVIEW_EXTRA_CALLED_FROM_SHORT)) {
+                // show showcase view on long form sound option
+                new SpotlightView.Builder(mContext)
+                        .introAnimationDuration(400)
+                        .enableRevealAnimation(true)
+                        .performClick(true)
+                        .fadeinTextDuration(400)
+                        .headingTvColor(Color.parseColor("#eb273f"))
+                        .headingTvSize(32)
+                        .headingTvText("Background Music")
+                        .subHeadingTvColor(Color.parseColor("#ffffff"))
+                        .subHeadingTvSize(16)
+                        .subHeadingTvText("Select a melodious background music that goes with your writing. It will play while others read your work.")
+                        .maskColor(Color.parseColor("#dc000000"))
+                        .target(containerLongShortSound)
+                        .usageId("LONG_FORM_SOUND")
+                        .lineAnimDuration(400)
+                        .lineAndArcColor(Color.parseColor("#eb273f"))
+                        .dismissOnTouch(true)
+                        .dismissOnBackPress(true)
+                        .enableDismissAfterShown(true)
+                        .show();
+
+            }
+
+
         }
 
-        //show preview tooltip
-        if (mHelper.isLongFormPreviewFirstTime()) {
-            //Show tooltip on preview icon
-            ViewHelper.getToolTip(containerLongShortPreview
-                    , "Tap to see the full writing"
-                    , mContext);
-        }
 
-        //Update status
-        mHelper.updateLongFormPreviewStatus(false);
     }
 
     //endregion
