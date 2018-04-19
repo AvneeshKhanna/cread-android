@@ -1,7 +1,6 @@
 package com.thetestament.cread.activities;
 
 import android.content.Intent;
-import android.content.res.AssetFileDescriptor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
@@ -502,8 +501,6 @@ public class PreviewActivity extends BaseActivity implements QueryTokenReceiver,
                         // replace space with '_'
                         String processedSoundName = text.toString().toLowerCase().replace(" ", "_");
 
-                        AssetFileDescriptor afd;
-
                         switch (processedSoundName) {
                             case LongShortHelper.LONG_FORM_SOUND_NONE:
                                 // reset
@@ -514,13 +511,11 @@ public class PreviewActivity extends BaseActivity implements QueryTokenReceiver,
                                 // for all other sounds
                                 // reset to idle state
                                 mediaPlayer.reset();
-                                // get source name
-                                afd = getResources().openRawResourceFd(getResources().getIdentifier(processedSoundName, "raw", getPackageName()));
-                                if (afd == null) break;
                                 try {
+                                    Uri uri = Uri.parse("android.resource://" + getPackageName() + "/raw/" + processedSoundName);
+
                                     // set data source
-                                    mediaPlayer.setDataSource(afd.getFileDescriptor(), afd.getStartOffset(), afd.getLength());
-                                    afd.close();
+                                    mediaPlayer.setDataSource(getApplicationContext(), uri);
                                     // prepare media player
                                     mediaPlayer.prepare();
                                 } catch (IOException e) {

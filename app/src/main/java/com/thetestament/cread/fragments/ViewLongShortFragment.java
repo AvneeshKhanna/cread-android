@@ -1,8 +1,8 @@
 package com.thetestament.cread.fragments;
 
-import android.content.res.AssetFileDescriptor;
 import android.graphics.Typeface;
 import android.media.MediaPlayer;
+import android.net.Uri;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
@@ -330,12 +330,11 @@ public class ViewLongShortFragment extends Fragment {
     public void playSound(boolean isSoundEnabled) {
 
         if (!mShortData.getBgSound().equals(LongShortHelper.LONG_FORM_SOUND_NONE)) {
-            AssetFileDescriptor afd = getResources().openRawResourceFd(getResources().getIdentifier(mShortData.getBgSound(), "raw", getActivity().getPackageName()));
-            if (afd == null) return;
+
             try {
+                Uri uri = Uri.parse("android.resource://" + getActivity().getPackageName() + "/raw/" + mShortData.getBgSound());
                 // set data source
-                mediaPlayer.setDataSource(afd.getFileDescriptor(), afd.getStartOffset(), afd.getLength());
-                afd.close();
+                mediaPlayer.setDataSource(getActivity(), uri);
                 // prepare media player
                 mediaPlayer.prepare();
             } catch (IOException e) {
