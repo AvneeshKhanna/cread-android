@@ -899,7 +899,7 @@ public class FeedHelper {
      */
     public static void updateFollowForAll(FeedModel exploreData, List<FeedModel> list) {
         for (FeedModel f : list) {
-            if (f.getUUID().equals(exploreData.getUUID())) {
+            if (f.getUUID() != null && f.getUUID().equals(exploreData.getUUID())) {
                 f.setFollowStatus(exploreData.getFollowStatus());
             }
         }

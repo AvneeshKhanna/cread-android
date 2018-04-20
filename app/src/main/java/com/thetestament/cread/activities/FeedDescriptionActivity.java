@@ -541,10 +541,7 @@ public class FeedDescriptionActivity extends BaseActivity implements listener.On
                     @Override
                     public void onDeleteSuccess() {
                         dialog.dismiss();
-                        //Remove item from list
-                        mPostsList.remove(position);
-                        //Update adapter
-                        mAdapter.notifyItemRemoved(position);
+
 
                         if (position == 0) {
                             resultBundle.putBoolean("deletestatus", true);
