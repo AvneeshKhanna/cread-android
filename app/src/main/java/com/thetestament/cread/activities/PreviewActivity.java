@@ -16,6 +16,7 @@ import android.support.design.widget.CoordinatorLayout;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.widget.NestedScrollView;
+import android.support.v7.widget.AppCompatImageView;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.InputType;
@@ -174,7 +175,7 @@ public class PreviewActivity extends BaseActivity implements QueryTokenReceiver,
     @BindView(R.id.rootView)
     CoordinatorLayout rootView;
     @BindView(R.id.imagePreview)
-    ImageView imagePreview;
+    AppCompatImageView imagePreview;
     @BindView(R.id.etCaption)
     MentionsEditText etCaption;
     @BindView(R.id.textWaterMark)
@@ -398,7 +399,7 @@ public class PreviewActivity extends BaseActivity implements QueryTokenReceiver,
     /**
      * Root view click functionality hide filter bottom sheet if its expanded
      */
-    @OnClick({R.id.rootView, R.id.imageContainer})
+    @OnClick({R.id.rootView})
     void rootOnClick() {
         if (filterSheetBehavior.getState() == BottomSheetBehavior.STATE_EXPANDED) {
             //Hide bottom sheet
@@ -1245,6 +1246,14 @@ public class PreviewActivity extends BaseActivity implements QueryTokenReceiver,
         final MaterialDialog dialog = builder.build();
         dialog.show();
 
+        //Decode image file
+        BitmapFactory.Options options = new BitmapFactory.Options();
+        options.inJustDecodeBounds = true;
+        BitmapFactory.decodeFile(ImageHelper.getImageUri(IMAGE_TYPE_USER_CAPTURE_PIC).getPath(), options);
+        int imageHeight = options.outHeight;
+        int imageWidth = options.outWidth;
+
+
         //if watermark is not empty
         if (!TextUtils.isEmpty(waterMark)) {
             CaptureHelper.generateSignatureOnCapture(mWaterMarkText
@@ -1268,6 +1277,8 @@ public class PreviewActivity extends BaseActivity implements QueryTokenReceiver,
                 .addMultipartParameter("merchantable", merchantable)
                 .addMultipartParameter("caption", captionText)
                 .addMultipartParameter("filtername", mFilterName)
+                .addMultipartParameter("img_width", String.valueOf(imageWidth))
+                .addMultipartParameter("img_height", String.valueOf(imageHeight))
                 .setOkHttpClient(okHttpClient)
                 .build()
                 .getAsJSONObject(new JSONObjectRequestListener() {

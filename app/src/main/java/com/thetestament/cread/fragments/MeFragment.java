@@ -71,6 +71,7 @@ import com.thetestament.cread.listeners.listener;
 import com.thetestament.cread.listeners.listener.OnServerRequestedListener;
 import com.thetestament.cread.listeners.listener.OnUserStatsClickedListener;
 import com.thetestament.cread.models.FeedModel;
+import com.thetestament.cread.utils.AspectRatioUtils;
 import com.thetestament.cread.utils.Constant.GratitudeNumbers;
 import com.thetestament.cread.utils.Constant.ITEM_TYPES;
 import com.thetestament.cread.utils.UserStatsViewPager;
@@ -107,6 +108,7 @@ import static com.thetestament.cread.fragments.ExploreFragment.defaultItemType;
 import static com.thetestament.cread.helpers.DeepLinkHelper.generateDeepLink;
 import static com.thetestament.cread.helpers.FeedHelper.updateFollowForAll;
 import static com.thetestament.cread.helpers.ImageHelper.getImageUri;
+import static com.thetestament.cread.helpers.ImageHelper.processCroppedImage;
 import static com.thetestament.cread.helpers.NetworkHelper.getNetConnectionStatus;
 import static com.thetestament.cread.helpers.NetworkHelper.getObservableFromServer;
 import static com.thetestament.cread.helpers.NetworkHelper.getUserDataObservableFromServer;
@@ -294,20 +296,34 @@ public class MeFragment extends Fragment implements listener.OnCollaborationList
                             , getImageUri(IMAGE_TYPE_USER_CAPTURE_PIC));
 
                 } else {
-                    ViewHelper.getSnackBar(rootView, "Image from gallery was not attached");
+                    ViewHelper.getSnackBar(rootView, getString(R.string.error_img_not_attached));
                 }
                 break;
             //For more information please visit "https://github.com/Yalantis/uCrop"
             case UCrop.REQUEST_CROP:
                 if (resultCode == RESULT_OK) {
+                    //Get image width and height
+                    float width = data.getIntExtra(UCrop.EXTRA_OUTPUT_IMAGE_WIDTH, 1800);
+                    float height = data.getIntExtra(UCrop.EXTRA_OUTPUT_IMAGE_HEIGHT, 1800);
+
                     //Get cropped image Uri
                     Uri mCroppedImgUri = UCrop.getOutput(data);
-                    ImageHelper.performSquareImageManipulation(mCroppedImgUri
-                            , getActivity()
-                            , rootView, mEntityID, mEntityType);
 
+                    //Check for image manipulation
+                    if (AspectRatioUtils.getSquareImageManipulation(width, height)) {
+                        //Create square image with blurred background
+                        ImageHelper.performSquareImageManipulation(mCroppedImgUri
+                                , getActivity()
+                                , rootView
+                                , mEntityID
+                                , mEntityType);
+                    } else {
+                        //Method called
+                        processCroppedImage(mCroppedImgUri, getActivity(), rootView, mEntityID, mEntityType);
+                    }
                 } else if (resultCode == UCrop.RESULT_ERROR) {
-                    ViewHelper.getSnackBar(rootView, "Image could not be cropped due to some error");
+                    ViewHelper.getSnackBar(rootView
+                            , getString(R.string.error_img_not_cropped));
                 }
                 break;
             case REQUEST_CODE_UPDATE_PROFILE_PIC:
@@ -1305,6 +1321,14 @@ public class MeFragment extends Fragment implements listener.OnCollaborationList
                                     data.setContentImage(dataObj.getString("entityurl"));
                                     data.setFollowStatus(dataObj.getBoolean("followstatus"));
                                     data.setCollabCount(dataObj.getLong("collabcount"));
+                                    //if image width pr image height is null
+                                    if (dataObj.isNull("img_width") || dataObj.isNull("img_height")) {
+                                        data.setImgWidth(1);
+                                        data.setImgHeight(1);
+                                    } else {
+                                        data.setImgWidth(dataObj.getInt("img_width"));
+                                        data.setImgHeight(dataObj.getInt("img_height"));
+                                    }
                                     if (dataObj.isNull("caption")) {
                                         data.setCaption(null);
                                     } else {
@@ -1792,6 +1816,15 @@ public class MeFragment extends Fragment implements listener.OnCollaborationList
                                     data.setContentImage(dataObj.getString("entityurl"));
                                     data.setFollowStatus(dataObj.getBoolean("followstatus"));
                                     data.setCollabCount(dataObj.getLong("collabcount"));
+                                    //if image width and image height is null
+                                    if (dataObj.isNull("img_width") || dataObj.isNull("img_height")) {
+                                        data.setImgWidth(1);
+                                        data.setImgHeight(1);
+                                    } else {
+                                        data.setImgWidth(dataObj.getInt("img_width"));
+                                        data.setImgHeight(dataObj.getInt("img_height"));
+                                    }
+
                                     if (dataObj.isNull("caption")) {
                                         data.setCaption(null);
                                     } else {
@@ -1954,10 +1987,12 @@ public class MeFragment extends Fragment implements listener.OnCollaborationList
 
                         dialog.dismiss();
 
-                        //Remove item from list
                         mUserActivityDataList.remove(itemPosition);
-                        //Update adapter
                         mAdapter.notifyItemRemoved(itemPosition);
+                        mAdapter.notifyItemRangeChanged(itemPosition, mUserActivityDataList.size());
+                        //Remove item from list and notify changes
+                        // mUserActivityDataList.remove(itemPosition);
+                        //mAdapter.notifyItemRemoved(itemPosition);
                         ViewHelper.getSnackBar(rootView, "Item deleted");
                         //Update user post count
                         mPostCount -= 1;

@@ -19,6 +19,7 @@ import com.thetestament.cread.activities.ProfileActivity;
 import com.thetestament.cread.listeners.listener.OnInspirationLoadMoreListener;
 import com.thetestament.cread.listeners.listener.OnInspirationSelectListener;
 import com.thetestament.cread.models.InspirationModel;
+import com.thetestament.cread.utils.AspectRatioUtils;
 import com.thetestament.cread.utils.Constant;
 
 import java.util.List;
@@ -128,6 +129,11 @@ public class InspirationAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
             loadCreatorPic(data.getCreatorProfilePic(), itemViewHolder.imageCreator);
             //Set creator name
             itemViewHolder.textCreatorName.setText(data.getCreatorName());
+
+            //Set image width and height
+            AspectRatioUtils.setImageAspectRatio(data.getImgWidth()
+                    , data.getImgHeight()
+                    , itemViewHolder.imageInspiration);
             //Load inspiration image
             loadInspirationImage(data.getCapturePic(), itemViewHolder.imageInspiration);
 

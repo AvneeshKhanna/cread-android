@@ -34,6 +34,7 @@ import com.thetestament.cread.helpers.ViewHelper;
 import com.thetestament.cread.listeners.listener;
 import com.thetestament.cread.listeners.listener.OnServerRequestedListener;
 import com.thetestament.cread.models.FeedModel;
+import com.thetestament.cread.utils.AspectRatioUtils;
 import com.thetestament.cread.utils.Constant;
 import com.yalantis.ucrop.UCrop;
 
@@ -56,6 +57,7 @@ import pl.tajchert.nammu.PermissionCallback;
 import static android.app.Activity.RESULT_OK;
 import static com.thetestament.cread.helpers.FeedHelper.updateFollowForAll;
 import static com.thetestament.cread.helpers.ImageHelper.getImageUri;
+import static com.thetestament.cread.helpers.ImageHelper.processCroppedImage;
 import static com.thetestament.cread.helpers.NetworkHelper.getHashTagDetailsObservable;
 import static com.thetestament.cread.helpers.NetworkHelper.requestServer;
 import static com.thetestament.cread.utils.Constant.BUNDLE_HASHTAG_NAME;
@@ -164,20 +166,40 @@ public class HashTagDetailsFragment extends Fragment implements listener.OnColla
             case REQUEST_CODE_OPEN_GALLERY_FOR_CAPTURE:
                 if (resultCode == RESULT_OK) {
                     // To crop the selected image
-                    ImageHelper.startImageCropping(getActivity(), this, data.getData(), getImageUri(IMAGE_TYPE_USER_CAPTURE_PIC));
+                    ImageHelper.startImageCropping(getActivity()
+                            , this
+                            , data.getData()
+                            , getImageUri(IMAGE_TYPE_USER_CAPTURE_PIC));
                 } else {
-                    ViewHelper.getSnackBar(rootView, "Image from gallery was not attached");
+                    ViewHelper.getSnackBar(rootView, getString(R.string.error_img_not_attached));
                 }
                 break;
             //For more information please visit "https://github.com/Yalantis/uCrop"
             case UCrop.REQUEST_CROP:
                 if (resultCode == RESULT_OK) {
+                    //Get image width and height
+                    float width = data.getIntExtra(UCrop.EXTRA_OUTPUT_IMAGE_WIDTH, 1800);
+                    float height = data.getIntExtra(UCrop.EXTRA_OUTPUT_IMAGE_HEIGHT, 1800);
+
                     //Get cropped image Uri
                     Uri mCroppedImgUri = UCrop.getOutput(data);
-                    ImageHelper.performSquareImageManipulation(mCroppedImgUri, getActivity(), rootView, mEntityID, mEntityType);
+
+                    //Check for image manipulation
+                    if (AspectRatioUtils.getSquareImageManipulation(width, height)) {
+                        //Create square image with blurred background
+                        ImageHelper.performSquareImageManipulation(mCroppedImgUri
+                                , getActivity()
+                                , rootView
+                                , mEntityID
+                                , mEntityType);
+                    } else {
+                        //Method called
+                        processCroppedImage(mCroppedImgUri, getActivity(), rootView, mEntityID, mEntityType);
+                    }
 
                 } else if (resultCode == UCrop.RESULT_ERROR) {
-                    ViewHelper.getSnackBar(rootView, "Image could not be cropped due to some error");
+                    ViewHelper.getSnackBar(rootView
+                            , getString(R.string.error_img_not_cropped));
                 }
                 break;
             case REQUEST_CODE_FEED_DESCRIPTION_ACTIVITY:
@@ -328,7 +350,6 @@ public class HashTagDetailsFragment extends Fragment implements listener.OnColla
 
     /**
      * Initialize follow listener.
-     *
      */
     private void initFollowListener() {
         mAdapter.setOnExploreFollowListener(new listener.OnExploreFollowListener() {
@@ -377,7 +398,6 @@ public class HashTagDetailsFragment extends Fragment implements listener.OnColla
 
     /**
      * Initialize capture listener.
-     *
      */
     private void initCaptureListener() {
         mAdapter.setOnExploreCaptureClickListener(new listener.OnExploreCaptureClickListener() {
@@ -609,6 +629,15 @@ public class HashTagDetailsFragment extends Fragment implements listener.OnColla
             exploreData.setCommentCount(dataObj.getLong("commentcount"));
             exploreData.setContentImage(dataObj.getString("entityurl"));
             exploreData.setCollabCount(dataObj.getLong("collabcount"));
+
+            //if image width pr image height is null
+            if (dataObj.isNull("img_width") || dataObj.isNull("img_height")) {
+                exploreData.setImgWidth(1);
+                exploreData.setImgHeight(1);
+            } else {
+                exploreData.setImgWidth(dataObj.getInt("img_width"));
+                exploreData.setImgHeight(dataObj.getInt("img_height"));
+            }
             if (dataObj.isNull("caption")) {
                 exploreData.setCaption(null);
             } else {

@@ -303,6 +303,18 @@ public class FeedHelper {
         feedData.setContentImage(dataObj.getString("entityurl"));
         feedData.setFollowStatus(dataObj.getBoolean("followstatus"));
         feedData.setCollabCount(dataObj.getLong("collabcount"));
+
+        if (dataObj.has("img_width") || dataObj.has("img_height")) {
+            //if image width pr image height is null
+            if (dataObj.isNull("img_width") || dataObj.isNull("img_height")) {
+                feedData.setImgWidth(1);
+                feedData.setImgHeight(1);
+            } else {
+                feedData.setImgWidth(dataObj.getInt("img_width"));
+                feedData.setImgHeight(dataObj.getInt("img_height"));
+            }
+        }
+
         if (dataObj.isNull("caption")) {
             feedData.setCaption(null);
         } else {

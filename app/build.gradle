@@ -44,12 +44,12 @@ android {
             signingConfig signingConfigs.config
         }
         debug {
-            shrinkResources true
-            minifyEnabled true
+            shrinkResources false
+            minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
             //buildConfigField "String", "URL", '"http://cread-dev-remote.herokuapp.com"'
-             //buildConfigField "String", "URL", '"http://cd17124e.ngrok.io"'
-            buildConfigField "String", "URL", '"http://cread-server-dev.ap-northeast-1.elasticbeanstalk.com"'
+            buildConfigField "String", "URL", '"http://0f8c6fe8.ngrok.io"'
+            //buildConfigField "String", "URL", '"http://cread-server-dev.ap-northeast-1.elasticbeanstalk.com"'
             buildConfigField "boolean", "VISIBILITY_RESTART_HEROKU_OPTION", "true"
             buildConfigField "String", "S3BUCKET", '"testamentbucketdev"'
             buildConfigField "String", "CREAD_KALAKAAR_UUID", '"40e88526-6e2f-49f1-82ae-ed2e52fc54fe"'

@@ -10,6 +10,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.view.ViewCompat;
+import android.support.v7.widget.AppCompatImageView;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -42,6 +43,7 @@ import com.thetestament.cread.listeners.listener.OnShareLinkClickedListener;
 import com.thetestament.cread.listeners.listener.OnUserActivityHatsOffListener;
 import com.thetestament.cread.listeners.listener.OnUserActivityLoadMoreListener;
 import com.thetestament.cread.models.FeedModel;
+import com.thetestament.cread.utils.AspectRatioUtils;
 import com.thetestament.cread.utils.Constant.ITEM_TYPES;
 
 import java.util.List;
@@ -185,7 +187,7 @@ public class MeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                 || holder.getItemViewType() == VIEW_TYPE_ITEM_LIST_COLLAB) {
             final ListItemViewHolder itemViewHolder = (ListItemViewHolder) holder;
             // initialize the views and click actions
-            initializeListItem(itemViewHolder, data, position);
+            initializeListItem(itemViewHolder, data, itemViewHolder.getAdapterPosition());
 
         } else if (holder.getItemViewType() == VIEW_TYPE_ITEM_GRID) {
             final GridItemViewHolder itemViewHolder = (GridItemViewHolder) holder;
@@ -272,8 +274,6 @@ public class MeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             menu.setVisibility(View.GONE);
         }
     }
-
-
 
 
     /**
@@ -490,6 +490,10 @@ public class MeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     private void initializeListItem(ListItemViewHolder itemViewHolder, final FeedModel data, final int position) {
         //Load creator profile picture
         loadCreatorPic(data.getCreatorImage(), itemViewHolder.imageCreator);
+        //Set image width and height
+        AspectRatioUtils.setImageAspectRatio(data.getImgWidth()
+                , data.getImgHeight()
+                , itemViewHolder.imageContent);
         //Load content image
         loadContentImage(data.getContentImage(), itemViewHolder.imageContent);
 
@@ -508,13 +512,9 @@ public class MeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         final boolean shouldShowCreatorOptions = mUUID.equals(data.getUUID());
 
         // init content options menu
-        if (!shouldShowCreatorOptions)
-        {
+        if (!shouldShowCreatorOptions) {
             itemViewHolder.buttonMenu.setVisibility(View.GONE);
-        }
-
-        else
-        {
+        } else {
             itemViewHolder.buttonMenu.setVisibility(View.VISIBLE);
             //open bottom sheet on clicking of 3 dots
             itemViewHolder.buttonMenu.setOnClickListener(new View.OnClickListener() {
@@ -612,7 +612,7 @@ public class MeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         @BindView(R.id.textCreatorName)
         TextView textCreatorName;
         @BindView(R.id.imageContent)
-        ImageView imageContent;
+        AppCompatImageView imageContent;
         @BindView(R.id.imageHatsOff)
         ImageView imageHatsOff;
         @BindView(R.id.buttonCollaborate)

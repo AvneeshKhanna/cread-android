@@ -6,21 +6,18 @@ import android.os.Bundle;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.widget.SwipeRefreshLayout;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.LinearSnapHelper;
 import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.SnapHelper;
 import android.view.View;
 import android.view.animation.AnimationUtils;
 import android.view.animation.LayoutAnimationController;
 
 import com.google.firebase.crash.FirebaseCrash;
-import com.rx2androidnetworking.Rx2AndroidNetworking;
 import com.takusemba.multisnaprecyclerview.MultiSnapRecyclerView;
 import com.thetestament.cread.BuildConfig;
 import com.thetestament.cread.R;
 import com.thetestament.cread.adapters.CollaborationDetailsAdapter;
-import com.thetestament.cread.helpers.NetworkHelper;
 import com.thetestament.cread.helpers.SharedPreferenceHelper;
 import com.thetestament.cread.helpers.ViewHelper;
 import com.thetestament.cread.listeners.listener;
@@ -39,11 +36,8 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import icepick.Icepick;
 import icepick.State;
-import io.reactivex.Observer;
 import io.reactivex.android.schedulers.AndroidSchedulers;
-import io.reactivex.annotations.NonNull;
 import io.reactivex.disposables.CompositeDisposable;
-import io.reactivex.disposables.Disposable;
 import io.reactivex.observers.DisposableObserver;
 import io.reactivex.schedulers.Schedulers;
 
@@ -54,8 +48,6 @@ import static com.thetestament.cread.helpers.NetworkHelper.getCollaborationDetai
 import static com.thetestament.cread.helpers.NetworkHelper.getEntitySpecificObservable;
 import static com.thetestament.cread.helpers.NetworkHelper.getNetConnectionStatus;
 import static com.thetestament.cread.helpers.NetworkHelper.requestServer;
-import static com.thetestament.cread.utils.Constant.CONTENT_TYPE_CAPTURE;
-import static com.thetestament.cread.utils.Constant.CONTENT_TYPE_SHORT;
 import static com.thetestament.cread.utils.Constant.EXTRA_DATA;
 import static com.thetestament.cread.utils.Constant.EXTRA_ENTITY_ID;
 import static com.thetestament.cread.utils.Constant.EXTRA_ENTITY_TYPE;
@@ -66,6 +58,7 @@ import static com.thetestament.cread.utils.Constant.EXTRA_FEED_DESCRIPTION_DATA;
  */
 public class CollaborationDetailsActivity extends BaseActivity {
 
+    //region :Butter knife view binding
     @BindView(R.id.rootView)
     CoordinatorLayout rootView;
     @BindView(R.id.swipeRefreshLayout)
@@ -74,13 +67,15 @@ public class CollaborationDetailsActivity extends BaseActivity {
     MultiSnapRecyclerView recyclerView;
     @BindView(R.id.viewProgress)
     View viewProgress;
+    //endregion
 
-
+    //region :Fields and constants
     CompositeDisposable mCompositeDisposable = new CompositeDisposable();
     SharedPreferenceHelper mHelper;
 
     List<CollaborationDetailsModel> mDataList = new ArrayList<>();
     CollaborationDetailsAdapter mAdapter;
+    private AppCompatActivity mContext;
 
     FeedModel entitySpecificData;
 
@@ -91,6 +86,10 @@ public class CollaborationDetailsActivity extends BaseActivity {
     @State
     boolean mRequestMoreData;
 
+
+    //endregion
+
+    //region :Overridden methods
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -99,6 +98,7 @@ public class CollaborationDetailsActivity extends BaseActivity {
         ButterKnife.bind(this);
         //SharedPreference reference
         mHelper = new SharedPreferenceHelper(this);
+        mContext = this;
         initView();
     }
 
@@ -119,6 +119,9 @@ public class CollaborationDetailsActivity extends BaseActivity {
         super.onRestoreInstanceState(savedInstanceState);
         Icepick.restoreInstanceState(this, savedInstanceState);
     }
+//endregion
+
+    //region :Private methods
 
     /**
      * Method to initialize views and retrieve data from intent.
@@ -130,13 +133,13 @@ public class CollaborationDetailsActivity extends BaseActivity {
         mEntityType = bundle.getString(EXTRA_ENTITY_TYPE);
 
         //Set layout manger for recyclerView
-        RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(this
+        RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(mContext
                 , LinearLayoutManager.HORIZONTAL
                 , false);
         recyclerView.setLayoutManager(layoutManager);
 
         //Set adapter
-        mAdapter = new CollaborationDetailsAdapter(mDataList, this);
+        mAdapter = new CollaborationDetailsAdapter(mDataList, mContext);
         recyclerView.setAdapter(mAdapter);
         //initialize swipeRefreshLayout
         initScreen();
@@ -147,7 +150,7 @@ public class CollaborationDetailsActivity extends BaseActivity {
      */
     private void initScreen() {
         swipeRefreshLayout.setRefreshing(true);
-        swipeRefreshLayout.setColorSchemeColors(ContextCompat.getColor(this
+        swipeRefreshLayout.setColorSchemeColors(ContextCompat.getColor(mContext
                 , R.color.colorPrimary));
         swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
@@ -174,7 +177,7 @@ public class CollaborationDetailsActivity extends BaseActivity {
      */
     private void loadCollaborationData() {
         // if user device is connected to net
-        if (getNetConnectionStatus(this)) {
+        if (getNetConnectionStatus(mContext)) {
             swipeRefreshLayout.setRefreshing(true);
             //Get data from server
             getCollaborationData();
@@ -223,6 +226,16 @@ public class CollaborationDetailsActivity extends BaseActivity {
                                     model.setProfilePic(dataObj.getString("profilepicurl"));
                                     model.setEntityUrl(dataObj.getString("entityurl"));
                                     model.setEntityID(dataObj.getString("entityid"));
+
+                                    //if image width and image height is null
+                                    if (dataObj.isNull("img_width") || dataObj.isNull("img_height")) {
+                                        model.setImgWidth(1);
+                                        model.setImgHeight(1);
+                                    } else {
+                                        model.setImgWidth(dataObj.getInt("img_width"));
+                                        model.setImgHeight(dataObj.getInt("img_height"));
+                                    }
+
                                     mDataList.add(model);
                                 }
                             }
@@ -262,7 +275,7 @@ public class CollaborationDetailsActivity extends BaseActivity {
                         } else {
                             //Apply 'Slide Up' animation
                             int resId = R.anim.layout_animation_from_bottom;
-                            LayoutAnimationController animation = AnimationUtils.loadLayoutAnimation(CollaborationDetailsActivity.this, resId);
+                            LayoutAnimationController animation = AnimationUtils.loadLayoutAnimation(mContext, resId);
                             recyclerView.setLayoutAnimation(animation);
                             //Notify changes
                             mAdapter.notifyDataSetChanged();
@@ -299,7 +312,7 @@ public class CollaborationDetailsActivity extends BaseActivity {
      */
     private void initCollaborationItemClickListener() {
 
-        mAdapter.setCollaborationitemClickedListener(new OnCollaborationItemClickedListener() {
+        mAdapter.setCollaborationItemClickedListener(new OnCollaborationItemClickedListener() {
             @Override
             public void onItemClicked(String entityID) {
                 // open feed description activity
@@ -349,6 +362,14 @@ public class CollaborationDetailsActivity extends BaseActivity {
                                     model.setProfilePic(dataObj.getString("profilepicurl"));
                                     model.setEntityUrl(dataObj.getString("entityurl"));
                                     model.setEntityID(dataObj.getString("entityid"));
+                                    //if image width and image height is null
+                                    if (dataObj.isNull("img_width") || dataObj.isNull("img_height")) {
+                                        model.setImgWidth(1);
+                                        model.setImgHeight(1);
+                                    } else {
+                                        model.setImgWidth(dataObj.getInt("img_width"));
+                                        model.setImgHeight(dataObj.getInt("img_height"));
+                                    }
                                     mDataList.add(model);
                                     //Notify changes
                                     mAdapter.notifyItemInserted(mDataList.size() - 1);
@@ -410,14 +431,12 @@ public class CollaborationDetailsActivity extends BaseActivity {
                 new listener.OnServerRequestedListener<JSONObject>() {
                     @Override
                     public void onDeviceOffline() {
-
                         viewProgress.setVisibility(View.GONE);
                         ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_no_connection));
                     }
 
                     @Override
                     public void onNextCalled(JSONObject jsonObject) {
-
                         viewProgress.setVisibility(View.GONE);
 
                         try {
@@ -436,7 +455,6 @@ public class CollaborationDetailsActivity extends BaseActivity {
 
                     @Override
                     public void onErrorCalled(Throwable e) {
-
                         viewProgress.setVisibility(View.GONE);
                         FirebaseCrash.report(e);
                         //Server error Snack bar
@@ -468,4 +486,6 @@ public class CollaborationDetailsActivity extends BaseActivity {
                     }
                 });
     }
+
+    //endregion
 }

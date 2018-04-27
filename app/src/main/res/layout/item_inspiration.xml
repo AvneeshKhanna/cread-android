@@ -4,10 +4,10 @@
     android:layout_height="wrap_content"
     android:layout_marginLeft="5dp"
     android:layout_marginRight="5dp"
-    android:gravity="center"
-    android:padding="1dp"
     android:background="@color/grey_custom"
-    android:orientation="vertical">
+    android:gravity="center"
+    android:orientation="vertical"
+    android:padding="1dp">
 
     <android.support.v7.widget.AppCompatImageView
         android:id="@+id/inspirationImage"

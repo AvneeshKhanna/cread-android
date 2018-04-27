@@ -215,14 +215,6 @@
         </activity>
 
         <!-- CapturePreviewActivity -->
-        <activity
-            android:name=".activities.CapturePreviewActivity"
-            android:label="Preview"
-            android:screenOrientation="portrait">
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value=".activities.BottomNavigationActivity" />
-        </activity>
 
         <!-- For Image cropping library -->
         <activity
