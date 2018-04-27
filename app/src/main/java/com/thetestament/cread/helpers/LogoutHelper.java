@@ -11,6 +11,9 @@ import android.widget.Toast;
 import com.afollestad.materialdialogs.DialogAction;
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.facebook.AccessToken;
+import com.google.android.gms.auth.api.signin.GoogleSignIn;
+import com.google.android.gms.auth.api.signin.GoogleSignInClient;
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.firebase.crash.FirebaseCrash;
 import com.google.firebase.iid.FirebaseInstanceId;
 import com.razorpay.Checkout;
@@ -125,6 +128,21 @@ public class LogoutHelper {
                                     Checkout.clearUserData(context);
                                     // clear facebook token
                                     AccessToken.setCurrentAccessToken(null);
+
+                                    if (GoogleSignIn.getLastSignedInAccount(context) != null) {
+                                        //sign out of google
+                                        GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+                                                .requestIdToken(context.getString(R.string.default_web_client_id))
+                                                .requestEmail()
+                                                .build();
+                                        // Build a GoogleSignInClient with the options specified by gso.
+                                        GoogleSignInClient mGoogleSignInClient = GoogleSignIn.getClient(context, gso);
+
+                                        mGoogleSignInClient.signOut();
+
+                                    }
+
+
 
                                     // to remove all notifications from drawer
                                     // so user can't open them after logging out

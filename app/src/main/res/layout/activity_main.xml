@@ -16,22 +16,37 @@
         android:id="@+id/dotsLayout"
         android:layout_width="match_parent"
         android:layout_height="30dp"
-        android:layout_above="@+id/loginButton"
-        android:layout_marginBottom="16dp"
+        android:layout_above="@+id/containerLoginButtons"
+        android:layout_marginBottom="10dp"
         android:gravity="center"
         android:orientation="horizontal" />
 
-    <com.facebook.login.widget.LoginButton
-        android:id="@+id/loginButton"
+    <LinearLayout
+        android:id="@+id/containerLoginButtons"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_above="@+id/textTOS"
         android:layout_centerHorizontal="true"
-        android:layout_marginBottom="16dp"
+        android:orientation="vertical"
+        android:gravity="center">
+
+        <com.facebook.login.widget.LoginButton
+            android:id="@+id/loginButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
         android:paddingBottom="10dp"
         android:paddingLeft="20dp"
         android:paddingRight="20dp"
         android:paddingTop="10dp" />
+
+        <com.google.android.gms.common.SignInButton
+            android:id="@+id/buttonGoogleLogin"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingTop="10dp"
+            android:paddingBottom="10dp" />
+
+    </LinearLayout>
 
     <TextView
         android:id="@+id/textTOS"

@@ -10,6 +10,10 @@ public class Constant {
     public static final String PLATFORM_VALUE = "android";
     //endregion
 
+    // region: login types
+    public static final String LOGIN_TYPE_FACEBOOK = "facebook";
+    public static final String LOGIN_TYPE_GOOGLE = "google";
+
     //region Inspiration item view types
     public static final String INSPIRATION_ITEM_TYPE_SMALL = "itemSmall";
     public static final String INSPIRATION_ITEM_TYPE_DETAIL = "itemDetail";
@@ -39,7 +43,7 @@ public class Constant {
     public static final int REQUEST_CODE_USER_PROFILE_FROM_FEED = 1019;
     public static final int REQUEST_CODE_RECOMMENDED_ARTISTS_FROM_FEED_ADAPTER = 1020;
     public static final int REQUEST_CODE_USER_PROFILE_FROM_SUGGESTED_ADAPTER = 1021;
-    //public static final int REQUEST_CODE_EDIT_SHORT = 1013;
+    public static final int REQUEST_CODE_GOOGLE_SIGN_IN = 1022;
     //endregion
 
     //region :Tag value for fragments
