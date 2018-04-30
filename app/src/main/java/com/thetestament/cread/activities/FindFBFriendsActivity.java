@@ -1,8 +1,8 @@
 package com.thetestament.cread.activities;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
-import android.support.annotation.NonNull;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.view.ViewCompat;
@@ -18,13 +18,16 @@ import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
-import com.afollestad.materialdialogs.DialogAction;
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.androidnetworking.AndroidNetworking;
 import com.androidnetworking.error.ANError;
 import com.androidnetworking.interfaces.JSONObjectRequestListener;
 import com.facebook.AccessToken;
 import com.facebook.CallbackManager;
+import com.facebook.FacebookCallback;
+import com.facebook.FacebookException;
+import com.facebook.login.LoginResult;
+import com.facebook.login.widget.LoginButton;
 import com.google.firebase.crash.FirebaseCrash;
 import com.rx2androidnetworking.Rx2ANRequest;
 import com.rx2androidnetworking.Rx2AndroidNetworking;
@@ -33,7 +36,6 @@ import com.thetestament.cread.R;
 import com.thetestament.cread.adapters.FBFriendsAdapter;
 import com.thetestament.cread.helpers.DeepLinkHelper;
 import com.thetestament.cread.helpers.FollowHelper;
-import com.thetestament.cread.helpers.LogoutHelper;
 import com.thetestament.cread.helpers.NetworkHelper;
 import com.thetestament.cread.helpers.SharedPreferenceHelper;
 import com.thetestament.cread.helpers.ViewHelper;
@@ -45,6 +47,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -94,6 +97,7 @@ public class FindFBFriendsActivity extends BaseActivity {
     private final String TAG = getClass().getSimpleName();
     boolean mFollowStatus;
 
+
     CompositeDisposable mCompositeDisposable = new CompositeDisposable();
     SharedPreferenceHelper spHelper;
 
@@ -130,6 +134,13 @@ public class FindFBFriendsActivity extends BaseActivity {
         mCompositeDisposable.dispose();
     }
 
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        mCallbackManager.onActivityResult(requestCode, resultCode, data);
+    }
 
     /**
      * Method to initialize views
@@ -190,148 +201,14 @@ public class FindFBFriendsActivity extends BaseActivity {
             if (AccessToken.getCurrentAccessToken() == null || AccessToken.getCurrentAccessToken().isExpired()) {
                 swipeRefreshLayout.setRefreshing(false);
 
-                MaterialDialog dialog = new MaterialDialog.Builder(this)
-                        .title("Error")
-                        .content("There is a problem in loading your facebook friends. Please login again to continue.")
-                        .positiveText("Logout")
-                        .negativeText("Cancel")
-                        .onPositive(new MaterialDialog.SingleButtonCallback() {
-                            @Override
-                            public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
-                                // logout
-                                LogoutHelper.performLogOut(FindFBFriendsActivity.this, mCompositeDisposable);
-                            }
-                        })
-                        .onNegative(new MaterialDialog.SingleButtonCallback() {
-                            @Override
-                            public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
-                                dialog.dismiss();
-                            }
-                        })
-                        .show();
+
+                showFbIntegrationDialog();
+
+
             } else
 
             {
-                swipeRefreshLayout.setRefreshing(true);
-                //Get data from server
-
-
-                final boolean[] tokenError = {false};
-                final boolean[] connectionError = {false};
-
-
-                mCompositeDisposable.add(getObservableFromServer(BuildConfig.URL + "/user-profile/load-fb-friends")
-                        //Run on a background thread
-                        .subscribeOn(Schedulers.io())
-                        //Be notified on the main thread
-                        .observeOn(AndroidSchedulers.mainThread())
-                        .subscribeWith(new DisposableObserver<JSONObject>() {
-                            @Override
-                            public void onNext(JSONObject jsonObject) {
-                                try {
-                                    //Token status is invalid
-                                    if (jsonObject.getString("tokenstatus").equals("invalid")) {
-                                        tokenError[0] = true;
-                                    }
-                                    // authtoken expiration handling redirect user to fb login
-                               /* else if () {
-
-                                }*/
-                                    else {
-
-                                        JSONObject mainData = jsonObject.getJSONObject("data");
-                                        mRequestMoreData = mainData.getBoolean("requestmore");
-                                        mNextUrl = mainData.getString("nexturl");
-                                        //Friends details list
-                                        JSONArray friendsArray = mainData.getJSONArray("friends");
-                                        for (int i = 0; i < friendsArray.length(); i++) {
-                                            JSONObject dataObj = friendsArray.getJSONObject(i);
-                                            FBFriendsModel friendsModel = new FBFriendsModel();
-                                            friendsModel.setUuid(dataObj.getString("uuid"));
-                                            friendsModel.setFirstName(dataObj.getString("firstname"));
-                                            friendsModel.setLastName(dataObj.getString("lastname"));
-                                            friendsModel.setProfilePicUrl(dataObj.getString("profilepicurl"));
-                                            friendsModel.setFollowStatus(dataObj.getBoolean("followstatus"));
-                                            mDataList.add(friendsModel);
-                                        }
-
-                                    }
-                                } catch (JSONException e) {
-                                    e.printStackTrace();
-                                    FirebaseCrash.report(e);
-                                    connectionError[0] = true;
-                                }
-                            }
-
-                            @Override
-                            public void onError(Throwable e) {
-
-                                //Dismiss progress indicator
-                                swipeRefreshLayout.setRefreshing(false);
-                                FirebaseCrash.report(e);
-
-                                ANError error = (ANError) e;
-
-                                if (error.getErrorCode() == 500) {
-                                    try {
-                                        JSONObject object = new JSONObject(error.getErrorBody());
-
-                                        ViewHelper.getSnackBar(rootView, object.getString("message"));
-
-                                    } catch (JSONException e1) {
-                                        e1.printStackTrace();
-                                        FirebaseCrash.report(e1);
-                                    }
-                                }
-                                // case when server is down
-                                else {
-                                    ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_server));
-                                }
-                            }
-
-                            @Override
-                            public void onComplete() {
-
-                                // set to false
-                                GET_RESPONSE_FROM_NETWORK_FIND_FRIENDS = false;
-
-                                // Token status invalid
-                                if (tokenError[0]) {
-                                    ViewHelper.getSnackBar(rootView
-                                            , getString(R.string.error_msg_invalid_token));
-                                    //Dismiss progress indicator
-                                    swipeRefreshLayout.setRefreshing(false);
-                                }
-                                //Error occurred
-                                else if (connectionError[0]) {
-                                    ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_internal));
-                                    //Dismiss progress indicator
-                                    swipeRefreshLayout.setRefreshing(false);
-                                } else {
-
-                                    header.setVisibility(View.VISIBLE);
-                                    containerInviteFriends.setVisibility(View.VISIBLE);
-
-                                    if (mDataList.size() == 0) {
-                                        scrollView.setVisibility(View.GONE);
-                                        //placeholder.setVisibility(View.VISIBLE);
-                                        noFriendsPlaceholder.setVisibility(View.VISIBLE);
-                                    } else {
-                                        scrollView.setVisibility(View.VISIBLE);
-                                        //placeholder.setVisibility(View.INVISIBLE);
-                                        noFriendsPlaceholder.setVisibility(View.INVISIBLE);
-                                    }
-                                    //Dismiss indicator
-                                    swipeRefreshLayout.setRefreshing(false);
-                                    //Apply 'Slide Up' animation
-                                    int resId = R.anim.layout_animation_from_bottom;
-                                    LayoutAnimationController animation = AnimationUtils.loadLayoutAnimation(FindFBFriendsActivity.this, resId);
-                                    recyclerView.setLayoutAnimation(animation);
-                                    mAdapter.notifyDataSetChanged();
-                                }
-                            }
-                        })
-                );
+                loadFriendsData();
             }
 
 
@@ -340,6 +217,209 @@ public class FindFBFriendsActivity extends BaseActivity {
             //No connection Snack bar
             ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_no_connection));
         }
+    }
+
+    /**
+     * Shows fb integration dialog and handles the fb integration process
+     */
+    private void showFbIntegrationDialog() {
+        final MaterialDialog dialog = new MaterialDialog.Builder(this)
+                .customView(R.layout.dialog_fb_friends_integration, false)
+                .show();
+
+
+        final LoginButton buttonFbLogin = dialog.getCustomView().findViewById(R.id.buttonFBLogin);
+        TextView buttonCustomFbLogin = dialog.getCustomView().findViewById(R.id.buttonCustomFbLogin);
+        TextView buttonCancel = dialog.getCustomView().findViewById(R.id.buttonCanacel);
+
+        buttonCancel.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                dialog.dismiss();
+            }
+        });
+
+        buttonCustomFbLogin.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                dialog.dismiss();
+
+                buttonFbLogin.performClick();
+            }
+        });
+
+        mCallbackManager = CallbackManager.Factory.create();
+
+
+        buttonFbLogin.setReadPermissions(Arrays.asList("email", "user_friends"));
+        buttonFbLogin.registerCallback(mCallbackManager, new FacebookCallback<LoginResult>() {
+            @Override
+            public void onSuccess(LoginResult loginResult) {
+
+                if (loginResult.getRecentlyDeniedPermissions().contains("user_friends")) {
+                    ViewHelper.getSnackBar(rootView, "You need to grant friends permission to continue");
+                    AccessToken.setCurrentAccessToken(null);
+                } else {
+                    loadFriendsData();
+                }
+            }
+
+            @Override
+            public void onCancel() {
+
+            }
+
+            @Override
+            public void onError(FacebookException error) {
+
+            }
+        });
+
+
+    }
+
+    private void loadFriendsData() {
+
+        swipeRefreshLayout.setRefreshing(true);
+        //Get data from server
+
+
+        final boolean[] tokenError = {false};
+        final boolean[] connectionError = {false};
+        final boolean[] duplicateFbId = {false};
+
+
+        mCompositeDisposable.add(getObservableFromServer(BuildConfig.URL + "/user-profile/load-fb-friends")
+                //Run on a background thread
+                .subscribeOn(Schedulers.io())
+                //Be notified on the main thread
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribeWith(new DisposableObserver<JSONObject>() {
+                    @Override
+                    public void onNext(JSONObject jsonObject) {
+                        try {
+                            //Token status is invalid
+                            if (jsonObject.getString("tokenstatus").equals("invalid")) {
+                                tokenError[0] = true;
+                            }
+                            // authtoken expiration handling redirect user to fb login
+                               /* else if () {
+
+                                }*/
+                            else {
+
+                                JSONObject mainData = jsonObject.getJSONObject("data");
+
+                                if (mainData.getBoolean("duplicate_fbid")) {
+                                    duplicateFbId[0] = true;
+                                } else
+
+                                {
+                                    mRequestMoreData = mainData.getBoolean("requestmore");
+                                    mNextUrl = mainData.getString("nexturl");
+                                    //Friends details list
+                                    JSONArray friendsArray = mainData.getJSONArray("friends");
+                                    for (int i = 0; i < friendsArray.length(); i++) {
+                                        JSONObject dataObj = friendsArray.getJSONObject(i);
+                                        FBFriendsModel friendsModel = new FBFriendsModel();
+                                        friendsModel.setUuid(dataObj.getString("uuid"));
+                                        friendsModel.setFirstName(dataObj.getString("firstname"));
+                                        friendsModel.setLastName(dataObj.getString("lastname"));
+                                        friendsModel.setProfilePicUrl(dataObj.getString("profilepicurl"));
+                                        friendsModel.setFollowStatus(dataObj.getBoolean("followstatus"));
+                                        mDataList.add(friendsModel);
+                                    }
+                                }
+
+                            }
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                            FirebaseCrash.report(e);
+                            connectionError[0] = true;
+                        }
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+
+                        //Dismiss progress indicator
+                        swipeRefreshLayout.setRefreshing(false);
+                        FirebaseCrash.report(e);
+
+                        ANError error = (ANError) e;
+
+                        if (error.getErrorCode() == 500) {
+                            try {
+                                JSONObject object = new JSONObject(error.getErrorBody());
+
+                                ViewHelper.getSnackBar(rootView, object.getString("message"));
+
+                            } catch (JSONException e1) {
+                                e1.printStackTrace();
+                                FirebaseCrash.report(e1);
+                            }
+                        }
+                        // case when server is down
+                        else {
+                            ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_server));
+                        }
+                    }
+
+                    @Override
+                    public void onComplete() {
+
+                        // set to false
+                        GET_RESPONSE_FROM_NETWORK_FIND_FRIENDS = false;
+
+                        // Token status invalid
+                        if (tokenError[0]) {
+                            ViewHelper.getSnackBar(rootView
+                                    , getString(R.string.error_msg_invalid_token));
+                            //Dismiss progress indicator
+                            swipeRefreshLayout.setRefreshing(false);
+                        }
+                        //Error occurred
+                        else if (connectionError[0]) {
+                            ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_internal));
+                            //Dismiss progress indicator
+                            swipeRefreshLayout.setRefreshing(false);
+                        } else if (duplicateFbId[0]) {
+                            new MaterialDialog.Builder(FindFBFriendsActivity.this)
+                                    .title(getString(R.string.title_dialog_fb_duplicate))
+                                    .content(getString(R.string.text_dialog_fb_duplicate))
+                                    .positiveText(getString(R.string.text_ok))
+                                    .build()
+                                    .show();
+                            AccessToken.setCurrentAccessToken(null);
+                            //Dismiss progress indicator
+                            swipeRefreshLayout.setRefreshing(false);
+                        } else {
+
+                            header.setVisibility(View.VISIBLE);
+                            containerInviteFriends.setVisibility(View.VISIBLE);
+
+                            if (mDataList.size() == 0) {
+                                scrollView.setVisibility(View.GONE);
+                                //placeholder.setVisibility(View.VISIBLE);
+                                noFriendsPlaceholder.setVisibility(View.VISIBLE);
+                            } else {
+                                scrollView.setVisibility(View.VISIBLE);
+                                //placeholder.setVisibility(View.INVISIBLE);
+                                noFriendsPlaceholder.setVisibility(View.INVISIBLE);
+                            }
+                            //Dismiss indicator
+                            swipeRefreshLayout.setRefreshing(false);
+                            //Apply 'Slide Up' animation
+                            int resId = R.anim.layout_animation_from_bottom;
+                            LayoutAnimationController animation = AnimationUtils.loadLayoutAnimation(FindFBFriendsActivity.this, resId);
+                            recyclerView.setLayoutAnimation(animation);
+                            mAdapter.notifyDataSetChanged();
+                        }
+                    }
+                })
+        );
+
     }
 
 
@@ -555,87 +635,95 @@ public class FindFBFriendsActivity extends BaseActivity {
     public void onViewClicked() {
 
         if (NetworkHelper.getNetConnectionStatus(FindFBFriendsActivity.this)) {
-            final JSONObject jsonObject = new JSONObject();
-            try {
-                jsonObject.put("uuid", spHelper.getUUID());
-                jsonObject.put("authkey", spHelper.getAuthToken());
-                jsonObject.put("fbid", AccessToken.getCurrentAccessToken().getUserId());
-                jsonObject.put("fbaccesstoken", AccessToken.getCurrentAccessToken().getToken());
-            } catch (JSONException e) {
-                e.printStackTrace();
-                FirebaseCrash.report(e);
+
+            if (AccessToken.getCurrentAccessToken() == null || AccessToken.getCurrentAccessToken().isExpired()) {
+
+                showFbIntegrationDialog();
+            } else {
+                final JSONObject jsonObject = new JSONObject();
+                try {
+                    jsonObject.put("uuid", spHelper.getUUID());
+                    jsonObject.put("authkey", spHelper.getAuthToken());
+                    jsonObject.put("fbid", AccessToken.getCurrentAccessToken().getUserId());
+                    jsonObject.put("fbaccesstoken", AccessToken.getCurrentAccessToken().getToken());
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                    FirebaseCrash.report(e);
+                }
+
+
+                AndroidNetworking.post(BuildConfig.URL + "/follow/fb-friends-all")
+                        .addJSONObjectBody(jsonObject)
+                        .build()
+                        .getAsJSONObject(new JSONObjectRequestListener() {
+                            @Override
+                            public void onResponse(JSONObject response) {
+
+
+                                try {
+                                    //Token status is not valid
+                                    if (response.getString("tokenstatus").equals("invalid")) {
+                                        ViewHelper.getSnackBar(rootView
+                                                , getString(R.string.error_msg_invalid_token));
+                                    }
+                                    //Token is valid
+                                    else {
+                                        JSONObject mainData = response.getJSONObject("data");
+                                        if (mainData.getString("status").equals("done")) {
+
+                                            int i = 0;
+                                            while (i < mDataList.size()) {
+                                                mDataList.get(i).setFollowStatus(true);
+                                                i++;
+                                            }
+                                            mAdapter.notifyDataSetChanged();
+                                            ViewHelper.getSnackBar(rootView, "All friends followed");
+
+                                            // set feeds data to be loaded from network
+                                            // instead of cached data
+                                            GET_RESPONSE_FROM_NETWORK_MAIN = true;
+                                            GET_RESPONSE_FROM_NETWORK_EXPLORE = true;
+                                            GET_RESPONSE_FROM_NETWORK_ME = true;
+                                            GET_RESPONSE_FROM_NETWORK_FIND_FRIENDS = true;
+                                            GET_RESPONSE_FROM_NETWORK_FOLLOWING = true;
+
+                                        } else {
+                                            ViewHelper.getSnackBar(rootView
+                                                    , getString(R.string.error_msg_internal));
+                                        }
+                                    }
+                                } catch (JSONException e) {
+                                    e.printStackTrace();
+                                    FirebaseCrash.report(e);
+                                    ViewHelper.getSnackBar(rootView
+                                            , getString(R.string.error_msg_internal));
+                                }
+                            }
+
+                            @Override
+                            public void onError(ANError anError) {
+                                anError.printStackTrace();
+                                FirebaseCrash.report(anError);
+
+                                if (anError.getErrorCode() == 500) {
+                                    try {
+                                        JSONObject error = new JSONObject(anError.getErrorBody());
+                                        ViewHelper.getSnackBar(rootView, error.getString("message"));
+                                    } catch (JSONException e) {
+                                        e.printStackTrace();
+                                    }
+                                }
+                                // case when server is down
+                                else {
+                                    ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_server));
+                                }
+
+
+                            }
+                        });
             }
 
 
-            AndroidNetworking.post(BuildConfig.URL + "/follow/fb-friends-all")
-                    .addJSONObjectBody(jsonObject)
-                    .build()
-                    .getAsJSONObject(new JSONObjectRequestListener() {
-                        @Override
-                        public void onResponse(JSONObject response) {
-
-
-                            try {
-                                //Token status is not valid
-                                if (response.getString("tokenstatus").equals("invalid")) {
-                                    ViewHelper.getSnackBar(rootView
-                                            , getString(R.string.error_msg_invalid_token));
-                                }
-                                //Token is valid
-                                else {
-                                    JSONObject mainData = response.getJSONObject("data");
-                                    if (mainData.getString("status").equals("done")) {
-
-                                        int i = 0;
-                                        while (i < mDataList.size()) {
-                                            mDataList.get(i).setFollowStatus(true);
-                                            i++;
-                                        }
-                                        mAdapter.notifyDataSetChanged();
-                                        ViewHelper.getSnackBar(rootView, "All friends followed");
-
-                                        // set feeds data to be loaded from network
-                                        // instead of cached data
-                                        GET_RESPONSE_FROM_NETWORK_MAIN = true;
-                                        GET_RESPONSE_FROM_NETWORK_EXPLORE = true;
-                                        GET_RESPONSE_FROM_NETWORK_ME = true;
-                                        GET_RESPONSE_FROM_NETWORK_FIND_FRIENDS = true;
-                                        GET_RESPONSE_FROM_NETWORK_FOLLOWING = true;
-
-                                    } else {
-                                        ViewHelper.getSnackBar(rootView
-                                                , getString(R.string.error_msg_internal));
-                                    }
-                                }
-                            } catch (JSONException e) {
-                                e.printStackTrace();
-                                FirebaseCrash.report(e);
-                                ViewHelper.getSnackBar(rootView
-                                        , getString(R.string.error_msg_internal));
-                            }
-                        }
-
-                        @Override
-                        public void onError(ANError anError) {
-                            anError.printStackTrace();
-                            FirebaseCrash.report(anError);
-
-                            if (anError.getErrorCode() == 500) {
-                                try {
-                                    JSONObject error = new JSONObject(anError.getErrorBody());
-                                    ViewHelper.getSnackBar(rootView, error.getString("message"));
-                                } catch (JSONException e) {
-                                    e.printStackTrace();
-                                }
-                            }
-                            // case when server is down
-                            else {
-                                ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_server));
-                            }
-
-
-                        }
-                    });
         } else {
             ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_no_connection));
         }

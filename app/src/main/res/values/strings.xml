@@ -5,6 +5,8 @@
     <string name="FACEBOOK_APP_ID">362799884145458</string>
     <string name="fb_login_protocol_scheme">fb362799884145458</string>
 
+    <string name="web_client_id">381917870916-vet9ejb07fqipbuok5kj0pgraf3nfrr4.apps.googleusercontent.com</string>
+
     <string name="text_terms_of_service">By using this app, you agree with our <u>Terms of Service</u></string>
     <string name="ACCOUNT_KIT_CLIENT_TOKEN">6a45aeaefe691d6fc069a7ae3d49f0ea</string>
 
@@ -105,6 +107,11 @@
     <string name="text_got_it">Got it</string>
     <string name="text_dialog_long_story_title">Long Form Writing</string>
     <string name="text_dialog_long_story_content">Now you can include much longer writings without worrying about the writing space. Choose \'Long Mode\' from the top to write poems, stories, articles or anything you like!</string>
+    <string name="title_dialog_fb_friends">Find Friends</string>
+    <string name="text_dialog_fb_friends">You can connect your Facebook account to discover which of your Facebook friends are already on Cread. Do you wish you to find out?</string>
+    <string name="title_dialog_fb_duplicate">Oops</string>
+    <string name="text_dialog_fb_duplicate">Looks like this Facebook account is already attached to someone else on Cread. Please use another Facebook account</string>
+
     //unicodes
     <string name="Rs">\u20B9</string>
     <string name="bullet">\u25CF</string>

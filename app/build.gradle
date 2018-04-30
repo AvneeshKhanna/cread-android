@@ -14,8 +14,8 @@ android {
         applicationId "com.thetestament.cread"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 59
-        versionName "1.7.4"
+        versionCode 61
+        versionName "1.7.6"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         // Enabling multi-dex support.
         multiDexEnabled true
@@ -50,6 +50,8 @@ android {
             //buildConfigField "String", "URL", '"http://cread-dev-remote.herokuapp.com"'
             buildConfigField "String", "URL", '"http://0f8c6fe8.ngrok.io"'
             //buildConfigField "String", "URL", '"http://cread-server-dev.ap-northeast-1.elasticbeanstalk.com"'
+            //buildConfigField "String", "URL", '"http://b8eb1473.ngrok.io"'
+            buildConfigField "String", "URL", '"http://cread-server-dev.ap-northeast-1.elasticbeanstalk.com"'
             buildConfigField "boolean", "VISIBILITY_RESTART_HEROKU_OPTION", "true"
             buildConfigField "String", "S3BUCKET", '"testamentbucketdev"'
             buildConfigField "String", "CREAD_KALAKAAR_UUID", '"40e88526-6e2f-49f1-82ae-ed2e52fc54fe"'
@@ -87,6 +89,8 @@ dependencies {
     compile "com.google.firebase:firebase-crash:$rootProject.playServiceVersion"
     compile "com.google.firebase:firebase-messaging:$rootProject.playServiceVersion"
     compile "com.google.firebase:firebase-invites:$rootProject.playServiceVersion"
+
+    compile "com.google.android.gms:play-services-auth:$rootProject.playServiceVersion"
 
     //Facebook
     compile 'com.facebook.android:facebook-login:[4,5)'
