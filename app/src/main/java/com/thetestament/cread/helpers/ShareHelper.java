@@ -26,11 +26,11 @@ public class ShareHelper {
      *
      * @param bitmap Bitmap to be shared.
      */
-    public static void sharePost(Bitmap bitmap, Context context, FeedModel data) {
+    public static void sharePost(Bitmap bitmap, Context context, FeedModel data, String deepLink) {
 
         String shareText = data.getCaption() == null ?
-                context.getString(R.string.text_share_image) :
-                data.getCaption();
+                context.getString(R.string.text_share_image, deepLink) :
+                data.getCaption() + "\n\n" + "App: " + deepLink;
 
         //Copy caption text to clipboard
         ClipboardManager clipboard = (ClipboardManager) context.getSystemService(Context.CLIPBOARD_SERVICE);
@@ -45,7 +45,7 @@ public class ShareHelper {
 
         List<Intent> targets = new ArrayList<>();
         Intent template = new Intent(Intent.ACTION_SEND);
-        template.setType("image/*");
+        template.setType("*/*");
 
         List<ResolveInfo> candidates = context.getPackageManager().
                 queryIntentActivities(template, PackageManager.MATCH_DEFAULT_ONLY);
@@ -55,8 +55,9 @@ public class ShareHelper {
             String packageName = resolveInfo.activityInfo.packageName;
             if (!packageName.equals("com.thetestament.cread")) {
                 Intent target = new Intent(Intent.ACTION_SEND);
-                target.setType("image/*");
+                target.setType("*/*");
                 target.putExtra(Intent.EXTRA_STREAM, uri);
+                target.putExtra(Intent.EXTRA_TEXT, shareText);
                 target.setPackage(packageName);
                 target.setClassName(packageName, resolveInfo.activityInfo.name);
                 targets.add(target);

@@ -30,7 +30,6 @@ import com.thetestament.cread.helpers.FeedHelper;
 import com.thetestament.cread.helpers.FollowHelper;
 import com.thetestament.cread.helpers.HatsOffHelper;
 import com.thetestament.cread.helpers.ImageHelper;
-import com.thetestament.cread.helpers.ShareHelper;
 import com.thetestament.cread.helpers.SharedPreferenceHelper;
 import com.thetestament.cread.helpers.ViewHelper;
 import com.thetestament.cread.listeners.listener;
@@ -320,30 +319,6 @@ public class FeedDescriptionActivity extends BaseActivity implements listener.On
     }
 
     /**
-     * Initialize share link listener.
-     */
-    private void initShareLinkClickedListener() {
-        mAdapter.setOnShareLinkClickedListener(new listener.OnShareLinkClickedListener() {
-
-
-            @Override
-            public void onShareLinkClicked(String entityID, String entityURL, String creatorName) {
-
-                // generates deep link
-                // and opens the share dialog
-                generateDeepLink(mContext,
-                        mCompositeDisposable,
-                        rootView,
-                        mHelper.getUUID(),
-                        mHelper.getAuthToken(),
-                        entityID,
-                        entityURL,
-                        creatorName);
-            }
-        });
-    }
-
-    /**
      * Initialize share listener.
      */
     private void initShareListener(FeedDescriptionAdapter feedAdapter) {
@@ -355,7 +330,13 @@ public class FeedDescriptionActivity extends BaseActivity implements listener.On
                 //Check for Write permission
                 if (Nammu.checkPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
                     //We have permission do whatever you want to do
-                    ShareHelper.sharePost(bitmap, mContext, shareSpecificEntity);
+                    generateDeepLink(mContext,
+                            mCompositeDisposable,
+                            rootView,
+                            mHelper.getUUID(),
+                            mHelper.getAuthToken(),
+                            shareSpecificEntity,
+                            bitmap);
                 } else {
                     //We do not own this permission
                     if (Nammu.shouldShowRequestPermissionRationale(mContext
@@ -588,7 +569,6 @@ public class FeedDescriptionActivity extends BaseActivity implements listener.On
         initLoadMoreListener(mAdapter);
         initHatsOffListener(mAdapter);
         initShareListener(mAdapter);
-        initShareLinkClickedListener();
         initDownvoteListener(mAdapter);
         initFollowListener();
         initializeDeleteListener(mAdapter);
@@ -1113,7 +1093,13 @@ public class FeedDescriptionActivity extends BaseActivity implements listener.On
         @Override
         public void permissionGranted() {
             //sharePost(mBitmap);
-            ShareHelper.sharePost(mBitmap, mContext, shareSpecificEntity);
+            generateDeepLink(mContext,
+                    mCompositeDisposable,
+                    rootView,
+                    mHelper.getUUID(),
+                    mHelper.getAuthToken(),
+                    shareSpecificEntity,
+                    mBitmap);
         }
 
         @Override

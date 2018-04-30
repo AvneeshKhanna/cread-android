@@ -2,15 +2,14 @@ package com.thetestament.cread.activities;
 
 import android.net.Uri;
 import android.os.Bundle;
-import android.support.design.widget.CoordinatorLayout;
 import android.support.v4.app.FragmentTransaction;
 import android.view.Menu;
 import android.view.MenuItem;
 
 import com.thetestament.cread.R;
 import com.thetestament.cread.fragments.HashTagDetailsFragment;
+import com.thetestament.cread.helpers.SharedPreferenceHelper;
 
-import butterknife.BindView;
 import butterknife.ButterKnife;
 
 import static com.thetestament.cread.utils.Constant.BUNDLE_HASHTAG_NAME;
@@ -18,6 +17,7 @@ import static com.thetestament.cread.utils.Constant.TAG_HASH_TAG_DETAILS_FRAGMEN
 
 public class HashTagDetailsActivity extends BaseActivity {
 
+    SharedPreferenceHelper spHelper;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -25,6 +25,8 @@ public class HashTagDetailsActivity extends BaseActivity {
         setContentView(R.layout.activity_hash_tag_details);
         ButterKnife.bind(this);
 
+        // set new posts htag indicator visibility
+        spHelper = new SharedPreferenceHelper(this);
         // initialize view
         initView();
 
@@ -55,7 +57,17 @@ public class HashTagDetailsActivity extends BaseActivity {
         //Get the content URI
         Uri uri = getIntent().getData();
         //strip off hashtag from the URI
-        String hashTag = uri.toString().split("/")[3];
+        String hashTagData = uri.toString().split("/")[3];
+        String hashTagPostCount = hashTagData.split(":")[0];
+        String hashTag = hashTagData.split(":")[1];
+
+        long postsCount = Long.parseLong(hashTagPostCount);
+
+        if (postsCount != -1) {
+            spHelper.setHTagCount(postsCount);
+            spHelper.setHTagNewPostsIndicatorVisibility(false);
+        }
+
         // set title
         getSupportActionBar().setTitle(hashTag);
 

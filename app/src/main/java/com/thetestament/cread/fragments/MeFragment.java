@@ -64,7 +64,6 @@ import com.thetestament.cread.helpers.FollowHelper;
 import com.thetestament.cread.helpers.HatsOffHelper;
 import com.thetestament.cread.helpers.ImageHelper;
 import com.thetestament.cread.helpers.NetworkHelper;
-import com.thetestament.cread.helpers.ShareHelper;
 import com.thetestament.cread.helpers.SharedPreferenceHelper;
 import com.thetestament.cread.helpers.ViewHelper;
 import com.thetestament.cread.listeners.listener;
@@ -1682,7 +1681,6 @@ public class MeFragment extends Fragment implements listener.OnCollaborationList
         initHatsOffListener(mAdapter);
         initializeDeleteListener(mAdapter);
         initShareListener(mAdapter);
-        initShareLinkClickedListener();
 
         // init swipe refresh listener for list
         initOnSwipeRefreshListener(itemType);
@@ -1975,30 +1973,6 @@ public class MeFragment extends Fragment implements listener.OnCollaborationList
 
 
     /**
-     * Initialize share link listener.
-     */
-    private void initShareLinkClickedListener() {
-        mAdapter.setOnShareLinkClickedListener(new listener.OnShareLinkClickedListener() {
-
-
-            @Override
-            public void onShareLinkClicked(String entityID, String entityURL, String creatorName) {
-
-                // generates deep link
-                // and opens the share dialog
-                generateDeepLink(getActivity(),
-                        mCompositeDisposable,
-                        rootView,
-                        mHelper.getUUID(),
-                        mHelper.getAuthToken(),
-                        entityID,
-                        entityURL,
-                        creatorName);
-            }
-        });
-    }
-
-    /**
      * Initialize share listener.
      */
     private void initShareListener(MeAdapter meAdapter) {
@@ -2010,7 +1984,16 @@ public class MeFragment extends Fragment implements listener.OnCollaborationList
                 //Check for Write permission
                 if (Nammu.checkPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
                     //We have permission do whatever you want to do
-                    ShareHelper.sharePost(bitmap, getContext(), data);
+                    // generates deep link
+                    // and opens the share dialog
+                    generateDeepLink(getActivity(),
+                            mCompositeDisposable,
+                            rootView,
+                            mHelper.getUUID(),
+                            mHelper.getAuthToken(),
+                            data,
+                            bitmap);
+
                 } else {
                     //We do not own this permission
                     if (Nammu.shouldShowRequestPermissionRationale(MeFragment.this
@@ -2033,7 +2016,14 @@ public class MeFragment extends Fragment implements listener.OnCollaborationList
     PermissionCallback shareWritePermission = new PermissionCallback() {
         @Override
         public void permissionGranted() {
-            ShareHelper.sharePost(mBitmap, getContext(), mFeedData);
+            generateDeepLink(getActivity(),
+                    mCompositeDisposable,
+                    rootView,
+                    mHelper.getUUID(),
+                    mHelper.getAuthToken(),
+                    mFeedData,
+                    mBitmap);
+
         }
 
         @Override

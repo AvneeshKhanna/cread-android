@@ -20,7 +20,6 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import com.afollestad.materialdialogs.MaterialDialog;
 import com.google.firebase.analytics.FirebaseAnalytics;
 import com.squareup.picasso.MemoryPolicy;
 import com.squareup.picasso.NetworkPolicy;
@@ -53,7 +52,6 @@ import io.reactivex.disposables.CompositeDisposable;
 
 import static com.thetestament.cread.CreadApp.IMAGE_LOAD_FROM_NETWORK_ME;
 import static com.thetestament.cread.helpers.ContentHelper.getMenuActionsBottomSheet;
-import static com.thetestament.cread.helpers.FeedHelper.initializeShareDialog;
 import static com.thetestament.cread.helpers.FeedHelper.setGridItemMargins;
 import static com.thetestament.cread.helpers.FeedHelper.updatePostTimestamp;
 import static com.thetestament.cread.helpers.LongShortHelper.checkLongFormStatus;
@@ -423,33 +421,9 @@ public class MeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             @Override
             public void onClick(View view) {
 
-                ShareDialogAdapter adapter = new ShareDialogAdapter(mContext, initializeShareDialog(mContext));
-                final MaterialDialog dialog = new MaterialDialog.Builder(mContext)
-                        .adapter(adapter, null)
-                        .show();
-
-                adapter.setShareDialogItemClickedListener(new listener.OnShareDialogItemClickedListener() {
-                    @Override
-                    public void onShareDialogItemClicked(int index) {
-
-                        //dismiss dialog
-                        dialog.dismiss();
-
-                        switch (index) {
-                            case 0:
-                                // image sharing
-                                //so load image
-                                loadBitmapForSharing(data);
-                                break;
-                            case 1:
-                                // link sharing
-                                // get deep link from server
-                                onShareLinkClickedListener.onShareLinkClicked(entityID, pictureUrl, creatorName);
-                                break;
-
-                        }
-                    }
-                });
+                // image sharing
+                //so load image
+                loadBitmapForSharing(data);
             }
         });
     }

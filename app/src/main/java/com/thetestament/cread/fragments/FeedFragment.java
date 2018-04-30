@@ -47,7 +47,6 @@ import com.thetestament.cread.helpers.FeedHelper;
 import com.thetestament.cread.helpers.HashTagOfTheDayHelper;
 import com.thetestament.cread.helpers.HatsOffHelper;
 import com.thetestament.cread.helpers.ImageHelper;
-import com.thetestament.cread.helpers.ShareHelper;
 import com.thetestament.cread.helpers.SharedPreferenceHelper;
 import com.thetestament.cread.helpers.SuggestionHelper;
 import com.thetestament.cread.helpers.ViewHelper;
@@ -135,6 +134,7 @@ public class FeedFragment extends Fragment implements listener.OnCollaborationLi
     private Unbinder mUnbinder;
     private String mLastIndexKey;
     private boolean mRequestMoreData;
+    TextView newPostIndicator;
 
     @State
     boolean mCanDownvote;
@@ -160,6 +160,8 @@ public class FeedFragment extends Fragment implements listener.OnCollaborationLi
                         , container
                         , false);
         mUnbinder = ButterKnife.bind(this, view);
+
+        newPostIndicator = viewHashTagOfTheDay.findViewById(R.id.badgeNewPosts);
         return view;
     }
 
@@ -177,6 +179,18 @@ public class FeedFragment extends Fragment implements listener.OnCollaborationLi
             // not the first time
             // so check for deep link directly
             initDeepLink();
+        }
+    }
+
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        //
+        if (!mHelper.getHTagNewPostsIndicatorVisibility()) {
+            newPostIndicator.setVisibility(View.GONE);
+        } else {
+            newPostIndicator.setVisibility(View.VISIBLE);
         }
     }
 
@@ -353,6 +367,7 @@ public class FeedFragment extends Fragment implements listener.OnCollaborationLi
         //Show dialog here
         getHashTagOfTheDayInfoDialog(textHashTagOFTheDay);
     }
+
     //endregion
 
     //region :Private methods
@@ -392,7 +407,6 @@ public class FeedFragment extends Fragment implements listener.OnCollaborationLi
         initLoadMoreListener(mAdapter);
         initHatsOffListener(mAdapter);
         initShareListener(mAdapter);
-        initShareLinkClickedListener();
         initDownVoteListener(mAdapter);
         //Load data here
         loadFeedData();
@@ -816,29 +830,7 @@ public class FeedFragment extends Fragment implements listener.OnCollaborationLi
         }
     };
 
-    /**
-     * Initialize share link listener.
-     */
-    private void initShareLinkClickedListener() {
-        mAdapter.setOnShareLinkClickedListener(new listener.OnShareLinkClickedListener() {
 
-
-            @Override
-            public void onShareLinkClicked(String entityID, String entityURL, String creatorName) {
-
-                // generates deep link
-                // and opens the share dialog
-                generateDeepLink(getActivity(),
-                        mCompositeDisposable,
-                        rootView,
-                        mHelper.getUUID(),
-                        mHelper.getAuthToken(),
-                        entityID,
-                        entityURL,
-                        creatorName);
-            }
-        });
-    }
 
     /**
      * Initialize share listener.
@@ -852,7 +844,14 @@ public class FeedFragment extends Fragment implements listener.OnCollaborationLi
                 //Check for Write permission
                 if (Nammu.checkPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
                     //We have permission do whatever you want to do
-                    ShareHelper.sharePost(bitmap, getContext(), entitySpecificData);
+                    generateDeepLink(getActivity(),
+                            mCompositeDisposable,
+                            rootView,
+                            mHelper.getUUID(),
+                            mHelper.getAuthToken(),
+                            entitySpecificData,
+                            bitmap);
+
                 } else {
                     //We do not own this permission
                     if (Nammu.shouldShowRequestPermissionRationale(FeedFragment.this
@@ -940,7 +939,14 @@ public class FeedFragment extends Fragment implements listener.OnCollaborationLi
     PermissionCallback shareWritePermission = new PermissionCallback() {
         @Override
         public void permissionGranted() {
-            ShareHelper.sharePost(mBitmap, getContext(), entitySpecificData);
+            generateDeepLink(getActivity(),
+                    mCompositeDisposable,
+                    rootView,
+                    mHelper.getUUID(),
+                    mHelper.getAuthToken(),
+                    entitySpecificData,
+                    mBitmap);
+
         }
 
         @Override
@@ -1113,14 +1119,14 @@ public class FeedFragment extends Fragment implements listener.OnCollaborationLi
         hashTagOfTheDayHelper.getHatsOfTheDay(getActivity(), mCompositeDisposable
                 , new listener.OnHashTagOfTheDayLoadListener() {
                     @Override
-                    public void onSuccess(String hashTagOfTheDay) {
+                    public void onSuccess(String hashTagOfTheDay, long hTagPostCount) {
                         if (!TextUtils.isEmpty(hashTagOfTheDay) && !hashTagOfTheDay.equals("null")) {
                             //Set text
                             textHashTagOfTheDay.setText("#" + hashTagOfTheDay);
                             textHashTagOFTheDay = textHashTagOfTheDay.getText().toString();
                             //Set hash tag of the day
                             FeedHelper feedHelper = new FeedHelper();
-                            feedHelper.setHashTags(textHashTagOfTheDay, getActivity(), R.color.colorPrimary);
+                            feedHelper.setHashTags(textHashTagOfTheDay, getActivity(), R.color.colorPrimary, hTagPostCount);
                             //Set View
                             CoordinatorLayout.LayoutParams params = (CoordinatorLayout.LayoutParams) appBarLayout.getLayoutParams();
                             params.height = LinearLayout.LayoutParams.WRAP_CONTENT;
@@ -1129,6 +1135,37 @@ public class FeedFragment extends Fragment implements listener.OnCollaborationLi
                             appBarLayout.setVisibility(View.VISIBLE);
                             viewSuggestedArtists.setVisibility(View.GONE);
                             viewHashTagOfTheDay.setVisibility(View.VISIBLE);
+
+                            // case when hashtag of the day remains same
+                            if (hashTagOfTheDay.equals(mHelper.getHTagOfTheDay())) {
+                                if (hTagPostCount > mHelper.getHTagCount()) {
+                                    newPostIndicator.setVisibility(View.VISIBLE);
+                                    mHelper.setHTagNewPostsIndicatorVisibility(true);
+                                } else {
+                                    newPostIndicator.setVisibility(View.GONE);
+                                    mHelper.setHTagNewPostsIndicatorVisibility(false);
+                                }
+                            }
+                            // when hash tag of the day is different on server and app
+                            // i.e. it has been updated
+                            else {
+                                if (hTagPostCount > 0) {
+                                    newPostIndicator.setVisibility(View.VISIBLE);
+                                    mHelper.setHTagNewPostsIndicatorVisibility(true);
+                                } else {
+                                    newPostIndicator.setVisibility(View.GONE);
+                                    mHelper.setHTagNewPostsIndicatorVisibility(false);
+                                }
+
+                                // update count for the hash tag
+                                mHelper.setHTagCount(0);
+
+                            }
+
+                            mHelper.setHTagOfTheDay(hashTagOfTheDay);
+
+
+
 
                             //Check for first time run status
                             if (mHelper.isHashTagOfTheDayFirstTime()) {

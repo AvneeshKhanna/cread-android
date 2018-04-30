@@ -237,13 +237,13 @@ public class FeedHelper {
      * @param context     context
      * @param textColorID Resource ID of color to be applied on hash tags.
      */
-    public void setHashTags(TextView textView, FragmentActivity context, int textColorID) {
+    public void setHashTags(TextView textView, FragmentActivity context, int textColorID, long count) {
         textView.setLinkTextColor(ContextCompat.getColor(context, textColorID));
         //Pattern to find if there's a hash tag in the message
         //i.e. any word starting with a # and containing letter or numbers or _
         Pattern tagMatcher = Pattern.compile("\\#\\w+", Pattern.CASE_INSENSITIVE);
         // attach linkify to text view for click action of hash tags
-        Linkify.addLinks(textView, tagMatcher, URI_HASH_TAG_ACTIVITY);
+        Linkify.addLinks(textView, tagMatcher, URI_HASH_TAG_ACTIVITY + String.valueOf(count) + ":");
         // to remove underlines from the hashtag links
         stripUnderlines(textView);
     }
@@ -802,7 +802,7 @@ public class FeedHelper {
 
             // set hash tags
             FeedHelper feedHelper = new FeedHelper();
-            feedHelper.setHashTags(textView, context, R.color.blue_dark);
+            feedHelper.setHashTags(textView, context, R.color.blue_dark, -1);
 
         } else {
             textView.setVisibility(View.GONE);

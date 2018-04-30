@@ -441,7 +441,7 @@ public class listener {
         /**
          * @param hashTagOfTheDay hashTag.
          */
-        void onSuccess(String hashTagOfTheDay);
+        void onSuccess(String hashTagOfTheDay, long hTagPostCount);
 
         /**
          * Error message to be displayed.

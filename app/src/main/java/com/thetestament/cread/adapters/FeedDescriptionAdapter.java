@@ -59,7 +59,6 @@ import static com.thetestament.cread.adapters.CommentsAdapter.openCreatorProfile
 import static com.thetestament.cread.adapters.CommentsAdapter.toggleComment;
 import static com.thetestament.cread.helpers.ContentHelper.getMenuActionsBottomSheet;
 import static com.thetestament.cread.helpers.FeedHelper.initCaption;
-import static com.thetestament.cread.helpers.FeedHelper.initializeShareDialog;
 import static com.thetestament.cread.helpers.FeedHelper.updateDotSeperatorVisibility;
 import static com.thetestament.cread.helpers.FeedHelper.updateDownvoteAndSeperatorVisibility;
 import static com.thetestament.cread.helpers.FeedHelper.updatePostTimestamp;
@@ -492,7 +491,7 @@ public class FeedDescriptionAdapter extends RecyclerView.Adapter {
 
             // set hash tags on comment
             FeedHelper feedHelper = new FeedHelper();
-            feedHelper.setHashTags(textComment, mContext,R.color.blue_dark);
+            feedHelper.setHashTags(textComment, mContext, R.color.blue_dark, -1);
 
             // Expand and collapse comments.
             toggleComment(textComment);
@@ -611,32 +610,7 @@ public class FeedDescriptionAdapter extends RecyclerView.Adapter {
             @Override
             public void onClick(View view) {
 
-                ShareDialogAdapter adapter = new ShareDialogAdapter(mContext, initializeShareDialog(mContext));
-                final MaterialDialog dialog = new MaterialDialog.Builder(mContext)
-                        .adapter(adapter, null)
-                        .show();
-                adapter.setShareDialogItemClickedListener(new listener.OnShareDialogItemClickedListener() {
-                    @Override
-                    public void onShareDialogItemClicked(int index) {
-
-                        // dismiss dialog
-                        dialog.dismiss();
-
-                        switch (index) {
-                            case 0:
-                                // image sharing
-                                //so load image
-                                loadBitmapForSharing(data);
-                                break;
-                            case 1:
-                                // link sharing
-                                // get deep link from server
-                                onShareLinkClickedListener.onShareLinkClicked(entityID, pictureUrl, creatorName);
-                                break;
-
-                        }
-                    }
-                });
+                loadBitmapForSharing(data);
 
 
             }

@@ -58,7 +58,7 @@ public class HashTagOfTheDayHelper {
                                 listener.onFailure(context.getString(R.string.error_msg_invalid_token));
                             } else {
                                 JSONObject mainData = jsonObject.getJSONObject("data");
-                                listener.onSuccess(mainData.getString("htag"));
+                                listener.onSuccess(mainData.getString("htag"), mainData.getLong("hpostcount"));
                             }
                         } catch (JSONException e) {
                             e.printStackTrace();

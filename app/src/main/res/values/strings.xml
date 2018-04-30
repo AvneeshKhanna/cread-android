@@ -63,6 +63,9 @@
     <string name="key_long_story_preview_first_time">keyLongStoryPreview</string>
     <string name="key_long_form_sound_first_time">keyLongFormSound</string>
     <string name="key_htod_first_time">keyHtod</string>
+    <string name="key_htod_value">keyHtodValue</string>
+    <string name="key_htod_count">keyHtodCount</string>
+    <string name="key_htod_new_posts_indicator_visibility">keyHtNewPostsIndicatorVisibility</string>
 
 
     // dialog messages
@@ -193,7 +196,7 @@
 
     //Info text
     <string name="note_text_short_creation">Double tap outside text to add image tint</string>
-    <string name="text_share_image">Do you love #art? Here\'s something great on @cread! Check it out and tell me what you think. :)</string>
+    <string name="text_share_image">Do you love #art? Here\'s something great on @cread! Check it out and tell me what you think. :) \n\nApp:&#160; %1$s</string>
     <string name="msg_post_deleted">Post deleted</string>
     <string name="text_msg_share_loggedin">You need to be logged in for sharing the image</string>
     <string name="msg_text_navigate_back">If you go back now, you will lose your changes.</string>
