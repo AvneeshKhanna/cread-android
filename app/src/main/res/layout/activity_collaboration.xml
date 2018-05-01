@@ -10,18 +10,18 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-        <com.thetestament.cread.widgets.SquareView
+        <RelativeLayout
             android:id="@+id/imageContainer"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_below="@+id/containerCreator"
             android:background="@color/white">
 
             <ImageView
                 android:id="@+id/imageCapture"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:scaleType="centerCrop" />
+                android:layout_height="wrap_content"
+                android:adjustViewBounds="true"
+                tools:src="@tools:sample/avatars" />
 
             <android.support.v7.widget.AppCompatTextView
                 android:id="@+id/textShort"
@@ -38,8 +38,7 @@
             <FrameLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_above="@+id/viewDivider"
-                android:layout_alignParentBottom="true"
+                android:layout_alignBottom="@+id/imageCapture"
                 android:layout_alignParentLeft="true"
                 android:background="@color/black_overlay">
 
@@ -54,7 +53,7 @@
                     android:textSize="12sp"
                     tools:text="~The testament" />
             </FrameLayout>
-        </com.thetestament.cread.widgets.SquareView>
+        </RelativeLayout>
 
         <TextView
             android:id="@+id/textNote"
@@ -136,6 +135,7 @@
     <include layout="@layout/layout_color_bottom_sheet" />
     <!--Template option bottom sheet-->
     <include layout="@layout/layout_template_bottom_sheet" />
+
     <include
         android:id="@+id/progressView"
         layout="@layout/layout_progress_bar"

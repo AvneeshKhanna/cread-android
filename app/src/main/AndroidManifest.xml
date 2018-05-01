@@ -488,8 +488,8 @@
 
         <activity
             android:name=".activities.ViewLongShortActivity"
-            android:theme="@style/AppTheme"
-            android:screenOrientation="portrait"></activity>
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme"></activity>
     </application>
 
 </manifest>

@@ -2,6 +2,7 @@ package com.thetestament.cread.activities;
 
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
@@ -26,7 +27,10 @@ import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.Window;
+import android.view.WindowManager;
 import android.widget.ImageView;
+import android.widget.RelativeLayout;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
@@ -48,6 +52,7 @@ import com.thetestament.cread.dialog.CustomDialog;
 import com.thetestament.cread.helpers.CaptureHelper;
 import com.thetestament.cread.helpers.ColorHelper;
 import com.thetestament.cread.helpers.FontsHelper;
+import com.thetestament.cread.helpers.ImageHelper;
 import com.thetestament.cread.helpers.LongShortHelper;
 import com.thetestament.cread.helpers.SharedPreferenceHelper;
 import com.thetestament.cread.helpers.TemplateHelper;
@@ -58,7 +63,7 @@ import com.thetestament.cread.listeners.listener;
 import com.thetestament.cread.models.ColorModel;
 import com.thetestament.cread.models.FontModel;
 import com.thetestament.cread.models.TemplateModel;
-import com.thetestament.cread.widgets.SquareView;
+import com.thetestament.cread.utils.AspectRatioUtils;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -134,6 +139,7 @@ import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_CALLED_FROM_CO
 import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_DATA;
 import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_FONT;
 import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_IMAGE_TINT_COLOR;
+import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_IMG_HEIGHT;
 import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_IMG_WIDTH;
 import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_IS_SHADOW_SELECTED;
 import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_ITALIC;
@@ -166,7 +172,7 @@ public class CollaborationActivity extends BaseActivity {
     @BindView(R.id.rootView)
     CoordinatorLayout rootView;
     @BindView(R.id.imageContainer)
-    SquareView squareView;
+    RelativeLayout squareView;
     @BindView(R.id.imageCapture)
     ImageView imageShort;
     @BindView(R.id.textShort)
@@ -225,6 +231,8 @@ public class CollaborationActivity extends BaseActivity {
     @State
     int mImageWidth = 900;
 
+    @State
+    int mCaptureImageWidth, mCaptureImageHeight;
 
     /**
      * Flag to maintain bold typeface status i.e 1 for bold ,0 otherwise
@@ -298,9 +306,13 @@ public class CollaborationActivity extends BaseActivity {
     String mBgSound = LongShortHelper.LONG_FORM_SOUND_NONE;
     //endregion
 
+    //region :Overridden methods
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        //Set screen in fullscreen mode
+        initFullScreen();
+        //Set layout
         setContentView(R.layout.activity_collaboration);
         ButterKnife.bind(this);
         //Obtain reference
@@ -378,7 +390,7 @@ public class CollaborationActivity extends BaseActivity {
                 //Show prompt dialog
                 CustomDialog.getBackNavigationDialog(CollaborationActivity.this
                         , "Discard changes?"
-                         , getString(R.string.msg_text_navigate_back));
+                        , getString(R.string.msg_text_navigate_back));
                 return true;
             case R.id.action_next:
                 //Check for Write permission
@@ -412,6 +424,9 @@ public class CollaborationActivity extends BaseActivity {
                 , getString(R.string.msg_text_navigate_back));
     }
 
+    //endregion
+
+    //region :Onclick functionality
     @OnClick(R.id.rootView)
     void rootViewOnClick() {
         //Method call
@@ -590,7 +605,9 @@ public class CollaborationActivity extends BaseActivity {
             dotShadow.setVisibility(View.VISIBLE);
         }
     }
+    //endregion
 
+    //region :Private methods
     /**
      * Used to handle result of askForPermission for capture.
      */
@@ -964,6 +981,19 @@ public class CollaborationActivity extends BaseActivity {
      * Method to load capture image for preview.
      */
     private void loadCaptureImage(ImageView imageView) {
+
+        //Decode image file for width and height
+        BitmapFactory.Options options = new BitmapFactory.Options();
+        options.inJustDecodeBounds = true;
+        BitmapFactory.decodeFile(ImageHelper.getImageUri(IMAGE_TYPE_USER_CAPTURE_PIC).getPath(), options);
+        mCaptureImageWidth = options.outWidth;
+        mCaptureImageHeight = options.outHeight;
+
+        //Set required aspect ratio
+        AspectRatioUtils.setImageAspectRatio(mCaptureImageWidth
+                , mCaptureImageHeight
+                , imageView);
+
         Picasso.with(this)
                 .load(getImageUri(IMAGE_TYPE_USER_CAPTURE_PIC))
                 .memoryPolicy(MemoryPolicy.NO_CACHE)
@@ -1322,8 +1352,10 @@ public class CollaborationActivity extends BaseActivity {
         squareView.buildDrawingCache();
         Bitmap bm = squareView.getDrawingCache();
 
+        int scaledBitmapHeight = Math.round(mImageWidth / AspectRatioUtils.getImageAspectRatioFactor(mCaptureImageWidth, mCaptureImageHeight));
+
         //Scaled bitmap
-        Bitmap bitmap = Bitmap.createScaledBitmap(bm, mImageWidth, mImageWidth, true);
+        Bitmap bitmap = Bitmap.createScaledBitmap(bm, mImageWidth, scaledBitmapHeight, true);
         try {
             File file = new File(Environment.getExternalStorageDirectory().getPath() + "/Cread/Short/short_pic.jpg");
             file.getParentFile().mkdirs();
@@ -1339,8 +1371,8 @@ public class CollaborationActivity extends BaseActivity {
             FileOutputStream out = new FileOutputStream(file);
             bitmap.compress(Bitmap.CompressFormat.JPEG, 85, out);
             out.close();
-            //Show preview
-            // showShortPreview(divisionFactor);
+
+            //Open preview screen;
             goToPreviewScreen(mHelper.getUUID()
                     , mHelper.getAuthToken()
                     , mShortID
@@ -1353,6 +1385,7 @@ public class CollaborationActivity extends BaseActivity {
                     , Integer.toHexString(textShort.getCurrentTextColor())
                     , textGravity.toString()
                     , String.valueOf(mImageWidth)
+                    , String.valueOf(scaledBitmapHeight)
                     , mSignatureText
                     , mIsMerchantable
                     , mFontType
@@ -1383,11 +1416,11 @@ public class CollaborationActivity extends BaseActivity {
     private void goToPreviewScreen(String uuid, String authKey, String shortID
             , String xPosition, String yPosition, String tvWidth, String tvHeight
             , String text, String textSize, String textColor, String textGravity
-            , String imgWidth, String signature, String merchantable, String font
+            , String imgWidth, String imgHeight, String signature, String merchantable, String font
             , String bold, String italic, String imageTintColor, String calledFrom
             , String templateName, String isShadowSelected, String longText, String bgSound) {
 
-        Intent intent = new Intent(CollaborationActivity.this, PreviewActivity.class);
+        Intent intent = new Intent(mContext, PreviewActivity.class);
 
         Bundle bundle = new Bundle();
 
@@ -1403,6 +1436,7 @@ public class CollaborationActivity extends BaseActivity {
         bundle.putString(PREVIEW_EXTRA_TEXT_COLOR, textColor);
         bundle.putString(PREVIEW_EXTRA_TEXT_GRAVITY, textGravity);
         bundle.putString(PREVIEW_EXTRA_IMG_WIDTH, imgWidth);
+        bundle.putString(PREVIEW_EXTRA_IMG_HEIGHT, imgHeight);
         bundle.putString(PREVIEW_EXTRA_SIGNATURE, signature);
         bundle.putString(PREVIEW_EXTRA_MERCHANTABLE, merchantable);
         bundle.putString(PREVIEW_EXTRA_FONT, font);
@@ -1413,7 +1447,7 @@ public class CollaborationActivity extends BaseActivity {
         bundle.putString(PREVIEW_EXTRA_TEMPLATE_NAME, templateName);
         bundle.putString(PREVIEW_EXTRA_IS_SHADOW_SELECTED, isShadowSelected);
         bundle.putString(PREVIEW_EXTRA_LONG_TEXT, longText.trim());
-        bundle.putString(PREVIEW_EXTRA_BG_SOUND, mBgSound);
+        bundle.putString(PREVIEW_EXTRA_BG_SOUND, bgSound);
 
         intent.putExtra(PREVIEW_EXTRA_DATA, bundle);
         startActivityForResult(intent, REQUEST_CODE_PREVIEW_ACTIVITY);
@@ -1567,4 +1601,15 @@ public class CollaborationActivity extends BaseActivity {
         }
 
     }
+
+    /**
+     * To open this screen in full screen mode.
+     */
+    private void initFullScreen() {
+        requestWindowFeature(Window.FEATURE_NO_TITLE);
+        getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
+                WindowManager.LayoutParams.FLAG_FULLSCREEN);
+    }
+
+    //endregion
 }

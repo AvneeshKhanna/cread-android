@@ -16,7 +16,7 @@
         <RelativeLayout
             android:id="@+id/topContainer"
             android:layout_width="match_parent"
-            android:layout_height="56dp"
+            android:layout_height="48dp"
             android:background="@color/colorPrimary"
             android:clickable="true"
             android:elevation="4dp">
@@ -52,11 +52,11 @@
                 android:layout_height="wrap_content"
                 android:layout_centerVertical="true"
                 android:layout_toLeftOf="@+id/buttonNext"
+                android:clickable="true"
                 android:drawableLeft="@drawable/ic_copyright_24"
+                android:foreground="?attr/selectableItemBackgroundBorderless"
                 android:paddingBottom="8dp"
                 android:paddingLeft="8dp"
-                android:clickable="true"
-                android:foreground="?attr/selectableItemBackgroundBorderless"
                 android:paddingRight="16dp"
                 android:paddingTop="8dp" />
 
@@ -66,28 +66,29 @@
                 android:layout_height="wrap_content"
                 android:layout_alignParentRight="true"
                 android:layout_centerVertical="true"
-                android:drawableLeft="@drawable/ic_close_24"
-                android:paddingBottom="8dp"
                 android:clickable="true"
+                android:drawableLeft="@drawable/ic_close_24"
                 android:foreground="?attr/selectableItemBackgroundBorderless"
+                android:paddingBottom="8dp"
                 android:paddingLeft="8dp"
                 android:paddingRight="16dp"
                 android:paddingTop="8dp"
                 android:text="" />
         </RelativeLayout>
 
-        <com.thetestament.cread.widgets.SquareView
+        <!--Writing container-->
+        <RelativeLayout
             android:id="@+id/imageContainer"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_below="@+id/topContainer">
 
             <ImageView
                 android:id="@+id/imageShort"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:background="@drawable/img_short_default_bg"
-                android:scaleType="centerCrop" />
+                android:layout_height="wrap_content"
+                android:adjustViewBounds="true"
+                android:background="@drawable/img_short_default_bg" />
 
             <android.support.v7.widget.AppCompatImageView
                 android:id="@+id/btnRemoveImage"
@@ -121,10 +122,21 @@
                 android:id="@+id/lineSeparator"
                 android:layout_width="match_parent"
                 android:layout_height="0.3dp"
-                android:layout_alignParentBottom="true"
+                android:layout_alignBottom="@+id/imageShort"
                 android:alpha="0.4"
                 android:background="@color/grey_dark" />
 
+            <TextView
+                android:id="@+id/textNote"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/lineSeparator"
+                android:layout_centerHorizontal="true"
+                android:gravity="center"
+                android:paddingTop="8dp"
+                android:text="@string/note_text_short_creation"
+                android:textSize="12sp"
+                android:visibility="gone" />
             <!--Image loading progress view-->
             <include
                 android:id="@+id/imageProgressView"
@@ -133,57 +145,16 @@
                 android:layout_height="wrap_content"
                 android:layout_centerInParent="true"
                 android:visibility="invisible" />
-        </com.thetestament.cread.widgets.SquareView>
 
-        <TextView
-            android:id="@+id/textNote"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_below="@+id/imageContainer"
-            android:layout_centerHorizontal="true"
-            android:gravity="center"
-            android:paddingTop="10sp"
-            android:text="@string/note_text_short_creation"
-            android:textSize="12sp"
-            android:visibility="invisible" />
+        </RelativeLayout>
 
-        <FrameLayout
-            android:id="@+id/containerPostButton"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_above="@+id/containerSeekBar"
-            android:layout_below="@+id/textNote">
-
-            <include
-                android:id="@+id/progressViewInspiration"
-                layout="@layout/layout_progress_bar"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:visibility="gone" />
-
-            <android.support.v7.widget.RecyclerView
-                android:id="@+id/recyclerViewInspiration"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center" />
-
-            <android.support.v7.widget.AppCompatImageView
-                android:id="@+id/btnInspiration"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="right|center"
-                android:background="@color/transparent_15"
-                app:srcCompat="@drawable/ic_arrow_right_vector" />
-        </FrameLayout>
-
-        <!--Container seek bar-->
+        <!--Container seek bar and shadow-->
         <RelativeLayout
             android:id="@+id/containerSeekBar"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_above="@+id/containerFormatOptions"
-            android:layout_marginBottom="8dp">
+            android:layout_above="@+id/containerPostButton"
+            android:visibility="visible">
 
             <ImageView
                 android:id="@+id/btnFormatTextSize"
@@ -216,22 +187,45 @@
                 android:paddingLeft="8dp"
                 android:paddingRight="16dp">
 
-                <ImageView
+                <android.support.v7.widget.AppCompatImageView
+                    android:id="@+id/imgShadow"
                     android:layout_width="20dp"
                     android:layout_height="20dp"
                     android:tint="@color/grey"
                     app:srcCompat="@drawable/ic_stroke" />
 
-                <View
-                    android:id="@+id/dotShadow"
-                    android:layout_width="6dp"
-                    android:layout_height="6dp"
-                    android:layout_gravity="center_horizontal"
-                    android:layout_marginTop="22dp"
-                    android:background="@drawable/dot_shape"
-                    android:visibility="invisible" />
             </FrameLayout>
         </RelativeLayout>
+
+        <!--Inspiration View-->
+        <FrameLayout
+            android:id="@+id/containerPostButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_above="@+id/containerFormatOptions">
+
+            <include
+                android:id="@+id/progressViewInspiration"
+                layout="@layout/layout_progress_bar"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:visibility="gone" />
+
+            <android.support.v7.widget.RecyclerView
+                android:id="@+id/recyclerViewInspiration"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center" />
+
+            <android.support.v7.widget.AppCompatImageView
+                android:id="@+id/btnInspiration"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="right|center"
+                android:background="@color/transparent_15"
+                app:srcCompat="@drawable/ic_arrow_right_vector" />
+        </FrameLayout>
 
         <!--Format options-->
         <FrameLayout

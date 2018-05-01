@@ -70,10 +70,10 @@ import com.thetestament.cread.models.ColorModel;
 import com.thetestament.cread.models.FontModel;
 import com.thetestament.cread.models.InspirationModel;
 import com.thetestament.cread.models.TemplateModel;
+import com.thetestament.cread.utils.AspectRatioUtils;
 import com.thetestament.cread.utils.Constant;
 import com.thetestament.cread.widgets.CustomEditText;
 import com.thetestament.cread.widgets.CustomEditText.OnEditTextBackListener;
-import com.thetestament.cread.widgets.SquareView;
 import com.wooplr.spotlight.SpotlightView;
 import com.wooplr.spotlight.utils.SpotlightListener;
 
@@ -145,6 +145,8 @@ import static com.thetestament.cread.utils.Constant.EXTRA_CAPTURE_URL;
 import static com.thetestament.cread.utils.Constant.EXTRA_DATA;
 import static com.thetestament.cread.utils.Constant.EXTRA_ENTITY_ID;
 import static com.thetestament.cread.utils.Constant.EXTRA_ENTITY_TYPE;
+import static com.thetestament.cread.utils.Constant.EXTRA_IMAGE_HEIGHT;
+import static com.thetestament.cread.utils.Constant.EXTRA_IMAGE_WIDTH;
 import static com.thetestament.cread.utils.Constant.EXTRA_MERCHANTABLE;
 import static com.thetestament.cread.utils.Constant.FIREBASE_EVENT_INSPIRATION_CLICKED;
 import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_AUTH_KEY;
@@ -161,6 +163,7 @@ import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_ENTITY_ID;
 import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_FONT;
 import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_IMAGE_TINT_COLOR;
 import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_IMAGE_URL;
+import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_IMG_HEIGHT;
 import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_IMG_WIDTH;
 import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_IS_SHADOW_SELECTED;
 import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_ITALIC;
@@ -201,15 +204,15 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
     @BindView(R.id.buttonNext)
     AppCompatTextView btnNext;
     @BindView(R.id.imageContainer)
-    SquareView squareView;
+    RelativeLayout squareView;
     @BindView(R.id.imageShort)
     ImageView imageShort;
     @BindView(R.id.textShort)
     CustomEditText textShort;
     @BindView(R.id.seekBarTextSize)
     AppCompatSeekBar seekBarTextSize;
-    @BindView(R.id.dotShadow)
-    View dotShadow;
+    @BindView(R.id.imgShadow)
+    AppCompatImageView imgShadow;
     @BindView(R.id.btnLAlignText)
     AppCompatTextView btnAlignText;
     @BindView(R.id.btnFont)
@@ -276,6 +279,8 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
     int mImageWidth = 900;
 
 
+    @State
+    int mCaptureImageWidth, mCaptureImageHeight;
     /**
      * Flag to maintain merchantable status i.e true if merchantable false otherwise.
      */
@@ -401,6 +406,8 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        //Set fullscreen
+        initFullScreen();
         setContentView(R.layout.activity_short);
         //ButterKnife view binding
         ButterKnife.bind(this);
@@ -426,13 +433,28 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
                     mCaptureID = bundle.getString(EXTRA_CAPTURE_ID);
                     mCaptureUrl = bundle.getString(EXTRA_CAPTURE_URL);
                     mIsMerchantable = bundle.getBoolean(EXTRA_MERCHANTABLE);
+
+                    mCaptureImageWidth = bundle.getInt(EXTRA_IMAGE_WIDTH);
+                    mCaptureImageHeight = bundle.getInt(EXTRA_IMAGE_HEIGHT);
+                    //Set imageView width and height
+                    AspectRatioUtils.setImageAspectRatio(mCaptureImageWidth
+                            , mCaptureImageHeight
+                            , imageShort);
                     //Load inspiration/capture image
                     loadCapture(imageShort, mCaptureUrl);
                     //Update flags
                     mIsBgColorPresent = false;
                     mIsImagePresent = true;
-                    //show note textView
-                    textNote.setVisibility(View.VISIBLE);
+
+                    //if selected image has aspect ratio of 4:5
+                    if (AspectRatioUtils.isAspectRatioFourToFive(mCaptureImageWidth, mCaptureImageHeight)) {
+                        //show note textView
+                        textNote.setVisibility(View.GONE);
+                    } else {
+                        //Hide note textView
+                        textNote.setVisibility(View.VISIBLE);
+                    }
+
                     //Show remove button
                     btnRemoveImage.setVisibility(View.VISIBLE);
                 }
@@ -657,7 +679,7 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
     void changeBgColor() {
         if (mIsImagePresent) {
             //Show toast message
-            ViewHelper.getToast(ShortActivity.this
+            ViewHelper.getToast(mContext
                     , "Cannot add background color when an image is present");
         } else {
             //Set type
@@ -766,11 +788,13 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
      */
     @OnClick(R.id.btnRemoveImage)
     void removeImageOnClick() {
+        //Set imageView width and height
+        AspectRatioUtils.setImageAspectRatio(1, 1, imageShort);
 
         if (mIsImagePresent) {
             //show note textView
             textNote.setVisibility(View.INVISIBLE);
-            //Remove image
+            //Remove image and set default background
             imageShort.setImageDrawable(null);
             imageShort.setBackground(ContextCompat.getDrawable(mContext, R.drawable.img_short_default_bg));
         } else {
@@ -794,8 +818,6 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
         mCaptureID = "";
         mCaptureUrl = "";
         mIsMerchantable = true;
-
-
     }
 
     /**
@@ -808,15 +830,15 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
             mIsShadowSelected = 0;
             //Remove shadow layer
             textShort.setShadowLayer(0, 0, 0, 0);
-            //Show hide dot shadow
-            dotShadow.setVisibility(View.INVISIBLE);
+            //Set color filter
+            imgShadow.setColorFilter(ContextCompat.getColor(mContext, R.color.grey));
         } else {
             mIsShadowSelected = 1;
             //Apply shadow on text
             textShort.setShadowLayer(3, 3, 3
                     , ContextCompat.getColor(mContext, R.color.color_grey_600));
-            //Show show dot shadow
-            dotShadow.setVisibility(View.VISIBLE);
+            //Set color filter
+            imgShadow.setColorFilter(ContextCompat.getColor(mContext, R.color.colorPrimary));
         }
     }
     //endregion
@@ -829,6 +851,8 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
     private void initScreen() {
         //obtain shared preference reference
         mHelper = new SharedPreferenceHelper(this);
+        //Set imageView width and height
+        AspectRatioUtils.setImageAspectRatio(1, 1, imageShort);
         //set format option icon
         setFormatOptionsIcon();
         //retrieve data from intent
@@ -894,14 +918,25 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
                 mCaptureID = bundle.getString(EXTRA_CAPTURE_ID);
                 mCaptureUrl = bundle.getString(EXTRA_CAPTURE_URL);
                 mIsMerchantable = bundle.getBoolean(EXTRA_MERCHANTABLE);
+                mCaptureImageWidth = bundle.getInt(EXTRA_IMAGE_WIDTH);
+                mCaptureImageHeight = bundle.getInt(EXTRA_IMAGE_HEIGHT);
+                //Set  imageView width and height
+                AspectRatioUtils.setImageAspectRatio(mCaptureImageWidth
+                        , mCaptureImageHeight, imageShort);
                 //Load inspiration/capture image
                 loadCapture(imageShort, mCaptureUrl);
                 //Update flag
                 mIsImagePresent = true;
-                //show note text
-                textNote.setVisibility(View.VISIBLE);
+                //if selected image has aspect ratio of 4:5
+                if (AspectRatioUtils.isAspectRatioFourToFive(mCaptureImageWidth, mCaptureImageHeight)) {
+                    //show note textView
+                    textNote.setVisibility(View.GONE);
+                } else {
+                    //Hide note textView
+                    textNote.setVisibility(View.VISIBLE);
+                }
                 // show image tint
-                imageShort.setColorFilter(ContextCompat.getColor(ShortActivity.this, R.color.transparent_50));
+                imageShort.setColorFilter(ContextCompat.getColor(mContext, R.color.transparent_50));
                 //Hide remove image button
                 btnRemoveImage.setVisibility(View.GONE);
             }
@@ -1413,13 +1448,25 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
                 mCaptureID = model.getCaptureID();
                 mCaptureUrl = model.getCapturePic();
                 mIsMerchantable = model.isMerchantable();
+                mCaptureImageWidth = model.getImgWidth();
+                mCaptureImageHeight = model.getImgHeight();
+                //Set imageView width and height
+                AspectRatioUtils.setImageAspectRatio(mCaptureImageWidth
+                        , mCaptureImageHeight
+                        , imageShort);
                 //Load inspiration/capture image
                 loadCapture(imageShort, mCaptureUrl);
                 //Update flags
                 mIsBgColorPresent = false;
                 mIsImagePresent = true;
-                //show note textView
-                textNote.setVisibility(View.VISIBLE);
+                //if selected image has aspect ratio of 4:5
+                if (AspectRatioUtils.isAspectRatioFourToFive(mCaptureImageWidth, mCaptureImageHeight)) {
+                    //show note textView
+                    textNote.setVisibility(View.GONE);
+                } else {
+                    //Hide note textView
+                    textNote.setVisibility(View.VISIBLE);
+                }
 
                 //Show button
                 btnRemoveImage.setVisibility(View.VISIBLE);
@@ -1542,8 +1589,9 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
         squareView.buildDrawingCache();
         Bitmap bm = squareView.getDrawingCache();
 
+        int scaledBitmapHeight = Math.round(mImageWidth / AspectRatioUtils.getImageAspectRatioFactor(mCaptureImageWidth, mCaptureImageHeight));
         //Scaled bitmap
-        Bitmap bitmap = Bitmap.createScaledBitmap(bm, mImageWidth, mImageWidth, true);
+        Bitmap bitmap = Bitmap.createScaledBitmap(bm, mImageWidth, scaledBitmapHeight, true);
         try {
             File file = new File(Environment.getExternalStorageDirectory().getPath() + "/Cread/Short/short_pic.jpg");
             file.getParentFile().mkdirs();
@@ -1578,7 +1626,7 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
                     , mHelper.getAuthToken()
                     , mCaptureID
                     , String.valueOf(textShort.getX() / divisionFactor)
-                    , String.valueOf((textShort.getY() - squareView.getY() + ViewHelper.convertToPx(mContext, 56)) / divisionFactor)
+                    , String.valueOf((textShort.getY() - squareView.getY() + ViewHelper.convertToPx(mContext, 48)) / divisionFactor)
                     , String.valueOf(textShort.getWidth() / divisionFactor)
                     , String.valueOf(textShort.getHeight() / divisionFactor)
                     , textShort.getText().toString()
@@ -1586,6 +1634,7 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
                     , Integer.toHexString(textShort.getCurrentTextColor())
                     , textGravity.toString()
                     , String.valueOf(mImageWidth)
+                    , String.valueOf(scaledBitmapHeight)
                     , String.valueOf(mIsMerchantable)
                     , mFontType
                     , mShortBgColor
@@ -1623,12 +1672,12 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
     private void goToPreviewScreen(String uuid, String authKey, String captureID
             , String xPosition, String yPosition, String tvWidth, String tvHeight
             , String text, String textSize, String textColor, String textGravity
-            , String imgWidth, String merchantable, String font, String bgColor
+            , String imgWidth, String imgHeight, String merchantable, String font, String bgColor
             , String bold, String italic, String imageTintColor, String calledFrom
             , String shortID, String captionText, String entityID, String templateName
             , String isShadowSelected, String longText, String bgSound) {
 
-        Intent intent = new Intent(ShortActivity.this, PreviewActivity.class);
+        Intent intent = new Intent(mContext, PreviewActivity.class);
 
         Bundle bundle = new Bundle();
 
@@ -1644,6 +1693,7 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
         bundle.putString(PREVIEW_EXTRA_TEXT_COLOR, textColor);
         bundle.putString(PREVIEW_EXTRA_TEXT_GRAVITY, textGravity);
         bundle.putString(PREVIEW_EXTRA_IMG_WIDTH, imgWidth);
+        bundle.putString(PREVIEW_EXTRA_IMG_HEIGHT, imgHeight);
         bundle.putString(PREVIEW_EXTRA_MERCHANTABLE, merchantable);
         bundle.putString(PREVIEW_EXTRA_FONT, font);
         bundle.putString(PREVIEW_EXTRA_BG_COLOR, bgColor);
@@ -1658,7 +1708,7 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
         bundle.putString(PREVIEW_EXTRA_IS_SHADOW_SELECTED, isShadowSelected);
         bundle.putString(PREVIEW_EXTRA_LONG_TEXT, longText);
         bundle.putString(PREVIEW_EXTRA_IMAGE_URL, mCaptureUrl);
-        bundle.putString(PREVIEW_EXTRA_BG_SOUND, mBgSound);
+        bundle.putString(PREVIEW_EXTRA_BG_SOUND, bgSound);
 
 
         intent.putExtra(PREVIEW_EXTRA_DATA, bundle);
@@ -1733,6 +1783,12 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
                                 float factor = (float) squareView.getWidth()
                                         / (float) responseObject.getDouble("img_width");
 
+                                //Get image width and height and set aspect ratio
+                                mCaptureImageWidth = responseObject.getInt("img_width");
+                                mCaptureImageHeight = responseObject.getInt("img_height");
+                                AspectRatioUtils.setImageAspectRatio(mCaptureImageWidth
+                                        , mCaptureImageHeight, imageShort);
+
                                 //Check for long text availability
                                 if (TextUtils.isEmpty(responseObject.getString("text_long"))
                                         || responseObject.getString("text_long").equals("null")) {
@@ -1804,8 +1860,8 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
                                 if (responseObject.getLong("textshadow") == 1) {
                                     //Update flag
                                     mIsShadowSelected = 1;
-                                    //Show dot indicator
-                                    dotShadow.setVisibility(View.VISIBLE);
+                                    //Set color filter
+                                    imgShadow.setColorFilter(ContextCompat.getColor(mContext, R.color.colorPrimary));
                                     //Apply text shadow
                                     textShort.setShadowLayer(3, 3, 3
                                             , ContextCompat.getColor(mContext, R.color.color_grey_600));
@@ -1901,7 +1957,7 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
                                 }
 
                                 //Obtain x and y position of text
-                                float dy = (float) (responseObject.getDouble("dy") - squareView.getY() + ViewHelper.convertToPx(mContext, 56)) * factor;
+                                float dy = (float) (responseObject.getDouble("dy") - squareView.getY() + ViewHelper.convertToPx(mContext, 48)) * factor;
                                 float dx = (float) (responseObject.getDouble("dx") * factor);
 
                                 //Update textView xPosition  and yPosition
@@ -1929,7 +1985,7 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
                                     switch (responseObject.getString("imgtintcolor").toUpperCase()) {
                                         case "4D000000":
                                             //Apply tint
-                                            imageShort.setColorFilter(ContextCompat.getColor(ShortActivity.this, R.color.transparent_30));
+                                            imageShort.setColorFilter(ContextCompat.getColor(mContext, R.color.transparent_30));
                                             //Update flag
                                             mImageTintFlag = 1;
                                             //set tint color
@@ -1937,7 +1993,7 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
                                             break;
                                         case "80000000":
                                             //Apply tint
-                                            imageShort.setColorFilter(ContextCompat.getColor(ShortActivity.this, R.color.transparent_50));
+                                            imageShort.setColorFilter(ContextCompat.getColor(mContext, R.color.transparent_50));
                                             //Update flag
                                             mImageTintFlag = 2;
                                             //set tint color
@@ -1945,7 +2001,7 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
                                             break;
                                         case "B3000000":
                                             //Apply tint
-                                            imageShort.setColorFilter(ContextCompat.getColor(ShortActivity.this, R.color.transparent_70));
+                                            imageShort.setColorFilter(ContextCompat.getColor(mContext, R.color.transparent_70));
                                             //Update flag
                                             mImageTintFlag = 3;
                                             //set tint color
@@ -1953,7 +2009,7 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
                                             break;
                                         case "99000000":
                                             //Apply tint
-                                            imageShort.setColorFilter(ContextCompat.getColor(ShortActivity.this, R.color.transparent_60));
+                                            imageShort.setColorFilter(ContextCompat.getColor(mContext, R.color.transparent_60));
                                             //Update flag
                                             mImageTintFlag = 3;
                                             //set tint color
@@ -2067,6 +2123,14 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
                                     data.setCaptureID(dataObj.getString("captureid"));
                                     data.setCapturePic(dataObj.getString("captureurl"));
                                     data.setMerchantable(dataObj.getBoolean("merchantable"));
+                                    //if image width pr image height is null
+                                    if (dataObj.isNull("img_width") || dataObj.isNull("img_height")) {
+                                        data.setImgWidth(1);
+                                        data.setImgHeight(1);
+                                    } else {
+                                        data.setImgWidth(dataObj.getInt("img_width"));
+                                        data.setImgHeight(dataObj.getInt("img_height"));
+                                    }
                                     mInspirationDataList.add(data);
                                 }
                             }
@@ -2154,6 +2218,14 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
                                     data.setCaptureID(dataObj.getString("captureid"));
                                     data.setCapturePic(dataObj.getString("captureurl"));
                                     data.setMerchantable(dataObj.getBoolean("merchantable"));
+                                    //if image width pr image height is null
+                                    if (dataObj.isNull("img_width") || dataObj.isNull("img_height")) {
+                                        data.setImgWidth(1);
+                                        data.setImgHeight(1);
+                                    } else {
+                                        data.setImgWidth(dataObj.getInt("img_width"));
+                                        data.setImgHeight(dataObj.getInt("img_height"));
+                                    }
                                     mInspirationDataList.add(data);
                                     //Notify item insertion
                                     mAdapter.notifyItemInserted(mInspirationDataList.size() - 1);
@@ -2329,11 +2401,13 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
         if (shadowFlag == 0) {
             textShort.setShadowLayer(0, 0, 0, 0);
             mIsShadowSelected = 0;
-            dotShadow.setVisibility(View.INVISIBLE);
+            //Set color filter
+            imgShadow.setColorFilter(ContextCompat.getColor(mContext, R.color.grey));
         } else {
             textShort.setShadowLayer(3, 3, 3, ContextCompat.getColor(mContext, R.color.color_grey_600));
             mIsShadowSelected = 1;
-            dotShadow.setVisibility(View.VISIBLE);
+            //Set color filter
+            imgShadow.setColorFilter(ContextCompat.getColor(mContext, R.color.colorPrimary));
         }
 
         //if shape selected
@@ -2436,6 +2510,15 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
                     }
                 })
                 .show();
+    }
+
+    /**
+     * To open this screen in full screen mode.
+     */
+    private void initFullScreen() {
+        requestWindowFeature(Window.FEATURE_NO_TITLE);
+        getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
+                WindowManager.LayoutParams.FLAG_FULLSCREEN);
     }
 
     //endregion
