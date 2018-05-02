@@ -22,7 +22,6 @@ import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
-import com.afollestad.materialdialogs.MaterialDialog;
 import com.google.firebase.analytics.FirebaseAnalytics;
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Target;
@@ -42,7 +41,6 @@ import com.thetestament.cread.listeners.listener;
 import com.thetestament.cread.listeners.listener.OnDownvoteClickedListener;
 import com.thetestament.cread.listeners.listener.OnFeedLoadMoreListener;
 import com.thetestament.cread.listeners.listener.OnHatsOffListener;
-import com.thetestament.cread.listeners.listener.OnShareDialogItemClickedListener;
 import com.thetestament.cread.listeners.listener.OnShareLinkClickedListener;
 import com.thetestament.cread.listeners.listener.OnShareListener;
 import com.thetestament.cread.models.FeedModel;
@@ -58,7 +56,6 @@ import io.reactivex.disposables.CompositeDisposable;
 
 import static com.thetestament.cread.helpers.FeedHelper.initCaption;
 import static com.thetestament.cread.helpers.FeedHelper.initSocialActionsCount;
-import static com.thetestament.cread.helpers.FeedHelper.initializeShareDialog;
 import static com.thetestament.cread.helpers.FeedHelper.updateDotSeperatorVisibility;
 import static com.thetestament.cread.helpers.FeedHelper.updateDownvoteAndSeperatorVisibility;
 import static com.thetestament.cread.helpers.FeedHelper.updatePostTimestamp;
@@ -419,32 +416,9 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             @Override
             public void onClick(View view) {
 
-                ShareDialogAdapter adapter = new ShareDialogAdapter(mContext, initializeShareDialog(mContext));
-                final MaterialDialog dialog = new MaterialDialog.Builder(mContext)
-                        .adapter(adapter, null)
-                        .show();
-                adapter.setShareDialogItemClickedListener(new OnShareDialogItemClickedListener() {
-                    @Override
-                    public void onShareDialogItemClicked(int index) {
-
-                        // dismiss dialog
-                        dialog.dismiss();
-
-                        switch (index) {
-                            case 0:
-                                // image sharing
-                                //so load image
-                                loadBitmapForSharing(data);
-                                break;
-                            case 1:
-                                // link sharing
-                                // get deep link from server
-                                onShareLinkClickedListener.onShareLinkClicked(entityID, pictureUrl, creatorName);
-                                break;
-
-                        }
-                    }
-                });
+                // image sharing
+                //so load image
+                loadBitmapForSharing(data);
 
 
             }

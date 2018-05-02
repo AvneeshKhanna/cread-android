@@ -204,7 +204,7 @@ public class SearchAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
             public void onClick(View view) {
 
                 // get uri from string
-                Uri uri = Uri.parse(URI_HASH_TAG_ACTIVITY + "#" + hashTag);
+                Uri uri = Uri.parse(URI_HASH_TAG_ACTIVITY + "-1:" + "#" + hashTag);
 
                 // open hash tag activity
                 Intent intent = new Intent(Intent.ACTION_VIEW, uri);

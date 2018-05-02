@@ -14,8 +14,8 @@ android {
         applicationId "com.thetestament.cread"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 61
-        versionName "1.7.6"
+        versionCode 62
+        versionName "1.7.7"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         // Enabling multi-dex support.
         multiDexEnabled true
@@ -44,11 +44,11 @@ android {
             signingConfig signingConfigs.config
         }
         debug {
-            shrinkResources false
-            minifyEnabled false
+            shrinkResources true
+            minifyEnabled true
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
             //buildConfigField "String", "URL", '"http://cread-dev-remote.herokuapp.com"'
-            //buildConfigField "String", "URL", '"http://5ca63d88.ngrok.io"'
+            //buildConfigField "String", "URL", '"http://b8eb1473.ngrok.io"'
             buildConfigField "String", "URL", '"http://cread-server-dev.ap-northeast-1.elasticbeanstalk.com"'
             buildConfigField "boolean", "VISIBILITY_RESTART_HEROKU_OPTION", "true"
             buildConfigField "String", "S3BUCKET", '"testamentbucketdev"'

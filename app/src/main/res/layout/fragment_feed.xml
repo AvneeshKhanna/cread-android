@@ -28,10 +28,13 @@
                 layout="@layout/layout_recommended_artists"
                 android:visibility="visible" />
 
+
             <include
                 android:id="@+id/layoutHashTagOfTheDay"
                 layout="@layout/layout_hash_tag_of_the_day"
                 android:visibility="visible" />
+
+
         </android.support.design.widget.CollapsingToolbarLayout>
 
 

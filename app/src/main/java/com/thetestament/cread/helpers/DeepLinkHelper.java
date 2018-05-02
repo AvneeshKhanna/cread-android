@@ -16,6 +16,7 @@ import com.thetestament.cread.BuildConfig;
 import com.thetestament.cread.R;
 import com.thetestament.cread.listeners.listener;
 import com.thetestament.cread.listeners.listener.OnDeepLinkRequestedListener;
+import com.thetestament.cread.models.FeedModel;
 import com.thetestament.cread.utils.Constant;
 
 import org.json.JSONException;
@@ -122,10 +123,10 @@ public class DeepLinkHelper {
      * @param rootView
      * @param uuid
      * @param authkey
-     * @param entityID
-     * @param entityUrl
+     * @param data
+     * @param bitmap
      */
-    public static void generateDeepLink(final FragmentActivity context, CompositeDisposable compositeDisposable, final View rootView, String uuid, String authkey, String entityID, String entityUrl, String creatorName) {
+    public static void generateDeepLink(final FragmentActivity context, CompositeDisposable compositeDisposable, final View rootView, String uuid, String authkey, final FeedModel data, final Bitmap bitmap) {
 
         DeepLinkHelper deepLinkHelper = new DeepLinkHelper();
         deepLinkHelper.getDeepLinkFromServer(context
@@ -133,16 +134,16 @@ public class DeepLinkHelper {
                 , getEntitySpecificDeepLinkObservable(BuildConfig.URL + "/entity-share-link/generate-dynamic-link",
                         uuid,
                         authkey,
-                        entityID,
-                        entityUrl,
-                        creatorName,
+                        data.getEntityID(),
+                        data.getContentImage(),
+                        data.getCreatorName(),
                         SHARE_SOURCE_FROM_SHARE)
                 , new listener.OnDeepLinkRequestedListener() {
                     @Override
                     public void onDeepLinkSuccess(String deepLink, MaterialDialog dialog) {
                         dialog.dismiss();
                         // share link
-                        shareDeepLink(context, deepLink);
+                        ShareHelper.sharePost(bitmap, context, data, deepLink);
 
                     }
 

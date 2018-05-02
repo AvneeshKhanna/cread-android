@@ -650,4 +650,43 @@ public class SharedPreferenceHelper {
         editor.apply();
     }
 
+    public String getHTagOfTheDay() {
+        return mSharedPreferences
+                .getString(mContext.getString(R.string.key_htod_value)
+                        , null);
+    }
+
+    public void setHTagOfTheDay(String hTag) {
+        SharedPreferences.Editor editor = mSharedPreferences.edit();
+        editor.putString(mContext.getString(R.string.key_htod_value), hTag);
+        editor.apply();
+    }
+
+    public long getHTagCount() {
+        return Long.parseLong(mSharedPreferences
+                .getString(mContext.getString(R.string.key_htod_count)
+                        , "0"));
+    }
+
+    public void setHTagCount(long hTagCount) {
+        SharedPreferences.Editor editor = mSharedPreferences.edit();
+        editor.putString(mContext.getString(R.string.key_htod_count), String.valueOf(hTagCount));
+        editor.apply();
+    }
+
+    public boolean getHTagNewPostsIndicatorVisibility() {
+        return mSharedPreferences
+                .getBoolean(mContext.getString(R.string.key_htod_new_posts_indicator_visibility)
+                        , false);
+    }
+
+    public void setHTagNewPostsIndicatorVisibility(boolean isVisible) {
+        SharedPreferences.Editor editor = mSharedPreferences.edit();
+        editor.putBoolean(mContext.getString(R.string.key_htod_new_posts_indicator_visibility), isVisible);
+        editor.apply();
+    }
+
+
+
+
 }
