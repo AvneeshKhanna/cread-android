@@ -203,8 +203,12 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
     AppCompatTextView btnCopyRight;
     @BindView(R.id.buttonNext)
     AppCompatTextView btnNext;
+    @BindView(R.id.parentContainerImage)
+    RelativeLayout parentContainerImage;
     @BindView(R.id.imageContainer)
     RelativeLayout squareView;
+    @BindView(R.id.imageShortContainer)
+    RelativeLayout imageShortContainer;
     @BindView(R.id.imageShort)
     ImageView imageShort;
     @BindView(R.id.textShort)
@@ -245,6 +249,8 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
     AppCompatImageView btnRemoveImage;
     @BindView(R.id.btnFormatShadow)
     FrameLayout btnFormatShadow;
+    @BindView(R.id.containerSeekBar)
+    RelativeLayout containerSeekBar;
 
     //Font bottom sheet
     @BindView(R.id.bottomSheetView)
@@ -436,10 +442,13 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
 
                     mCaptureImageWidth = bundle.getInt(EXTRA_IMAGE_WIDTH);
                     mCaptureImageHeight = bundle.getInt(EXTRA_IMAGE_HEIGHT);
-                    //Set imageView width and height
+                    //Set imageView and its container width and height
                     AspectRatioUtils.setImageAspectRatio(mCaptureImageWidth
                             , mCaptureImageHeight
                             , imageShort);
+                    AspectRatioUtils.setImageAspectRatio(mCaptureImageWidth
+                            , mCaptureImageHeight
+                            , imageShortContainer);
                     //Load inspiration/capture image
                     loadCapture(imageShort, mCaptureUrl);
                     //Update flags
@@ -517,6 +526,7 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
         formatOptions.setVisibility(View.VISIBLE);
         seekBarTextSize.setVisibility(View.VISIBLE);
         viewFormatTextSize.setVisibility(View.VISIBLE);
+        containerSeekBar.setVisibility(View.VISIBLE);
     }
 
     //endregion
@@ -582,7 +592,7 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
         hideBottomSheets();
     }
 
-    @OnClick(R.id.imageContainer)
+    @OnClick({R.id.imageContainer, R.id.imageShort, R.id.parentContainerImage})
     void onContainerClick() {
         //Method call
         hideBottomSheets();
@@ -601,6 +611,7 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
         formatOptions.setVisibility(View.VISIBLE);
         seekBarTextSize.setVisibility(View.VISIBLE);
         viewFormatTextSize.setVisibility(View.VISIBLE);
+        containerSeekBar.setVisibility(View.VISIBLE);
     }
 
     /**
@@ -790,7 +801,7 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
     void removeImageOnClick() {
         //Set imageView width and height
         AspectRatioUtils.setImageAspectRatio(1, 1, imageShort);
-
+        AspectRatioUtils.setImageAspectRatio(1, 1, imageShortContainer);
         if (mIsImagePresent) {
             //show note textView
             textNote.setVisibility(View.INVISIBLE);
@@ -831,7 +842,7 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
             //Remove shadow layer
             textShort.setShadowLayer(0, 0, 0, 0);
             //Set color filter
-            imgShadow.setColorFilter(ContextCompat.getColor(mContext, R.color.grey));
+            imgShadow.setColorFilter(ContextCompat.getColor(mContext, R.color.white));
         } else {
             mIsShadowSelected = 1;
             //Apply shadow on text
@@ -851,8 +862,10 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
     private void initScreen() {
         //obtain shared preference reference
         mHelper = new SharedPreferenceHelper(this);
+        AspectRatioUtils.setImageAspectRatio(4, 5, parentContainerImage);
         //Set imageView width and height
         AspectRatioUtils.setImageAspectRatio(1, 1, imageShort);
+        AspectRatioUtils.setImageAspectRatio(1, 1, imageShortContainer);
         //set format option icon
         setFormatOptionsIcon();
         //retrieve data from intent
@@ -920,9 +933,13 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
                 mIsMerchantable = bundle.getBoolean(EXTRA_MERCHANTABLE);
                 mCaptureImageWidth = bundle.getInt(EXTRA_IMAGE_WIDTH);
                 mCaptureImageHeight = bundle.getInt(EXTRA_IMAGE_HEIGHT);
-                //Set  imageView width and height
+                //Set imageView and its container width and height
                 AspectRatioUtils.setImageAspectRatio(mCaptureImageWidth
-                        , mCaptureImageHeight, imageShort);
+                        , mCaptureImageHeight
+                        , imageShort);
+                AspectRatioUtils.setImageAspectRatio(mCaptureImageWidth
+                        , mCaptureImageHeight
+                        , imageShortContainer);
                 //Load inspiration/capture image
                 loadCapture(imageShort, mCaptureUrl);
                 //Update flag
@@ -1263,9 +1280,15 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
     private void initDragListener() {
         textShort.setOnTouchListener(new OnDragTouchListener(textShort, squareView, new OnDragTouchListener.OnDragActionListener() {
             @Override
+            public void onDragFinished() {
+                containerSeekBar.setVisibility(View.VISIBLE);
+            }
+
+            @Override
             public void onDragStart(View view) {
                 //Hide edit text cursor
                 textShort.setCursorVisible(false);
+                containerSeekBar.setVisibility(View.GONE);
             }
 
             @Override
@@ -1345,6 +1368,7 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
                     formatOptions.setVisibility(View.INVISIBLE);
                     seekBarTextSize.setVisibility(View.INVISIBLE);
                     viewFormatTextSize.setVisibility(View.INVISIBLE);
+                    containerSeekBar.setVisibility(View.INVISIBLE);
 
                     //Method call
                     hideBottomSheets();
@@ -1358,7 +1382,7 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
      */
     private void initDoubleTapListener() {
 
-        squareView.setOnTouchListener(new OnSwipeGestureListener(this) {
+        imageShort.setOnTouchListener(new OnSwipeGestureListener(this) {
 
             @Override
             public void onDoubleClick() {
@@ -1422,6 +1446,7 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
                 formatOptions.setVisibility(View.VISIBLE);
                 seekBarTextSize.setVisibility(View.VISIBLE);
                 viewFormatTextSize.setVisibility(View.VISIBLE);
+                containerSeekBar.setVisibility(View.VISIBLE);
             }
         });
     }
@@ -1450,10 +1475,13 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
                 mIsMerchantable = model.isMerchantable();
                 mCaptureImageWidth = model.getImgWidth();
                 mCaptureImageHeight = model.getImgHeight();
-                //Set imageView width and height
+                //Set imageView and its container width and height
                 AspectRatioUtils.setImageAspectRatio(mCaptureImageWidth
                         , mCaptureImageHeight
                         , imageShort);
+                AspectRatioUtils.setImageAspectRatio(mCaptureImageWidth
+                        , mCaptureImageHeight
+                        , imageShortContainer);
                 //Load inspiration/capture image
                 loadCapture(imageShort, mCaptureUrl);
                 //Update flags
@@ -1581,13 +1609,14 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
         textShort.setCursorVisible(false);
         //Hide button
         btnRemoveImage.setVisibility(View.GONE);
+        containerSeekBar.setVisibility(View.GONE);
 
-        float divisionFactor = (float) squareView.getWidth() / mImageWidth;
+        float divisionFactor = (float) imageShortContainer.getWidth() / mImageWidth;
 
         //Enable drawing cache
-        squareView.setDrawingCacheEnabled(true);
-        squareView.buildDrawingCache();
-        Bitmap bm = squareView.getDrawingCache();
+        imageShortContainer.setDrawingCacheEnabled(true);
+        imageShortContainer.buildDrawingCache();
+        Bitmap bm = imageShortContainer.getDrawingCache();
 
         int scaledBitmapHeight = Math.round(mImageWidth / AspectRatioUtils.getImageAspectRatioFactor(mCaptureImageWidth, mCaptureImageHeight));
         //Scaled bitmap
@@ -1626,7 +1655,7 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
                     , mHelper.getAuthToken()
                     , mCaptureID
                     , String.valueOf(textShort.getX() / divisionFactor)
-                    , String.valueOf((textShort.getY() - squareView.getY() + ViewHelper.convertToPx(mContext, 48)) / divisionFactor)
+                    , String.valueOf((textShort.getY() - imageShortContainer.getY() + ViewHelper.convertToPx(mContext, 48)) / divisionFactor)
                     , String.valueOf(textShort.getWidth() / divisionFactor)
                     , String.valueOf(textShort.getHeight() / divisionFactor)
                     , textShort.getText().toString()
@@ -1657,8 +1686,8 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
         }
 
         //Disable drawing cache
-        squareView.setDrawingCacheEnabled(false);
-        squareView.destroyDrawingCache();
+        imageShortContainer.setDrawingCacheEnabled(false);
+        imageShortContainer.destroyDrawingCache();
 
         if (mIsImagePresent) {
             //show button
@@ -1786,8 +1815,13 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
                                 //Get image width and height and set aspect ratio
                                 mCaptureImageWidth = responseObject.getInt("img_width");
                                 mCaptureImageHeight = responseObject.getInt("img_height");
+                                //Set imageView and its container width and height
                                 AspectRatioUtils.setImageAspectRatio(mCaptureImageWidth
-                                        , mCaptureImageHeight, imageShort);
+                                        , mCaptureImageHeight
+                                        , imageShort);
+                                AspectRatioUtils.setImageAspectRatio(mCaptureImageWidth
+                                        , mCaptureImageHeight
+                                        , imageShortContainer);
 
                                 //Check for long text availability
                                 if (TextUtils.isEmpty(responseObject.getString("text_long"))
@@ -1818,8 +1852,15 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
                                     //Update flag
                                     mIsImagePresent = true;
                                     mCaptureUrl = responseObject.getString("captureurl");
-                                    //show note text
-                                    textNote.setVisibility(View.VISIBLE);
+                                    //if selected image has aspect ratio of 4:5
+                                    if (AspectRatioUtils.isAspectRatioFourToFive(mCaptureImageWidth
+                                            , mCaptureImageHeight)) {
+                                        //show note textView
+                                        textNote.setVisibility(View.GONE);
+                                    } else {
+                                        //Hide note textView
+                                        textNote.setVisibility(View.VISIBLE);
+                                    }
 
                                     Picasso.with(mContext)
                                             .load(responseObject.getString("captureurl"))
@@ -1957,7 +1998,7 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
                                 }
 
                                 //Obtain x and y position of text
-                                float dy = (float) (responseObject.getDouble("dy") - squareView.getY() + ViewHelper.convertToPx(mContext, 48)) * factor;
+                                float dy = (float) (responseObject.getDouble("dy") - imageShortContainer.getY() + ViewHelper.convertToPx(mContext, 48)) * factor;
                                 float dx = (float) (responseObject.getDouble("dx") * factor);
 
                                 //Update textView xPosition  and yPosition
@@ -2402,7 +2443,7 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
             textShort.setShadowLayer(0, 0, 0, 0);
             mIsShadowSelected = 0;
             //Set color filter
-            imgShadow.setColorFilter(ContextCompat.getColor(mContext, R.color.grey));
+            imgShadow.setColorFilter(ContextCompat.getColor(mContext, R.color.white));
         } else {
             textShort.setShadowLayer(3, 3, 3, ContextCompat.getColor(mContext, R.color.color_grey_600));
             mIsShadowSelected = 1;
@@ -2520,6 +2561,7 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
                 WindowManager.LayoutParams.FLAG_FULLSCREEN);
     }
+
 
     //endregion
 }

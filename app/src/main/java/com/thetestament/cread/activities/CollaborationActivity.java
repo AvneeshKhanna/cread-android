@@ -171,6 +171,8 @@ public class CollaborationActivity extends BaseActivity {
     //region :Views binding with butter knife
     @BindView(R.id.rootView)
     CoordinatorLayout rootView;
+    @BindView(R.id.parentContainerImage)
+    RelativeLayout parentContainerImage;
     @BindView(R.id.imageContainer)
     RelativeLayout squareView;
     @BindView(R.id.imageCapture)
@@ -183,8 +185,8 @@ public class CollaborationActivity extends BaseActivity {
     View viewProgress;
     @BindView(R.id.seekBarTextSize)
     AppCompatSeekBar seekBarTextSize;
-    @BindView(R.id.dotShadow)
-    View dotShadow;
+    @BindView(R.id.imageShadow)
+    ImageView imageShadow;
     @BindView(R.id.btnLAlignText)
     AppCompatTextView btnAlignText;
     @BindView(R.id.btnFont)
@@ -594,15 +596,16 @@ public class CollaborationActivity extends BaseActivity {
             mIsShadowSelected = 0;
             //Remove shadow layer
             textShort.setShadowLayer(0, 0, 0, 0);
-            //Show hide dot shadow
-            dotShadow.setVisibility(View.INVISIBLE);
+            //Add tint to shadow button
+            imageShadow.setColorFilter(ContextCompat.getColor(mContext, R.color.grey));
+
         } else {
             mIsShadowSelected = 1;
             //Apply shadow on text
             textShort.setShadowLayer(3, 3, 3
                     , ContextCompat.getColor(mContext, R.color.color_grey_600));
-            //Show show dot shadow
-            dotShadow.setVisibility(View.VISIBLE);
+            //Add tint to shadow button
+            imageShadow.setColorFilter(ContextCompat.getColor(mContext, R.color.colorPrimary));
         }
     }
     //endregion
@@ -630,6 +633,9 @@ public class CollaborationActivity extends BaseActivity {
     private void initScreen() {
         //Set format option button
         setFormatOptionsIcon();
+        //Set view  to 4:5
+        AspectRatioUtils.setImageAspectRatio(4
+                , 5, parentContainerImage);
         //Retrieve data from intent
         Bundle data = getIntent().getBundleExtra(EXTRA_DATA);
         mEntityID = data.getString(EXTRA_ENTITY_ID);
@@ -993,6 +999,9 @@ public class CollaborationActivity extends BaseActivity {
         AspectRatioUtils.setImageAspectRatio(mCaptureImageWidth
                 , mCaptureImageHeight
                 , imageView);
+        AspectRatioUtils.setImageAspectRatio(mCaptureImageWidth
+                , mCaptureImageHeight
+                , squareView);
 
         Picasso.with(this)
                 .load(getImageUri(IMAGE_TYPE_USER_CAPTURE_PIC))
@@ -1207,8 +1216,8 @@ public class CollaborationActivity extends BaseActivity {
                                 if (responseObject.getLong("textshadow") == 1) {
                                     //Update flag
                                     mIsShadowSelected = 1;
-                                    //Show dot indicator
-                                    dotShadow.setVisibility(View.VISIBLE);
+                                    //Add tint to shadow button
+                                    imageShadow.setColorFilter(ContextCompat.getColor(mContext, R.color.colorPrimary));
                                     //Apply text shadow
                                     textShort.setShadowLayer(3, 3, 3
                                             , ContextCompat.getColor(mContext, R.color.color_grey_600));
@@ -1580,11 +1589,13 @@ public class CollaborationActivity extends BaseActivity {
         if (shadowFlag == 0) {
             textShort.setShadowLayer(0, 0, 0, 0);
             mIsShadowSelected = 0;
-            dotShadow.setVisibility(View.INVISIBLE);
+            //Add tint to shadow button
+            imageShadow.setColorFilter(ContextCompat.getColor(mContext, R.color.grey));
         } else {
             textShort.setShadowLayer(3, 3, 3, ContextCompat.getColor(mContext, R.color.color_grey_600));
             mIsShadowSelected = 1;
-            dotShadow.setVisibility(View.VISIBLE);
+            //Add tint to shadow button
+            imageShadow.setColorFilter(ContextCompat.getColor(mContext, R.color.colorPrimary));
         }
 
         //if shape selected

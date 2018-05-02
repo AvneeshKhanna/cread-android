@@ -11,61 +11,71 @@
         android:layout_height="match_parent">
 
         <RelativeLayout
-            android:id="@+id/imageContainer"
+            android:id="@+id/parentContainerImage"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="@color/white">
+            android:background="@color/black"
+            android:gravity="center">
 
-            <ImageView
-                android:id="@+id/imageCapture"
+            <RelativeLayout
+                android:id="@+id/imageContainer"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:adjustViewBounds="true"
-                tools:src="@tools:sample/avatars" />
+                android:background="@color/white">
 
-            <android.support.v7.widget.AppCompatTextView
-                android:id="@+id/textShort"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_centerInParent="true"
-                android:layout_marginLeft="10dp"
-                android:layout_marginRight="10dp"
-                android:gravity="left"
-                android:inputType="textCapSentences|textMultiLine"
-                android:textAppearance="@style/ShortFont"
-                android:textSize="16sp" />
-
-            <FrameLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignBottom="@+id/imageCapture"
-                android:layout_alignParentLeft="true"
-                android:background="@color/black_overlay">
-
-                <TextView
-                    android:id="@+id/textSignature"
+                <ImageView
+                    android:id="@+id/imageCapture"
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:layout_alignParentBottom="true"
-                    android:paddingLeft="3dp"
-                    android:paddingRight="3dp"
-                    android:textColor="@color/white"
-                    android:textSize="12sp"
-                    tools:text="~The testament" />
-            </FrameLayout>
+                    android:layout_height="wrap_content"
+                    android:adjustViewBounds="true"
+                    android:scaleType="fitXY"
+                    tools:src="@tools:sample/avatars" />
+
+                <android.support.v7.widget.AppCompatTextView
+                    android:id="@+id/textShort"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerInParent="true"
+                    android:layout_marginLeft="10dp"
+                    android:layout_marginRight="10dp"
+                    android:gravity="left"
+                    android:inputType="textCapSentences|textMultiLine"
+                    android:textAppearance="@style/ShortFont"
+                    android:textSize="16sp" />
+
+                <FrameLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignBottom="@+id/imageCapture"
+                    android:layout_alignParentLeft="true"
+                    android:background="@color/black_overlay">
+
+                    <TextView
+                        android:id="@+id/textSignature"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:layout_alignParentBottom="true"
+                        android:paddingLeft="3dp"
+                        android:paddingRight="3dp"
+                        android:textColor="@color/white"
+                        android:textSize="12sp"
+                        tools:text="~The testament" />
+                </FrameLayout>
+            </RelativeLayout>
         </RelativeLayout>
 
+
+        <!--Note text-->
         <TextView
             android:id="@+id/textNote"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_below="@+id/imageContainer"
+            android:layout_below="@+id/parentContainerImage"
             android:layout_centerHorizontal="true"
             android:gravity="center"
             android:paddingTop="10sp"
             android:text="@string/note_text_short_creation"
             android:textSize="12sp" />
-
 
         <!--Container seek bar-->
         <RelativeLayout
@@ -104,6 +114,7 @@
                 android:paddingRight="16dp">
 
                 <ImageView
+                    android:id="@+id/imageShadow"
                     android:layout_width="20dp"
                     android:layout_height="20dp"
                     android:tint="@color/grey"

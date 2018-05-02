@@ -59,6 +59,7 @@
     <color name="transparent_50">#80000000</color>
     <color name="transparent_60">#99000000</color>
     <color name="transparent_70">#B3000000</color>
+    <color name="transparent_100">#FFFFFFFF</color>
 
     <!-- Color transparency
     100% — FF

@@ -6,8 +6,7 @@
     android:layout_marginRight="5dp"
     android:background="@color/grey_custom"
     android:gravity="center"
-    android:orientation="vertical"
-    android:padding="1dp">
+    android:orientation="vertical">
 
     <android.support.v7.widget.AppCompatImageView
         android:id="@+id/inspirationImage"
