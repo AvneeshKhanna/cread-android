@@ -11,19 +11,22 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
+        <!--Main container-->
         <FrameLayout
+            android:id="@+id/mainContainer"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_above="@+id/containerPreviewBottom">
 
             <android.support.v4.widget.NestedScrollView
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="match_parent"
                 android:scrollbars="vertical">
 
                 <RelativeLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:layout_gravity="center"
                     android:background="@color/yellow_light">
 
 
@@ -122,6 +125,13 @@
 
         </FrameLayout>
 
+        <View
+            android:id="@+id/Separator"
+            android:layout_width="match_parent"
+            android:layout_height="0.3dp"
+            android:layout_below="@+id/mainContainer"
+            android:alpha="0.4"
+            android:background="@color/grey_dark" />
         <!--Caption and upload button-->
         <LinearLayout
             android:id="@+id/containerPreviewBottom"
@@ -163,6 +173,6 @@
     </RelativeLayout>
 
     <!--Filter option bottom sheet-->
-    <!--<include layout="@layout/layout_filter_bottom_sheet" />-->
+    <include layout="@layout/layout_filter_bottom_sheet" />
 
 </android.support.design.widget.CoordinatorLayout>

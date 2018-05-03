@@ -332,10 +332,24 @@ public class Constant {
     public static final String SHARE_SOURCE_FROM_CREATE = "fromCreate";
 
     //region :Aspect ration
-    public static final String ASPECT_RATIO_ONE_TO_ONE = "1.0";
-    public static final String ASPECT_RATIO_THREE_TO_TWO = "1.5";
-    public static final String ASPECT_RATIO_FOUR_TO_FIVE = "0.8";
-    public static final String ASPECT_RATIO_FOUR_TO_THREE = "1.3";
-    public static final String ASPECT_RATIO_SIXTEEN_TO_NINE = "1.8";
+    public static final String ASPECT_RATIO_ONE_TO_ONE = "1.00";
+    public static final String ASPECT_RATIO_FOUR_TO_FIVE = "0.80";
+    public static final String ASPECT_RATIO_FIVE_TO_FOUR = "1.25";
+    public static final String ASPECT_RATIO_FOUR_TO_THREE = "1.33";
+    public static final String ASPECT_RATIO_THREE_TO_FOUR = "0.75";
+
+    public static final float ASPECT_RATIO_ONE_TO_ONE_VALUE = 1.00f;
+    public static final float ASPECT_RATIO_FOUR_TO_FIVE_VALUE = 0.80f;
+    public static final float ASPECT_RATIO_FIVE_TO_FOUR_VALUE = 1.25f;
+    public static final float ASPECT_RATIO_FOUR_TO_THREE_VALUE = 1.33f;
+    public static final float ASPECT_RATIO_THREE_TO_FOUR_VALUE = 0.75f;
+
+    //endregion
+
+    //Region :ContentPreview extra data
+    public static final String CONTENT_PREVIEW_EXTRA_IMAGE_WIDTH = "contentPreviewImageWidth";
+    public static final String CONTENT_PREVIEW_EXTRA_IMAGE_HEIGHT = "contentPreviewImageHeight";
+    public static final String CONTENT_PREVIEW_EXTRA_IMAGE_URL = "contentPreviewImageUrl";
+    public static final String CONTENT_PREVIEW_EXTRA_DATA = "contentPreviewData";
     //endregion
 }

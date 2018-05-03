@@ -180,10 +180,10 @@ public class ImageHelper {
         //Set aspect ratio
         options.setAspectRatioOptions(0,
                 new AspectRatio("1:1", 1, 1),
-                new AspectRatio("3:2", 3, 2),
                 new AspectRatio("4:5", 4, 5),
+                new AspectRatio("5:4", 5, 4),
                 new AspectRatio("4:3", 4, 3),
-                new AspectRatio("16:9", 16, 9),
+                new AspectRatio("3:4", 3, 4),
                 new AspectRatio("Original", CropImageView.DEFAULT_ASPECT_RATIO, CropImageView.DEFAULT_ASPECT_RATIO)
         );
 
@@ -217,16 +217,15 @@ public class ImageHelper {
         //Set aspect ratio
         options.setAspectRatioOptions(0,
                 new AspectRatio("1:1", 1, 1),
-                new AspectRatio("3:2", 3, 2),
                 new AspectRatio("4:5", 4, 5),
+                new AspectRatio("5:4", 5, 4),
                 new AspectRatio("4:3", 4, 3),
-                new AspectRatio("16:9", 16, 9),
+                new AspectRatio("3:4", 3, 4),
                 new AspectRatio("Original", CropImageView.DEFAULT_ASPECT_RATIO, CropImageView.DEFAULT_ASPECT_RATIO)
         );
         //Launch image cropping activity
         UCrop.of(sourceUri, destinationUri)
                 .withOptions(options)
-                .useSourceImageAspectRatio()
                 .start(context, fragment, UCrop.REQUEST_CROP);
     }
 

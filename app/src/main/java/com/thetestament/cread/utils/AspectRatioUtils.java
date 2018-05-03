@@ -8,6 +8,13 @@ import android.widget.RelativeLayout;
 
 import java.util.Locale;
 
+import static com.thetestament.cread.utils.Constant.ASPECT_RATIO_FIVE_TO_FOUR_VALUE;
+import static com.thetestament.cread.utils.Constant.ASPECT_RATIO_FOUR_TO_FIVE_VALUE;
+import static com.thetestament.cread.utils.Constant.ASPECT_RATIO_FOUR_TO_THREE_VALUE;
+import static com.thetestament.cread.utils.Constant.ASPECT_RATIO_ONE_TO_ONE;
+import static com.thetestament.cread.utils.Constant.ASPECT_RATIO_ONE_TO_ONE_VALUE;
+import static com.thetestament.cread.utils.Constant.ASPECT_RATIO_THREE_TO_FOUR_VALUE;
+
 /**
  * Class to provide utility methods for aspect ration related operation.
  */
@@ -32,39 +39,42 @@ public class AspectRatioUtils {
      */
     public static void setImageAspectRatio(int imgWidth, int imgHeight, View imageView) {
         float valueAspectRatio = (float) imgWidth / imgHeight;
-        String formattedAspectRatio = String.format(Locale.ENGLISH, "%.1f", valueAspectRatio);
+        String formattedAspectRatio = String.format(Locale.ENGLISH, "%.2f", valueAspectRatio);
 
         RelativeLayout.LayoutParams params;
 
         switch (formattedAspectRatio) {
             //1:1 aspect ratio
-            case Constant.ASPECT_RATIO_ONE_TO_ONE:
+            case ASPECT_RATIO_ONE_TO_ONE:
                 params = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT
                         , AspectRatioUtils.getDeviceScreenWidth());
                 imageView.setLayoutParams(params);
                 break;
-            //3:2 aspect ratio
-            case Constant.ASPECT_RATIO_THREE_TO_TWO:
-                params = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT
-                        , Math.round((float) (AspectRatioUtils.getDeviceScreenWidth() / 1.5)));
-                imageView.setLayoutParams(params);
-                break;
+
             //4:5 aspect ratio
             case Constant.ASPECT_RATIO_FOUR_TO_FIVE:
                 params = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT
-                        , Math.round((float) (AspectRatioUtils.getDeviceScreenWidth() / 0.8)));
+                        , Math.round((AspectRatioUtils.getDeviceScreenWidth() / ASPECT_RATIO_FOUR_TO_FIVE_VALUE)));
                 imageView.setLayoutParams(params);
                 break;
+
+            //5:4 aspect ratio
+            case Constant.ASPECT_RATIO_FIVE_TO_FOUR:
+                params = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT
+                        , Math.round((AspectRatioUtils.getDeviceScreenWidth() / ASPECT_RATIO_FIVE_TO_FOUR_VALUE)));
+                imageView.setLayoutParams(params);
+                break;
+
             //4:3 aspect ratio
             case Constant.ASPECT_RATIO_FOUR_TO_THREE:
                 params = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT
-                        , Math.round((float) (AspectRatioUtils.getDeviceScreenWidth() / 1.3)));
+                        , Math.round((AspectRatioUtils.getDeviceScreenWidth() / ASPECT_RATIO_FOUR_TO_THREE_VALUE)));
                 imageView.setLayoutParams(params);
                 break;
-            //16:9 aspect ratio
-            case Constant.ASPECT_RATIO_SIXTEEN_TO_NINE:
+            //3:4 aspect ratio
+            case Constant.ASPECT_RATIO_THREE_TO_FOUR:
                 params = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT
-                        , Math.round((float) (AspectRatioUtils.getDeviceScreenWidth() / 1.8)));
+                        , Math.round((AspectRatioUtils.getDeviceScreenWidth() / ASPECT_RATIO_THREE_TO_FOUR_VALUE)));
                 imageView.setLayoutParams(params);
                 break;
             //For original and other views
@@ -83,19 +93,19 @@ public class AspectRatioUtils {
     public static boolean getSquareImageManipulation(float imgWidth, float imgHeight) {
         float valueAspectRatio = imgWidth / imgHeight;
         String formattedAspectRatio = String.format(Locale.ENGLISH
-                , "%.1f", valueAspectRatio);
+                , "%.2f", valueAspectRatio);
 
         switch (formattedAspectRatio) {
             //1:1 aspect ratio
-            case Constant.ASPECT_RATIO_ONE_TO_ONE:
-                //3:2 aspect ratio
-            case Constant.ASPECT_RATIO_THREE_TO_TWO:
+            case ASPECT_RATIO_ONE_TO_ONE:
                 //4:5 aspect ratio
             case Constant.ASPECT_RATIO_FOUR_TO_FIVE:
+                //5:4 aspect ratio
+            case Constant.ASPECT_RATIO_FIVE_TO_FOUR:
                 //4:3 aspect ratio
             case Constant.ASPECT_RATIO_FOUR_TO_THREE:
-                //16:9 aspect ratio
-            case Constant.ASPECT_RATIO_SIXTEEN_TO_NINE:
+                //3:4 aspect ratio
+            case Constant.ASPECT_RATIO_THREE_TO_FOUR:
                 return false;
             default:
                 //Create square image with blurred background
@@ -112,60 +122,29 @@ public class AspectRatioUtils {
      */
     public static float getImageAspectRatioFactor(int imgWidth, int imgHeight) {
         float valueAspectRatio = (float) imgWidth / imgHeight;
-        String formattedAspectRatio = String.format(Locale.ENGLISH, "%.1f", valueAspectRatio);
+        String formattedAspectRatio = String.format(Locale.ENGLISH, "%.2f", valueAspectRatio);
 
         switch (formattedAspectRatio) {
             //1:1 aspect ratio
-            case Constant.ASPECT_RATIO_ONE_TO_ONE:
-                return (float) 1.0;
-            //3:2 aspect ratio
-            case Constant.ASPECT_RATIO_THREE_TO_TWO:
-                return (float) 1.5;
+            case ASPECT_RATIO_ONE_TO_ONE:
+                return ASPECT_RATIO_ONE_TO_ONE_VALUE;
             //4:5 aspect ratio
             case Constant.ASPECT_RATIO_FOUR_TO_FIVE:
-                return (float) 0.8;
+                return ASPECT_RATIO_FOUR_TO_FIVE_VALUE;
+            //5:4 aspect ratio
+            case Constant.ASPECT_RATIO_FIVE_TO_FOUR:
+                return ASPECT_RATIO_FIVE_TO_FOUR_VALUE;
             //4:3 aspect ratio
             case Constant.ASPECT_RATIO_FOUR_TO_THREE:
-                return (float) 1.3;
-            //16:9 aspect ratio
-            case Constant.ASPECT_RATIO_SIXTEEN_TO_NINE:
-                return (float) 1.8;
+                return ASPECT_RATIO_FOUR_TO_THREE_VALUE;
+            //3:4 aspect ratio
+            case Constant.ASPECT_RATIO_THREE_TO_FOUR:
+                return ASPECT_RATIO_THREE_TO_FOUR_VALUE;
             //For original and other views
             default:
-                return (float) 1.0;
+                return (float) 1.00;
         }
     }
 
-
-    /**
-     * Method to return true if image aspect ratio is 4:5.
-     *
-     * @param imgHeight Height of image.
-     * @param imgWidth  Width of image.
-     * @return True if image aspect ratio is 4:5 false otherwise.
-     */
-    public static boolean isAspectRatioFourToFive(float imgWidth, float imgHeight) {
-        float valueAspectRatio = imgWidth / imgHeight;
-        String formattedAspectRatio = String.format(Locale.ENGLISH
-                , "%.1f", valueAspectRatio);
-
-        switch (formattedAspectRatio) {
-            //4:5 aspect ratio
-            case Constant.ASPECT_RATIO_FOUR_TO_FIVE:
-                return true;
-            //1:1 aspect ratio
-            case Constant.ASPECT_RATIO_ONE_TO_ONE:
-                //3:2 aspect ratio
-            case Constant.ASPECT_RATIO_THREE_TO_TWO:
-                //4:3 aspect ratio
-            case Constant.ASPECT_RATIO_FOUR_TO_THREE:
-                //16:9 aspect ratio
-            case Constant.ASPECT_RATIO_SIXTEEN_TO_NINE:
-                return false;
-            default:
-                //Create square image with blurred background
-                return false;
-        }
-    }
 
 }

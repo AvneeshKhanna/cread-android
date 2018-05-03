@@ -115,6 +115,10 @@ import static com.thetestament.cread.helpers.ProfileMentionsHelper.getMentionSpa
 import static com.thetestament.cread.helpers.ProfileMentionsHelper.setProfileMentionsForEditing;
 import static com.thetestament.cread.helpers.ProfileMentionsHelper.tokenizerConfig;
 import static com.thetestament.cread.models.ShortModel.convertStringToBool;
+import static com.thetestament.cread.utils.Constant.CONTENT_PREVIEW_EXTRA_DATA;
+import static com.thetestament.cread.utils.Constant.CONTENT_PREVIEW_EXTRA_IMAGE_HEIGHT;
+import static com.thetestament.cread.utils.Constant.CONTENT_PREVIEW_EXTRA_IMAGE_URL;
+import static com.thetestament.cread.utils.Constant.CONTENT_PREVIEW_EXTRA_IMAGE_WIDTH;
 import static com.thetestament.cread.utils.Constant.CONTENT_TYPE_CAPTURE;
 import static com.thetestament.cread.utils.Constant.CONTENT_TYPE_SHORT;
 import static com.thetestament.cread.utils.Constant.EXTRA_IMAGE_HEIGHT;
@@ -236,6 +240,11 @@ public class PreviewActivity extends BaseActivity implements QueryTokenReceiver,
 
     @State
     String mCapInMentionFormat;
+
+    @State
+    int mImagePreviewWidth, mImagePreviewHeight;
+    @State
+    String mImageUrl;
 
 
     @State
@@ -575,6 +584,21 @@ public class PreviewActivity extends BaseActivity implements QueryTokenReceiver,
                 .negativeText("Cancel")
                 .show();
     }
+
+    /**
+     * Image click functionality to show preview in fullscreen.
+     */
+    @OnClick(R.id.imagePreview)
+    void imageOnClick() {
+        Bundle bundle = new Bundle();
+        bundle.putInt(CONTENT_PREVIEW_EXTRA_IMAGE_WIDTH, mImagePreviewWidth);
+        bundle.putInt(CONTENT_PREVIEW_EXTRA_IMAGE_HEIGHT, mImagePreviewHeight);
+        bundle.putString(CONTENT_PREVIEW_EXTRA_IMAGE_URL, mImageUrl);
+
+        Intent intent = new Intent(mContext, ContentPreview.class);
+        intent.putExtra(CONTENT_PREVIEW_EXTRA_DATA, bundle);
+        startActivity(intent);
+    }
     //endregion
 
     //region :Private methods
@@ -616,9 +640,10 @@ public class PreviewActivity extends BaseActivity implements QueryTokenReceiver,
             BitmapFactory.Options options = new BitmapFactory.Options();
             options.inJustDecodeBounds = true;
             BitmapFactory.decodeFile(ImageHelper.getImageUri(IMAGE_TYPE_USER_CAPTURE_PIC).getPath(), options);
-            int imageHeight = options.outHeight;
-            int imageWidth = options.outWidth;
-            AspectRatioUtils.setImageAspectRatio(imageWidth, imageHeight, imagePreview);
+            mImagePreviewHeight = options.outHeight;
+            mImagePreviewWidth = options.outWidth;
+            mImageUrl = getImageUri(IMAGE_TYPE_USER_CAPTURE_PIC).toString();
+            AspectRatioUtils.setImageAspectRatio(mImagePreviewWidth, mImagePreviewHeight, imagePreview);
             //Load capture pic
             loadPreviewImage(getImageUri(IMAGE_TYPE_USER_CAPTURE_PIC), imagePreview);
             //initialize filter screen
@@ -627,6 +652,9 @@ public class PreviewActivity extends BaseActivity implements QueryTokenReceiver,
         }
         //For capture editing
         else if (mCalledFrom.equals(PREVIEW_EXTRA_CALLED_FROM_EDIT_CAPTURE)) {
+            mImagePreviewHeight = mBundle.getInt(EXTRA_IMAGE_HEIGHT);
+            mImagePreviewWidth = mBundle.getInt(EXTRA_IMAGE_WIDTH);
+            mImageUrl = Uri.parse(mBundle.getString(PREVIEW_EXTRA_CONTENT_IMAGE)).toString();
             AspectRatioUtils.setImageAspectRatio(mBundle.getInt(EXTRA_IMAGE_WIDTH)
                     , mBundle.getInt(EXTRA_IMAGE_HEIGHT)
                     , imagePreview);
@@ -645,9 +673,10 @@ public class PreviewActivity extends BaseActivity implements QueryTokenReceiver,
             BitmapFactory.Options options = new BitmapFactory.Options();
             options.inJustDecodeBounds = true;
             BitmapFactory.decodeFile(ImageHelper.getImageUri(IMAGE_TYPE_USER_SHORT_PIC).getPath(), options);
-            int imageHeight = options.outHeight;
-            int imageWidth = options.outWidth;
-            AspectRatioUtils.setImageAspectRatio(imageWidth, imageHeight, imagePreview);
+            mImagePreviewHeight = options.outHeight;
+            mImagePreviewWidth = options.outWidth;
+            mImageUrl = getImageUri(IMAGE_TYPE_USER_SHORT_PIC).toString();
+            AspectRatioUtils.setImageAspectRatio(mImagePreviewWidth, mImagePreviewHeight, imagePreview);
             //Load short pic
             loadPreviewImage(getImageUri(IMAGE_TYPE_USER_SHORT_PIC), imagePreview);
             //Set caption text
@@ -662,9 +691,10 @@ public class PreviewActivity extends BaseActivity implements QueryTokenReceiver,
             BitmapFactory.Options options = new BitmapFactory.Options();
             options.inJustDecodeBounds = true;
             BitmapFactory.decodeFile(ImageHelper.getImageUri(IMAGE_TYPE_USER_SHORT_PIC).getPath(), options);
-            int imageHeight = options.outHeight;
-            int imageWidth = options.outWidth;
-            AspectRatioUtils.setImageAspectRatio(imageWidth, imageHeight, imagePreview);
+            mImagePreviewHeight = options.outHeight;
+            mImagePreviewWidth = options.outWidth;
+            mImageUrl = getImageUri(IMAGE_TYPE_USER_SHORT_PIC).toString();
+            AspectRatioUtils.setImageAspectRatio(mImagePreviewWidth, mImagePreviewHeight, imagePreview);
             //Load short pic
             loadPreviewImage(getImageUri(IMAGE_TYPE_USER_SHORT_PIC), imagePreview);
             //set bg sound for long form

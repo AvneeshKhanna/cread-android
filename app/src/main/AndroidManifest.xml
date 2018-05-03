@@ -490,6 +490,12 @@
             android:name=".activities.ViewLongShortActivity"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme"></activity>
+
+        <!--ContentPreview Screen-->
+        <activity
+            android:name=".activities.ContentPreview"
+            android:screenOrientation="portrait"
+            android:theme="@style/DarkTheme"/>
     </application>
 
 </manifest>

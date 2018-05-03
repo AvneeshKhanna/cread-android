@@ -937,14 +937,10 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
                 loadCapture(imageShort, mCaptureUrl);
                 //Update flag
                 mIsImagePresent = true;
-                //if selected image has aspect ratio of 4:5
-                if (AspectRatioUtils.isAspectRatioFourToFive(mCaptureImageWidth, mCaptureImageHeight)) {
-                    //show note textView
-                    textNote.setVisibility(View.GONE);
-                } else {
-                    //Hide note textView
-                    textNote.setVisibility(View.VISIBLE);
-                }
+
+                //show note textView
+                textNote.setVisibility(View.VISIBLE);
+
                 // show image tint
                 imageShort.setColorFilter(ContextCompat.getColor(mContext, R.color.transparent_50));
                 //Hide remove image button
