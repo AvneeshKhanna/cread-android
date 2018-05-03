@@ -27,18 +27,19 @@
 
 
             <ImageView
-                android:scaleType="centerInside"
                 android:id="@+id/productImage"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent" />
+                android:layout_height="match_parent"
+                android:scaleType="centerInside" />
 
             <ImageView
                 android:id="@+id/artImg"
                 android:layout_width="250dp"
                 android:layout_height="250dp"
-                android:scaleType="centerInside"
                 android:layout_centerInParent="true"
-                android:visibility="gone" />
+                android:scaleType="centerInside"
+                android:src="@drawable/image_placeholder"
+                android:visibility="visible" />
 
         </RelativeLayout>
 
@@ -75,9 +76,9 @@
                 android:id="@+id/sizeText"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginLeft="5dp"
                 android:text="Size"
-                android:textSize="16sp"
-                android:layout_marginLeft="5dp"/>
+                android:textSize="16sp" />
 
 
             <android.support.v7.widget.AppCompatSpinner
@@ -88,8 +89,6 @@
                 tools:listitem="@layout/support_simple_spinner_dropdown_item">
 
             </android.support.v7.widget.AppCompatSpinner>
-
-
 
 
         </LinearLayout>
@@ -107,7 +106,7 @@
             <ImageView
                 android:layout_width="20dp"
                 android:layout_height="20dp"
-               android:src="@drawable/ic_palette" />
+                android:src="@drawable/ic_palette" />
 
             <TextView
                 android:id="@+id/colorText"
@@ -127,8 +126,7 @@
 
             </android.support.v7.widget.AppCompatSpinner>
 
-            </LinearLayout>
-
+        </LinearLayout>
 
 
         <LinearLayout
@@ -167,7 +165,6 @@
             </android.support.v7.widget.AppCompatSpinner>
 
 
-
         </LinearLayout>
 
         <TextView
@@ -176,9 +173,9 @@
             android:layout_height="wrap_content"
             android:layout_alignParentRight="true"
             android:layout_alignTop="@+id/sizeLL"
+            android:layout_marginTop="30dp"
             android:text="@string/Rs"
-            android:textSize="24sp"
-            android:layout_marginTop="30dp"/>
+            android:textSize="24sp" />
 
 
         <TextView
@@ -187,6 +184,7 @@
             android:layout_height="wrap_content"
             android:layout_alignBottom="@+id/quantityLL"
             android:layout_alignRight="@+id/price"
+            android:layout_marginBottom="30dp"
             android:background="@drawable/button_filled"
             android:paddingBottom="6dp"
             android:paddingLeft="20dp"
@@ -194,8 +192,7 @@
             android:paddingTop="6dp"
             android:text="Buy"
             android:textColor="@color/white"
-            android:textSize="18sp"
-            android:layout_marginBottom="30dp"/>
+            android:textSize="18sp" />
 
         <!--  <ImageView
               android:layout_width="20dp"

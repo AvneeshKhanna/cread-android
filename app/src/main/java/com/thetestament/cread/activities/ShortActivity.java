@@ -189,7 +189,7 @@ import static com.thetestament.cread.utils.Constant.SHORT_EXTRA_CALLED_FROM_EDIT
 import static com.thetestament.cread.utils.Constant.SHORT_EXTRA_CAPTION_TEXT;
 
 /**
- * Here user creates his/her shorts and uploads on the server.
+ * Here user creates ,edit and write on other users graphic art.
  */
 
 public class ShortActivity extends BaseActivity implements OnEditTextBackListener {
@@ -455,15 +455,8 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
                     mIsBgColorPresent = false;
                     mIsImagePresent = true;
 
-                    //if selected image has aspect ratio of 4:5
-                    if (AspectRatioUtils.isAspectRatioFourToFive(mCaptureImageWidth, mCaptureImageHeight)) {
-                        //show note textView
-                        textNote.setVisibility(View.GONE);
-                    } else {
-                        //Hide note textView
-                        textNote.setVisibility(View.VISIBLE);
-                    }
-
+                    //show note textView
+                    textNote.setVisibility(View.VISIBLE);
                     //Show remove button
                     btnRemoveImage.setVisibility(View.VISIBLE);
                 }
@@ -1487,15 +1480,9 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
                 //Update flags
                 mIsBgColorPresent = false;
                 mIsImagePresent = true;
-                //if selected image has aspect ratio of 4:5
-                if (AspectRatioUtils.isAspectRatioFourToFive(mCaptureImageWidth, mCaptureImageHeight)) {
-                    //show note textView
-                    textNote.setVisibility(View.GONE);
-                } else {
-                    //Hide note textView
-                    textNote.setVisibility(View.VISIBLE);
-                }
 
+                //show note textView
+                textNote.setVisibility(View.VISIBLE);
                 //Show button
                 btnRemoveImage.setVisibility(View.VISIBLE);
                 //Toggle flags
@@ -1852,15 +1839,8 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
                                     //Update flag
                                     mIsImagePresent = true;
                                     mCaptureUrl = responseObject.getString("captureurl");
-                                    //if selected image has aspect ratio of 4:5
-                                    if (AspectRatioUtils.isAspectRatioFourToFive(mCaptureImageWidth
-                                            , mCaptureImageHeight)) {
-                                        //show note textView
-                                        textNote.setVisibility(View.GONE);
-                                    } else {
-                                        //Hide note textView
-                                        textNote.setVisibility(View.VISIBLE);
-                                    }
+                                    //show note textView
+                                    textNote.setVisibility(View.VISIBLE);
 
                                     Picasso.with(mContext)
                                             .load(responseObject.getString("captureurl"))

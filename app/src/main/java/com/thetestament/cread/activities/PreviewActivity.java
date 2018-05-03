@@ -63,6 +63,7 @@ import com.thetestament.cread.listeners.listener;
 import com.thetestament.cread.models.FilterModel;
 import com.thetestament.cread.models.PersonMentionModel;
 import com.thetestament.cread.models.ShortModel;
+import com.thetestament.cread.utils.AspectRatioUtils;
 import com.wooplr.spotlight.SpotlightView;
 import com.zomato.photofilters.imageprocessors.Filter;
 
@@ -116,6 +117,8 @@ import static com.thetestament.cread.helpers.ProfileMentionsHelper.tokenizerConf
 import static com.thetestament.cread.models.ShortModel.convertStringToBool;
 import static com.thetestament.cread.utils.Constant.CONTENT_TYPE_CAPTURE;
 import static com.thetestament.cread.utils.Constant.CONTENT_TYPE_SHORT;
+import static com.thetestament.cread.utils.Constant.EXTRA_IMAGE_HEIGHT;
+import static com.thetestament.cread.utils.Constant.EXTRA_IMAGE_WIDTH;
 import static com.thetestament.cread.utils.Constant.EXTRA_SHORT_DATA;
 import static com.thetestament.cread.utils.Constant.IMAGE_TYPE_USER_CAPTURE_PIC;
 import static com.thetestament.cread.utils.Constant.IMAGE_TYPE_USER_SHORT_PIC;
@@ -609,6 +612,13 @@ public class PreviewActivity extends BaseActivity implements QueryTokenReceiver,
      */
     private void checkContentType() {
         if (mCalledFrom.equals(PREVIEW_EXTRA_CALLED_FROM_CAPTURE)) {
+            //Decode image file
+            BitmapFactory.Options options = new BitmapFactory.Options();
+            options.inJustDecodeBounds = true;
+            BitmapFactory.decodeFile(ImageHelper.getImageUri(IMAGE_TYPE_USER_CAPTURE_PIC).getPath(), options);
+            int imageHeight = options.outHeight;
+            int imageWidth = options.outWidth;
+            AspectRatioUtils.setImageAspectRatio(imageWidth, imageHeight, imagePreview);
             //Load capture pic
             loadPreviewImage(getImageUri(IMAGE_TYPE_USER_CAPTURE_PIC), imagePreview);
             //initialize filter screen
@@ -617,6 +627,9 @@ public class PreviewActivity extends BaseActivity implements QueryTokenReceiver,
         }
         //For capture editing
         else if (mCalledFrom.equals(PREVIEW_EXTRA_CALLED_FROM_EDIT_CAPTURE)) {
+            AspectRatioUtils.setImageAspectRatio(mBundle.getInt(EXTRA_IMAGE_WIDTH)
+                    , mBundle.getInt(EXTRA_IMAGE_HEIGHT)
+                    , imagePreview);
             //Load capture pic
             loadPreviewImage(Uri.parse(mBundle.getString(PREVIEW_EXTRA_CONTENT_IMAGE)), imagePreview);
             //Setup bottom sheets
@@ -628,6 +641,13 @@ public class PreviewActivity extends BaseActivity implements QueryTokenReceiver,
         } else if (mCalledFrom.equals(PREVIEW_EXTRA_CALLED_FROM_EDIT_SHORT)) {
             //initialize filter screen
             initFilterView();
+            //Decode image file
+            BitmapFactory.Options options = new BitmapFactory.Options();
+            options.inJustDecodeBounds = true;
+            BitmapFactory.decodeFile(ImageHelper.getImageUri(IMAGE_TYPE_USER_SHORT_PIC).getPath(), options);
+            int imageHeight = options.outHeight;
+            int imageWidth = options.outWidth;
+            AspectRatioUtils.setImageAspectRatio(imageWidth, imageHeight, imagePreview);
             //Load short pic
             loadPreviewImage(getImageUri(IMAGE_TYPE_USER_SHORT_PIC), imagePreview);
             //Set caption text
@@ -638,6 +658,13 @@ public class PreviewActivity extends BaseActivity implements QueryTokenReceiver,
         } else {
             //initialize filter screen
             initFilterView();
+            //Decode image file
+            BitmapFactory.Options options = new BitmapFactory.Options();
+            options.inJustDecodeBounds = true;
+            BitmapFactory.decodeFile(ImageHelper.getImageUri(IMAGE_TYPE_USER_SHORT_PIC).getPath(), options);
+            int imageHeight = options.outHeight;
+            int imageWidth = options.outWidth;
+            AspectRatioUtils.setImageAspectRatio(imageWidth, imageHeight, imagePreview);
             //Load short pic
             loadPreviewImage(getImageUri(IMAGE_TYPE_USER_SHORT_PIC), imagePreview);
             //set bg sound for long form
@@ -836,6 +863,7 @@ public class PreviewActivity extends BaseActivity implements QueryTokenReceiver,
                     , mBundle.getString(PREVIEW_EXTRA_TEXT_COLOR)
                     , mBundle.getString(PREVIEW_EXTRA_TEXT_GRAVITY)
                     , mBundle.getString(PREVIEW_EXTRA_IMG_WIDTH)
+                    , mBundle.getString(PREVIEW_EXTRA_IMG_HEIGHT)
                     , mBundle.getString(PREVIEW_EXTRA_MERCHANTABLE)
                     , mBundle.getString(PREVIEW_EXTRA_FONT)
                     , mBundle.getString(PREVIEW_EXTRA_BG_COLOR)
@@ -1089,7 +1117,7 @@ public class PreviewActivity extends BaseActivity implements QueryTokenReceiver,
     /**
      * Update edited short image and other details on server.
      */
-    private void uploadEditedShort(final File file, String entityID, String captureID, String shortID, String uuid, String authToken, String xPosition, String yPosition, String tvWidth, String tvHeight, String text, String textSize, String textColor, String textGravity, String imgWidth, String merchantable, String font, String bgColor, String bold, String italic, final String captionText, String imageTintColor, String templateName, String isShadowSelected, String longText) {
+    private void uploadEditedShort(final File file, String entityID, String captureID, String shortID, String uuid, String authToken, String xPosition, String yPosition, String tvWidth, String tvHeight, String text, String textSize, String textColor, String textGravity, String imgWidth, String imgHeight, String merchantable, String font, String bgColor, String bold, String italic, final String captionText, String imageTintColor, String templateName, String isShadowSelected, String longText) {
 
         String mMerchantable;
 
@@ -1124,7 +1152,7 @@ public class PreviewActivity extends BaseActivity implements QueryTokenReceiver,
                 .addMultipartParameter("txt_width", tvWidth)
                 .addMultipartParameter("txt_height", tvHeight)
                 .addMultipartParameter("img_width", imgWidth)
-                .addMultipartParameter("img_height", imgWidth)
+                .addMultipartParameter("img_height", imgHeight)
                 .addMultipartParameter("text", text)
                 .addMultipartParameter("textsize", textSize)
                 .addMultipartParameter("textcolor", textColor)

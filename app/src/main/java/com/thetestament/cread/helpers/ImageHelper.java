@@ -187,6 +187,7 @@ public class ImageHelper {
                 new AspectRatio("Original", CropImageView.DEFAULT_ASPECT_RATIO, CropImageView.DEFAULT_ASPECT_RATIO)
         );
 
+
         //Launch image cropping activity
         UCrop.of(sourceUri, destinationUri)
                 .withOptions(options)
