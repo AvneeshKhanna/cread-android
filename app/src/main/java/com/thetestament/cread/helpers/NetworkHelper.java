@@ -759,4 +759,31 @@ public class NetworkHelper {
                 .getJSONObjectObservable();
     }
 
+
+    /**
+     * Method to return user interests data from the server.
+     *
+     * @param serverURL URL of the server.
+     * @param uuid      UUID of the user.
+     * @param authKey   AuthKey of user.
+     */
+    public static Observable<JSONObject> getUserInterestsDataFromServer(String serverURL, String uuid, String authKey, String lastIndexKey) {
+        Map<String, String> headers = new HashMap<>();
+        headers.put("uuid", uuid);
+        headers.put("authkey", authKey);
+
+        Map<String, String> queryParams = new HashMap<>();
+        queryParams.put("lastindexkey", lastIndexKey);
+
+        Rx2ANRequest.GetRequestBuilder requestBuilder = Rx2AndroidNetworking.get(serverURL)
+                .addHeaders(headers)
+                .addQueryParameter(queryParams);
+
+        return requestBuilder
+                .build()
+                .getJSONObjectObservable();
+    }
+
+
+
 }

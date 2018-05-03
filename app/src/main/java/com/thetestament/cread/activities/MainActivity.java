@@ -409,7 +409,7 @@ public class MainActivity extends BaseActivity {
 
 
                                     // open the main screen
-                                    Intent startIntent = new Intent(MainActivity.this, BottomNavigationActivity.class);
+                                    Intent startIntent = new Intent(MainActivity.this, UserInterestIntroductionActivity.class);
                                     startActivity(startIntent);
 
                                     finish();
