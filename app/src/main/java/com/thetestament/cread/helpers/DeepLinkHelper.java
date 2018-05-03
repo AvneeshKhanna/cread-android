@@ -5,6 +5,7 @@ import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
 import android.support.annotation.NonNull;
 import android.support.v4.app.FragmentActivity;
+import android.text.TextUtils;
 import android.view.View;
 
 import com.afollestad.materialdialogs.DialogAction;
@@ -17,7 +18,6 @@ import com.thetestament.cread.R;
 import com.thetestament.cread.listeners.listener;
 import com.thetestament.cread.listeners.listener.OnDeepLinkRequestedListener;
 import com.thetestament.cread.models.FeedModel;
-import com.thetestament.cread.utils.Constant;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -168,7 +168,7 @@ public class DeepLinkHelper {
      * @param entityID
      * @param entityUrl
      */
-    public static void generateDeepLinkForCollabInvite(final FragmentActivity context, CompositeDisposable compositeDisposable, final View rootView, String uuid, String authkey, String entityID, final String entityUrl, String creatorName, final String contentType) {
+    public static void generateDeepLinkForCollabInvite(final FragmentActivity context, CompositeDisposable compositeDisposable, final View rootView, String uuid, String authkey, String entityID, final String entityUrl, String creatorName, final String contentType, final String shareOption, final String caption) {
 
         DeepLinkHelper deepLinkHelper = new DeepLinkHelper();
         deepLinkHelper.getDeepLinkFromServer(context
@@ -194,15 +194,11 @@ public class DeepLinkHelper {
                                 // finish preview activity
                                 context.finish();
 
-                                if (contentType.equals(Constant.CONTENT_TYPE_CAPTURE))
+                                String shareText = TextUtils.isEmpty(caption) ?
+                                        context.getString(R.string.text_share_image_created, deepLink) :
+                                        caption + "\n\n" + "App: " + deepLink;
 
-                                {
-                                    ShareHelper.collabInviteImage(bitmap, context, context.getString(R.string.text_invite_collab_capture) + "\n\n" + deepLink);
-                                } else
-
-                                {   // open share dialog
-                                    ShareHelper.collabInviteImage(bitmap, context, context.getString(R.string.text_invite_collab_short) + "\n\n" + deepLink);
-                                }
+                                ShareHelper.collabInviteImage(bitmap, context, shareText, shareOption);
 
                             }
 

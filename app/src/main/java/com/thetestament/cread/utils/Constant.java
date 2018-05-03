@@ -327,4 +327,10 @@ public class Constant {
 
     public static final String SHARE_SOURCE_FROM_SHARE = "fromShare";
     public static final String SHARE_SOURCE_FROM_CREATE = "fromCreate";
+
+    //region : Share options
+    public static final String SHARE_OPTION_WHATSAPP = "shareOptionWhatsapp";
+    public static final String SHARE_OPTION_FACEBOOK = "shareOptionFacebook";
+    public static final String SHARE_OPTION_INSTAGRAM = "shareOptionInstagram";
+    public static final String SHARE_OPTION_OTHER = "shareOptionOther";
 }

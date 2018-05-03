@@ -197,6 +197,7 @@
     //Info text
     <string name="note_text_short_creation">Double tap outside text to add image tint</string>
     <string name="text_share_image">Do you love #art? Here\'s something great on @cread! Check it out and tell me what you think. :) \n\nApp:&#160; %1$s</string>
+    <string name="text_share_image_created">Here\'s something great I created on @cread! Check it out and tell me what you think. :) \n\nApp:&#160; %1$s</string>
     <string name="msg_post_deleted">Post deleted</string>
     <string name="text_msg_share_loggedin">You need to be logged in for sharing the image</string>
     <string name="msg_text_navigate_back">If you go back now, you will lose your changes.</string>

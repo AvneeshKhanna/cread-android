@@ -943,7 +943,8 @@ public class PreviewActivity extends BaseActivity implements QueryTokenReceiver,
                                             , dataObject.getString("entityid")
                                             , dataObject.getString("captureurl")
                                             , mHelper.getFirstName()
-                                            , CONTENT_TYPE_CAPTURE);
+                                            , CONTENT_TYPE_CAPTURE
+                                            , etCaption.getText().toString().trim());
                                 }
                             }
                         } catch (JSONException e) {
@@ -1070,7 +1071,8 @@ public class PreviewActivity extends BaseActivity implements QueryTokenReceiver,
                                             , dataObject.getString("entityid")
                                             , dataObject.getString("shorturl")
                                             , mHelper.getFirstName()
-                                            , CONTENT_TYPE_SHORT);
+                                            , CONTENT_TYPE_SHORT
+                                            , etCaption.getText().toString().trim());
                                 }
                             }
                         } catch (JSONException e) {
@@ -1298,7 +1300,8 @@ public class PreviewActivity extends BaseActivity implements QueryTokenReceiver,
                                             , dataObject.getString("entityid")
                                             , dataObject.getString("captureurl")
                                             , mHelper.getFirstName()
-                                            , CONTENT_TYPE_CAPTURE);
+                                            , CONTENT_TYPE_CAPTURE
+                                            , etCaption.getText().toString().trim());
                                 }
                             }
                         } catch (JSONException e) {

@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="20dp">
+
+
+    <TextView
+        android:id="@+id/textShareTitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Share"
+        android:textColor="@color/black"
+        android:textSize="16sp" />
+
+
+    <TextView
+        android:id="@+id/textShareDesc"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/textShareTitle"
+        android:layout_marginTop="6dp"
+        android:text="Share your creation with your friends!"
+        android:textColor="@color/grey_dark"
+        android:textSize="14sp" />
+
+
+    <LinearLayout
+        android:id="@+id/containerShareOptions"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/textShareDesc"
+        android:layout_marginTop="20dp"
+        android:orientation="horizontal">
+
+
+        <android.support.v7.widget.AppCompatImageView
+            android:id="@+id/logoWhatsapp"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:layout_marginRight="15dp"
+            android:src="@drawable/logo_whatsapp" />
+
+        <android.support.v7.widget.AppCompatImageView
+            android:id="@+id/logoFacebook"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:layout_marginRight="15dp"
+            android:src="@drawable/logo_fb" />
+
+        <android.support.v7.widget.AppCompatImageView
+            android:id="@+id/logoInstagram"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:layout_marginRight="15dp"
+            app:srcCompat="@drawable/logo_instagram" />
+
+        <android.support.v7.widget.AppCompatImageView
+            android:id="@+id/logoMore"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:layout_marginRight="15dp"
+            android:src="@drawable/logo_more" />
+
+    </LinearLayout>
+
+
+    <TextView
+        android:id="@+id/buttonCancel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:layout_below="@+id/containerShareOptions"
+        android:layout_marginTop="10dp"
+        android:paddingBottom="10dp"
+        android:paddingLeft="10dp"
+        android:paddingTop="10dp"
+        android:text="Dismiss"
+        android:textColor="@color/colorPrimary" />
+
+
+</RelativeLayout>
