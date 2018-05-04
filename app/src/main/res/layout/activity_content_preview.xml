@@ -6,11 +6,32 @@
     android:background="@color/black"
     android:gravity="center">
 
+    <!--ImageView-->
     <android.support.v7.widget.AppCompatImageView
         android:id="@+id/imageContentPreview"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:adjustViewBounds="true"
         tools:src="@tools:sample/avatars" />
+
+    <!--Signature text container-->
+    <FrameLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBottom="@+id/imageContentPreview"
+        android:layout_alignParentLeft="true"
+        android:background="@color/black_overlay">
+
+        <android.support.v7.widget.AppCompatTextView
+            android:id="@+id/textSignature"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:paddingLeft="3dp"
+            android:paddingRight="3dp"
+            android:textColor="@color/white"
+            android:textSize="12sp"
+            android:visibility="gone"
+            tools:text="~The testament" />
+    </FrameLayout>
 
 </RelativeLayout>

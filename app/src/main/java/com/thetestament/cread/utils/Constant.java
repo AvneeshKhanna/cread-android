@@ -351,5 +351,6 @@ public class Constant {
     public static final String CONTENT_PREVIEW_EXTRA_IMAGE_HEIGHT = "contentPreviewImageHeight";
     public static final String CONTENT_PREVIEW_EXTRA_IMAGE_URL = "contentPreviewImageUrl";
     public static final String CONTENT_PREVIEW_EXTRA_DATA = "contentPreviewData";
+    public static final String CONTENT_PREVIEW_EXTRA_SIGNATURE_TEXT = "contentPreviewSignatureText";
     //endregion
 }

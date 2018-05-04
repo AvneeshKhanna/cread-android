@@ -119,6 +119,7 @@ import static com.thetestament.cread.utils.Constant.CONTENT_PREVIEW_EXTRA_DATA;
 import static com.thetestament.cread.utils.Constant.CONTENT_PREVIEW_EXTRA_IMAGE_HEIGHT;
 import static com.thetestament.cread.utils.Constant.CONTENT_PREVIEW_EXTRA_IMAGE_URL;
 import static com.thetestament.cread.utils.Constant.CONTENT_PREVIEW_EXTRA_IMAGE_WIDTH;
+import static com.thetestament.cread.utils.Constant.CONTENT_PREVIEW_EXTRA_SIGNATURE_TEXT;
 import static com.thetestament.cread.utils.Constant.CONTENT_TYPE_CAPTURE;
 import static com.thetestament.cread.utils.Constant.CONTENT_TYPE_SHORT;
 import static com.thetestament.cread.utils.Constant.EXTRA_IMAGE_HEIGHT;
@@ -594,6 +595,7 @@ public class PreviewActivity extends BaseActivity implements QueryTokenReceiver,
         bundle.putInt(CONTENT_PREVIEW_EXTRA_IMAGE_WIDTH, mImagePreviewWidth);
         bundle.putInt(CONTENT_PREVIEW_EXTRA_IMAGE_HEIGHT, mImagePreviewHeight);
         bundle.putString(CONTENT_PREVIEW_EXTRA_IMAGE_URL, mImageUrl);
+        bundle.putString(CONTENT_PREVIEW_EXTRA_SIGNATURE_TEXT, mWaterMarkText);
 
         Intent intent = new Intent(mContext, ContentPreview.class);
         intent.putExtra(CONTENT_PREVIEW_EXTRA_DATA, bundle);
