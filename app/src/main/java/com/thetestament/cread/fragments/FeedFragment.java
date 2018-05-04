@@ -53,6 +53,7 @@ import com.thetestament.cread.helpers.ViewHelper;
 import com.thetestament.cread.listeners.listener;
 import com.thetestament.cread.models.FeedModel;
 import com.thetestament.cread.models.SuggestedArtistsModel;
+import com.thetestament.cread.utils.AspectRatioUtils;
 import com.thetestament.cread.utils.Constant;
 import com.yalantis.ucrop.UCrop;
 
@@ -82,6 +83,7 @@ import static com.thetestament.cread.CreadApp.GET_RESPONSE_FROM_NETWORK_MAIN;
 import static com.thetestament.cread.helpers.DeepLinkHelper.getDeepLinkOnValidShareOption;
 import static com.thetestament.cread.helpers.FeedHelper.parseEntitySpecificJSON;
 import static com.thetestament.cread.helpers.ImageHelper.getImageUri;
+import static com.thetestament.cread.helpers.ImageHelper.processCroppedImage;
 import static com.thetestament.cread.helpers.NetworkHelper.getEntitySpecificObservable;
 import static com.thetestament.cread.helpers.NetworkHelper.getNetConnectionStatus;
 import static com.thetestament.cread.helpers.NetworkHelper.getObservableFromServer;
@@ -239,19 +241,40 @@ public class FeedFragment extends Fragment implements listener.OnCollaborationLi
             case REQUEST_CODE_OPEN_GALLERY_FOR_CAPTURE:
                 if (resultCode == RESULT_OK) {
                     // To crop the selected image
-                    ImageHelper.startImageCropping(getActivity(), this, data.getData(), getImageUri(IMAGE_TYPE_USER_CAPTURE_PIC));
+                    ImageHelper.startImageCropping(getActivity()
+                            , this
+                            , data.getData()
+                            , getImageUri(IMAGE_TYPE_USER_CAPTURE_PIC));
                 } else {
-                    ViewHelper.getSnackBar(rootView, "Image from gallery was not attached");
+                    ViewHelper.getSnackBar(rootView
+                            , getString(R.string.error_img_not_attached));
                 }
                 break;
             //For more information please visit "https://github.com/Yalantis/uCrop"
             case UCrop.REQUEST_CROP:
                 if (resultCode == RESULT_OK) {
+                    //Get image width and height
+                    float width = data.getIntExtra(UCrop.EXTRA_OUTPUT_IMAGE_WIDTH, 1800);
+                    float height = data.getIntExtra(UCrop.EXTRA_OUTPUT_IMAGE_HEIGHT, 1800);
+
                     //Get cropped image Uri
                     Uri mCroppedImgUri = UCrop.getOutput(data);
-                    ImageHelper.performSquareImageManipulation(mCroppedImgUri, getActivity(), rootView, mEntityID, mEntityType);
+                    //Check for image manipulation
+                    if (AspectRatioUtils.getSquareImageManipulation(width, height)) {
+                        //Create square image with blurred background
+                        ImageHelper.performSquareImageManipulation(mCroppedImgUri
+                                , getActivity()
+                                , rootView
+                                , mEntityID
+                                , mEntityType);
+                    } else {
+                        //Method called
+                        processCroppedImage(mCroppedImgUri, getActivity(), rootView, mEntityID, mEntityType);
+                    }
+
                 } else if (resultCode == UCrop.RESULT_ERROR) {
-                    ViewHelper.getSnackBar(rootView, "Image could not be cropped due to some error");
+                    ViewHelper.getSnackBar(rootView
+                            , getString(R.string.error_img_not_cropped));
                 }
                 break;
             case REQUEST_CODE_FEED_DESCRIPTION_ACTIVITY:
@@ -513,6 +536,16 @@ public class FeedFragment extends Fragment implements listener.OnCollaborationLi
                                     feedData.setCommentCount(dataObj.getLong("commentcount"));
                                     feedData.setContentImage(dataObj.getString("entityurl"));
                                     feedData.setCollabCount(dataObj.getLong("collabcount"));
+                                    //if image width pr image height is null
+                                    if (dataObj.isNull("img_width") || dataObj.isNull("img_height")) {
+                                        feedData.setImgWidth(1);
+                                        feedData.setImgHeight(1);
+                                    } else {
+                                        feedData.setImgWidth(dataObj.getInt("img_width"));
+                                        feedData.setImgHeight(dataObj.getInt("img_height"));
+                                    }
+                                    //feedData.setImageWidth(dataObj.getInt("imgwidth"));
+                                    //feedData.setImageHeight(dataObj.getInt("imgheight"));
                                     if (dataObj.isNull("caption")) {
                                         feedData.setCaption(null);
                                     } else {
@@ -695,6 +728,16 @@ public class FeedFragment extends Fragment implements listener.OnCollaborationLi
                                     feedData.setCommentCount(dataObj.getLong("commentcount"));
                                     feedData.setContentImage(dataObj.getString("entityurl"));
                                     feedData.setCollabCount(dataObj.getLong("collabcount"));
+                                    //if image width pr image height is null
+                                    if (dataObj.isNull("img_width") || dataObj.isNull("img_height")) {
+                                        feedData.setImgWidth(1);
+                                        feedData.setImgHeight(1);
+                                    } else {
+                                        feedData.setImgWidth(dataObj.getInt("img_width"));
+                                        feedData.setImgHeight(dataObj.getInt("img_height"));
+                                    }
+                                    //feedData.setImageWidth(dataObj.getInt("imgwidth"));
+                                    //feedData.setImageHeight(dataObj.getInt("imgheight"));
                                     if (dataObj.isNull("caption")) {
                                         feedData.setCaption(null);
                                     } else {

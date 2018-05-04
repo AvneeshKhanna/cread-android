@@ -46,6 +46,7 @@ import com.thetestament.cread.helpers.ViewHelper;
 import com.thetestament.cread.listeners.listener;
 import com.thetestament.cread.models.CommentsModel;
 import com.thetestament.cread.models.FeedModel;
+import com.thetestament.cread.utils.AspectRatioUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -224,6 +225,10 @@ public class FeedDescriptionAdapter extends RecyclerView.Adapter {
             final ItemViewHolder itemViewHolder = (ItemViewHolder) holder;
             //Load creator profile picture
             loadCreatorPic(data.getCreatorImage(), itemViewHolder.imageCreator);
+            //Set image width and height
+            AspectRatioUtils.setImageAspectRatio(data.getImgWidth()
+                    , data.getImgHeight()
+                    , itemViewHolder.image);
             //Load feed image
             loadFeedImage(data.getContentImage(), itemViewHolder.image);
 

@@ -35,6 +35,7 @@ import com.thetestament.cread.helpers.ViewHelper;
 import com.thetestament.cread.listeners.listener;
 import com.thetestament.cread.models.CommentsModel;
 import com.thetestament.cread.models.FeedModel;
+import com.thetestament.cread.utils.AspectRatioUtils;
 import com.thetestament.cread.utils.RxUtils;
 import com.yalantis.ucrop.UCrop;
 
@@ -64,6 +65,7 @@ import static com.thetestament.cread.helpers.DeepLinkHelper.getDeepLinkOnValidSh
 import static com.thetestament.cread.helpers.DeletePostHelper.deletePost;
 import static com.thetestament.cread.helpers.FeedHelper.updateFollowForAll;
 import static com.thetestament.cread.helpers.ImageHelper.getImageUri;
+import static com.thetestament.cread.helpers.ImageHelper.processCroppedImage;
 import static com.thetestament.cread.helpers.NetworkHelper.getCommentObservableFromServer;
 import static com.thetestament.cread.helpers.NetworkHelper.getFeedDescPostsObservableFromServer;
 import static com.thetestament.cread.helpers.NetworkHelper.requestServer;
@@ -128,7 +130,7 @@ public class FeedDescriptionActivity extends BaseActivity implements listener.On
     FeedDescriptionAdapter mAdapter;
     //endregion
 
-    //region: Overidden methods
+    //region: Overridden methods
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -175,31 +177,46 @@ public class FeedDescriptionActivity extends BaseActivity implements listener.On
             case REQUEST_CODE_OPEN_GALLERY:
                 if (resultCode == RESULT_OK) {
                     // To crop the selected image
-                    ImageHelper.startImageCropping(this, data.getData(), getImageUri(IMAGE_TYPE_USER_CAPTURE_PIC));
+                    ImageHelper.startImageCropping(mContext
+                            , data.getData()
+                            , getImageUri(IMAGE_TYPE_USER_CAPTURE_PIC));
                 } else {
-                    ViewHelper.getSnackBar(rootView, "Image from gallery was not attached");
+                    ViewHelper.getSnackBar(rootView
+                            , getString(R.string.error_img_not_attached));
                 }
                 break;
             //For more information please visit "https://github.com/Yalantis/uCrop"
             case UCrop.REQUEST_CROP:
                 if (resultCode == RESULT_OK) {
+                    //Get image width and height
+                    float width = data.getIntExtra(UCrop.EXTRA_OUTPUT_IMAGE_WIDTH, 1800);
+                    float height = data.getIntExtra(UCrop.EXTRA_OUTPUT_IMAGE_HEIGHT, 1800);
+
                     //Get cropped image Uri
                     Uri mCroppedImgUri = UCrop.getOutput(data);
 
-                    ImageHelper.performSquareImageManipulation(mCroppedImgUri, FeedDescriptionActivity.this
-                            , rootView, mEntityID, mEntityType);
+                    //Check for image manipulation
+                    if (AspectRatioUtils.getSquareImageManipulation(width, height)) {
+                        //Create square image with blurred background
+                        ImageHelper.performSquareImageManipulation(mCroppedImgUri
+                                , mContext
+                                , rootView, mEntityID, mEntityType);
+                    } else {
+                        //Method called
+                        processCroppedImage(mCroppedImgUri, mContext, rootView, mEntityID, mEntityType);
+                    }
+
 
                 } else if (resultCode == UCrop.RESULT_ERROR) {
-                    ViewHelper.getSnackBar(rootView, "Image could not be cropped due to some error");
+                    ViewHelper.getSnackBar(rootView
+                            , getString(R.string.error_img_not_cropped));
                 }
                 break;
 
             case REQUEST_CODE_EDIT_POST:
                 if (resultCode == RESULT_OK) {
-
                     // get edited caption
                     String editedCaption = data.getStringExtra(PREVIEW_EXTRA_CAPTION_TEXT);
-
                     // update the caption
                     mFeedData.setCaption(editedCaption);
                     mPostsList.set(0, mFeedData);
@@ -279,8 +296,6 @@ public class FeedDescriptionActivity extends BaseActivity implements listener.On
         }
     }
     //endregion
-
-
 
     //region: private methods
 
@@ -990,6 +1005,15 @@ public class FeedDescriptionActivity extends BaseActivity implements listener.On
             data.setContentImage(dataObj.getString("entityurl"));
             data.setFollowStatus(dataObj.getBoolean("followstatus"));
             data.setCollabCount(dataObj.getLong("collabcount"));
+
+            //if image width pr image height is null
+            if (dataObj.isNull("img_width") || dataObj.isNull("img_height")) {
+                data.setImgWidth(1);
+                data.setImgHeight(1);
+            } else {
+                data.setImgWidth(dataObj.getInt("img_width"));
+                data.setImgHeight(dataObj.getInt("img_height"));
+            }
             if (dataObj.isNull("caption")) {
                 data.setCaption(null);
             } else {

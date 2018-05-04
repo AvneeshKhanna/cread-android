@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <android.support.v7.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/rootView"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_marginBottom="8dp"
     android:layout_marginTop="8dp"
     android:background="@color/white"
@@ -41,11 +41,11 @@
 
                     <de.hdodenhof.circleimageview.CircleImageView
                         android:id="@+id/imageCreator"
-                        app:civ_border_color="@color/black_defined"
-                        tools:src="@drawable/ic_account_circle_100"
                         android:layout_width="35dp"
                         android:layout_height="35dp"
-                        android:scaleType="centerCrop" />
+                        android:scaleType="centerCrop"
+                        app:civ_border_color="@color/black_defined"
+                        tools:src="@drawable/ic_account_circle_100" />
 
                     <TextView
                         android:id="@+id/buttonFollow"
@@ -81,10 +81,10 @@
                         android:id="@+id/textTimestamp"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="08 March at 5:00"
-                        android:textColor="@color/grey_custom"
                         android:layout_marginTop="5dp"
                         android:paddingLeft="8dp"
+                        android:text="08 March at 5:00"
+                        android:textColor="@color/grey_custom"
                         android:textSize="12sp" />
 
 
@@ -122,11 +122,11 @@
 
                 <ImageView
                     android:id="@+id/buttonMenu"
-                    app:srcCompat="@drawable/ic_content_options"
                     android:layout_width="18dp"
                     android:layout_height="18dp"
                     android:textAppearance="?android:textAppearanceLarge"
-                    android:visibility="gone" />
+                    android:visibility="gone"
+                    app:srcCompat="@drawable/ic_content_options" />
 
 
             </LinearLayout>
@@ -136,25 +136,20 @@
 
         <RelativeLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent">
+            android:layout_height="wrap_content">
 
-            <com.thetestament.cread.widgets.SquareView
-                android:id="@+id/imageContainer"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content">
-
-                <ImageView
-                    android:id="@+id/contentImage"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:scaleType="centerCrop"
-                    android:src="@drawable/image_placeholder" />
-            </com.thetestament.cread.widgets.SquareView>
+            <ImageView
+                android:id="@+id/contentImage"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:adjustViewBounds="true"
+                android:scaleType="fitXY"
+                android:src="@drawable/image_placeholder" />
 
             <FrameLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_alignBottom="@+id/imageContainer"
+                android:layout_alignBottom="@+id/contentImage"
                 android:layout_alignParentRight="true"
                 android:layout_marginBottom="5dp"
                 android:layout_marginRight="3dp"
@@ -198,12 +193,12 @@
 
 
                 <android.support.v7.widget.AppCompatImageView
-                    app:srcCompat="@drawable/ic_longshort_preview"
                     android:layout_width="24dp"
                     android:layout_height="24dp"
                     android:layout_alignParentRight="true"
                     android:background="@drawable/circle_transparent_bg"
-                    android:padding="5dp" />
+                    android:padding="5dp"
+                    app:srcCompat="@drawable/ic_longshort_preview" />
 
 
             </FrameLayout>
@@ -233,9 +228,9 @@
 
                     <android.support.v7.widget.AppCompatImageView
                         android:id="@+id/iconHatsoff"
-                        app:srcCompat="@drawable/ic_hats_off_circular_100"
                         android:layout_width="18dp"
-                        android:layout_height="18dp" />
+                        android:layout_height="18dp"
+                        app:srcCompat="@drawable/ic_hats_off_circular_100" />
 
                     <TextView
                         android:id="@+id/textHatsOffCount"
@@ -268,9 +263,9 @@
 
                     <android.support.v7.widget.AppCompatImageView
                         android:id="@+id/iconComment"
-                        app:srcCompat="@drawable/ic_comment_circular_100"
                         android:layout_width="18dp"
-                        android:layout_height="18dp" />
+                        android:layout_height="18dp"
+                        app:srcCompat="@drawable/ic_comment_circular_100" />
 
                     <TextView
                         android:id="@+id/textCommentsCount"
@@ -293,13 +288,13 @@
 
                 <ImageView
                     android:id="@+id/imageDownvote"
-                    app:srcCompat="@drawable/ic_downvote"
                     android:layout_width="24dp"
                     android:layout_height="24dp"
                     android:paddingRight="7dp"
                     android:paddingTop="8dp"
                     android:tint="@color/grey_custom"
-                    android:visibility="gone" />
+                    android:visibility="gone"
+                    app:srcCompat="@drawable/ic_downvote" />
 
 
                 <TextView
@@ -323,9 +318,9 @@
 
                     <android.support.v7.widget.AppCompatImageView
                         android:id="@+id/iconCollabCount"
-                        app:srcCompat="@drawable/ic_collab"
                         android:layout_width="18dp"
-                        android:layout_height="18dp" />
+                        android:layout_height="18dp"
+                        app:srcCompat="@drawable/ic_collab" />
 
 
                     <TextView
@@ -473,8 +468,8 @@
             android:id="@+id/viewTopComments"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
             android:background="@color/custom_white"
+            android:orientation="vertical"
             android:visibility="gone" />
 
         <TextView
@@ -488,5 +483,5 @@
             android:paddingTop="10dp"
             android:text="Show all comments"
             android:visibility="gone" />
-</LinearLayout>
+    </LinearLayout>
 </android.support.v7.widget.CardView>

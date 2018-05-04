@@ -15,7 +15,6 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
-
         <RelativeLayout
             android:id="@+id/containerCreator"
             android:layout_width="match_parent"
@@ -39,7 +38,6 @@
                     app:civ_border_color="@color/black_defined"
                     tools:src="@drawable/ic_account_circle_100" />
 
-
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -59,13 +57,11 @@
                         android:id="@+id/textTimestamp"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="08 March at 5:00"
-                        android:textColor="@color/grey_custom"
                         android:layout_marginTop="5dp"
                         android:paddingLeft="8dp"
+                        android:text="08 March at 5:00"
+                        android:textColor="@color/grey_custom"
                         android:textSize="12sp" />
-
-
                 </LinearLayout>
 
 
@@ -96,7 +92,6 @@
                     android:textSize="12sp"
                     android:visibility="visible" />
 
-
                 <ImageView
                     android:id="@+id/buttonMenu"
                     android:layout_width="18dp"
@@ -104,7 +99,6 @@
                     android:textAppearance="?android:textAppearanceLarge"
                     android:visibility="visible"
                     app:srcCompat="@drawable/ic_content_options" />
-
 
             </LinearLayout>
 
@@ -117,18 +111,13 @@
             android:layout_height="wrap_content"
             android:layout_below="@+id/containerCreator">
 
-            <com.thetestament.cread.widgets.SquareView
-                android:id="@+id/imageContainer"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content">
-
-                <ImageView
-                    android:id="@+id/imageContent"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:scaleType="centerCrop" />
-            </com.thetestament.cread.widgets.SquareView>
-
+            <android.support.v7.widget.AppCompatImageView
+                android:id="@+id/imageContent"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:adjustViewBounds="true"
+                android:scaleType="fitXY"
+                tools:src="@tools:sample/avatars" />
 
             <FrameLayout
                 android:id="@+id/containerLongShortPreview"
@@ -137,7 +126,7 @@
                 android:layout_alignParentRight="true"
                 android:layout_alignParentTop="true"
                 android:padding="5dp"
-                android:visibility="visible">
+                android:visibility="gone">
 
 
                 <android.support.v7.widget.AppCompatImageView

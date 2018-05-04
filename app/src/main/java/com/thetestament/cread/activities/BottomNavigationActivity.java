@@ -49,6 +49,7 @@ import com.thetestament.cread.helpers.ImageHelper;
 import com.thetestament.cread.helpers.SharedPreferenceHelper;
 import com.thetestament.cread.helpers.ViewHelper;
 import com.thetestament.cread.listeners.listener.OnServerRequestedListener;
+import com.thetestament.cread.utils.AspectRatioUtils;
 import com.yalantis.ucrop.UCrop;
 
 import java.io.File;
@@ -209,29 +210,44 @@ public class BottomNavigationActivity extends BaseActivity {
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        // super.onActivityResult(requestCode, resultCode, data);
         switch (requestCode) {
             case REQUEST_CODE_OPEN_GALLERY:
                 if (resultCode == RESULT_OK) {
                     // To crop the selected image
-                    startImageCropping(this, data.getData(), getImageUri(IMAGE_TYPE_USER_CAPTURE_PIC));
+                    startImageCropping(mContext
+                            , data.getData()
+                            , getImageUri(IMAGE_TYPE_USER_CAPTURE_PIC));
                 } else {
-                    ViewHelper.getSnackBar(rootView, "Image from gallery was not attached");
+                    ViewHelper.getSnackBar(rootView
+                            , getString(R.string.error_img_not_attached));
                 }
                 break;
             //For more information please visit "https://github.com/Yalantis/uCrop"
             case UCrop.REQUEST_CROP:
                 if (resultCode == RESULT_OK) {
+                    //Get image width and height
+                    float width = data.getIntExtra(UCrop.EXTRA_OUTPUT_IMAGE_WIDTH, 1800);
+                    float height = data.getIntExtra(UCrop.EXTRA_OUTPUT_IMAGE_HEIGHT, 1800);
+
                     //Get cropped image Uri
                     Uri mCroppedImgUri = UCrop.getOutput(data);
-                    //Method call
-                    performSquareImageManipulation(mCroppedImgUri);
+
+                    //Check for image manipulation
+                    if (AspectRatioUtils.getSquareImageManipulation(width, height)) {
+                        //Create square image with blurred background
+                        performSquareImageManipulation(mCroppedImgUri);
+                    } else {
+                        //Method called
+                        processCroppedImage(mCroppedImgUri);
+                    }
+
                     //Finish this screen if called from other apps
                     if (mCalledFromSendIntent) {
                         finish();
                     }
                 } else if (resultCode == UCrop.RESULT_ERROR) {
-                    ViewHelper.getSnackBar(rootView, "Image could not be cropped due to some error");
+                    ViewHelper.getSnackBar(rootView
+                            , getString(R.string.error_img_not_cropped));
                 }
                 break;
 
@@ -514,7 +530,6 @@ public class BottomNavigationActivity extends BaseActivity {
         startActivityForResult(intent, REQUEST_CODE_OPEN_GALLERY);
     }
 
-
     /**
      * Method to perform required operation on cropped image.
      *
@@ -528,9 +543,9 @@ public class BottomNavigationActivity extends BaseActivity {
             BitmapFactory.decodeFile(new File(uri.getPath()).getAbsolutePath(), options);
             int imageHeight = options.outHeight;
             int imageWidth = options.outWidth;
-            //TODO fix compression
+
             //If resolution of image is greater than 3000x13000 then compress this image
-            if (imageHeight >= 3000 && imageWidth >= 3000) {
+            if (Math.min(imageHeight, imageWidth) >= 3000) {
                 //Compress image
                 compressSpecific(uri, this, IMAGE_TYPE_USER_CAPTURE_PIC);
                 //Open preview screen
@@ -541,7 +556,7 @@ public class BottomNavigationActivity extends BaseActivity {
                 Intent intent = new Intent(mContext, PreviewActivity.class);
                 intent.putExtra(PREVIEW_EXTRA_DATA, bundle);
                 startActivity(intent);
-            } else if (imageHeight >= 1800 && imageWidth >= 1800) {
+            } else if (Math.min(imageHeight, imageWidth) >= 1800) {
                 //Open preview screen
                 Bundle bundle = new Bundle();
                 bundle.putString(PREVIEW_EXTRA_MERCHANTABLE, "1");
@@ -556,10 +571,9 @@ public class BottomNavigationActivity extends BaseActivity {
         } catch (Exception e) {
             e.printStackTrace();
             FirebaseCrash.report(e);
-            ViewHelper.getSnackBar(rootView, "Image could not be cropped due to some error");
+            ViewHelper.getSnackBar(rootView, getString(R.string.error_img_not_cropped));
         }
     }
-
 
     /**
      * Method to send analytics data on firebase server.
@@ -680,7 +694,6 @@ public class BottomNavigationActivity extends BaseActivity {
         navigationView.setSelectedItemId(id);
     }
 
-
     private void restartHerokuServer() {
         requestServer(mCompositeDisposable,
                 getRestartHerokuObservable(),
@@ -790,7 +803,6 @@ public class BottomNavigationActivity extends BaseActivity {
         }
     }
 
-
     /**
      * Create a new dummy account for the sync adapter
      *
@@ -827,7 +839,6 @@ public class BottomNavigationActivity extends BaseActivity {
 
     }
 
-
     /**
      * Method to open FeedFragment and initialize required flags/variables.
      */
@@ -842,7 +853,6 @@ public class BottomNavigationActivity extends BaseActivity {
         //Update flag
         mSelectedItemID = R.id.action_feed;
     }
-
 
     private void initSpecificFragment(Intent intent) {
         switch (intent.getStringExtra(EXTRA_OPEN_SPECIFIC_BOTTOMNAV_FRAGMENT)) {
@@ -864,7 +874,6 @@ public class BottomNavigationActivity extends BaseActivity {
                 openFeedFragment();
         }
     }
-
 
     /**
      * Method to add notification indicator to Me icon.

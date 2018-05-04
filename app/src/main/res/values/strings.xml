@@ -27,7 +27,8 @@
     //Other error message
     <string name="error_field_empty">cannot be empty</string>
     <string name="error_msg_no_image">Image could not be loaded. Please try again</string>
-
+    <string name="error_img_not_attached">Image from gallery was not attached</string>
+    <string name="error_img_not_cropped">Image could not be cropped due to some error</string>
 
     //Shared preferences key
     <string name="cread_preferences">creadPrefs</string>
@@ -210,12 +211,7 @@
     <string name="text_follow"> \u2022 Follow</string>
     <string name="text_cread_name">Cread \u2022  New message</string>
 
-    <!--Error text-->
-    <string name="error_img_not_attached">Image from gallery was not attached</string>
-    <string name="error_img_not_cropped">Image could not be cropped due to some error</string>
 
-    <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
 
 
     <string name="text_writing_mode_short">Short Mode</string>

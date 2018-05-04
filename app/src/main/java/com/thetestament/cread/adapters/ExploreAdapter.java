@@ -34,6 +34,7 @@ import com.thetestament.cread.listeners.listener.OnExploreCaptureClickListener;
 import com.thetestament.cread.listeners.listener.OnExploreFollowListener;
 import com.thetestament.cread.listeners.listener.OnExploreLoadMoreListener;
 import com.thetestament.cread.models.FeedModel;
+import com.thetestament.cread.utils.AspectRatioUtils;
 import com.thetestament.cread.utils.Constant.ITEM_TYPES;
 
 import java.util.List;
@@ -60,12 +61,12 @@ import static com.thetestament.cread.utils.Constant.REQUEST_CODE_FEED_DESCRIPTIO
 /**
  * Adapter class to provide a binding from data set to views that are displayed within a explore RecyclerView.
  */
-
 public class ExploreAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
     private final int VIEW_TYPE_ITEM_LIST = 0;
     private final int VIEW_TYPE_ITEM_GRID = 1;
     private final int VIEW_TYPE_LOADING = 2;
+
     private List<FeedModel> mExploreList;
     private FragmentActivity mContext;
     private Fragment mExploreFragment;
@@ -159,11 +160,7 @@ public class ExploreAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
             final ListItemViewHolder itemViewHolder = (ListItemViewHolder) holder;
             //Load creator profile picture
             loadCreatorPic(data.getCreatorImage(), itemViewHolder.imageCreator);
-            //Set creator name
-            //itemViewHolder.textCreatorName.setText(data.getCreatorName());
-
-            // set text and click actions according to content type
-            //performContentTypeSpecificOperations(itemViewHolder, data);
+            //Set text and click actions according to content type
             FeedHelper.performContentTypeSpecificOperations(mContext
                     , data
                     , itemViewHolder.collabCount
@@ -180,6 +177,10 @@ public class ExploreAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
             //Check follow status
             checkFollowStatus(data, itemViewHolder);
 
+            //Set image width and height
+            AspectRatioUtils.setImageAspectRatio(data.getImgWidth()
+                    , data.getImgHeight()
+                    , itemViewHolder.imageExplore);
             //Load explore feed image
             loadFeedImage(data.getContentImage(), itemViewHolder.imageExplore);
 
@@ -201,11 +202,9 @@ public class ExploreAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
 
         } else if (holder.getItemViewType() == VIEW_TYPE_ITEM_GRID) {
             final GridItemViewHolder itemViewHolder = (GridItemViewHolder) holder;
-            //Load explore feed image
-
             // set margins
             setGridItemMargins(mContext, position, itemViewHolder.imageExplore);
-
+            //Load explore feed image
             loadFeedImage(data.getContentImage(), itemViewHolder.imageExplore);
 
             itemViewOnClick(itemViewHolder.itemView, data, position, true);

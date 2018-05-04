@@ -113,18 +113,13 @@
             android:layout_height="wrap_content"
             android:layout_below="@+id/containerCreator">
 
-            <com.thetestament.cread.widgets.SquareView
-                android:id="@+id/imageContainer"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content">
-
-                <ImageView
-                    android:id="@+id/imageExplore"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:scaleType="centerCrop"
-                    android:src="@drawable/image_placeholder" />
-            </com.thetestament.cread.widgets.SquareView>
+            <ImageView
+                android:id="@+id/imageExplore"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:adjustViewBounds="true"
+                android:scaleType="fitXY"
+                android:src="@drawable/image_placeholder" />
 
             <FrameLayout
                 android:id="@+id/containerLongShortPreview"

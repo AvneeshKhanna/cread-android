@@ -6,6 +6,7 @@ package com.thetestament.cread.models;
 
 public class CollaborationDetailsModel {
     private String userName, uuid, profilePic, entityUrl, entityID;
+    private int imgWidth, imgHeight;
 
 
     public String getUserName() {
@@ -46,5 +47,21 @@ public class CollaborationDetailsModel {
 
     public void setEntityID(String entityID) {
         this.entityID = entityID;
+    }
+
+    public int getImgWidth() {
+        return imgWidth;
+    }
+
+    public void setImgWidth(int imgWidth) {
+        this.imgWidth = imgWidth;
+    }
+
+    public int getImgHeight() {
+        return imgHeight;
+    }
+
+    public void setImgHeight(int imgHeight) {
+        this.imgHeight = imgHeight;
     }
 }
