@@ -9,6 +9,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.widget.TextViewCompat;
+import android.support.v7.widget.AppCompatImageView;
 import android.support.v7.widget.AppCompatTextView;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -72,6 +73,10 @@ import static com.thetestament.cread.utils.Constant.FIREBASE_EVENT_HAVE_CLICKED;
 import static com.thetestament.cread.utils.Constant.FIREBASE_EVENT_SHARED_FROM_MAIN_FEED;
 import static com.thetestament.cread.utils.Constant.FIREBASE_EVENT_WRITE_CLICKED;
 import static com.thetestament.cread.utils.Constant.REQUEST_CODE_RECOMMENDED_ARTISTS_FROM_FEED_ADAPTER;
+import static com.thetestament.cread.utils.Constant.SHARE_OPTION_FACEBOOK;
+import static com.thetestament.cread.utils.Constant.SHARE_OPTION_INSTAGRAM;
+import static com.thetestament.cread.utils.Constant.SHARE_OPTION_OTHER;
+import static com.thetestament.cread.utils.Constant.SHARE_OPTION_WHATSAPP;
 
 /**
  * Adapter class to provide a binding from data set to views that are displayed within a Feed RecyclerView.
@@ -216,7 +221,7 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             //Comment click functionality
             commentOnClick(itemViewHolder.containerComment, data.getEntityID());
             //Share click functionality
-            shareOnClick(itemViewHolder.containerShare, data.getContentImage(), data.getEntityID(), data.getCreatorName(), data);
+            shareOnClick(itemViewHolder, data);
             //HatsOff onClick functionality
             hatsOffOnClick(itemViewHolder, data, position);
             //Collaboration count click functionality
@@ -408,21 +413,44 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     /**
      * Share onClick functionality.
      *
-     * @param view       View to be clicked.
-     * @param pictureUrl URL of the picture to be shared.
+     * @param itemViewHolder
+     * @param data
      */
-    private void shareOnClick(View view, final String pictureUrl, final String entityID, final String creatorName, final FeedModel data) {
-        view.setOnClickListener(new View.OnClickListener() {
+    private void shareOnClick(final ItemViewHolder itemViewHolder, final FeedModel data) {
+
+        itemViewHolder.logoWhatsapp.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
 
-                // image sharing
-                //so load image
-                loadBitmapForSharing(data);
-
-
+                loadBitmapForSharing(data, SHARE_OPTION_WHATSAPP);
             }
         });
+
+        itemViewHolder.logoFacebook.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                loadBitmapForSharing(data, SHARE_OPTION_FACEBOOK);
+            }
+        });
+
+        itemViewHolder.logoInstagram.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                loadBitmapForSharing(data, SHARE_OPTION_INSTAGRAM);
+            }
+        });
+
+        itemViewHolder.logoMore.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                loadBitmapForSharing(data, SHARE_OPTION_OTHER);
+            }
+        });
+
+
     }
 
     /**
@@ -598,12 +626,12 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     /**
      * Method to load bitmap image to be shared
      */
-    private void loadBitmapForSharing(final FeedModel data) {
+    private void loadBitmapForSharing(final FeedModel data, final String shareOption) {
         Picasso.with(mContext).load(data.getContentImage()).into(new Target() {
             @Override
             public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
                 //Set Listener
-                onShareListener.onShareClick(bitmap, data);
+                onShareListener.onShareClick(bitmap, data, shareOption);
                 //Log firebase event
                 setAnalytics(FIREBASE_EVENT_SHARED_FROM_MAIN_FEED, data.getEntityID());
             }
@@ -639,8 +667,6 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         LinearLayout containerHatsOff;
         @BindView(R.id.containerComment)
         LinearLayout containerComment;
-        @BindView(R.id.containerShare)
-        LinearLayout containerShare;
         @BindView(R.id.textCollabCount)
         TextView textCollabCount;
         @BindView(R.id.lineSeparatorTop)
@@ -669,6 +695,17 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         FrameLayout containerLongShortPreview;
         @BindView(R.id.textTimestamp)
         TextView textTimeStamp;
+        @BindView(R.id.logoWhatsapp)
+        AppCompatImageView logoWhatsapp;
+        @BindView(R.id.logoFacebook)
+        AppCompatImageView logoFacebook;
+        @BindView(R.id.logoInstagram)
+        AppCompatImageView logoInstagram;
+        @BindView(R.id.logoMore)
+        AppCompatImageView logoMore;
+        @BindView(R.id.layoutShareOptions)
+        LinearLayout layoutShareOptions;
+
 
         //Variable to maintain hats off status
         private boolean mIsHatsOff = false;

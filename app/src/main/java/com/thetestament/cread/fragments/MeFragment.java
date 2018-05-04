@@ -103,7 +103,7 @@ import static android.app.Activity.RESULT_OK;
 import static com.thetestament.cread.CreadApp.GET_RESPONSE_FROM_NETWORK_ME;
 import static com.thetestament.cread.dialog.DialogHelper.getDeletePostDialog;
 import static com.thetestament.cread.fragments.ExploreFragment.defaultItemType;
-import static com.thetestament.cread.helpers.DeepLinkHelper.generateDeepLink;
+import static com.thetestament.cread.helpers.DeepLinkHelper.getDeepLinkOnValidShareOption;
 import static com.thetestament.cread.helpers.FeedHelper.updateFollowForAll;
 import static com.thetestament.cread.helpers.ImageHelper.getImageUri;
 import static com.thetestament.cread.helpers.NetworkHelper.getNetConnectionStatus;
@@ -149,6 +149,7 @@ import static com.thetestament.cread.utils.Constant.REQUEST_CODE_OPEN_GALLERY_FO
 import static com.thetestament.cread.utils.Constant.REQUEST_CODE_ROYALTIES_ACTIVITY;
 import static com.thetestament.cread.utils.Constant.REQUEST_CODE_UPDATE_PROFILE_DETAILS;
 import static com.thetestament.cread.utils.Constant.REQUEST_CODE_UPDATE_PROFILE_PIC;
+import static com.thetestament.cread.utils.Constant.SHARE_OPTION_OTHER;
 
 /**
  * Fragment class to load user profile details and his/her recent activity.
@@ -206,6 +207,9 @@ public class MeFragment extends Fragment implements listener.OnCollaborationList
     @State
     String mEntityID, mEntityType;
     Bitmap mBitmap;
+
+    @State
+    String mShareOption = SHARE_OPTION_OTHER;
 
     FeedModel mFeedData;
 
@@ -1978,21 +1982,23 @@ public class MeFragment extends Fragment implements listener.OnCollaborationList
     private void initShareListener(MeAdapter meAdapter) {
         meAdapter.setOnShareListener(new listener.OnShareListener() {
             @Override
-            public void onShareClick(Bitmap bitmap, FeedModel data) {
+            public void onShareClick(Bitmap bitmap, FeedModel data, String shareOption) {
                 mBitmap = bitmap;
                 mFeedData = data;
+                mShareOption = shareOption;
                 //Check for Write permission
                 if (Nammu.checkPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
                     //We have permission do whatever you want to do
                     // generates deep link
                     // and opens the share dialog
-                    generateDeepLink(getActivity(),
+                    getDeepLinkOnValidShareOption(getActivity(),
                             mCompositeDisposable,
                             rootView,
                             mHelper.getUUID(),
                             mHelper.getAuthToken(),
                             data,
-                            bitmap);
+                            bitmap,
+                            mShareOption);
 
                 } else {
                     //We do not own this permission
@@ -2016,13 +2022,14 @@ public class MeFragment extends Fragment implements listener.OnCollaborationList
     PermissionCallback shareWritePermission = new PermissionCallback() {
         @Override
         public void permissionGranted() {
-            generateDeepLink(getActivity(),
+            getDeepLinkOnValidShareOption(getActivity(),
                     mCompositeDisposable,
                     rootView,
                     mHelper.getUUID(),
                     mHelper.getAuthToken(),
                     mFeedData,
-                    mBitmap);
+                    mBitmap,
+                    mShareOption);
 
         }
 

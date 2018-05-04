@@ -28,6 +28,10 @@ import io.reactivex.disposables.CompositeDisposable;
 import static com.thetestament.cread.helpers.NetworkHelper.getEntitySpecificDeepLinkObservable;
 import static com.thetestament.cread.helpers.NetworkHelper.getUserSpecificDeepLinkObservable;
 import static com.thetestament.cread.helpers.NetworkHelper.requestServer;
+import static com.thetestament.cread.helpers.ShareHelper.isAppInstalled;
+import static com.thetestament.cread.utils.Constant.SHARE_OPTION_FACEBOOK;
+import static com.thetestament.cread.utils.Constant.SHARE_OPTION_INSTAGRAM;
+import static com.thetestament.cread.utils.Constant.SHARE_OPTION_WHATSAPP;
 import static com.thetestament.cread.utils.Constant.SHARE_SOURCE_FROM_CREATE;
 import static com.thetestament.cread.utils.Constant.SHARE_SOURCE_FROM_SHARE;
 
@@ -116,7 +120,7 @@ public class DeepLinkHelper {
     }
 
     /**
-     * Method to get the deep link from server
+     * Checks if the selected sharing option is available and then gets the deep link from the server
      *
      * @param context
      * @param compositeDisposable
@@ -126,34 +130,82 @@ public class DeepLinkHelper {
      * @param data
      * @param bitmap
      */
-    public static void generateDeepLink(final FragmentActivity context, CompositeDisposable compositeDisposable, final View rootView, String uuid, String authkey, final FeedModel data, final Bitmap bitmap) {
+    public static void getDeepLinkOnValidShareOption(final FragmentActivity context, CompositeDisposable compositeDisposable, final View rootView, String uuid, String authkey, final FeedModel data, final Bitmap bitmap, final String shareOption) {
 
-        DeepLinkHelper deepLinkHelper = new DeepLinkHelper();
-        deepLinkHelper.getDeepLinkFromServer(context
-                , compositeDisposable
-                , getEntitySpecificDeepLinkObservable(BuildConfig.URL + "/entity-share-link/generate-dynamic-link",
-                        uuid,
-                        authkey,
-                        data.getEntityID(),
-                        data.getContentImage(),
-                        data.getCreatorName(),
-                        SHARE_SOURCE_FROM_SHARE)
-                , new listener.OnDeepLinkRequestedListener() {
-                    @Override
-                    public void onDeepLinkSuccess(String deepLink, MaterialDialog dialog) {
-                        dialog.dismiss();
-                        // share link
-                        ShareHelper.sharePost(bitmap, context, data, deepLink);
+        boolean isValidShare = true;
 
-                    }
+        switch (shareOption) {
 
-                    @Override
-                    public void onDeepLinkFailiure(String errorMsg, MaterialDialog dialog) {
-                        dialog.dismiss();
-                        ViewHelper.getSnackBar(rootView, errorMsg);
+            case SHARE_OPTION_WHATSAPP:
 
-                    }
-                });
+                if (isAppInstalled(context, "com.whatsapp")) {
+
+
+                } else {
+                    isValidShare = false;
+                    ViewHelper.getToast(context, "Problem in sharing because you might not have Whatsapp installed");
+                }
+                break;
+
+            case SHARE_OPTION_FACEBOOK:
+
+                if (isAppInstalled(context, "com.facebook.katana")) {
+
+
+                } else {
+                    isValidShare = false;
+                    ViewHelper.getToast(context, "Problem in sharing because you might not have Facebook installed");
+
+                }
+                break;
+
+            case SHARE_OPTION_INSTAGRAM:
+                if (isAppInstalled(context, "com.instagram.android")) {
+
+                } else {
+                    isValidShare = false;
+                    ViewHelper.getToast(context, "Problem in sharing because you might not have Instagram installed");
+                }
+                break;
+
+            default:
+                break;
+        }
+
+        if (isValidShare) {
+            DeepLinkHelper deepLinkHelper = new DeepLinkHelper();
+            deepLinkHelper.getDeepLinkFromServer(context
+                    , compositeDisposable
+                    , getEntitySpecificDeepLinkObservable(BuildConfig.URL + "/entity-share-link/generate-dynamic-link",
+                            uuid,
+                            authkey,
+                            data.getEntityID(),
+                            data.getContentImage(),
+                            data.getCreatorName(),
+                            SHARE_SOURCE_FROM_SHARE)
+                    , new listener.OnDeepLinkRequestedListener() {
+                        @Override
+                        public void onDeepLinkSuccess(String deepLink, MaterialDialog dialog) {
+                            dialog.dismiss();
+                            // share link
+
+                            String shareText = data.getCaption() == null ?
+                                    context.getString(R.string.text_share_image, deepLink) :
+                                    data.getCaption() + "\n\n" + "App: " + deepLink;
+
+                            ShareHelper.sharePost(bitmap, context, shareText, shareOption);
+
+                        }
+
+                        @Override
+                        public void onDeepLinkFailiure(String errorMsg, MaterialDialog dialog) {
+                            dialog.dismiss();
+                            ViewHelper.getSnackBar(rootView, errorMsg);
+
+                        }
+                    });
+        }
+
     }
 
 
@@ -198,7 +250,7 @@ public class DeepLinkHelper {
                                         context.getString(R.string.text_share_image_created, deepLink) :
                                         caption + "\n\n" + "App: " + deepLink;
 
-                                ShareHelper.collabInviteImage(bitmap, context, shareText, shareOption);
+                                ShareHelper.sharePost(bitmap, context, shareText, shareOption);
 
                             }
 

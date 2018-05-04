@@ -60,7 +60,7 @@ import pl.tajchert.nammu.PermissionCallback;
 
 import static com.thetestament.cread.CreadApp.GET_RESPONSE_FROM_NETWORK_MORE_POSTS;
 import static com.thetestament.cread.dialog.DialogHelper.getDeletePostDialog;
-import static com.thetestament.cread.helpers.DeepLinkHelper.generateDeepLink;
+import static com.thetestament.cread.helpers.DeepLinkHelper.getDeepLinkOnValidShareOption;
 import static com.thetestament.cread.helpers.DeletePostHelper.deletePost;
 import static com.thetestament.cread.helpers.FeedHelper.updateFollowForAll;
 import static com.thetestament.cread.helpers.ImageHelper.getImageUri;
@@ -77,6 +77,7 @@ import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_CAPTION_TEXT;
 import static com.thetestament.cread.utils.Constant.REQUEST_CODE_COMMENTS_ACTIVITY;
 import static com.thetestament.cread.utils.Constant.REQUEST_CODE_EDIT_POST;
 import static com.thetestament.cread.utils.Constant.REQUEST_CODE_OPEN_GALLERY;
+import static com.thetestament.cread.utils.Constant.SHARE_OPTION_OTHER;
 import static com.thetestament.cread.utils.Constant.USER_ACTION_TYPE_VIEW;
 
 /**
@@ -101,6 +102,9 @@ public class FeedDescriptionActivity extends BaseActivity implements listener.On
 
     @State
     String mEntityID, mEntityType;
+
+    @State
+    String mShareOption = SHARE_OPTION_OTHER;
 
     @State
     int mItemPosition;
@@ -324,19 +328,21 @@ public class FeedDescriptionActivity extends BaseActivity implements listener.On
     private void initShareListener(FeedDescriptionAdapter feedAdapter) {
         feedAdapter.setOnShareListener(new listener.OnShareListener() {
             @Override
-            public void onShareClick(Bitmap bitmap, FeedModel data) {
+            public void onShareClick(Bitmap bitmap, FeedModel data, String shareOption) {
                 mBitmap = bitmap;
                 shareSpecificEntity = data;
+                mShareOption = shareOption;
                 //Check for Write permission
                 if (Nammu.checkPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
                     //We have permission do whatever you want to do
-                    generateDeepLink(mContext,
+                    getDeepLinkOnValidShareOption(mContext,
                             mCompositeDisposable,
                             rootView,
                             mHelper.getUUID(),
                             mHelper.getAuthToken(),
                             shareSpecificEntity,
-                            bitmap);
+                            bitmap,
+                            mShareOption);
                 } else {
                     //We do not own this permission
                     if (Nammu.shouldShowRequestPermissionRationale(mContext
@@ -1092,14 +1098,14 @@ public class FeedDescriptionActivity extends BaseActivity implements listener.On
     PermissionCallback shareWritePermission = new PermissionCallback() {
         @Override
         public void permissionGranted() {
-            //sharePost(mBitmap);
-            generateDeepLink(mContext,
+            getDeepLinkOnValidShareOption(mContext,
                     mCompositeDisposable,
                     rootView,
                     mHelper.getUUID(),
                     mHelper.getAuthToken(),
                     shareSpecificEntity,
-                    mBitmap);
+                    mBitmap,
+                    mShareOption);
         }
 
         @Override

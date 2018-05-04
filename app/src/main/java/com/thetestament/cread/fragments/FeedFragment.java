@@ -79,7 +79,7 @@ import pl.tajchert.nammu.PermissionCallback;
 import static android.app.Activity.RESULT_OK;
 import static com.thetestament.cread.CreadApp.GET_RESPONSE_FROM_NETWORK_ENTITY_SPECIFIC;
 import static com.thetestament.cread.CreadApp.GET_RESPONSE_FROM_NETWORK_MAIN;
-import static com.thetestament.cread.helpers.DeepLinkHelper.generateDeepLink;
+import static com.thetestament.cread.helpers.DeepLinkHelper.getDeepLinkOnValidShareOption;
 import static com.thetestament.cread.helpers.FeedHelper.parseEntitySpecificJSON;
 import static com.thetestament.cread.helpers.ImageHelper.getImageUri;
 import static com.thetestament.cread.helpers.NetworkHelper.getEntitySpecificObservable;
@@ -100,6 +100,7 @@ import static com.thetestament.cread.utils.Constant.REQUEST_CODE_RECOMMENDED_ART
 import static com.thetestament.cread.utils.Constant.REQUEST_CODE_RECOMMENDED_ARTISTS_FROM_FEED_ADAPTER;
 import static com.thetestament.cread.utils.Constant.REQUEST_CODE_USER_PROFILE_FROM_FEED;
 import static com.thetestament.cread.utils.Constant.REQUEST_CODE_USER_PROFILE_FROM_SUGGESTED_ADAPTER;
+import static com.thetestament.cread.utils.Constant.SHARE_OPTION_OTHER;
 
 public class FeedFragment extends Fragment implements listener.OnCollaborationListener {
 
@@ -142,6 +143,9 @@ public class FeedFragment extends Fragment implements listener.OnCollaborationLi
     String mEntityID, mEntityType;
     Bitmap mBitmap;
     FeedModel entitySpecificData;
+
+    @State
+    String mShareOption = SHARE_OPTION_OTHER;
 
     @State
     String textHashTagOFTheDay = "";
@@ -838,19 +842,21 @@ public class FeedFragment extends Fragment implements listener.OnCollaborationLi
     private void initShareListener(FeedAdapter feedAdapter) {
         feedAdapter.setOnShareListener(new listener.OnShareListener() {
             @Override
-            public void onShareClick(Bitmap bitmap, FeedModel data) {
+            public void onShareClick(Bitmap bitmap, FeedModel data, String shareOption) {
                 mBitmap = bitmap;
                 entitySpecificData = data;
+                mShareOption = shareOption;
                 //Check for Write permission
                 if (Nammu.checkPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
                     //We have permission do whatever you want to do
-                    generateDeepLink(getActivity(),
+                    getDeepLinkOnValidShareOption(getActivity(),
                             mCompositeDisposable,
                             rootView,
                             mHelper.getUUID(),
                             mHelper.getAuthToken(),
                             entitySpecificData,
-                            bitmap);
+                            bitmap,
+                            mShareOption);
 
                 } else {
                     //We do not own this permission
@@ -939,13 +945,14 @@ public class FeedFragment extends Fragment implements listener.OnCollaborationLi
     PermissionCallback shareWritePermission = new PermissionCallback() {
         @Override
         public void permissionGranted() {
-            generateDeepLink(getActivity(),
+            getDeepLinkOnValidShareOption(getActivity(),
                     mCompositeDisposable,
                     rootView,
                     mHelper.getUUID(),
                     mHelper.getAuthToken(),
                     entitySpecificData,
-                    mBitmap);
+                    mBitmap,
+                    mShareOption);
 
         }
 
