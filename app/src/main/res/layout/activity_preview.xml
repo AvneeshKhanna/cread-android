@@ -24,6 +24,7 @@
                 android:scrollbars="vertical">
 
                 <RelativeLayout
+                    android:id="@+id/containerImagePreview"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
@@ -43,6 +44,15 @@
                         android:layout_width="match_parent"
                         android:layout_height="0.3dp"
                         android:layout_alignParentBottom="true"
+                        android:alpha="0.4"
+                        android:background="@color/grey_dark" />
+
+                    <!--Top separator-->
+                    <View
+                        android:id="@+id/lineTopSeparator"
+                        android:layout_width="match_parent"
+                        android:layout_height="0.3dp"
+                        android:layout_alignTop="@+id/imagePreview"
                         android:alpha="0.4"
                         android:background="@color/grey_dark" />
 
@@ -73,7 +83,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_alignParentRight="true"
-                        android:layout_alignParentTop="true"
+                        android:layout_below="@+id/lineTopSeparator"
                         android:padding="5dp"
                         android:visibility="gone">
 
@@ -125,6 +135,7 @@
 
         </FrameLayout>
 
+        <!--Separator line-->
         <View
             android:id="@+id/Separator"
             android:layout_width="match_parent"

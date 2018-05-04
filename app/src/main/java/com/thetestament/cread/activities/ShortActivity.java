@@ -795,6 +795,11 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
         //Set imageView width and height
         AspectRatioUtils.setImageAspectRatio(1, 1, imageShort);
         AspectRatioUtils.setImageAspectRatio(1, 1, imageShortContainer);
+        //Update flags
+        mCaptureImageHeight = 0;
+        mCaptureImageWidth = 0;
+
+        //If background image is present
         if (mIsImagePresent) {
             //show note textView
             textNote.setVisibility(View.INVISIBLE);

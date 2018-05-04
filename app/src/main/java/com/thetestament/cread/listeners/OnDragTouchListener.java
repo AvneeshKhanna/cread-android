@@ -272,8 +272,11 @@ public class OnDragTouchListener implements View.OnTouchListener {
         dX = 0;
         dY = 0;
         isDragging = false;
-        //Set listener
-        mOnDragActionListener.onDragFinished();
+
+        if (mOnDragActionListener != null) {
+            //Set listener
+            mOnDragActionListener.onDragFinished();
+        }
 
         if (mOnDragActionListener != null) {
             //Drag listener
