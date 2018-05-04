@@ -998,7 +998,7 @@ public class CollaborationActivity extends BaseActivity {
         //Set required aspect ratio
         AspectRatioUtils.setImageAspectRatio(mCaptureImageWidth
                 , mCaptureImageHeight
-                , imageView);
+                , imageShort);
         AspectRatioUtils.setImageAspectRatio(mCaptureImageWidth
                 , mCaptureImageHeight
                 , squareView);
@@ -1386,7 +1386,7 @@ public class CollaborationActivity extends BaseActivity {
                     , mHelper.getAuthToken()
                     , mShortID
                     , String.valueOf(textShort.getX() / divisionFactor)
-                    , String.valueOf((textShort.getY() - squareView.getY()) / divisionFactor)
+                    , String.valueOf((textShort.getY() - imageShort.getY()) / divisionFactor)
                     , String.valueOf(textShort.getWidth() / divisionFactor)
                     , String.valueOf(textShort.getHeight() / divisionFactor)
                     , textShort.getText().toString()
