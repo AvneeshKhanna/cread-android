@@ -85,4 +85,11 @@
         <item name="android:textSize">14sp</item>
     </style>
 
+
+    <!--DarkActivity Theme-->
+    <style name="DarkTheme" parent="Theme.AppCompat.Light.NoActionBar">
+        <item name="colorPrimary">@color/black</item>
+        <item name="colorPrimaryDark">@color/black</item>
+        <item name="colorAccent">@color/white</item>
+    </style>
 </resources>

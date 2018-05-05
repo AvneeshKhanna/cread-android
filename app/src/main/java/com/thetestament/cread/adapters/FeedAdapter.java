@@ -9,6 +9,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.widget.TextViewCompat;
+import android.support.v7.widget.AppCompatImageView;
 import android.support.v7.widget.AppCompatTextView;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -33,6 +34,7 @@ import com.thetestament.cread.activities.MerchandisingProductsActivity;
 import com.thetestament.cread.activities.RecommendedArtistsActivity;
 import com.thetestament.cread.helpers.DownvoteHelper;
 import com.thetestament.cread.helpers.FeedHelper;
+import com.thetestament.cread.helpers.ImageHelper;
 import com.thetestament.cread.helpers.NetworkHelper;
 import com.thetestament.cread.helpers.SuggestionHelper;
 import com.thetestament.cread.helpers.ViewHelper;
@@ -44,6 +46,7 @@ import com.thetestament.cread.listeners.listener.OnShareLinkClickedListener;
 import com.thetestament.cread.listeners.listener.OnShareListener;
 import com.thetestament.cread.models.FeedModel;
 import com.thetestament.cread.models.SuggestedArtistsModel;
+import com.thetestament.cread.utils.AspectRatioUtils;
 
 import java.util.List;
 
@@ -72,6 +75,10 @@ import static com.thetestament.cread.utils.Constant.FIREBASE_EVENT_HAVE_CLICKED;
 import static com.thetestament.cread.utils.Constant.FIREBASE_EVENT_SHARED_FROM_MAIN_FEED;
 import static com.thetestament.cread.utils.Constant.FIREBASE_EVENT_WRITE_CLICKED;
 import static com.thetestament.cread.utils.Constant.REQUEST_CODE_RECOMMENDED_ARTISTS_FROM_FEED_ADAPTER;
+import static com.thetestament.cread.utils.Constant.SHARE_OPTION_FACEBOOK;
+import static com.thetestament.cread.utils.Constant.SHARE_OPTION_INSTAGRAM;
+import static com.thetestament.cread.utils.Constant.SHARE_OPTION_OTHER;
+import static com.thetestament.cread.utils.Constant.SHARE_OPTION_WHATSAPP;
 
 /**
  * Adapter class to provide a binding from data set to views that are displayed within a Feed RecyclerView.
@@ -81,6 +88,8 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     private final int VIEW_TYPE_ITEM = 0;
     private final int VIEW_TYPE_LOADING = 1;
     private final int VIEW_TYPE_RECOMMENDED_ARTIST = 2;
+
+
     private List<FeedModel> mFeedList;
     private FragmentActivity mContext;
     private Fragment mFeedFragment;
@@ -103,16 +112,18 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     /**
      * Required constructor.
      *
-     * @param mFeedList List of feed data.
-     * @param mContext  Context to be use.
-     * @param mUUID     UUID of the user
+     * @param feedList            List of feed data.
+     * @param context             Context to be use.
+     * @param UUID                UUID of the user
+     * @param feedFragment        FeedFragment reference
+     * @param compositeDisposable CompositeDisposable reference
      */
-    public FeedAdapter(List<FeedModel> mFeedList, FragmentActivity mContext, String mUUID, Fragment mFeedFragment, CompositeDisposable mCompositeDisposable) {
-        this.mFeedList = mFeedList;
-        this.mContext = mContext;
-        this.mUUID = mUUID;
-        this.mFeedFragment = mFeedFragment;
-        this.mCompositeDisposable = mCompositeDisposable;
+    public FeedAdapter(List<FeedModel> feedList, FragmentActivity context, String UUID, Fragment feedFragment, CompositeDisposable compositeDisposable) {
+        this.mFeedList = feedList;
+        this.mContext = context;
+        this.mUUID = UUID;
+        this.mFeedFragment = feedFragment;
+        this.mCompositeDisposable = compositeDisposable;
     }
 
     /**
@@ -153,7 +164,6 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
     @Override
     public int getItemViewType(int position) {
-        // return mFeedList.get(position) == null ? VIEW_TYPE_LOADING : VIEW_TYPE_ITEM;
         if (mFeedList.get(position) == null) {
             return VIEW_TYPE_LOADING;
         } else {
@@ -190,11 +200,17 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         if (holder.getItemViewType() == VIEW_TYPE_ITEM) {
             final ItemViewHolder itemViewHolder = (ItemViewHolder) holder;
             //Load creator profile picture
-            loadCreatorPic(data.getCreatorImage(), itemViewHolder.imageCreator);
+            ImageHelper.loadImageFromPicasso(mContext, itemViewHolder.imageCreator
+                    , data.getCreatorImage(), R.drawable.ic_account_circle_100);
+
+            //Set image width and height
+            AspectRatioUtils.setImageAspectRatio(data.getImgWidth()
+                    , data.getImgHeight()
+                    , itemViewHolder.imageFeed);
             //Load feed image
             loadFeedImage(data.getContentImage(), itemViewHolder.imageFeed);
 
-            // set text and click actions acc. to content type
+            // Set text and click actions acc. to content type
             FeedHelper.performContentTypeSpecificOperations(mContext
                     , data
                     , itemViewHolder.textCollabCount
@@ -206,7 +222,9 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                     , null);
 
             //Update down vote and dot separator visibility
-            updateDownvoteAndSeperatorVisibility(data, itemViewHolder.dotSeperatorRight, itemViewHolder.imageDownvote);
+            updateDownvoteAndSeperatorVisibility(data, itemViewHolder.dotSeparatorRight
+                    , itemViewHolder.imageDownvote);
+
             //check down vote status
             DownvoteHelper downvoteHelper = new DownvoteHelper();
             downvoteHelper.updateDownvoteUI(itemViewHolder.imageDownvote, data.isDownvoteStatus(), mContext);
@@ -216,7 +234,7 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             //Comment click functionality
             commentOnClick(itemViewHolder.containerComment, data.getEntityID());
             //Share click functionality
-            shareOnClick(itemViewHolder.containerShare, data.getContentImage(), data.getEntityID(), data.getCreatorName(), data);
+            shareOnClick(itemViewHolder, data);
             //HatsOff onClick functionality
             hatsOffOnClick(itemViewHolder, data, position);
             //Collaboration count click functionality
@@ -240,10 +258,10 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             initSocialActionsCount(mContext,
                     data,
                     itemViewHolder.containerHatsOffCount,
-                    itemViewHolder.textHatsoffCount,
+                    itemViewHolder.textHatsOffCount,
                     itemViewHolder.containerCommentCount,
                     itemViewHolder.textCommentsCount,
-                    itemViewHolder.dotSeperator);
+                    itemViewHolder.dotSeparator);
 
             // initialize caption
             initCaption(mContext, data, itemViewHolder.textTitle);
@@ -339,25 +357,12 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
 
     /**
-     * Method to load creator profile picture.
-     *
-     * @param picUrl    picture URL.
-     * @param imageView View where image to be loaded.
-     */
-    private void loadCreatorPic(String picUrl, CircleImageView imageView) {
-        Picasso.with(mContext)
-                .load(picUrl)
-                .error(R.drawable.ic_account_circle_100)
-                .into(imageView);
-    }
-
-    /**
      * Method to load feed image.
      *
      * @param imageUrl  picture URL.
      * @param imageView View where image to be loaded.
      */
-    private void loadFeedImage(String imageUrl, ImageView imageView) {
+    private void loadFeedImage(String imageUrl, final ImageView imageView) {
         Picasso.with(mContext)
                 .load(imageUrl)
                 .error(R.drawable.image_placeholder)
@@ -408,21 +413,44 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     /**
      * Share onClick functionality.
      *
-     * @param view       View to be clicked.
-     * @param pictureUrl URL of the picture to be shared.
+     * @param itemViewHolder
+     * @param data
      */
-    private void shareOnClick(View view, final String pictureUrl, final String entityID, final String creatorName, final FeedModel data) {
-        view.setOnClickListener(new View.OnClickListener() {
+    private void shareOnClick(final ItemViewHolder itemViewHolder, final FeedModel data) {
+
+        itemViewHolder.logoWhatsapp.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
 
-                // image sharing
-                //so load image
-                loadBitmapForSharing(data);
-
-
+                loadBitmapForSharing(data, SHARE_OPTION_WHATSAPP);
             }
         });
+
+        itemViewHolder.logoFacebook.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                loadBitmapForSharing(data, SHARE_OPTION_FACEBOOK);
+            }
+        });
+
+        itemViewHolder.logoInstagram.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                loadBitmapForSharing(data, SHARE_OPTION_INSTAGRAM);
+            }
+        });
+
+        itemViewHolder.logoMore.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                loadBitmapForSharing(data, SHARE_OPTION_OTHER);
+            }
+        });
+
+
     }
 
     /**
@@ -457,7 +485,7 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                         else {
                             //Change hatsOffCount i.e decrease by one
                             itemViewHolder.containerHatsOffCount.setVisibility(View.VISIBLE);
-                            itemViewHolder.textHatsoffCount.setText(String.valueOf(data.getHatsOffCount()));
+                            itemViewHolder.textHatsOffCount.setText(String.valueOf(data.getHatsOffCount()));
                         }
                     } else {
                         //Animation for hats off
@@ -472,10 +500,10 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                         data.setHatsOffCount(data.getHatsOffCount() + 1);
                         //Change hatsOffCount i.e increase by one
                         itemViewHolder.containerHatsOffCount.setVisibility(View.VISIBLE);
-                        itemViewHolder.textHatsoffCount.setText(String.valueOf(data.getHatsOffCount()));
+                        itemViewHolder.textHatsOffCount.setText(String.valueOf(data.getHatsOffCount()));
                     }
 
-                    updateDotSeperatorVisibility(data, itemViewHolder.dotSeperator);
+                    updateDotSeperatorVisibility(data, itemViewHolder.dotSeparator);
 
                     //Toggle hatsOff status
                     itemViewHolder.mIsHatsOff = !itemViewHolder.mIsHatsOff;
@@ -598,12 +626,12 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     /**
      * Method to load bitmap image to be shared
      */
-    private void loadBitmapForSharing(final FeedModel data) {
+    private void loadBitmapForSharing(final FeedModel data, final String shareOption) {
         Picasso.with(mContext).load(data.getContentImage()).into(new Target() {
             @Override
             public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
                 //Set Listener
-                onShareListener.onShareClick(bitmap, data);
+                onShareListener.onShareClick(bitmap, data, shareOption);
                 //Log firebase event
                 setAnalytics(FIREBASE_EVENT_SHARED_FROM_MAIN_FEED, data.getEntityID());
             }
@@ -619,6 +647,37 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             }
         });
 
+    }
+
+    /**
+     * Method to send analytics data on firebase server.
+     *
+     * @param firebaseEvent Event type.
+     * @param entityID      Entity id of the content.
+     */
+    private void setAnalytics(String firebaseEvent, String entityID) {
+        Bundle bundle = new Bundle();
+        bundle.putString("uuid", mUUID);
+        if (firebaseEvent.equals(FIREBASE_EVENT_WRITE_CLICKED)) {
+            bundle.putString("class_name", "main_feed");
+            FirebaseAnalytics.getInstance(mContext).logEvent(FIREBASE_EVENT_WRITE_CLICKED, bundle);
+        } else if (firebaseEvent.equals(FIREBASE_EVENT_SHARED_FROM_MAIN_FEED)) {
+            bundle.putString("entity_id", entityID);
+            FirebaseAnalytics.getInstance(mContext).logEvent(FIREBASE_EVENT_SHARED_FROM_MAIN_FEED, bundle);
+        } else if (firebaseEvent.equals(FIREBASE_EVENT_CAPTURE_CLICKED)) {
+            bundle.putString("class_name", "main_feed");
+            FirebaseAnalytics.getInstance(mContext).logEvent(FIREBASE_EVENT_CAPTURE_CLICKED, bundle);
+        }
+
+    }
+
+    /**
+     * Method to update RecommendedArtistIndex.
+     *
+     * @param index Index value.
+     */
+    public void updateRecommendedArtistIndex(int index) {
+        recommendedArtistIndex = index;
     }
 
     //ItemViewHolder class
@@ -639,12 +698,10 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         LinearLayout containerHatsOff;
         @BindView(R.id.containerComment)
         LinearLayout containerComment;
-        @BindView(R.id.containerShare)
-        LinearLayout containerShare;
         @BindView(R.id.textCollabCount)
         TextView textCollabCount;
         @BindView(R.id.lineSeparatorTop)
-        View lineSepartor;
+        View lineSeparator;
         @BindView(R.id.containerCollabCount)
         LinearLayout containerCollabCount;
         @BindView(R.id.textTitle)
@@ -656,19 +713,30 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         @BindView(R.id.containerCommentsCount)
         LinearLayout containerCommentCount;
         @BindView(R.id.textHatsOffCount)
-        TextView textHatsoffCount;
+        TextView textHatsOffCount;
         @BindView(R.id.textCommentsCount)
         TextView textCommentsCount;
         @BindView(R.id.dotSeperator)
-        TextView dotSeperator;
+        TextView dotSeparator;
         @BindView(R.id.dotSeperatorRight)
-        TextView dotSeperatorRight;
+        TextView dotSeparatorRight;
         @BindView(R.id.imageDownvote)
         ImageView imageDownvote;
         @BindView(R.id.containerLongShortPreview)
         FrameLayout containerLongShortPreview;
         @BindView(R.id.textTimestamp)
         TextView textTimeStamp;
+        @BindView(R.id.logoWhatsapp)
+        AppCompatImageView logoWhatsapp;
+        @BindView(R.id.logoFacebook)
+        AppCompatImageView logoFacebook;
+        @BindView(R.id.logoInstagram)
+        AppCompatImageView logoInstagram;
+        @BindView(R.id.logoMore)
+        AppCompatImageView logoMore;
+        @BindView(R.id.layoutShareOptions)
+        LinearLayout layoutShareOptions;
+
 
         //Variable to maintain hats off status
         private boolean mIsHatsOff = false;
@@ -710,34 +778,4 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         }
     }
 
-    /**
-     * Method to send analytics data on firebase server.
-     *
-     * @param firebaseEvent Event type.
-     * @param entityID      Entity id of the content.
-     */
-    private void setAnalytics(String firebaseEvent, String entityID) {
-        Bundle bundle = new Bundle();
-        bundle.putString("uuid", mUUID);
-        if (firebaseEvent.equals(FIREBASE_EVENT_WRITE_CLICKED)) {
-            bundle.putString("class_name", "main_feed");
-            FirebaseAnalytics.getInstance(mContext).logEvent(FIREBASE_EVENT_WRITE_CLICKED, bundle);
-        } else if (firebaseEvent.equals(FIREBASE_EVENT_SHARED_FROM_MAIN_FEED)) {
-            bundle.putString("entity_id", entityID);
-            FirebaseAnalytics.getInstance(mContext).logEvent(FIREBASE_EVENT_SHARED_FROM_MAIN_FEED, bundle);
-        } else if (firebaseEvent.equals(FIREBASE_EVENT_CAPTURE_CLICKED)) {
-            bundle.putString("class_name", "main_feed");
-            FirebaseAnalytics.getInstance(mContext).logEvent(FIREBASE_EVENT_CAPTURE_CLICKED, bundle);
-        }
-
-    }
-
-    /**
-     * Method to update RecommendedArtistIndex.
-     *
-     * @param index Index value.
-     */
-    public void updateRecommendedArtistIndex(int index) {
-        recommendedArtistIndex = index;
-    }
 }

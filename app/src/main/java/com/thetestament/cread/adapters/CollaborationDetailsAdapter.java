@@ -16,7 +16,7 @@ import com.thetestament.cread.activities.ProfileActivity;
 import com.thetestament.cread.listeners.listener.OnCollaborationDetailsLoadMoreListener;
 import com.thetestament.cread.listeners.listener.OnCollaborationItemClickedListener;
 import com.thetestament.cread.models.CollaborationDetailsModel;
-import com.thetestament.cread.widgets.SquareView;
+import com.thetestament.cread.utils.AspectRatioUtils;
 
 import java.util.List;
 
@@ -58,7 +58,7 @@ public class CollaborationDetailsAdapter extends RecyclerView.Adapter<Collaborat
     }
 
 
-    public void setCollaborationitemClickedListener(OnCollaborationItemClickedListener onCollaborationItemClickedListener) {
+    public void setCollaborationItemClickedListener(OnCollaborationItemClickedListener onCollaborationItemClickedListener) {
         this.onCollaborationItemClickedListener = onCollaborationItemClickedListener;
     }
 
@@ -66,7 +66,9 @@ public class CollaborationDetailsAdapter extends RecyclerView.Adapter<Collaborat
     public CollaborationDetailsAdapter.ItemViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         return new ItemViewHolder(LayoutInflater
                 .from(parent.getContext())
-                .inflate(R.layout.item_collaboration_details, parent, false));
+                .inflate(R.layout.item_collaboration_details
+                        , parent
+                        , false));
     }
 
     @Override
@@ -76,13 +78,17 @@ public class CollaborationDetailsAdapter extends RecyclerView.Adapter<Collaborat
         holder.textCreatorName.setText(data.getUserName());
         //Load creator image
         loadCreatorPic(data.getProfilePic(), holder.imageCreator);
+        //Set image width and height
+        AspectRatioUtils.setImageAspectRatio(data.getImgWidth()
+                , data.getImgHeight()
+                , holder.imageCollaboration);
         //Load content image
         loadContentImage(data.getEntityUrl(), holder.imageCollaboration);
         //Click functionality to launch profile of creator
         openCreatorProfile(holder.containerCreator, data.getUuid());
 
         // init click listener
-        initItemClick(holder.entityImage, data.getEntityID());
+        initItemClick(holder.imageCollaboration, data.getEntityID());
 
         //If last item is visible to user and new set of data is to yet to be loaded
         if (position == mCollaborationList.size() - 1 && !mIsLoading) {
@@ -171,8 +177,6 @@ public class CollaborationDetailsAdapter extends RecyclerView.Adapter<Collaborat
         TextView textCreatorName;
         @BindView(R.id.imageCollaboration)
         ImageView imageCollaboration;
-        @BindView(R.id.imageContainer)
-        SquareView entityImage;
 
         public ItemViewHolder(View itemView) {
             super(itemView);

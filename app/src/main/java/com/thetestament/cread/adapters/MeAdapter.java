@@ -10,6 +10,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.view.ViewCompat;
+import android.support.v7.widget.AppCompatImageView;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -41,6 +42,7 @@ import com.thetestament.cread.listeners.listener.OnShareLinkClickedListener;
 import com.thetestament.cread.listeners.listener.OnUserActivityHatsOffListener;
 import com.thetestament.cread.listeners.listener.OnUserActivityLoadMoreListener;
 import com.thetestament.cread.models.FeedModel;
+import com.thetestament.cread.utils.AspectRatioUtils;
 import com.thetestament.cread.utils.Constant.ITEM_TYPES;
 
 import java.util.List;
@@ -64,6 +66,10 @@ import static com.thetestament.cread.utils.Constant.FIREBASE_EVENT_CAPTURE_CLICK
 import static com.thetestament.cread.utils.Constant.FIREBASE_EVENT_SHARED_FROM_PROFILE;
 import static com.thetestament.cread.utils.Constant.FIREBASE_EVENT_WRITE_CLICKED;
 import static com.thetestament.cread.utils.Constant.REQUEST_CODE_FEED_DESCRIPTION_ACTIVITY;
+import static com.thetestament.cread.utils.Constant.SHARE_OPTION_FACEBOOK;
+import static com.thetestament.cread.utils.Constant.SHARE_OPTION_INSTAGRAM;
+import static com.thetestament.cread.utils.Constant.SHARE_OPTION_OTHER;
+import static com.thetestament.cread.utils.Constant.SHARE_OPTION_WHATSAPP;
 
 /**
  * Adapter class to provide a binding from data set to views that are displayed within a Me RecyclerView.
@@ -183,7 +189,7 @@ public class MeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                 || holder.getItemViewType() == VIEW_TYPE_ITEM_LIST_COLLAB) {
             final ListItemViewHolder itemViewHolder = (ListItemViewHolder) holder;
             // initialize the views and click actions
-            initializeListItem(itemViewHolder, data, position);
+            initializeListItem(itemViewHolder, data, itemViewHolder.getAdapterPosition());
 
         } else if (holder.getItemViewType() == VIEW_TYPE_ITEM_GRID) {
             final GridItemViewHolder itemViewHolder = (GridItemViewHolder) holder;
@@ -270,8 +276,6 @@ public class MeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             menu.setVisibility(View.GONE);
         }
     }
-
-
 
 
     /**
@@ -412,32 +416,55 @@ public class MeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     /**
      * Share onClick functionality.
      *
-     * @param view       View to be clicked.x
-     * @param pictureUrl URL of the picture to be shared.
-     * @param entityID   Entity id of content.
+     * @param itemViewHolder
+     * @param data
      */
-    private void shareOnClick(View view, final String pictureUrl, final String entityID, final String creatorName, final FeedModel data) {
-        view.setOnClickListener(new View.OnClickListener() {
+    private void shareOnClick(final ListItemViewHolder itemViewHolder, final FeedModel data) {
+
+        itemViewHolder.logoWhatsapp.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
 
-                // image sharing
-                //so load image
-                loadBitmapForSharing(data);
+                loadBitmapForSharing(data, SHARE_OPTION_WHATSAPP);
             }
         });
+
+        itemViewHolder.logoFacebook.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                loadBitmapForSharing(data, SHARE_OPTION_FACEBOOK);
+            }
+        });
+
+        itemViewHolder.logoInstagram.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                loadBitmapForSharing(data, SHARE_OPTION_INSTAGRAM);
+            }
+        });
+
+        itemViewHolder.logoMore.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                loadBitmapForSharing(data, SHARE_OPTION_OTHER);
+            }
+        });
+
     }
 
     /**
      * Method to load bitmap image to be shared
      */
-    private void loadBitmapForSharing(final FeedModel data) {
+    private void loadBitmapForSharing(final FeedModel data, final String shareOption) {
 
         Picasso.with(mContext).load(data.getContentImage()).into(new Target() {
             @Override
             public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
                 //Set listener
-                onShareListener.onShareClick(bitmap, data);
+                onShareListener.onShareClick(bitmap, data, shareOption);
                 //Log firebase event
                 setAnalytics(FIREBASE_EVENT_SHARED_FROM_PROFILE, data.getEntityID());
             }
@@ -464,6 +491,10 @@ public class MeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     private void initializeListItem(ListItemViewHolder itemViewHolder, final FeedModel data, final int position) {
         //Load creator profile picture
         loadCreatorPic(data.getCreatorImage(), itemViewHolder.imageCreator);
+        //Set image width and height
+        AspectRatioUtils.setImageAspectRatio(data.getImgWidth()
+                , data.getImgHeight()
+                , itemViewHolder.imageContent);
         //Load content image
         loadContentImage(data.getContentImage(), itemViewHolder.imageContent);
 
@@ -482,13 +513,9 @@ public class MeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         final boolean shouldShowCreatorOptions = mUUID.equals(data.getUUID());
 
         // init content options menu
-        if (!shouldShowCreatorOptions)
-        {
+        if (!shouldShowCreatorOptions) {
             itemViewHolder.buttonMenu.setVisibility(View.GONE);
-        }
-
-        else
-        {
+        } else {
             itemViewHolder.buttonMenu.setVisibility(View.VISIBLE);
             //open bottom sheet on clicking of 3 dots
             itemViewHolder.buttonMenu.setOnClickListener(new View.OnClickListener() {
@@ -508,7 +535,7 @@ public class MeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         //Comment click functionality
         commentOnClick(itemViewHolder.containerComment, data.getEntityID());
         //Share click functionality
-        shareOnClick(itemViewHolder.containerShare, data.getContentImage(), data.getEntityID(), data.getCreatorName(), data);
+        shareOnClick(itemViewHolder, data);
         //Collaboration count click functionality
         collaborationCountOnClick(itemViewHolder.collabCount, data.getEntityID(), data.getContentType());
         //check long form status
@@ -586,7 +613,7 @@ public class MeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         @BindView(R.id.textCreatorName)
         TextView textCreatorName;
         @BindView(R.id.imageContent)
-        ImageView imageContent;
+        AppCompatImageView imageContent;
         @BindView(R.id.imageHatsOff)
         ImageView imageHatsOff;
         @BindView(R.id.buttonCollaborate)
@@ -595,8 +622,6 @@ public class MeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         LinearLayout containerHatsOff;
         @BindView(R.id.containerComment)
         LinearLayout containerComment;
-        @BindView(R.id.containerShare)
-        LinearLayout containerShare;
         @BindView(R.id.buttonMenu)
         ImageView buttonMenu;
         @BindView(R.id.collabCount)
@@ -607,6 +632,14 @@ public class MeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         FrameLayout containerLongShortPreview;
         @BindView(R.id.textTimestamp)
         TextView textTimeStamp;
+        @BindView(R.id.logoWhatsapp)
+        AppCompatImageView logoWhatsapp;
+        @BindView(R.id.logoFacebook)
+        AppCompatImageView logoFacebook;
+        @BindView(R.id.logoInstagram)
+        AppCompatImageView logoInstagram;
+        @BindView(R.id.logoMore)
+        AppCompatImageView logoMore;
 
         //Variable to maintain hats off status
         private boolean mIsHatsOff = false;

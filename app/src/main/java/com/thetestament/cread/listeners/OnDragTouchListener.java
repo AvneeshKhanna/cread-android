@@ -87,11 +87,16 @@ public class OnDragTouchListener implements View.OnTouchListener {
         void onDragStart(View view);
 
         /**
-         * Called when drag event is completed.
+         * Called when drag event is completed without movement.
          *
          * @param view The view dragged.
          */
         void onDragEnd(View view);
+
+        /**
+         * Called when drag event is finished.
+         */
+        void onDragFinished();
     }
 
     /**
@@ -268,6 +273,10 @@ public class OnDragTouchListener implements View.OnTouchListener {
         dY = 0;
         isDragging = false;
 
+        if (mOnDragActionListener != null) {
+            //Set listener
+            mOnDragActionListener.onDragFinished();
+        }
 
         if (mOnDragActionListener != null) {
             //Drag listener

@@ -19,6 +19,7 @@ import com.thetestament.cread.activities.ProfileActivity;
 import com.thetestament.cread.listeners.listener.OnInspirationLoadMoreListener;
 import com.thetestament.cread.listeners.listener.OnInspirationSelectListener;
 import com.thetestament.cread.models.InspirationModel;
+import com.thetestament.cread.utils.AspectRatioUtils;
 import com.thetestament.cread.utils.Constant;
 
 import java.util.List;
@@ -30,6 +31,8 @@ import de.hdodenhof.circleimageview.CircleImageView;
 import static com.thetestament.cread.utils.Constant.EXTRA_CAPTURE_ID;
 import static com.thetestament.cread.utils.Constant.EXTRA_CAPTURE_URL;
 import static com.thetestament.cread.utils.Constant.EXTRA_DATA;
+import static com.thetestament.cread.utils.Constant.EXTRA_IMAGE_HEIGHT;
+import static com.thetestament.cread.utils.Constant.EXTRA_IMAGE_WIDTH;
 import static com.thetestament.cread.utils.Constant.EXTRA_MERCHANTABLE;
 import static com.thetestament.cread.utils.Constant.EXTRA_PROFILE_UUID;
 
@@ -120,7 +123,7 @@ public class InspirationAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
             //Load inspiration image
             loadInspirationImage(data.getCapturePic(), itemViewHolder.imageInspiration);
             //ItemView onClick functionality
-            itemViewOnClick(itemViewHolder.itemView, data, position);
+            itemViewOnClick(itemViewHolder.itemView, data, itemViewHolder.getAdapterPosition());
 
         } else if (holder.getItemViewType() == VIEW_TYPE_ITEM_DETAIL) {
             final ItemViewHolderDetail itemViewHolder = (ItemViewHolderDetail) holder;
@@ -128,6 +131,11 @@ public class InspirationAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
             loadCreatorPic(data.getCreatorProfilePic(), itemViewHolder.imageCreator);
             //Set creator name
             itemViewHolder.textCreatorName.setText(data.getCreatorName());
+
+            //Set image width and height
+            AspectRatioUtils.setImageAspectRatio(data.getImgWidth()
+                    , data.getImgHeight()
+                    , itemViewHolder.imageInspiration);
             //Load inspiration image
             loadInspirationImage(data.getCapturePic(), itemViewHolder.imageInspiration);
 
@@ -206,6 +214,8 @@ public class InspirationAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
                 bundle.putString(EXTRA_CAPTURE_ID, data.getCaptureID());
                 bundle.putString(EXTRA_CAPTURE_URL, data.getCapturePic());
                 bundle.putBoolean(EXTRA_MERCHANTABLE, data.isMerchantable());
+                bundle.putInt(EXTRA_IMAGE_WIDTH, data.getImgWidth());
+                bundle.putInt(EXTRA_IMAGE_HEIGHT, data.getImgHeight());
                 Intent intent = new Intent();
                 intent.putExtra(EXTRA_DATA, bundle);
                 mContext.setResult(Activity.RESULT_OK, intent);

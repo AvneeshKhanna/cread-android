@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/rootView"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -11,112 +11,114 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
+
+        <!--Main container-->
         <FrameLayout
+            android:id="@+id/mainContainer"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_above="@+id/containerPreviewBottom">
 
             <android.support.v4.widget.NestedScrollView
                 android:layout_width="match_parent"
-                android:layout_height="match_parent">
+                android:layout_height="match_parent"
+                android:scrollbars="vertical">
 
-                <LinearLayout
+                <RelativeLayout
+                    android:id="@+id/containerImagePreview"
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:orientation="vertical">
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:background="@color/yellow_light">
 
-                    <com.thetestament.cread.widgets.SquareView
-                        android:id="@+id/imageContainer"
+
+                    <!--Preview imageView-->
+                    <android.support.v7.widget.AppCompatImageView
+                        android:id="@+id/imagePreview"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:adjustViewBounds="true"
+                        android:scaleType="fitXY"
+                        tools:src="@tools:sample/avatars" />
+
+                    <View
+                        android:id="@+id/lineSeparator"
+                        android:layout_width="match_parent"
+                        android:layout_height="0.3dp"
+                        android:layout_alignParentBottom="true"
+                        android:alpha="0.4"
+                        android:background="@color/grey_dark" />
+
+                    <!--Signature view-->
+                    <FrameLayout
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:background="@color/yellow_light">
+                        android:layout_above="@+id/viewDivider"
+                        android:layout_alignParentBottom="true"
+                        android:layout_alignParentLeft="true"
+                        android:layout_marginBottom="5dp"
+                        android:background="@color/black_overlay">
 
-                        <ImageView
-                            android:id="@+id/imagePreview"
+                        <TextView
+                            android:id="@+id/textWaterMark"
                             android:layout_width="match_parent"
                             android:layout_height="match_parent"
-                            android:scaleType="centerCrop" />
-
-                        <View
-                            android:id="@+id/lineSeparator"
-                            android:layout_width="match_parent"
-                            android:layout_height="0.3dp"
                             android:layout_alignParentBottom="true"
-                            android:alpha="0.4"
-                            android:background="@color/grey_dark" />
-
-                        <FrameLayout
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_above="@+id/viewDivider"
-                            android:layout_alignParentBottom="true"
-                            android:layout_alignParentLeft="true"
-                            android:layout_marginBottom="5dp"
-                            android:background="@color/black_overlay">
-
-                            <TextView
-                                android:id="@+id/textWaterMark"
-                                android:layout_width="match_parent"
-                                android:layout_height="match_parent"
-                                android:layout_alignParentBottom="true"
-                                android:paddingLeft="3dp"
-                                android:paddingRight="3dp"
-                                android:textColor="@color/white"
-                                android:textSize="12sp"
-                                android:visibility="gone"
-                                tools:text="~The testament" />
-                        </FrameLayout>
-
-                        <FrameLayout
-                            android:id="@+id/containerLongShortPreview"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_alignParentTop="true"
-                            android:layout_alignParentRight="true"
-                            android:padding="5dp"
-                            android:visibility="gone">
+                            android:paddingLeft="3dp"
+                            android:paddingRight="3dp"
+                            android:textColor="@color/white"
+                            android:textSize="12sp"
+                            android:visibility="gone"
+                            tools:text="~The testament" />
+                    </FrameLayout>
 
 
-                            <android.support.v7.widget.AppCompatImageView
-                                android:layout_width="24dp"
-                                android:layout_height="24dp"
-                                android:layout_alignParentRight="true"
-                                android:background="@drawable/circle_transparent_bg"
-                                android:padding="5dp"
-                                app:srcCompat="@drawable/ic_longshort_preview" />
 
 
-                        </FrameLayout>
-
-                        <FrameLayout
-                            android:id="@+id/containerLongShortSound"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_alignParentBottom="true"
-                            android:layout_alignParentRight="true"
-                            android:padding="5dp"
-                            android:visibility="gone">
-
-
-                            <android.support.v7.widget.AppCompatImageView
-                                android:layout_width="24dp"
-                                android:layout_height="24dp"
-                                android:layout_alignParentRight="true"
-                                android:background="@drawable/circle_transparent_bg"
-                                android:padding="5dp"
-                                app:srcCompat="@drawable/ic_menu_sound_enabled" />
-
-
-                        </FrameLayout>
-
-                    </com.thetestament.cread.widgets.SquareView>
-
-
-                </LinearLayout>
+                </RelativeLayout>
 
             </android.support.v4.widget.NestedScrollView>
 
+            <!--LongStory preview button-->
+            <FrameLayout
+                android:id="@+id/containerLongShortPreview"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentRight="true"
+                android:layout_alignParentTop="true"
+                android:layout_gravity="right"
+                android:padding="5dp"
+                android:visibility="gone">
 
+                <android.support.v7.widget.AppCompatImageView
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:layout_alignParentRight="true"
+                    android:background="@drawable/circle_transparent_bg"
+                    android:padding="5dp"
+                    app:srcCompat="@drawable/ic_longshort_preview" />
+
+            </FrameLayout>
+            <!--Sound view container-->
+            <FrameLayout
+                android:id="@+id/containerLongShortSound"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="bottom|right"
+                android:padding="5dp"
+                android:visibility="gone">
+
+
+                <android.support.v7.widget.AppCompatImageView
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:layout_alignParentRight="true"
+                    android:background="@drawable/circle_transparent_bg"
+                    android:padding="5dp"
+                    app:srcCompat="@drawable/ic_menu_sound_enabled" />
+
+
+            </FrameLayout>
             <android.support.v7.widget.RecyclerView
                 android:id="@+id/recyclerViewMentions"
                 android:layout_width="match_parent"
@@ -124,10 +126,17 @@
                 android:background="@color/white"
                 android:visibility="gone" />
 
-
         </FrameLayout>
 
-
+        <!--Separator line-->
+        <View
+            android:id="@+id/Separator"
+            android:layout_width="match_parent"
+            android:layout_height="0.3dp"
+            android:layout_below="@+id/mainContainer"
+            android:alpha="0.4"
+            android:background="@color/grey_dark" />
+        <!--Caption and upload button-->
         <LinearLayout
             android:id="@+id/containerPreviewBottom"
             android:layout_width="match_parent"
@@ -156,15 +165,14 @@
                 android:id="@+id/buttonUpdate"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_alignParentBottom="true"
                 android:layout_marginTop="10dp"
                 android:background="@color/blue"
+                android:clickable="true"
                 android:text="Upload"
                 android:textColor="@color/white" />
 
 
         </LinearLayout>
-
 
     </RelativeLayout>
 

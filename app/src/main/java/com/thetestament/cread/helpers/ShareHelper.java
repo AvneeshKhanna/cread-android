@@ -85,7 +85,7 @@ public class ShareHelper {
      *
      * @param bitmap Bitmap to be shared.
      */
-    public static void collabInviteImage(Bitmap bitmap, Context context, String shareText, String shareOption) {
+    public static void sharePost(Bitmap bitmap, Context context, String shareText, String shareOption) {
 
 
         //Copy caption text to clipboard
@@ -166,7 +166,7 @@ public class ShareHelper {
                     }
                 }
 
-                Intent chooser = Intent.createChooser(targets.remove(0), "Invite");
+                Intent chooser = Intent.createChooser(targets.remove(0), "Share");
                 chooser.putExtra(Intent.EXTRA_INITIAL_INTENTS,
                         targets.toArray(new Parcelable[targets.size()]));
                 context.startActivity(chooser);

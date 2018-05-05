@@ -19,6 +19,8 @@ import static com.thetestament.cread.utils.Constant.CONTENT_TYPE_SHORT;
 import static com.thetestament.cread.utils.Constant.EXTRA_DATA;
 import static com.thetestament.cread.utils.Constant.EXTRA_ENTITY_ID;
 import static com.thetestament.cread.utils.Constant.EXTRA_ENTITY_TYPE;
+import static com.thetestament.cread.utils.Constant.EXTRA_IMAGE_HEIGHT;
+import static com.thetestament.cread.utils.Constant.EXTRA_IMAGE_WIDTH;
 import static com.thetestament.cread.utils.Constant.EXTRA_MERCHANTABLE;
 import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_CALLED_FROM;
 import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_CALLED_FROM_EDIT_CAPTURE;
@@ -53,6 +55,8 @@ public class ContentHelper {
                 bundle.putString(PREVIEW_EXTRA_ENTITY_ID, data.getEntityID());
                 bundle.putString(PREVIEW_EXTRA_CAPTION_TEXT, data.getCaption());
                 bundle.putString(PREVIEW_EXTRA_CONTENT_IMAGE, data.getContentImage());
+                bundle.putInt(EXTRA_IMAGE_WIDTH, data.getImgWidth());
+                bundle.putInt(EXTRA_IMAGE_HEIGHT, data.getImgHeight());
                 bundle.putString(PREVIEW_EXTRA_CALLED_FROM, PREVIEW_EXTRA_CALLED_FROM_EDIT_CAPTURE);
                 intent.putExtra(PREVIEW_EXTRA_DATA, bundle);
 

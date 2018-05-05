@@ -53,6 +53,7 @@ import com.thetestament.cread.helpers.ViewHelper;
 import com.thetestament.cread.listeners.listener;
 import com.thetestament.cread.models.FeedModel;
 import com.thetestament.cread.models.SuggestedArtistsModel;
+import com.thetestament.cread.utils.AspectRatioUtils;
 import com.thetestament.cread.utils.Constant;
 import com.yalantis.ucrop.UCrop;
 
@@ -79,9 +80,10 @@ import pl.tajchert.nammu.PermissionCallback;
 import static android.app.Activity.RESULT_OK;
 import static com.thetestament.cread.CreadApp.GET_RESPONSE_FROM_NETWORK_ENTITY_SPECIFIC;
 import static com.thetestament.cread.CreadApp.GET_RESPONSE_FROM_NETWORK_MAIN;
-import static com.thetestament.cread.helpers.DeepLinkHelper.generateDeepLink;
+import static com.thetestament.cread.helpers.DeepLinkHelper.getDeepLinkOnValidShareOption;
 import static com.thetestament.cread.helpers.FeedHelper.parseEntitySpecificJSON;
 import static com.thetestament.cread.helpers.ImageHelper.getImageUri;
+import static com.thetestament.cread.helpers.ImageHelper.processCroppedImage;
 import static com.thetestament.cread.helpers.NetworkHelper.getEntitySpecificObservable;
 import static com.thetestament.cread.helpers.NetworkHelper.getNetConnectionStatus;
 import static com.thetestament.cread.helpers.NetworkHelper.getObservableFromServer;
@@ -100,6 +102,7 @@ import static com.thetestament.cread.utils.Constant.REQUEST_CODE_RECOMMENDED_ART
 import static com.thetestament.cread.utils.Constant.REQUEST_CODE_RECOMMENDED_ARTISTS_FROM_FEED_ADAPTER;
 import static com.thetestament.cread.utils.Constant.REQUEST_CODE_USER_PROFILE_FROM_FEED;
 import static com.thetestament.cread.utils.Constant.REQUEST_CODE_USER_PROFILE_FROM_SUGGESTED_ADAPTER;
+import static com.thetestament.cread.utils.Constant.SHARE_OPTION_OTHER;
 
 public class FeedFragment extends Fragment implements listener.OnCollaborationListener {
 
@@ -142,6 +145,9 @@ public class FeedFragment extends Fragment implements listener.OnCollaborationLi
     String mEntityID, mEntityType;
     Bitmap mBitmap;
     FeedModel entitySpecificData;
+
+    @State
+    String mShareOption = SHARE_OPTION_OTHER;
 
     @State
     String textHashTagOFTheDay = "";
@@ -235,19 +241,40 @@ public class FeedFragment extends Fragment implements listener.OnCollaborationLi
             case REQUEST_CODE_OPEN_GALLERY_FOR_CAPTURE:
                 if (resultCode == RESULT_OK) {
                     // To crop the selected image
-                    ImageHelper.startImageCropping(getActivity(), this, data.getData(), getImageUri(IMAGE_TYPE_USER_CAPTURE_PIC));
+                    ImageHelper.startImageCropping(getActivity()
+                            , this
+                            , data.getData()
+                            , getImageUri(IMAGE_TYPE_USER_CAPTURE_PIC));
                 } else {
-                    ViewHelper.getSnackBar(rootView, "Image from gallery was not attached");
+                    ViewHelper.getSnackBar(rootView
+                            , getString(R.string.error_img_not_attached));
                 }
                 break;
             //For more information please visit "https://github.com/Yalantis/uCrop"
             case UCrop.REQUEST_CROP:
                 if (resultCode == RESULT_OK) {
+                    //Get image width and height
+                    float width = data.getIntExtra(UCrop.EXTRA_OUTPUT_IMAGE_WIDTH, 1800);
+                    float height = data.getIntExtra(UCrop.EXTRA_OUTPUT_IMAGE_HEIGHT, 1800);
+
                     //Get cropped image Uri
                     Uri mCroppedImgUri = UCrop.getOutput(data);
-                    ImageHelper.performSquareImageManipulation(mCroppedImgUri, getActivity(), rootView, mEntityID, mEntityType);
+                    //Check for image manipulation
+                    if (AspectRatioUtils.getSquareImageManipulation(width, height)) {
+                        //Create square image with blurred background
+                        ImageHelper.performSquareImageManipulation(mCroppedImgUri
+                                , getActivity()
+                                , rootView
+                                , mEntityID
+                                , mEntityType);
+                    } else {
+                        //Method called
+                        processCroppedImage(mCroppedImgUri, getActivity(), rootView, mEntityID, mEntityType);
+                    }
+
                 } else if (resultCode == UCrop.RESULT_ERROR) {
-                    ViewHelper.getSnackBar(rootView, "Image could not be cropped due to some error");
+                    ViewHelper.getSnackBar(rootView
+                            , getString(R.string.error_img_not_cropped));
                 }
                 break;
             case REQUEST_CODE_FEED_DESCRIPTION_ACTIVITY:
@@ -509,6 +536,16 @@ public class FeedFragment extends Fragment implements listener.OnCollaborationLi
                                     feedData.setCommentCount(dataObj.getLong("commentcount"));
                                     feedData.setContentImage(dataObj.getString("entityurl"));
                                     feedData.setCollabCount(dataObj.getLong("collabcount"));
+                                    //if image width pr image height is null
+                                    if (dataObj.isNull("img_width") || dataObj.isNull("img_height")) {
+                                        feedData.setImgWidth(1);
+                                        feedData.setImgHeight(1);
+                                    } else {
+                                        feedData.setImgWidth(dataObj.getInt("img_width"));
+                                        feedData.setImgHeight(dataObj.getInt("img_height"));
+                                    }
+                                    //feedData.setImageWidth(dataObj.getInt("imgwidth"));
+                                    //feedData.setImageHeight(dataObj.getInt("imgheight"));
                                     if (dataObj.isNull("caption")) {
                                         feedData.setCaption(null);
                                     } else {
@@ -691,6 +728,16 @@ public class FeedFragment extends Fragment implements listener.OnCollaborationLi
                                     feedData.setCommentCount(dataObj.getLong("commentcount"));
                                     feedData.setContentImage(dataObj.getString("entityurl"));
                                     feedData.setCollabCount(dataObj.getLong("collabcount"));
+                                    //if image width pr image height is null
+                                    if (dataObj.isNull("img_width") || dataObj.isNull("img_height")) {
+                                        feedData.setImgWidth(1);
+                                        feedData.setImgHeight(1);
+                                    } else {
+                                        feedData.setImgWidth(dataObj.getInt("img_width"));
+                                        feedData.setImgHeight(dataObj.getInt("img_height"));
+                                    }
+                                    //feedData.setImageWidth(dataObj.getInt("imgwidth"));
+                                    //feedData.setImageHeight(dataObj.getInt("imgheight"));
                                     if (dataObj.isNull("caption")) {
                                         feedData.setCaption(null);
                                     } else {
@@ -838,19 +885,21 @@ public class FeedFragment extends Fragment implements listener.OnCollaborationLi
     private void initShareListener(FeedAdapter feedAdapter) {
         feedAdapter.setOnShareListener(new listener.OnShareListener() {
             @Override
-            public void onShareClick(Bitmap bitmap, FeedModel data) {
+            public void onShareClick(Bitmap bitmap, FeedModel data, String shareOption) {
                 mBitmap = bitmap;
                 entitySpecificData = data;
+                mShareOption = shareOption;
                 //Check for Write permission
                 if (Nammu.checkPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
                     //We have permission do whatever you want to do
-                    generateDeepLink(getActivity(),
+                    getDeepLinkOnValidShareOption(getActivity(),
                             mCompositeDisposable,
                             rootView,
                             mHelper.getUUID(),
                             mHelper.getAuthToken(),
                             entitySpecificData,
-                            bitmap);
+                            bitmap,
+                            mShareOption);
 
                 } else {
                     //We do not own this permission
@@ -939,13 +988,14 @@ public class FeedFragment extends Fragment implements listener.OnCollaborationLi
     PermissionCallback shareWritePermission = new PermissionCallback() {
         @Override
         public void permissionGranted() {
-            generateDeepLink(getActivity(),
+            getDeepLinkOnValidShareOption(getActivity(),
                     mCompositeDisposable,
                     rootView,
                     mHelper.getUUID(),
                     mHelper.getAuthToken(),
                     entitySpecificData,
-                    mBitmap);
+                    mBitmap,
+                    mShareOption);
 
         }
 

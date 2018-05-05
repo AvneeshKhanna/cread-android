@@ -7,6 +7,7 @@
     android:layout_height="match_parent"
     tools:context=".activities.ShortActivity">
 
+    <!--Children container-->
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -16,7 +17,7 @@
         <RelativeLayout
             android:id="@+id/topContainer"
             android:layout_width="match_parent"
-            android:layout_height="56dp"
+            android:layout_height="48dp"
             android:background="@color/colorPrimary"
             android:clickable="true"
             android:elevation="4dp">
@@ -52,11 +53,11 @@
                 android:layout_height="wrap_content"
                 android:layout_centerVertical="true"
                 android:layout_toLeftOf="@+id/buttonNext"
+                android:clickable="true"
                 android:drawableLeft="@drawable/ic_copyright_24"
+                android:foreground="?attr/selectableItemBackgroundBorderless"
                 android:paddingBottom="8dp"
                 android:paddingLeft="8dp"
-                android:clickable="true"
-                android:foreground="?attr/selectableItemBackgroundBorderless"
                 android:paddingRight="16dp"
                 android:paddingTop="8dp" />
 
@@ -66,64 +67,135 @@
                 android:layout_height="wrap_content"
                 android:layout_alignParentRight="true"
                 android:layout_centerVertical="true"
-                android:drawableLeft="@drawable/ic_close_24"
-                android:paddingBottom="8dp"
                 android:clickable="true"
+                android:drawableLeft="@drawable/ic_close_24"
                 android:foreground="?attr/selectableItemBackgroundBorderless"
+                android:paddingBottom="8dp"
                 android:paddingLeft="8dp"
                 android:paddingRight="16dp"
                 android:paddingTop="8dp"
                 android:text="" />
         </RelativeLayout>
 
-        <com.thetestament.cread.widgets.SquareView
+        <!--Writing container-->
+        <RelativeLayout
             android:id="@+id/imageContainer"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_below="@+id/topContainer">
 
-            <ImageView
-                android:id="@+id/imageShort"
+
+            <RelativeLayout
+                android:id="@+id/parentContainerImage"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:background="@drawable/img_short_default_bg"
-                android:scaleType="centerCrop" />
-
-            <android.support.v7.widget.AppCompatImageView
-                android:id="@+id/btnRemoveImage"
-                android:layout_width="24dp"
-                android:layout_height="24dp"
-                android:layout_alignParentRight="true"
-                android:layout_margin="5dp"
-                android:background="@drawable/circle_transparent_bg"
-                android:padding="5dp"
-                app:srcCompat="@drawable/ic_close_vector" />
-
-
-            <com.thetestament.cread.widgets.CustomEditText
-                android:id="@+id/textShort"
-                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_centerInParent="true"
-                android:layout_marginLeft="10dp"
-                android:layout_marginRight="10dp"
-                android:background="@null"
-                android:gravity="left"
-                android:hint="Express yourself"
-                android:inputType="textCapSentences|textMultiLine|textNoSuggestions"
-                android:textAppearance="@style/ShortFont"
-                android:textColor="@color/color_grey_600"
-                android:textColorHint="@color/color_grey_600"
-                android:textCursorDrawable="@drawable/cursor_edit_text"
-                android:textSize="16sp" />
+                android:background="@color/black"
+                android:gravity="center">
+
+                <RelativeLayout
+                    android:id="@+id/imageShortContainer"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+
+                    <ImageView
+                        android:id="@+id/imageShort"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:adjustViewBounds="true"
+                        android:background="@drawable/img_short_default_bg"
+                        android:scaleType="fitXY" />
+
+                    <com.thetestament.cread.widgets.CustomEditText
+                        android:id="@+id/textShort"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_centerInParent="true"
+                        android:layout_marginLeft="10dp"
+                        android:layout_marginRight="10dp"
+                        android:background="@null"
+                        android:gravity="left"
+                        android:hint="Express yourself"
+                        android:inputType="textCapSentences|textMultiLine|textNoSuggestions"
+                        android:textAppearance="@style/ShortFont"
+                        android:textColor="@color/color_grey_600"
+                        android:textColorHint="@color/color_grey_600"
+                        android:textCursorDrawable="@drawable/cursor_edit_text"
+                        android:textSize="16sp" />
+
+                    <android.support.v7.widget.AppCompatImageView
+                        android:id="@+id/btnRemoveImage"
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:layout_alignParentRight="true"
+                        android:layout_margin="5dp"
+                        android:background="@drawable/circle_transparent_bg"
+                        android:padding="5dp"
+                        app:srcCompat="@drawable/ic_close_vector" />
+                </RelativeLayout>
+            </RelativeLayout>
+
+            <!--Container seek bar and shadow-->
+            <RelativeLayout
+                android:id="@+id/containerSeekBar"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_alignBottom="@+id/parentContainerImage"
+                android:background="@color/transparent_30"
+                android:padding="5dp"
+                android:visibility="visible">
+
+                <ImageView
+                    android:id="@+id/btnFormatTextSize"
+                    android:layout_width="25dp"
+                    android:layout_height="25dp"
+                    android:tint="@color/white"
+                    android:layout_centerVertical="true"
+                    android:layout_marginLeft="15dp"
+                    android:visibility="visible"
+                    app:srcCompat="@drawable/ic_format_size_32" />
+
+                <android.support.v7.widget.AppCompatSeekBar
+                    android:id="@+id/seekBarTextSize"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_centerInParent="true"
+                    android:layout_marginLeft="5dp"
+                    android:progressBackgroundTint="@color/white"
+                    android:layout_toLeftOf="@+id/btnFormatShadow"
+                    android:layout_toRightOf="@+id/btnFormatTextSize"
+                    android:max="100"
+                    android:min="0"
+                    android:visibility="visible" />
+
+
+                <!--Shadow container-->
+                <FrameLayout
+                    android:id="@+id/btnFormatShadow"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentRight="true"
+                    android:layout_centerInParent="true"
+                    android:paddingLeft="8dp"
+                    android:paddingRight="16dp">
+
+                    <android.support.v7.widget.AppCompatImageView
+                        android:id="@+id/imgShadow"
+                        android:layout_width="16dp"
+                        android:layout_height="16dp"
+                        android:tint="@color/white"
+                        app:srcCompat="@drawable/ic_stroke" />
+
+                </FrameLayout>
+            </RelativeLayout>
 
             <View
                 android:id="@+id/lineSeparator"
                 android:layout_width="match_parent"
                 android:layout_height="0.3dp"
-                android:layout_alignParentBottom="true"
+                android:layout_alignBottom="@+id/parentContainerImage"
                 android:alpha="0.4"
                 android:background="@color/grey_dark" />
+
 
             <!--Image loading progress view-->
             <include
@@ -133,26 +205,27 @@
                 android:layout_height="wrap_content"
                 android:layout_centerInParent="true"
                 android:visibility="invisible" />
-        </com.thetestament.cread.widgets.SquareView>
 
+        </RelativeLayout>
+
+        <!--Note textView-->
         <TextView
             android:id="@+id/textNote"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_above="@+id/containerPostButton"
             android:layout_below="@+id/imageContainer"
             android:layout_centerHorizontal="true"
             android:gravity="center"
-            android:paddingTop="10sp"
             android:text="@string/note_text_short_creation"
             android:textSize="12sp"
-            android:visibility="invisible" />
-
+            android:visibility="gone" />
+        <!--Inspiration View-->
         <FrameLayout
             android:id="@+id/containerPostButton"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_above="@+id/containerSeekBar"
-            android:layout_below="@+id/textNote">
+            android:layout_above="@+id/containerFormatOptions">
 
             <include
                 android:id="@+id/progressViewInspiration"
@@ -177,62 +250,6 @@
                 app:srcCompat="@drawable/ic_arrow_right_vector" />
         </FrameLayout>
 
-        <!--Container seek bar-->
-        <RelativeLayout
-            android:id="@+id/containerSeekBar"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_above="@+id/containerFormatOptions"
-            android:layout_marginBottom="8dp">
-
-            <ImageView
-                android:id="@+id/btnFormatTextSize"
-                android:layout_width="25dp"
-                android:layout_height="25dp"
-                android:layout_marginLeft="15dp"
-                android:visibility="visible"
-                app:srcCompat="@drawable/ic_format_size_32" />
-
-            <android.support.v7.widget.AppCompatSeekBar
-                android:id="@+id/seekBarTextSize"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_centerInParent="true"
-                android:layout_marginLeft="5dp"
-                android:layout_toLeftOf="@+id/btnFormatShadow"
-                android:layout_toRightOf="@+id/btnFormatTextSize"
-                android:max="100"
-                android:min="0"
-                android:visibility="visible" />
-
-
-            <!--Shadow container-->
-            <FrameLayout
-                android:id="@+id/btnFormatShadow"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignParentRight="true"
-                android:layout_centerInParent="true"
-                android:paddingLeft="8dp"
-                android:paddingRight="16dp">
-
-                <ImageView
-                    android:layout_width="20dp"
-                    android:layout_height="20dp"
-                    android:tint="@color/grey"
-                    app:srcCompat="@drawable/ic_stroke" />
-
-                <View
-                    android:id="@+id/dotShadow"
-                    android:layout_width="6dp"
-                    android:layout_height="6dp"
-                    android:layout_gravity="center_horizontal"
-                    android:layout_marginTop="22dp"
-                    android:background="@drawable/dot_shape"
-                    android:visibility="invisible" />
-            </FrameLayout>
-        </RelativeLayout>
-
         <!--Format options-->
         <FrameLayout
             android:id="@+id/containerFormatOptions"
@@ -247,7 +264,6 @@
                 android:layout_height="wrap_content"
                 android:visibility="visible" />
         </FrameLayout>
-
 
     </RelativeLayout>
 

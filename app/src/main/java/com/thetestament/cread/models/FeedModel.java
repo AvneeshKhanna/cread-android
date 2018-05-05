@@ -17,6 +17,7 @@ public class FeedModel implements Parcelable {
     private String contentType;
     private String contentImage;
     private String collaboWithEntityID;
+    private int imgWidth, imgHeight;
 
 
     //Required constructor
@@ -208,6 +209,22 @@ public class FeedModel implements Parcelable {
         this.postTimeStamp = postTimeStamp;
     }
 
+    public int getImgWidth() {
+        return imgWidth;
+    }
+
+    public void setImgWidth(int imgWidth) {
+        this.imgWidth = imgWidth;
+    }
+
+    public int getImgHeight() {
+        return imgHeight;
+    }
+
+    public void setImgHeight(int imgHeight) {
+        this.imgHeight = imgHeight;
+    }
+
     @Override
     public int describeContents() {
         return 0;
@@ -238,6 +255,8 @@ public class FeedModel implements Parcelable {
         parcel.writeString(collaboWithEntityID);
         parcel.writeByte((byte) (isLongForm ? 1 : 0));
         parcel.writeString(postTimeStamp);
+        parcel.writeInt(imgWidth);
+        parcel.writeInt(imgHeight);
 
     }
 
@@ -278,6 +297,8 @@ public class FeedModel implements Parcelable {
         collaboWithEntityID = in.readString();
         isLongForm = in.readByte() != 0;
         postTimeStamp = in.readString();
+        imgWidth = in.readInt();
+        imgHeight = in.readInt();
     }
 
 }

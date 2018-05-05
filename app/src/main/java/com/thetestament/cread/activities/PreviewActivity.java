@@ -16,6 +16,7 @@ import android.support.design.widget.CoordinatorLayout;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.widget.NestedScrollView;
+import android.support.v7.widget.AppCompatImageView;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.InputType;
@@ -62,6 +63,7 @@ import com.thetestament.cread.listeners.listener;
 import com.thetestament.cread.models.FilterModel;
 import com.thetestament.cread.models.PersonMentionModel;
 import com.thetestament.cread.models.ShortModel;
+import com.thetestament.cread.utils.AspectRatioUtils;
 import com.wooplr.spotlight.SpotlightView;
 import com.zomato.photofilters.imageprocessors.Filter;
 
@@ -113,8 +115,15 @@ import static com.thetestament.cread.helpers.ProfileMentionsHelper.getMentionSpa
 import static com.thetestament.cread.helpers.ProfileMentionsHelper.setProfileMentionsForEditing;
 import static com.thetestament.cread.helpers.ProfileMentionsHelper.tokenizerConfig;
 import static com.thetestament.cread.models.ShortModel.convertStringToBool;
+import static com.thetestament.cread.utils.Constant.CONTENT_PREVIEW_EXTRA_DATA;
+import static com.thetestament.cread.utils.Constant.CONTENT_PREVIEW_EXTRA_IMAGE_HEIGHT;
+import static com.thetestament.cread.utils.Constant.CONTENT_PREVIEW_EXTRA_IMAGE_URL;
+import static com.thetestament.cread.utils.Constant.CONTENT_PREVIEW_EXTRA_IMAGE_WIDTH;
+import static com.thetestament.cread.utils.Constant.CONTENT_PREVIEW_EXTRA_SIGNATURE_TEXT;
 import static com.thetestament.cread.utils.Constant.CONTENT_TYPE_CAPTURE;
 import static com.thetestament.cread.utils.Constant.CONTENT_TYPE_SHORT;
+import static com.thetestament.cread.utils.Constant.EXTRA_IMAGE_HEIGHT;
+import static com.thetestament.cread.utils.Constant.EXTRA_IMAGE_WIDTH;
 import static com.thetestament.cread.utils.Constant.EXTRA_SHORT_DATA;
 import static com.thetestament.cread.utils.Constant.IMAGE_TYPE_USER_CAPTURE_PIC;
 import static com.thetestament.cread.utils.Constant.IMAGE_TYPE_USER_SHORT_PIC;
@@ -136,6 +145,7 @@ import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_ENTITY_ID;
 import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_FONT;
 import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_IMAGE_TINT_COLOR;
 import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_IMAGE_URL;
+import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_IMG_HEIGHT;
 import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_IMG_WIDTH;
 import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_IS_SHADOW_SELECTED;
 import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_ITALIC;
@@ -174,7 +184,7 @@ public class PreviewActivity extends BaseActivity implements QueryTokenReceiver,
     @BindView(R.id.rootView)
     CoordinatorLayout rootView;
     @BindView(R.id.imagePreview)
-    ImageView imagePreview;
+    AppCompatImageView imagePreview;
     @BindView(R.id.etCaption)
     MentionsEditText etCaption;
     @BindView(R.id.textWaterMark)
@@ -231,6 +241,11 @@ public class PreviewActivity extends BaseActivity implements QueryTokenReceiver,
 
     @State
     String mCapInMentionFormat;
+
+    @State
+    int mImagePreviewWidth, mImagePreviewHeight;
+    @State
+    String mImageUrl;
 
 
     @State
@@ -398,7 +413,7 @@ public class PreviewActivity extends BaseActivity implements QueryTokenReceiver,
     /**
      * Root view click functionality hide filter bottom sheet if its expanded
      */
-    @OnClick({R.id.rootView, R.id.imageContainer})
+    @OnClick({R.id.rootView})
     void rootOnClick() {
         if (filterSheetBehavior.getState() == BottomSheetBehavior.STATE_EXPANDED) {
             //Hide bottom sheet
@@ -570,6 +585,22 @@ public class PreviewActivity extends BaseActivity implements QueryTokenReceiver,
                 .negativeText("Cancel")
                 .show();
     }
+
+    /**
+     * Image click functionality to show preview in fullscreen.
+     */
+    @OnClick(R.id.imagePreview)
+    void imageOnClick() {
+        Bundle bundle = new Bundle();
+        bundle.putInt(CONTENT_PREVIEW_EXTRA_IMAGE_WIDTH, mImagePreviewWidth);
+        bundle.putInt(CONTENT_PREVIEW_EXTRA_IMAGE_HEIGHT, mImagePreviewHeight);
+        bundle.putString(CONTENT_PREVIEW_EXTRA_IMAGE_URL, mImageUrl);
+        bundle.putString(CONTENT_PREVIEW_EXTRA_SIGNATURE_TEXT, mWaterMarkText);
+
+        Intent intent = new Intent(mContext, ContentPreview.class);
+        intent.putExtra(CONTENT_PREVIEW_EXTRA_DATA, bundle);
+        startActivity(intent);
+    }
     //endregion
 
     //region :Private methods
@@ -607,6 +638,14 @@ public class PreviewActivity extends BaseActivity implements QueryTokenReceiver,
      */
     private void checkContentType() {
         if (mCalledFrom.equals(PREVIEW_EXTRA_CALLED_FROM_CAPTURE)) {
+            //Decode image file
+            BitmapFactory.Options options = new BitmapFactory.Options();
+            options.inJustDecodeBounds = true;
+            BitmapFactory.decodeFile(ImageHelper.getImageUri(IMAGE_TYPE_USER_CAPTURE_PIC).getPath(), options);
+            mImagePreviewHeight = options.outHeight;
+            mImagePreviewWidth = options.outWidth;
+            mImageUrl = getImageUri(IMAGE_TYPE_USER_CAPTURE_PIC).toString();
+            AspectRatioUtils.setImageAspectRatio(mImagePreviewWidth, mImagePreviewHeight, imagePreview);
             //Load capture pic
             loadPreviewImage(getImageUri(IMAGE_TYPE_USER_CAPTURE_PIC), imagePreview);
             //initialize filter screen
@@ -615,6 +654,12 @@ public class PreviewActivity extends BaseActivity implements QueryTokenReceiver,
         }
         //For capture editing
         else if (mCalledFrom.equals(PREVIEW_EXTRA_CALLED_FROM_EDIT_CAPTURE)) {
+            mImagePreviewHeight = mBundle.getInt(EXTRA_IMAGE_HEIGHT);
+            mImagePreviewWidth = mBundle.getInt(EXTRA_IMAGE_WIDTH);
+            mImageUrl = Uri.parse(mBundle.getString(PREVIEW_EXTRA_CONTENT_IMAGE)).toString();
+            AspectRatioUtils.setImageAspectRatio(mBundle.getInt(EXTRA_IMAGE_WIDTH)
+                    , mBundle.getInt(EXTRA_IMAGE_HEIGHT)
+                    , imagePreview);
             //Load capture pic
             loadPreviewImage(Uri.parse(mBundle.getString(PREVIEW_EXTRA_CONTENT_IMAGE)), imagePreview);
             //Setup bottom sheets
@@ -626,6 +671,14 @@ public class PreviewActivity extends BaseActivity implements QueryTokenReceiver,
         } else if (mCalledFrom.equals(PREVIEW_EXTRA_CALLED_FROM_EDIT_SHORT)) {
             //initialize filter screen
             initFilterView();
+            //Decode image file
+            BitmapFactory.Options options = new BitmapFactory.Options();
+            options.inJustDecodeBounds = true;
+            BitmapFactory.decodeFile(ImageHelper.getImageUri(IMAGE_TYPE_USER_SHORT_PIC).getPath(), options);
+            mImagePreviewHeight = options.outHeight;
+            mImagePreviewWidth = options.outWidth;
+            mImageUrl = getImageUri(IMAGE_TYPE_USER_SHORT_PIC).toString();
+            AspectRatioUtils.setImageAspectRatio(mImagePreviewWidth, mImagePreviewHeight, imagePreview);
             //Load short pic
             loadPreviewImage(getImageUri(IMAGE_TYPE_USER_SHORT_PIC), imagePreview);
             //Set caption text
@@ -636,6 +689,14 @@ public class PreviewActivity extends BaseActivity implements QueryTokenReceiver,
         } else {
             //initialize filter screen
             initFilterView();
+            //Decode image file
+            BitmapFactory.Options options = new BitmapFactory.Options();
+            options.inJustDecodeBounds = true;
+            BitmapFactory.decodeFile(ImageHelper.getImageUri(IMAGE_TYPE_USER_SHORT_PIC).getPath(), options);
+            mImagePreviewHeight = options.outHeight;
+            mImagePreviewWidth = options.outWidth;
+            mImageUrl = getImageUri(IMAGE_TYPE_USER_SHORT_PIC).toString();
+            AspectRatioUtils.setImageAspectRatio(mImagePreviewWidth, mImagePreviewHeight, imagePreview);
             //Load short pic
             loadPreviewImage(getImageUri(IMAGE_TYPE_USER_SHORT_PIC), imagePreview);
             //set bg sound for long form
@@ -753,7 +814,7 @@ public class PreviewActivity extends BaseActivity implements QueryTokenReceiver,
     private void performUpdateOperation() {
         // cpshort
         if (mCalledFrom.equals(PREVIEW_EXTRA_CALLED_FROM_COLLABORATION)) {
-            updateData(new File(getImageUri(IMAGE_TYPE_USER_CAPTURE_PIC).getPath())
+            uploadCaptureOnShortData(new File(getImageUri(IMAGE_TYPE_USER_CAPTURE_PIC).getPath())
                     , new File(getImageUri(IMAGE_TYPE_USER_SHORT_PIC).getPath())
                     , mBundle.getString(PREVIEW_EXTRA_SHORT_ID)
                     , mBundle.getString(PREVIEW_EXTRA_UUID)
@@ -767,6 +828,7 @@ public class PreviewActivity extends BaseActivity implements QueryTokenReceiver,
                     , mBundle.getString(PREVIEW_EXTRA_TEXT_COLOR)
                     , mBundle.getString(PREVIEW_EXTRA_TEXT_GRAVITY)
                     , mBundle.getString(PREVIEW_EXTRA_IMG_WIDTH)
+                    , mBundle.getString(PREVIEW_EXTRA_IMG_HEIGHT)
                     , mBundle.getString(PREVIEW_EXTRA_SIGNATURE)
                     , mBundle.getString(PREVIEW_EXTRA_MERCHANTABLE)
                     , mBundle.getString(PREVIEW_EXTRA_FONT)
@@ -781,7 +843,7 @@ public class PreviewActivity extends BaseActivity implements QueryTokenReceiver,
         }
         // short, shcapture
         else if (mCalledFrom.equals(PREVIEW_EXTRA_CALLED_FROM_SHORT)) {
-            updateShort(new File(getImageUri(IMAGE_TYPE_USER_SHORT_PIC).getPath())
+            uploadShort(new File(getImageUri(IMAGE_TYPE_USER_SHORT_PIC).getPath())
                     , mBundle.getString(PREVIEW_EXTRA_CAPTURE_ID)
                     , mBundle.getString(PREVIEW_EXTRA_UUID)
                     , mBundle.getString(PREVIEW_EXTRA_AUTH_KEY)
@@ -794,6 +856,7 @@ public class PreviewActivity extends BaseActivity implements QueryTokenReceiver,
                     , mBundle.getString(PREVIEW_EXTRA_TEXT_COLOR)
                     , mBundle.getString(PREVIEW_EXTRA_TEXT_GRAVITY)
                     , mBundle.getString(PREVIEW_EXTRA_IMG_WIDTH)
+                    , mBundle.getString(PREVIEW_EXTRA_IMG_HEIGHT)
                     , mBundle.getString(PREVIEW_EXTRA_MERCHANTABLE)
                     , mBundle.getString(PREVIEW_EXTRA_FONT)
                     , mBundle.getString(PREVIEW_EXTRA_BG_COLOR)
@@ -817,7 +880,7 @@ public class PreviewActivity extends BaseActivity implements QueryTokenReceiver,
         }
         // edit short
         else if (mCalledFrom.equals(PREVIEW_EXTRA_CALLED_FROM_EDIT_SHORT)) {
-            updateEditedShort(new File(getImageUri(IMAGE_TYPE_USER_SHORT_PIC).getPath())
+            uploadEditedShort(new File(getImageUri(IMAGE_TYPE_USER_SHORT_PIC).getPath())
                     , mBundle.getString(PREVIEW_EXTRA_ENTITY_ID)
                     , mBundle.getString(PREVIEW_EXTRA_CAPTURE_ID)
                     , mBundle.getString(PREVIEW_EXTRA_SHORT_ID)
@@ -832,6 +895,7 @@ public class PreviewActivity extends BaseActivity implements QueryTokenReceiver,
                     , mBundle.getString(PREVIEW_EXTRA_TEXT_COLOR)
                     , mBundle.getString(PREVIEW_EXTRA_TEXT_GRAVITY)
                     , mBundle.getString(PREVIEW_EXTRA_IMG_WIDTH)
+                    , mBundle.getString(PREVIEW_EXTRA_IMG_HEIGHT)
                     , mBundle.getString(PREVIEW_EXTRA_MERCHANTABLE)
                     , mBundle.getString(PREVIEW_EXTRA_FONT)
                     , mBundle.getString(PREVIEW_EXTRA_BG_COLOR)
@@ -851,7 +915,7 @@ public class PreviewActivity extends BaseActivity implements QueryTokenReceiver,
     /**
      * Method to update capture/collaboration details on server.
      */
-    private void updateData(File imgHighRes, File imgLowRes, String shortID, final String uuid, final String authToken, String xPosition, String yPosition, String tvWidth, String tvHeight, String text, String textSize, String textColor, String textGravity, String imgWidth, String signature, String merchantable, String font, String bold, String italic, String captionText, String imageTintColor, String templateName, String isShadowSelected, String longText) {
+    private void uploadCaptureOnShortData(File imgHighRes, File imgLowRes, String shortID, final String uuid, final String authToken, String xPosition, String yPosition, String tvWidth, String tvHeight, String text, String textSize, String textColor, String textGravity, String imgWidth, String imgHeight, String signature, String merchantable, String font, String bold, String italic, String captionText, String imageTintColor, String templateName, String isShadowSelected, String longText) {
 
         //Configure OkHttpClient for time out
         OkHttpClient okHttpClient = new OkHttpClient().newBuilder()
@@ -860,15 +924,8 @@ public class PreviewActivity extends BaseActivity implements QueryTokenReceiver,
                 .writeTimeout(20, TimeUnit.MINUTES)
                 .build();
 
-        //To show the progress dialog
-        MaterialDialog.Builder builder = new MaterialDialog.Builder(this)
-                .title("Uploading your capture")
-                .content("Please wait...")
-                .autoDismiss(false)
-                .cancelable(false)
-                .progress(true, 0);
-
-        final MaterialDialog dialog = builder.build();
+        final MaterialDialog dialog = CustomDialog
+                .getProgressDialog(mContext, "Uploading your capture");
         dialog.show();
 
 
@@ -884,7 +941,7 @@ public class PreviewActivity extends BaseActivity implements QueryTokenReceiver,
                 .addMultipartParameter("txt_width", tvWidth)
                 .addMultipartParameter("txt_height", tvHeight)
                 .addMultipartParameter("img_width", imgWidth)
-                .addMultipartParameter("img_height", imgWidth)
+                .addMultipartParameter("img_height", imgHeight)
                 .addMultipartParameter("text", text)
                 .addMultipartParameter("textsize", textSize)
                 .addMultipartParameter("textcolor", textColor)
@@ -972,7 +1029,7 @@ public class PreviewActivity extends BaseActivity implements QueryTokenReceiver,
     /**
      * Update short image and other details on server.
      */
-    private void updateShort(File file, String captureID, final String uuid, final String authToken, String xPosition, String yPosition, String tvWidth, String tvHeight, String text, String textSize, String textColor, String textGravity, String imgWidth, String merchantable, String font, String bgColor, String bold, String italic, String captionText, String imageTintColor, String templateName, String isShadowSelected, String longText) {
+    private void uploadShort(File file, String captureID, final String uuid, final String authToken, String xPosition, String yPosition, String tvWidth, String tvHeight, String text, String textSize, String textColor, String textGravity, String imgWidth, String imgHeight, String merchantable, String font, String bgColor, String bold, String italic, String captionText, String imageTintColor, String templateName, String isShadowSelected, String longText) {
 
         String mMerchantable = null;
 
@@ -990,14 +1047,8 @@ public class PreviewActivity extends BaseActivity implements QueryTokenReceiver,
                 .build();
 
         //To show the progress dialog
-        MaterialDialog.Builder builder = new MaterialDialog.Builder(this)
-                .title("Uploading your writing")
-                .content("Please wait...")
-                .autoDismiss(false)
-                .cancelable(false)
-                .progress(true, 0);
-
-        final MaterialDialog dialog = builder.build();
+        final MaterialDialog dialog = CustomDialog.
+                getProgressDialog(mContext, "Uploading your writing");
         dialog.show();
 
 
@@ -1012,7 +1063,7 @@ public class PreviewActivity extends BaseActivity implements QueryTokenReceiver,
                 .addMultipartParameter("txt_width", tvWidth)
                 .addMultipartParameter("txt_height", tvHeight)
                 .addMultipartParameter("img_width", imgWidth)
-                .addMultipartParameter("img_height", imgWidth)
+                .addMultipartParameter("img_height", imgHeight)
                 .addMultipartParameter("text", text)
                 .addMultipartParameter("textsize", textSize)
                 .addMultipartParameter("textcolor", textColor)
@@ -1100,7 +1151,7 @@ public class PreviewActivity extends BaseActivity implements QueryTokenReceiver,
     /**
      * Update edited short image and other details on server.
      */
-    private void updateEditedShort(final File file, String entityID, String captureID, String shortID, String uuid, String authToken, String xPosition, String yPosition, String tvWidth, String tvHeight, String text, String textSize, String textColor, String textGravity, String imgWidth, String merchantable, String font, String bgColor, String bold, String italic, final String captionText, String imageTintColor, String templateName, String isShadowSelected, String longText) {
+    private void uploadEditedShort(final File file, String entityID, String captureID, String shortID, String uuid, String authToken, String xPosition, String yPosition, String tvWidth, String tvHeight, String text, String textSize, String textColor, String textGravity, String imgWidth, String imgHeight, String merchantable, String font, String bgColor, String bold, String italic, final String captionText, String imageTintColor, String templateName, String isShadowSelected, String longText) {
 
         String mMerchantable;
 
@@ -1118,14 +1169,8 @@ public class PreviewActivity extends BaseActivity implements QueryTokenReceiver,
                 .build();
 
         //To show the progress dialog
-        MaterialDialog.Builder builder = new MaterialDialog.Builder(this)
-                .title("Uploading your writing")
-                .content("Please wait...")
-                .autoDismiss(false)
-                .cancelable(false)
-                .progress(true, 0);
-
-        final MaterialDialog dialog = builder.build();
+        final MaterialDialog dialog = CustomDialog
+                .getProgressDialog(mContext, "Uploading your writing");
         dialog.show();
 
         Rx2AndroidNetworking.upload(BuildConfig.URL + "/short-upload/edit")
@@ -1141,7 +1186,7 @@ public class PreviewActivity extends BaseActivity implements QueryTokenReceiver,
                 .addMultipartParameter("txt_width", tvWidth)
                 .addMultipartParameter("txt_height", tvHeight)
                 .addMultipartParameter("img_width", imgWidth)
-                .addMultipartParameter("img_height", imgWidth)
+                .addMultipartParameter("img_height", imgHeight)
                 .addMultipartParameter("text", text)
                 .addMultipartParameter("textsize", textSize)
                 .addMultipartParameter("textcolor", textColor)
@@ -1238,14 +1283,17 @@ public class PreviewActivity extends BaseActivity implements QueryTokenReceiver,
      */
     private void uploadCapture(File file, String captionText, final String uuid, final String authToken, String waterMark, String merchantable) {
         //To show the progress dialog
-        MaterialDialog.Builder builder = new MaterialDialog.Builder(this)
-                .title("Uploading your graphic art")
-                .content("Please wait...")
-                .autoDismiss(false)
-                .cancelable(false)
-                .progress(true, 0);
-        final MaterialDialog dialog = builder.build();
+        final MaterialDialog dialog = CustomDialog
+                .getProgressDialog(mContext, "Uploading your graphic art");
         dialog.show();
+
+        //Decode image file
+        BitmapFactory.Options options = new BitmapFactory.Options();
+        options.inJustDecodeBounds = true;
+        BitmapFactory.decodeFile(ImageHelper.getImageUri(IMAGE_TYPE_USER_CAPTURE_PIC).getPath(), options);
+        int imageHeight = options.outHeight;
+        int imageWidth = options.outWidth;
+
 
         //if watermark is not empty
         if (!TextUtils.isEmpty(waterMark)) {
@@ -1270,6 +1318,8 @@ public class PreviewActivity extends BaseActivity implements QueryTokenReceiver,
                 .addMultipartParameter("merchantable", merchantable)
                 .addMultipartParameter("caption", captionText)
                 .addMultipartParameter("filtername", mFilterName)
+                .addMultipartParameter("img_width", String.valueOf(imageWidth))
+                .addMultipartParameter("img_height", String.valueOf(imageHeight))
                 .setOkHttpClient(okHttpClient)
                 .build()
                 .getAsJSONObject(new JSONObjectRequestListener() {
@@ -1331,13 +1381,9 @@ public class PreviewActivity extends BaseActivity implements QueryTokenReceiver,
      */
     private void uploadEditedCapture(String captionText, String uuid, String authToken, String entityID) {
         //To show the progress dialog
-        MaterialDialog.Builder builder = new MaterialDialog.Builder(this)
-                .title("Updating your caption")
-                .content("Please wait...")
-                .autoDismiss(false)
-                .cancelable(false)
-                .progress(true, 0);
-        final MaterialDialog dialog = builder.build();
+
+        final MaterialDialog dialog = CustomDialog
+                .getProgressDialog(mContext, "Updating your caption");
         dialog.show();
 
         //Configure OkHttpClient for time out

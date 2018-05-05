@@ -8,6 +8,7 @@ public class InspirationModel {
 
     private String entityID, captureID, UUID, creatorName, creatorProfilePic, capturePic;
     private boolean merchantable;
+    private int imgWidth, imgHeight;
 
     public String getEntityID() {
         return entityID;
@@ -63,5 +64,21 @@ public class InspirationModel {
 
     public void setMerchantable(boolean merchantable) {
         this.merchantable = merchantable;
+    }
+
+    public int getImgWidth() {
+        return imgWidth;
+    }
+
+    public void setImgWidth(int imgWidth) {
+        this.imgWidth = imgWidth;
+    }
+
+    public int getImgHeight() {
+        return imgHeight;
+    }
+
+    public void setImgHeight(int imgHeight) {
+        this.imgHeight = imgHeight;
     }
 }
