@@ -29,17 +29,16 @@
             <ImageView
                 android:id="@+id/productImage"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:scaleType="centerInside" />
+                android:layout_height="match_parent" />
 
             <ImageView
                 android:id="@+id/artImg"
                 android:layout_width="250dp"
                 android:layout_height="250dp"
                 android:layout_centerInParent="true"
-                android:scaleType="centerInside"
+                android:scaleType="fitXY"
                 android:src="@drawable/image_placeholder"
-                android:visibility="visible" />
+                android:visibility="gone" />
 
         </RelativeLayout>
 
