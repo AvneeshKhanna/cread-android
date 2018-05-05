@@ -11,6 +11,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
+
         <!--Main container-->
         <FrameLayout
             android:id="@+id/mainContainer"
@@ -31,6 +32,7 @@
                     android:background="@color/yellow_light">
 
 
+                    <!--Preview imageView-->
                     <android.support.v7.widget.AppCompatImageView
                         android:id="@+id/imagePreview"
                         android:layout_width="match_parent"
@@ -47,15 +49,7 @@
                         android:alpha="0.4"
                         android:background="@color/grey_dark" />
 
-                    <!--Top separator-->
-                    <View
-                        android:id="@+id/lineTopSeparator"
-                        android:layout_width="match_parent"
-                        android:layout_height="0.3dp"
-                        android:layout_alignTop="@+id/imagePreview"
-                        android:alpha="0.4"
-                        android:background="@color/grey_dark" />
-
+                    <!--Signature view-->
                     <FrameLayout
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
@@ -78,54 +72,53 @@
                             tools:text="~The testament" />
                     </FrameLayout>
 
-                    <FrameLayout
-                        android:id="@+id/containerLongShortPreview"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_alignParentRight="true"
-                        android:layout_below="@+id/lineTopSeparator"
-                        android:padding="5dp"
-                        android:visibility="gone">
 
-
-                        <android.support.v7.widget.AppCompatImageView
-                            android:layout_width="24dp"
-                            android:layout_height="24dp"
-                            android:layout_alignParentRight="true"
-                            android:background="@drawable/circle_transparent_bg"
-                            android:padding="5dp"
-                            app:srcCompat="@drawable/ic_longshort_preview" />
-
-
-                    </FrameLayout>
-
-                    <FrameLayout
-                        android:id="@+id/containerLongShortSound"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_alignParentBottom="true"
-                        android:layout_alignParentRight="true"
-                        android:padding="5dp"
-                        android:visibility="gone">
-
-
-                        <android.support.v7.widget.AppCompatImageView
-                            android:layout_width="24dp"
-                            android:layout_height="24dp"
-                            android:layout_alignParentRight="true"
-                            android:background="@drawable/circle_transparent_bg"
-                            android:padding="5dp"
-                            app:srcCompat="@drawable/ic_menu_sound_enabled" />
-
-
-                    </FrameLayout>
 
 
                 </RelativeLayout>
 
             </android.support.v4.widget.NestedScrollView>
 
+            <!--LongStory preview button-->
+            <FrameLayout
+                android:id="@+id/containerLongShortPreview"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentRight="true"
+                android:layout_alignParentTop="true"
+                android:layout_gravity="right"
+                android:padding="5dp"
+                android:visibility="gone">
 
+                <android.support.v7.widget.AppCompatImageView
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:layout_alignParentRight="true"
+                    android:background="@drawable/circle_transparent_bg"
+                    android:padding="5dp"
+                    app:srcCompat="@drawable/ic_longshort_preview" />
+
+            </FrameLayout>
+            <!--Sound view container-->
+            <FrameLayout
+                android:id="@+id/containerLongShortSound"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="bottom|right"
+                android:padding="5dp"
+                android:visibility="gone">
+
+
+                <android.support.v7.widget.AppCompatImageView
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:layout_alignParentRight="true"
+                    android:background="@drawable/circle_transparent_bg"
+                    android:padding="5dp"
+                    app:srcCompat="@drawable/ic_menu_sound_enabled" />
+
+
+            </FrameLayout>
             <android.support.v7.widget.RecyclerView
                 android:id="@+id/recyclerViewMentions"
                 android:layout_width="match_parent"
