@@ -28,7 +28,6 @@ import com.thetestament.cread.activities.CollaborationActivity;
 import com.yalantis.ucrop.UCrop;
 import com.yalantis.ucrop.UCropActivity;
 import com.yalantis.ucrop.model.AspectRatio;
-import com.yalantis.ucrop.view.CropImageView;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
@@ -183,8 +182,7 @@ public class ImageHelper {
                 new AspectRatio("4:5", 4, 5),
                 new AspectRatio("5:4", 5, 4),
                 new AspectRatio("4:3", 4, 3),
-                new AspectRatio("3:4", 3, 4),
-                new AspectRatio("Original", CropImageView.DEFAULT_ASPECT_RATIO, CropImageView.DEFAULT_ASPECT_RATIO)
+                new AspectRatio("3:4", 3, 4)
         );
 
 
@@ -220,8 +218,7 @@ public class ImageHelper {
                 new AspectRatio("4:5", 4, 5),
                 new AspectRatio("5:4", 5, 4),
                 new AspectRatio("4:3", 4, 3),
-                new AspectRatio("3:4", 3, 4),
-                new AspectRatio("Original", CropImageView.DEFAULT_ASPECT_RATIO, CropImageView.DEFAULT_ASPECT_RATIO)
+                new AspectRatio("3:4", 3, 4)
         );
         //Launch image cropping activity
         UCrop.of(sourceUri, destinationUri)
