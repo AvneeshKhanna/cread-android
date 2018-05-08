@@ -453,6 +453,28 @@ public class NetworkHelper {
                 .getJSONObjectObservable();
     }
 
+    public static Observable<JSONObject> updateUserInterestStatusObservable(String uuid, String authkey, boolean register, String interestId) {
+        final JSONObject jsonObject = new JSONObject();
+
+        try {
+
+            jsonObject.put("uuid", uuid);
+            jsonObject.put("authkey", authkey);
+            jsonObject.put("register", register);
+            jsonObject.put("interestid", interestId);
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+            FirebaseCrash.report(e);
+        }
+
+        return Rx2AndroidNetworking
+                .post(BuildConfig.URL + "/user-interest/on-click")
+                .addJSONObjectBody(jsonObject)
+                .build()
+                .getJSONObjectObservable();
+    }
+
 
     public static Observable<JSONObject> updateDownvoteStatusObservable(String uuid, String authkey, boolean downvote, String entityid) {
         final JSONObject jsonObject = new JSONObject();

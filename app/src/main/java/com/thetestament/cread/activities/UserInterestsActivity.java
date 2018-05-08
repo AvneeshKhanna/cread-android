@@ -19,9 +19,11 @@ import com.thetestament.cread.R;
 import com.thetestament.cread.adapters.UserInterestsAdapter;
 import com.thetestament.cread.helpers.NetworkHelper;
 import com.thetestament.cread.helpers.SharedPreferenceHelper;
+import com.thetestament.cread.helpers.UserInterestsHelper;
 import com.thetestament.cread.helpers.ViewHelper;
 import com.thetestament.cread.listeners.listener;
 import com.thetestament.cread.models.UserInterestsModel;
+import com.thetestament.cread.utils.Constant;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -70,7 +72,6 @@ public class UserInterestsActivity extends BaseActivity {
         // init screen
         initScreen();
 
-
     }
 
     @Override
@@ -86,9 +87,17 @@ public class UserInterestsActivity extends BaseActivity {
         switch (item.getItemId()) {
 
             case R.id.menu_action_user_interests_done:
-                Intent intent = new Intent(mContext, BottomNavigationActivity.class);
-                startActivity(intent);
-                finish();
+
+                if (getIntent().getStringExtra(Constant.EXTRA_USER_INTERESTS_CALLED_FROM).equals(Constant.USER_INTERESTS_CALLED_FROM_LOGIN)) {
+                    Intent intent = new Intent(mContext, BottomNavigationActivity.class);
+                    startActivity(intent);
+                    finish();
+
+                    // TODO open recommendations screen
+                } else {
+                    // TODO
+                }
+
                 return true;
 
             default:
@@ -174,7 +183,28 @@ public class UserInterestsActivity extends BaseActivity {
     private void initInterestClickedListener() {
         mAdapter.setUserInterestClickedListener(new listener.OnInterestClickedListener() {
             @Override
-            public void onInterestClicked(UserInterestsModel data, int position) {
+            public void onInterestClicked(final UserInterestsModel data, final int position) {
+
+                UserInterestsHelper userInterestsHelper = new UserInterestsHelper();
+                userInterestsHelper.updateUserInterests(mContext
+                        , mCompositeDisposable, data.isUserInterested()
+                        , data.getInterestId()
+                        , new listener.OnUserInterestClickedListener() {
+                            @Override
+                            public void onInterestSuccess() {
+
+                            }
+
+                            @Override
+                            public void onInterestFailure(String errorMsg) {
+                                //set status to true if its false and vice versa
+                                data.setUserInterested(!data.isUserInterested());
+                                //notify changes
+                                mAdapter.notifyItemChanged(position);
+                                ViewHelper.getSnackBar(rootView, errorMsg);
+
+                            }
+                        });
 
 
             }

@@ -2,6 +2,7 @@ package com.thetestament.cread.adapters;
 
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.content.ContextCompat;
+import android.support.v7.widget.AppCompatCheckBox;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -13,6 +14,8 @@ import android.widget.TextView;
 import com.thetestament.cread.R;
 import com.thetestament.cread.helpers.FeedHelper;
 import com.thetestament.cread.helpers.ImageHelper;
+import com.thetestament.cread.helpers.NetworkHelper;
+import com.thetestament.cread.helpers.ViewHelper;
 import com.thetestament.cread.listeners.listener;
 import com.thetestament.cread.listeners.listener.OnInterestsLoadMoreListener;
 import com.thetestament.cread.models.UserInterestsModel;
@@ -85,15 +88,18 @@ public class UserInterestsAdapter extends RecyclerView.Adapter {
             FeedHelper.setGridItemMargins(mContext, position, itemViewHolder.imageUserInterest);
             //Load interest picture
             ImageHelper.loadImageFromPicasso(mContext, itemViewHolder.imageUserInterest, data.getInterestImageURL(), R.drawable.image_placeholder);
+            // check user interests status
+            checkUserInterestStatus(data, itemViewHolder);
             //Click functionality
-            itemViewOnClick(itemViewHolder.itemView, data, position);
+            itemViewOnClick(itemViewHolder, data, position);
 
         } else if (holder.getItemViewType() == VIEW_TYPE_LOADING) {
             LoadingViewHolder loadingViewHolder = (LoadingViewHolder) holder;
             loadingViewHolder.progressView.setVisibility(View.VISIBLE);
         }
 
-        //If last item is visible to user
+        //If last item is visible to user and new set of data is to yet to be loaded
+        initializeLoadMore(position);
 
     }
 
@@ -105,18 +111,37 @@ public class UserInterestsAdapter extends RecyclerView.Adapter {
     /**
      * Sets interest item click action
      *
-     * @param view
+     * @param itemViewHolder
      * @param data
      * @param position
      */
-    private void itemViewOnClick(View view, final UserInterestsModel data, final int position) {
-        view.setOnClickListener(new View.OnClickListener() {
+    private void itemViewOnClick(final ItemViewHolder itemViewHolder, final UserInterestsModel data, final int position) {
+        itemViewHolder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                // invoke callback
-                mInterestClickedListener.onInterestClicked(data, position);
+
+                // check net status
+                if (NetworkHelper.getNetConnectionStatus(mContext)) {
+                    data.setUserInterested(!data.isUserInterested());
+
+                    itemViewHolder.checkBoxInterest.setChecked(data.isUserInterested());
+
+                    // invoke callback
+                    mInterestClickedListener.onInterestClicked(data, position);
+                } else {
+                    ViewHelper.getToast(mContext, mContext.getString(R.string.error_msg_no_connection));
+                }
+
+
             }
         });
+    }
+
+    /*
+
+     */
+    private void checkUserInterestStatus(UserInterestsModel data, ItemViewHolder itemViewHolder) {
+        itemViewHolder.checkBoxInterest.setChecked(data.isUserInterested());
     }
 
 
@@ -153,6 +178,9 @@ public class UserInterestsAdapter extends RecyclerView.Adapter {
         FrameLayout containerUserInterestText;
         @BindView(R.id.imageContainer)
         SquareView imageContainer;
+        @BindView(R.id.checkboxInterest)
+        AppCompatCheckBox checkBoxInterest;
+
 
         public ItemViewHolder(View itemView) {
             super(itemView);

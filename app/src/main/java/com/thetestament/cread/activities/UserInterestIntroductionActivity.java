@@ -12,6 +12,9 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 
+import static com.thetestament.cread.utils.Constant.EXTRA_USER_INTERESTS_CALLED_FROM;
+import static com.thetestament.cread.utils.Constant.USER_INTERESTS_CALLED_FROM_LOGIN;
+
 public class UserInterestIntroductionActivity extends BaseActivity {
 
 
@@ -38,6 +41,7 @@ public class UserInterestIntroductionActivity extends BaseActivity {
     @OnClick(R.id.buttonOpenUserInterests)
     void onChooseClick() {
         Intent intent = new Intent(this, UserInterestsActivity.class);
+        intent.putExtra(EXTRA_USER_INTERESTS_CALLED_FROM, USER_INTERESTS_CALLED_FROM_LOGIN);
         startActivity(intent);
     }
 }

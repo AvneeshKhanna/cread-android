@@ -153,6 +153,9 @@ public class Constant {
 
     public static final String EXTRA_SHORT_DATA = "extraShortData";
 
+    public static final String EXTRA_USER_INTERESTS_CALLED_FROM = "userInterestsCalledFrom";
+
+
 
     //Action
     public static final String ACTION_LOG_OUT = "com.thetestament.cread.ACTION_LOGOUT";
@@ -327,4 +330,7 @@ public class Constant {
 
     public static final String SHARE_SOURCE_FROM_SHARE = "fromShare";
     public static final String SHARE_SOURCE_FROM_CREATE = "fromCreate";
+
+    public static final String USER_INTERESTS_CALLED_FROM_LOGIN = "userInterestsCalledFromLogin";
+    public static final String USER_INTERESTS_CALLED_FROM_PROFILE = "userInterestsCalledFromProfile";
 }

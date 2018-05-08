@@ -466,4 +466,13 @@ public class listener {
          */
         void onFailure(String errorMsg);
     }
+
+    /**
+     * Interface definition for a callback to be invoked when user clicks on User interest.
+     */
+    public interface OnUserInterestClickedListener {
+        void onInterestSuccess();
+
+        void onInterestFailure(String errorMsg);
+    }
 }
