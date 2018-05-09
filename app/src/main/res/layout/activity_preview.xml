@@ -7,12 +7,14 @@
     android:layout_height="match_parent"
     android:background="@color/grey_light">
 
+
+    <!--Child container-->
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
 
-        <!--Main container-->
+        <!--Preview image container-->
         <FrameLayout
             android:id="@+id/mainContainer"
             android:layout_width="match_parent"
@@ -21,7 +23,8 @@
 
             <android.support.v4.widget.NestedScrollView
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
                 android:scrollbars="vertical">
 
                 <RelativeLayout
@@ -41,19 +44,11 @@
                         android:scaleType="fitXY"
                         tools:src="@tools:sample/avatars" />
 
-                    <View
-                        android:id="@+id/lineSeparator"
-                        android:layout_width="match_parent"
-                        android:layout_height="0.3dp"
-                        android:layout_alignParentBottom="true"
-                        android:alpha="0.4"
-                        android:background="@color/grey_dark" />
 
-                    <!--Signature view-->
+                    <!--Signature view container-->
                     <FrameLayout
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_above="@+id/viewDivider"
                         android:layout_alignParentBottom="true"
                         android:layout_alignParentLeft="true"
                         android:layout_marginBottom="5dp"
@@ -63,7 +58,6 @@
                             android:id="@+id/textWaterMark"
                             android:layout_width="match_parent"
                             android:layout_height="match_parent"
-                            android:layout_alignParentBottom="true"
                             android:paddingLeft="3dp"
                             android:paddingRight="3dp"
                             android:textColor="@color/white"
@@ -72,20 +66,15 @@
                             tools:text="~The testament" />
                     </FrameLayout>
 
-
-
-
                 </RelativeLayout>
 
             </android.support.v4.widget.NestedScrollView>
 
-            <!--LongStory preview button-->
+            <!--LongStory preview container-->
             <FrameLayout
                 android:id="@+id/containerLongShortPreview"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_alignParentRight="true"
-                android:layout_alignParentTop="true"
                 android:layout_gravity="right"
                 android:padding="5dp"
                 android:visibility="gone">
@@ -93,12 +82,12 @@
                 <android.support.v7.widget.AppCompatImageView
                     android:layout_width="24dp"
                     android:layout_height="24dp"
-                    android:layout_alignParentRight="true"
                     android:background="@drawable/circle_transparent_bg"
                     android:padding="5dp"
                     app:srcCompat="@drawable/ic_longshort_preview" />
 
             </FrameLayout>
+
             <!--Sound view container-->
             <FrameLayout
                 android:id="@+id/containerLongShortSound"
@@ -112,13 +101,13 @@
                 <android.support.v7.widget.AppCompatImageView
                     android:layout_width="24dp"
                     android:layout_height="24dp"
-                    android:layout_alignParentRight="true"
                     android:background="@drawable/circle_transparent_bg"
                     android:padding="5dp"
                     app:srcCompat="@drawable/ic_menu_sound_enabled" />
 
-
             </FrameLayout>
+
+            <!--RecyclerView profile mention-->
             <android.support.v7.widget.RecyclerView
                 android:id="@+id/recyclerViewMentions"
                 android:layout_width="match_parent"
@@ -136,7 +125,8 @@
             android:layout_below="@+id/mainContainer"
             android:alpha="0.4"
             android:background="@color/grey_dark" />
-        <!--Caption and upload button-->
+
+        <!--Caption and upload button container-->
         <LinearLayout
             android:id="@+id/containerPreviewBottom"
             android:layout_width="match_parent"
@@ -144,6 +134,7 @@
             android:layout_alignParentBottom="true"
             android:orientation="vertical">
 
+            <!--Caption editText with profile tagging-->
             <com.linkedin.android.spyglass.ui.MentionsEditText
                 android:id="@+id/etCaption"
                 android:layout_width="match_parent"
@@ -161,17 +152,25 @@
                 android:textColor="@color/grey_dark"
                 android:textSize="14sp" />
 
-            <Button
-                android:id="@+id/buttonUpdate"
+
+            <!--Hint text for labels-->
+            <android.support.v7.widget.AppCompatTextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="10dp"
-                android:background="@color/blue"
-                android:clickable="true"
-                android:text="Upload"
-                android:textColor="@color/white" />
+                android:paddingBottom="5dp"
+                android:paddingLeft="8dp"
+                android:text="Choose labels which might help you" />
 
-
+            <!--Labels recyclerView-->
+            <android.support.v7.widget.RecyclerView
+                android:id="@+id/recyclerViewLabels"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:visibility="visible"
+                app:layoutManager="android.support.v7.widget.LinearLayoutManager"
+                tools:itemCount="6"
+                tools:listitem="@layout/item_labels" />
         </LinearLayout>
 
     </RelativeLayout>

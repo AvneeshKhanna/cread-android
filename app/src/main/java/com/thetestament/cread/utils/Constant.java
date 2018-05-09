@@ -359,4 +359,8 @@ public class Constant {
     public static final String CONTENT_PREVIEW_EXTRA_DATA = "contentPreviewData";
     public static final String CONTENT_PREVIEW_EXTRA_SIGNATURE_TEXT = "contentPreviewSignatureText";
     //endregion
+
+    //region Content type for labels
+    public static final String LABEL_TYPE_WRITING = "WRITING";
+    public static final String LABEL_TYPE_GRAPHICS = "GRAPHICS";
 }

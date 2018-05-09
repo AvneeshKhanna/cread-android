@@ -208,6 +208,7 @@
     <string name="msg_success_comment_edit">Comment edited</string>
 
     <string name="action_text_filters">Filters</string>
+    <string name="action_text_upload">Upload</string>
     <string name="text_follow"> \u2022 Follow</string>
     <string name="text_cread_name">Cread \u2022  New message</string>
 

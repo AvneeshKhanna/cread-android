@@ -10,6 +10,7 @@ import com.thetestament.cread.models.CommentsModel;
 import com.thetestament.cread.models.FBFriendsModel;
 import com.thetestament.cread.models.FeedModel;
 import com.thetestament.cread.models.InspirationModel;
+import com.thetestament.cread.models.LabelsModel;
 import com.thetestament.cread.models.PersonMentionModel;
 import com.thetestament.cread.models.ShortModel;
 import com.thetestament.cread.models.SuggestedArtistsModel;
@@ -447,5 +448,12 @@ public class listener {
          * Error message to be displayed.
          */
         void onFailure(String errorMsg);
+    }
+
+    /**
+     * Interface definition for a callback to be invoked when user selects label from list.
+     */
+    public interface OnLabelsSelectListener {
+        void onLabelSelected(LabelsModel model, int itemPosition);
     }
 }
