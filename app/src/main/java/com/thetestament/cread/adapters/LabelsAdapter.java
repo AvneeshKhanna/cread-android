@@ -148,7 +148,14 @@ public class LabelsAdapter extends RecyclerView.Adapter<LabelsAdapter.ItemViewHo
         }
     }
 
-
+    /**
+     * Method to update item selection status.
+     *
+     * @param itemPosition Position of item in the list.
+     */
+    public void updateItemSelection(int itemPosition) {
+        notifyItemChanged(itemPosition);
+    }
 }
 
 

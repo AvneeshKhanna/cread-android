@@ -220,5 +220,7 @@
 
     <!--Activity title text-->
     <string name="title_text_recommended_artists_activity">Top artists on Cread</string>
+    <string name="text_content_label_dialog">Add most relevant labels to your content to make it easier to stand out of the crowd. Others would be able to search and appreciate your art in a much faster way!</string>
+    <string name="text_title_label_dialog">Label Your Post</string>
 
 </resources>

@@ -600,15 +600,14 @@ public class PreviewActivity extends BaseActivity implements QueryTokenReceiver,
     /**
      * Click functionality to show info dialog for label.
      */
-    @OnClick(R.id.imgLabelHelp)
+    @OnClick(R.id.textLabelHelp)
     void labelHelpOnClick() {
-        //fixme
         //Show dialog
         CustomDialog.getGenericDialog(mContext
                 , getString(R.string.text_ok)
-                , "Title text"
-                , "Dialog  content text goes here"
-                , R.drawable.img_long_writing_intro_dialog);
+                , getString(R.string.text_title_label_dialog)
+                , getString(R.string.text_content_label_dialog)
+                , R.drawable.img_interests_dialog);
     }
     //endregion
 
@@ -688,6 +687,17 @@ public class PreviewActivity extends BaseActivity implements QueryTokenReceiver,
             //Set caption text
             etCaption.setText(mBundle.getString(PREVIEW_EXTRA_CAPTION_TEXT));
             setProfileMentionsForEditing(mContext, mBundle.getString(PREVIEW_EXTRA_CAPTION_TEXT), etCaption);
+            //set bg sound for long form
+            mBgSound = mBundle.getString(PREVIEW_EXTRA_BG_SOUND);
+        } else if (mCalledFrom.equals(PREVIEW_EXTRA_CALLED_FROM_COLLABORATION)) {
+            //initialize filter screen
+            initFilterView();
+            //Apply aspect ration to imageView
+            applyAspectRatio(IMAGE_TYPE_USER_SHORT_PIC);
+            //Load label data
+            loadLabelsData(null, Constant.LABEL_TYPE_ALL);
+            //Load short pic
+            loadPreviewImage(getImageUri(IMAGE_TYPE_USER_SHORT_PIC), imagePreview);
             //set bg sound for long form
             mBgSound = mBundle.getString(PREVIEW_EXTRA_BG_SOUND);
         } else {
@@ -1992,7 +2002,7 @@ public class PreviewActivity extends BaseActivity implements QueryTokenReceiver,
                         recyclerViewLabels.setLayoutManager(layoutManager);
                         //Set recyclerView adapter
                         recyclerViewLabels.setItemAnimator(new DefaultItemAnimator());
-                        LabelsAdapter labelsAdapter = new LabelsAdapter(dataList, mContext);
+                        final LabelsAdapter labelsAdapter = new LabelsAdapter(dataList, mContext);
                         recyclerViewLabels.setAdapter(labelsAdapter);
 
                         //Set label selection listener
@@ -2001,8 +2011,17 @@ public class PreviewActivity extends BaseActivity implements QueryTokenReceiver,
                             public void onLabelSelected(LabelsModel model, int itemPosition) {
                                 //If its selected
                                 if (model.isSelected()) {
-                                    //Add item to list
-                                    mLabelList.add(model.getLabelsID());
+                                    //If selected labels are less than five
+                                    if (mLabelList.size() < 4) {
+                                        //Add item to list
+                                        mLabelList.add(model.getLabelsID());
+                                    } else {
+                                        //Toggle item selection
+                                        dataList.get(itemPosition).setSelected(!model.isSelected());
+                                        labelsAdapter.updateItemSelection(itemPosition);
+                                        //Show toast
+                                        ViewHelper.getShortToast(mContext, "You can only select five labels");
+                                    }
                                 } else {
                                     //Remove item from list
                                     mLabelList.remove(model.getLabelsID());

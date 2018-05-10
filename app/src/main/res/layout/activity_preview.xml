@@ -157,7 +157,6 @@
                 android:id="@+id/SeparatorMention"
                 android:layout_width="match_parent"
                 android:layout_height="0.3dp"
-                android:layout_marginBottom="5dp"
                 android:alpha="0.4"
                 android:background="@color/grey_dark"
                 android:visibility="visible" />
@@ -167,25 +166,29 @@
                 android:id="@+id/containerLabelHint"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_gravity="center"
+                android:layout_gravity="center_vertical"
+                android:background="@color/grey_light"
                 android:gravity="center_vertical"
-                android:orientation="horizontal">
+                android:orientation="horizontal"
+                android:paddingTop="10dp">
                 <!--Hint text for labels-->
                 <android.support.v7.widget.AppCompatTextView
                     android:id="@+id/textLabelHint"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:paddingBottom="5dp"
                     android:paddingLeft="8dp"
                     android:paddingRight="8dp"
+                    android:paddingBottom="5dp"
                     android:text="Choose labels which might help you" />
 
-                <android.support.v7.widget.AppCompatImageView
-                    android:id="@+id/imgLabelHelp"
-                    android:layout_width="16dp"
-                    android:layout_height="16dp"
-                    android:tint="@color/grey_custom"
-                    app:srcCompat="@drawable/ic_help_vector" />
+                <android.support.v7.widget.AppCompatTextView
+                    android:id="@+id/textLabelHelp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:clickable="true"
+                    android:paddingBottom="5dp"
+                    android:text="(How?)"
+                    android:textColor="@color/blue" />
 
             </LinearLayout>
 
@@ -194,6 +197,7 @@
                 android:id="@+id/recyclerViewLabels"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:background="@color/grey_light"
                 android:orientation="horizontal"
                 android:visibility="visible"
                 app:layoutManager="android.support.v7.widget.LinearLayoutManager"
