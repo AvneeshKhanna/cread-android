@@ -8,6 +8,7 @@ import com.rx2androidnetworking.Rx2AndroidNetworking;
 import com.thetestament.cread.BuildConfig;
 import com.thetestament.cread.CreadApp;
 import com.thetestament.cread.R;
+import com.thetestament.cread.helpers.NetworkHelper;
 import com.thetestament.cread.helpers.SharedPreferenceHelper;
 import com.thetestament.cread.models.LabelsModel;
 
@@ -68,102 +69,66 @@ public class HashTagNetworkManager {
         //Labels data list
         final List<LabelsModel> dataLIst = new ArrayList<>();
 
-        compositeDisposable.add(geHashTagSuggestionObservableFromServer(BuildConfig.URL + "/entity-interests/load"
-                , spHelper.getUUID()
-                , spHelper.getAuthToken()
-                , entityID
-                , contentType)
-                //Run on a background thread
-                .subscribeOn(Schedulers.io())
-                //Be notified on the main thread
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribeWith(new DisposableObserver<JSONObject>() {
-                    @Override
-                    public void onNext(JSONObject jsonObject) {
+        if (NetworkHelper.getNetConnectionStatus(context)) {
+            compositeDisposable.add(geHashTagSuggestionObservableFromServer(BuildConfig.URL + "/entity-interests/load"
+                    , spHelper.getUUID()
+                    , spHelper.getAuthToken()
+                    , entityID
+                    , contentType)
+                    //Run on a background thread
+                    .subscribeOn(Schedulers.io())
+                    //Be notified on the main thread
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribeWith(new DisposableObserver<JSONObject>() {
+                        @Override
+                        public void onNext(JSONObject jsonObject) {
 
-                        try {
-                            //Token status is invalid
-                            if (jsonObject.getString("tokenstatus").equals("invalid")) {
-                                loadListener.onFailure(context.getString(R.string.error_msg_invalid_token));
-                            } else {
-                                JSONObject mainData = jsonObject.getJSONObject("data");
-                                //Suggested artists list
-                                JSONArray jsonArray = mainData.getJSONArray("interests");
-                                for (int i = 0; i < jsonArray.length(); i++) {
-                                    JSONObject dataObj = jsonArray.getJSONObject(i);
-                                    LabelsModel labelsModel = new LabelsModel();
-                                    //Set labels property
-                                    labelsModel.setLabelsID(dataObj.getString("intid"));
-                                    labelsModel.setLabel(dataObj.getString("intname"));
-                                    labelsModel.setSelected(dataObj.getBoolean("selected"));
-                                    dataLIst.add(labelsModel);
+                            try {
+                                //Token status is invalid
+                                if (jsonObject.getString("tokenstatus").equals("invalid")) {
+                                    loadListener.onFailure(context.getString(R.string.error_msg_invalid_token));
+                                } else {
+                                    JSONObject mainData = jsonObject.getJSONObject("data");
+                                    //Suggested artists list
+                                    JSONArray jsonArray = mainData.getJSONArray("interests");
+                                    for (int i = 0; i < jsonArray.length(); i++) {
+                                        JSONObject dataObj = jsonArray.getJSONObject(i);
+                                        LabelsModel labelsModel = new LabelsModel();
+                                        //Set labels property
+                                        labelsModel.setLabelsID(dataObj.getString("intid"));
+                                        labelsModel.setLabel(dataObj.getString("intname"));
+                                        labelsModel.setSelected(dataObj.getBoolean("selected"));
+                                        dataLIst.add(labelsModel);
+                                    }
+                                    loadListener.onSuccess(dataLIst);
                                 }
-                                LabelsModel labelsModel = new LabelsModel();
-                                //Set labels property
-                                labelsModel.setLabelsID("1");
-                                labelsModel.setLabel("Markus");
-                                labelsModel.setSelected(false);
-                                dataLIst.add(labelsModel);
-
-                                LabelsModel labelsModel1 = new LabelsModel();
-                                //Set labels property
-                                labelsModel1.setLabelsID("2");
-                                labelsModel1.setLabel("Olive");
-                                labelsModel1.setSelected(true);
-                                dataLIst.add(labelsModel1);
-
-                                LabelsModel labelsMode2 = new LabelsModel();
-                                //Set labels property
-                                labelsMode2.setLabelsID("3");
-                                labelsMode2.setLabel("Fybro");
-                                labelsMode2.setSelected(false);
-                                dataLIst.add(labelsMode2);
-
-                                LabelsModel labelsMode4 = new LabelsModel();
-                                //Set labels property
-                                labelsMode4.setLabelsID("4");
-                                labelsMode4.setLabel("Vision");
-                                labelsMode4.setSelected(false);
-                                dataLIst.add(labelsMode4);
-
-                                LabelsModel labelsModel5 = new LabelsModel();
-                                //Set labels property
-                                labelsModel5.setLabelsID("5");
-                                labelsModel5.setLabel("IamHulk");
-                                labelsModel5.setSelected(true);
-                                dataLIst.add(labelsModel5);
-
-                                LabelsModel labelsMode6 = new LabelsModel();
-                                //Set labels property
-                                labelsMode6.setLabelsID("6");
-                                labelsMode6.setLabel("Strange");
-                                labelsMode6.setSelected(true);
-                                dataLIst.add(labelsMode6);
-
-                                loadListener.onSuccess(dataLIst);
+                            } catch (JSONException e) {
+                                e.printStackTrace();
+                                FirebaseCrash.report(e);
+                                loadListener.onFailure(context.getString(R.string.error_msg_internal));
                             }
-                        } catch (JSONException e) {
+                        }
+
+                        @Override
+                        public void onError(Throwable e) {
                             e.printStackTrace();
                             FirebaseCrash.report(e);
-                            loadListener.onFailure(context.getString(R.string.error_msg_internal));
+                            //Set failure listener
+                            loadListener.onFailure(context.getString(R.string.error_msg_server));
                         }
-                    }
 
-                    @Override
-                    public void onError(Throwable e) {
-                        e.printStackTrace();
-                        FirebaseCrash.report(e);
-                        //Set failure listener
-                        loadListener.onFailure(context.getString(R.string.error_msg_server));
-                    }
+                        @Override
+                        public void onComplete() {
+                            //Set to false
+                            GET_RESPONSE_FROM_NETWORK_HASHTAG_SUGGETION = false;
+                        }
+                    })
+            );
+        } else {
+            //Set listener
+            loadListener.onFailure(context.getString(R.string.error_msg_no_connection));
+        }
 
-                    @Override
-                    public void onComplete() {
-                        //Set to false
-                        GET_RESPONSE_FROM_NETWORK_HASHTAG_SUGGETION = false;
-                    }
-                })
-        );
     }
 
 
@@ -187,6 +152,7 @@ public class HashTagNetworkManager {
         queryParams.put("type", contentType);
 
         Rx2ANRequest.GetRequestBuilder requestBuilder = Rx2AndroidNetworking.get(serverURL)
+                .addQueryParameter(queryParams)
                 .addHeaders(headers);
 
         if (CreadApp.GET_RESPONSE_FROM_NETWORK_HASHTAG_SUGGETION) {

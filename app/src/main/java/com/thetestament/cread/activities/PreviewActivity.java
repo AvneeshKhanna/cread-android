@@ -27,6 +27,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.afollestad.materialdialogs.DialogAction;
@@ -202,6 +203,8 @@ public class PreviewActivity extends BaseActivity implements QueryTokenReceiver,
     FrameLayout containerLongFormSound;
     @BindView(R.id.recyclerViewLabels)
     RecyclerView recyclerViewLabels;
+    @BindView(R.id.containerLabelHint)
+    LinearLayout containerLabelHint;
     //endregion
 
     //region :Fields and constants
@@ -278,6 +281,7 @@ public class PreviewActivity extends BaseActivity implements QueryTokenReceiver,
      * List to store selected labels.
      */
     List<String> mLabelList = new ArrayList<>();
+
 
     //endregion
 
@@ -592,6 +596,20 @@ public class PreviewActivity extends BaseActivity implements QueryTokenReceiver,
                 , mImageUrl
                 , mWaterMarkText);
     }
+
+    /**
+     * Click functionality to show info dialog for label.
+     */
+    @OnClick(R.id.imgLabelHelp)
+    void labelHelpOnClick() {
+        //fixme
+        //Show dialog
+        CustomDialog.getGenericDialog(mContext
+                , getString(R.string.text_ok)
+                , "Title text"
+                , "Dialog  content text goes here"
+                , R.drawable.img_long_writing_intro_dialog);
+    }
     //endregion
 
     //region :Private methods
@@ -632,7 +650,7 @@ public class PreviewActivity extends BaseActivity implements QueryTokenReceiver,
             //Apply aspect ration to imageView
             applyAspectRatio(IMAGE_TYPE_USER_CAPTURE_PIC);
             //Load labels data
-            loadLabelsData(null, Constant.LABEL_TYPE_GRAPHICS);
+            loadLabelsData(null, Constant.LABEL_TYPE_GRAPHIC);
             //Load capture pic
             loadPreviewImage(getImageUri(IMAGE_TYPE_USER_CAPTURE_PIC), imagePreview);
             //initialize filter screen
@@ -648,7 +666,7 @@ public class PreviewActivity extends BaseActivity implements QueryTokenReceiver,
                     , mBundle.getInt(EXTRA_IMAGE_HEIGHT)
                     , imagePreview);
             //Load label data
-            loadLabelsData(mBundle.getString(PREVIEW_EXTRA_ENTITY_ID), Constant.LABEL_TYPE_GRAPHICS);
+            loadLabelsData(mBundle.getString(PREVIEW_EXTRA_ENTITY_ID), Constant.LABEL_TYPE_GRAPHIC);
             //Load capture pic
             loadPreviewImage(Uri.parse(mBundle.getString(PREVIEW_EXTRA_CONTENT_IMAGE)), imagePreview);
             //Setup bottom sheets
@@ -940,6 +958,7 @@ public class PreviewActivity extends BaseActivity implements QueryTokenReceiver,
                 .addMultipartParameter("textshadow", isShadowSelected)
                 .addMultipartParameter("text_long", longText)
                 .addMultipartParameter("bg_sound", mBgSound)
+                .addMultipartParameter("interests", new JSONArray(mLabelList).toString())
                 .build()
                 .getJSONObjectObservable()
                 .subscribeOn(Schedulers.io())
@@ -1062,6 +1081,7 @@ public class PreviewActivity extends BaseActivity implements QueryTokenReceiver,
                 .addMultipartParameter("textshadow", isShadowSelected)
                 .addMultipartParameter("text_long", longText)
                 .addMultipartParameter("bg_sound", mBgSound)
+                .addMultipartParameter("interests", new JSONArray(mLabelList).toString())
                 .build()
                 .getJSONObjectObservable()
                 .subscribeOn(Schedulers.io())
@@ -1185,6 +1205,7 @@ public class PreviewActivity extends BaseActivity implements QueryTokenReceiver,
                 .addMultipartParameter("textshadow", isShadowSelected)
                 .addMultipartParameter("text_long", longText)
                 .addMultipartParameter("bg_sound", mBgSound)
+                .addMultipartParameter("interests", new JSONArray(mLabelList).toString())
                 .build()
                 .getJSONObjectObservable()
                 .subscribeOn(Schedulers.io())
@@ -1302,6 +1323,7 @@ public class PreviewActivity extends BaseActivity implements QueryTokenReceiver,
                 .addMultipartParameter("filtername", mFilterName)
                 .addMultipartParameter("img_width", String.valueOf(imageWidth))
                 .addMultipartParameter("img_height", String.valueOf(imageHeight))
+                .addMultipartParameter("interests", new JSONArray(mLabelList).toString())
                 .setOkHttpClient(okHttpClient)
                 .build()
                 .getAsJSONObject(new JSONObjectRequestListener() {
@@ -1380,6 +1402,7 @@ public class PreviewActivity extends BaseActivity implements QueryTokenReceiver,
                 .addBodyParameter("authkey", authToken)
                 .addBodyParameter("caption", captionText)
                 .addBodyParameter("entityid", entityID)
+                .addBodyParameter("interests", new JSONArray(mLabelList).toString())
                 .setOkHttpClient(okHttpClient)
                 .build()
                 .getAsJSONObject(new JSONObjectRequestListener() {
@@ -1996,6 +2019,8 @@ public class PreviewActivity extends BaseActivity implements QueryTokenReceiver,
                         //Show error text
                         ViewHelper.getShortToast(mContext
                                 , errorMsg);
+                        //Hide label hint container
+                        containerLabelHint.setVisibility(View.GONE);
                     }
                 });
     }

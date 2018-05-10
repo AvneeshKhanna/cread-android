@@ -362,5 +362,5 @@ public class Constant {
 
     //region Content type for labels
     public static final String LABEL_TYPE_WRITING = "WRITING";
-    public static final String LABEL_TYPE_GRAPHICS = "GRAPHICS";
+    public static final String LABEL_TYPE_GRAPHIC = "GRAPHIC";
 }
