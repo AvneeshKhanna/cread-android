@@ -282,6 +282,12 @@ public class PreviewActivity extends BaseActivity implements QueryTokenReceiver,
      */
     List<String> mLabelList = new ArrayList<>();
 
+    /**
+     * Flag to maintain maximum allowed label selection.
+     */
+    @State
+    int mMaxLabelSelection;
+
 
     //endregion
 
@@ -1987,8 +1993,9 @@ public class PreviewActivity extends BaseActivity implements QueryTokenReceiver,
                 , contentType
                 , new HashTagNetworkManager.OnHashTagSuggestionLoadListener() {
                     @Override
-                    public void onSuccess(final List<LabelsModel> dataList) {
-
+                    public void onSuccess(final List<LabelsModel> dataList, final int maxSelection) {
+                        //update flags
+                        mMaxLabelSelection = maxSelection;
                         //Add selected labels in list
                         for (int i = 0; i < dataList.size(); i++) {
                             if (dataList.get(i).isSelected()) {
@@ -2011,8 +2018,8 @@ public class PreviewActivity extends BaseActivity implements QueryTokenReceiver,
                             public void onLabelSelected(LabelsModel model, int itemPosition) {
                                 //If its selected
                                 if (model.isSelected()) {
-                                    //If selected labels are less than five
-                                    if (mLabelList.size() < 4) {
+                                    //If selected labels are less than maxSelection
+                                    if (mMaxLabelSelection > mLabelList.size()) {
                                         //Add item to list
                                         mLabelList.add(model.getLabelsID());
                                     } else {
@@ -2020,7 +2027,7 @@ public class PreviewActivity extends BaseActivity implements QueryTokenReceiver,
                                         dataList.get(itemPosition).setSelected(!model.isSelected());
                                         labelsAdapter.updateItemSelection(itemPosition);
                                         //Show toast
-                                        ViewHelper.getShortToast(mContext, "You can only select five labels");
+                                        ViewHelper.getShortToast(mContext, "You can only select " + mMaxLabelSelection + " labels");
                                     }
                                 } else {
                                     //Remove item from list

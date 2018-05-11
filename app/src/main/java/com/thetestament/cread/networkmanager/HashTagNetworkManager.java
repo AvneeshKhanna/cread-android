@@ -42,9 +42,10 @@ public class HashTagNetworkManager {
     public interface OnHashTagSuggestionLoadListener {
 
         /**
-         * @param dataList Hash tag suggestion data list
+         * @param dataList     Hash tag suggestion data list
+         * @param maxSelection Maximum no. of labels can be selected.
          */
-        void onSuccess(List<LabelsModel> dataList);
+        void onSuccess(List<LabelsModel> dataList, int maxSelection);
 
         /**
          * @param errorMsg Error message to be displayed.
@@ -89,6 +90,8 @@ public class HashTagNetworkManager {
                                     loadListener.onFailure(context.getString(R.string.error_msg_invalid_token));
                                 } else {
                                     JSONObject mainData = jsonObject.getJSONObject("data");
+                                    //retrieve max selection data
+                                    int maxSelection = mainData.getInt("max_selection");
                                     //Suggested artists list
                                     JSONArray jsonArray = mainData.getJSONArray("interests");
                                     for (int i = 0; i < jsonArray.length(); i++) {
@@ -100,7 +103,7 @@ public class HashTagNetworkManager {
                                         labelsModel.setSelected(dataObj.getBoolean("selected"));
                                         dataLIst.add(labelsModel);
                                     }
-                                    loadListener.onSuccess(dataLIst);
+                                    loadListener.onSuccess(dataLIst, maxSelection);
                                 }
                             } catch (JSONException e) {
                                 e.printStackTrace();

@@ -321,7 +321,7 @@ public class ExploreFragment extends Fragment implements listener.OnCollaboratio
     }
     //endregion
 
-    //region Private method
+    //region :Private method
 
     /**
      * Method to initialize swipe refresh layout.
