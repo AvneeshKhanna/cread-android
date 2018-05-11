@@ -849,7 +849,6 @@ public class FeedDescriptionActivity extends BaseActivity implements listener.On
                         else if (connectionError[0]) {
                             ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_internal));
                         } else if (mPostsList.size() == 0) {
-                            //fixme
 
                         } else {
                             // Token status invalid
@@ -944,7 +943,6 @@ public class FeedDescriptionActivity extends BaseActivity implements listener.On
                             ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_internal));
                         } else if (mPostsList.size() == 0) {
                             //Show no data view
-                            //Fixme
                         } else {
                             //Notify changes
                             mAdapter.setLoaded();

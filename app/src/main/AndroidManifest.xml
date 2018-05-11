@@ -500,11 +500,13 @@
             android:theme="@style/AppTheme" />
         <activity
             android:name=".activities.UserInterestIntroductionActivity"
-            android:screenOrientation="portrait" />
+            android:screenOrientation="portrait"
+            android:label="Welcome"
+            android:theme="@style/NoActionBarTheme" />
         <activity
             android:name=".activities.UserInterestsActivity"
             android:screenOrientation="portrait"
-            android:label="What do you love?"></activity>
+            android:label="What do you love?" />
     </application>
 
 </manifest>

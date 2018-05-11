@@ -458,10 +458,14 @@ public class NetworkHelper {
 
         try {
 
+            JSONArray interestArray = new JSONArray();
+            interestArray.put(interestId);
+
+
             jsonObject.put("uuid", uuid);
             jsonObject.put("authkey", authkey);
             jsonObject.put("register", register);
-            jsonObject.put("interestid", interestId);
+            jsonObject.put("interests", interestArray);
 
         } catch (JSONException e) {
             e.printStackTrace();
@@ -469,7 +473,7 @@ public class NetworkHelper {
         }
 
         return Rx2AndroidNetworking
-                .post(BuildConfig.URL + "/user-interest/on-click")
+                .post(BuildConfig.URL + "/user-interests/update")
                 .addJSONObjectBody(jsonObject)
                 .build()
                 .getJSONObjectObservable();

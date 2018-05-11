@@ -125,11 +125,14 @@ import static com.thetestament.cread.utils.Constant.EXTRA_DATA;
 import static com.thetestament.cread.utils.Constant.EXTRA_FOLLOW_REQUESTED_UUID;
 import static com.thetestament.cread.utils.Constant.EXTRA_FOLLOW_TYPE;
 import static com.thetestament.cread.utils.Constant.EXTRA_IS_PROFILE_EDITABLE;
+import static com.thetestament.cread.utils.Constant.EXTRA_PROFILE_PIC_URL;
+import static com.thetestament.cread.utils.Constant.EXTRA_TOP_USER_INTERESTS;
 import static com.thetestament.cread.utils.Constant.EXTRA_USER_BIO;
 import static com.thetestament.cread.utils.Constant.EXTRA_USER_CONTACT;
 import static com.thetestament.cread.utils.Constant.EXTRA_USER_EMAIL;
 import static com.thetestament.cread.utils.Constant.EXTRA_USER_FIRST_NAME;
 import static com.thetestament.cread.utils.Constant.EXTRA_USER_IMAGE_PATH;
+import static com.thetestament.cread.utils.Constant.EXTRA_USER_INTERESTS_COUNT;
 import static com.thetestament.cread.utils.Constant.EXTRA_USER_LAST_NAME;
 import static com.thetestament.cread.utils.Constant.EXTRA_USER_WATER_MARK_STATUS;
 import static com.thetestament.cread.utils.Constant.FIREBASE_EVENT_FOLLOW_FROM_PROFILE;
@@ -202,6 +205,8 @@ public class MeFragment extends Fragment implements listener.OnCollaborationList
     boolean mFollowStatus, isProfileEditable, mIsFeatured, mCanDownvote;
     @State
     String mRequestedUUID;
+    @State
+    long mInterestCount = 0;
 
     @State
     String mEntityID, mEntityType;
@@ -221,6 +226,7 @@ public class MeFragment extends Fragment implements listener.OnCollaborationList
     private boolean mRequestMoreData;
     private int[] mLayouts;
     private int spanCount = 2;
+    private ArrayList<String> mSelectedInterest = new ArrayList<>();
 
 
     @Nullable
@@ -477,6 +483,9 @@ public class MeFragment extends Fragment implements listener.OnCollaborationList
             intent.putExtra(EXTRA_USER_BIO, mUserBio);
             intent.putExtra(EXTRA_USER_CONTACT, mContactNumber);
             intent.putExtra(EXTRA_USER_WATER_MARK_STATUS, mWaterMarkStatus);
+            intent.putExtra(EXTRA_TOP_USER_INTERESTS, mSelectedInterest);
+            intent.putExtra(EXTRA_USER_INTERESTS_COUNT, mInterestCount);
+            intent.putExtra(EXTRA_PROFILE_PIC_URL, mProfilePicURL);
             startActivityForResult(intent, REQUEST_CODE_UPDATE_PROFILE_DETAILS);
         }
     }
@@ -913,6 +922,12 @@ public class MeFragment extends Fragment implements listener.OnCollaborationList
                                 mContactNumber = mainData.getString("phone");
                                 mWaterMarkStatus = mainData.getString("watermarkstatus");
                                 mIsFeatured = mainData.getBoolean("featured");
+                                mInterestCount = mainData.getLong("interestcount");
+
+                                JSONArray interestArray = mainData.getJSONArray("topinterests");
+                                for (int i = 0; i < interestArray.length(); i++) {
+                                    mSelectedInterest.add(interestArray.getString(i));
+                                }
                             }
                         } catch (JSONException e) {
                             e.printStackTrace();

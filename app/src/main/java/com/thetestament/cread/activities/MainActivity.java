@@ -68,11 +68,14 @@ import butterknife.OnClick;
 import icepick.Icepick;
 import icepick.State;
 
+import static com.thetestament.cread.utils.Constant.EXTRA_PROFILE_PIC_URL;
+import static com.thetestament.cread.utils.Constant.EXTRA_USER_INTERESTS_CALLED_FROM;
 import static com.thetestament.cread.utils.Constant.EXTRA_WEB_VIEW_TITLE;
 import static com.thetestament.cread.utils.Constant.EXTRA_WEB_VIEW_URL;
 import static com.thetestament.cread.utils.Constant.LOGIN_TYPE_FACEBOOK;
 import static com.thetestament.cread.utils.Constant.LOGIN_TYPE_GOOGLE;
 import static com.thetestament.cread.utils.Constant.REQUEST_CODE_GOOGLE_SIGN_IN;
+import static com.thetestament.cread.utils.Constant.USER_INTERESTS_CALLED_FROM_LOGIN;
 
 public class MainActivity extends BaseActivity {
 
@@ -207,12 +210,10 @@ public class MainActivity extends BaseActivity {
 
             if (loginResult.getError() != null) {
                 ViewHelper.getSnackBar(parentLayout, loginResult.getError().getUserFacingMessage());
-                //fixme
                 mGoogleSignInClient.signOut();
                 AccessToken.setCurrentAccessToken(null);
 
             } else if (loginResult.wasCancelled()) {
-                // fixme
                 mGoogleSignInClient.signOut();
                 AccessToken.setCurrentAccessToken(null);
                 ViewHelper.getSnackBar(parentLayout, "Login cancelled");
@@ -409,7 +410,7 @@ public class MainActivity extends BaseActivity {
 
 
                                     // open the main screen
-                                    Intent startIntent = new Intent(MainActivity.this, UserInterestIntroductionActivity.class);
+                                    Intent startIntent = new Intent(MainActivity.this, BottomNavigationActivity.class);
                                     startActivity(startIntent);
 
                                     finish();
@@ -431,7 +432,6 @@ public class MainActivity extends BaseActivity {
                         @Override
                         public void onError(ANError anError) {
                             statusDialog.dismiss();
-                            // fixme
                             AccessToken.setCurrentAccessToken(null);
                             mGoogleSignInClient.signOut();
                             ViewHelper.getSnackBar(parentLayout, getString(R.string.error_msg_server));
@@ -585,19 +585,33 @@ public class MainActivity extends BaseActivity {
                                 spHelper.setAuthToken(dataObject.getString("authkey"));
                                 spHelper.setUUID(dataObject.getString("uuid"));
 
+                                String profilePicUrl = null;
+
                                 if (mLoginType.equals(LOGIN_TYPE_FACEBOOK)) {
                                     // getting first name and last name from graph object
                                     spHelper.setFirstName(graphObject.getString("first_name"));
                                     spHelper.setLastName(graphObject.getString("last_name"));
+
+                                    // if not null set profile pic url
+                                    if (graphObject.getString("picture") != null) {   // get profile pic url
+                                        profilePicUrl = graphObject.getString("picture");
+                                    }
                                 } else if (mLoginType.equals(LOGIN_TYPE_GOOGLE)) {
                                     spHelper.setFirstName(mGoogleSignInAccount.getGivenName());
                                     spHelper.setLastName(mGoogleSignInAccount.getFamilyName());
+
+                                    if (mGoogleSignInAccount.getPhotoUrl().toString() != null) {
+                                        profilePicUrl = mGoogleSignInAccount.getPhotoUrl().toString();
+                                    }
                                 }
 
                                 CreadApp.initSocketIo(MainActivity.this);
 
-                                // open the main screen
-                                Intent startIntent = new Intent(MainActivity.this, BottomNavigationActivity.class);
+
+                                // open the user intro screen
+                                Intent startIntent = new Intent(MainActivity.this, UserInterestIntroductionActivity.class);
+                                startIntent.putExtra(EXTRA_USER_INTERESTS_CALLED_FROM, USER_INTERESTS_CALLED_FROM_LOGIN);
+                                startIntent.putExtra(EXTRA_PROFILE_PIC_URL, profilePicUrl);
                                 startActivity(startIntent);
 
                                 finish();
@@ -605,7 +619,6 @@ public class MainActivity extends BaseActivity {
 
                             //phone number already exists
                             else if (dataObject.getString("status").equals("phone-exists")) {
-                                // fixme
                                 mGoogleSignInClient.signOut();
                                 AccessToken.setCurrentAccessToken(null);
                                 ViewHelper.getSnackBar(parentLayout, "This number is already registered with us");
@@ -614,7 +627,6 @@ public class MainActivity extends BaseActivity {
 
                         } catch (JSONException e) {
                             //Invalidate token
-                            // fixme
                             mGoogleSignInClient.signOut();
                             AccessToken.setCurrentAccessToken(null);
                             e.printStackTrace();
@@ -626,7 +638,6 @@ public class MainActivity extends BaseActivity {
                     @Override
                     public void onError(ANError anError) {
                         verifyDialog.dismiss();
-                        // fixme
                         mGoogleSignInClient.signOut();
                         AccessToken.setCurrentAccessToken(null);
                         ViewHelper.getSnackBar(parentLayout, getString(R.string.error_msg_server));
@@ -653,7 +664,6 @@ public class MainActivity extends BaseActivity {
             public void onError(AccountKitError accountKitError) {
 
                 verifyDialog.dismiss();
-                // fixme
                 mGoogleSignInClient.signOut();
                 AccessToken.setCurrentAccessToken(null);
                 ViewHelper.getSnackBar(parentLayout, accountKitError.getUserFacingMessage());

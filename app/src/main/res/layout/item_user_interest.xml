@@ -21,13 +21,14 @@
             android:tint="#4D000000" />
 
 
-        <android.support.v7.widget.AppCompatCheckBox
-            android:id="@+id/checkboxInterest"
+        <android.support.v7.widget.AppCompatImageView
+            android:id="@+id/imageChecked"
+            android:padding="5dp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentLeft="true"
             android:layout_alignParentTop="true"
-            app:buttonTint="@color/color_white" />
+            app:srcCompat="@drawable/ic_checked" />
 
 
         <FrameLayout

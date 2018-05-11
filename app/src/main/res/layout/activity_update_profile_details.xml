@@ -148,6 +148,51 @@
 
             </RelativeLayout>
 
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="10dp"
+                android:layout_marginTop="15dp">
+
+                <LinearLayout
+                    android:layout_alignParentLeft="true"
+                    android:layout_toLeftOf="@+id/buttonAddInterests"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:id="@+id/titleUserInterests"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:paddingRight="5dp"
+                        android:text="Interests"
+                        android:textSize="16sp" />
+
+                    <TextView
+                        android:id="@+id/textUserInterests"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="5dp"
+                        android:text="Doodling, Street Photography and 7 more" />
+
+                </LinearLayout>
+
+
+                <TextView
+                    android:id="@+id/buttonAddInterests"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Edit"
+                    android:padding="10dp"
+                    android:layout_alignParentRight="true"
+                    android:layout_centerVertical="true"
+                    android:textSize="16sp"
+                    android:textColor="@color/colorPrimary" />
+
+            </RelativeLayout>
+
+
             <Button
                 android:id="@+id/buttonSave"
                 android:layout_width="140dp"

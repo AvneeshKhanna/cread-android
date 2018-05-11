@@ -2,7 +2,7 @@ package com.thetestament.cread.adapters;
 
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.content.ContextCompat;
-import android.support.v7.widget.AppCompatCheckBox;
+import android.support.v7.widget.AppCompatImageView;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -73,12 +73,12 @@ public class UserInterestsAdapter extends RecyclerView.Adapter {
     }
 
     @Override
-    public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
+    public void onBindViewHolder(RecyclerView.ViewHolder holder, final int position) {
 
-        UserInterestsModel data = mInterestsList.get(position);
+        final UserInterestsModel data = mInterestsList.get(position);
 
         if (holder.getItemViewType() == VIEW_TYPE_ITEM) {
-            ItemViewHolder itemViewHolder = (ItemViewHolder) holder;
+            final ItemViewHolder itemViewHolder = (ItemViewHolder) holder;
             //set interest name
             itemViewHolder.textInterestName.setText(data.getInterestName());
             // set shadow
@@ -120,28 +120,36 @@ public class UserInterestsAdapter extends RecyclerView.Adapter {
             @Override
             public void onClick(View view) {
 
-                // check net status
-                if (NetworkHelper.getNetConnectionStatus(mContext)) {
-                    data.setUserInterested(!data.isUserInterested());
-
-                    itemViewHolder.checkBoxInterest.setChecked(data.isUserInterested());
-
-                    // invoke callback
-                    mInterestClickedListener.onInterestClicked(data, position);
-                } else {
-                    ViewHelper.getToast(mContext, mContext.getString(R.string.error_msg_no_connection));
-                }
+                performClickAction(itemViewHolder, data, position);
 
 
             }
         });
     }
 
-    /*
+    private void performClickAction(final ItemViewHolder itemViewHolder, UserInterestsModel data, int position) {
+        // check net status
+        if (NetworkHelper.getNetConnectionStatus(mContext)) {
+            data.setUserInterested(!data.isUserInterested());
 
+            checkUserInterestStatus(data, itemViewHolder);
+
+            // invoke callback
+            mInterestClickedListener.onInterestClicked(data, position);
+        } else {
+            ViewHelper.getToast(mContext, mContext.getString(R.string.error_msg_no_connection));
+        }
+    }
+
+    /*
+        Updates checkbox checked status
      */
     private void checkUserInterestStatus(UserInterestsModel data, ItemViewHolder itemViewHolder) {
-        itemViewHolder.checkBoxInterest.setChecked(data.isUserInterested());
+        if (data.isUserInterested()) {
+            itemViewHolder.imageChecked.setVisibility(View.VISIBLE);
+        } else {
+            itemViewHolder.imageChecked.setVisibility(View.GONE);
+        }
     }
 
 
@@ -178,8 +186,8 @@ public class UserInterestsAdapter extends RecyclerView.Adapter {
         FrameLayout containerUserInterestText;
         @BindView(R.id.imageContainer)
         SquareView imageContainer;
-        @BindView(R.id.checkboxInterest)
-        AppCompatCheckBox checkBoxInterest;
+        @BindView(R.id.imageChecked)
+        AppCompatImageView imageChecked;
 
 
         public ItemViewHolder(View itemView) {

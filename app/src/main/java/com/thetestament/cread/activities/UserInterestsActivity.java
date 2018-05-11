@@ -39,6 +39,8 @@ import io.reactivex.disposables.CompositeDisposable;
 
 import static com.thetestament.cread.helpers.NetworkHelper.getUserInterestsDataFromServer;
 import static com.thetestament.cread.helpers.NetworkHelper.requestServer;
+import static com.thetestament.cread.utils.Constant.EXTRA_USER_INTERESTS_DATA;
+import static com.thetestament.cread.utils.Constant.USER_INTERESTS_CALLED_FROM_PROFILE;
 
 public class UserInterestsActivity extends BaseActivity {
 
@@ -59,6 +61,8 @@ public class UserInterestsActivity extends BaseActivity {
     String mLastIndexKey = null;
     @State
     boolean mRequestMoreData;
+    @State
+    String mCalledFrom;
 
 
     @Override
@@ -88,16 +92,28 @@ public class UserInterestsActivity extends BaseActivity {
 
             case R.id.menu_action_user_interests_done:
 
-                if (getIntent().getStringExtra(Constant.EXTRA_USER_INTERESTS_CALLED_FROM).equals(Constant.USER_INTERESTS_CALLED_FROM_LOGIN)) {
-                    Intent intent = new Intent(mContext, BottomNavigationActivity.class);
-                    startActivity(intent);
-                    finish();
+                ArrayList<String> selectedInterests = getSelectedInterests();
 
-                    // TODO open recommendations screen
+                // if selected interests count is less than 3
+                if (selectedInterests.size() < 3) {
+                    // show message
+                    ViewHelper.getToast(mContext, "Please choose atleast 3. Interests help us in showing you suitable posts");
                 } else {
-                    // TODO
-                }
+                    // when called from login system
+                    if (mCalledFrom.equals(Constant.USER_INTERESTS_CALLED_FROM_LOGIN)) {
+                        Intent intent = new Intent(mContext, BottomNavigationActivity.class);
+                        startActivity(intent);
+                        finish();
+                    }   // when called from profile
+                    else {
 
+                        Intent intent = new Intent();
+                        intent.putStringArrayListExtra(EXTRA_USER_INTERESTS_DATA
+                                , selectedInterests);
+                        setResult(RESULT_OK, intent);
+                        finish();
+                    }
+                }
                 return true;
 
             default:
@@ -123,6 +139,14 @@ public class UserInterestsActivity extends BaseActivity {
         Icepick.restoreInstanceState(this, savedInstanceState);
     }
 
+    @Override
+    public void onBackPressed() {
+
+        if (mCalledFrom.equals(USER_INTERESTS_CALLED_FROM_PROFILE)) {
+            setResultData(getSelectedInterests());
+        }
+    }
+
     /**
      * Initializes the screen
      */
@@ -134,6 +158,8 @@ public class UserInterestsActivity extends BaseActivity {
         swipeRefreshLayout.setRefreshing(true);
         swipeRefreshLayout.setColorSchemeColors(ContextCompat.getColor(this, R.color.colorPrimary));
 
+        // set called from
+        mCalledFrom = getIntent().getStringExtra(Constant.EXTRA_USER_INTERESTS_CALLED_FROM);
 
         // init adapter
         mAdapter = new UserInterestsAdapter(mContext, mInterestsList);
@@ -184,6 +210,7 @@ public class UserInterestsActivity extends BaseActivity {
         mAdapter.setUserInterestClickedListener(new listener.OnInterestClickedListener() {
             @Override
             public void onInterestClicked(final UserInterestsModel data, final int position) {
+
 
                 UserInterestsHelper userInterestsHelper = new UserInterestsHelper();
                 userInterestsHelper.updateUserInterests(mContext
@@ -383,7 +410,7 @@ public class UserInterestsActivity extends BaseActivity {
         JSONObject mainData = jsonObject.getJSONObject("data");
         mRequestMoreData = mainData.getBoolean("requestmore");
         mLastIndexKey = mainData.getString("lastindexkey");
-        //ExploreArray list
+        //InterestsArray list
         JSONArray interestArray = mainData.getJSONArray("interests");
         for (int i = 0; i < interestArray.length(); i++) {
             JSONObject dataObj = interestArray.getJSONObject(i);
@@ -393,6 +420,7 @@ public class UserInterestsActivity extends BaseActivity {
             interestsData.setInterestId(dataObj.getString("intid"));
             interestsData.setInterestName(dataObj.getString("intname"));
             interestsData.setInterestImageURL(dataObj.getString("intimgurl"));
+            interestsData.setUserInterested(dataObj.getBoolean("selected"));
 
             mInterestsList.add(interestsData);
 
@@ -401,5 +429,36 @@ public class UserInterestsActivity extends BaseActivity {
                 mAdapter.notifyItemInserted(mInterestsList.size() - 1);
             }
         }
+    }
+
+    /**
+     * Sets result with interest data
+     *
+     * @param selectedInterests
+     */
+    private void setResultData(ArrayList<String> selectedInterests) {
+        Intent intent = new Intent();
+        intent.putStringArrayListExtra(EXTRA_USER_INTERESTS_DATA
+                , selectedInterests);
+        setResult(RESULT_OK, intent);
+        finish();
+    }
+
+    /**
+     * Gets all the interests which have been selected by the user
+     *
+     * @return
+     */
+    private ArrayList<String> getSelectedInterests() {
+        ArrayList<String> selectedInterests = new ArrayList<>();
+
+        // add all those interests which user has selected to selectedInterests
+        for (int i = 0; i < mInterestsList.size(); i++) {   // if user interested
+            if (mInterestsList.get(i).isUserInterested()) {   // add interest name
+                selectedInterests.add(mInterestsList.get(i).getInterestName());
+            }
+        }
+
+        return selectedInterests;
     }
 }
