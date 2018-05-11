@@ -38,6 +38,7 @@ import com.thetestament.cread.activities.ProfileActivity;
 import com.thetestament.cread.activities.SearchActivity;
 import com.thetestament.cread.adapters.ExploreAdapter;
 import com.thetestament.cread.adapters.FeaturedArtistsAdapter;
+import com.thetestament.cread.dialog.CustomDialog;
 import com.thetestament.cread.helpers.FeedHelper;
 import com.thetestament.cread.helpers.FollowHelper;
 import com.thetestament.cread.helpers.ImageHelper;
@@ -326,7 +327,6 @@ public class ExploreFragment extends Fragment implements listener.OnCollaboratio
      * Method to initialize swipe refresh layout.
      */
     private void initScreen() {
-
         //initializes grid view or list view from preferences
         initItemTypePreference();
         //init feat artists recycler view
@@ -365,6 +365,9 @@ public class ExploreFragment extends Fragment implements listener.OnCollaboratio
         loadExploreData();
     }
 
+    /**
+     * Method to initialize view type.
+     */
     private void initItemTypePreference() {
         defaultItemType = mHelper.getFeedItemType();
 
@@ -375,7 +378,6 @@ public class ExploreFragment extends Fragment implements listener.OnCollaboratio
         } else if (mHelper.getFeedItemType() == LIST) {
             recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
         }
-
         //Set adapter
         mAdapter = new ExploreAdapter(mExploreDataList, getActivity(), mHelper.getUUID(), ExploreFragment.this, defaultItemType, mCompositeDisposable);
         recyclerView.setAdapter(mAdapter);
@@ -385,20 +387,15 @@ public class ExploreFragment extends Fragment implements listener.OnCollaboratio
      * Method to initialize tab layout.
      */
     private void initTabLayout() {
-
         //initialize tabs icon tint
         if (defaultItemType == GRID) {
             tabLayout.getTabAt(0).select();
-
             tabLayout.getTabAt(0).getIcon().setColorFilter(ContextCompat.getColor(getActivity(), R.color.colorPrimary), PorterDuff.Mode.SRC_IN);
             tabLayout.getTabAt(1).getIcon().setColorFilter(ContextCompat.getColor(getActivity(), R.color.grey_custom), PorterDuff.Mode.SRC_IN);
-
         } else if (defaultItemType == LIST) {
             tabLayout.getTabAt(1).select();
-
             tabLayout.getTabAt(1).getIcon().setColorFilter(ContextCompat.getColor(getActivity(), R.color.colorPrimary), PorterDuff.Mode.SRC_IN);
             tabLayout.getTabAt(0).getIcon().setColorFilter(ContextCompat.getColor(getActivity(), R.color.grey_custom), PorterDuff.Mode.SRC_IN);
-
         }
 
         tabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
@@ -409,8 +406,6 @@ public class ExploreFragment extends Fragment implements listener.OnCollaboratio
                 tab.getIcon().setColorFilter(ContextCompat.getColor(getActivity(), R.color.colorPrimary), PorterDuff.Mode.SRC_IN);
 
                 switch (tab.getPosition()) {
-
-
                     case 0:
                         // setting pref
                         mHelper.setFeedItemType(GRID);
@@ -438,7 +433,6 @@ public class ExploreFragment extends Fragment implements listener.OnCollaboratio
 
             @Override
             public void onTabUnselected(TabLayout.Tab tab) {
-
                 //To change tab icon color from white color to grey
                 tab.getIcon().setColorFilter(ContextCompat.getColor(getActivity(), R.color.grey_custom), PorterDuff.Mode.SRC_IN);
             }
@@ -449,45 +443,32 @@ public class ExploreFragment extends Fragment implements listener.OnCollaboratio
         });
     }
 
+    /**
+     * Method to initialize listeners.
+     */
     private void initListeners() {
         initLoadMoreListener();
         initCaptureListener();
         initFollowListener();
     }
 
+    /**
+     * Method to initialize featured artist item click listener.
+     */
     private void initFeatArtistClickListener() {
         mFeatArstistsAdapter.setFeatArtistClickListener(new listener.OnFeatArtistClickedListener() {
             @Override
             public void onFeatArtistClicked(int itemType, String uuid) {
-
+                //Item type is header
                 if (itemType == VIEW_TYPE_HEADER) {
-
-                    MaterialDialog dialog = new MaterialDialog.Builder(getActivity())
-                            .customView(R.layout.dialog_generic, false)
-                            .positiveText(getString(R.string.text_ok))
-                            .onPositive(new MaterialDialog.SingleButtonCallback() {
-                                @Override
-                                public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
-                                    dialog.dismiss();
-                                }
-                            })
-                            .show();
-                    //Obtain views reference
-                    ImageView fillerImage = dialog.getCustomView().findViewById(R.id.viewFiller);
-                    TextView textTitle = dialog.getCustomView().findViewById(R.id.textTitle);
-                    TextView textDesc = dialog.getCustomView().findViewById(R.id.textDesc);
-
-                    //Set filler image
-                    fillerImage.setImageDrawable(ContextCompat.getDrawable(getActivity(), R.drawable.img_intro_feat_artist));
-                    //Set title text
-                    textTitle.setText(R.string.text_title_dialog_featured_artist);
-                    //Set description text
-                    textDesc.setText(R.string.text_desc_dialog_featured_artist);
-
+                    CustomDialog.getGenericDialog(getActivity()
+                            , getString(R.string.text_ok)
+                            , getString(R.string.text_title_dialog_featured_artist)
+                            , getString(R.string.text_desc_dialog_featured_artist)
+                            , R.drawable.img_intro_feat_artist);
                 } else if (itemType == VIEW_TYPE_ITEM) {
-                    // load user data and display it in dialog
+                    //Load user data and display it in dialog
                     getFeatArtistDetails(uuid);
-
                 }
             }
         });
@@ -519,13 +500,14 @@ public class ExploreFragment extends Fragment implements listener.OnCollaboratio
         });
     }
 
+
+    /**
+     * Method to retrieve featureArtist detail from server.
+     */
     private void getFeatArtistDetails(final String uuid) {
         // show loading dialog
-        final MaterialDialog loadingDialog = new MaterialDialog.Builder(getActivity())
-                .title(getString(R.string.loading_title))
-                .content(getString(R.string.waiting_msg))
-                .progress(true, 0)
-                .show();
+        final MaterialDialog loadingDialog = CustomDialog.getProgressDialog(getActivity()
+                , "Loading...");
 
         final boolean[] tokenError = {false};
         final boolean[] connectionError = {false};
@@ -539,14 +521,13 @@ public class ExploreFragment extends Fragment implements listener.OnCollaboratio
                 , new listener.OnServerRequestedListener<JSONObject>() {
                     @Override
                     public void onDeviceOffline() {
-
-                        ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_no_connection));
-
+                        //Show no connection snack abr
+                        ViewHelper.getSnackBar(rootView
+                                , getString(R.string.error_msg_no_connection));
                     }
 
                     @Override
                     public void onNextCalled(JSONObject jsonObject) {
-
                         try {
                             //Token status is invalid
                             if (jsonObject.getString("tokenstatus").equals("invalid")) {
@@ -575,7 +556,6 @@ public class ExploreFragment extends Fragment implements listener.OnCollaboratio
                         FirebaseCrash.report(e);
                         //Server error Snack bar
                         ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_server));
-
                     }
 
                     @Override
@@ -592,7 +572,6 @@ public class ExploreFragment extends Fragment implements listener.OnCollaboratio
                         else if (connectionError[0]) {
                             ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_internal));
                         } else {
-
                             // show detail dialog
                             final MaterialDialog dialog = new MaterialDialog.Builder(getActivity())
                                     .customView(R.layout.dialog_featured_artist_profile, false)
@@ -619,7 +598,7 @@ public class ExploreFragment extends Fragment implements listener.OnCollaboratio
                             textFollowers.setText(followers);
                             textCollaborations.setText(collaborations);
 
-                            // set click listner
+                            // set click listener
                             LinearLayout buttonViewProfile = rootViewDialog.findViewById(R.id.buttonViewProfile);
                             buttonViewProfile.setOnClickListener(new View.OnClickListener() {
                                 @Override
@@ -635,7 +614,6 @@ public class ExploreFragment extends Fragment implements listener.OnCollaboratio
                                 }
                             });
 
-
                             //Load user profile picture
                             ImageHelper.loadImageFromPicasso(getActivity(), imageArtist, mProfilePicURL, R.drawable.ic_account_circle_100);
 
@@ -647,7 +625,6 @@ public class ExploreFragment extends Fragment implements listener.OnCollaboratio
                                 //set user name
                                 artistName.setText(mFirstName);
                             }
-
                             new Handler().post(new Runnable() {
                                                    @Override
                                                    public void run() {
@@ -664,47 +641,41 @@ public class ExploreFragment extends Fragment implements listener.OnCollaboratio
                 }
         );
 
-
     }
 
+    /**
+     * Method to retrieve featureArtist data from server.
+     */
     private void getFeaturedArtistsData() {
-
-
         final boolean[] tokenError = {false};
         final boolean[] connectionError = {false};
-
 
         requestServer(mCompositeDisposable
                 , getFeatArtistsObservable(BuildConfig.URL + "/featured-artists/load", mHelper.getUUID(), mHelper.getAuthToken(), GET_RESPONSE_FROM_NETWORK_FEATURED_ARTISTS)
                 , getActivity(), new listener.OnServerRequestedListener<JSONObject>() {
                     @Override
                     public void onDeviceOffline() {
-
-                        ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_no_connection));
+                        ViewHelper.getSnackBar(rootView
+                                , getString(R.string.error_msg_no_connection));
                     }
 
                     @Override
                     public void onNextCalled(JSONObject jsonObject) {
-
-
                         try {
                             //Token status is invalid
                             if (jsonObject.getString("tokenstatus").equals("invalid")) {
                                 tokenError[0] = true;
                             } else {
                                 JSONObject mainData = jsonObject.getJSONObject("data");
-
                                 //Featured artist list
                                 JSONArray featuredArray = mainData.getJSONArray("featuredlist");
                                 for (int i = 0; i < featuredArray.length(); i++) {
-
                                     FeaturedArtistsModel data = new FeaturedArtistsModel();
 
                                     JSONObject dataObj = featuredArray.getJSONObject(i);
                                     data.setUuid(dataObj.getString("uuid"));
                                     data.setName(dataObj.getString("name"));
                                     data.setImageUrl(dataObj.getString("profilepicurl"));
-
                                     mFeatArtistsList.add(data);
                                 }
                             }
@@ -717,17 +688,14 @@ public class ExploreFragment extends Fragment implements listener.OnCollaboratio
 
                     @Override
                     public void onErrorCalled(Throwable e) {
-
                         swipeRefreshLayout.setRefreshing(false);
                         FirebaseCrash.report(e);
                         //Server error Snack bar
                         ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_server));
-
                     }
 
                     @Override
                     public void onCompleteCalled() {
-
                         //Dismiss progress indicator
                         swipeRefreshLayout.setRefreshing(false);
                         // set to false
