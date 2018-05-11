@@ -32,11 +32,26 @@
                 android:background="@color/white"
                 android:orientation="vertical">
 
+                <android.support.v7.widget.Toolbar
+                    android:id="@+id/toolBar"
+                    app:layout_scrollFlags="scroll|enterAlways"
+                    android:layout_width="match_parent"
+                    android:layout_height="?attr/actionBarSize"
+                    android:background="@color/colorPrimary"
+                    android:contentInsetStartWithNavigation="0dp"
+                    android:elevation="4dp"
+                    android:theme="@style/ThemeOverlay.AppCompat.Dark"
+                    app:contentInsetStartWithNavigation="0dp"
+                    app:logo="@drawable/ic_stat_cread_logo"
+                    app:popupTheme="@style/Theme.AppCompat.Light"
+                    app:title="Explore"
+                    app:titleMarginStart="20dp" />
                 <!--TabLayout-->
                 <android.support.design.widget.TabLayout
                     android:id="@+id/tabLayout"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:visibility="gone"
                     app:tabIndicatorColor="@color/colorPrimary"
                     app:tabMode="fixed">
 
@@ -65,7 +80,7 @@
                     tools:listitem="@layout/item_featured_artists" />
 
                 <!--Category recyclerView-->
-                <!--<android.support.v7.widget.RecyclerView
+                <android.support.v7.widget.RecyclerView
                     android:id="@+id/recyclerViewCategory"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -74,7 +89,7 @@
                     android:visibility="visible"
                     app:layoutManager="android.support.v7.widget.LinearLayoutManager"
                     tools:itemCount="4"
-                    tools:listitem="@layout/item_labels" />-->
+                    tools:listitem="@layout/item_labels" />
             </LinearLayout>
 
         </android.support.design.widget.CollapsingToolbarLayout>
@@ -106,4 +121,17 @@
         android:text="No posts related to this #tag yet"
         android:visibility="gone" />
 
+    <!--Fab to launch chat list screen-->
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/fabToggle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="end|bottom"
+        android:layout_margin="20dp"
+        android:tint="@color/white"
+        app:borderWidth="2dp"
+        app:fabSize="mini"
+        app:rippleColor="@color/colorAccent"
+        app:srcCompat="@drawable/ic_swap_vector"
+        app:useCompatPadding="true" />
 </android.support.design.widget.CoordinatorLayout>

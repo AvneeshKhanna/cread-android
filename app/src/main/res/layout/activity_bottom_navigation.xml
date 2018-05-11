@@ -15,12 +15,12 @@
             android:layout_height="?attr/actionBarSize"
             android:background="@color/colorPrimary"
             android:contentInsetStartWithNavigation="0dp"
+            android:elevation="4dp"
             android:theme="@style/ThemeOverlay.AppCompat.Dark"
             app:contentInsetStartWithNavigation="0dp"
             app:logo="@drawable/ic_stat_cread_logo"
             app:popupTheme="@style/Theme.AppCompat.Light"
-            app:titleMarginStart="20dp"
-            android:elevation="4dp" />
+            app:titleMarginStart="20dp" />
 
         <FrameLayout
             android:id="@+id/navigationView"

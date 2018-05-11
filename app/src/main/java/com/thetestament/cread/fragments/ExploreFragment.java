@@ -8,6 +8,7 @@ import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.CoordinatorLayout;
+import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
@@ -33,10 +34,12 @@ import com.google.firebase.crash.FirebaseCrash;
 import com.thetestament.cread.BuildConfig;
 import com.thetestament.cread.Manifest;
 import com.thetestament.cread.R;
+import com.thetestament.cread.activities.BottomNavigationActivity;
 import com.thetestament.cread.activities.FindFBFriendsActivity;
 import com.thetestament.cread.activities.ProfileActivity;
 import com.thetestament.cread.activities.SearchActivity;
 import com.thetestament.cread.adapters.ExploreAdapter;
+import com.thetestament.cread.adapters.ExploreCategoryAdapter;
 import com.thetestament.cread.adapters.FeaturedArtistsAdapter;
 import com.thetestament.cread.dialog.CustomDialog;
 import com.thetestament.cread.helpers.FeedHelper;
@@ -45,6 +48,7 @@ import com.thetestament.cread.helpers.ImageHelper;
 import com.thetestament.cread.helpers.SharedPreferenceHelper;
 import com.thetestament.cread.helpers.ViewHelper;
 import com.thetestament.cread.listeners.listener;
+import com.thetestament.cread.models.ExploreCategoryModel;
 import com.thetestament.cread.models.FeaturedArtistsModel;
 import com.thetestament.cread.models.FeedModel;
 import com.thetestament.cread.utils.AspectRatioUtils;
@@ -60,6 +64,7 @@ import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import butterknife.OnClick;
 import butterknife.Unbinder;
 import de.hdodenhof.circleimageview.CircleImageView;
 import icepick.Icepick;
@@ -99,7 +104,7 @@ import static com.thetestament.cread.utils.Constant.REQUEST_CODE_OPEN_GALLERY_FO
 
 public class ExploreFragment extends Fragment implements listener.OnCollaborationListener {
 
-    //region -View binding with butter knife
+    //region :View binding with butter knife
     @BindView(R.id.rootView)
     CoordinatorLayout rootView;
     @BindView(R.id.swipeToRefreshLayout)
@@ -110,6 +115,12 @@ public class ExploreFragment extends Fragment implements listener.OnCollaboratio
     TabLayout tabLayout;
     @BindView(R.id.recyclerViewFeatArtists)
     RecyclerView recyclerViewFeatArtists;
+    @BindView(R.id.recyclerViewCategory)
+    RecyclerView recyclerViewCategory;
+    @BindView(R.id.fabToggle)
+    FloatingActionButton fabToggle;
+    @BindView(R.id.toolBar)
+    android.support.v7.widget.Toolbar toolbar;
     //endregion
 
     //region :Fields and constants
@@ -142,8 +153,7 @@ public class ExploreFragment extends Fragment implements listener.OnCollaboratio
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         //SharedPreference reference
         mHelper = new SharedPreferenceHelper(getActivity());
-        // Its own option menu
-        setHasOptionsMenu(true);
+
         //inflate this view
         return inflater
                 .inflate(R.layout.fragment_explore
@@ -162,6 +172,10 @@ public class ExploreFragment extends Fragment implements listener.OnCollaboratio
         if (mHelper.isExploreIntroFirstTime()) {
             getExploreIntroDialog();
         }
+        //Set fragment toolbar
+        ((BottomNavigationActivity) getActivity()).setSupportActionBar(toolbar);
+        // Its own option menu
+        setHasOptionsMenu(true);
     }
 
     @Override
@@ -169,6 +183,21 @@ public class ExploreFragment extends Fragment implements listener.OnCollaboratio
         super.onStart();
         //Set Listener
         new FeedHelper().setOnCaptureClickListener(this);
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        //Hide BottomNavigation toolbar
+        getActivity().findViewById(R.id.toolBar).setVisibility(View.GONE);
+    }
+
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        //Show BottomNavigation toolbar
+        getActivity().findViewById(R.id.toolBar).setVisibility(View.VISIBLE);
     }
 
     @Override
@@ -321,6 +350,41 @@ public class ExploreFragment extends Fragment implements listener.OnCollaboratio
     }
     //endregion
 
+    //region :Click functionality
+
+    /**
+     * Click functionality to toggle b/w  grid and list view.
+     */
+    @OnClick(R.id.fabToggle)
+    void fabOnClick() {
+        if (defaultItemType == GRID) {
+            // Update preferences and flags
+            mHelper.setFeedItemType(Constant.ITEM_TYPES.LIST);
+            defaultItemType = LIST;
+            //set layout manager
+            recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
+            mAdapter = new ExploreAdapter(mExploreDataList, getActivity()
+                    , mHelper.getUUID(), ExploreFragment.this
+                    , Constant.ITEM_TYPES.LIST, mCompositeDisposable);
+            recyclerView.setAdapter(mAdapter);
+            initListeners();
+        } else if (defaultItemType == LIST) {
+            // Update preferences and flags
+            mHelper.setFeedItemType(Constant.ITEM_TYPES.GRID);
+            defaultItemType = GRID;
+            // setting layout manager
+            GridLayoutManager gridLayoutManager = new GridLayoutManager(getActivity(), spanCount);
+            recyclerView.setLayoutManager(gridLayoutManager);
+
+            mAdapter = new ExploreAdapter(mExploreDataList, getActivity()
+                    , mHelper.getUUID(), ExploreFragment.this, GRID, mCompositeDisposable);
+            recyclerView.setAdapter(mAdapter);
+            initListeners();
+        } else {
+        }
+    }
+    //endregion
+
     //region :Private method
 
     /**
@@ -363,6 +427,7 @@ public class ExploreFragment extends Fragment implements listener.OnCollaboratio
         //Load data here
         getFeaturedArtistsData();
         loadExploreData();
+        initializeCategory();
     }
 
     /**
@@ -375,7 +440,7 @@ public class ExploreFragment extends Fragment implements listener.OnCollaboratio
             //Set layout manger for recyclerView
             GridLayoutManager gridLayoutManager = new GridLayoutManager(getActivity(), spanCount);
             recyclerView.setLayoutManager(gridLayoutManager);
-        } else if (mHelper.getFeedItemType() == LIST) {
+        } else if (defaultItemType == LIST) {
             recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
         }
         //Set adapter
@@ -450,6 +515,7 @@ public class ExploreFragment extends Fragment implements listener.OnCollaboratio
         initLoadMoreListener();
         initCaptureListener();
         initFollowListener();
+        getFabCustomBehaviour(recyclerView, fabToggle);
     }
 
     /**
@@ -1161,5 +1227,71 @@ public class ExploreFragment extends Fragment implements listener.OnCollaboratio
         //Set description text
         textDesc.setText("Find the best of Cread from all around the app. Explore the good stuff everyone is posting by navigating to this section");
     }
+
+
+    /**
+     * Method to initialize category view.
+     */
+    private void initializeCategory() {
+
+        final List<ExploreCategoryModel> list = new ArrayList<>();
+        list.add(new ExploreCategoryModel("All"));
+        list.add(new ExploreCategoryModel("Writing"));
+        list.add(new ExploreCategoryModel("Yawing"));
+        list.add(new ExploreCategoryModel("Giving"));
+        list.add(new ExploreCategoryModel("Taking"));
+        list.add(new ExploreCategoryModel("Missing"));
+        list.add(new ExploreCategoryModel("Roaring"));
+        list.add(new ExploreCategoryModel("Lining"));
+        list.add(new ExploreCategoryModel("Living"));
+
+        //Set layout manager
+        final LinearLayoutManager layoutManager = new LinearLayoutManager(getActivity()
+                , LinearLayoutManager.HORIZONTAL
+                , false);
+        recyclerViewCategory.setLayoutManager(layoutManager);
+        //Set adapter
+        ExploreCategoryAdapter adapter = new ExploreCategoryAdapter(list, getActivity());
+        recyclerViewCategory.setAdapter(adapter);
+
+        adapter.setCategorySelectListener(new listener.OnCategorySelectListener() {
+            @Override
+            public void onCategorySelected(ExploreCategoryModel model, int itemPosition) {
+                //Method called
+                ViewHelper.scrollToNextItemPosition(layoutManager, recyclerViewCategory
+                        , itemPosition, list.size());
+                //fixme server functionality
+            }
+        });
+
+    }
+
+
+    /**
+     * Method to hide and show the FAB depending upon scrolling behaviour of user.
+     *
+     * @param recyclerView View to be scrolled.
+     * @param fab          FAB which visibility to be toggled.
+     */
+    private void getFabCustomBehaviour(RecyclerView recyclerView, final FloatingActionButton fab) {
+        recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+                super.onScrolled(recyclerView, dx, dy);
+                //if this view is not null
+                if (fab != null) {
+                    //Scroll Down
+                    if (dy > 0 && fab.getVisibility() == View.VISIBLE) {
+                        fab.hide();
+                    }
+                    //Scroll Up
+                    else if (dy < 0 && fab.getVisibility() != View.VISIBLE) {
+                        fab.show();
+                    }
+                }
+            }
+        });
+    }
+
     //endregion
 }

@@ -113,9 +113,10 @@ public class LabelsAdapter extends RecyclerView.Adapter<LabelsAdapter.ItemViewHo
                         , context
                         , viewLabel);
 
-                //set listener
-                labelsSelectListener.onLabelSelected(data, itemPosition);
-
+                if (labelsSelectListener != null) {
+                    //set listener
+                    labelsSelectListener.onLabelSelected(data, itemPosition);
+                }
             }
         });
 

@@ -7,6 +7,7 @@ import android.widget.LinearLayout;
 
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.thetestament.cread.models.CommentsModel;
+import com.thetestament.cread.models.ExploreCategoryModel;
 import com.thetestament.cread.models.FBFriendsModel;
 import com.thetestament.cread.models.FeedModel;
 import com.thetestament.cread.models.InspirationModel;
@@ -455,5 +456,12 @@ public class listener {
      */
     public interface OnLabelsSelectListener {
         void onLabelSelected(LabelsModel model, int itemPosition);
+    }
+
+    /**
+     * Interface definition for a callback to be invoked when user selects explore category from list.
+     */
+    public interface OnCategorySelectListener {
+        void onCategorySelected(ExploreCategoryModel model, int itemPosition);
     }
 }
