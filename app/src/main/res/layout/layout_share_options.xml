@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout android:id="@+id/containerShareOptions"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_below="@+id/textShareDesc"
+    android:layout_marginTop="20dp"
+    android:orientation="vertical"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+
+        <android.support.v7.widget.AppCompatImageView
+            android:id="@+id/logoWhatsapp"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:paddingRight="10dp"
+            android:paddingLeft="2dp"
+            app:srcCompat="@drawable/ic_logo_whatsapp" />
+
+        <android.support.v7.widget.AppCompatImageView
+            android:id="@+id/logoFacebook"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:paddingLeft="2dp"
+            android:paddingRight="10dp"
+            app:srcCompat="@drawable/ic_logo_facebook" />
+
+        <android.support.v7.widget.AppCompatImageView
+            android:id="@+id/logoInstagram"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:paddingRight="10dp"
+            app:srcCompat="@drawable/ic_logo_instagram" />
+
+        <android.support.v7.widget.AppCompatImageView
+            android:id="@+id/logoMore"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:paddingRight="10dp"
+            android:src="@drawable/logo_more" />
+
+
+    </LinearLayout>
+
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Share"
+        android:gravity="center"
+        android:layout_gravity="right"
+        android:textSize="10sp"
+        android:layout_marginRight="10dp" />
+
+
+</LinearLayout>
+
+
+

@@ -4,15 +4,14 @@
     android:layout_height="wrap_content"
     android:layout_marginLeft="5dp"
     android:layout_marginRight="5dp"
-    android:gravity="center"
-    android:padding="1dp"
     android:background="@color/grey_custom"
+    android:gravity="center"
     android:orientation="vertical">
 
     <android.support.v7.widget.AppCompatImageView
         android:id="@+id/inspirationImage"
-        android:layout_width="60dp"
-        android:layout_height="60dp"
+        android:layout_width="45dp"
+        android:layout_height="45dp"
         android:scaleType="centerCrop"
         android:src="@drawable/image_placeholder" />
 

@@ -36,9 +36,9 @@ import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.observers.DisposableObserver;
 import io.reactivex.schedulers.Schedulers;
 
+import static com.thetestament.cread.CreadApp.GET_RESPONSE_FROM_NETWORK_INSPIRATION;
 import static com.thetestament.cread.helpers.NetworkHelper.getNetConnectionStatus;
 import static com.thetestament.cread.helpers.NetworkHelper.getObservableFromServer;
-import static com.thetestament.cread.CreadApp.GET_RESPONSE_FROM_NETWORK_INSPIRATION;
 
 public class InspirationActivity extends BaseActivity {
 
@@ -92,7 +92,7 @@ public class InspirationActivity extends BaseActivity {
         //Set layout manger for recyclerView
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         //Set adapter
-        mAdapter = new InspirationAdapter(mInspirationDataList, this , Constant.INSPIRATION_ITEM_TYPE_DETAIL);
+        mAdapter = new InspirationAdapter(mInspirationDataList, this, Constant.INSPIRATION_ITEM_TYPE_DETAIL);
         recyclerView.setAdapter(mAdapter);
 
         swipeRefreshLayout.setRefreshing(true);
@@ -200,6 +200,14 @@ public class InspirationActivity extends BaseActivity {
                                     data.setCreatorName(dataObj.getString("creatorname"));
                                     data.setCapturePic(dataObj.getString("captureurl"));
                                     data.setMerchantable(dataObj.getBoolean("merchantable"));
+                                    //if image width pr image height is null
+                                    if (dataObj.isNull("img_width") || dataObj.isNull("img_height")) {
+                                        data.setImgWidth(1);
+                                        data.setImgHeight(1);
+                                    } else {
+                                        data.setImgWidth(dataObj.getInt("img_width"));
+                                        data.setImgHeight(dataObj.getInt("img_height"));
+                                    }
                                     mInspirationDataList.add(data);
                                 }
                             }
@@ -289,6 +297,14 @@ public class InspirationActivity extends BaseActivity {
                                     data.setCreatorName(dataObj.getString("creatorname"));
                                     data.setCapturePic(dataObj.getString("captureurl"));
                                     data.setMerchantable(dataObj.getBoolean("merchantable"));
+                                    //if image width pr image height is null
+                                    if (dataObj.isNull("img_width") || dataObj.isNull("img_height")) {
+                                        data.setImgWidth(1);
+                                        data.setImgHeight(1);
+                                    } else {
+                                        data.setImgWidth(dataObj.getInt("img_width"));
+                                        data.setImgHeight(dataObj.getInt("img_height"));
+                                    }
                                     mInspirationDataList.add(data);
                                     //Notify item insertion
                                     mAdapter.notifyItemInserted(mInspirationDataList.size() - 1);

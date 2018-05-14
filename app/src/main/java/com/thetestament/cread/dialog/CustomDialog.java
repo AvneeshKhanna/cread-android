@@ -80,4 +80,24 @@ public class CustomDialog {
         //Set description text
         textDesc.setText(dialogContentText);
     }
+
+    /**
+     * To return the indeterminate progress dialog.
+     *
+     * @param context     context to0 use.
+     * @param contentText Text to be displayed.
+     */
+
+    public static MaterialDialog getProgressDialog(FragmentActivity context, String contentText) {
+        MaterialDialog.Builder builder = new MaterialDialog.Builder(context)
+                .content(contentText)
+                .autoDismiss(false)
+                .cancelable(false)
+                .progress(true, 0);
+        final MaterialDialog dialog = builder.build();
+        dialog.show();
+        return dialog;
+    }
+
+
 }

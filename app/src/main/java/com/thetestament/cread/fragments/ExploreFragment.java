@@ -38,6 +38,7 @@ import com.thetestament.cread.activities.ProfileActivity;
 import com.thetestament.cread.activities.SearchActivity;
 import com.thetestament.cread.adapters.ExploreAdapter;
 import com.thetestament.cread.adapters.FeaturedArtistsAdapter;
+import com.thetestament.cread.dialog.CustomDialog;
 import com.thetestament.cread.helpers.FeedHelper;
 import com.thetestament.cread.helpers.FollowHelper;
 import com.thetestament.cread.helpers.ImageHelper;
@@ -46,6 +47,7 @@ import com.thetestament.cread.helpers.ViewHelper;
 import com.thetestament.cread.listeners.listener;
 import com.thetestament.cread.models.FeaturedArtistsModel;
 import com.thetestament.cread.models.FeedModel;
+import com.thetestament.cread.utils.AspectRatioUtils;
 import com.thetestament.cread.utils.Constant;
 import com.yalantis.ucrop.UCrop;
 
@@ -78,6 +80,7 @@ import static com.thetestament.cread.adapters.FeaturedArtistsAdapter.VIEW_TYPE_I
 import static com.thetestament.cread.fragments.MeFragment.isCountOne;
 import static com.thetestament.cread.helpers.FeedHelper.updateFollowForAll;
 import static com.thetestament.cread.helpers.ImageHelper.getImageUri;
+import static com.thetestament.cread.helpers.ImageHelper.processCroppedImage;
 import static com.thetestament.cread.helpers.NetworkHelper.getFeatArtistsObservable;
 import static com.thetestament.cread.helpers.NetworkHelper.getNetConnectionStatus;
 import static com.thetestament.cread.helpers.NetworkHelper.getObservableFromServer;
@@ -96,6 +99,7 @@ import static com.thetestament.cread.utils.Constant.REQUEST_CODE_OPEN_GALLERY_FO
 
 public class ExploreFragment extends Fragment implements listener.OnCollaborationListener {
 
+    //region -View binding with butter knife
     @BindView(R.id.rootView)
     CoordinatorLayout rootView;
     @BindView(R.id.swipeToRefreshLayout)
@@ -106,7 +110,9 @@ public class ExploreFragment extends Fragment implements listener.OnCollaboratio
     TabLayout tabLayout;
     @BindView(R.id.recyclerViewFeatArtists)
     RecyclerView recyclerViewFeatArtists;
+    //endregion
 
+    //region :Fields and constants
     CompositeDisposable mCompositeDisposable = new CompositeDisposable();
     List<FeedModel> mExploreDataList = new ArrayList<>();
     List<FeaturedArtistsModel> mFeatArtistsList = new ArrayList<>();
@@ -128,7 +134,9 @@ public class ExploreFragment extends Fragment implements listener.OnCollaboratio
     String mFirstName, mLastName, mProfilePicURL;
     @State
     long mPostCount, mFollowerCount, mCollaborationCount;
+    //endregion
 
+    //region :Overridden methods
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -197,19 +205,39 @@ public class ExploreFragment extends Fragment implements listener.OnCollaboratio
             case REQUEST_CODE_OPEN_GALLERY_FOR_CAPTURE:
                 if (resultCode == RESULT_OK) {
                     // To crop the selected image
-                    ImageHelper.startImageCropping(getActivity(), this, data.getData(), getImageUri(IMAGE_TYPE_USER_CAPTURE_PIC));
+                    ImageHelper.startImageCropping(getActivity()
+                            , this
+                            , data.getData()
+                            , getImageUri(IMAGE_TYPE_USER_CAPTURE_PIC));
                 } else {
-                    ViewHelper.getSnackBar(rootView, "Image from gallery was not attached");
+                    ViewHelper.getSnackBar(rootView
+                            , getString(R.string.error_img_not_attached));
                 }
                 break;
             //For more information please visit "https://github.com/Yalantis/uCrop"
             case UCrop.REQUEST_CROP:
                 if (resultCode == RESULT_OK) {
+                    //Get image width and height
+                    float width = data.getIntExtra(UCrop.EXTRA_OUTPUT_IMAGE_WIDTH, 1800);
+                    float height = data.getIntExtra(UCrop.EXTRA_OUTPUT_IMAGE_HEIGHT, 1800);
+
                     //Get cropped image Uri
                     Uri mCroppedImgUri = UCrop.getOutput(data);
-                    ImageHelper.performSquareImageManipulation(mCroppedImgUri, getActivity(), rootView, mEntityID, mEntityType);
+                    //Check for image manipulation
+                    if (AspectRatioUtils.getSquareImageManipulation(width, height)) {
+                        //Create square image with blurred background
+                        ImageHelper.performSquareImageManipulation(mCroppedImgUri
+                                , getActivity()
+                                , rootView
+                                , mEntityID
+                                , mEntityType);
+                    } else {
+                        //Method called
+                        processCroppedImage(mCroppedImgUri, getActivity(), rootView, mEntityID, mEntityType);
+                    }
                 } else if (resultCode == UCrop.RESULT_ERROR) {
-                    ViewHelper.getSnackBar(rootView, "Image could not be cropped due to some error");
+                    ViewHelper.getSnackBar(rootView
+                            , getString(R.string.error_img_not_cropped));
                 }
                 break;
             case REQUEST_CODE_FEED_DESCRIPTION_ACTIVITY:
@@ -264,11 +292,41 @@ public class ExploreFragment extends Fragment implements listener.OnCollaboratio
         }
     }
 
+    @Override
+    public void collaborationOnGraphic() {
+
+    }
+
+    @Override
+    public void collaborationOnWriting(String entityID, String entityType) {
+        //Set entity id
+        mEntityID = entityID;
+        mEntityType = entityType;
+        //Check for Write permission
+        if (Nammu.checkPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+            //We have permission do whatever you want to do
+            ImageHelper.chooseImageFromGallery(ExploreFragment.this);
+        } else {
+            //We do not own this permission
+            if (Nammu.shouldShowRequestPermissionRationale(ExploreFragment.this
+                    , Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+                //User already refused to give us this permission or removed it
+                ViewHelper.getToast(getActivity()
+                        , getString(R.string.error_msg_capture_permission_denied));
+            } else {
+                //First time asking for permission
+                Nammu.askForPermission(ExploreFragment.this, Manifest.permission.WRITE_EXTERNAL_STORAGE, captureWritePermission);
+            }
+        }
+    }
+    //endregion
+
+    //region :Private method
+
     /**
      * Method to initialize swipe refresh layout.
      */
     private void initScreen() {
-
         //initializes grid view or list view from preferences
         initItemTypePreference();
         //init feat artists recycler view
@@ -307,6 +365,9 @@ public class ExploreFragment extends Fragment implements listener.OnCollaboratio
         loadExploreData();
     }
 
+    /**
+     * Method to initialize view type.
+     */
     private void initItemTypePreference() {
         defaultItemType = mHelper.getFeedItemType();
 
@@ -317,7 +378,6 @@ public class ExploreFragment extends Fragment implements listener.OnCollaboratio
         } else if (mHelper.getFeedItemType() == LIST) {
             recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
         }
-
         //Set adapter
         mAdapter = new ExploreAdapter(mExploreDataList, getActivity(), mHelper.getUUID(), ExploreFragment.this, defaultItemType, mCompositeDisposable);
         recyclerView.setAdapter(mAdapter);
@@ -327,20 +387,15 @@ public class ExploreFragment extends Fragment implements listener.OnCollaboratio
      * Method to initialize tab layout.
      */
     private void initTabLayout() {
-
         //initialize tabs icon tint
         if (defaultItemType == GRID) {
             tabLayout.getTabAt(0).select();
-
             tabLayout.getTabAt(0).getIcon().setColorFilter(ContextCompat.getColor(getActivity(), R.color.colorPrimary), PorterDuff.Mode.SRC_IN);
             tabLayout.getTabAt(1).getIcon().setColorFilter(ContextCompat.getColor(getActivity(), R.color.grey_custom), PorterDuff.Mode.SRC_IN);
-
         } else if (defaultItemType == LIST) {
             tabLayout.getTabAt(1).select();
-
             tabLayout.getTabAt(1).getIcon().setColorFilter(ContextCompat.getColor(getActivity(), R.color.colorPrimary), PorterDuff.Mode.SRC_IN);
             tabLayout.getTabAt(0).getIcon().setColorFilter(ContextCompat.getColor(getActivity(), R.color.grey_custom), PorterDuff.Mode.SRC_IN);
-
         }
 
         tabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
@@ -351,8 +406,6 @@ public class ExploreFragment extends Fragment implements listener.OnCollaboratio
                 tab.getIcon().setColorFilter(ContextCompat.getColor(getActivity(), R.color.colorPrimary), PorterDuff.Mode.SRC_IN);
 
                 switch (tab.getPosition()) {
-
-
                     case 0:
                         // setting pref
                         mHelper.setFeedItemType(GRID);
@@ -380,7 +433,6 @@ public class ExploreFragment extends Fragment implements listener.OnCollaboratio
 
             @Override
             public void onTabUnselected(TabLayout.Tab tab) {
-
                 //To change tab icon color from white color to grey
                 tab.getIcon().setColorFilter(ContextCompat.getColor(getActivity(), R.color.grey_custom), PorterDuff.Mode.SRC_IN);
             }
@@ -391,45 +443,32 @@ public class ExploreFragment extends Fragment implements listener.OnCollaboratio
         });
     }
 
+    /**
+     * Method to initialize listeners.
+     */
     private void initListeners() {
         initLoadMoreListener();
         initCaptureListener();
         initFollowListener();
     }
 
+    /**
+     * Method to initialize featured artist item click listener.
+     */
     private void initFeatArtistClickListener() {
         mFeatArstistsAdapter.setFeatArtistClickListener(new listener.OnFeatArtistClickedListener() {
             @Override
             public void onFeatArtistClicked(int itemType, String uuid) {
-
+                //Item type is header
                 if (itemType == VIEW_TYPE_HEADER) {
-
-                    MaterialDialog dialog = new MaterialDialog.Builder(getActivity())
-                            .customView(R.layout.dialog_generic, false)
-                            .positiveText(getString(R.string.text_ok))
-                            .onPositive(new MaterialDialog.SingleButtonCallback() {
-                                @Override
-                                public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
-                                    dialog.dismiss();
-                                }
-                            })
-                            .show();
-                    //Obtain views reference
-                    ImageView fillerImage = dialog.getCustomView().findViewById(R.id.viewFiller);
-                    TextView textTitle = dialog.getCustomView().findViewById(R.id.textTitle);
-                    TextView textDesc = dialog.getCustomView().findViewById(R.id.textDesc);
-
-                    //Set filler image
-                    fillerImage.setImageDrawable(ContextCompat.getDrawable(getActivity(), R.drawable.img_intro_feat_artist));
-                    //Set title text
-                    textTitle.setText(R.string.text_title_dialog_featured_artist);
-                    //Set description text
-                    textDesc.setText(R.string.text_desc_dialog_featured_artist);
-
+                    CustomDialog.getGenericDialog(getActivity()
+                            , getString(R.string.text_ok)
+                            , getString(R.string.text_title_dialog_featured_artist)
+                            , getString(R.string.text_desc_dialog_featured_artist)
+                            , R.drawable.img_intro_feat_artist);
                 } else if (itemType == VIEW_TYPE_ITEM) {
-                    // load user data and display it in dialog
+                    //Load user data and display it in dialog
                     getFeatArtistDetails(uuid);
-
                 }
             }
         });
@@ -461,13 +500,14 @@ public class ExploreFragment extends Fragment implements listener.OnCollaboratio
         });
     }
 
+
+    /**
+     * Method to retrieve featureArtist detail from server.
+     */
     private void getFeatArtistDetails(final String uuid) {
         // show loading dialog
-        final MaterialDialog loadingDialog = new MaterialDialog.Builder(getActivity())
-                .title(getString(R.string.loading_title))
-                .content(getString(R.string.waiting_msg))
-                .progress(true, 0)
-                .show();
+        final MaterialDialog loadingDialog = CustomDialog.getProgressDialog(getActivity()
+                , "Loading...");
 
         final boolean[] tokenError = {false};
         final boolean[] connectionError = {false};
@@ -481,14 +521,13 @@ public class ExploreFragment extends Fragment implements listener.OnCollaboratio
                 , new listener.OnServerRequestedListener<JSONObject>() {
                     @Override
                     public void onDeviceOffline() {
-
-                        ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_no_connection));
-
+                        //Show no connection snack abr
+                        ViewHelper.getSnackBar(rootView
+                                , getString(R.string.error_msg_no_connection));
                     }
 
                     @Override
                     public void onNextCalled(JSONObject jsonObject) {
-
                         try {
                             //Token status is invalid
                             if (jsonObject.getString("tokenstatus").equals("invalid")) {
@@ -517,7 +556,6 @@ public class ExploreFragment extends Fragment implements listener.OnCollaboratio
                         FirebaseCrash.report(e);
                         //Server error Snack bar
                         ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_server));
-
                     }
 
                     @Override
@@ -534,7 +572,6 @@ public class ExploreFragment extends Fragment implements listener.OnCollaboratio
                         else if (connectionError[0]) {
                             ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_internal));
                         } else {
-
                             // show detail dialog
                             final MaterialDialog dialog = new MaterialDialog.Builder(getActivity())
                                     .customView(R.layout.dialog_featured_artist_profile, false)
@@ -561,7 +598,7 @@ public class ExploreFragment extends Fragment implements listener.OnCollaboratio
                             textFollowers.setText(followers);
                             textCollaborations.setText(collaborations);
 
-                            // set click listner
+                            // set click listener
                             LinearLayout buttonViewProfile = rootViewDialog.findViewById(R.id.buttonViewProfile);
                             buttonViewProfile.setOnClickListener(new View.OnClickListener() {
                                 @Override
@@ -577,7 +614,6 @@ public class ExploreFragment extends Fragment implements listener.OnCollaboratio
                                 }
                             });
 
-
                             //Load user profile picture
                             ImageHelper.loadImageFromPicasso(getActivity(), imageArtist, mProfilePicURL, R.drawable.ic_account_circle_100);
 
@@ -589,7 +625,6 @@ public class ExploreFragment extends Fragment implements listener.OnCollaboratio
                                 //set user name
                                 artistName.setText(mFirstName);
                             }
-
                             new Handler().post(new Runnable() {
                                                    @Override
                                                    public void run() {
@@ -606,47 +641,41 @@ public class ExploreFragment extends Fragment implements listener.OnCollaboratio
                 }
         );
 
-
     }
 
+    /**
+     * Method to retrieve featureArtist data from server.
+     */
     private void getFeaturedArtistsData() {
-
-
         final boolean[] tokenError = {false};
         final boolean[] connectionError = {false};
-
 
         requestServer(mCompositeDisposable
                 , getFeatArtistsObservable(BuildConfig.URL + "/featured-artists/load", mHelper.getUUID(), mHelper.getAuthToken(), GET_RESPONSE_FROM_NETWORK_FEATURED_ARTISTS)
                 , getActivity(), new listener.OnServerRequestedListener<JSONObject>() {
                     @Override
                     public void onDeviceOffline() {
-
-                        ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_no_connection));
+                        ViewHelper.getSnackBar(rootView
+                                , getString(R.string.error_msg_no_connection));
                     }
 
                     @Override
                     public void onNextCalled(JSONObject jsonObject) {
-
-
                         try {
                             //Token status is invalid
                             if (jsonObject.getString("tokenstatus").equals("invalid")) {
                                 tokenError[0] = true;
                             } else {
                                 JSONObject mainData = jsonObject.getJSONObject("data");
-
                                 //Featured artist list
                                 JSONArray featuredArray = mainData.getJSONArray("featuredlist");
                                 for (int i = 0; i < featuredArray.length(); i++) {
-
                                     FeaturedArtistsModel data = new FeaturedArtistsModel();
 
                                     JSONObject dataObj = featuredArray.getJSONObject(i);
                                     data.setUuid(dataObj.getString("uuid"));
                                     data.setName(dataObj.getString("name"));
                                     data.setImageUrl(dataObj.getString("profilepicurl"));
-
                                     mFeatArtistsList.add(data);
                                 }
                             }
@@ -659,17 +688,14 @@ public class ExploreFragment extends Fragment implements listener.OnCollaboratio
 
                     @Override
                     public void onErrorCalled(Throwable e) {
-
                         swipeRefreshLayout.setRefreshing(false);
                         FirebaseCrash.report(e);
                         //Server error Snack bar
                         ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_server));
-
                     }
 
                     @Override
                     public void onCompleteCalled() {
-
                         //Dismiss progress indicator
                         swipeRefreshLayout.setRefreshing(false);
                         // set to false
@@ -701,7 +727,7 @@ public class ExploreFragment extends Fragment implements listener.OnCollaboratio
         // if user device is connected to net
         if (getNetConnectionStatus(getActivity())) {
             //Get data from server
-            getFeedData();
+            getExploreData();
         } else {
             swipeRefreshLayout.setRefreshing(false);
             //No connection Snack bar
@@ -712,7 +738,7 @@ public class ExploreFragment extends Fragment implements listener.OnCollaboratio
     /**
      * RxJava2 implementation for retrieving explore data
      */
-    private void getFeedData() {
+    private void getExploreData() {
         final boolean[] tokenError = {false};
         final boolean[] connectionError = {false};
 
@@ -760,6 +786,16 @@ public class ExploreFragment extends Fragment implements listener.OnCollaboratio
                                     exploreData.setCommentCount(dataObj.getLong("commentcount"));
                                     exploreData.setContentImage(dataObj.getString("entityurl"));
                                     exploreData.setCollabCount(dataObj.getLong("collabcount"));
+
+                                    //if image width pr image height is null
+                                    if (dataObj.isNull("img_width") || dataObj.isNull("img_height")) {
+                                        exploreData.setImgWidth(1);
+                                        exploreData.setImgHeight(1);
+                                    } else {
+                                        exploreData.setImgWidth(dataObj.getInt("img_width"));
+                                        exploreData.setImgHeight(dataObj.getInt("img_height"));
+                                    }
+
                                     if (dataObj.isNull("caption")) {
                                         exploreData.setCaption(null);
                                     } else {
@@ -903,6 +939,14 @@ public class ExploreFragment extends Fragment implements listener.OnCollaboratio
                                     exploreData.setCommentCount(dataObj.getLong("commentcount"));
                                     exploreData.setContentImage(dataObj.getString("entityurl"));
                                     exploreData.setCollabCount(dataObj.getLong("collabcount"));
+                                    //if image width pr image height is null
+                                    if (dataObj.isNull("img_width") || dataObj.isNull("img_height")) {
+                                        exploreData.setImgWidth(1);
+                                        exploreData.setImgHeight(1);
+                                    } else {
+                                        exploreData.setImgWidth(dataObj.getInt("img_width"));
+                                        exploreData.setImgHeight(dataObj.getInt("img_height"));
+                                    }
                                     if (dataObj.isNull("caption")) {
                                         exploreData.setCaption(null);
                                     } else {
@@ -1005,8 +1049,6 @@ public class ExploreFragment extends Fragment implements listener.OnCollaboratio
             }
         });
     }
-
-    /**
 
     /**
      * Method to update follow status.
@@ -1119,33 +1161,5 @@ public class ExploreFragment extends Fragment implements listener.OnCollaboratio
         //Set description text
         textDesc.setText("Find the best of Cread from all around the app. Explore the good stuff everyone is posting by navigating to this section");
     }
-
-    @Override
-    public void collaborationOnGraphic() {
-
-    }
-
-    @Override
-    public void collaborationOnWriting(String entityID, String entityType) {
-        //Set entity id
-        mEntityID = entityID;
-        mEntityType = entityType;
-        //Check for Write permission
-        if (Nammu.checkPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
-            //We have permission do whatever you want to do
-            ImageHelper.chooseImageFromGallery(ExploreFragment.this);
-        } else {
-            //We do not own this permission
-            if (Nammu.shouldShowRequestPermissionRationale(ExploreFragment.this
-                    , Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
-                //User already refused to give us this permission or removed it
-                ViewHelper.getToast(getActivity()
-                        , getString(R.string.error_msg_capture_permission_denied));
-            } else {
-                //First time asking for permission
-                Nammu.askForPermission(ExploreFragment.this, Manifest.permission.WRITE_EXTERNAL_STORAGE, captureWritePermission);
-            }
-        }
-    }
-
+    //endregion
 }

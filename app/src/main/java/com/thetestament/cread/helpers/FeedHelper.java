@@ -58,6 +58,8 @@ import static com.thetestament.cread.utils.Constant.CONTENT_TYPE_SHORT;
 import static com.thetestament.cread.utils.Constant.EXTRA_CAPTURE_ID;
 import static com.thetestament.cread.utils.Constant.EXTRA_CAPTURE_URL;
 import static com.thetestament.cread.utils.Constant.EXTRA_DATA;
+import static com.thetestament.cread.utils.Constant.EXTRA_IMAGE_HEIGHT;
+import static com.thetestament.cread.utils.Constant.EXTRA_IMAGE_WIDTH;
 import static com.thetestament.cread.utils.Constant.EXTRA_MERCHANTABLE;
 import static com.thetestament.cread.utils.Constant.EXTRA_PROFILE_UUID;
 import static com.thetestament.cread.utils.Constant.SHORT_EXTRA_CALLED_FROM;
@@ -303,6 +305,18 @@ public class FeedHelper {
         feedData.setContentImage(dataObj.getString("entityurl"));
         feedData.setFollowStatus(dataObj.getBoolean("followstatus"));
         feedData.setCollabCount(dataObj.getLong("collabcount"));
+
+        if (dataObj.has("img_width") || dataObj.has("img_height")) {
+            //if image width pr image height is null
+            if (dataObj.isNull("img_width") || dataObj.isNull("img_height")) {
+                feedData.setImgWidth(1);
+                feedData.setImgHeight(1);
+            } else {
+                feedData.setImgWidth(dataObj.getInt("img_width"));
+                feedData.setImgHeight(dataObj.getInt("img_height"));
+            }
+        }
+
         if (dataObj.isNull("caption")) {
             feedData.setCaption(null);
         } else {
@@ -511,12 +525,16 @@ public class FeedHelper {
 
                             if (new SharedPreferenceHelper(context).isCaptureIconTooltipFirstTime()) {
 
-                                getShortOnClickDialog(context, feedData.getCaptureID(), feedData.getContentImage(), feedData.isMerchantable());
+                                getShortOnClickDialog(context, feedData.getCaptureID()
+                                        , feedData.getContentImage(), feedData.isMerchantable()
+                                        , feedData.getImgWidth(), feedData.getImgHeight());
                             } else {
                                 Bundle bundle = new Bundle();
                                 bundle.putString(EXTRA_CAPTURE_ID, feedData.getCaptureID());
                                 bundle.putString(EXTRA_CAPTURE_URL, feedData.getContentImage());
                                 bundle.putBoolean(EXTRA_MERCHANTABLE, feedData.isMerchantable());
+                                bundle.putInt(EXTRA_IMAGE_WIDTH, feedData.getImgWidth());
+                                bundle.putInt(EXTRA_IMAGE_HEIGHT, feedData.getImgHeight());
                                 bundle.putString(SHORT_EXTRA_CALLED_FROM, SHORT_EXTRA_CALLED_FROM_COLLABORATION_SHORT);
                                 Intent intent = new Intent(context, ShortActivity.class);
                                 intent.putExtra(EXTRA_DATA, bundle);
@@ -627,7 +645,8 @@ public class FeedHelper {
      * @param captureURL   capture URl
      * @param merchantable merchantable true or false
      */
-    private static void getShortOnClickDialog(final FragmentActivity context, final String captureID, final String captureURL, final boolean merchantable) {
+    private static void getShortOnClickDialog(final FragmentActivity context, final String captureID
+            , final String captureURL, final boolean merchantable, final int imageWidth, final int imageHeight) {
         MaterialDialog dialog = new MaterialDialog.Builder(context)
                 .customView(R.layout.dialog_generic, false)
                 .positiveText(context.getString(R.string.text_ok))
@@ -640,6 +659,8 @@ public class FeedHelper {
                         bundle.putString(EXTRA_CAPTURE_ID, captureID);
                         bundle.putString(EXTRA_CAPTURE_URL, captureURL);
                         bundle.putBoolean(EXTRA_MERCHANTABLE, merchantable);
+                        bundle.putInt(EXTRA_IMAGE_WIDTH, imageWidth);
+                        bundle.putInt(EXTRA_IMAGE_HEIGHT, imageHeight);
                         bundle.putString(SHORT_EXTRA_CALLED_FROM, SHORT_EXTRA_CALLED_FROM_COLLABORATION_SHORT);
                         Intent intent = new Intent(context, ShortActivity.class);
                         intent.putExtra(EXTRA_DATA, bundle);
@@ -728,6 +749,8 @@ public class FeedHelper {
                             bundle.putString(EXTRA_CAPTURE_ID, responseObject.getString("capid"));
                             bundle.putString(EXTRA_CAPTURE_URL, responseObject.getString("entityurl"));
                             bundle.putBoolean(EXTRA_MERCHANTABLE, merchantable);
+                            bundle.putInt(EXTRA_IMAGE_WIDTH, responseObject.getInt("img_width"));
+                            bundle.putInt(EXTRA_IMAGE_HEIGHT, responseObject.getInt("img_height"));
                             bundle.putString(SHORT_EXTRA_CALLED_FROM, SHORT_EXTRA_CALLED_FROM_COLLABORATION_SHORT);
                             Intent intent = new Intent(context, ShortActivity.class);
                             intent.putExtra(EXTRA_DATA, bundle);

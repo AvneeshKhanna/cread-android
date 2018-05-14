@@ -27,7 +27,8 @@
     //Other error message
     <string name="error_field_empty">cannot be empty</string>
     <string name="error_msg_no_image">Image could not be loaded. Please try again</string>
-
+    <string name="error_img_not_attached">Image from gallery was not attached</string>
+    <string name="error_img_not_cropped">Image could not be cropped due to some error</string>
 
     //Shared preferences key
     <string name="cread_preferences">creadPrefs</string>
@@ -197,6 +198,7 @@
     //Info text
     <string name="note_text_short_creation">Double tap outside text to add image tint</string>
     <string name="text_share_image">Do you love #art? Here\'s something great on @cread! Check it out and tell me what you think. :) \n\nApp:&#160; %1$s</string>
+    <string name="text_share_image_created">Here\'s something great I created on @cread! Check it out and tell me what you think. :) \n\nApp:&#160; %1$s</string>
     <string name="msg_post_deleted">Post deleted</string>
     <string name="text_msg_share_loggedin">You need to be logged in for sharing the image</string>
     <string name="msg_text_navigate_back">If you go back now, you will lose your changes.</string>
@@ -206,15 +208,11 @@
     <string name="msg_success_comment_edit">Comment edited</string>
 
     <string name="action_text_filters">Filters</string>
+    <string name="action_text_upload">Upload</string>
     <string name="text_follow"> \u2022 Follow</string>
     <string name="text_cread_name">Cread \u2022  New message</string>
 
-    <!--Error text-->
-    <string name="error_img_not_attached">Image from gallery was not attached</string>
-    <string name="error_img_not_cropped">Image could not be cropped due to some error</string>
 
-    <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
 
 
     <string name="text_writing_mode_short">Short Mode</string>
@@ -222,5 +220,7 @@
 
     <!--Activity title text-->
     <string name="title_text_recommended_artists_activity">Top artists on Cread</string>
+    <string name="text_content_label_dialog">Add most relevant labels to your content to make it easier to stand out of the crowd. Others would be able to search and appreciate your art in a much faster way!</string>
+    <string name="text_title_label_dialog">Label Your Post</string>
 
 </resources>

@@ -99,6 +99,8 @@ public class Constant {
     public static final String EXTRA_CAPTURE_UUID = "captureUUID";
     public static final String EXTRA_CAPTURE_URL = "captureURL";
     public static final String EXTRA_MERCHANTABLE = "merchantable";
+    public static final String EXTRA_IMAGE_WIDTH = "imageWidth";
+    public static final String EXTRA_IMAGE_HEIGHT = "imageHeight";
     public static final String EXTRA_DATA = "data";
     public static final String EXTRA_PROFILE_UUID = "profileUUID";
     public static final String EXTRA_FEED_DESCRIPTION_DATA = "dataFeedDescription";
@@ -284,6 +286,7 @@ public class Constant {
     public static final String PREVIEW_EXTRA_TEXT_COLOR = "textColor";
     public static final String PREVIEW_EXTRA_TEXT_GRAVITY = "textGravity";
     public static final String PREVIEW_EXTRA_IMG_WIDTH = "imgWidth";
+    public static final String PREVIEW_EXTRA_IMG_HEIGHT = "imgHeight";
     public static final String PREVIEW_EXTRA_SIGNATURE = "signature";
     public static final String PREVIEW_EXTRA_MERCHANTABLE = "merchantable";
     public static final String PREVIEW_EXTRA_BG_COLOR = "bgColor";
@@ -335,6 +338,40 @@ public class Constant {
 
     public static final String SHARE_SOURCE_FROM_SHARE = "fromShare";
     public static final String SHARE_SOURCE_FROM_CREATE = "fromCreate";
+
+    //region : Share options
+    public static final String SHARE_OPTION_WHATSAPP = "shareOptionWhatsapp";
+    public static final String SHARE_OPTION_FACEBOOK = "shareOptionFacebook";
+    public static final String SHARE_OPTION_INSTAGRAM = "shareOptionInstagram";
+    public static final String SHARE_OPTION_OTHER = "shareOptionOther";
+
+    //region :Aspect ration
+    public static final String ASPECT_RATIO_ONE_TO_ONE = "1.00";
+    public static final String ASPECT_RATIO_FOUR_TO_FIVE = "0.80";
+    public static final String ASPECT_RATIO_FIVE_TO_FOUR = "1.25";
+    public static final String ASPECT_RATIO_FOUR_TO_THREE = "1.33";
+    public static final String ASPECT_RATIO_THREE_TO_FOUR = "0.75";
+
+    public static final float ASPECT_RATIO_ONE_TO_ONE_VALUE = 1.00f;
+    public static final float ASPECT_RATIO_FOUR_TO_FIVE_VALUE = 0.80f;
+    public static final float ASPECT_RATIO_FIVE_TO_FOUR_VALUE = 1.25f;
+    public static final float ASPECT_RATIO_FOUR_TO_THREE_VALUE = 1.33f;
+    public static final float ASPECT_RATIO_THREE_TO_FOUR_VALUE = 0.75f;
+
+    //endregion
+
+    //Region :ContentPreview extra data
+    public static final String CONTENT_PREVIEW_EXTRA_IMAGE_WIDTH = "contentPreviewImageWidth";
+    public static final String CONTENT_PREVIEW_EXTRA_IMAGE_HEIGHT = "contentPreviewImageHeight";
+    public static final String CONTENT_PREVIEW_EXTRA_IMAGE_URL = "contentPreviewImageUrl";
+    public static final String CONTENT_PREVIEW_EXTRA_DATA = "contentPreviewData";
+    public static final String CONTENT_PREVIEW_EXTRA_SIGNATURE_TEXT = "contentPreviewSignatureText";
+    //endregion
+
+    //region Content type for labels
+    public static final String LABEL_TYPE_WRITING = "WRITING";
+    public static final String LABEL_TYPE_GRAPHIC = "GRAPHIC";
+    public static final String LABEL_TYPE_ALL = "ALL";
 
     public static final String USER_INTERESTS_CALLED_FROM_LOGIN = "userInterestsCalledFromLogin";
     public static final String USER_INTERESTS_CALLED_FROM_PROFILE = "userInterestsCalledFromProfile";

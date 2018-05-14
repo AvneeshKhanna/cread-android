@@ -27,6 +27,7 @@ import com.thetestament.cread.R;
 import com.thetestament.cread.activities.CollaborationActivity;
 import com.yalantis.ucrop.UCrop;
 import com.yalantis.ucrop.UCropActivity;
+import com.yalantis.ucrop.model.AspectRatio;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
@@ -128,7 +129,6 @@ public class ImageHelper {
         //For more information please visit "https://github.com/zetbaitsu/Compressor"
         //To compress the profile pic
         //  File compressedFile = new Compressor(context).compressToFile(sourceFile);
-
         File compressedFile = new Compressor(context)
                 .setMaxWidth(5000)
                 .setMaxHeight(5000)
@@ -158,7 +158,7 @@ public class ImageHelper {
 
 
     /**
-     * Method to open image cropper screen with all aspect ration.
+     * Method to open image cropper screen with all aspect ration from activities.
      *
      * @param sourceUri      Uri of image to be cropped.
      * @param destinationUri Where image will be saved.
@@ -172,21 +172,29 @@ public class ImageHelper {
         options.setToolbarColor(ContextCompat.getColor(context, R.color.colorPrimary));
         //Change status bar color
         options.setStatusBarColor(ContextCompat.getColor(context, R.color.colorPrimaryDark));
-        //options.setCompressionFormat(Bitmap.CompressFormat.PNG);
-        //options.setCompressionQuality(100);
+        //Set gestures
         options.setAllowedGestures(UCropActivity.SCALE, UCropActivity.ROTATE, UCropActivity.SCALE);
+        //Set max resolution size
         options.withMaxResultSize(5000, 5000);
-        //Launch  image cropping activity
+        //Set aspect ratio
+        options.setAspectRatioOptions(0,
+                new AspectRatio("1:1", 1, 1),
+                new AspectRatio("4:5", 4, 5),
+                new AspectRatio("5:4", 5, 4),
+                new AspectRatio("4:3", 4, 3),
+                new AspectRatio("3:4", 3, 4)
+        );
+
+
+        //Launch image cropping activity
         UCrop.of(sourceUri, destinationUri)
-                .withAspectRatio(1, 1)
                 .withOptions(options)
-                .useSourceImageAspectRatio()
                 .start(context);
     }
 
 
     /**
-     * Method to open image cropper screen.
+     * Method to open image cropper screen from fragment.
      *
      * @param sourceUri      Uri of image to be cropped.
      * @param destinationUri Where image will be saved.
@@ -200,15 +208,21 @@ public class ImageHelper {
         options.setToolbarColor(ContextCompat.getColor(context, R.color.colorPrimary));
         //Change status bar color
         options.setStatusBarColor(ContextCompat.getColor(context, R.color.colorPrimaryDark));
-        //options.setCompressionFormat(Bitmap.CompressFormat.PNG);
-        //options.setCompressionQuality(100);
+        //Set gestures
         options.setAllowedGestures(UCropActivity.SCALE, UCropActivity.ROTATE, UCropActivity.SCALE);
+        //Set max resolution size
         options.withMaxResultSize(5000, 5000);
-        //Launch  image cropping activity
+        //Set aspect ratio
+        options.setAspectRatioOptions(0,
+                new AspectRatio("1:1", 1, 1),
+                new AspectRatio("4:5", 4, 5),
+                new AspectRatio("5:4", 5, 4),
+                new AspectRatio("4:3", 4, 3),
+                new AspectRatio("3:4", 3, 4)
+        );
+        //Launch image cropping activity
         UCrop.of(sourceUri, destinationUri)
-                .withAspectRatio(1, 1)
                 .withOptions(options)
-                .useSourceImageAspectRatio()
                 .start(context, fragment, UCrop.REQUEST_CROP);
     }
 
@@ -368,7 +382,7 @@ public class ImageHelper {
      * @param entityID   entity id of content.
      * @param entityType Type oif entity.
      */
-    private static void processCroppedImage(Uri uri, Context context, View rootView, String entityID, String entityType) {
+    public static void processCroppedImage(Uri uri, Context context, View rootView, String entityID, String entityType) {
         try {
             //Decode image file
             BitmapFactory.Options options = new BitmapFactory.Options();
@@ -378,7 +392,8 @@ public class ImageHelper {
             int imageWidth = options.outWidth;
 
             //If resolution of image is greater than 3000x3000 then compress this image
-            if (imageHeight >= 3000 && imageWidth >= 3000) {
+
+            if (Math.min(imageHeight, imageWidth) >= 3000) {
                 //Compress image
                 compressCroppedImg(uri, context, IMAGE_TYPE_USER_CAPTURE_PIC);
                 Bundle bundle = new Bundle();
@@ -389,7 +404,7 @@ public class ImageHelper {
                 Intent intent = new Intent(context, CollaborationActivity.class);
                 intent.putExtra(EXTRA_DATA, bundle);
                 context.startActivity(intent);
-            } else if (imageHeight >= 1800 && imageWidth >= 1800) {
+            } else if (Math.min(imageHeight, imageWidth) >= 1800) {
                 //Open preview screen
                 Bundle bundle = new Bundle();
                 bundle.putString(EXTRA_ENTITY_ID, entityID);
@@ -404,7 +419,7 @@ public class ImageHelper {
             }
         } catch (Exception e) {
             e.printStackTrace();
-            ViewHelper.getSnackBar(rootView, "Image could not be cropped due to some error");
+            ViewHelper.getSnackBar(rootView, context.getString(R.string.error_img_not_cropped));
         }
     }
 
@@ -445,9 +460,11 @@ public class ImageHelper {
 
 
     /**
+     * Method to load image from url to imageView.
+     *
      * @param context     Context to use.
      * @param imageView   View where image to be loaded.
-     * @param url         Url of image.
+     * @param url         Url of image to be loaded.
      * @param placeholder Resource ID of error placeholder drawable.
      */
     public static void loadImageFromPicasso(Context context, ImageView imageView, String url, int placeholder) {
