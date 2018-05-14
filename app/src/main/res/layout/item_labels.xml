@@ -18,6 +18,6 @@
         android:paddingRight="16dp"
         android:textColor="@color/grey_dark"
         android:paddingTop="5dp"
-        android:textSize="14sp"
+        android:textSize="12sp"
         tools:text="@tools:sample/first_names" />
 </LinearLayout>
