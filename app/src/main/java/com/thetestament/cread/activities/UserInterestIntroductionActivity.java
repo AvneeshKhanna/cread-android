@@ -79,7 +79,7 @@ public class UserInterestIntroductionActivity extends BaseActivity {
         // if called from profile set diff text
         if (mCalledFrom.equals(USER_INTERESTS_CALLED_FROM_PROFILE)) {
             // TODO update text
-            textWelcomeLine2.setText("Some dummy text");
+            textWelcomeLine2.setText("As you know Cread is a community of artists");
         }
 
         // set the animations
