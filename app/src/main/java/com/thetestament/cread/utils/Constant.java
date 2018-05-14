@@ -364,4 +364,11 @@ public class Constant {
     public static final String LABEL_TYPE_WRITING = "WRITING";
     public static final String LABEL_TYPE_GRAPHIC = "GRAPHIC";
     public static final String LABEL_TYPE_ALL = "ALL";
+    //endregion
+
+    //region
+    public static final String EXPLORE_CATEGORY_DEFAULT = "DEFAULT";
+    public static final String EXPLORE_CATEGORY_ART = "ART";
+    public static final String EXPLORE_CATEGORY_GENERAL = "GENERAL";
+    //endregion
 }

@@ -1987,7 +1987,7 @@ public class PreviewActivity extends BaseActivity implements QueryTokenReceiver,
      * @param contentType GRAPHICS or WRITING.
      */
     private void loadLabelsData(String entityID, String contentType) {
-        HashTagNetworkManager.geHashTagSuggestionData(mContext
+        HashTagNetworkManager.getHashTagSuggestionData(mContext
                 , mCompositeDisposable
                 , entityID
                 , contentType

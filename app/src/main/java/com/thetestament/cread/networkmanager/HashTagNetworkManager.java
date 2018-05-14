@@ -62,7 +62,7 @@ public class HashTagNetworkManager {
      * @param entityID            Entity ID of the content to be uploaded
      * @param contentType         Type of the content i.e GRAPHIC or WRITING
      */
-    public static void geHashTagSuggestionData(final Context context, CompositeDisposable compositeDisposable
+    public static void getHashTagSuggestionData(final Context context, CompositeDisposable compositeDisposable
             , String entityID, String contentType, final OnHashTagSuggestionLoadListener loadListener) {
 
         //Obtain SharedPreferenceHelper reference
@@ -71,7 +71,7 @@ public class HashTagNetworkManager {
         final List<LabelsModel> dataLIst = new ArrayList<>();
 
         if (NetworkHelper.getNetConnectionStatus(context)) {
-            compositeDisposable.add(geHashTagSuggestionObservableFromServer(BuildConfig.URL + "/entity-interests/load"
+            compositeDisposable.add(getHashTagSuggestionObservableFromServer(BuildConfig.URL + "/entity-interests/load"
                     , spHelper.getUUID()
                     , spHelper.getAuthToken()
                     , entityID
@@ -145,7 +145,7 @@ public class HashTagNetworkManager {
      * @param contentType Type of the content i.e GRAPHIC or WRITING
      * @return
      */
-    private static Observable<JSONObject> geHashTagSuggestionObservableFromServer(String serverURL, String uuid, String authKey, String entityID, String contentType) {
+    private static Observable<JSONObject> getHashTagSuggestionObservableFromServer(String serverURL, String uuid, String authKey, String entityID, String contentType) {
         Map<String, String> headers = new HashMap<>();
         headers.put("uuid", uuid);
         headers.put("authkey", authKey);

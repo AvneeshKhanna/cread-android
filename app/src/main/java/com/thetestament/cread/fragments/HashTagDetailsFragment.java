@@ -111,7 +111,7 @@ public class HashTagDetailsFragment extends Fragment implements listener.OnColla
 
         //inflate this view
         return inflater
-                .inflate(R.layout.fragment_explore
+                .inflate(R.layout.fragment_hash_tag_details
                         , container
                         , false);
     }

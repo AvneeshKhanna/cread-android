@@ -27,7 +27,11 @@ public class ExploreCategoryAdapter extends RecyclerView.Adapter<ExploreCategory
     private List<ExploreCategoryModel> mDataList;
     private FragmentActivity mContext;
 
+    /**
+     * Flag to maintain position of currently selected item in the list.
+     */
     private int mSelectedItem = 0;
+
 
     private listener.OnCategorySelectListener categorySelectListener;
 
@@ -54,12 +58,14 @@ public class ExploreCategoryAdapter extends RecyclerView.Adapter<ExploreCategory
     public ExploreCategoryAdapter.ItemViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         return new ExploreCategoryAdapter.ItemViewHolder(LayoutInflater
                 .from(parent.getContext())
-                .inflate(R.layout.item_explore_category, parent, false));
+                .inflate(R.layout.item_explore_category
+                        , parent, false));
     }
 
     @Override
     public void onBindViewHolder(ExploreCategoryAdapter.ItemViewHolder holder, int position) {
         ExploreCategoryModel data = mDataList.get(position);
+
         //Set category text
         holder.textCategory.setText(data.getCategoryText());
         //Initialize itemClick
@@ -68,7 +74,6 @@ public class ExploreCategoryAdapter extends RecyclerView.Adapter<ExploreCategory
         toggleCategoryAppearance(holder.getAdapterPosition()
                 , mContext
                 , holder.textCategory);
-
     }
 
     @Override
@@ -138,4 +143,11 @@ public class ExploreCategoryAdapter extends RecyclerView.Adapter<ExploreCategory
         }
     }
 
+
+    /**
+     * Method to return ID of selected item.
+     */
+    public String getSelectedItemID() {
+        return mDataList.get(mSelectedItem).getCategoryID();
+    }
 }

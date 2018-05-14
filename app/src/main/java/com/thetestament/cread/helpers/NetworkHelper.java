@@ -646,32 +646,6 @@ public class NetworkHelper {
     }
 
 
-    /**
-     * Method to return requested data from the server.
-     *
-     * @param serverURL URL of the server
-     * @param uuid      UUID of the user.
-     * @param authKey   Authentication key of the user
-     */
-    public static Observable<JSONObject> getFeatArtistsObservable(String serverURL, String uuid, String authKey, boolean getResponseFromNetwork) {
-
-
-        Map<String, String> headers = new HashMap<>();
-        headers.put("uuid", uuid);
-        headers.put("authkey", authKey);
-
-
-        Rx2ANRequest.GetRequestBuilder requestBuilder = Rx2AndroidNetworking.get(serverURL)
-                .addHeaders(headers);
-
-        if (getResponseFromNetwork) {
-            requestBuilder.getResponseOnlyFromNetwork();
-        }
-
-        return requestBuilder
-                .build()
-                .getJSONObjectObservable();
-    }
 
 
     /**

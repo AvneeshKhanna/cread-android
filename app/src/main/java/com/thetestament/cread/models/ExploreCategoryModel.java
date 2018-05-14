@@ -6,11 +6,8 @@ package com.thetestament.cread.models;
 
 public class ExploreCategoryModel {
 
-    private String categoryText;
+    private String categoryText, categoryID, categoryType;
 
-    public ExploreCategoryModel(String categoryText) {
-        this.categoryText = categoryText;
-    }
 
     public String getCategoryText() {
         return categoryText;
@@ -20,4 +17,19 @@ public class ExploreCategoryModel {
         this.categoryText = categoryText;
     }
 
+    public String getCategoryID() {
+        return categoryID;
+    }
+
+    public void setCategoryID(String categoryID) {
+        this.categoryID = categoryID;
+    }
+
+    public String getCategoryType() {
+        return categoryType;
+    }
+
+    public void setCategoryType(String categoryType) {
+        this.categoryType = categoryType;
+    }
 }
