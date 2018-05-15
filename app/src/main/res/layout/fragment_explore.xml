@@ -32,21 +32,6 @@
                 android:background="@color/white"
                 android:orientation="vertical">
 
-                <!--Toolbar-->
-                <android.support.v7.widget.Toolbar
-                    android:id="@+id/toolBar"
-                    android:layout_width="match_parent"
-                    android:layout_height="?attr/actionBarSize"
-                    android:background="@color/colorPrimary"
-                    android:contentInsetStartWithNavigation="0dp"
-                    android:elevation="4dp"
-                    android:theme="@style/ThemeOverlay.AppCompat.Dark"
-                    app:contentInsetStartWithNavigation="0dp"
-                    app:layout_scrollFlags="scroll|enterAlways"
-                    app:logo="@drawable/ic_stat_cread_logo"
-                    app:popupTheme="@style/Theme.AppCompat.Light"
-                    app:title="Explore"
-                    app:titleMarginStart="20dp" />
 
                 <!--Feature artist recyclerView-->
                 <android.support.v7.widget.RecyclerView

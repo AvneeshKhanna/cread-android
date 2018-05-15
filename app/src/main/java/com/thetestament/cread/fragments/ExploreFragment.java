@@ -33,7 +33,6 @@ import com.google.firebase.crash.FirebaseCrash;
 import com.thetestament.cread.BuildConfig;
 import com.thetestament.cread.Manifest;
 import com.thetestament.cread.R;
-import com.thetestament.cread.activities.BottomNavigationActivity;
 import com.thetestament.cread.activities.FindFBFriendsActivity;
 import com.thetestament.cread.activities.ProfileActivity;
 import com.thetestament.cread.activities.SearchActivity;
@@ -115,8 +114,6 @@ public class ExploreFragment extends Fragment implements listener.OnCollaboratio
     RecyclerView recyclerViewCategory;
     @BindView(R.id.fabToggle)
     FloatingActionButton fabToggle;
-    @BindView(R.id.toolBar)
-    android.support.v7.widget.Toolbar toolbar;
     @BindView(R.id.containerCategory)
     LinearLayout containerCategory;
     //endregion
@@ -173,6 +170,8 @@ public class ExploreFragment extends Fragment implements listener.OnCollaboratio
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         //SharedPreference reference
         mHelper = new SharedPreferenceHelper(getActivity());
+        // Its own option menu
+        setHasOptionsMenu(true);
         //inflate this view
         return inflater
                 .inflate(R.layout.fragment_explore, container, false);
@@ -189,10 +188,6 @@ public class ExploreFragment extends Fragment implements listener.OnCollaboratio
         if (mHelper.isExploreIntroFirstTime()) {
             getExploreIntroDialog();
         }
-        //Set fragment toolbar
-        ((BottomNavigationActivity) getActivity()).setSupportActionBar(toolbar);
-        // Its own option menu
-        setHasOptionsMenu(true);
     }
 
     @Override
@@ -200,21 +195,6 @@ public class ExploreFragment extends Fragment implements listener.OnCollaboratio
         super.onStart();
         //Set Listener
         new FeedHelper().setOnCaptureClickListener(this);
-    }
-
-    @Override
-    public void onResume() {
-        super.onResume();
-        //Hide BottomNavigation toolbar
-        getActivity().findViewById(R.id.toolBar).setVisibility(View.GONE);
-    }
-
-
-    @Override
-    public void onStop() {
-        super.onStop();
-        //Show BottomNavigation toolbar
-        getActivity().findViewById(R.id.toolBar).setVisibility(View.VISIBLE);
     }
 
     @Override

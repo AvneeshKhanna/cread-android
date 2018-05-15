@@ -31,7 +31,7 @@ import io.reactivex.schedulers.Schedulers;
 import static com.thetestament.cread.CreadApp.GET_RESPONSE_FROM_NETWORK_EXPLORE_CATEGORY;
 
 /**
- * Network manager class to provide utility methods related to 'Explore category' network operation.
+ * Network manager class to provide utility methods related to 'Explore feed' network operation.
  */
 
 public class ExploreNetworkManager {
