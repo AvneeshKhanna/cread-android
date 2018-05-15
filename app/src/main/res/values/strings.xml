@@ -67,6 +67,7 @@
     <string name="key_htod_value">keyHtodValue</string>
     <string name="key_htod_count">keyHtodCount</string>
     <string name="key_htod_new_posts_indicator_visibility">keyHtNewPostsIndicatorVisibility</string>
+    <string name="key_user_interests_prof_first_time">keyUserInterestProf</string>
 
 
     // dialog messages
@@ -222,5 +223,6 @@
     <string name="title_text_recommended_artists_activity">Top artists on Cread</string>
     <string name="text_content_label_dialog">Add most relevant labels to your content to make it easier to stand out of the crowd. Others would be able to search and appreciate your art in a much faster way!</string>
     <string name="text_title_label_dialog">Label Your Post</string>
+    <string name="message_tooltip_user_interests">New! Now you can select your interests to see more relevant posts on the app</string>
 
 </resources>

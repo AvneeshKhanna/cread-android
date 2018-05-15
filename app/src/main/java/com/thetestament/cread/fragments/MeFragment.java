@@ -650,6 +650,11 @@ public class MeFragment extends Fragment implements listener.OnCollaborationList
                 showRoyaltiesDialog();
             }
 
+            if (mHelper.isUserInterestFirstTime()) {
+                ViewHelper.getToolTip(buttonProfileSettings, getString(R.string.message_tooltip_user_interests), getActivity());
+                mHelper.updateUserInterestStatus(false);
+            }
+
         } else {
             mRequestedUUID = getArguments().getString("requesteduuid");
             //Disable profile editing
