@@ -416,6 +416,7 @@ public class ExploreFragment extends Fragment implements listener.OnCollaboratio
                 //Method called
                 updateCategorySelection(Constant.EXPLORE_CATEGORY_ART);
                 //load data here
+                mAdapter.setLoaded();
                 mExploreDataList.clear();
                 loadExploreData();
                 break;
@@ -426,6 +427,7 @@ public class ExploreFragment extends Fragment implements listener.OnCollaboratio
                 //Method called
                 updateCategorySelection(Constant.EXPLORE_CATEGORY_GENERAL);
                 //load data here
+                mAdapter.setLoaded();
                 mExploreDataList.clear();
                 loadExploreData();
                 break;
@@ -436,6 +438,7 @@ public class ExploreFragment extends Fragment implements listener.OnCollaboratio
                 //Method called
                 updateCategorySelection(Constant.EXPLORE_CATEGORY_DEFAULT);
                 //load data here
+                mAdapter.setLoaded();
                 mExploreDataList.clear();
                 loadExploreData();
                 break;
@@ -1334,6 +1337,7 @@ public class ExploreFragment extends Fragment implements listener.OnCollaboratio
                 //Update flag
                 mSelectedCategoryID = model.getCategoryID();
                 //Load data here
+                mAdapter.setLoaded();
                 mExploreDataList.clear();
                 loadExploreData();
             }
