@@ -43,6 +43,7 @@ public class CreadApp extends MultiDexApplication {
     public static boolean GET_RESPONSE_FROM_NETWORK_RECOMMENDED_ARTISTS = false;
     public static boolean GET_RESPONSE_FROM_NETWORK_MORE_POSTS = false;
     public static boolean GET_RESPONSE_FROM_NETWORK_HASHTAG_OF_THE_DAY = false;
+    public static boolean GET_RESPONSE_FROM_NETWORK_HASHTAG_SUGGETION = false;
 
     // for picasso image loading
     public static boolean IMAGE_LOAD_FROM_NETWORK_ME = false;
@@ -114,4 +115,5 @@ public class CreadApp extends MultiDexApplication {
     public static void setChatDetailsVisible(boolean chatDetailsVisible) {
         isChatDetailsVisible = chatDetailsVisible;
     }
+
 }

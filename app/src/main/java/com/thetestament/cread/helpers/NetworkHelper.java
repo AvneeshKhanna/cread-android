@@ -453,6 +453,32 @@ public class NetworkHelper {
                 .getJSONObjectObservable();
     }
 
+    public static Observable<JSONObject> updateUserInterestStatusObservable(String uuid, String authkey, boolean register, String interestId) {
+        final JSONObject jsonObject = new JSONObject();
+
+        try {
+
+            JSONArray interestArray = new JSONArray();
+            interestArray.put(interestId);
+
+
+            jsonObject.put("uuid", uuid);
+            jsonObject.put("authkey", authkey);
+            jsonObject.put("register", register);
+            jsonObject.put("interests", interestArray);
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+            FirebaseCrash.report(e);
+        }
+
+        return Rx2AndroidNetworking
+                .post(BuildConfig.URL + "/user-interests/update")
+                .addJSONObjectBody(jsonObject)
+                .build()
+                .getJSONObjectObservable();
+    }
+
 
     public static Observable<JSONObject> updateDownvoteStatusObservable(String uuid, String authkey, boolean downvote, String entityid) {
         final JSONObject jsonObject = new JSONObject();
@@ -758,5 +784,32 @@ public class NetworkHelper {
                 .build()
                 .getJSONObjectObservable();
     }
+
+
+    /**
+     * Method to return user interests data from the server.
+     *
+     * @param serverURL URL of the server.
+     * @param uuid      UUID of the user.
+     * @param authKey   AuthKey of user.
+     */
+    public static Observable<JSONObject> getUserInterestsDataFromServer(String serverURL, String uuid, String authKey, String lastIndexKey) {
+        Map<String, String> headers = new HashMap<>();
+        headers.put("uuid", uuid);
+        headers.put("authkey", authKey);
+
+        Map<String, String> queryParams = new HashMap<>();
+        queryParams.put("lastindexkey", lastIndexKey);
+
+        Rx2ANRequest.GetRequestBuilder requestBuilder = Rx2AndroidNetworking.get(serverURL)
+                .addHeaders(headers)
+                .addQueryParameter(queryParams);
+
+        return requestBuilder
+                .build()
+                .getJSONObjectObservable();
+    }
+
+
 
 }

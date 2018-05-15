@@ -82,7 +82,7 @@ public class CustomDialog {
     }
 
     /**
-     * To return  the progress dialog.
+     * To return the indeterminate progress dialog.
      *
      * @param context     context to0 use.
      * @param contentText Text to be displayed.

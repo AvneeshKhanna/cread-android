@@ -627,6 +627,7 @@ public class SharedPreferenceHelper {
         editor.apply();
     }
 
+
     /**
      * Method to retrieve HashTagOfTheDay first time run status.
      *
@@ -649,6 +650,32 @@ public class SharedPreferenceHelper {
         editor.putBoolean(mContext.getString(R.string.key_htod_first_time), status);
         editor.apply();
     }
+
+    /**
+     * Method to retrieve User Interest in profile first time run status.
+     *
+     * @return True by default.
+     */
+    public boolean isUserInterestFirstTime() {
+        return mSharedPreferences
+                .getBoolean(mContext.getString(R.string.key_user_interests_prof_first_time)
+                        , true);
+    }
+
+
+    /**
+     * Method to update User Interest status.
+     *
+     * @param status boolean value i.e true or false
+     */
+    public void updateUserInterestStatus(boolean status) {
+        SharedPreferences.Editor editor = mSharedPreferences.edit();
+        editor.putBoolean(mContext.getString(R.string.key_user_interests_prof_first_time), status);
+        editor.apply();
+    }
+
+
+
 
     public String getHTagOfTheDay() {
         return mSharedPreferences

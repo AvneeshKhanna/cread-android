@@ -34,6 +34,8 @@ import com.thetestament.cread.utils.Constant;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.ArrayList;
+
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
@@ -47,12 +49,19 @@ import io.reactivex.schedulers.Schedulers;
 
 import static com.thetestament.cread.activities.MainActivity.phoneLogin;
 import static com.thetestament.cread.helpers.NetworkHelper.getNetConnectionStatus;
+import static com.thetestament.cread.utils.Constant.EXTRA_PROFILE_PIC_URL;
+import static com.thetestament.cread.utils.Constant.EXTRA_TOP_USER_INTERESTS;
 import static com.thetestament.cread.utils.Constant.EXTRA_USER_BIO;
 import static com.thetestament.cread.utils.Constant.EXTRA_USER_CONTACT;
 import static com.thetestament.cread.utils.Constant.EXTRA_USER_EMAIL;
 import static com.thetestament.cread.utils.Constant.EXTRA_USER_FIRST_NAME;
+import static com.thetestament.cread.utils.Constant.EXTRA_USER_INTERESTS_CALLED_FROM;
+import static com.thetestament.cread.utils.Constant.EXTRA_USER_INTERESTS_COUNT;
 import static com.thetestament.cread.utils.Constant.EXTRA_USER_LAST_NAME;
 import static com.thetestament.cread.utils.Constant.EXTRA_USER_WATER_MARK_STATUS;
+import static com.thetestament.cread.utils.Constant.REQUEST_CODE_FB_ACCOUNT_KIT;
+import static com.thetestament.cread.utils.Constant.REQUEST_CODE_USER_INTERESTS;
+import static com.thetestament.cread.utils.Constant.USER_INTERESTS_CALLED_FROM_PROFILE;
 import static com.thetestament.cread.utils.Constant.WATERMARK_STATUS_ASK_ALWAYS;
 import static com.thetestament.cread.utils.Constant.WATERMARK_STATUS_NO;
 import static com.thetestament.cread.utils.Constant.WATERMARK_STATUS_YES;
@@ -80,6 +89,8 @@ public class UpdateProfileDetailsActivity extends BaseActivity {
     AppCompatSpinner spinnerWaterMark;
     @BindView(R.id.progressView)
     View progressView;
+    @BindView(R.id.textUserInterests)
+    TextView textUserInterests;
 
     @State
     String mFirstName, mLastName, mEmail, mBio, mContact, mWaterMarkStatus, mWaterMarkText = "";
@@ -123,7 +134,7 @@ public class UpdateProfileDetailsActivity extends BaseActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         // Handling the result of fb mobile verification
-        if (requestCode == Constant.REQUEST_CODE_FB_ACCOUNT_KIT) {
+        if (requestCode == REQUEST_CODE_FB_ACCOUNT_KIT) {
             AccountKitLoginResult loginResult = data.getParcelableExtra(AccountKitLoginResult.RESULT_KEY);
 
             if (loginResult.getError() != null) {
@@ -139,6 +150,9 @@ public class UpdateProfileDetailsActivity extends BaseActivity {
 
             }
 
+        } else if (requestCode == REQUEST_CODE_USER_INTERESTS && resultCode == RESULT_OK) {
+            ArrayList<String> interests = data.getStringArrayListExtra(Constant.EXTRA_USER_INTERESTS_DATA);
+            textUserInterests.setText(getUserInterestsMessage(interests.size(), interests));
         }
     }
 
@@ -211,6 +225,18 @@ public class UpdateProfileDetailsActivity extends BaseActivity {
                     }
                 }).build()
                 .show();
+    }
+
+
+    /**
+     * Edit interests on click functionality
+     */
+    @OnClick(R.id.buttonAddInterests)
+    void onAddInterestsOnClick() {
+        Intent intent = new Intent(this, UserInterestIntroductionActivity.class);
+        intent.putExtra(EXTRA_USER_INTERESTS_CALLED_FROM, USER_INTERESTS_CALLED_FROM_PROFILE);
+        intent.putExtra(EXTRA_PROFILE_PIC_URL, getIntent().getStringExtra(EXTRA_PROFILE_PIC_URL));
+        startActivityForResult(intent, REQUEST_CODE_USER_INTERESTS);
     }
 
 
@@ -324,6 +350,12 @@ public class UpdateProfileDetailsActivity extends BaseActivity {
                 break;
         }
         spinnerWaterMark.setSelection(position);
+
+        // get interest count
+        long interestCount = getIntent().getLongExtra(EXTRA_USER_INTERESTS_COUNT, 0);
+        // set message
+        textUserInterests.setText(getUserInterestsMessage(interestCount, getIntent().getStringArrayListExtra(EXTRA_TOP_USER_INTERESTS)));
+
     }
 
     /**
@@ -531,6 +563,27 @@ public class UpdateProfileDetailsActivity extends BaseActivity {
                         // do nothing
                     }
                 });
+    }
+
+    /**
+     * Returns the message to be displayed in interest section depending on the no of interests
+     *
+     * @param interestCount
+     * @param interests
+     * @return
+     */
+    private String getUserInterestsMessage(long interestCount, ArrayList<String> interests) {
+        if (interestCount == 0) {
+            return "Click on Edit to add your interests";
+        } else if (interestCount == 1) {
+            return interests.get(0);
+        } else if (interestCount == 2) {
+            return interests.get(0) + ", " + interests.get(1);
+        } else if (interestCount == 3) {
+            return interests.get(0) + ", " + interests.get(1) + " and 1 other";
+        } else {
+            return interests.get(0) + ", " + interests.get(1) + " and " + String.valueOf(interestCount - 2) + " others";
+        }
     }
 
 

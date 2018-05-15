@@ -3,6 +3,13 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <item
         android:id="@+id/action_filter"
+        android:icon="@drawable/ic_filter_vector"
         android:title="@string/action_text_filters"
         app:showAsAction="always" />
+
+    <item
+        android:id="@+id/action_upload"
+        android:title="@string/action_text_upload"
+        app:showAsAction="always" />
+
 </menu>
