@@ -1643,7 +1643,7 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
                     , mHelper.getAuthToken()
                     , mCaptureID
                     , String.valueOf(textShort.getX() / divisionFactor)
-                    , String.valueOf((textShort.getY() - imageShortContainer.getY() /*+ ViewHelper.convertToPx(mContext, 48)*/) / divisionFactor)
+                    , String.valueOf((textShort.getY() /*- imageShortContainer.getY()*/ /*+ ViewHelper.convertToPx(mContext, 48)*/) / divisionFactor)
                     , String.valueOf(textShort.getWidth() / divisionFactor)
                     , String.valueOf(textShort.getHeight() / divisionFactor)
                     , textShort.getText().toString()
@@ -1979,7 +1979,7 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
                                 }
 
                                 //Obtain x and y position of text
-                                float dy = (float) (responseObject.getDouble("dy") - imageShortContainer.getY() /*+ ViewHelper.convertToPx(mContext, 48)*/) * factor;
+                                float dy = (float) (responseObject.getDouble("dy") /*- imageShortContainer.getY()*/ /*+ ViewHelper.convertToPx(mContext, 48)*/) * factor;
                                 float dx = (float) (responseObject.getDouble("dx") * factor);
 
                                 //Update textView xPosition  and yPosition

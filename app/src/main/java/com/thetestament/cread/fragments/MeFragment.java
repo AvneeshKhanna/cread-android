@@ -519,16 +519,34 @@ public class MeFragment extends Fragment implements listener.OnCollaborationList
             intent.putExtra(EXTRA_USER_WATER_MARK_STATUS, mWaterMarkStatus);
             startActivityForResult(intent, REQUEST_CODE_UPDATE_PROFILE_DETAILS);
         } else {
-            //fixme dialog
-            // Gets a handle to the clipboard service.
-            ClipboardManager manager = (ClipboardManager)
-                    getActivity().getSystemService(Context.CLIPBOARD_SERVICE);
-            // Creates a new text clip to put on the clipboard
-            ClipData clip = ClipData.newPlainText("webStoreLink", mWebStoreUrl);
-            // Set the clipboard's primary clip.
-            manager.setPrimaryClip(clip);
-            ViewHelper.getSnackBar(rootView, "Link copied to clipboard");
-
+            //fixme title and content text
+            new MaterialDialog.Builder(getActivity())
+                    .title("Web store link")
+                    .positiveText("Copy link")
+                    .negativeText("Cancel")
+                    .content("Copy " + mFirstName + " web store link. ")
+                    .onPositive(new MaterialDialog.SingleButtonCallback() {
+                        @Override
+                        public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
+                            // Gets a handle to the clipboard service.
+                            ClipboardManager manager = (ClipboardManager)
+                                    getActivity().getSystemService(Context.CLIPBOARD_SERVICE);
+                            // Creates a new text clip to put on the clipboard
+                            ClipData clip = ClipData.newPlainText("webStoreLink", mWebStoreUrl);
+                            // Set the clipboard's primary clip.
+                            manager.setPrimaryClip(clip);
+                            ViewHelper.getSnackBar(rootView, "Link copied to clipboard");
+                        }
+                    })
+                    .onNegative(new MaterialDialog.SingleButtonCallback() {
+                        @Override
+                        public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
+                            //dismiss dialog
+                            dialog.dismiss();
+                        }
+                    })
+                    .build()
+                    .show();
         }
         //Update status
         mHelper.updateWebStoreDotIndicatorStatus(false);
@@ -952,9 +970,8 @@ public class MeFragment extends Fragment implements listener.OnCollaborationList
                                 mContactNumber = mainData.getString("phone");
                                 mWaterMarkStatus = mainData.getString("watermarkstatus");
                                 mIsFeatured = mainData.getBoolean("featured");
-                                //fixme  retrieve web store data
-                                //mWebStoreUrl=mainData.getString("webstoreurl");
-                                mWebStoreUrl = "www.cread.in";
+                                mWebStoreUrl = mainData.getString("web_profile_link");
+
                             }
                         } catch (JSONException e) {
                             e.printStackTrace();
