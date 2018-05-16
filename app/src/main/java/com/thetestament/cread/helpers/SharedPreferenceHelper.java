@@ -687,6 +687,27 @@ public class SharedPreferenceHelper {
     }
 
 
+    /**
+     * Method to retrieve web store dot indicator status.
+     *
+     * @return True by default.
+     */
+    public boolean isWebStoreDotIndicatorFirstTime() {
+        return mSharedPreferences
+                .getBoolean(mContext.getString(R.string.key_web_store_dot), true);
+    }
+
+
+    /**
+     * Method to update web store dot indicator status.
+     *
+     * @param status boolean value i.e true or false
+     */
+    public void updateWebStoreDotIndicatorStatus(boolean status) {
+        SharedPreferences.Editor editor = mSharedPreferences.edit();
+        editor.putBoolean(mContext.getString(R.string.key_web_store_dot), status);
+        editor.apply();
+    }
 
 
 }

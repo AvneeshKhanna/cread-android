@@ -67,6 +67,7 @@
     <string name="key_htod_value">keyHtodValue</string>
     <string name="key_htod_count">keyHtodCount</string>
     <string name="key_htod_new_posts_indicator_visibility">keyHtNewPostsIndicatorVisibility</string>
+    <string name="key_web_store_dot">keyWebStoreDot</string>
 
 
     // dialog messages
@@ -211,8 +212,6 @@
     <string name="action_text_upload">Upload</string>
     <string name="text_follow"> \u2022 Follow</string>
     <string name="text_cread_name">Cread \u2022  New message</string>
-
-
 
 
     <string name="text_writing_mode_short">Short Mode</string>

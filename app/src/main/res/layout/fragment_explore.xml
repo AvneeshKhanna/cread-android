@@ -40,7 +40,7 @@
                     android:layout_height="wrap_content"
                     android:background="@color/grey_light"
                     android:orientation="horizontal"
-                    android:visibility="visible"
+                    android:visibility="gone"
                     app:layoutManager="android.support.v7.widget.LinearLayoutManager"
                     tools:itemCount="4"
                     tools:listitem="@layout/item_featured_artists" />

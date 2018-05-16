@@ -109,6 +109,7 @@ public class Constant {
     public static final String EXTRA_USER_EMAIL = "userEmail";
     public static final String EXTRA_USER_BIO = "userBio";
     public static final String EXTRA_USER_CONTACT = "userContact";
+    public static final String EXTRA_USER_WEB_STORE_LINK = "userWebStoreLink";
     public static final String EXTRA_USER_WATER_MARK_STATUS = "userWaterMarkStatus";
     public static final String EXTRA_USER_IMAGE_PATH = "userImagePath";
 

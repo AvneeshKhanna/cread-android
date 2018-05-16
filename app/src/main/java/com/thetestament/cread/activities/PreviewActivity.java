@@ -942,7 +942,6 @@ public class PreviewActivity extends BaseActivity implements QueryTokenReceiver,
 
         final MaterialDialog dialog = CustomDialog
                 .getProgressDialog(mContext, "Uploading your capture");
-        dialog.show();
 
 
         Rx2AndroidNetworking.upload(BuildConfig.URL + "/capture-upload/collaborated")
@@ -1066,7 +1065,7 @@ public class PreviewActivity extends BaseActivity implements QueryTokenReceiver,
         //To show the progress dialog
         final MaterialDialog dialog = CustomDialog.
                 getProgressDialog(mContext, "Uploading your writing");
-        dialog.show();
+
 
 
         Rx2AndroidNetworking.upload(BuildConfig.URL + "/short-upload")
@@ -1189,7 +1188,7 @@ public class PreviewActivity extends BaseActivity implements QueryTokenReceiver,
         //To show the progress dialog
         final MaterialDialog dialog = CustomDialog
                 .getProgressDialog(mContext, "Uploading your writing");
-        dialog.show();
+
 
         Rx2AndroidNetworking.upload(BuildConfig.URL + "/short-upload/edit")
                 .setOkHttpClient(okHttpClient)
@@ -1304,7 +1303,6 @@ public class PreviewActivity extends BaseActivity implements QueryTokenReceiver,
         //To show the progress dialog
         final MaterialDialog dialog = CustomDialog
                 .getProgressDialog(mContext, "Uploading your graphic art");
-        dialog.show();
 
         //Decode image file
         BitmapFactory.Options options = new BitmapFactory.Options();
@@ -1404,7 +1402,6 @@ public class PreviewActivity extends BaseActivity implements QueryTokenReceiver,
 
         final MaterialDialog dialog = CustomDialog
                 .getProgressDialog(mContext, "Updating your caption");
-        dialog.show();
 
         //Configure OkHttpClient for time out
         OkHttpClient okHttpClient = new OkHttpClient().newBuilder()
