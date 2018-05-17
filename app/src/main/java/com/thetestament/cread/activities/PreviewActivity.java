@@ -711,8 +711,15 @@ public class PreviewActivity extends BaseActivity implements QueryTokenReceiver,
             initFilterView();
             //Apply aspect ration to imageView
             applyAspectRatio(IMAGE_TYPE_USER_SHORT_PIC);
-            //Load label data
-            loadLabelsData(null, Constant.LABEL_TYPE_WRITING);
+
+            if (TextUtils.isEmpty(mBundle.getString(PREVIEW_EXTRA_CAPTURE_ID))) {
+                //Load label data
+                loadLabelsData(null, Constant.LABEL_TYPE_WRITING);
+            } else {
+                //Load label data
+                loadLabelsData(null, Constant.LABEL_TYPE_ALL);
+            }
+
             //Load short pic
             loadPreviewImage(getImageUri(IMAGE_TYPE_USER_SHORT_PIC), imagePreview);
             //set bg sound for long form

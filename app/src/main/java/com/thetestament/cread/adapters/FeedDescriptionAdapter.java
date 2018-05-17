@@ -609,7 +609,6 @@ public class FeedDescriptionAdapter extends RecyclerView.Adapter {
             public void onClick(View view) {
                 Intent intent = new Intent(mContext, CommentsActivity.class);
                 intent.putExtra(EXTRA_ENTITY_ID, entityID);
-                // fixme
                 mContext.startActivityForResult(intent, REQUEST_CODE_COMMENTS_ACTIVITY);
             }
         });

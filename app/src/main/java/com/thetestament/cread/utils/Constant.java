@@ -44,6 +44,7 @@ public class Constant {
     public static final int REQUEST_CODE_RECOMMENDED_ARTISTS_FROM_FEED_ADAPTER = 1020;
     public static final int REQUEST_CODE_USER_PROFILE_FROM_SUGGESTED_ADAPTER = 1021;
     public static final int REQUEST_CODE_GOOGLE_SIGN_IN = 1022;
+    public static final int REQUEST_CODE_USER_INTERESTS = 1023;
     //endregion
 
     //region :Tag value for fragments
@@ -112,6 +113,8 @@ public class Constant {
     public static final String EXTRA_USER_WEB_STORE_LINK = "userWebStoreLink";
     public static final String EXTRA_USER_WATER_MARK_STATUS = "userWaterMarkStatus";
     public static final String EXTRA_USER_IMAGE_PATH = "userImagePath";
+    public static final String EXTRA_TOP_USER_INTERESTS = "topUserInterests";
+    public static final String EXTRA_USER_INTERESTS_COUNT = "userInterestsCount";
 
     public static final String EXTRA_FOLLOW_REQUESTED_UUID = "followRequestedUUID";
     public static final String EXTRA_FOLLOW_TYPE = "followType";
@@ -155,6 +158,11 @@ public class Constant {
     public static final String EXTRA_OPEN_SPECIFIC_BOTTOMNAV_FRAGMENT = "openSpecificBottomNavFragment";
 
     public static final String EXTRA_SHORT_DATA = "extraShortData";
+
+    public static final String EXTRA_USER_INTERESTS_CALLED_FROM = "userInterestsCalledFrom";
+    public static final String EXTRA_PROFILE_PIC_URL = "userProfilePicUrl";
+    public static final String EXTRA_USER_INTERESTS_DATA = "userInterestsData";
+
 
 
     //Action
@@ -365,6 +373,9 @@ public class Constant {
     public static final String LABEL_TYPE_WRITING = "WRITING";
     public static final String LABEL_TYPE_GRAPHIC = "GRAPHIC";
     public static final String LABEL_TYPE_ALL = "ALL";
+
+    public static final String USER_INTERESTS_CALLED_FROM_LOGIN = "userInterestsCalledFromLogin";
+    public static final String USER_INTERESTS_CALLED_FROM_PROFILE = "userInterestsCalledFromProfile";
     //endregion
 
     //region

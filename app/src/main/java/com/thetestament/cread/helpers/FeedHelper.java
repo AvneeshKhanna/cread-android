@@ -749,8 +749,16 @@ public class FeedHelper {
                             bundle.putString(EXTRA_CAPTURE_ID, responseObject.getString("capid"));
                             bundle.putString(EXTRA_CAPTURE_URL, responseObject.getString("entityurl"));
                             bundle.putBoolean(EXTRA_MERCHANTABLE, merchantable);
-                            bundle.putInt(EXTRA_IMAGE_WIDTH, responseObject.getInt("img_width"));
-                            bundle.putInt(EXTRA_IMAGE_HEIGHT, responseObject.getInt("img_height"));
+
+                            //if image width and image height is null
+                            if (responseObject.isNull("img_width") || responseObject.isNull("img_height")) {
+                                bundle.putInt(EXTRA_IMAGE_WIDTH, 1);
+                                bundle.putInt(EXTRA_IMAGE_HEIGHT, 1);
+                            } else {
+                                bundle.putInt(EXTRA_IMAGE_WIDTH, responseObject.getInt("img_width"));
+                                bundle.putInt(EXTRA_IMAGE_HEIGHT, responseObject.getInt("img_height"));
+                            }
+
                             bundle.putString(SHORT_EXTRA_CALLED_FROM, SHORT_EXTRA_CALLED_FROM_COLLABORATION_SHORT);
                             Intent intent = new Intent(context, ShortActivity.class);
                             intent.putExtra(EXTRA_DATA, bundle);

@@ -96,9 +96,6 @@ public class SplashActivity extends AppCompatActivity {
 
         if (uuid != null && authkey != null) {
             startActivity(new Intent(this, BottomNavigationActivity.class));
-            finish();
-            //startActivity(new Intent(this, MerchandizingProductsActivity.class));
-            //startActivity(new Intent(this, FindFBFriendsActivity.class));
         } else {
 
             // to generate token when the app is installed first time

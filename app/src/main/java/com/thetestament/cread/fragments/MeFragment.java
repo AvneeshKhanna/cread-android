@@ -128,11 +128,14 @@ import static com.thetestament.cread.utils.Constant.EXTRA_CHAT_USER_NAME;
 import static com.thetestament.cread.utils.Constant.EXTRA_CHAT_UUID;
 import static com.thetestament.cread.utils.Constant.EXTRA_DATA;
 import static com.thetestament.cread.utils.Constant.EXTRA_IS_PROFILE_EDITABLE;
+import static com.thetestament.cread.utils.Constant.EXTRA_PROFILE_PIC_URL;
+import static com.thetestament.cread.utils.Constant.EXTRA_TOP_USER_INTERESTS;
 import static com.thetestament.cread.utils.Constant.EXTRA_USER_BIO;
 import static com.thetestament.cread.utils.Constant.EXTRA_USER_CONTACT;
 import static com.thetestament.cread.utils.Constant.EXTRA_USER_EMAIL;
 import static com.thetestament.cread.utils.Constant.EXTRA_USER_FIRST_NAME;
 import static com.thetestament.cread.utils.Constant.EXTRA_USER_IMAGE_PATH;
+import static com.thetestament.cread.utils.Constant.EXTRA_USER_INTERESTS_COUNT;
 import static com.thetestament.cread.utils.Constant.EXTRA_USER_LAST_NAME;
 import static com.thetestament.cread.utils.Constant.EXTRA_USER_WATER_MARK_STATUS;
 import static com.thetestament.cread.utils.Constant.EXTRA_USER_WEB_STORE_LINK;
@@ -212,6 +215,8 @@ public class MeFragment extends Fragment implements listener.OnCollaborationList
     boolean mFollowStatus, isProfileEditable, mIsFeatured, mCanDownvote;
     @State
     String mRequestedUUID;
+    @State
+    long mInterestCount = 0;
 
     @State
     String mEntityID, mEntityType;
@@ -234,6 +239,7 @@ public class MeFragment extends Fragment implements listener.OnCollaborationList
     private boolean mRequestMoreData;
     private int[] mLayouts;
     private int spanCount = 2;
+    private ArrayList<String> mSelectedInterest = new ArrayList<>();
 
     /**
      * Flag to maintain user web store link.
@@ -518,6 +524,9 @@ public class MeFragment extends Fragment implements listener.OnCollaborationList
             intent.putExtra(EXTRA_USER_CONTACT, mContactNumber);
             intent.putExtra(EXTRA_USER_WEB_STORE_LINK, mWebStoreUrl);
             intent.putExtra(EXTRA_USER_WATER_MARK_STATUS, mWaterMarkStatus);
+            intent.putExtra(EXTRA_TOP_USER_INTERESTS, mSelectedInterest);
+            intent.putExtra(EXTRA_USER_INTERESTS_COUNT, mInterestCount);
+            intent.putExtra(EXTRA_PROFILE_PIC_URL, mProfilePicURL);
             startActivityForResult(intent, REQUEST_CODE_UPDATE_PROFILE_DETAILS);
         } else {
             MaterialDialog dialog = new MaterialDialog.Builder(getActivity())
@@ -966,6 +975,12 @@ public class MeFragment extends Fragment implements listener.OnCollaborationList
                                 mIsFeatured = mainData.getBoolean("featured");
                                 mWebStoreUrl = mainData.getString("web_profile_link");
 
+                                mInterestCount = mainData.getLong("interestcount");
+
+                                JSONArray interestArray = mainData.getJSONArray("topinterests");
+                                for (int i = 0; i < interestArray.length(); i++) {
+                                    mSelectedInterest.add(interestArray.getString(i));
+                                }
                             }
                         } catch (JSONException e) {
                             e.printStackTrace();

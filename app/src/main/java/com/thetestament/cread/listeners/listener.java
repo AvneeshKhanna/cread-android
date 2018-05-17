@@ -16,6 +16,7 @@ import com.thetestament.cread.models.PersonMentionModel;
 import com.thetestament.cread.models.ShortModel;
 import com.thetestament.cread.models.SuggestedArtistsModel;
 import com.thetestament.cread.models.UpdatesModel;
+import com.thetestament.cread.models.UserInterestsModel;
 import com.thetestament.cread.utils.Constant.GratitudeNumbers;
 
 import java.util.List;
@@ -73,6 +74,23 @@ public class listener {
     public interface OnCommentsLoadMoreListener {
         void onLoadMore();
     }
+
+    /**
+     * Interface definition for a callback to be invoked when user scroll for more data.
+     */
+    public interface OnInterestsLoadMoreListener {
+        void onLoadMore();
+    }
+
+
+    /**
+     * Interface definition for a callback to be invoked when user clicks on a interest.
+     */
+    public interface OnInterestClickedListener {
+        void onInterestClicked(UserInterestsModel data, int position);
+    }
+
+
 
 
     /**
@@ -449,6 +467,15 @@ public class listener {
          * Error message to be displayed.
          */
         void onFailure(String errorMsg);
+    }
+
+    /**
+     * Interface definition for a callback to be invoked when user clicks on User interest.
+     */
+    public interface OnUserInterestClickedListener {
+        void onInterestSuccess();
+
+        void onInterestFailure(String errorMsg);
     }
 
     /**
