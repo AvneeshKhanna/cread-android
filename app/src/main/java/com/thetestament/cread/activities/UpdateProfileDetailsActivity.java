@@ -55,6 +55,7 @@ import io.reactivex.schedulers.Schedulers;
 import static com.thetestament.cread.activities.MainActivity.phoneLogin;
 import static com.thetestament.cread.helpers.NetworkHelper.getNetConnectionStatus;
 import static com.thetestament.cread.utils.Constant.EXTRA_PROFILE_PIC_URL;
+import static com.thetestament.cread.utils.Constant.EXTRA_TOP_USER_INTERESTS;
 import static com.thetestament.cread.utils.Constant.EXTRA_USER_BIO;
 import static com.thetestament.cread.utils.Constant.EXTRA_USER_CONTACT;
 import static com.thetestament.cread.utils.Constant.EXTRA_USER_EMAIL;
@@ -63,7 +64,9 @@ import static com.thetestament.cread.utils.Constant.EXTRA_USER_INTERESTS_CALLED_
 import static com.thetestament.cread.utils.Constant.EXTRA_USER_INTERESTS_COUNT;
 import static com.thetestament.cread.utils.Constant.EXTRA_USER_LAST_NAME;
 import static com.thetestament.cread.utils.Constant.EXTRA_USER_WATER_MARK_STATUS;
+import static com.thetestament.cread.utils.Constant.EXTRA_USER_WEB_STORE_LINK;
 import static com.thetestament.cread.utils.Constant.REQUEST_CODE_USER_INTERESTS;
+import static com.thetestament.cread.utils.Constant.USER_INTERESTS_CALLED_FROM_PROFILE;
 import static com.thetestament.cread.utils.Constant.WATERMARK_STATUS_ASK_ALWAYS;
 import static com.thetestament.cread.utils.Constant.WATERMARK_STATUS_NO;
 import static com.thetestament.cread.utils.Constant.WATERMARK_STATUS_YES;
