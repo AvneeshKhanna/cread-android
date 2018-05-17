@@ -29,7 +29,6 @@ import com.google.firebase.crash.FirebaseCrash;
 import com.rx2androidnetworking.Rx2AndroidNetworking;
 import com.thetestament.cread.BuildConfig;
 import com.thetestament.cread.R;
-import com.thetestament.cread.activities.ProfileActivity;
 import com.thetestament.cread.activities.ShortActivity;
 import com.thetestament.cread.adapters.ShareDialogAdapter;
 import com.thetestament.cread.listeners.listener;
@@ -61,7 +60,6 @@ import static com.thetestament.cread.utils.Constant.EXTRA_DATA;
 import static com.thetestament.cread.utils.Constant.EXTRA_IMAGE_HEIGHT;
 import static com.thetestament.cread.utils.Constant.EXTRA_IMAGE_WIDTH;
 import static com.thetestament.cread.utils.Constant.EXTRA_MERCHANTABLE;
-import static com.thetestament.cread.utils.Constant.EXTRA_PROFILE_UUID;
 import static com.thetestament.cread.utils.Constant.SHORT_EXTRA_CALLED_FROM;
 import static com.thetestament.cread.utils.Constant.SHORT_EXTRA_CALLED_FROM_COLLABORATION_SHORT;
 import static com.thetestament.cread.utils.Constant.URI_HASH_TAG_ACTIVITY;
@@ -97,7 +95,8 @@ public class FeedHelper {
         ClickableSpan collaboratorSpan = new ClickableSpan() {
             @Override
             public void onClick(View textView) {
-                context.startActivity(new Intent(context, ProfileActivity.class).putExtra(EXTRA_PROFILE_UUID, creatorUUID));
+                //Method called
+                IntentHelper.openProfileActivity(context, creatorUUID);
             }
 
             @Override
@@ -114,7 +113,8 @@ public class FeedHelper {
             ClickableSpan collaboratedWithSpan = new ClickableSpan() {
                 @Override
                 public void onClick(View textView) {
-                    context.startActivity(new Intent(context, ProfileActivity.class).putExtra(EXTRA_PROFILE_UUID, collabWithUUID));
+                    //Method called
+                    IntentHelper.openProfileActivity(context, collabWithUUID);
                 }
 
                 @Override

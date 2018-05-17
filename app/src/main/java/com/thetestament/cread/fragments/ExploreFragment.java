@@ -29,12 +29,12 @@ import android.widget.TextView;
 
 import com.afollestad.materialdialogs.DialogAction;
 import com.afollestad.materialdialogs.MaterialDialog;
+import com.facebook.drawee.view.SimpleDraweeView;
 import com.google.firebase.crash.FirebaseCrash;
 import com.thetestament.cread.BuildConfig;
 import com.thetestament.cread.Manifest;
 import com.thetestament.cread.R;
 import com.thetestament.cread.activities.FindFBFriendsActivity;
-import com.thetestament.cread.activities.ProfileActivity;
 import com.thetestament.cread.activities.SearchActivity;
 import com.thetestament.cread.adapters.ExploreAdapter;
 import com.thetestament.cread.adapters.ExploreCategoryAdapter;
@@ -43,6 +43,7 @@ import com.thetestament.cread.dialog.CustomDialog;
 import com.thetestament.cread.helpers.FeedHelper;
 import com.thetestament.cread.helpers.FollowHelper;
 import com.thetestament.cread.helpers.ImageHelper;
+import com.thetestament.cread.helpers.IntentHelper;
 import com.thetestament.cread.helpers.SharedPreferenceHelper;
 import com.thetestament.cread.helpers.ViewHelper;
 import com.thetestament.cread.listeners.listener;
@@ -65,7 +66,6 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import butterknife.Unbinder;
-import de.hdodenhof.circleimageview.CircleImageView;
 import icepick.Icepick;
 import icepick.State;
 import io.reactivex.android.schedulers.AndroidSchedulers;
@@ -91,7 +91,6 @@ import static com.thetestament.cread.helpers.NetworkHelper.requestServer;
 import static com.thetestament.cread.utils.Constant.CONTENT_TYPE_CAPTURE;
 import static com.thetestament.cread.utils.Constant.CONTENT_TYPE_SHORT;
 import static com.thetestament.cread.utils.Constant.EXTRA_DATA;
-import static com.thetestament.cread.utils.Constant.EXTRA_PROFILE_UUID;
 import static com.thetestament.cread.utils.Constant.IMAGE_TYPE_USER_CAPTURE_PIC;
 import static com.thetestament.cread.utils.Constant.ITEM_TYPES.GRID;
 import static com.thetestament.cread.utils.Constant.ITEM_TYPES.LIST;
@@ -631,7 +630,7 @@ public class ExploreFragment extends Fragment implements listener.OnCollaboratio
                             // init views
                             View rootViewDialog = dialog.getCustomView();
                             TextView artistName = rootViewDialog.findViewById(R.id.textFeatArtist);
-                            CircleImageView imageArtist = rootViewDialog.findViewById(R.id.imageFeatArtist);
+                            SimpleDraweeView imageArtist = rootViewDialog.findViewById(R.id.imageFeatArtist);
                             final TextView textPostsCount = rootViewDialog.findViewById(R.id.textPostsCount);
                             final TextView textFollowersCount = rootViewDialog.findViewById(R.id.textFollowersCount);
                             final TextView textCollaborationsCount = rootViewDialog.findViewById(R.id.textCollaborationsCount);
@@ -654,10 +653,8 @@ public class ExploreFragment extends Fragment implements listener.OnCollaboratio
                             buttonViewProfile.setOnClickListener(new View.OnClickListener() {
                                 @Override
                                 public void onClick(View view) {
-
-                                    Intent intent = new Intent(getActivity(), ProfileActivity.class);
-                                    intent.putExtra(EXTRA_PROFILE_UUID, uuid);
-                                    startActivity(intent);
+                                    //Method called
+                                    IntentHelper.openProfileActivity(getActivity(), uuid);
 
                                     // dismiss dialog
                                     dialog.dismiss();
@@ -666,7 +663,7 @@ public class ExploreFragment extends Fragment implements listener.OnCollaboratio
                             });
 
                             //Load user profile picture
-                            ImageHelper.loadImageFromPicasso(getActivity(), imageArtist, mProfilePicURL, R.drawable.ic_account_circle_100);
+                            ImageHelper.loadProgressiveImage(Uri.parse(mProfilePicURL),imageArtist);
 
                             //if last name is present
                             if (mLastName != null) {

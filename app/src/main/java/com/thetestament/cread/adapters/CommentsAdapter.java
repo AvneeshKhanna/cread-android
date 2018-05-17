@@ -1,6 +1,6 @@
 package com.thetestament.cread.adapters;
 
-import android.content.Intent;
+import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomSheetDialog;
 import android.support.v4.app.FragmentActivity;
@@ -15,10 +15,11 @@ import android.widget.TextView;
 
 import com.afollestad.materialdialogs.DialogAction;
 import com.afollestad.materialdialogs.MaterialDialog;
-import com.squareup.picasso.Picasso;
+import com.facebook.drawee.view.SimpleDraweeView;
 import com.thetestament.cread.R;
-import com.thetestament.cread.activities.ProfileActivity;
 import com.thetestament.cread.helpers.FeedHelper;
+import com.thetestament.cread.helpers.ImageHelper;
+import com.thetestament.cread.helpers.IntentHelper;
 import com.thetestament.cread.helpers.ProfileMentionsHelper;
 import com.thetestament.cread.listeners.listener.OnCommentDeleteListener;
 import com.thetestament.cread.listeners.listener.OnCommentEditListener;
@@ -29,9 +30,6 @@ import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import de.hdodenhof.circleimageview.CircleImageView;
-
-import static com.thetestament.cread.utils.Constant.EXTRA_PROFILE_UUID;
 
 /**
  * Adapter class to provide a binding from data set to views that are displayed within a Comments RecyclerView.
@@ -122,7 +120,7 @@ public class CommentsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
             feedHelper.setHashTags(itemViewHolder.textComment, mContext, R.color.blue_dark, -1);
 
             //Load profile picture
-            loadProfilePic(data.getProfilePicUrl(), itemViewHolder.imageUser);
+            ImageHelper.loadProgressiveImage(Uri.parse(data.getProfilePicUrl()), itemViewHolder.imageUser);
 
             //If comment is edited
             if (data.isEdited()) {
@@ -206,19 +204,6 @@ public class CommentsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
 
 
     /**
-     * Method to load  profile picture.
-     *
-     * @param picUrl    picture URL.
-     * @param imageView View where image to be loaded.
-     */
-    private void loadProfilePic(String picUrl, CircleImageView imageView) {
-        Picasso.with(mContext)
-                .load(picUrl)
-                .error(R.drawable.ic_account_circle_100)
-                .into(imageView);
-    }
-
-    /**
      * Method to expand and collapse comment text.
      *
      * @param textComment Comment textView.
@@ -248,9 +233,8 @@ public class CommentsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         view.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent = new Intent(context, ProfileActivity.class);
-                intent.putExtra(EXTRA_PROFILE_UUID, creatorUUID);
-                context.startActivity(intent);
+                //Method called
+                IntentHelper.openProfileActivity(context, creatorUUID);
             }
         });
     }
@@ -318,7 +302,7 @@ public class CommentsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
     //ViewHolder class for item
     static class ItemViewHolder extends RecyclerView.ViewHolder {
         @BindView(R.id.imageUser)
-        CircleImageView imageUser;
+        SimpleDraweeView imageUser;
         @BindView(R.id.textUserName)
         TextView textUserName;
         @BindView(R.id.textComment)

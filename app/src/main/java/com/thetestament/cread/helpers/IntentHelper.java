@@ -6,10 +6,12 @@ import android.os.Bundle;
 
 import com.thetestament.cread.activities.ContentPreview;
 import com.thetestament.cread.activities.FollowActivity;
+import com.thetestament.cread.activities.ProfileActivity;
 import com.thetestament.cread.utils.Constant;
 
 import static com.thetestament.cread.utils.Constant.EXTRA_FOLLOW_REQUESTED_UUID;
 import static com.thetestament.cread.utils.Constant.EXTRA_FOLLOW_TYPE;
+import static com.thetestament.cread.utils.Constant.EXTRA_PROFILE_UUID;
 
 /**
  * A helper class to provide utility method for intent related operations.
@@ -39,6 +41,8 @@ public class IntentHelper {
     }
 
     /**
+     * Method to open FollowActivity screen.
+     *
      * @param context       Context to use.
      * @param requestedUUID UUID of the user.
      * @param followType    'following'/'followers'
@@ -47,6 +51,18 @@ public class IntentHelper {
         Intent intent = new Intent(context, FollowActivity.class);
         intent.putExtra(EXTRA_FOLLOW_REQUESTED_UUID, requestedUUID);
         intent.putExtra(EXTRA_FOLLOW_TYPE, followType);
+        context.startActivity(intent);
+    }
+
+    /**
+     * Method to open ProfileActivity screen.
+     *
+     * @param context Context to use.
+     * @param uuid    UUID of user whose profile to be opened.
+     */
+    public static void openProfileActivity(Context context, String uuid) {
+        Intent intent = new Intent(context, ProfileActivity.class);
+        intent.putExtra(EXTRA_PROFILE_UUID, uuid);
         context.startActivity(intent);
     }
 }

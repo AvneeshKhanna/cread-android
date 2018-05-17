@@ -20,6 +20,11 @@ import android.widget.ImageView;
 
 import com.afollestad.materialdialogs.DialogAction;
 import com.afollestad.materialdialogs.MaterialDialog;
+import com.facebook.drawee.backends.pipeline.Fresco;
+import com.facebook.drawee.interfaces.DraweeController;
+import com.facebook.drawee.view.SimpleDraweeView;
+import com.facebook.imagepipeline.request.ImageRequest;
+import com.facebook.imagepipeline.request.ImageRequestBuilder;
 import com.google.firebase.crash.FirebaseCrash;
 import com.squareup.picasso.Picasso;
 import com.thetestament.cread.BuildConfig;
@@ -480,4 +485,23 @@ public class ImageHelper {
     }
 
 
+    /**
+     * Method to load image progressively.
+     *
+     * @param uri              Uri of image to be loaded.
+     * @param simpleDraweeView View where image to be loaded.
+     */
+    public static void loadProgressiveImage(Uri uri, SimpleDraweeView simpleDraweeView) {
+
+        ImageRequest request = ImageRequestBuilder.newBuilderWithSource(uri)
+                .setProgressiveRenderingEnabled(true)
+                .build();
+        DraweeController controller = Fresco.newDraweeControllerBuilder()
+                .setImageRequest(request)
+                .setOldController(simpleDraweeView.getController())
+                .setTapToRetryEnabled(true)
+                .build();
+        simpleDraweeView.setController(controller);
+
+    }
 }

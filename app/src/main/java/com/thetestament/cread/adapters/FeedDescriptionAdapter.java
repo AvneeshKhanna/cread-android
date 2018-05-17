@@ -4,9 +4,9 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
-import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.widget.TextViewCompat;
@@ -25,11 +25,9 @@ import android.widget.TextView;
 import com.afollestad.materialdialogs.DialogAction;
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.afollestad.materialdialogs.MaterialDialog.SingleButtonCallback;
+import com.facebook.drawee.view.SimpleDraweeView;
 import com.google.firebase.analytics.FirebaseAnalytics;
-import com.squareup.picasso.Callback;
-import com.squareup.picasso.NetworkPolicy;
 import com.squareup.picasso.Picasso;
-import com.squareup.picasso.RequestCreator;
 import com.squareup.picasso.Target;
 import com.thetestament.cread.R;
 import com.thetestament.cread.activities.CollaborationDetailsActivity;
@@ -56,7 +54,6 @@ import butterknife.ButterKnife;
 import de.hdodenhof.circleimageview.CircleImageView;
 import io.reactivex.disposables.CompositeDisposable;
 
-import static com.thetestament.cread.CreadApp.IMAGE_LOAD_FROM_NETWORK_FEED_DESCRIPTION;
 import static com.thetestament.cread.adapters.CommentsAdapter.openCreatorProfile;
 import static com.thetestament.cread.adapters.CommentsAdapter.toggleComment;
 import static com.thetestament.cread.helpers.ContentHelper.getMenuActionsBottomSheet;
@@ -224,13 +221,15 @@ public class FeedDescriptionAdapter extends RecyclerView.Adapter {
         if (holder.getItemViewType() == VIEW_TYPE_ITEM) {
             final ItemViewHolder itemViewHolder = (ItemViewHolder) holder;
             //Load creator profile picture
-            loadCreatorPic(data.getCreatorImage(), itemViewHolder.imageCreator);
+            ImageHelper.loadProgressiveImage(Uri.parse(data.getCreatorImage())
+                    ,itemViewHolder.imageCreator);
             //Set image width and height
             AspectRatioUtils.setImageAspectRatio(data.getImgWidth()
                     , data.getImgHeight()
                     , itemViewHolder.image);
             //Load feed image
-            loadFeedImage(data.getContentImage(), itemViewHolder.image);
+            ImageHelper.loadProgressiveImage(Uri.parse(data.getContentImage())
+                    , itemViewHolder.image);
 
             // set text and click actions acc. to content type
             FeedHelper.performContentTypeSpecificOperations(mContext
@@ -391,11 +390,11 @@ public class FeedDescriptionAdapter extends RecyclerView.Adapter {
         @BindView(R.id.rootView)
         CardView rootView;
         @BindView(R.id.imageCreator)
-        CircleImageView imageCreator;
+        SimpleDraweeView imageCreator;
         @BindView(R.id.textCreatorName)
         TextView textCreatorName;
         @BindView(R.id.contentImage)
-        ImageView image;
+        SimpleDraweeView image;
         @BindView(R.id.containerCommentsCount)
         LinearLayout containerCommentsCount;
         @BindView(R.id.containerHatsoffCount)
@@ -527,52 +526,8 @@ public class FeedDescriptionAdapter extends RecyclerView.Adapter {
         mIsLoading = false;
     }
 
-    /**
-     * Method to load creator profile picture.
-     *
-     * @param picUrl    picture URL.
-     * @param imageView View where image to be loaded.
-     */
-    private void loadCreatorPic(String picUrl, CircleImageView imageView) {
-        Picasso.with(mContext)
-                .load(picUrl)
-                .error(R.drawable.ic_account_circle_100)
-                .into(imageView);
-    }
-
-    /**
-     * Method to load feed image.
-     *
-     * @param imageUrl  picture URL.
-     * @param imageView View where image to be loaded.
-     */
-    private void loadFeedImage(String imageUrl, ImageView imageView) {
-        if (IMAGE_LOAD_FROM_NETWORK_FEED_DESCRIPTION) {
-            Picasso.with(mContext).invalidate(imageUrl);
-        }
 
 
-        RequestCreator requestCreator = Picasso.with(mContext)
-                .load(imageUrl)
-                .error(R.drawable.image_placeholder);
-
-        if (IMAGE_LOAD_FROM_NETWORK_FEED_DESCRIPTION) {
-            requestCreator.networkPolicy(NetworkPolicy.NO_CACHE);
-        }
-
-
-        requestCreator.into(imageView, new Callback() {
-            @Override
-            public void onSuccess() {
-                ActivityCompat.startPostponedEnterTransition(mContext);
-            }
-
-            @Override
-            public void onError() {
-                ActivityCompat.startPostponedEnterTransition(mContext);
-            }
-        });
-    }
 
     /**
      * Method to check hatsOff status and perform operation accordingly.

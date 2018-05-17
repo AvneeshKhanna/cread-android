@@ -21,9 +21,9 @@ import android.widget.RelativeLayout;
 import com.google.firebase.crash.FirebaseCrash;
 import com.thetestament.cread.R;
 import com.thetestament.cread.activities.FeedDescriptionActivity;
-import com.thetestament.cread.activities.ProfileActivity;
 import com.thetestament.cread.activities.RoyaltiesActivity;
 import com.thetestament.cread.adapters.UpdatesAdapter;
+import com.thetestament.cread.helpers.IntentHelper;
 import com.thetestament.cread.helpers.SharedPreferenceHelper;
 import com.thetestament.cread.helpers.ViewHelper;
 import com.thetestament.cread.listeners.listener;
@@ -54,7 +54,6 @@ import static com.thetestament.cread.helpers.NetworkHelper.requestServer;
 import static com.thetestament.cread.utils.Constant.EXTRA_DATA;
 import static com.thetestament.cread.utils.Constant.EXTRA_FEED_DESCRIPTION_DATA;
 import static com.thetestament.cread.utils.Constant.EXTRA_FROM_UPDATES_COMMENT_MENTION;
-import static com.thetestament.cread.utils.Constant.EXTRA_PROFILE_UUID;
 import static com.thetestament.cread.utils.Constant.NOTIFICATION_CATEGORY_CREAD_BUY;
 import static com.thetestament.cread.utils.Constant.NOTIFICATION_CATEGORY_CREAD_COLLABORATE;
 import static com.thetestament.cread.utils.Constant.NOTIFICATION_CATEGORY_CREAD_COMMENT;
@@ -588,11 +587,9 @@ public class UpdatesFragment extends Fragment {
 
 
     private void openProfileScreen(UpdatesModel updatesModel) {
-        //Launch profile screen
-        Intent profileIntent = new Intent(getActivity(), ProfileActivity.class);
-        profileIntent.putExtra(EXTRA_PROFILE_UUID, updatesModel.getActorID());
-        startActivity(profileIntent);
-
+        //Method called
+        IntentHelper.openProfileActivity(getActivity()
+                , updatesModel.getActorID());
     }
 
 

@@ -11,23 +11,23 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content">
 
-        <ImageView
+        <com.facebook.drawee.view.SimpleDraweeView
             android:id="@+id/imageUserInterest"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:scaleType="centerCrop"
-            android:src="@drawable/image_placeholder"
-            tools:src="@tools:sample/backgrounds/scenic"
-            android:tint="#4D000000" />
+            android:tint="#4D000000"
+            app:failureImage="@drawable/image_placeholder"
+            app:failureImageScaleType="centerCrop" />
 
 
         <android.support.v7.widget.AppCompatImageView
             android:id="@+id/imageChecked"
-            android:padding="5dp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentLeft="true"
             android:layout_alignParentTop="true"
+            android:padding="5dp"
             app:srcCompat="@drawable/ic_checked" />
 
 
@@ -35,8 +35,8 @@
             android:id="@+id/containerUserInterestText"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignParentLeft="true"
             android:layout_alignParentBottom="true"
+            android:layout_alignParentLeft="true"
             android:padding="2dp"
             android:visibility="visible">
 
@@ -47,8 +47,8 @@
                 android:layout_height="wrap_content"
                 android:padding="5dp"
                 android:text="Writing"
-                android:textSize="14sp"
                 android:textColor="@color/white"
+                android:textSize="14sp"
                 android:textStyle="bold"
                 tools:text="@tools:sample/lorem" />
 

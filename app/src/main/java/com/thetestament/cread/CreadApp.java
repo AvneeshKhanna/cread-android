@@ -5,6 +5,7 @@ import android.support.multidex.MultiDexApplication;
 import android.support.v7.app.AppCompatDelegate;
 
 import com.androidnetworking.AndroidNetworking;
+import com.facebook.drawee.backends.pipeline.Fresco;
 import com.google.firebase.crash.FirebaseCrash;
 import com.thetestament.cread.helpers.SharedPreferenceHelper;
 
@@ -71,6 +72,8 @@ public class CreadApp extends MultiDexApplication {
         AppCompatDelegate.setCompatVectorFromResourcesEnabled(true);
         //For socket io
         initSocketIo(getApplicationContext());
+        //initialize fresco
+        Fresco.initialize(this);
     }
 
     /**

@@ -1,15 +1,17 @@
 package com.thetestament.cread.adapters;
 
 import android.content.Context;
+import android.net.Uri;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.facebook.drawee.view.SimpleDraweeView;
 import com.linkedin.android.spyglass.suggestions.interfaces.Suggestible;
 import com.thetestament.cread.R;
+import com.thetestament.cread.helpers.ImageHelper;
 import com.thetestament.cread.listeners.listener;
 import com.thetestament.cread.models.PersonMentionModel;
 
@@ -18,8 +20,6 @@ import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
-
-import static com.thetestament.cread.helpers.ImageHelper.loadImageFromPicasso;
 
 public class PersonMentionAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
@@ -76,16 +76,14 @@ public class PersonMentionAdapter extends RecyclerView.Adapter<RecyclerView.View
             ItemViewHolder itemViewHolder = (ItemViewHolder) holder;
 
             // load image
-            loadImageFromPicasso(mContext,
-                    itemViewHolder.imagePerson,
-                    person.getmPictureURL(),
-                    R.drawable.ic_account_circle_100);
+            ImageHelper.loadProgressiveImage(Uri.parse(person.getmPictureURL())
+                    , itemViewHolder.imagePerson);
+
 
             // set name
             itemViewHolder.textName.setText(person.getmName());
             // init click listener
             initMentionsClick(itemViewHolder.itemView, person);
-
 
 
         } else if (holder.getItemViewType() == VIEW_TYPE_LOADING) {
@@ -151,7 +149,7 @@ public class PersonMentionAdapter extends RecyclerView.Adapter<RecyclerView.View
     static class ItemViewHolder extends RecyclerView.ViewHolder {
 
         @BindView(R.id.imagePerson)
-        ImageView imagePerson;
+        SimpleDraweeView imagePerson;
         @BindView(R.id.textName)
         TextView textName;
 
