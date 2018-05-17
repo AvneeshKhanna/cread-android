@@ -12,6 +12,7 @@ import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.TextInputEditText;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.AppCompatSpinner;
+import android.support.v7.widget.AppCompatTextView;
 import android.text.InputType;
 import android.text.TextUtils;
 import android.view.View;
@@ -77,8 +78,8 @@ public class UpdateProfileDetailsActivity extends BaseActivity {
     TextInputEditText etEmail;
     @BindView(R.id.etBio)
     TextInputEditText etBio;
-    @BindView(R.id.etWebStoreUrl)
-    TextInputEditText etWebStoreUrl;
+    @BindView(R.id.textWebStoreUrl)
+    AppCompatTextView textWebStoreUrl;
     @BindView(R.id.etContact)
     TextInputEditText etContact;
     @BindView(R.id.spinnerWaterMark)
@@ -259,6 +260,34 @@ public class UpdateProfileDetailsActivity extends BaseActivity {
         manager.setPrimaryClip(clip);
         ViewHelper.getSnackBar(rootView, "Link copied to clipboard");
     }
+
+    /**
+     * Web profile link click functionality.
+     */
+    @OnClick(R.id.btnInfoWebProfileLink)
+    void onWebProfileLinkOnClick() {
+        MaterialDialog dialog = new MaterialDialog.Builder(mContext)
+                .title("Web Profile Link")
+                .positiveText("Copy link")
+                .customView(R.layout.dialog_profile_lweb_ink, false)
+                .onPositive(new MaterialDialog.SingleButtonCallback() {
+                    @Override
+                    public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
+                        // Gets a handle to the clipboard service.
+                        ClipboardManager manager = (ClipboardManager)
+                                getSystemService(Context.CLIPBOARD_SERVICE);
+                        // Creates a new text clip to put on the clipboard
+                        ClipData clip = ClipData.newPlainText("webStoreLink", mWebStoreLink);
+                        // Set the clipboard's primary clip.
+                        manager.setPrimaryClip(clip);
+                        ViewHelper.getSnackBar(rootView, "Link copied to clipboard");
+                    }
+                })
+                .show();
+        AppCompatTextView linkText = dialog.getCustomView().findViewById(R.id.textProfileLink);
+        linkText.setText(mWebStoreLink +
+                "\n\nThis is the web version of the profile.");
+    }
     //endregion
 
     //region :Private methods
@@ -324,7 +353,7 @@ public class UpdateProfileDetailsActivity extends BaseActivity {
     private void retrieveIntentData() {
         //Obtain web store link
         mWebStoreLink = getIntent().getStringExtra(EXTRA_USER_WEB_STORE_LINK);
-        etWebStoreUrl.setText(mWebStoreLink);
+        textWebStoreUrl.setText(mWebStoreLink);
 
         mFirstName = getIntent().getStringExtra(EXTRA_USER_FIRST_NAME);
         etFirstName.setText(mFirstName);

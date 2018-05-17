@@ -22,6 +22,7 @@ import android.support.v4.content.ContextCompat;
 import android.support.v4.view.ViewCompat;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.AppCompatImageView;
+import android.support.v7.widget.AppCompatTextView;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -519,12 +520,10 @@ public class MeFragment extends Fragment implements listener.OnCollaborationList
             intent.putExtra(EXTRA_USER_WATER_MARK_STATUS, mWaterMarkStatus);
             startActivityForResult(intent, REQUEST_CODE_UPDATE_PROFILE_DETAILS);
         } else {
-            //fixme title and content text
-            new MaterialDialog.Builder(getActivity())
-                    .title("Web store link")
+            MaterialDialog dialog = new MaterialDialog.Builder(getActivity())
+                    .title("Web Profile Link")
                     .positiveText("Copy link")
-                    .negativeText("Cancel")
-                    .content("Copy " + mFirstName + " web store link. ")
+                    .customView(R.layout.dialog_profile_lweb_ink, false)
                     .onPositive(new MaterialDialog.SingleButtonCallback() {
                         @Override
                         public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
@@ -538,15 +537,10 @@ public class MeFragment extends Fragment implements listener.OnCollaborationList
                             ViewHelper.getSnackBar(rootView, "Link copied to clipboard");
                         }
                     })
-                    .onNegative(new MaterialDialog.SingleButtonCallback() {
-                        @Override
-                        public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
-                            //dismiss dialog
-                            dialog.dismiss();
-                        }
-                    })
-                    .build()
                     .show();
+            AppCompatTextView linkText = dialog.getCustomView().findViewById(R.id.textProfileLink);
+            linkText.setText(mWebStoreUrl +
+                    "\n\nThis is the web version of the profile.");
         }
         //Update status
         mHelper.updateWebStoreDotIndicatorStatus(false);
@@ -685,7 +679,7 @@ public class MeFragment extends Fragment implements listener.OnCollaborationList
 
             //Change settings drawable
             buttonProfileSettings.setImageDrawable(ContextCompat.getDrawable(getActivity()
-                    , R.drawable.ic_outline_share_24px));
+                    , R.drawable.ic_link_vector));
         }
 
         //Condition to toggle visibility of follow button and cha list icon
