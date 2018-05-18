@@ -320,9 +320,6 @@ public class SharedPreferenceHelper {
     }
 
 
-
-
-
     /**
      * Method to retrieve "Write button " tooltip status.
      *
@@ -495,27 +492,6 @@ public class SharedPreferenceHelper {
                 .getBoolean(mContext.getString(R.string.key_personal_chat_indicator), false);
     }
 
-    /**
-     * Method to retrieve chat dialog.
-     *
-     * @return True by default.
-     */
-    public boolean isChatDialogFirstTime() {
-        return mSharedPreferences
-                .getBoolean(mContext.getString(R.string.key_personal_chat_dialog), true);
-    }
-
-
-    /**
-     * Method to update 'Write button' tooltip status.
-     *
-     * @param status boolean value i.e true or false
-     */
-    public void updateChatDialogStatus(boolean status) {
-        SharedPreferences.Editor editor = mSharedPreferences.edit();
-        editor.putBoolean(mContext.getString(R.string.key_personal_chat_dialog), status);
-        editor.apply();
-    }
 
     /**
      * Method to retrieve chat dialog.

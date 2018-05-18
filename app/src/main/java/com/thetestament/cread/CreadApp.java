@@ -11,6 +11,7 @@ import com.thetestament.cread.helpers.SharedPreferenceHelper;
 
 import java.net.URISyntaxException;
 
+import io.fabric.sdk.android.Fabric;
 import io.socket.client.IO;
 import io.socket.client.Socket;
 import pl.tajchert.nammu.Nammu;
@@ -62,6 +63,7 @@ public class CreadApp extends MultiDexApplication {
     public void onCreate() {
         super.onCreate();
         singleTone = this;
+        Fabric.with(this, new Crashlytics());
         //For calligraphy
         initCalligraphy();
         //Networking library initialization

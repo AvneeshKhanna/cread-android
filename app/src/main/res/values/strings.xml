@@ -57,7 +57,6 @@
     <string name="key_position_selected_font">positionSelectedFont</string>
     <string name="key_enable_chat_sound">enableChatSound</string>
     <string name="key_personal_chat_indicator">personalChatIndicator</string>
-    <string name="key_personal_chat_dialog">keyPersonalChatDialog</string>
     <string name="key_downvote_dialog">keyDownvoteDialog</string>
     <string name="key_long_story_dialog_first_time">keyLongStoryDialog</string>
     <string name="key_long_story_preview_first_time">keyLongStoryPreview</string>
