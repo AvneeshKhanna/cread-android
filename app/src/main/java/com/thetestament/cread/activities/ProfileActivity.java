@@ -20,9 +20,16 @@ import static com.thetestament.cread.utils.Constant.EXTRA_PROFILE_UUID;
  */
 public class ProfileActivity extends BaseActivity {
 
+    //region :Fields and constants
+
+    /**
+     * Flag to store UUID.
+     */
     @State
     String mUUID;
+    //endregion
 
+    //region :Overridden methods
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -48,6 +55,9 @@ public class ProfileActivity extends BaseActivity {
         super.onRestoreInstanceState(savedInstanceState);
         Icepick.restoreInstanceState(this, savedInstanceState);
     }
+    //endregion
+
+    //region :Private methods
 
     /**
      * Method to load Me fragment.
@@ -64,4 +74,5 @@ public class ProfileActivity extends BaseActivity {
                 .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE)
                 .commit();
     }
+    //endregion
 }

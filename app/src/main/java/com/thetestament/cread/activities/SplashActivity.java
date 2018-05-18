@@ -25,6 +25,7 @@ import com.google.firebase.remoteconfig.FirebaseRemoteConfig;
 import com.google.firebase.remoteconfig.FirebaseRemoteConfigSettings;
 import com.thetestament.cread.BuildConfig;
 import com.thetestament.cread.R;
+import com.thetestament.cread.helpers.IntentHelper;
 import com.thetestament.cread.helpers.SharedPreferenceHelper;
 
 import static com.thetestament.cread.BuildConfig.DEBUG;
@@ -181,7 +182,8 @@ public class SplashActivity extends AppCompatActivity {
                     .onPositive(new MaterialDialog.SingleButtonCallback() {
                         @Override
                         public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
-                            redirectToPlayStore();
+                            //Method called
+                            IntentHelper.openPlayStore(SplashActivity.this);
                             dialog.dismiss();
                             finish();
                         }
@@ -191,24 +193,6 @@ public class SplashActivity extends AppCompatActivity {
         } else {
             // initialize deep link
             initDeepLink();
-        }
-    }
-
-
-    /**
-     * Method to redirect user to Cread app on google play store
-     */
-    private void redirectToPlayStore() {
-        //To get the package name
-        String appPackageName = getPackageName();
-        try {
-            //To redirect to google play store
-            startActivity(new Intent(Intent.ACTION_VIEW,
-                    Uri.parse("market://details?id=" + appPackageName)));
-        } catch (android.content.ActivityNotFoundException anfe) {
-            //if play store is not installed
-            startActivity(new Intent(Intent.ACTION_VIEW,
-                    Uri.parse("https://play.google.com/store/apps/details?id=" + appPackageName)));
         }
     }
 

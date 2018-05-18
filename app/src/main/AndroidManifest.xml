@@ -300,9 +300,7 @@
             </intent-filter>
         </service>
 
-        <activity
-            android:name=".activities.ProductsSoldActivity"
-            android:screenOrientation="portrait" />
+
 
         <!-- CollaborationActivity -->
         <activity

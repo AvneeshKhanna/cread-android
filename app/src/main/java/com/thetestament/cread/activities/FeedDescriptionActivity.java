@@ -83,18 +83,18 @@ import static com.thetestament.cread.utils.Constant.SHARE_OPTION_OTHER;
 import static com.thetestament.cread.utils.Constant.USER_ACTION_TYPE_VIEW;
 
 /**
- * Class to show detailed information of explore/feed item.
+ * Class to show detailed information of post item.
  */
 public class FeedDescriptionActivity extends BaseActivity implements listener.OnCollaborationListener {
 
-    //region: Butterknife view bindings
+    //region :View binding with Butter knife
     @BindView(R.id.rootView)
     CoordinatorLayout rootView;
     @BindView(R.id.recyclerViewPosts)
     RecyclerView recyclerViewPosts;
     //endregion
 
-    //region: variables and flags
+    //region :Fields and constants
     private SharedPreferenceHelper mHelper;
     private CompositeDisposable mCompositeDisposable = new CompositeDisposable();
     private FeedModel mFeedData;
@@ -136,7 +136,6 @@ public class FeedDescriptionActivity extends BaseActivity implements listener.On
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_feed_description);
         ButterKnife.bind(this);
-
         //Obtain reference of this activity
         mContext = this;
         //ShredPreference reference
@@ -304,8 +303,6 @@ public class FeedDescriptionActivity extends BaseActivity implements listener.On
      */
     private void initViews() {
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-
-
         //Get data from intent
         retrieveIntentData();
     }
@@ -374,7 +371,7 @@ public class FeedDescriptionActivity extends BaseActivity implements listener.On
         });
     }
 
-    private void initDownvoteListener(FeedDescriptionAdapter feedAdapter) {
+    private void initDownVoteListener(FeedDescriptionAdapter feedAdapter) {
         feedAdapter.setOnDownvoteClickedListener(new listener.OnDownvoteClickedListener() {
             @Override
             public void onDownvoteClicked(FeedModel data, int position, ImageView imageDownvote) {
@@ -590,7 +587,7 @@ public class FeedDescriptionActivity extends BaseActivity implements listener.On
         initLoadMoreListener(mAdapter);
         initHatsOffListener(mAdapter);
         initShareListener(mAdapter);
-        initDownvoteListener(mAdapter);
+        initDownVoteListener(mAdapter);
         initFollowListener();
         initializeDeleteListener(mAdapter);
 

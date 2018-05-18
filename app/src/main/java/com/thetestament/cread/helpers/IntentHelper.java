@@ -2,6 +2,7 @@ package com.thetestament.cread.helpers;
 
 import android.content.Context;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 
 import com.thetestament.cread.activities.ContentPreview;
@@ -64,5 +65,24 @@ public class IntentHelper {
         Intent intent = new Intent(context, ProfileActivity.class);
         intent.putExtra(EXTRA_PROFILE_UUID, uuid);
         context.startActivity(intent);
+    }
+
+    /**
+     * Method to redirect user to Cread app on google play store.
+     *
+     * @param context Context to use.
+     */
+    public static void openPlayStore(Context context) {
+        //To get the package name
+        String appPackageName = context.getPackageName();
+        try {
+            //To redirect to google play store
+            context.startActivity(new Intent(Intent.ACTION_VIEW,
+                    Uri.parse("market://details?id=" + appPackageName)));
+        } catch (android.content.ActivityNotFoundException anfe) {
+            //if play store is not installed
+            context.startActivity(new Intent(Intent.ACTION_VIEW,
+                    Uri.parse("https://play.google.com/store/apps/details?id=" + appPackageName)));
+        }
     }
 }

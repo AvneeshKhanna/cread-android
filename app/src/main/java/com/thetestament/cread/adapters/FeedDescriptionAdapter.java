@@ -51,7 +51,6 @@ import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import de.hdodenhof.circleimageview.CircleImageView;
 import io.reactivex.disposables.CompositeDisposable;
 
 import static com.thetestament.cread.adapters.CommentsAdapter.openCreatorProfile;
@@ -493,11 +492,12 @@ public class FeedDescriptionAdapter extends RecyclerView.Adapter {
             View commentView = LayoutInflater.from(mContext).inflate(R.layout.item_comment, itemViewHolder.viewTopComments, false);
             itemViewHolder.viewTopComments.addView(commentView);
 
-            CircleImageView imageUser = commentView.findViewById(R.id.imageUser);
+            SimpleDraweeView imageUser = commentView.findViewById(R.id.imageUser);
             TextView textUserName = commentView.findViewById(R.id.textUserName);
             TextView textComment = commentView.findViewById(R.id.textComment);
 
-            ImageHelper.loadImageFromPicasso(mContext, imageUser, comment.getProfilePicUrl(), R.drawable.ic_account_circle_100);
+            ImageHelper.loadProgressiveImage(Uri.parse(comment.getProfilePicUrl()),imageUser);
+
             textUserName.setText(comment.getFirstName() + " " + comment.getLastName());
             textComment.setText(comment.getComment());
 
