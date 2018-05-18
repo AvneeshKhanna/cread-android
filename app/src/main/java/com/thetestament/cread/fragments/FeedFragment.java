@@ -423,8 +423,11 @@ public class FeedFragment extends Fragment implements listener.OnCollaborationLi
                 mAdapter.setLoaded();
                 //set last index key to null
                 mLastIndexKey = null;
-                // hide no posts view
-                viewNoPosts.setVisibility(View.GONE);
+
+                if (viewNoPosts != null) {
+                    // hide no posts view
+                    viewNoPosts.setVisibility(View.GONE);
+                }
                 //Load data here
                 loadFeedData();
             }
@@ -878,7 +881,6 @@ public class FeedFragment extends Fragment implements listener.OnCollaborationLi
     };
 
 
-
     /**
      * Initialize share listener.
      */
@@ -1213,8 +1215,6 @@ public class FeedFragment extends Fragment implements listener.OnCollaborationLi
                             }
 
                             mHelper.setHTagOfTheDay(hashTagOfTheDay);
-
-
 
 
                             //Check for first time run status
