@@ -8,11 +8,14 @@ import android.os.Bundle;
 import com.thetestament.cread.activities.ContentPreview;
 import com.thetestament.cread.activities.FollowActivity;
 import com.thetestament.cread.activities.ProfileActivity;
+import com.thetestament.cread.activities.WebViewActivity;
 import com.thetestament.cread.utils.Constant;
 
 import static com.thetestament.cread.utils.Constant.EXTRA_FOLLOW_REQUESTED_UUID;
 import static com.thetestament.cread.utils.Constant.EXTRA_FOLLOW_TYPE;
 import static com.thetestament.cread.utils.Constant.EXTRA_PROFILE_UUID;
+import static com.thetestament.cread.utils.Constant.EXTRA_WEB_VIEW_TITLE;
+import static com.thetestament.cread.utils.Constant.EXTRA_WEB_VIEW_URL;
 
 /**
  * A helper class to provide utility method for intent related operations.
@@ -84,5 +87,20 @@ public class IntentHelper {
             context.startActivity(new Intent(Intent.ACTION_VIEW,
                     Uri.parse("https://play.google.com/store/apps/details?id=" + appPackageName)));
         }
+    }
+
+
+    /**
+     * Open WebViewActivity screen.
+     *
+     * @param context   Context to use.
+     * @param webUrl    Url to be opened.
+     * @param titleText Title text for webViewActivity.
+     */
+    public static void openWebViewActivity(Context context, String webUrl, String titleText) {
+        Intent intent = new Intent(context, WebViewActivity.class);
+        intent.putExtra(EXTRA_WEB_VIEW_URL, webUrl);
+        intent.putExtra(EXTRA_WEB_VIEW_TITLE, titleText);
+        context.startActivity(intent);
     }
 }

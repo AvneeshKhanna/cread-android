@@ -47,7 +47,6 @@
     <string name="key_write_tooltip">writeButton</string>
     <string name="key_capture_tooltip">captureButton</string>
     <string name="key_buy_dialog">buyDialog</string>
-    <string name="key_me_dialog">meDialog</string>
     <string name="key_royalty_dialog">royaltyDialog</string>
     <string name="key_gratitude_scroll">gratitudeScroll</string>
     <string name="rating_status">ratingStatus</string>

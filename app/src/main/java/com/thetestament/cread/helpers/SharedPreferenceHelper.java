@@ -320,27 +320,8 @@ public class SharedPreferenceHelper {
     }
 
 
-    /**
-     * Method to retrieve "Write button " tooltip status.
-     *
-     * @return True by default.
-     */
-    public boolean isMeFragmentFirstTime() {
-        return mSharedPreferences
-                .getBoolean(mContext.getString(R.string.key_me_dialog), true);
-    }
 
 
-    /**
-     * Method to update 'Write button' tooltip status.
-     *
-     * @param status boolean value i.e true or false
-     */
-    public void updateMeFragmentStatus(boolean status) {
-        SharedPreferences.Editor editor = mSharedPreferences.edit();
-        editor.putBoolean(mContext.getString(R.string.key_me_dialog), status);
-        editor.apply();
-    }
 
     /**
      * Method to retrieve "Write button " tooltip status.

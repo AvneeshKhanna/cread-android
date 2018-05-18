@@ -51,6 +51,7 @@ import com.thetestament.cread.BuildConfig;
 import com.thetestament.cread.CreadApp;
 import com.thetestament.cread.R;
 import com.thetestament.cread.adapters.IntroViewPagerAdapter;
+import com.thetestament.cread.helpers.IntentHelper;
 import com.thetestament.cread.helpers.IntroPageTransformerHelper;
 import com.thetestament.cread.helpers.NetworkHelper;
 import com.thetestament.cread.helpers.SharedPreferenceHelper;
@@ -70,8 +71,6 @@ import icepick.State;
 
 import static com.thetestament.cread.utils.Constant.EXTRA_PROFILE_PIC_URL;
 import static com.thetestament.cread.utils.Constant.EXTRA_USER_INTERESTS_CALLED_FROM;
-import static com.thetestament.cread.utils.Constant.EXTRA_WEB_VIEW_TITLE;
-import static com.thetestament.cread.utils.Constant.EXTRA_WEB_VIEW_URL;
 import static com.thetestament.cread.utils.Constant.LOGIN_TYPE_FACEBOOK;
 import static com.thetestament.cread.utils.Constant.LOGIN_TYPE_GOOGLE;
 import static com.thetestament.cread.utils.Constant.REQUEST_CODE_GOOGLE_SIGN_IN;
@@ -280,11 +279,9 @@ public class MainActivity extends BaseActivity {
      */
     @OnClick(R.id.textTOS)
     public void showTos() {
-
-        Intent intent = new Intent(MainActivity.this, WebViewActivity.class);
-        intent.putExtra(EXTRA_WEB_VIEW_URL, "file:///android_asset/" + "cread_tos.html");
-        intent.putExtra(EXTRA_WEB_VIEW_TITLE, "Terms of Service");
-        startActivity(intent);
+        IntentHelper.openWebViewActivity(MainActivity.this
+                , "file:///android_asset/" + "cread_tos.html"
+                , "Terms of Service");
     }
 
     @OnClick(R.id.buttonGoogleLogin)

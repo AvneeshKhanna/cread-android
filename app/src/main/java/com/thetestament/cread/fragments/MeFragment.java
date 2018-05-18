@@ -669,11 +669,6 @@ public class MeFragment extends Fragment implements listener.OnCollaborationList
             //Enable profile editing
             isProfileEditable = true;
 
-            // show royalties dialog if first time
-            if (mHelper.isMeFragmentFirstTime()) {
-                showRoyaltiesDialog();
-            }
-
         } else {
             mRequestedUUID = getArguments().getString("requesteduuid");
             //Disable profile editing
@@ -2283,38 +2278,6 @@ public class MeFragment extends Fragment implements listener.OnCollaborationList
                         RoyaltiesActivity.class).
                         putExtra(EXTRA_IS_PROFILE_EDITABLE, isProfileEditable)
                 , REQUEST_CODE_ROYALTIES_ACTIVITY);
-    }
-
-    /**
-     * Method to show the royalties dialog
-     */
-    private void showRoyaltiesDialog() {
-        MaterialDialog dialog = new MaterialDialog.Builder(getActivity())
-                .customView(R.layout.dialog_generic, false)
-                .positiveText("More")
-                .onPositive(new MaterialDialog.SingleButtonCallback() {
-                    @Override
-                    public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
-                        dialog.dismiss();
-                        startRoyaltiesActivity();
-                        mHelper.updateMeFragmentStatus(false);
-                    }
-                })
-                .show();
-
-        //Obtain views reference
-        ImageView fillerImage = dialog.getCustomView().findViewById(R.id.viewFiller);
-        TextView textTitle = dialog.getCustomView().findViewById(R.id.textTitle);
-        TextView textDesc = dialog.getCustomView().findViewById(R.id.textDesc);
-
-
-        //Set filler image
-        fillerImage.setImageDrawable(ContextCompat.getDrawable(getActivity(), R.drawable.img_intro_royalty));
-        //Set title text
-        textTitle.setText(getActivity().getString(R.string.title_dialog_me));
-        //Set description text
-        textDesc.setText(getActivity().getString(R.string.text_dialog_me));
-
     }
 
 

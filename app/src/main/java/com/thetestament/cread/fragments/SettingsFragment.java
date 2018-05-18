@@ -12,7 +12,6 @@ import com.google.firebase.analytics.FirebaseAnalytics;
 import com.thetestament.cread.R;
 import com.thetestament.cread.activities.AboutUsActivity;
 import com.thetestament.cread.activities.FindFBFriendsActivity;
-import com.thetestament.cread.activities.WebViewActivity;
 import com.thetestament.cread.helpers.ChatHelper;
 import com.thetestament.cread.helpers.DeepLinkHelper;
 import com.thetestament.cread.helpers.IntentHelper;
@@ -21,8 +20,6 @@ import com.thetestament.cread.helpers.SharedPreferenceHelper;
 import io.reactivex.disposables.CompositeDisposable;
 
 import static com.thetestament.cread.helpers.LogoutHelper.getLogOutDialog;
-import static com.thetestament.cread.utils.Constant.EXTRA_WEB_VIEW_TITLE;
-import static com.thetestament.cread.utils.Constant.EXTRA_WEB_VIEW_URL;
 import static com.thetestament.cread.utils.Constant.FIREBASE_EVENT_FIND_FRIENDS;
 import static com.thetestament.cread.utils.Constant.FIREBASE_EVENT_RATE_US_CLICKED;
 
@@ -94,10 +91,10 @@ public class SettingsFragment extends PreferenceFragmentCompat {
         tosItem.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
             @Override
             public boolean onPreferenceClick(Preference preference) {
-                Intent intent = new Intent(getActivity(), WebViewActivity.class);
-                intent.putExtra(EXTRA_WEB_VIEW_URL, "file:///android_asset/" + "cread_tos.html");
-                intent.putExtra(EXTRA_WEB_VIEW_TITLE, "Terms of Service");
-                startActivity(intent);
+                //Method called
+                IntentHelper.openWebViewActivity(getActivity()
+                        , "file:///android_asset/" + "cread_tos.html"
+                        , "Terms of Service");
                 return false;
             }
         });
@@ -120,11 +117,10 @@ public class SettingsFragment extends PreferenceFragmentCompat {
         faqItem.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
             @Override
             public boolean onPreferenceClick(Preference preference) {
-                //Start   FAQ Screen
-                Intent intent = new Intent(getActivity(), WebViewActivity.class);
-                intent.putExtra(EXTRA_WEB_VIEW_URL, "http://cread.in/FAQ-users.php");
-                intent.putExtra(EXTRA_WEB_VIEW_TITLE, "FAQ");
-                startActivity(intent);
+                //Start FAQ Screen
+                IntentHelper.openWebViewActivity(getActivity()
+                        , "http://cread.in/faq"
+                        , "FAQ");
                 return false;
             }
         });
