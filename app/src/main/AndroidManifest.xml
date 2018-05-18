@@ -301,7 +301,6 @@
         </service>
 
 
-
         <!-- CollaborationActivity -->
         <activity
             android:name=".activities.CollaborationActivity"
@@ -328,10 +327,12 @@
             android:name="firebase_analytics_collection_enabled"
             android:value="@bool/FIREBASE_ANALYTICS_ENABLED" />
 
+
         <!-- Toggle Firebase crash reporting for development -->
         <meta-data
-            android:name="firebase_crash_collection_enabled"
+            android:name="firebase_crashlytics_collection_enabled"
             android:value="@bool/FIREBASE_CRASHLYTICS_ENABLED" />
+
 
         <activity
             android:name=".activities.RoyaltiesActivity"
@@ -490,19 +491,19 @@
             android:theme="@style/AppTheme" />
         <activity
             android:name=".activities.UserInterestIntroductionActivity"
-            android:screenOrientation="portrait"
             android:label="Welcome"
+            android:screenOrientation="portrait"
             android:theme="@style/NoActionBarTheme" />
         <activity
             android:name=".activities.UserInterestsActivity"
-            android:screenOrientation="portrait"
-            android:label="What do you love?" />
+            android:label="What do you love?"
+            android:screenOrientation="portrait" />
 
         <!--ContentPreview Screen-->
         <activity
             android:name=".activities.ContentPreview"
             android:screenOrientation="portrait"
-            android:theme="@style/DarkTheme"/>
+            android:theme="@style/DarkTheme" />
     </application>
 
 </manifest>

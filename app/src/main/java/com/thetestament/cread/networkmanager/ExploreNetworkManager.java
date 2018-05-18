@@ -2,7 +2,7 @@ package com.thetestament.cread.networkmanager;
 
 import android.content.Context;
 
-import com.google.firebase.crash.FirebaseCrash;
+import com.crashlytics.android.Crashlytics;
 import com.rx2androidnetworking.Rx2ANRequest;
 import com.rx2androidnetworking.Rx2AndroidNetworking;
 import com.thetestament.cread.BuildConfig;
@@ -101,7 +101,8 @@ public class ExploreNetworkManager {
                                 }
                             } catch (JSONException e) {
                                 e.printStackTrace();
-                                FirebaseCrash.report(e);
+                                Crashlytics.logException(e);
+                                Crashlytics.setString("className", "ExploreNetworkManager");
                                 loadListener.onFailure(context.getString(R.string.error_msg_internal));
                             }
                         }
@@ -109,7 +110,8 @@ public class ExploreNetworkManager {
                         @Override
                         public void onError(Throwable e) {
                             e.printStackTrace();
-                            FirebaseCrash.report(e);
+                            Crashlytics.logException(e);
+                            Crashlytics.setString("className", "ExploreNetworkManager");
                             //Set failure listener
                             loadListener.onFailure(context.getString(R.string.error_msg_server));
                         }

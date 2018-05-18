@@ -22,7 +22,7 @@ import android.view.animation.AnimationUtils;
 import android.view.animation.LayoutAnimationController;
 import android.widget.TextView;
 
-import com.google.firebase.crash.FirebaseCrash;
+import com.crashlytics.android.Crashlytics;
 import com.thetestament.cread.Manifest;
 import com.thetestament.cread.R;
 import com.thetestament.cread.adapters.ExploreAdapter;
@@ -478,7 +478,8 @@ public class HashTagDetailsFragment extends Fragment implements listener.OnColla
 
                         } catch (JSONException e) {
                             e.printStackTrace();
-                            FirebaseCrash.report(e);
+                            Crashlytics.logException(e);
+                            Crashlytics.setString("className", "HashTagDetailsFragment");
                             connectionError[0] = true;
                         }
                     }
@@ -487,7 +488,8 @@ public class HashTagDetailsFragment extends Fragment implements listener.OnColla
                     public void onErrorCalled(Throwable e) {
 
                         swipeRefreshLayout.setRefreshing(false);
-                        FirebaseCrash.report(e);
+                        Crashlytics.logException(e);
+                        Crashlytics.setString("className", "HashTagDetailsFragment");
                         //Server error Snack bar
                         ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_server));
                     }
@@ -557,7 +559,8 @@ public class HashTagDetailsFragment extends Fragment implements listener.OnColla
 
                         } catch (JSONException e) {
                             e.printStackTrace();
-                            FirebaseCrash.report(e);
+                            Crashlytics.logException(e);
+                            Crashlytics.setString("className", "HashTagDetailsFragment");
                             connectionError[0] = true;
                         }
                     }
@@ -569,7 +572,8 @@ public class HashTagDetailsFragment extends Fragment implements listener.OnColla
                         mDataList.remove(mDataList.size() - 1);
                         //Notify changes
                         mAdapter.notifyItemRemoved(mDataList.size());
-                        FirebaseCrash.report(e);
+                        Crashlytics.logException(e);
+                        Crashlytics.setString("className", "HashTagDetailsFragment");
                         //Server error Snack bar
                         ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_server));
                     }

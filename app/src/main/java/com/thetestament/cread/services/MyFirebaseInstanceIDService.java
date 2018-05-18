@@ -2,7 +2,7 @@ package com.thetestament.cread.services;
 
 import android.util.Log;
 
-import com.google.firebase.crash.FirebaseCrash;
+import com.crashlytics.android.Crashlytics;
 import com.google.firebase.iid.FirebaseInstanceId;
 import com.google.firebase.iid.FirebaseInstanceIdService;
 import com.rx2androidnetworking.Rx2AndroidNetworking;
@@ -36,8 +36,7 @@ public class MyFirebaseInstanceIDService extends FirebaseInstanceIdService {
 
         // to check if the user is logged in
         // send token to server only if the user is logged in
-        if(uuid != null && authkey != null )
-        {
+        if (uuid != null && authkey != null) {
             updateFcmTokenOnServer(uuid);
         }
 
@@ -45,10 +44,10 @@ public class MyFirebaseInstanceIDService extends FirebaseInstanceIdService {
 
     /**
      * Method to update the refreshed fcm token on server
+     *
      * @param uuid user id
      */
-    private void updateFcmTokenOnServer(String uuid)
-    {
+    private void updateFcmTokenOnServer(String uuid) {
         JSONObject jsonObject = new JSONObject();
         try {
             jsonObject.put("uuid", uuid);
@@ -81,7 +80,8 @@ public class MyFirebaseInstanceIDService extends FirebaseInstanceIdService {
                     public void onError(@NonNull Throwable e) {
 
                         e.printStackTrace();
-                        FirebaseCrash.report(e);
+                        Crashlytics.logException(e);
+                        Crashlytics.setString("className", "MyFirebaseMessagingService");
                     }
 
                     @Override

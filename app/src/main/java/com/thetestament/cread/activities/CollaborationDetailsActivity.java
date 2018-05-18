@@ -13,7 +13,7 @@ import android.view.View;
 import android.view.animation.AnimationUtils;
 import android.view.animation.LayoutAnimationController;
 
-import com.google.firebase.crash.FirebaseCrash;
+import com.crashlytics.android.Crashlytics;
 import com.takusemba.multisnaprecyclerview.MultiSnapRecyclerView;
 import com.thetestament.cread.BuildConfig;
 import com.thetestament.cread.R;
@@ -241,7 +241,8 @@ public class CollaborationDetailsActivity extends BaseActivity {
                             }
                         } catch (JSONException e) {
                             e.printStackTrace();
-                            FirebaseCrash.report(e);
+                            Crashlytics.logException(e);
+                            Crashlytics.setString("className", "CollaborationDetailsActivity");
                             connectionError[0] = true;
                         }
                     }
@@ -250,7 +251,8 @@ public class CollaborationDetailsActivity extends BaseActivity {
                     public void onError(Throwable e) {
                         //Dismiss progress indicator
                         swipeRefreshLayout.setRefreshing(false);
-                        FirebaseCrash.report(e);
+                        Crashlytics.logException(e);
+                        Crashlytics.setString("className", "CollaborationDetailsActivity");
                         //Server error Snack bar
                         ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_server));
                     }
@@ -377,7 +379,8 @@ public class CollaborationDetailsActivity extends BaseActivity {
                             }
                         } catch (JSONException e) {
                             e.printStackTrace();
-                            FirebaseCrash.report(e);
+                            Crashlytics.logException(e);
+                            Crashlytics.setString("className", "CollaborationDetailsActivity");
                             connectionError[0] = true;
                         }
                     }
@@ -386,7 +389,8 @@ public class CollaborationDetailsActivity extends BaseActivity {
                     public void onError(Throwable e) {
                         //Hide progress view
                         viewProgress.setVisibility(View.GONE);
-                        FirebaseCrash.report(e);
+                        Crashlytics.logException(e);
+                        Crashlytics.setString("className", "CollaborationDetailsActivity");
                         //Server error Snack bar
                         ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_server));
                     }
@@ -448,7 +452,8 @@ public class CollaborationDetailsActivity extends BaseActivity {
                             }
                         } catch (JSONException e) {
                             e.printStackTrace();
-                            FirebaseCrash.report(e);
+                            Crashlytics.logException(e);
+                            Crashlytics.setString("className", "CollaborationDetailsActivity");
                             connectionError[0] = true;
                         }
                     }
@@ -456,7 +461,8 @@ public class CollaborationDetailsActivity extends BaseActivity {
                     @Override
                     public void onErrorCalled(Throwable e) {
                         viewProgress.setVisibility(View.GONE);
-                        FirebaseCrash.report(e);
+                        Crashlytics.logException(e);
+                        Crashlytics.setString("className", "CollaborationDetailsActivity");
                         //Server error Snack bar
                         ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_server));
                     }

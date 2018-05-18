@@ -19,6 +19,7 @@ import com.afollestad.materialdialogs.MaterialDialog;
 import com.androidnetworking.AndroidNetworking;
 import com.androidnetworking.error.ANError;
 import com.androidnetworking.interfaces.JSONObjectRequestListener;
+import com.crashlytics.android.Crashlytics;
 import com.facebook.AccessToken;
 import com.facebook.CallbackManager;
 import com.facebook.FacebookCallback;
@@ -45,7 +46,6 @@ import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.tasks.Task;
-import com.google.firebase.crash.FirebaseCrash;
 import com.google.firebase.iid.FirebaseInstanceId;
 import com.thetestament.cread.BuildConfig;
 import com.thetestament.cread.CreadApp;
@@ -254,7 +254,8 @@ public class MainActivity extends BaseActivity {
                 } catch (ApiException e) {
                     // Google Sign In failed, update UI appropriately
                     e.printStackTrace();
-                    FirebaseCrash.report(e);
+                    Crashlytics.logException(e);
+                    Crashlytics.setString("className", "MainActivity");
                     ViewHelper.getSnackBar(parentLayout, "Google Sign in Failed");
                 }
             }
@@ -369,7 +370,8 @@ public class MainActivity extends BaseActivity {
 
         } catch (JSONException e) {
             e.printStackTrace();
-            FirebaseCrash.report(e);
+            Crashlytics.logException(e);
+            Crashlytics.setString("className", "MainActivity");
         }
 
         // check internet status
@@ -424,7 +426,8 @@ public class MainActivity extends BaseActivity {
 
                             } catch (JSONException e) {
                                 e.printStackTrace();
-                                FirebaseCrash.report(e);
+                                Crashlytics.logException(e);
+                                Crashlytics.setString("className", "MainActivity");
 
                             }
                         }
@@ -563,7 +566,8 @@ public class MainActivity extends BaseActivity {
 
         } catch (JSONException e) {
             e.printStackTrace();
-            FirebaseCrash.report(e);
+            Crashlytics.logException(e);
+            Crashlytics.setString("className", "MainActivity");
         }
 
         AndroidNetworking.post(BuildConfig.URL + "/user-access/sign-up")
@@ -630,7 +634,8 @@ public class MainActivity extends BaseActivity {
                             mGoogleSignInClient.signOut();
                             AccessToken.setCurrentAccessToken(null);
                             e.printStackTrace();
-                            FirebaseCrash.report(e);
+                            Crashlytics.logException(e);
+                            Crashlytics.setString("className", "MainActivity");
                             ViewHelper.getSnackBar(parentLayout, getString(R.string.error_msg_internal));
                         }
                     }

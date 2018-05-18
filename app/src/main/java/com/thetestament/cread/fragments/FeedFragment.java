@@ -30,8 +30,8 @@ import android.widget.TextView;
 
 import com.afollestad.materialdialogs.DialogAction;
 import com.afollestad.materialdialogs.MaterialDialog;
+import com.crashlytics.android.Crashlytics;
 import com.google.firebase.analytics.FirebaseAnalytics;
-import com.google.firebase.crash.FirebaseCrash;
 import com.thetestament.cread.BuildConfig;
 import com.thetestament.cread.Manifest;
 import com.thetestament.cread.R;
@@ -600,7 +600,8 @@ public class FeedFragment extends Fragment implements listener.OnCollaborationLi
                             }
                         } catch (JSONException e) {
                             e.printStackTrace();
-                            FirebaseCrash.report(e);
+                            Crashlytics.logException(e);
+                            Crashlytics.setString("className", "FeedFragment");
                             connectionError[0] = true;
                         }
                     }
@@ -608,7 +609,8 @@ public class FeedFragment extends Fragment implements listener.OnCollaborationLi
                     @Override
                     public void onError(Throwable e) {
                         swipeRefreshLayout.setRefreshing(false);
-                        FirebaseCrash.report(e);
+                        Crashlytics.logException(e);
+                        Crashlytics.setString("className", "FeedFragment");
                         //Server error Snack bar
                         ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_server));
                     }
@@ -795,7 +797,8 @@ public class FeedFragment extends Fragment implements listener.OnCollaborationLi
                             }
                         } catch (JSONException e) {
                             e.printStackTrace();
-                            FirebaseCrash.report(e);
+                            Crashlytics.logException(e);
+                            Crashlytics.setString("className", "FeedFragment");
                             connectionError[0] = true;
                         }
                     }
@@ -806,7 +809,8 @@ public class FeedFragment extends Fragment implements listener.OnCollaborationLi
                         mFeedDataList.remove(mFeedDataList.size() - 1);
                         //Notify changes
                         mAdapter.notifyItemRemoved(mFeedDataList.size());
-                        FirebaseCrash.report(e);
+                        Crashlytics.logException(e);
+                        Crashlytics.setString("className", "FeedFragment");
                         //Server error Snack bar
                         ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_server));
                     }
@@ -1094,14 +1098,16 @@ public class FeedFragment extends Fragment implements listener.OnCollaborationLi
                             }
                         } catch (JSONException e) {
                             e.printStackTrace();
-                            FirebaseCrash.report(e);
+                            Crashlytics.logException(e);
+                            Crashlytics.setString("className", "FeedFragment");
                             connectionError[0] = true;
                         }
                     }
 
                     @Override
                     public void onErrorCalled(Throwable e) {
-                        FirebaseCrash.report(e);
+                        Crashlytics.logException(e);
+                        Crashlytics.setString("className", "FeedFragment");
                         //Server error Snack bar
                         ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_server));
                     }

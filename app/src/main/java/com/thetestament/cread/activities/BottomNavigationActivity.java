@@ -35,8 +35,8 @@ import android.widget.TextView;
 
 import com.afollestad.materialdialogs.DialogAction;
 import com.afollestad.materialdialogs.MaterialDialog;
+import com.crashlytics.android.Crashlytics;
 import com.google.firebase.analytics.FirebaseAnalytics;
-import com.google.firebase.crash.FirebaseCrash;
 import com.thetestament.cread.BuildConfig;
 import com.thetestament.cread.Manifest;
 import com.thetestament.cread.R;
@@ -570,7 +570,8 @@ public class BottomNavigationActivity extends BaseActivity {
             }
         } catch (Exception e) {
             e.printStackTrace();
-            FirebaseCrash.report(e);
+            Crashlytics.logException(e);
+            Crashlytics.setString("className", "BottomNavigationActivity");
             ViewHelper.getSnackBar(rootView, getString(R.string.error_img_not_cropped));
         }
     }
@@ -712,7 +713,8 @@ public class BottomNavigationActivity extends BaseActivity {
                     @Override
                     public void onErrorCalled(Throwable e) {
                         e.printStackTrace();
-                        FirebaseCrash.report(e);
+                        Crashlytics.logException(e);
+                        Crashlytics.setString("className", "BottomNavigationActivity");
                         ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_server));
                     }
 
@@ -917,7 +919,8 @@ public class BottomNavigationActivity extends BaseActivity {
             compressSpecific(croppedImageUri, this, IMAGE_TYPE_USER_CAPTURE_PIC);
         } catch (IOException e) {
             e.printStackTrace();
-            FirebaseCrash.report(e);
+            Crashlytics.logException(e);
+            Crashlytics.setString("className", "BottomNavigationActivity");
         }
         //Decode image file
         BitmapFactory.Options options = new BitmapFactory.Options();

@@ -29,8 +29,8 @@ import android.widget.TextView;
 
 import com.afollestad.materialdialogs.DialogAction;
 import com.afollestad.materialdialogs.MaterialDialog;
+import com.crashlytics.android.Crashlytics;
 import com.facebook.drawee.view.SimpleDraweeView;
-import com.google.firebase.crash.FirebaseCrash;
 import com.thetestament.cread.BuildConfig;
 import com.thetestament.cread.Manifest;
 import com.thetestament.cread.R;
@@ -593,7 +593,8 @@ public class ExploreFragment extends Fragment implements listener.OnCollaboratio
                             }
                         } catch (JSONException e) {
                             e.printStackTrace();
-                            FirebaseCrash.report(e);
+                            Crashlytics.logException(e);
+                            Crashlytics.setString("className", "ExploreFragment");
                             connectionError[0] = true;
                         }
 
@@ -603,7 +604,8 @@ public class ExploreFragment extends Fragment implements listener.OnCollaboratio
                     public void onErrorCalled(Throwable e) {
                         // dismiss dialog
                         loadingDialog.dismiss();
-                        FirebaseCrash.report(e);
+                        Crashlytics.logException(e);
+                        Crashlytics.setString("className", "ExploreFragment");
                         //Server error Snack bar
                         ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_server));
                     }
@@ -729,7 +731,8 @@ public class ExploreFragment extends Fragment implements listener.OnCollaboratio
                             }
                         } catch (JSONException e) {
                             e.printStackTrace();
-                            FirebaseCrash.report(e);
+                            Crashlytics.logException(e);
+                            Crashlytics.setString("className", "ExploreFragment");
                             connectionError[0] = true;
                         }
                     }
@@ -737,7 +740,8 @@ public class ExploreFragment extends Fragment implements listener.OnCollaboratio
                     @Override
                     public void onErrorCalled(Throwable e) {
                         swipeRefreshLayout.setRefreshing(false);
-                        FirebaseCrash.report(e);
+                        Crashlytics.logException(e);
+                        Crashlytics.setString("className", "ExploreFragment");
                         //Server error Snack bar
                         ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_server));
                     }
@@ -900,7 +904,8 @@ public class ExploreFragment extends Fragment implements listener.OnCollaboratio
                             }
                         } catch (JSONException e) {
                             e.printStackTrace();
-                            FirebaseCrash.report(e);
+                            Crashlytics.logException(e);
+                            Crashlytics.setString("className", "ExploreFragment");
                             connectionError[0] = true;
                         }
                     }
@@ -908,7 +913,8 @@ public class ExploreFragment extends Fragment implements listener.OnCollaboratio
                     @Override
                     public void onError(Throwable e) {
                         swipeRefreshLayout.setRefreshing(false);
-                        FirebaseCrash.report(e);
+                        Crashlytics.logException(e);
+                        Crashlytics.setString("className", "ExploreFragment");
                         //Server error Snack bar
                         ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_server));
                     }
@@ -1059,7 +1065,8 @@ public class ExploreFragment extends Fragment implements listener.OnCollaboratio
                             }
                         } catch (JSONException e) {
                             e.printStackTrace();
-                            FirebaseCrash.report(e);
+                            Crashlytics.logException(e);
+                            Crashlytics.setString("className", "ExploreFragment");
                             connectionError[0] = true;
                         }
                     }
@@ -1069,7 +1076,8 @@ public class ExploreFragment extends Fragment implements listener.OnCollaboratio
                         //Remove loading item
                         mExploreDataList.remove(mExploreDataList.size() - 1);
                         mAdapter.notifyItemRemoved(mExploreDataList.size());
-                        FirebaseCrash.report(e);
+                        Crashlytics.logException(e);
+                        Crashlytics.setString("className", "ExploreFragment");
                         //Server error Snack bar
                         ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_server));
                     }

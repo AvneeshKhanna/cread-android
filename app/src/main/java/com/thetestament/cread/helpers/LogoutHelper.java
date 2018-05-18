@@ -10,11 +10,11 @@ import android.widget.Toast;
 
 import com.afollestad.materialdialogs.DialogAction;
 import com.afollestad.materialdialogs.MaterialDialog;
+import com.crashlytics.android.Crashlytics;
 import com.facebook.AccessToken;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
-import com.google.firebase.crash.FirebaseCrash;
 import com.google.firebase.iid.FirebaseInstanceId;
 import com.razorpay.Checkout;
 import com.rx2androidnetworking.Rx2AndroidNetworking;
@@ -171,7 +171,8 @@ public class LogoutHelper {
 
                             } catch (JSONException e) {
                                 e.printStackTrace();
-                                FirebaseCrash.report(e);
+                                Crashlytics.logException(e);
+                                Crashlytics.setString("className", "LogOutHelper");
 
                                 dialog.dismiss();
                                 Toast.makeText(context
@@ -188,7 +189,8 @@ public class LogoutHelper {
                             dialog.dismiss();
 
                             e.printStackTrace();
-                            FirebaseCrash.report(e);
+                            Crashlytics.logException(e);
+                            Crashlytics.setString("className", "LogOutHelper");
 
                             ViewHelper.getToast(context, context.getString(R.string.error_msg_server));
 

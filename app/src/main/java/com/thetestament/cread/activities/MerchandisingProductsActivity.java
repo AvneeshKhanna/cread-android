@@ -20,7 +20,7 @@ import android.widget.TextView;
 
 import com.afollestad.materialdialogs.DialogAction;
 import com.afollestad.materialdialogs.MaterialDialog;
-import com.google.firebase.crash.FirebaseCrash;
+import com.crashlytics.android.Crashlytics;
 import com.razorpay.Checkout;
 import com.rx2androidnetworking.Rx2AndroidNetworking;
 import com.thetestament.cread.BuildConfig;
@@ -48,7 +48,6 @@ import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.observers.DisposableObserver;
 import io.reactivex.schedulers.Schedulers;
 
-import static com.thetestament.cread.utils.Constant.EXTRA_CAPTURE_ID;
 import static com.thetestament.cread.utils.Constant.EXTRA_CAPTURE_URL;
 import static com.thetestament.cread.utils.Constant.EXTRA_CAPTURE_UUID;
 import static com.thetestament.cread.utils.Constant.EXTRA_ENTITY_ID;
@@ -71,7 +70,6 @@ import static com.thetestament.cread.utils.Constant.EXTRA_SHIPPING_NAME;
 import static com.thetestament.cread.utils.Constant.EXTRA_SHIPPING_PHONE;
 import static com.thetestament.cread.utils.Constant.EXTRA_SHIPPING_PINCODE;
 import static com.thetestament.cread.utils.Constant.EXTRA_SHIPPING_STATE;
-import static com.thetestament.cread.utils.Constant.EXTRA_SHORT_ID;
 import static com.thetestament.cread.utils.Constant.EXTRA_SHORT_UUID;
 
 public class MerchandisingProductsActivity extends BaseActivity {
@@ -115,11 +113,9 @@ public class MerchandisingProductsActivity extends BaseActivity {
         ViewCompat.setNestedScrollingEnabled(recyclerView, false);
 
         // if screen opened first time
-        if(mHelper.isBuyingFirstTime())
-        {
+        if (mHelper.isBuyingFirstTime()) {
             showTermsDialog();
         }
-
 
 
         initView();
@@ -215,8 +211,7 @@ public class MerchandisingProductsActivity extends BaseActivity {
     /**
      * Method to show the terms dialog
      */
-    private void showTermsDialog()
-    {
+    private void showTermsDialog() {
         new MaterialDialog.Builder(MerchandisingProductsActivity.this)
                 .customView(R.layout.dialog_products_terms, false)
                 .positiveText("Ok")
@@ -283,13 +278,13 @@ public class MerchandisingProductsActivity extends BaseActivity {
                                         productsData.setQuanity(getArrayListFromJSON(dataObj.getJSONArray("quantity")));
 
 
-
                                         mDataList.add(productsData);
                                     }
                                 }
                             } catch (JSONException e) {
                                 e.printStackTrace();
-                                FirebaseCrash.report(e);
+                                Crashlytics.logException(e);
+                                Crashlytics.setString("className", "MerchandisingProductsActivity");
                                 connectionError[0] = true;
                             }
                         }
@@ -298,7 +293,8 @@ public class MerchandisingProductsActivity extends BaseActivity {
                         public void onError(Throwable e) {
                             //Dismiss progress indicator
                             swipeRefreshLayout.setRefreshing(false);
-                            FirebaseCrash.report(e);
+                            Crashlytics.logException(e);
+                            Crashlytics.setString("className", "MerchandisingProductsActivity");
                             //Server error Snack bar
                             ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_server));
                         }
@@ -380,7 +376,8 @@ public class MerchandisingProductsActivity extends BaseActivity {
             jsonObject.put("entityid", mEntityID);
         } catch (JSONException e) {
             e.printStackTrace();
-            FirebaseCrash.report(e);
+            Crashlytics.logException(e);
+            Crashlytics.setString("className", "MerchandisingProductsActivity");
         }
         return Rx2AndroidNetworking.post(url)
                 .addJSONObjectBody(jsonObject)

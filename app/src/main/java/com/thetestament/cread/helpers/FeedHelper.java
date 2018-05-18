@@ -25,7 +25,7 @@ import android.widget.TextView;
 
 import com.afollestad.materialdialogs.DialogAction;
 import com.afollestad.materialdialogs.MaterialDialog;
-import com.google.firebase.crash.FirebaseCrash;
+import com.crashlytics.android.Crashlytics;
 import com.rx2androidnetworking.Rx2AndroidNetworking;
 import com.thetestament.cread.BuildConfig;
 import com.thetestament.cread.R;
@@ -768,7 +768,8 @@ public class FeedHelper {
                             //Hide progress view
                             progressBar.setVisibility(View.GONE);
                             e.printStackTrace();
-                            FirebaseCrash.report(e);
+                            Crashlytics.logException(e);
+                            Crashlytics.setString("className", "FeedHelper");
                             ViewHelper.getToast(context, context.getString(R.string.error_msg_internal));
                         }
                     }
@@ -776,7 +777,8 @@ public class FeedHelper {
                     @Override
                     public void onError(Throwable e) {
                         e.printStackTrace();
-                        FirebaseCrash.report(e);
+                        Crashlytics.logException(e);
+                        Crashlytics.setString("className", "FeedHelper");
                         ViewHelper.getToast(context, context.getString(R.string.error_msg_server));
                         //Hide progress view
                         progressBar.setVisibility(View.GONE);

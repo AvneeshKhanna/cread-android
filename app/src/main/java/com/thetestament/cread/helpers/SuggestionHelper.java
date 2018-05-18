@@ -2,7 +2,7 @@ package com.thetestament.cread.helpers;
 
 import android.support.v4.app.FragmentActivity;
 
-import com.google.firebase.crash.FirebaseCrash;
+import com.crashlytics.android.Crashlytics;
 import com.thetestament.cread.BuildConfig;
 import com.thetestament.cread.R;
 import com.thetestament.cread.listeners.listener;
@@ -75,7 +75,8 @@ public class SuggestionHelper {
                             }
                         } catch (JSONException e) {
                             e.printStackTrace();
-                            FirebaseCrash.report(e);
+                            Crashlytics.logException(e);
+                            Crashlytics.setString("className", "SuggestionHelper");
                             listener.onFailure(context.getString(R.string.error_msg_internal));
                         }
                     }
@@ -83,7 +84,8 @@ public class SuggestionHelper {
                     @Override
                     public void onError(Throwable e) {
                         e.printStackTrace();
-                        FirebaseCrash.report(e);
+                        Crashlytics.logException(e);
+                        Crashlytics.setString("className", "SuggestionHelper");
                         listener.onFailure(context.getString(R.string.error_msg_server));
                     }
 

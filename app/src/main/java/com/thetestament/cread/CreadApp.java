@@ -5,8 +5,8 @@ import android.support.multidex.MultiDexApplication;
 import android.support.v7.app.AppCompatDelegate;
 
 import com.androidnetworking.AndroidNetworking;
+import com.crashlytics.android.Crashlytics;
 import com.facebook.drawee.backends.pipeline.Fresco;
-import com.google.firebase.crash.FirebaseCrash;
 import com.thetestament.cread.helpers.SharedPreferenceHelper;
 
 import java.net.URISyntaxException;
@@ -99,7 +99,8 @@ public class CreadApp extends MultiDexApplication {
             try {
                 mSocket = IO.socket(BuildConfig.URL, opts);
             } catch (URISyntaxException e) {
-                FirebaseCrash.report(e);
+                Crashlytics.logException(e);
+                Crashlytics.setString("className", "CreadApp");
                 e.printStackTrace();
             }
         }

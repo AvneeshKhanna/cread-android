@@ -13,7 +13,7 @@ import android.view.MenuItem;
 import android.view.animation.AnimationUtils;
 import android.view.animation.LayoutAnimationController;
 
-import com.google.firebase.crash.FirebaseCrash;
+import com.crashlytics.android.Crashlytics;
 import com.thetestament.cread.BuildConfig;
 import com.thetestament.cread.R;
 import com.thetestament.cread.adapters.UserInterestsAdapter;
@@ -278,7 +278,8 @@ public class UserInterestsActivity extends BaseActivity {
 
                         } catch (JSONException e) {
                             e.printStackTrace();
-                            FirebaseCrash.report(e);
+                            Crashlytics.logException(e);
+                            Crashlytics.setString("className", "ChatListActivity");
                             connectionError[0] = true;
                         }
 
@@ -287,7 +288,8 @@ public class UserInterestsActivity extends BaseActivity {
                     @Override
                     public void onErrorCalled(Throwable e) {
                         e.printStackTrace();
-                        FirebaseCrash.report(e);
+                        Crashlytics.logException(e);
+                        Crashlytics.setString("className", "ChatListActivity");
                         // dismiss swipe refresh
                         swipeRefreshLayout.setRefreshing(false);
                         swipeRefreshLayout.setEnabled(false);
@@ -363,7 +365,8 @@ public class UserInterestsActivity extends BaseActivity {
 
                         } catch (JSONException e) {
                             e.printStackTrace();
-                            FirebaseCrash.report(e);
+                            Crashlytics.logException(e);
+                            Crashlytics.setString("className", "ChatListActivity");
                             connectionError[0] = true;
                         }
                     }
@@ -375,7 +378,8 @@ public class UserInterestsActivity extends BaseActivity {
                         mInterestsList.remove(mInterestsList.size() - 1);
                         //Notify changes
                         mAdapter.notifyItemRemoved(mInterestsList.size());
-                        FirebaseCrash.report(e);
+                        Crashlytics.logException(e);
+                        Crashlytics.setString("className", "ChatListActivity");
                         //Server error Snack bar
                         ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_server));
                     }

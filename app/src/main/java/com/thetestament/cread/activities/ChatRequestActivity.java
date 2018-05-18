@@ -15,7 +15,7 @@ import android.view.animation.AnimationUtils;
 import android.view.animation.LayoutAnimationController;
 import android.widget.LinearLayout;
 
-import com.google.firebase.crash.FirebaseCrash;
+import com.crashlytics.android.Crashlytics;
 import com.thetestament.cread.BuildConfig;
 import com.thetestament.cread.CreadApp;
 import com.thetestament.cread.R;
@@ -235,7 +235,8 @@ public class ChatRequestActivity extends BaseActivity {
                             }
                         } catch (JSONException e) {
                             e.printStackTrace();
-                            FirebaseCrash.report(e);
+                            Crashlytics.logException(e);
+                            Crashlytics.setString("className", "ChatRequestActivity");
                             connectionError[0] = true;
                         }
                     }
@@ -244,7 +245,8 @@ public class ChatRequestActivity extends BaseActivity {
                     public void onError(Throwable e) {
                         //Hide progress view
                         progressView.setVisibility(View.GONE);
-                        FirebaseCrash.report(e);
+                        Crashlytics.logException(e);
+                        Crashlytics.setString("className", "ChatRequestActivity");
                         //Server error Snack bar
                         ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_server));
                     }
@@ -356,7 +358,8 @@ public class ChatRequestActivity extends BaseActivity {
                             }
                         } catch (JSONException e) {
                             e.printStackTrace();
-                            FirebaseCrash.report(e);
+                            Crashlytics.logException(e);
+                            Crashlytics.setString("className", "ChatRequestActivity");
                             connectionError[0] = true;
                         }
                     }
@@ -366,7 +369,8 @@ public class ChatRequestActivity extends BaseActivity {
                         //Remove loading item
                         mChatList.remove(mChatList.size() - 1);
                         mAdapter.notifyItemRemoved(mChatList.size());
-                        FirebaseCrash.report(e);
+                        Crashlytics.logException(e);
+                        Crashlytics.setString("className", "ChatRequestActivity");
                         //Server error Snack bar
                         ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_server));
                     }

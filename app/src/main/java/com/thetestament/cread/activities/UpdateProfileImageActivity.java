@@ -15,7 +15,7 @@ import com.afollestad.materialdialogs.MaterialDialog;
 import com.androidnetworking.AndroidNetworking;
 import com.androidnetworking.error.ANError;
 import com.androidnetworking.interfaces.JSONObjectRequestListener;
-import com.google.firebase.crash.FirebaseCrash;
+import com.crashlytics.android.Crashlytics;
 import com.squareup.picasso.Callback;
 import com.squareup.picasso.MemoryPolicy;
 import com.squareup.picasso.NetworkPolicy;
@@ -220,7 +220,8 @@ public class UpdateProfileImageActivity extends BaseActivity {
                             }
                         } catch (JSONException e) {
                             e.printStackTrace();
-                            FirebaseCrash.report(e);
+                            Crashlytics.logException(e);
+                            Crashlytics.setString("className", "UpdateProfileImageActivity");
                             ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_internal));
                         }
                     }
@@ -228,7 +229,8 @@ public class UpdateProfileImageActivity extends BaseActivity {
                     @Override
                     public void onError(ANError anError) {
                         dialog.dismiss();
-                        FirebaseCrash.report(anError);
+                        Crashlytics.logException(anError);
+                        Crashlytics.setString("className", "UpdateProfileImageActivity");
                         ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_server));
                     }
                 });

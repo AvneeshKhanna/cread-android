@@ -21,13 +21,13 @@ import android.widget.TextView;
 
 import com.afollestad.materialdialogs.DialogAction;
 import com.afollestad.materialdialogs.MaterialDialog;
+import com.crashlytics.android.Crashlytics;
 import com.facebook.accountkit.Account;
 import com.facebook.accountkit.AccountKit;
 import com.facebook.accountkit.AccountKitCallback;
 import com.facebook.accountkit.AccountKitError;
 import com.facebook.accountkit.AccountKitLoginResult;
 import com.facebook.accountkit.PhoneNumber;
-import com.google.firebase.crash.FirebaseCrash;
 import com.rx2androidnetworking.Rx2AndroidNetworking;
 import com.thetestament.cread.BuildConfig;
 import com.thetestament.cread.R;
@@ -457,7 +457,8 @@ public class UpdateProfileDetailsActivity extends BaseActivity {
             jsonObject.put("userdata", userObject);
         } catch (JSONException e) {
             e.printStackTrace();
-            FirebaseCrash.report(e);
+            Crashlytics.logException(e);
+            Crashlytics.setString("className", "UpdateProfileDetailsActivity");
             progressView.setVisibility(View.GONE);
         }
 
@@ -503,7 +504,8 @@ public class UpdateProfileDetailsActivity extends BaseActivity {
                             }
                         } catch (JSONException e) {
                             e.printStackTrace();
-                            FirebaseCrash.report(e);
+                            Crashlytics.logException(e);
+                            Crashlytics.setString("className", "UpdateProfileDetailsActivity");
                             //Show error snack bar
                             ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_internal));
                         }
@@ -569,7 +571,8 @@ public class UpdateProfileDetailsActivity extends BaseActivity {
             jsonObject.put("phone", newNumber);
         } catch (JSONException e) {
             e.printStackTrace();
-            FirebaseCrash.report(e);
+            Crashlytics.logException(e);
+            Crashlytics.setString("className", "UpdateProfileDetailsActivity");
             dialog.dismiss();
         }
 
@@ -602,7 +605,8 @@ public class UpdateProfileDetailsActivity extends BaseActivity {
                             }
                         } catch (JSONException e) {
                             e.printStackTrace();
-                            FirebaseCrash.report(e);
+                            Crashlytics.logException(e);
+                            Crashlytics.setString("className", "UpdateProfileDetailsActivity");
                             ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_internal));
                         }
 
@@ -613,7 +617,8 @@ public class UpdateProfileDetailsActivity extends BaseActivity {
                     public void onError(@io.reactivex.annotations.NonNull Throwable e) {
                         dialog.dismiss();
                         e.printStackTrace();
-                        FirebaseCrash.report(e);
+                        Crashlytics.logException(e);
+                        Crashlytics.setString("className", "UpdateProfileDetailsActivity");
                         ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_server));
 
                     }

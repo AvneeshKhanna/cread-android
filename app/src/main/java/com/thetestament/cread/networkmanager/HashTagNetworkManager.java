@@ -2,7 +2,7 @@ package com.thetestament.cread.networkmanager;
 
 import android.content.Context;
 
-import com.google.firebase.crash.FirebaseCrash;
+import com.crashlytics.android.Crashlytics;
 import com.rx2androidnetworking.Rx2ANRequest;
 import com.rx2androidnetworking.Rx2AndroidNetworking;
 import com.thetestament.cread.BuildConfig;
@@ -107,7 +107,8 @@ public class HashTagNetworkManager {
                                 }
                             } catch (JSONException e) {
                                 e.printStackTrace();
-                                FirebaseCrash.report(e);
+                                Crashlytics.logException(e);
+                                Crashlytics.setString("className", "HashTagNetworkManager");
                                 loadListener.onFailure(context.getString(R.string.error_msg_internal));
                             }
                         }
@@ -115,7 +116,8 @@ public class HashTagNetworkManager {
                         @Override
                         public void onError(Throwable e) {
                             e.printStackTrace();
-                            FirebaseCrash.report(e);
+                            Crashlytics.logException(e);
+                            Crashlytics.setString("className", "HashTagNetworkManager");
                             //Set failure listener
                             loadListener.onFailure(context.getString(R.string.error_msg_server));
                         }

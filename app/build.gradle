@@ -1,4 +1,6 @@
 apply plugin: 'com.android.application'
+apply plugin: 'io.fabric'
+
 
 android {
     signingConfigs {
@@ -84,9 +86,10 @@ dependencies {
     //Firebase
     implementation "com.google.firebase:firebase-core:$rootProject.playServiceVersion"
     implementation "com.google.firebase:firebase-config:$rootProject.playServiceVersion"
-    implementation "com.google.firebase:firebase-crash:$rootProject.playServiceVersion"
+    //implementation "com.google.firebase:firebase-crash:$rootProject.playServiceVersion"
     implementation "com.google.firebase:firebase-messaging:$rootProject.playServiceVersion"
     implementation "com.google.firebase:firebase-invites:$rootProject.playServiceVersion"
+    implementation 'com.crashlytics.sdk.android:crashlytics:2.9.2'
 
     implementation "com.google.android.gms:play-services-auth:$rootProject.playServiceVersion"
 

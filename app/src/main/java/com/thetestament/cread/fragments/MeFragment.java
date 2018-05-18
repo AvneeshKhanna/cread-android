@@ -42,8 +42,8 @@ import android.widget.TextView;
 
 import com.afollestad.materialdialogs.DialogAction;
 import com.afollestad.materialdialogs.MaterialDialog;
+import com.crashlytics.android.Crashlytics;
 import com.google.firebase.analytics.FirebaseAnalytics;
-import com.google.firebase.crash.FirebaseCrash;
 import com.rx2androidnetworking.Rx2AndroidNetworking;
 import com.squareup.picasso.MemoryPolicy;
 import com.squareup.picasso.NetworkPolicy;
@@ -984,7 +984,8 @@ public class MeFragment extends Fragment implements listener.OnCollaborationList
                             }
                         } catch (JSONException e) {
                             e.printStackTrace();
-                            FirebaseCrash.report(e);
+                            Crashlytics.logException(e);
+                            Crashlytics.setString("className", "MeFragment");
                             connectionError[0] = true;
                         }
                     }
@@ -992,7 +993,8 @@ public class MeFragment extends Fragment implements listener.OnCollaborationList
                     @Override
                     public void onError(Throwable e) {
                         swipeToRefreshLayout.setRefreshing(false);
-                        FirebaseCrash.report(e);
+                        Crashlytics.logException(e);
+                        Crashlytics.setString("className", "MeFragment");
                         //Server error Snack bar
                         ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_server));
                     }
@@ -1432,7 +1434,8 @@ public class MeFragment extends Fragment implements listener.OnCollaborationList
                             }
                         } catch (JSONException e) {
                             e.printStackTrace();
-                            FirebaseCrash.report(e);
+                            Crashlytics.logException(e);
+                            Crashlytics.setString("className", "MeFragment");
                             connectionError[0] = true;
                         }
                     }
@@ -1441,7 +1444,8 @@ public class MeFragment extends Fragment implements listener.OnCollaborationList
                     public void onError(Throwable e) {
                         swipeToRefreshLayout.setRefreshing(false);
                         e.printStackTrace();
-                        FirebaseCrash.report(e);
+                        Crashlytics.logException(e);
+                        Crashlytics.setString("className", "MeFragment");
                         //Server error Snack bar
                         ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_server));
                     }
@@ -1518,7 +1522,8 @@ public class MeFragment extends Fragment implements listener.OnCollaborationList
 
                         } catch (JSONException e) {
                             e.printStackTrace();
-                            FirebaseCrash.report(e);
+                            Crashlytics.logException(e);
+                            Crashlytics.setString("className", "MeFragment");
                             connectionError[0] = true;
                         }
                     }
@@ -1527,7 +1532,8 @@ public class MeFragment extends Fragment implements listener.OnCollaborationList
                     public void onErrorCalled(Throwable e) {
 
                         e.printStackTrace();
-                        FirebaseCrash.report(e);
+                        Crashlytics.logException(e);
+                        Crashlytics.setString("className", "MeFragment");
 
                         swipeToRefreshLayout.setRefreshing(false);
 
@@ -1623,7 +1629,8 @@ public class MeFragment extends Fragment implements listener.OnCollaborationList
 
                         } catch (JSONException e) {
                             e.printStackTrace();
-                            FirebaseCrash.report(e);
+                            Crashlytics.logException(e);
+                            Crashlytics.setString("className", "MeFragment");
                             connectionError[0] = true;
                         }
                     }
@@ -1635,7 +1642,8 @@ public class MeFragment extends Fragment implements listener.OnCollaborationList
                         mCollabList.remove(mCollabList.size() - 1);
                         //Notify changes
                         mAdapter.notifyItemRemoved(mCollabList.size());
-                        FirebaseCrash.report(e);
+                        Crashlytics.logException(e);
+                        Crashlytics.setString("className", "MeFragment");
                         //Server error Snack bar
                         ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_server));
 
@@ -1929,7 +1937,8 @@ public class MeFragment extends Fragment implements listener.OnCollaborationList
                             }
                         } catch (JSONException e) {
                             e.printStackTrace();
-                            FirebaseCrash.report(e);
+                            Crashlytics.logException(e);
+                            Crashlytics.setString("className", "MeFragment");
                             connectionError[0] = true;
                         }
                     }
@@ -1941,7 +1950,8 @@ public class MeFragment extends Fragment implements listener.OnCollaborationList
                         //Notify changes
                         mAdapter.notifyItemRemoved(mUserActivityDataList.size());
                         e.printStackTrace();
-                        FirebaseCrash.report(e);
+                        Crashlytics.logException(e);
+                        Crashlytics.setString("className", "MeFragment");
                         //Server error Snack bar
                         ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_server));
                     }
@@ -2208,7 +2218,8 @@ public class MeFragment extends Fragment implements listener.OnCollaborationList
             jsonObject.put("userdata", userObject);
         } catch (JSONException e) {
             e.printStackTrace();
-            FirebaseCrash.report(e);
+            Crashlytics.logException(e);
+            Crashlytics.setString("className", "MeFragment");
             progressView.setVisibility(View.GONE);
         }
 
@@ -2243,7 +2254,8 @@ public class MeFragment extends Fragment implements listener.OnCollaborationList
                             }
                         } catch (JSONException e) {
                             e.printStackTrace();
-                            FirebaseCrash.report(e);
+                            Crashlytics.logException(e);
+                            Crashlytics.setString("className", "MeFragment");
                             //Show error snack bar
                             ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_internal));
                         }

@@ -18,7 +18,7 @@ import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 
-import com.google.firebase.crash.FirebaseCrash;
+import com.crashlytics.android.Crashlytics;
 import com.thetestament.cread.R;
 import com.thetestament.cread.activities.FeedDescriptionActivity;
 import com.thetestament.cread.activities.RoyaltiesActivity;
@@ -326,7 +326,8 @@ public class UpdatesFragment extends Fragment {
 
                         } catch (JSONException e) {
                             e.printStackTrace();
-                            FirebaseCrash.report(e);
+                            Crashlytics.logException(e);
+                            Crashlytics.setString("className", "UpdatesFragment");
                             connectionError[0] = true;
                         }
 
@@ -337,7 +338,8 @@ public class UpdatesFragment extends Fragment {
                     public void onErrorCalled(Throwable e) {
 
                         swipeRefreshLayout.setRefreshing(false);
-                        FirebaseCrash.report(e);
+                        Crashlytics.logException(e);
+                        Crashlytics.setString("className", "UpdatesFragment");
                         //Server error Snack bar
                         ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_server));
 
@@ -410,7 +412,8 @@ public class UpdatesFragment extends Fragment {
                             }
                         } catch (JSONException e) {
                             e.printStackTrace();
-                            FirebaseCrash.report(e);
+                            Crashlytics.logException(e);
+                            Crashlytics.setString("className", "UpdatesFragment");
                             connectionError[0] = true;
                         }
                     }
@@ -422,7 +425,8 @@ public class UpdatesFragment extends Fragment {
                         mDataList.remove(mDataList.size() - 1);
                         //Notify changes
                         mAdapter.notifyItemRemoved(mDataList.size());
-                        FirebaseCrash.report(e);
+                        Crashlytics.logException(e);
+                        Crashlytics.setString("className", "UpdatesFragment");
                         //Server error Snack bar
                         ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_server));
 
@@ -486,7 +490,10 @@ public class UpdatesFragment extends Fragment {
                             mAdapter.notifyItemChanged(position);
 
                             e.printStackTrace();
-                            FirebaseCrash.report(e);
+                            Crashlytics.logException(e);
+                            Crashlytics.setString("className", "UpdatesFragment");
+                            Crashlytics.logException(e);
+                            Crashlytics.setString("className", "UpdatesFragment");
                             ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_server));
                         }
                     }
@@ -498,7 +505,8 @@ public class UpdatesFragment extends Fragment {
                         mAdapter.notifyItemChanged(position);
 
                         e.printStackTrace();
-                        FirebaseCrash.report(e);
+                        Crashlytics.logException(e);
+                        Crashlytics.setString("className", "UpdatesFragment");
                         ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_server));
 
                     }
@@ -633,7 +641,8 @@ public class UpdatesFragment extends Fragment {
                             }
                         } catch (JSONException e) {
                             e.printStackTrace();
-                            FirebaseCrash.report(e);
+                            Crashlytics.logException(e);
+                            Crashlytics.setString("className", "UpdatesFragment");
                             connectionError[0] = true;
                         }
                     }
@@ -642,7 +651,8 @@ public class UpdatesFragment extends Fragment {
                     public void onErrorCalled(Throwable e) {
 
                         progressBar.setVisibility(View.GONE);
-                        FirebaseCrash.report(e);
+                        Crashlytics.logException(e);
+                        Crashlytics.setString("className", "UpdatesFragment");
                         //Server error Snack bar
                         ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_server));
                     }

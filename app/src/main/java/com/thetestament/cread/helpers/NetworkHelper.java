@@ -6,7 +6,7 @@ import android.net.NetworkInfo;
 import android.support.v4.app.FragmentActivity;
 
 import com.androidnetworking.common.Priority;
-import com.google.firebase.crash.FirebaseCrash;
+import com.crashlytics.android.Crashlytics;
 import com.rx2androidnetworking.Rx2ANRequest;
 import com.rx2androidnetworking.Rx2AndroidNetworking;
 import com.thetestament.cread.BuildConfig;
@@ -332,7 +332,8 @@ public class NetworkHelper {
             jsonObject.put("share_source", shareSource);
         } catch (JSONException e) {
             e.printStackTrace();
-            FirebaseCrash.report(e);
+            Crashlytics.logException(e);
+            Crashlytics.setString("className", "NetworkHelper");
         }
         return Rx2AndroidNetworking.post(serverURL)
                 .addJSONObjectBody(jsonObject)
@@ -443,7 +444,8 @@ public class NetworkHelper {
 
         } catch (JSONException e) {
             e.printStackTrace();
-            FirebaseCrash.report(e);
+            Crashlytics.logException(e);
+            Crashlytics.setString("className", "NetworkHelper");
         }
 
         return Rx2AndroidNetworking
@@ -469,7 +471,8 @@ public class NetworkHelper {
 
         } catch (JSONException e) {
             e.printStackTrace();
-            FirebaseCrash.report(e);
+            Crashlytics.logException(e);
+            Crashlytics.setString("className", "NetworkHelper");
         }
 
         return Rx2AndroidNetworking
@@ -493,7 +496,8 @@ public class NetworkHelper {
 
         } catch (JSONException e) {
             e.printStackTrace();
-            FirebaseCrash.report(e);
+            Crashlytics.logException(e);
+            Crashlytics.setString("className", "NetworkHelper");
         }
 
         return Rx2AndroidNetworking
@@ -512,7 +516,8 @@ public class NetworkHelper {
             jsonObject.put("entityid", entityID);
         } catch (JSONException e) {
             e.printStackTrace();
-            FirebaseCrash.report(e);
+            Crashlytics.logException(e);
+            Crashlytics.setString("className", "NetworkHelper");
         }
 
         return Rx2AndroidNetworking
@@ -551,7 +556,8 @@ public class NetworkHelper {
 
         } catch (JSONException e) {
             e.printStackTrace();
-            FirebaseCrash.report(e);
+            Crashlytics.logException(e);
+            Crashlytics.setString("className", "NetworkHelper");
         }
 
         return Rx2AndroidNetworking
@@ -663,15 +669,14 @@ public class NetworkHelper {
 
         } catch (JSONException e) {
             e.printStackTrace();
-            FirebaseCrash.report(e);
+            Crashlytics.logException(e);
+            Crashlytics.setString("className", "NetworkHelper");
         }
         return Rx2AndroidNetworking.post(serverURL)
                 .addJSONObjectBody(jsonObject)
                 .build()
                 .getJSONObjectObservable();
     }
-
-
 
 
     /**
@@ -783,7 +788,6 @@ public class NetworkHelper {
                 .build()
                 .getJSONObjectObservable();
     }
-
 
 
 }

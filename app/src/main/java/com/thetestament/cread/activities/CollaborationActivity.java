@@ -36,7 +36,7 @@ import android.widget.TextView;
 
 import com.afollestad.materialdialogs.DialogAction;
 import com.afollestad.materialdialogs.MaterialDialog;
-import com.google.firebase.crash.FirebaseCrash;
+import com.crashlytics.android.Crashlytics;
 import com.rx2androidnetworking.Rx2AndroidNetworking;
 import com.squareup.picasso.Callback;
 import com.squareup.picasso.MemoryPolicy;
@@ -1318,7 +1318,8 @@ public class CollaborationActivity extends BaseActivity {
                             //Hide progress view
                             viewProgress.setVisibility(View.GONE);
                             e.printStackTrace();
-                            FirebaseCrash.report(e);
+                            Crashlytics.logException(e);
+                            Crashlytics.setString("className", "CollaborationActivity");
                             ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_internal));
                         }
                     }
@@ -1326,7 +1327,8 @@ public class CollaborationActivity extends BaseActivity {
                     @Override
                     public void onError(Throwable e) {
                         e.printStackTrace();
-                        FirebaseCrash.report(e);
+                        Crashlytics.logException(e);
+                        Crashlytics.setString("className", "CollaborationActivity");
                         ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_server));
                         //Hide progress view
                         viewProgress.setVisibility(View.GONE);

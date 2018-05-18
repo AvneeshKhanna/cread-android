@@ -120,6 +120,14 @@
  -dontwarn com.android.volley.toolbox.**
  -dontwarn com.facebook.infer.**
 
+ ##### For CRASH LYTICS
+ -keep class com.crashlytics.** { *; }
+ -dontwarn com.crashlytics.**
+
+ -keepattributes *Annotation*
+ -keepattributes SourceFile,LineNumberTable
+ -keep public class * extends java.lang.Exception
+
 
 
 
