@@ -21,4 +21,10 @@
         android:icon="@drawable/ic_nav_menu_me"
         android:title="Me" />
 
+
+    <item
+        android:id="@+id/action_help"
+        android:icon="@drawable/ic_nav_menu_help"
+        android:title="Help" />
+
 </menu>

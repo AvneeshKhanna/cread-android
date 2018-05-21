@@ -91,8 +91,6 @@ public class listener {
     }
 
 
-
-
     /**
      * Interface definition for a callback to be invoked when user clicks on delete button.
      */
@@ -490,5 +488,15 @@ public class listener {
      */
     public interface OnCategorySelectListener {
         void onCategorySelected(ExploreCategoryModel model, int itemPosition);
+    }
+
+    /**
+     * Interface definition for a callback to be invoked when user uploads feedback.
+     */
+    public interface OnFeedBackClickListener {
+        /**
+         * @param qaID Question ID.
+         */
+        void onFeedBackUpdate(String qaID);
     }
 }

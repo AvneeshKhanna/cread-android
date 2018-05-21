@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item
+        android:id="@+id/action_chat_with_cread"
+        android:icon="@drawable/ic_chat_with_us"
+        android:orderInCategory="1"
+        android:title="Chat with us"
+        app:showAsAction="always" />
+</menu>

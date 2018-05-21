@@ -12,7 +12,6 @@ import com.google.firebase.analytics.FirebaseAnalytics;
 import com.thetestament.cread.R;
 import com.thetestament.cread.activities.AboutUsActivity;
 import com.thetestament.cread.activities.FindFBFriendsActivity;
-import com.thetestament.cread.helpers.ChatHelper;
 import com.thetestament.cread.helpers.DeepLinkHelper;
 import com.thetestament.cread.helpers.IntentHelper;
 import com.thetestament.cread.helpers.SharedPreferenceHelper;
@@ -168,7 +167,7 @@ public class SettingsFragment extends PreferenceFragmentCompat {
             @Override
             public boolean onPreferenceClick(Preference preference) {
                 //Open chat details screen
-                ChatHelper.openChatWithCreadKalakaar(getActivity());
+                IntentHelper.openChatWithCreadKalakaar(getActivity());
                 return false;
             }
         });

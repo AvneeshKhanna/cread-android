@@ -42,6 +42,7 @@ import com.thetestament.cread.Manifest;
 import com.thetestament.cread.R;
 import com.thetestament.cread.fragments.ExploreFragment;
 import com.thetestament.cread.fragments.FeedFragment;
+import com.thetestament.cread.fragments.HelpFragment;
 import com.thetestament.cread.fragments.MeFragment;
 import com.thetestament.cread.helpers.BottomNavigationViewHelper;
 import com.thetestament.cread.helpers.CaptureHelper;
@@ -50,6 +51,7 @@ import com.thetestament.cread.helpers.SharedPreferenceHelper;
 import com.thetestament.cread.helpers.ViewHelper;
 import com.thetestament.cread.listeners.listener.OnServerRequestedListener;
 import com.thetestament.cread.utils.AspectRatioUtils;
+import com.thetestament.cread.utils.Constant;
 import com.yalantis.ucrop.UCrop;
 
 import java.io.File;
@@ -70,6 +72,7 @@ import static com.thetestament.cread.helpers.ViewHelper.convertToPx;
 import static com.thetestament.cread.utils.Constant.EXTRA_OPEN_SPECIFIC_BOTTOMNAV_FRAGMENT;
 import static com.thetestament.cread.utils.Constant.FIREBASE_EVENT_EXPLORE_CLICKED;
 import static com.thetestament.cread.utils.Constant.FIREBASE_EVENT_FEED_CLICKED;
+import static com.thetestament.cread.utils.Constant.FIREBASE_EVENT_HELP_CLICKED;
 import static com.thetestament.cread.utils.Constant.FIREBASE_EVENT_NOTIFICATION_CLICKED;
 import static com.thetestament.cread.utils.Constant.FIREBASE_EVENT_WRITE_CLICKED;
 import static com.thetestament.cread.utils.Constant.IMAGE_TYPE_USER_CAPTURE_PIC;
@@ -416,6 +419,21 @@ public class BottomNavigationActivity extends BaseActivity {
                         togglePersonalChatIndicator(false);
                         initMeFragment(false);
                         break;
+                    case R.id.action_help:
+                        //Set title
+                        setTitle("Help");
+                        getSupportActionBar().setElevation(
+                                convertToPx(mContext, 4));
+                        setTheme(R.style.BottomNavigationActivityTheme);
+                        mCurrentFragment = new HelpFragment();
+                        //set fragment tag
+                        mFragmentTag = Constant.TAG_HELP_FRAGMENT;
+                        replaceFragment(mCurrentFragment, mFragmentTag, false);
+                        //Log firebase event
+                        setAnalytics(Constant.FIREBASE_EVENT_HELP_CLICKED);
+                        //Update flag
+                        mSelectedItemID = R.id.action_help;
+                        break;
                 }
                 return true;
             }
@@ -589,6 +607,8 @@ public class BottomNavigationActivity extends BaseActivity {
             mFirebaseAnalytics.logEvent(FIREBASE_EVENT_FEED_CLICKED, bundle);
         } else if (firebaseEvent.equals(FIREBASE_EVENT_EXPLORE_CLICKED)) {
             mFirebaseAnalytics.logEvent(FIREBASE_EVENT_EXPLORE_CLICKED, bundle);
+        } else if (firebaseEvent.equals(FIREBASE_EVENT_HELP_CLICKED)) {
+            mFirebaseAnalytics.logEvent(FIREBASE_EVENT_HELP_CLICKED, bundle);
         } else if (firebaseEvent.equals(FIREBASE_EVENT_NOTIFICATION_CLICKED)) {
             mFirebaseAnalytics.logEvent(FIREBASE_EVENT_NOTIFICATION_CLICKED, bundle);
         } else if (firebaseEvent.equals(FIREBASE_EVENT_WRITE_CLICKED)) {

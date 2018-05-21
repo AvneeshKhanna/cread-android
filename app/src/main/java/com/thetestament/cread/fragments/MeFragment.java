@@ -59,7 +59,6 @@ import com.thetestament.cread.activities.UpdateProfileDetailsActivity;
 import com.thetestament.cread.activities.UpdateProfileImageActivity;
 import com.thetestament.cread.adapters.MeAdapter;
 import com.thetestament.cread.adapters.UserStatsPagerAdapter;
-import com.thetestament.cread.helpers.ChatHelper;
 import com.thetestament.cread.helpers.DeletePostHelper;
 import com.thetestament.cread.helpers.FeedHelper;
 import com.thetestament.cread.helpers.FollowHelper;
@@ -457,7 +456,7 @@ public class MeFragment extends Fragment implements listener.OnCollaborationList
                 return true;
             case R.id.action_chat_with_cread:
                 //Open chat details screen
-                ChatHelper.openChatWithCreadKalakaar(getActivity());
+                IntentHelper.openChatWithCreadKalakaar(getActivity());
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
