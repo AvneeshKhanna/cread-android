@@ -17,7 +17,6 @@ import android.text.InputType;
 import android.text.TextUtils;
 import android.view.View;
 import android.widget.ArrayAdapter;
-import android.widget.TextView;
 
 import com.afollestad.materialdialogs.DialogAction;
 import com.afollestad.materialdialogs.MaterialDialog;
@@ -96,7 +95,7 @@ public class UpdateProfileDetailsActivity extends BaseActivity {
     @BindView(R.id.progressView)
     View progressView;
     @BindView(R.id.textUserInterests)
-    TextView textUserInterests;
+    AppCompatTextView textUserInterests;
     //endregion
 
 

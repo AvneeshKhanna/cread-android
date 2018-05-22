@@ -381,6 +381,6 @@ public class Constant {
     //region
     public static final String EXPLORE_CATEGORY_DEFAULT = "DEFAULT";
     public static final String EXPLORE_CATEGORY_ART = "ART";
-    public static final String EXPLORE_CATEGORY_GENERAL = "GENERAL";
+    public static final String EXPLORE_CATEGORY_FEEL = "FEEL";
     //endregion
 }

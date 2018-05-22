@@ -513,6 +513,8 @@ public class MeFragment extends Fragment implements listener.OnCollaborationList
      */
     @OnClick(R.id.buttonProfileSettings)
     public void onUserNameClicked() {
+        //Hide dot indicator view
+        dotIndicatorWebStoreLink.setVisibility(View.GONE);
         //If profile is editable
         if (isProfileEditable) {
             Intent intent = new Intent(getActivity(), UpdateProfileDetailsActivity.class);
@@ -548,7 +550,7 @@ public class MeFragment extends Fragment implements listener.OnCollaborationList
                     .show();
             AppCompatTextView linkText = dialog.getCustomView().findViewById(R.id.textProfileLink);
             linkText.setText(mWebStoreUrl +
-                    "\n\nThis is the web version of the profile.");
+                    "\n\nThis is the web profile link of " + mFirstName + ".");
         }
         //Update status
         mHelper.updateWebStoreDotIndicatorStatus(false);

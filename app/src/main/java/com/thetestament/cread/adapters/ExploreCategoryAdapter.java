@@ -28,9 +28,9 @@ public class ExploreCategoryAdapter extends RecyclerView.Adapter<ExploreCategory
     private FragmentActivity mContext;
 
     /**
-     * Flag to maintain position of currently selected item in the list.
+     * Flag to maintain category ID of currently selected item in the list.
      */
-    private int mSelectedItem = 0;
+    private String mSelectedItemID ;
 
 
     private listener.OnCategorySelectListener categorySelectListener;
@@ -41,9 +41,10 @@ public class ExploreCategoryAdapter extends RecyclerView.Adapter<ExploreCategory
      * @param dataList List of category data.
      * @param context  Context to be use.
      */
-    public ExploreCategoryAdapter(List<ExploreCategoryModel> dataList, FragmentActivity context) {
+    public ExploreCategoryAdapter(List<ExploreCategoryModel> dataList, FragmentActivity context, String selectedItemID) {
         this.mDataList = dataList;
         this.mContext = context;
+        this.mSelectedItemID = selectedItemID;
     }
 
     /**
@@ -109,7 +110,7 @@ public class ExploreCategoryAdapter extends RecyclerView.Adapter<ExploreCategory
                     categorySelectListener.onCategorySelected(data, itemPosition);
                 }
                 //Update selection and notify changes
-                mSelectedItem = itemPosition;
+                mSelectedItemID = data.getCategoryID();
                 notifyDataSetChanged();
             }
         });
@@ -119,12 +120,12 @@ public class ExploreCategoryAdapter extends RecyclerView.Adapter<ExploreCategory
     /**
      * Method to toggle category text color and background.
      *
-     * @param selectedPosition Position of selected item.
-     * @param context          Context to use.
-     * @param textView         Category text view
+     * @param itemPosition Position of item.
+     * @param context      Context to use.
+     * @param textView     Category text view
      */
-    private void toggleCategoryAppearance(int selectedPosition, Context context, AppCompatTextView textView) {
-        if (mSelectedItem == selectedPosition) {
+    private void toggleCategoryAppearance(int itemPosition, Context context, AppCompatTextView textView) {
+        if (mSelectedItemID.equals(mDataList.get(itemPosition).getCategoryID())) {
             //Change background
             ViewCompat.setBackground(textView
                     , ContextCompat.getDrawable(context
@@ -148,6 +149,15 @@ public class ExploreCategoryAdapter extends RecyclerView.Adapter<ExploreCategory
      * Method to return ID of selected item.
      */
     public String getSelectedItemID() {
-        return mDataList.get(mSelectedItem).getCategoryID();
+        return mSelectedItemID;
+        //return mDataList.get(mSelectedItemID).getCategoryID();
+    }
+
+    /**
+     * Method to return ID of selected item.
+     */
+    public int getSelectedItemIDPosition() {
+        return mDataList.indexOf(mSelectedItemID);
+        //return mDataList.get(mSelectedItemID).getCategoryID();
     }
 }

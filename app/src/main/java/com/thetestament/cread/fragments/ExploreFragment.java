@@ -160,7 +160,7 @@ public class ExploreFragment extends Fragment implements listener.OnCollaboratio
      * Flag to store selected Category ID.
      */
     @State
-    String mSelectedCategoryID = null;
+    String mSelectedCategoryID = "";
     //endregion
 
     //region :Overridden methods
@@ -386,7 +386,7 @@ public class ExploreFragment extends Fragment implements listener.OnCollaboratio
     @OnClick(R.id.btnToggle)
     void btnToggleCategoryOnClick(AppCompatTextView textView) {
         //set last index key to nul
-        mLastIndexKey = null;
+        //mLastIndexKey = null;
         switch (mCategory) {
             case Constant.EXPLORE_CATEGORY_DEFAULT:
                 //Update flag ,text and notify changes
@@ -395,31 +395,31 @@ public class ExploreFragment extends Fragment implements listener.OnCollaboratio
                 //Method called
                 updateCategorySelection(Constant.EXPLORE_CATEGORY_ART);
                 //load data here
-                mAdapter.setLoaded();
-                mExploreDataList.clear();
-                loadExploreData();
+                //mAdapter.setLoaded();
+                //mExploreDataList.clear();
+                //loadExploreData();
                 break;
             case Constant.EXPLORE_CATEGORY_ART:
                 //Update flag ,text and notify changes
-                mCategory = Constant.EXPLORE_CATEGORY_GENERAL;
-                textView.setText("General");
+                mCategory = Constant.EXPLORE_CATEGORY_FEEL;
+                textView.setText("Feel");
                 //Method called
-                updateCategorySelection(Constant.EXPLORE_CATEGORY_GENERAL);
+                updateCategorySelection(Constant.EXPLORE_CATEGORY_FEEL);
                 //load data here
-                mAdapter.setLoaded();
-                mExploreDataList.clear();
-                loadExploreData();
+                //mAdapter.setLoaded();
+                //mExploreDataList.clear();
+                //loadExploreData();
                 break;
-            case Constant.EXPLORE_CATEGORY_GENERAL:
+            case Constant.EXPLORE_CATEGORY_FEEL:
                 //Update flag ,text and notify changes
                 mCategory = Constant.EXPLORE_CATEGORY_DEFAULT;
                 textView.setText("Default");
                 //Method called
                 updateCategorySelection(Constant.EXPLORE_CATEGORY_DEFAULT);
                 //load data here
-                mAdapter.setLoaded();
-                mExploreDataList.clear();
-                loadExploreData();
+                //mAdapter.setLoaded();
+                //mExploreDataList.clear();
+                //loadExploreData();
                 break;
             default:
                 break;
@@ -665,7 +665,7 @@ public class ExploreFragment extends Fragment implements listener.OnCollaboratio
                             });
 
                             //Load user profile picture
-                            ImageHelper.loadProgressiveImage(Uri.parse(mProfilePicURL),imageArtist);
+                            ImageHelper.loadProgressiveImage(Uri.parse(mProfilePicURL), imageArtist);
 
                             //if last name is present
                             if (mLastName != null) {
@@ -1244,7 +1244,7 @@ public class ExploreFragment extends Fragment implements listener.OnCollaboratio
                                 , false);
                         recyclerViewCategory.setLayoutManager(layoutManager);
                         //Set adapter
-                        mCategoryAdapter = new ExploreCategoryAdapter(mCategoryList, getActivity());
+                        mCategoryAdapter = new ExploreCategoryAdapter(mCategoryList, getActivity(), mSelectedCategoryID);
                         recyclerViewCategory.setAdapter(mCategoryAdapter);
                         //Method called
                         updateCategorySelection(Constant.EXPLORE_CATEGORY_DEFAULT);
@@ -1303,7 +1303,7 @@ public class ExploreFragment extends Fragment implements listener.OnCollaboratio
         }
         //Set adapter and notify changes
         mCategoryAdapter = new ExploreCategoryAdapter(mtempCategoryList
-                , getActivity());
+                , getActivity(), mSelectedCategoryID);
         recyclerViewCategory.setAdapter(mCategoryAdapter);
         mCategoryAdapter.notifyDataSetChanged();
 
@@ -1324,6 +1324,8 @@ public class ExploreFragment extends Fragment implements listener.OnCollaboratio
                 //Load data here
                 mAdapter.setLoaded();
                 mExploreDataList.clear();
+                //Remove previous requests here
+                mCompositeDisposable.clear();
                 loadExploreData();
             }
         });
