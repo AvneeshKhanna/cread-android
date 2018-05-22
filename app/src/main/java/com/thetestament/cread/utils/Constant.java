@@ -234,6 +234,7 @@ public class Constant {
     public static final String FIREBASE_EVENT_FEED_CLICKED = "feed_clicked";
     public static final String FIREBASE_EVENT_EXPLORE_CLICKED = "explore_clicked";
     public static final String FIREBASE_EVENT_HELP_CLICKED = "help_question_clicked";
+    public static final String FIREBASE_EVENT_EXPLORE_CATEGORY_CLICKED = "explore_category_clicked";
     public static final String FIREBASE_EVENT_INSPIRATION_CLICKED = "inspire_clicked";
     public static final String FIREBASE_EVENT_NOTIFICATION_CLICKED = "notification_clicked";
     public static final String FIREBASE_EVENT_FIND_FRIENDS = "find_friends";

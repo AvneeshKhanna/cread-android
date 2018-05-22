@@ -1,5 +1,6 @@
 package com.thetestament.cread.fragments;
 
+import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -31,6 +32,7 @@ import com.afollestad.materialdialogs.DialogAction;
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.crashlytics.android.Crashlytics;
 import com.facebook.drawee.view.SimpleDraweeView;
+import com.google.firebase.analytics.FirebaseAnalytics;
 import com.thetestament.cread.BuildConfig;
 import com.thetestament.cread.Manifest;
 import com.thetestament.cread.R;
@@ -1314,6 +1316,8 @@ public class ExploreFragment extends Fragment implements listener.OnCollaboratio
         mCategoryAdapter.setCategorySelectListener(new listener.OnCategorySelectListener() {
             @Override
             public void onCategorySelected(ExploreCategoryModel model, int itemPosition) {
+                //Set firebase analytics data
+                setAnalytics(getActivity(), model.getCategoryText());
                 //set last index key to nul
                 mLastIndexKey = null;
                 //Method called
@@ -1329,6 +1333,20 @@ public class ExploreFragment extends Fragment implements listener.OnCollaboratio
                 loadExploreData();
             }
         });
+    }
+
+
+    /**
+     * Method to send analytics data on firebase server.
+     *
+     * @param context      Context to use.
+     * @param categoryText category text.
+     */
+    private void setAnalytics(Context context, String categoryText) {
+        Bundle bundle = new Bundle();
+        bundle.putString("category_text", categoryText);
+        FirebaseAnalytics mFirebaseAnalytics = FirebaseAnalytics.getInstance(context);
+        mFirebaseAnalytics.logEvent(Constant.FIREBASE_EVENT_EXPLORE_CATEGORY_CLICKED, bundle);
     }
 
     //endregion
