@@ -85,6 +85,62 @@
                 </RelativeLayout>
             </android.support.v7.widget.CardView>
 
+            <!--User interest-->
+            <android.support.v7.widget.CardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="16dp"
+                android:layout_marginRight="16dp"
+                android:layout_marginTop="16dp"
+                app:contentPaddingBottom="16dp"
+                app:contentPaddingLeft="24dp"
+                app:contentPaddingRight="24dp"
+                app:contentPaddingTop="16dp">
+
+                <RelativeLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+
+
+                    <TextView
+                        android:id="@+id/titleUserInterests"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentLeft="true"
+                        android:layout_toLeftOf="@+id/buttonAddInterests"
+                        android:paddingRight="5dp"
+                        android:text="Interests"
+                        android:textColor="@color/grey_dark"
+                        android:textSize="16sp" />
+
+                    <android.support.v7.widget.AppCompatTextView
+                        android:id="@+id/textUserInterests"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentLeft="true"
+                        android:layout_below="@+id/titleUserInterests"
+                        android:layout_marginTop="5dp"
+                        android:layout_toLeftOf="@+id/buttonAddInterests"
+                        android:text="Doodling, Street Photography and 7 more" />
+
+
+                    <android.support.v7.widget.AppCompatTextView
+                        android:id="@+id/buttonAddInterests"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentRight="true"
+                        android:layout_centerVertical="true"
+                        android:paddingBottom="8dp"
+                        android:paddingLeft="8dp"
+                        android:paddingTop="8dp"
+                        android:text="Edit"
+                        android:textColor="@color/colorPrimary"
+                        android:textSize="16sp" />
+                </RelativeLayout>
+
+
+            </android.support.v7.widget.CardView>
+
             <!--Personal details container-->
             <android.support.v7.widget.CardView
                 android:layout_width="match_parent"
@@ -240,49 +296,7 @@
 
                     </RelativeLayout>
 
-                    <RelativeLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginBottom="10dp"
-                        android:layout_marginTop="15dp">
 
-                        <LinearLayout
-                            android:layout_alignParentLeft="true"
-                            android:layout_toLeftOf="@+id/buttonAddInterests"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:orientation="vertical">
-
-                            <TextView
-                                android:id="@+id/titleUserInterests"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:paddingRight="5dp"
-                                android:text="Interests"
-                                android:textSize="16sp" />
-
-                            <TextView
-                                android:id="@+id/textUserInterests"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:layout_marginTop="5dp"
-                                android:text="Doodling, Street Photography and 7 more" />
-
-                        </LinearLayout>
-
-
-                        <TextView
-                            android:id="@+id/buttonAddInterests"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="Edit"
-                            android:padding="10dp"
-                            android:layout_alignParentRight="true"
-                            android:layout_centerVertical="true"
-                            android:textSize="16sp"
-                            android:textColor="@color/colorPrimary" />
-
-                    </RelativeLayout>
                     <!--Save button-->
                     <Button
                         android:id="@+id/buttonSave"
