@@ -6,6 +6,7 @@ import android.support.v7.app.AppCompatDelegate;
 
 import com.androidnetworking.AndroidNetworking;
 import com.crashlytics.android.Crashlytics;
+import com.crashlytics.android.core.CrashlyticsCore;
 import com.facebook.drawee.backends.pipeline.Fresco;
 import com.thetestament.cread.helpers.SharedPreferenceHelper;
 
@@ -63,7 +64,9 @@ public class CreadApp extends MultiDexApplication {
     public void onCreate() {
         super.onCreate();
         singleTone = this;
-        Fabric.with(this, new Crashlytics());
+
+        //Method called
+        initCrashLytics();
         //For calligraphy
         initCalligraphy();
         //Networking library initialization
@@ -88,6 +91,20 @@ public class CreadApp extends MultiDexApplication {
                 .build());
     }
 
+    /**
+     * Method to initialize  CrashLytics.
+     */
+    private void initCrashLytics() {
+        CrashlyticsCore crashlyticsCore = new CrashlyticsCore.Builder()
+                .disabled(BuildConfig.DEBUG)
+                .build();
+
+        Fabric.with(this
+                , new Crashlytics.Builder()
+                        .core(crashlyticsCore)
+                        .build());
+    }
+
 
     /**
      * Method to initialize socket io connection for  global use
@@ -107,6 +124,7 @@ public class CreadApp extends MultiDexApplication {
             }
         }
     }
+
 
     /**
      * Method to return Socket io instance

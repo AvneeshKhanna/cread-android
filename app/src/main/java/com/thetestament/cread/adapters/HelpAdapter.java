@@ -1,5 +1,7 @@
 package com.thetestament.cread.adapters;
 
+import android.content.Context;
+import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.support.v7.widget.AppCompatTextView;
 import android.support.v7.widget.RecyclerView;
@@ -8,6 +10,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
 
+import com.google.firebase.analytics.FirebaseAnalytics;
 import com.thetestament.cread.R;
 import com.thetestament.cread.listeners.listener;
 import com.thetestament.cread.models.HelpModel;
@@ -16,6 +19,8 @@ import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+
+import static com.thetestament.cread.utils.Constant.FIREBASE_EVENT_HELP_CLICKED;
 
 /**
  * Adapter class to provide a binding from data set to views that are displayed within a Help RecyclerView.
@@ -133,6 +138,8 @@ public class HelpAdapter extends RecyclerView.Adapter<HelpAdapter.ItemViewHolder
                     containerHelp.setVisibility(View.VISIBLE);
                     //Update property
                     data.setExpanded(true);
+                    //Set analytics
+                    setAnalytics(mContext, data.getTitleText());
 
                     //if lat selected item is not currently selected
                     if (itemPosition != mLastExpandedItem) {
@@ -143,5 +150,19 @@ public class HelpAdapter extends RecyclerView.Adapter<HelpAdapter.ItemViewHolder
                 }
             }
         });
+    }
+
+
+    /**
+     * Method to send analytics data on firebase server.
+     *
+     * @param context    Context to use.
+     * @param questionID ID of clicked Question.
+     */
+    private void setAnalytics(Context context, String questionID) {
+        Bundle bundle = new Bundle();
+        bundle.putString("qID", questionID);
+        FirebaseAnalytics mFirebaseAnalytics = FirebaseAnalytics.getInstance(context);
+        mFirebaseAnalytics.logEvent(FIREBASE_EVENT_HELP_CLICKED, bundle);
     }
 }
