@@ -1,12 +1,13 @@
 package com.thetestament.cread.adapters;
 
+import android.net.Uri;
 import android.support.v4.app.FragmentActivity;
-import android.support.v7.widget.AppCompatImageView;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.facebook.drawee.view.SimpleDraweeView;
 import com.thetestament.cread.R;
 import com.thetestament.cread.helpers.ImageHelper;
 import com.thetestament.cread.models.UserPostModel;
@@ -48,8 +49,9 @@ public class UserPostAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
 
         ItemViewHolder itemViewHolder = (ItemViewHolder) holder;
         //Load post image
-        ImageHelper.loadImageFromPicasso(mContext, itemViewHolder.imageViewUserPost
-                , data.getPostURL(), R.drawable.image_placeholder);
+        ImageHelper.loadProgressiveImage(Uri.parse(data.getPostURL())
+                , itemViewHolder.imageViewUserPost);
+
     }
 
     @Override
@@ -60,7 +62,7 @@ public class UserPostAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
     //ItemViewHolder class
     static class ItemViewHolder extends RecyclerView.ViewHolder {
         @BindView(R.id.imgUserPost)
-        AppCompatImageView imageViewUserPost;
+        SimpleDraweeView imageViewUserPost;
 
         public ItemViewHolder(View itemView) {
             super(itemView);

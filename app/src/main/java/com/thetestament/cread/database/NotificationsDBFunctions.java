@@ -8,7 +8,7 @@ import android.os.Looper;
 import android.os.NetworkOnMainThreadException;
 import android.util.Log;
 
-import com.google.firebase.crash.FirebaseCrash;
+import com.crashlytics.android.Crashlytics;
 import com.thetestament.cread.BuildConfig;
 import com.thetestament.cread.database.NotificationsDBSchema.NotificationDBEntry;
 import com.thetestament.cread.helpers.SharedPreferenceHelper;
@@ -183,7 +183,8 @@ public class NotificationsDBFunctions {
 
         } catch (JSONException e) {
             e.printStackTrace();
-            FirebaseCrash.report(e);
+            Crashlytics.logException(e);
+            Crashlytics.setString("className", "NotificationsDBFunctions");
         }
 
         c.close();

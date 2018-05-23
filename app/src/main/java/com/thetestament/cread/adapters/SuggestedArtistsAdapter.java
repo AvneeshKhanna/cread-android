@@ -1,6 +1,7 @@
 package com.thetestament.cread.adapters;
 
 import android.content.Intent;
+import android.net.Uri;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v7.widget.RecyclerView;
@@ -9,6 +10,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import com.facebook.drawee.view.SimpleDraweeView;
 import com.thetestament.cread.R;
 import com.thetestament.cread.activities.RecommendedArtistsActivity;
 import com.thetestament.cread.helpers.ImageHelper;
@@ -18,7 +20,6 @@ import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import de.hdodenhof.circleimageview.CircleImageView;
 
 import static com.thetestament.cread.utils.Constant.REQUEST_CODE_USER_PROFILE_FROM_FEED;
 import static com.thetestament.cread.utils.Constant.REQUEST_CODE_USER_PROFILE_FROM_SUGGESTED_ADAPTER;
@@ -61,10 +62,9 @@ public class SuggestedArtistsAdapter extends RecyclerView.Adapter<SuggestedArtis
         //Set artist name
         holder.textArtistName.setText(data.getArtistName());
         //Load artist profile picture
-        ImageHelper.loadImageFromPicasso(mContext
-                , holder.imageArtist
-                , data.getArtistProfilePic()
-                , R.drawable.ic_account_circle_100);
+        ImageHelper.loadProgressiveImage(Uri.parse(data.getArtistProfilePic())
+                , holder.imageArtist);
+
         //Method called
         itemViewOnClick(holder.itemView, data.getArtistUUID());
     }
@@ -77,7 +77,7 @@ public class SuggestedArtistsAdapter extends RecyclerView.Adapter<SuggestedArtis
     //ItemViewHolder class
     static class ItemViewHolder extends RecyclerView.ViewHolder {
         @BindView(R.id.imageArtist)
-        CircleImageView imageArtist;
+        SimpleDraweeView imageArtist;
         @BindView(R.id.textArtistName)
         TextView textArtistName;
 

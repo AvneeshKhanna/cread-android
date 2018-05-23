@@ -325,28 +325,6 @@ public class SharedPreferenceHelper {
      *
      * @return True by default.
      */
-    public boolean isMeFragmentFirstTime() {
-        return mSharedPreferences
-                .getBoolean(mContext.getString(R.string.key_me_dialog), true);
-    }
-
-
-    /**
-     * Method to update 'Write button' tooltip status.
-     *
-     * @param status boolean value i.e true or false
-     */
-    public void updateMeFragmentStatus(boolean status) {
-        SharedPreferences.Editor editor = mSharedPreferences.edit();
-        editor.putBoolean(mContext.getString(R.string.key_me_dialog), status);
-        editor.apply();
-    }
-
-    /**
-     * Method to retrieve "Write button " tooltip status.
-     *
-     * @return True by default.
-     */
     public boolean isRoyaltyFirstTime() {
         return mSharedPreferences
                 .getBoolean(mContext.getString(R.string.key_royalty_dialog), true);
@@ -514,27 +492,6 @@ public class SharedPreferenceHelper {
                 .getBoolean(mContext.getString(R.string.key_personal_chat_indicator), false);
     }
 
-    /**
-     * Method to retrieve chat dialog.
-     *
-     * @return True by default.
-     */
-    public boolean isChatDialogFirstTime() {
-        return mSharedPreferences
-                .getBoolean(mContext.getString(R.string.key_personal_chat_dialog), true);
-    }
-
-
-    /**
-     * Method to update 'Write button' tooltip status.
-     *
-     * @param status boolean value i.e true or false
-     */
-    public void updateChatDialogStatus(boolean status) {
-        SharedPreferences.Editor editor = mSharedPreferences.edit();
-        editor.putBoolean(mContext.getString(R.string.key_personal_chat_dialog), status);
-        editor.apply();
-    }
 
     /**
      * Method to retrieve chat dialog.
@@ -714,6 +671,27 @@ public class SharedPreferenceHelper {
     }
 
 
+    /**
+     * Method to retrieve web store dot indicator status.
+     *
+     * @return True by default.
+     */
+    public boolean isWebStoreDotIndicatorFirstTime() {
+        return mSharedPreferences
+                .getBoolean(mContext.getString(R.string.key_web_store_dot), true);
+    }
+
+
+    /**
+     * Method to update web store dot indicator status.
+     *
+     * @param status boolean value i.e true or false
+     */
+    public void updateWebStoreDotIndicatorStatus(boolean status) {
+        SharedPreferences.Editor editor = mSharedPreferences.edit();
+        editor.putBoolean(mContext.getString(R.string.key_web_store_dot), status);
+        editor.apply();
+    }
 
 
 }

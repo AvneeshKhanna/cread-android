@@ -1,13 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
-
-<RelativeLayout android:id="@+id/containerCreator"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/containerCreator"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_marginBottom="8dp"
-    android:layout_marginTop="8dp"
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools">
+    android:layout_marginTop="8dp">
 
     <LinearLayout
         android:id="@+id/containerCreatorSpecific"
@@ -17,14 +16,14 @@
         android:layout_toLeftOf="@+id/buttonCollaborate"
         android:orientation="horizontal">
 
-        <de.hdodenhof.circleimageview.CircleImageView
+        <com.facebook.drawee.view.SimpleDraweeView
             android:id="@+id/imageCreator"
             android:layout_width="35dp"
             android:layout_height="35dp"
             android:layout_marginLeft="8dp"
-            android:scaleType="centerCrop"
-            app:civ_border_color="@color/black_defined"
-            tools:src="@drawable/ic_account_circle_100" />
+            app:failureImage="@drawable/ic_account_circle_100"
+            app:failureImageScaleType="centerCrop"
+            app:roundAsCircle="true" />
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -45,10 +44,10 @@
                 android:id="@+id/textTimestamp"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="08 March at 5:00"
-                android:textColor="@color/grey_custom"
                 android:layout_marginTop="5dp"
                 android:paddingLeft="8dp"
+                android:text="08 March at 5:00"
+                android:textColor="@color/grey_custom"
                 android:textSize="12sp" />
 
 

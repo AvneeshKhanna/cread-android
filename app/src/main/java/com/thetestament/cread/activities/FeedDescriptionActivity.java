@@ -19,8 +19,8 @@ import android.view.View;
 import android.widget.ImageView;
 
 import com.afollestad.materialdialogs.MaterialDialog;
+import com.crashlytics.android.Crashlytics;
 import com.google.firebase.analytics.FirebaseAnalytics;
-import com.google.firebase.crash.FirebaseCrash;
 import com.thetestament.cread.BuildConfig;
 import com.thetestament.cread.Manifest;
 import com.thetestament.cread.R;
@@ -83,18 +83,18 @@ import static com.thetestament.cread.utils.Constant.SHARE_OPTION_OTHER;
 import static com.thetestament.cread.utils.Constant.USER_ACTION_TYPE_VIEW;
 
 /**
- * Class to show detailed information of explore/feed item.
+ * Class to show detailed information of post item.
  */
 public class FeedDescriptionActivity extends BaseActivity implements listener.OnCollaborationListener {
 
-    //region: Butterknife view bindings
+    //region :View binding with Butter knife
     @BindView(R.id.rootView)
     CoordinatorLayout rootView;
     @BindView(R.id.recyclerViewPosts)
     RecyclerView recyclerViewPosts;
     //endregion
 
-    //region: variables and flags
+    //region :Fields and constants
     private SharedPreferenceHelper mHelper;
     private CompositeDisposable mCompositeDisposable = new CompositeDisposable();
     private FeedModel mFeedData;
@@ -136,7 +136,6 @@ public class FeedDescriptionActivity extends BaseActivity implements listener.On
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_feed_description);
         ButterKnife.bind(this);
-
         //Obtain reference of this activity
         mContext = this;
         //ShredPreference reference
@@ -304,8 +303,6 @@ public class FeedDescriptionActivity extends BaseActivity implements listener.On
      */
     private void initViews() {
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-
-
         //Get data from intent
         retrieveIntentData();
     }
@@ -374,7 +371,7 @@ public class FeedDescriptionActivity extends BaseActivity implements listener.On
         });
     }
 
-    private void initDownvoteListener(FeedDescriptionAdapter feedAdapter) {
+    private void initDownVoteListener(FeedDescriptionAdapter feedAdapter) {
         feedAdapter.setOnDownvoteClickedListener(new listener.OnDownvoteClickedListener() {
             @Override
             public void onDownvoteClicked(FeedModel data, int position, ImageView imageDownvote) {
@@ -590,7 +587,7 @@ public class FeedDescriptionActivity extends BaseActivity implements listener.On
         initLoadMoreListener(mAdapter);
         initHatsOffListener(mAdapter);
         initShareListener(mAdapter);
-        initDownvoteListener(mAdapter);
+        initDownVoteListener(mAdapter);
         initFollowListener();
         initializeDeleteListener(mAdapter);
 
@@ -719,14 +716,16 @@ public class FeedDescriptionActivity extends BaseActivity implements listener.On
                             }
                         } catch (JSONException e) {
                             e.printStackTrace();
-                            FirebaseCrash.report(e);
+                            Crashlytics.logException(e);
+                            Crashlytics.setString("className", "FeedDescriptionActivity");
                             connectionError[0] = true;
                         }
                     }
 
                     @Override
                     public void onError(Throwable e) {
-                        FirebaseCrash.report(e);
+                        Crashlytics.logException(e);
+                        Crashlytics.setString("className", "FeedDescriptionActivity");
                     }
 
                     @Override
@@ -835,7 +834,8 @@ public class FeedDescriptionActivity extends BaseActivity implements listener.On
 
                         } catch (JSONException e) {
                             e.printStackTrace();
-                            FirebaseCrash.report(e);
+                            Crashlytics.logException(e);
+                            Crashlytics.setString("className", "FeedDescriptionActivity");
                             connectionError[0] = true;
                         }
                     }
@@ -844,7 +844,8 @@ public class FeedDescriptionActivity extends BaseActivity implements listener.On
                     public void onErrorCalled(Throwable e) {
 
                         e.printStackTrace();
-                        FirebaseCrash.report(e);
+                        Crashlytics.logException(e);
+                        Crashlytics.setString("className", "FeedDescriptionActivity");
 
                         //Remove loading item
                         mPostsList.remove(mPostsList.size() - 1);
@@ -934,7 +935,8 @@ public class FeedDescriptionActivity extends BaseActivity implements listener.On
 
                         } catch (JSONException e) {
                             e.printStackTrace();
-                            FirebaseCrash.report(e);
+                            Crashlytics.logException(e);
+                            Crashlytics.setString("className", "FeedDescriptionActivity");
                             connectionError[0] = true;
                         }
                     }
@@ -946,7 +948,8 @@ public class FeedDescriptionActivity extends BaseActivity implements listener.On
                         mPostsList.remove(mPostsList.size() - 1);
                         //Notify changes
                         mAdapter.notifyItemRemoved(mPostsList.size());
-                        FirebaseCrash.report(e);
+                        Crashlytics.logException(e);
+                        Crashlytics.setString("className", "FeedDescriptionActivity");
                         //Server error Snack bar
                         ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_server));
 
@@ -1081,7 +1084,8 @@ public class FeedDescriptionActivity extends BaseActivity implements listener.On
                 super.onLayoutChildren(recycler, state);
             } catch (IndexOutOfBoundsException e) {
                 e.printStackTrace();
-                FirebaseCrash.report(e);
+                Crashlytics.logException(e);
+                Crashlytics.setString("className", "FeedDescriptionActivity");
             }
         }
     }

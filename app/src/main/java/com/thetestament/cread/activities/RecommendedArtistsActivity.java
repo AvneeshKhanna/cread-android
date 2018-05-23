@@ -14,7 +14,7 @@ import android.view.View;
 import android.view.animation.AnimationUtils;
 import android.view.animation.LayoutAnimationController;
 
-import com.google.firebase.crash.FirebaseCrash;
+import com.crashlytics.android.Crashlytics;
 import com.thetestament.cread.BuildConfig;
 import com.thetestament.cread.R;
 import com.thetestament.cread.adapters.RecommendedArtistsAdapter;
@@ -239,7 +239,8 @@ public class RecommendedArtistsActivity extends BaseActivity {
                             }
                         } catch (JSONException e) {
                             e.printStackTrace();
-                            FirebaseCrash.report(e);
+                            Crashlytics.logException(e);
+                            Crashlytics.setString("className", "RecommendedArtistsActivity");
                             connectionError[0] = true;
                         }
                     }
@@ -248,7 +249,8 @@ public class RecommendedArtistsActivity extends BaseActivity {
                     public void onError(Throwable e) {
                         //Dismiss progress indicator
                         swipeRefreshLayout.setRefreshing(false);
-                        FirebaseCrash.report(e);
+                        Crashlytics.logException(e);
+                        Crashlytics.setString("className", "RecommendedArtistsActivity");
                         //Server error Snack bar
                         ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_server));
                     }
@@ -415,7 +417,8 @@ public class RecommendedArtistsActivity extends BaseActivity {
                             }
                         } catch (JSONException e) {
                             e.printStackTrace();
-                            FirebaseCrash.report(e);
+                            Crashlytics.logException(e);
+                            Crashlytics.setString("className", "RecommendedArtistsActivity");
                             connectionError[0] = true;
                         }
                     }
@@ -425,7 +428,8 @@ public class RecommendedArtistsActivity extends BaseActivity {
                         //Remove loading item
                         mDataList.remove(mDataList.size() - 1);
                         mAdapter.notifyItemRemoved(mDataList.size());
-                        FirebaseCrash.report(e);
+                        Crashlytics.logException(e);
+                        Crashlytics.setString("className", "RecommendedArtistsActivity");
                         //Server error Snack bar
                         ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_server));
                     }

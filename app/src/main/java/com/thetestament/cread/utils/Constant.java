@@ -51,11 +51,11 @@ public class Constant {
     public static final String TAG_FEED_FRAGMENT = "TagFeedFragment";
     public static final String TAG_EXPLORE_FRAGMENT = "TagExploreFragment";
     public static final String TAG_ME_FRAGMENT = "TagMeFragment";
+    public static final String TAG_HELP_FRAGMENT = "TagHelpFragment";
     public static final String TAG_UPDATES_FRAGMENT = "TagUpdatesFragment";
     public static final String TAG_ROYALTIES_FRAGMENT = "TagRoyaltiesFragment";
     public static final String TAG_HASH_TAG_DETAILS_FRAGMENT = "HashTagDetailsFragment";
     public static final String TAG_SEARCH_PEOPLE_FRAGMENT = "SearchPeopleFragment";
-    public static final String TAG_SEARCH_HASH_TAG_FRAGMENT = "SearchHashTagFragment";
     public static final String TAG_VIEW_LONG_SHORT_FRAGMENT = "ViewLongShortFragment";
     //endregion
 
@@ -110,6 +110,7 @@ public class Constant {
     public static final String EXTRA_USER_EMAIL = "userEmail";
     public static final String EXTRA_USER_BIO = "userBio";
     public static final String EXTRA_USER_CONTACT = "userContact";
+    public static final String EXTRA_USER_WEB_STORE_LINK = "userWebStoreLink";
     public static final String EXTRA_USER_WATER_MARK_STATUS = "userWaterMarkStatus";
     public static final String EXTRA_USER_IMAGE_PATH = "userImagePath";
     public static final String EXTRA_TOP_USER_INTERESTS = "topUserInterests";
@@ -161,7 +162,6 @@ public class Constant {
     public static final String EXTRA_USER_INTERESTS_CALLED_FROM = "userInterestsCalledFrom";
     public static final String EXTRA_PROFILE_PIC_URL = "userProfilePicUrl";
     public static final String EXTRA_USER_INTERESTS_DATA = "userInterestsData";
-
 
 
     //Action
@@ -233,6 +233,8 @@ public class Constant {
     public static final String FIREBASE_EVENT_CAPTURE_CLICKED = "capture_clicked";
     public static final String FIREBASE_EVENT_FEED_CLICKED = "feed_clicked";
     public static final String FIREBASE_EVENT_EXPLORE_CLICKED = "explore_clicked";
+    public static final String FIREBASE_EVENT_HELP_CLICKED = "help_question_clicked";
+    public static final String FIREBASE_EVENT_EXPLORE_CATEGORY_CLICKED = "explore_category_clicked";
     public static final String FIREBASE_EVENT_INSPIRATION_CLICKED = "inspire_clicked";
     public static final String FIREBASE_EVENT_NOTIFICATION_CLICKED = "notification_clicked";
     public static final String FIREBASE_EVENT_FIND_FRIENDS = "find_friends";
@@ -375,4 +377,11 @@ public class Constant {
 
     public static final String USER_INTERESTS_CALLED_FROM_LOGIN = "userInterestsCalledFromLogin";
     public static final String USER_INTERESTS_CALLED_FROM_PROFILE = "userInterestsCalledFromProfile";
+    //endregion
+
+    //region
+    public static final String EXPLORE_CATEGORY_DEFAULT = "DEFAULT";
+    public static final String EXPLORE_CATEGORY_ART = "ART";
+    public static final String EXPLORE_CATEGORY_FEEL = "FEEL";
+    //endregion
 }

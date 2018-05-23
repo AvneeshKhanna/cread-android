@@ -1,18 +1,18 @@
 package com.thetestament.cread.adapters;
 
-import android.content.Intent;
+import android.net.Uri;
 import android.support.v4.app.FragmentActivity;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
-import com.squareup.picasso.Picasso;
+import com.facebook.drawee.view.SimpleDraweeView;
 import com.thetestament.cread.R;
-import com.thetestament.cread.activities.ProfileActivity;
+import com.thetestament.cread.helpers.ImageHelper;
+import com.thetestament.cread.helpers.IntentHelper;
 import com.thetestament.cread.listeners.listener.OnCollaborationDetailsLoadMoreListener;
 import com.thetestament.cread.listeners.listener.OnCollaborationItemClickedListener;
 import com.thetestament.cread.models.CollaborationDetailsModel;
@@ -22,9 +22,6 @@ import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import de.hdodenhof.circleimageview.CircleImageView;
-
-import static com.thetestament.cread.utils.Constant.EXTRA_PROFILE_UUID;
 
 /**
  * Adapter class to provide a binding from data set to views that are displayed within collaboration details RecyclerView.
@@ -77,13 +74,14 @@ public class CollaborationDetailsAdapter extends RecyclerView.Adapter<Collaborat
         //Set creator name
         holder.textCreatorName.setText(data.getUserName());
         //Load creator image
-        loadCreatorPic(data.getProfilePic(), holder.imageCreator);
+        ImageHelper.loadProgressiveImage(Uri.parse(data.getProfilePic()), holder.imageCreator);
         //Set image width and height
         AspectRatioUtils.setImageAspectRatio(data.getImgWidth()
                 , data.getImgHeight()
                 , holder.imageCollaboration);
         //Load content image
-        loadContentImage(data.getEntityUrl(), holder.imageCollaboration);
+        ImageHelper.loadProgressiveImage(Uri.parse(data.getEntityUrl())
+                , holder.imageCollaboration);
         //Click functionality to launch profile of creator
         openCreatorProfile(holder.containerCreator, data.getUuid());
 
@@ -113,32 +111,6 @@ public class CollaborationDetailsAdapter extends RecyclerView.Adapter<Collaborat
         mIsLoading = false;
     }
 
-    /**
-     * Method to load creator profile picture.
-     *
-     * @param picUrl    Picture URL.
-     * @param imageView View where image to be loaded.
-     */
-    private void loadCreatorPic(String picUrl, CircleImageView imageView) {
-        Picasso.with(mContext)
-                .load(picUrl)
-                .error(R.drawable.ic_account_circle_100)
-                .into(imageView);
-    }
-
-    /**
-     * Method to load content image.
-     *
-     * @param imageUrl  picture URL.
-     * @param imageView View where image to be loaded.
-     */
-    private void loadContentImage(String imageUrl, ImageView imageView) {
-        Picasso.with(mContext)
-                .load(imageUrl)
-                .error(R.drawable.image_placeholder)
-                .into(imageView);
-    }
-
 
     private void initItemClick(View view, final String entityID) {
         view.setOnClickListener(new View.OnClickListener() {
@@ -160,9 +132,8 @@ public class CollaborationDetailsAdapter extends RecyclerView.Adapter<Collaborat
         view.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent = new Intent(mContext, ProfileActivity.class);
-                intent.putExtra(EXTRA_PROFILE_UUID, creatorUUID);
-                mContext.startActivity(intent);
+                //Method called
+                IntentHelper.openProfileActivity(mContext, creatorUUID);
             }
         });
     }
@@ -172,11 +143,11 @@ public class CollaborationDetailsAdapter extends RecyclerView.Adapter<Collaborat
         @BindView(R.id.containerCreator)
         RelativeLayout containerCreator;
         @BindView(R.id.imageCreator)
-        CircleImageView imageCreator;
+        SimpleDraweeView imageCreator;
         @BindView(R.id.textCreatorName)
         TextView textCreatorName;
         @BindView(R.id.imageCollaboration)
-        ImageView imageCollaboration;
+        SimpleDraweeView imageCollaboration;
 
         public ItemViewHolder(View itemView) {
             super(itemView);

@@ -1,7 +1,7 @@
 package com.thetestament.cread.adapters;
 
 
-import android.content.Intent;
+import android.net.Uri;
 import android.support.v4.app.FragmentActivity;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -9,9 +9,10 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import com.squareup.picasso.Picasso;
+import com.facebook.drawee.view.SimpleDraweeView;
 import com.thetestament.cread.R;
-import com.thetestament.cread.activities.ProfileActivity;
+import com.thetestament.cread.helpers.ImageHelper;
+import com.thetestament.cread.helpers.IntentHelper;
 import com.thetestament.cread.listeners.listener.OnHatsOffLoadMoreListener;
 import com.thetestament.cread.models.HatsOffModel;
 
@@ -19,9 +20,6 @@ import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import de.hdodenhof.circleimageview.CircleImageView;
-
-import static com.thetestament.cread.utils.Constant.EXTRA_PROFILE_UUID;
 
 /**
  * Adapter class to provide a binding from data set to views that are displayed within a hats off RecyclerView.
@@ -84,7 +82,9 @@ public class HatsOffAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
             //set user name
             itemViewHolder.textUserName.setText(data.getFirstName() + " " + data.getLastName());
             //Load profile picture
-            loadProfilePicture(data.getProfilePicUrl(), itemViewHolder.imageUser);
+            ImageHelper.loadProgressiveImage(Uri.parse(data.getProfilePicUrl())
+                    , itemViewHolder.imageUser);
+
             //Click functionality
             itemViewOnClick(itemViewHolder.itemView, data.getUuid());
 
@@ -116,18 +116,6 @@ public class HatsOffAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
         mIsLoading = false;
     }
 
-    /**
-     * Method to load profile picture.
-     *
-     * @param picUrl    picture URL.
-     * @param imageView View where image to be loaded.
-     */
-    private void loadProfilePicture(String picUrl, CircleImageView imageView) {
-        Picasso.with(mContext)
-                .load(picUrl)
-                .error(R.drawable.ic_account_circle_100)
-                .into(imageView);
-    }
 
     /**
      * ItemView onClick functionality.
@@ -138,17 +126,17 @@ public class HatsOffAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
         view.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent = new Intent(mContext, ProfileActivity.class);
-                intent.putExtra(EXTRA_PROFILE_UUID, uuid);
-                mContext.startActivity(intent);
+                //Method called
+                IntentHelper.openProfileActivity(mContext, uuid);
             }
         });
     }
 
+    //region :ViewHolders
     //ItemViewHolder class
     static class ItemViewHolder extends RecyclerView.ViewHolder {
         @BindView(R.id.imageUser)
-        CircleImageView imageUser;
+        SimpleDraweeView imageUser;
         @BindView(R.id.textUserName)
         TextView textUserName;
 
@@ -168,4 +156,5 @@ public class HatsOffAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
             ButterKnife.bind(this, itemView);
         }
     }
+    //endregion
 }

@@ -19,6 +19,7 @@ import com.afollestad.materialdialogs.MaterialDialog;
 import com.androidnetworking.AndroidNetworking;
 import com.androidnetworking.error.ANError;
 import com.androidnetworking.interfaces.JSONObjectRequestListener;
+import com.crashlytics.android.Crashlytics;
 import com.facebook.AccessToken;
 import com.facebook.CallbackManager;
 import com.facebook.FacebookCallback;
@@ -45,12 +46,12 @@ import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.tasks.Task;
-import com.google.firebase.crash.FirebaseCrash;
 import com.google.firebase.iid.FirebaseInstanceId;
 import com.thetestament.cread.BuildConfig;
 import com.thetestament.cread.CreadApp;
 import com.thetestament.cread.R;
 import com.thetestament.cread.adapters.IntroViewPagerAdapter;
+import com.thetestament.cread.helpers.IntentHelper;
 import com.thetestament.cread.helpers.IntroPageTransformerHelper;
 import com.thetestament.cread.helpers.NetworkHelper;
 import com.thetestament.cread.helpers.SharedPreferenceHelper;
@@ -70,8 +71,6 @@ import icepick.State;
 
 import static com.thetestament.cread.utils.Constant.EXTRA_PROFILE_PIC_URL;
 import static com.thetestament.cread.utils.Constant.EXTRA_USER_INTERESTS_CALLED_FROM;
-import static com.thetestament.cread.utils.Constant.EXTRA_WEB_VIEW_TITLE;
-import static com.thetestament.cread.utils.Constant.EXTRA_WEB_VIEW_URL;
 import static com.thetestament.cread.utils.Constant.LOGIN_TYPE_FACEBOOK;
 import static com.thetestament.cread.utils.Constant.LOGIN_TYPE_GOOGLE;
 import static com.thetestament.cread.utils.Constant.REQUEST_CODE_GOOGLE_SIGN_IN;
@@ -254,7 +253,8 @@ public class MainActivity extends BaseActivity {
                 } catch (ApiException e) {
                     // Google Sign In failed, update UI appropriately
                     e.printStackTrace();
-                    FirebaseCrash.report(e);
+                    Crashlytics.logException(e);
+                    Crashlytics.setString("className", "MainActivity");
                     ViewHelper.getSnackBar(parentLayout, "Google Sign in Failed");
                 }
             }
@@ -279,11 +279,9 @@ public class MainActivity extends BaseActivity {
      */
     @OnClick(R.id.textTOS)
     public void showTos() {
-
-        Intent intent = new Intent(MainActivity.this, WebViewActivity.class);
-        intent.putExtra(EXTRA_WEB_VIEW_URL, "file:///android_asset/" + "cread_tos.html");
-        intent.putExtra(EXTRA_WEB_VIEW_TITLE, "Terms of Service");
-        startActivity(intent);
+        IntentHelper.openWebViewActivity(MainActivity.this
+                , "file:///android_asset/" + "cread_tos.html"
+                , "Terms of Service");
     }
 
     @OnClick(R.id.buttonGoogleLogin)
@@ -369,7 +367,8 @@ public class MainActivity extends BaseActivity {
 
         } catch (JSONException e) {
             e.printStackTrace();
-            FirebaseCrash.report(e);
+            Crashlytics.logException(e);
+            Crashlytics.setString("className", "MainActivity");
         }
 
         // check internet status
@@ -424,7 +423,8 @@ public class MainActivity extends BaseActivity {
 
                             } catch (JSONException e) {
                                 e.printStackTrace();
-                                FirebaseCrash.report(e);
+                                Crashlytics.logException(e);
+                                Crashlytics.setString("className", "MainActivity");
 
                             }
                         }
@@ -563,7 +563,8 @@ public class MainActivity extends BaseActivity {
 
         } catch (JSONException e) {
             e.printStackTrace();
-            FirebaseCrash.report(e);
+            Crashlytics.logException(e);
+            Crashlytics.setString("className", "MainActivity");
         }
 
         AndroidNetworking.post(BuildConfig.URL + "/user-access/sign-up")
@@ -630,7 +631,8 @@ public class MainActivity extends BaseActivity {
                             mGoogleSignInClient.signOut();
                             AccessToken.setCurrentAccessToken(null);
                             e.printStackTrace();
-                            FirebaseCrash.report(e);
+                            Crashlytics.logException(e);
+                            Crashlytics.setString("className", "MainActivity");
                             ViewHelper.getSnackBar(parentLayout, getString(R.string.error_msg_internal));
                         }
                     }

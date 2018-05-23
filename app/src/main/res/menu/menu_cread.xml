@@ -1,22 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
+    <group android:id="@+id/menu_main">
+        <item
+            android:id="@+id/action_updates"
+            android:title="Updates"
+            app:actionLayout="@layout/layout_updates_badge"
+            app:showAsAction="always" />
 
-    <item
-        android:id="@+id/action_updates"
-        android:title="Updates"
-        app:actionLayout="@layout/layout_updates_badge"
-        app:showAsAction="always" />
+        <item
+            android:id="@+id/action_settings"
+            android:title="Settings"
+            app:showAsAction="never" />
 
-    <item
-        android:id="@+id/action_settings"
-        android:title="Settings"
-        app:showAsAction="never" />
+        <item
+            android:id="@+id/action_restart_heroku"
+            android:title="Restart Heroku"
+            app:showAsAction="never" />
 
-    <item
-        android:id="@+id/action_restart_heroku"
-        android:title="Restart Heroku"
-        app:showAsAction="never" />
-
-
+    </group>
 </menu>

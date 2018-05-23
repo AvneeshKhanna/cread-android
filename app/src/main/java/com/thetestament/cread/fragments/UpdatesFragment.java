@@ -18,12 +18,12 @@ import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 
-import com.google.firebase.crash.FirebaseCrash;
+import com.crashlytics.android.Crashlytics;
 import com.thetestament.cread.R;
 import com.thetestament.cread.activities.FeedDescriptionActivity;
-import com.thetestament.cread.activities.ProfileActivity;
 import com.thetestament.cread.activities.RoyaltiesActivity;
 import com.thetestament.cread.adapters.UpdatesAdapter;
+import com.thetestament.cread.helpers.IntentHelper;
 import com.thetestament.cread.helpers.SharedPreferenceHelper;
 import com.thetestament.cread.helpers.ViewHelper;
 import com.thetestament.cread.listeners.listener;
@@ -54,7 +54,6 @@ import static com.thetestament.cread.helpers.NetworkHelper.requestServer;
 import static com.thetestament.cread.utils.Constant.EXTRA_DATA;
 import static com.thetestament.cread.utils.Constant.EXTRA_FEED_DESCRIPTION_DATA;
 import static com.thetestament.cread.utils.Constant.EXTRA_FROM_UPDATES_COMMENT_MENTION;
-import static com.thetestament.cread.utils.Constant.EXTRA_PROFILE_UUID;
 import static com.thetestament.cread.utils.Constant.NOTIFICATION_CATEGORY_CREAD_BUY;
 import static com.thetestament.cread.utils.Constant.NOTIFICATION_CATEGORY_CREAD_COLLABORATE;
 import static com.thetestament.cread.utils.Constant.NOTIFICATION_CATEGORY_CREAD_COMMENT;
@@ -327,7 +326,8 @@ public class UpdatesFragment extends Fragment {
 
                         } catch (JSONException e) {
                             e.printStackTrace();
-                            FirebaseCrash.report(e);
+                            Crashlytics.logException(e);
+                            Crashlytics.setString("className", "UpdatesFragment");
                             connectionError[0] = true;
                         }
 
@@ -338,7 +338,8 @@ public class UpdatesFragment extends Fragment {
                     public void onErrorCalled(Throwable e) {
 
                         swipeRefreshLayout.setRefreshing(false);
-                        FirebaseCrash.report(e);
+                        Crashlytics.logException(e);
+                        Crashlytics.setString("className", "UpdatesFragment");
                         //Server error Snack bar
                         ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_server));
 
@@ -411,7 +412,8 @@ public class UpdatesFragment extends Fragment {
                             }
                         } catch (JSONException e) {
                             e.printStackTrace();
-                            FirebaseCrash.report(e);
+                            Crashlytics.logException(e);
+                            Crashlytics.setString("className", "UpdatesFragment");
                             connectionError[0] = true;
                         }
                     }
@@ -423,7 +425,8 @@ public class UpdatesFragment extends Fragment {
                         mDataList.remove(mDataList.size() - 1);
                         //Notify changes
                         mAdapter.notifyItemRemoved(mDataList.size());
-                        FirebaseCrash.report(e);
+                        Crashlytics.logException(e);
+                        Crashlytics.setString("className", "UpdatesFragment");
                         //Server error Snack bar
                         ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_server));
 
@@ -487,7 +490,10 @@ public class UpdatesFragment extends Fragment {
                             mAdapter.notifyItemChanged(position);
 
                             e.printStackTrace();
-                            FirebaseCrash.report(e);
+                            Crashlytics.logException(e);
+                            Crashlytics.setString("className", "UpdatesFragment");
+                            Crashlytics.logException(e);
+                            Crashlytics.setString("className", "UpdatesFragment");
                             ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_server));
                         }
                     }
@@ -499,7 +505,8 @@ public class UpdatesFragment extends Fragment {
                         mAdapter.notifyItemChanged(position);
 
                         e.printStackTrace();
-                        FirebaseCrash.report(e);
+                        Crashlytics.logException(e);
+                        Crashlytics.setString("className", "UpdatesFragment");
                         ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_server));
 
                     }
@@ -588,11 +595,9 @@ public class UpdatesFragment extends Fragment {
 
 
     private void openProfileScreen(UpdatesModel updatesModel) {
-        //Launch profile screen
-        Intent profileIntent = new Intent(getActivity(), ProfileActivity.class);
-        profileIntent.putExtra(EXTRA_PROFILE_UUID, updatesModel.getActorID());
-        startActivity(profileIntent);
-
+        //Method called
+        IntentHelper.openProfileActivity(getActivity()
+                , updatesModel.getActorID());
     }
 
 
@@ -636,7 +641,8 @@ public class UpdatesFragment extends Fragment {
                             }
                         } catch (JSONException e) {
                             e.printStackTrace();
-                            FirebaseCrash.report(e);
+                            Crashlytics.logException(e);
+                            Crashlytics.setString("className", "UpdatesFragment");
                             connectionError[0] = true;
                         }
                     }
@@ -645,7 +651,8 @@ public class UpdatesFragment extends Fragment {
                     public void onErrorCalled(Throwable e) {
 
                         progressBar.setVisibility(View.GONE);
-                        FirebaseCrash.report(e);
+                        Crashlytics.logException(e);
+                        Crashlytics.setString("className", "UpdatesFragment");
                         //Server error Snack bar
                         ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_server));
                     }

@@ -35,13 +35,14 @@ import android.widget.TextView;
 
 import com.afollestad.materialdialogs.DialogAction;
 import com.afollestad.materialdialogs.MaterialDialog;
+import com.crashlytics.android.Crashlytics;
 import com.google.firebase.analytics.FirebaseAnalytics;
-import com.google.firebase.crash.FirebaseCrash;
 import com.thetestament.cread.BuildConfig;
 import com.thetestament.cread.Manifest;
 import com.thetestament.cread.R;
 import com.thetestament.cread.fragments.ExploreFragment;
 import com.thetestament.cread.fragments.FeedFragment;
+import com.thetestament.cread.fragments.HelpFragment;
 import com.thetestament.cread.fragments.MeFragment;
 import com.thetestament.cread.helpers.BottomNavigationViewHelper;
 import com.thetestament.cread.helpers.CaptureHelper;
@@ -50,6 +51,7 @@ import com.thetestament.cread.helpers.SharedPreferenceHelper;
 import com.thetestament.cread.helpers.ViewHelper;
 import com.thetestament.cread.listeners.listener.OnServerRequestedListener;
 import com.thetestament.cread.utils.AspectRatioUtils;
+import com.thetestament.cread.utils.Constant;
 import com.yalantis.ucrop.UCrop;
 
 import java.io.File;
@@ -416,6 +418,19 @@ public class BottomNavigationActivity extends BaseActivity {
                         togglePersonalChatIndicator(false);
                         initMeFragment(false);
                         break;
+                    case R.id.action_help:
+                        //Set title
+                        setTitle("Help");
+                        getSupportActionBar().setElevation(
+                                convertToPx(mContext, 4));
+                        setTheme(R.style.BottomNavigationActivityTheme);
+                        mCurrentFragment = new HelpFragment();
+                        //set fragment tag
+                        mFragmentTag = Constant.TAG_HELP_FRAGMENT;
+                        replaceFragment(mCurrentFragment, mFragmentTag, false);
+                        //Update flag
+                        mSelectedItemID = R.id.action_help;
+                        break;
                 }
                 return true;
             }
@@ -570,7 +585,8 @@ public class BottomNavigationActivity extends BaseActivity {
             }
         } catch (Exception e) {
             e.printStackTrace();
-            FirebaseCrash.report(e);
+            Crashlytics.logException(e);
+            Crashlytics.setString("className", "BottomNavigationActivity");
             ViewHelper.getSnackBar(rootView, getString(R.string.error_img_not_cropped));
         }
     }
@@ -712,7 +728,8 @@ public class BottomNavigationActivity extends BaseActivity {
                     @Override
                     public void onErrorCalled(Throwable e) {
                         e.printStackTrace();
-                        FirebaseCrash.report(e);
+                        Crashlytics.logException(e);
+                        Crashlytics.setString("className", "BottomNavigationActivity");
                         ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_server));
                     }
 
@@ -917,7 +934,8 @@ public class BottomNavigationActivity extends BaseActivity {
             compressSpecific(croppedImageUri, this, IMAGE_TYPE_USER_CAPTURE_PIC);
         } catch (IOException e) {
             e.printStackTrace();
-            FirebaseCrash.report(e);
+            Crashlytics.logException(e);
+            Crashlytics.setString("className", "BottomNavigationActivity");
         }
         //Decode image file
         BitmapFactory.Options options = new BitmapFactory.Options();

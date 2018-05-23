@@ -5,7 +5,7 @@ import android.support.v4.app.FragmentActivity;
 
 import com.afollestad.materialdialogs.DialogAction;
 import com.afollestad.materialdialogs.MaterialDialog;
-import com.google.firebase.crash.FirebaseCrash;
+import com.crashlytics.android.Crashlytics;
 import com.thetestament.cread.R;
 import com.thetestament.cread.listeners.listener;
 import com.thetestament.cread.listeners.listener.OnDeleteRequestedListener;
@@ -64,7 +64,8 @@ public class DeletePostHelper {
                             }
                         } catch (JSONException e) {
                             e.printStackTrace();
-                            FirebaseCrash.report(e);
+                            Crashlytics.logException(e);
+                            Crashlytics.setString("className", "DeletePostHelper");
                             OnDeleteRequestedListener.onDeleteFailure(context.getString(R.string.error_msg_internal));
                         }
                     }
@@ -73,7 +74,8 @@ public class DeletePostHelper {
                     public void onErrorCalled(Throwable e) {
                         //Dismiss dialog
                         e.printStackTrace();
-                        FirebaseCrash.report(e);
+                        Crashlytics.logException(e);
+                        Crashlytics.setString("className", "DeletePostHelper");
                         OnDeleteRequestedListener.onDeleteFailure(context.getString(R.string.error_msg_server));
                     }
 

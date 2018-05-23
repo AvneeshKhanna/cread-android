@@ -1,6 +1,8 @@
 package com.thetestament.cread.fragments;
 
 import android.app.ActivityOptions;
+import android.content.ClipData;
+import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.ColorStateList;
@@ -20,6 +22,7 @@ import android.support.v4.content.ContextCompat;
 import android.support.v4.view.ViewCompat;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.AppCompatImageView;
+import android.support.v7.widget.AppCompatTextView;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -39,8 +42,8 @@ import android.widget.TextView;
 
 import com.afollestad.materialdialogs.DialogAction;
 import com.afollestad.materialdialogs.MaterialDialog;
+import com.crashlytics.android.Crashlytics;
 import com.google.firebase.analytics.FirebaseAnalytics;
-import com.google.firebase.crash.FirebaseCrash;
 import com.rx2androidnetworking.Rx2AndroidNetworking;
 import com.squareup.picasso.MemoryPolicy;
 import com.squareup.picasso.NetworkPolicy;
@@ -51,18 +54,17 @@ import com.thetestament.cread.R;
 import com.thetestament.cread.activities.BottomNavigationActivity;
 import com.thetestament.cread.activities.ChatDetailsActivity;
 import com.thetestament.cread.activities.ChatListActivity;
-import com.thetestament.cread.activities.FollowActivity;
 import com.thetestament.cread.activities.RoyaltiesActivity;
 import com.thetestament.cread.activities.UpdateProfileDetailsActivity;
 import com.thetestament.cread.activities.UpdateProfileImageActivity;
 import com.thetestament.cread.adapters.MeAdapter;
 import com.thetestament.cread.adapters.UserStatsPagerAdapter;
-import com.thetestament.cread.helpers.ChatHelper;
 import com.thetestament.cread.helpers.DeletePostHelper;
 import com.thetestament.cread.helpers.FeedHelper;
 import com.thetestament.cread.helpers.FollowHelper;
 import com.thetestament.cread.helpers.HatsOffHelper;
 import com.thetestament.cread.helpers.ImageHelper;
+import com.thetestament.cread.helpers.IntentHelper;
 import com.thetestament.cread.helpers.NetworkHelper;
 import com.thetestament.cread.helpers.SharedPreferenceHelper;
 import com.thetestament.cread.helpers.ViewHelper;
@@ -124,8 +126,6 @@ import static com.thetestament.cread.utils.Constant.EXTRA_CHAT_LIST_CALLED_FROM;
 import static com.thetestament.cread.utils.Constant.EXTRA_CHAT_USER_NAME;
 import static com.thetestament.cread.utils.Constant.EXTRA_CHAT_UUID;
 import static com.thetestament.cread.utils.Constant.EXTRA_DATA;
-import static com.thetestament.cread.utils.Constant.EXTRA_FOLLOW_REQUESTED_UUID;
-import static com.thetestament.cread.utils.Constant.EXTRA_FOLLOW_TYPE;
 import static com.thetestament.cread.utils.Constant.EXTRA_IS_PROFILE_EDITABLE;
 import static com.thetestament.cread.utils.Constant.EXTRA_PROFILE_PIC_URL;
 import static com.thetestament.cread.utils.Constant.EXTRA_TOP_USER_INTERESTS;
@@ -137,6 +137,7 @@ import static com.thetestament.cread.utils.Constant.EXTRA_USER_IMAGE_PATH;
 import static com.thetestament.cread.utils.Constant.EXTRA_USER_INTERESTS_COUNT;
 import static com.thetestament.cread.utils.Constant.EXTRA_USER_LAST_NAME;
 import static com.thetestament.cread.utils.Constant.EXTRA_USER_WATER_MARK_STATUS;
+import static com.thetestament.cread.utils.Constant.EXTRA_USER_WEB_STORE_LINK;
 import static com.thetestament.cread.utils.Constant.FIREBASE_EVENT_FOLLOW_FROM_PROFILE;
 import static com.thetestament.cread.utils.Constant.GratitudeNumbers.COLLABORATIONS;
 import static com.thetestament.cread.utils.Constant.GratitudeNumbers.COMMENT;
@@ -161,6 +162,7 @@ import static com.thetestament.cread.utils.Constant.SHARE_OPTION_OTHER;
  */
 public class MeFragment extends Fragment implements listener.OnCollaborationListener {
 
+    //region :View binding with Butter knife
     @BindView(R.id.rootView)
     CoordinatorLayout rootView;
     @BindView(R.id.appBarLayout)
@@ -197,7 +199,11 @@ public class MeFragment extends Fragment implements listener.OnCollaborationList
     LinearLayout containerMessage;
     @BindView(R.id.buttonProfileSettings)
     ImageButton buttonProfileSettings;
+    @BindView(R.id.dotIndicator)
+    View dotIndicatorWebStoreLink;
+    //endregion
 
+    //region :Fields and constant
     @State
     String mFirstName, mLastName, mProfilePicURL, mUserBio;
     @State
@@ -234,9 +240,18 @@ public class MeFragment extends Fragment implements listener.OnCollaborationList
     private int spanCount = 2;
     private ArrayList<String> mSelectedInterest = new ArrayList<>();
 
+    /**
+     * Flag to maintain user web store link.
+     */
+    @State
+    String mWebStoreUrl;
 
+    //endregion
+
+    //region :Overridden methods
     @Nullable
     @Override
+
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         //Initialize preference helper
         mHelper = new SharedPreferenceHelper(getActivity());
@@ -426,7 +441,8 @@ public class MeFragment extends Fragment implements listener.OnCollaborationList
             MenuItem updatesMenuItem = menu.findItem(R.id.action_updates);
 
             // if it exists set its flag
-            if (updatesMenuItem != null) {   //Change action flag for updates icon
+            if (updatesMenuItem != null) {
+                //Change action flag for updates icon
                 updatesMenuItem.setShowAsActionFlags(MenuItem.SHOW_AS_ACTION_IF_ROOM);
             }
         }
@@ -434,14 +450,13 @@ public class MeFragment extends Fragment implements listener.OnCollaborationList
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-
         switch (item.getItemId()) {
             case R.id.action_royalties:
                 startRoyaltiesActivity();
                 return true;
             case R.id.action_chat_with_cread:
                 //Open chat details screen
-                ChatHelper.openChatWithCreadKalakaar(getActivity());
+                IntentHelper.openChatWithCreadKalakaar(getActivity());
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
@@ -476,6 +491,10 @@ public class MeFragment extends Fragment implements listener.OnCollaborationList
         }
     }
 
+    //endregion
+
+    //region :Click functionality
+
     /**
      * User image click functionality to launch screen where user can edit his/her profile picture.
      */
@@ -494,6 +513,8 @@ public class MeFragment extends Fragment implements listener.OnCollaborationList
      */
     @OnClick(R.id.buttonProfileSettings)
     public void onUserNameClicked() {
+        //Hide dot indicator view
+        dotIndicatorWebStoreLink.setVisibility(View.GONE);
         //If profile is editable
         if (isProfileEditable) {
             Intent intent = new Intent(getActivity(), UpdateProfileDetailsActivity.class);
@@ -502,12 +523,37 @@ public class MeFragment extends Fragment implements listener.OnCollaborationList
             intent.putExtra(EXTRA_USER_EMAIL, mEmail);
             intent.putExtra(EXTRA_USER_BIO, mUserBio);
             intent.putExtra(EXTRA_USER_CONTACT, mContactNumber);
+            intent.putExtra(EXTRA_USER_WEB_STORE_LINK, mWebStoreUrl);
             intent.putExtra(EXTRA_USER_WATER_MARK_STATUS, mWaterMarkStatus);
             intent.putExtra(EXTRA_TOP_USER_INTERESTS, mSelectedInterest);
             intent.putExtra(EXTRA_USER_INTERESTS_COUNT, mInterestCount);
             intent.putExtra(EXTRA_PROFILE_PIC_URL, mProfilePicURL);
             startActivityForResult(intent, REQUEST_CODE_UPDATE_PROFILE_DETAILS);
+        } else {
+            MaterialDialog dialog = new MaterialDialog.Builder(getActivity())
+                    .title("Web Profile Link")
+                    .positiveText("Copy link")
+                    .customView(R.layout.dialog_profile_lweb_ink, false)
+                    .onPositive(new MaterialDialog.SingleButtonCallback() {
+                        @Override
+                        public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
+                            // Gets a handle to the clipboard service.
+                            ClipboardManager manager = (ClipboardManager)
+                                    getActivity().getSystemService(Context.CLIPBOARD_SERVICE);
+                            // Creates a new text clip to put on the clipboard
+                            ClipData clip = ClipData.newPlainText("webStoreLink", mWebStoreUrl);
+                            // Set the clipboard's primary clip.
+                            manager.setPrimaryClip(clip);
+                            ViewHelper.getSnackBar(rootView, "Link copied to clipboard");
+                        }
+                    })
+                    .show();
+            AppCompatTextView linkText = dialog.getCustomView().findViewById(R.id.textProfileLink);
+            linkText.setText(mWebStoreUrl +
+                    "\n\nThis is the web profile link of " + mFirstName + ".");
         }
+        //Update status
+        mHelper.updateWebStoreDotIndicatorStatus(false);
     }
 
     /**
@@ -591,38 +637,13 @@ public class MeFragment extends Fragment implements listener.OnCollaborationList
         }
     }
 
+    /**
+     * Click functionality to show tooltip for featured artist.
+     */
     @OnClick(R.id.imageFeatured)
     void featuredOnClick() {
-        ViewHelper.getToolTip(imageFeatured, mFirstName + " is currently a featured artist", getActivity());
-    }
-
-    /**
-     * Click functionality to launch screen where user can see list of people whom he/she is following.
-     */
-    public void onFollowingContainerClicked() {
-
-        if (mFollowingCount > 0) {
-            Intent intent = new Intent(getActivity(), FollowActivity.class);
-            intent.putExtra(EXTRA_FOLLOW_REQUESTED_UUID, mRequestedUUID);
-            intent.putExtra(EXTRA_FOLLOW_TYPE, "following");
-            startActivity(intent);
-        } else {
-            ViewHelper.getSnackBar(rootView, "User is not following anyone");
-        }
-    }
-
-    /**
-     * Click functionality to launch followers screen.
-     */
-    public void onFollowersContainerClicked() {
-        if (mFollowerCount > 0) {
-            Intent intent = new Intent(getActivity(), FollowActivity.class);
-            intent.putExtra(EXTRA_FOLLOW_REQUESTED_UUID, mRequestedUUID);
-            intent.putExtra(EXTRA_FOLLOW_TYPE, "followers");
-            startActivity(intent);
-        } else {
-            ViewHelper.getSnackBar(rootView, "No followers");
-        }
+        ViewHelper.getToolTip(imageFeatured, mFirstName + " is currently a featured artist"
+                , getActivity());
     }
 
     /*
@@ -632,6 +653,10 @@ public class MeFragment extends Fragment implements listener.OnCollaborationList
     void onCreateClick() {
         ((BottomNavigationActivity) getActivity()).getAddContentBottomSheetDialog();
     }
+
+    //endregion
+
+    //region :Private methods
 
     /**
      * Method to initialize views for this screen.
@@ -645,29 +670,14 @@ public class MeFragment extends Fragment implements listener.OnCollaborationList
             //Enable profile editing
             isProfileEditable = true;
 
-            // show royalties dialog if first time
-            if (mHelper.isMeFragmentFirstTime()) {
-                showRoyaltiesDialog();
-            }
-
-            if (mHelper.isUserInterestFirstTime()) {
-                ViewHelper.getToolTip(buttonProfileSettings, getString(R.string.message_tooltip_user_interests), getActivity());
-                mHelper.updateUserInterestStatus(false);
-            }
-
         } else {
             mRequestedUUID = getArguments().getString("requesteduuid");
             //Disable profile editing
             isProfileEditable = false;
-            //show chat dialog first time
-            if (mHelper.isChatDialogFirstTime()) {
-                //Show dialog here
-                getChatDialog();
-                //Update status
-                mHelper.updateChatDialogStatus(false);
-            }
-            //hide profile settings icon
-            buttonProfileSettings.setVisibility(View.GONE);
+
+            //Change settings drawable
+            buttonProfileSettings.setImageDrawable(ContextCompat.getDrawable(getActivity()
+                    , R.drawable.ic_link_vector));
         }
 
         //Condition to toggle visibility of follow button and cha list icon
@@ -688,6 +698,11 @@ public class MeFragment extends Fragment implements listener.OnCollaborationList
             fabChat.setVisibility(View.GONE);
         }
 
+        //if first time
+        if (mHelper.isWebStoreDotIndicatorFirstTime()) {
+            //Show dot indicator view
+            dotIndicatorWebStoreLink.setVisibility(View.VISIBLE);
+        }
 
         //initialize tab layout
         initUserStatsPager();
@@ -947,6 +962,8 @@ public class MeFragment extends Fragment implements listener.OnCollaborationList
                                 mContactNumber = mainData.getString("phone");
                                 mWaterMarkStatus = mainData.getString("watermarkstatus");
                                 mIsFeatured = mainData.getBoolean("featured");
+                                mWebStoreUrl = mainData.getString("web_profile_link");
+
                                 mInterestCount = mainData.getLong("interestcount");
 
                                 JSONArray interestArray = mainData.getJSONArray("topinterests");
@@ -956,7 +973,8 @@ public class MeFragment extends Fragment implements listener.OnCollaborationList
                             }
                         } catch (JSONException e) {
                             e.printStackTrace();
-                            FirebaseCrash.report(e);
+                            Crashlytics.logException(e);
+                            Crashlytics.setString("className", "MeFragment");
                             connectionError[0] = true;
                         }
                     }
@@ -964,7 +982,8 @@ public class MeFragment extends Fragment implements listener.OnCollaborationList
                     @Override
                     public void onError(Throwable e) {
                         swipeToRefreshLayout.setRefreshing(false);
-                        FirebaseCrash.report(e);
+                        Crashlytics.logException(e);
+                        Crashlytics.setString("className", "MeFragment");
                         //Server error Snack bar
                         ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_server));
                     }
@@ -1176,8 +1195,6 @@ public class MeFragment extends Fragment implements listener.OnCollaborationList
         //Load profile picture
         Picasso.with(getActivity())
                 .load(mProfilePicURL)
-                //.networkPolicy(NetworkPolicy.NO_CACHE)
-                //.memoryPolicy(MemoryPolicy.NO_CACHE)
                 .error(R.drawable.ic_person_56)
                 .into(previewImage);
     }
@@ -1406,7 +1423,8 @@ public class MeFragment extends Fragment implements listener.OnCollaborationList
                             }
                         } catch (JSONException e) {
                             e.printStackTrace();
-                            FirebaseCrash.report(e);
+                            Crashlytics.logException(e);
+                            Crashlytics.setString("className", "MeFragment");
                             connectionError[0] = true;
                         }
                     }
@@ -1415,7 +1433,8 @@ public class MeFragment extends Fragment implements listener.OnCollaborationList
                     public void onError(Throwable e) {
                         swipeToRefreshLayout.setRefreshing(false);
                         e.printStackTrace();
-                        FirebaseCrash.report(e);
+                        Crashlytics.logException(e);
+                        Crashlytics.setString("className", "MeFragment");
                         //Server error Snack bar
                         ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_server));
                     }
@@ -1492,7 +1511,8 @@ public class MeFragment extends Fragment implements listener.OnCollaborationList
 
                         } catch (JSONException e) {
                             e.printStackTrace();
-                            FirebaseCrash.report(e);
+                            Crashlytics.logException(e);
+                            Crashlytics.setString("className", "MeFragment");
                             connectionError[0] = true;
                         }
                     }
@@ -1501,7 +1521,8 @@ public class MeFragment extends Fragment implements listener.OnCollaborationList
                     public void onErrorCalled(Throwable e) {
 
                         e.printStackTrace();
-                        FirebaseCrash.report(e);
+                        Crashlytics.logException(e);
+                        Crashlytics.setString("className", "MeFragment");
 
                         swipeToRefreshLayout.setRefreshing(false);
 
@@ -1597,7 +1618,8 @@ public class MeFragment extends Fragment implements listener.OnCollaborationList
 
                         } catch (JSONException e) {
                             e.printStackTrace();
-                            FirebaseCrash.report(e);
+                            Crashlytics.logException(e);
+                            Crashlytics.setString("className", "MeFragment");
                             connectionError[0] = true;
                         }
                     }
@@ -1609,7 +1631,8 @@ public class MeFragment extends Fragment implements listener.OnCollaborationList
                         mCollabList.remove(mCollabList.size() - 1);
                         //Notify changes
                         mAdapter.notifyItemRemoved(mCollabList.size());
-                        FirebaseCrash.report(e);
+                        Crashlytics.logException(e);
+                        Crashlytics.setString("className", "MeFragment");
                         //Server error Snack bar
                         ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_server));
 
@@ -1903,7 +1926,8 @@ public class MeFragment extends Fragment implements listener.OnCollaborationList
                             }
                         } catch (JSONException e) {
                             e.printStackTrace();
-                            FirebaseCrash.report(e);
+                            Crashlytics.logException(e);
+                            Crashlytics.setString("className", "MeFragment");
                             connectionError[0] = true;
                         }
                     }
@@ -1915,7 +1939,8 @@ public class MeFragment extends Fragment implements listener.OnCollaborationList
                         //Notify changes
                         mAdapter.notifyItemRemoved(mUserActivityDataList.size());
                         e.printStackTrace();
-                        FirebaseCrash.report(e);
+                        Crashlytics.logException(e);
+                        Crashlytics.setString("className", "MeFragment");
                         //Server error Snack bar
                         ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_server));
                     }
@@ -2006,15 +2031,13 @@ public class MeFragment extends Fragment implements listener.OnCollaborationList
                 new listener.OnDeleteRequestedListener() {
                     @Override
                     public void onDeleteSuccess() {
-
                         dialog.dismiss();
 
+                        //Remove item from list and notify changes
                         mUserActivityDataList.remove(itemPosition);
                         mAdapter.notifyItemRemoved(itemPosition);
                         mAdapter.notifyItemRangeChanged(itemPosition, mUserActivityDataList.size());
-                        //Remove item from list and notify changes
-                        // mUserActivityDataList.remove(itemPosition);
-                        //mAdapter.notifyItemRemoved(itemPosition);
+
                         ViewHelper.getSnackBar(rootView, "Item deleted");
                         //Update user post count
                         mPostCount -= 1;
@@ -2184,7 +2207,8 @@ public class MeFragment extends Fragment implements listener.OnCollaborationList
             jsonObject.put("userdata", userObject);
         } catch (JSONException e) {
             e.printStackTrace();
-            FirebaseCrash.report(e);
+            Crashlytics.logException(e);
+            Crashlytics.setString("className", "MeFragment");
             progressView.setVisibility(View.GONE);
         }
 
@@ -2219,7 +2243,8 @@ public class MeFragment extends Fragment implements listener.OnCollaborationList
                             }
                         } catch (JSONException e) {
                             e.printStackTrace();
-                            FirebaseCrash.report(e);
+                            Crashlytics.logException(e);
+                            Crashlytics.setString("className", "MeFragment");
                             //Show error snack bar
                             ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_internal));
                         }
@@ -2247,38 +2272,6 @@ public class MeFragment extends Fragment implements listener.OnCollaborationList
                         RoyaltiesActivity.class).
                         putExtra(EXTRA_IS_PROFILE_EDITABLE, isProfileEditable)
                 , REQUEST_CODE_ROYALTIES_ACTIVITY);
-    }
-
-    /**
-     * Method to show the royalties dialog
-     */
-    private void showRoyaltiesDialog() {
-        MaterialDialog dialog = new MaterialDialog.Builder(getActivity())
-                .customView(R.layout.dialog_generic, false)
-                .positiveText("More")
-                .onPositive(new MaterialDialog.SingleButtonCallback() {
-                    @Override
-                    public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
-                        dialog.dismiss();
-                        startRoyaltiesActivity();
-                        mHelper.updateMeFragmentStatus(false);
-                    }
-                })
-                .show();
-
-        //Obtain views reference
-        ImageView fillerImage = dialog.getCustomView().findViewById(R.id.viewFiller);
-        TextView textTitle = dialog.getCustomView().findViewById(R.id.textTitle);
-        TextView textDesc = dialog.getCustomView().findViewById(R.id.textDesc);
-
-
-        //Set filler image
-        fillerImage.setImageDrawable(ContextCompat.getDrawable(getActivity(), R.drawable.img_intro_royalty));
-        //Set title text
-        textTitle.setText(getActivity().getString(R.string.title_dialog_me));
-        //Set description text
-        textDesc.setText(getActivity().getString(R.string.text_dialog_me));
-
     }
 
 
@@ -2327,37 +2320,30 @@ public class MeFragment extends Fragment implements listener.OnCollaborationList
     }
 
     /**
-     * Method to show the chat introduction dialog.
+     * Method to launch screen where user can see list of people whom he/she is following.
      */
-    private void getChatDialog() {
-        MaterialDialog dialog = new MaterialDialog.Builder(getActivity())
-                .customView(R.layout.dialog_generic, false)
-                .positiveText(R.string.text_ok)
-                .onPositive(new MaterialDialog.SingleButtonCallback() {
-                    @Override
-                    public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
-                        //Dismiss dialog
-                        dialog.dismiss();
-                        //Update status
-                        mHelper.updateChatDialogStatus(false);
-                    }
-                })
-                .show();
+    public void onFollowingContainerClicked() {
 
-        //Obtain views reference
-        ImageView fillerImage = dialog.getCustomView().findViewById(R.id.viewFiller);
-        TextView textTitle = dialog.getCustomView().findViewById(R.id.textTitle);
-        TextView textDesc = dialog.getCustomView().findViewById(R.id.textDesc);
-
-
-        //Set filler image
-        fillerImage.setImageDrawable(ContextCompat.getDrawable(getActivity(), R.drawable.img_chat_intro_dialog));
-        //Set title text
-        textTitle.setText(getActivity().getString(R.string.title_dialog_chat));
-        //Set description text
-        textDesc.setText(getActivity().getString(R.string.text_dialog_chat_desc));
-
+        if (mFollowingCount > 0) {
+            IntentHelper.openFollowActivity(getActivity()
+                    , mRequestedUUID, "following");
+        } else {
+            ViewHelper.getSnackBar(rootView, "User is not following anyone");
+        }
     }
 
+    /**
+     * Method  to launch followers screen.
+     */
+    public void onFollowersContainerClicked() {
+        if (mFollowerCount > 0) {
+            IntentHelper.openFollowActivity(getActivity()
+                    , mRequestedUUID, "followers");
+        } else {
+            ViewHelper.getSnackBar(rootView, "No followers");
+        }
+    }
+
+    //endregion
 
 }

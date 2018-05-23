@@ -29,14 +29,14 @@
                 android:layout_alignParentLeft="true"
                 android:layout_toLeftOf="@+id/contentActions">
 
-                <de.hdodenhof.circleimageview.CircleImageView
+                <com.facebook.drawee.view.SimpleDraweeView
                     android:id="@+id/imageCreator"
                     android:layout_width="35dp"
                     android:layout_height="35dp"
                     android:layout_marginLeft="8dp"
-                    android:scaleType="centerCrop"
-                    app:civ_border_color="@color/black_defined"
-                    tools:src="@drawable/ic_account_circle_100" />
+                    app:failureImage="@drawable/ic_account_circle_100"
+                    app:failureImageScaleType="centerCrop"
+                    app:roundAsCircle="true" />
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -111,13 +111,14 @@
             android:layout_height="wrap_content"
             android:layout_below="@+id/containerCreator">
 
-            <android.support.v7.widget.AppCompatImageView
+            <com.facebook.drawee.view.SimpleDraweeView
                 android:id="@+id/imageContent"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:adjustViewBounds="true"
-                android:scaleType="fitXY"
-                tools:src="@tools:sample/avatars" />
+                app:actualImageScaleType="fitXY"
+                app:failureImage="@drawable/image_placeholder"
+                app:failureImageScaleType="centerCrop" />
 
             <FrameLayout
                 android:id="@+id/containerLongShortPreview"
@@ -174,18 +175,18 @@
         <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_below="@+id/collabCount"
             android:paddingLeft="16dp"
-            android:paddingRight="6dp"
-            android:layout_below="@+id/collabCount">
+            android:paddingRight="6dp">
 
             <LinearLayout
                 android:id="@+id/containerActions"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_alignParentLeft="true"
                 android:layout_marginTop="12dp"
                 android:orientation="horizontal"
-                android:paddingBottom="8dp"
-                android:layout_alignParentLeft="true">
+                android:paddingBottom="8dp">
 
                 <LinearLayout
                     android:id="@+id/containerHatsOff"
@@ -243,8 +244,8 @@
             <include
                 android:id="@+id/layoutShareOptions"
                 layout="@layout/layout_share_options"
-                android:layout_height="wrap_content"
                 android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
                 android:layout_alignParentRight="true"
                 android:layout_centerInParent="true">
 

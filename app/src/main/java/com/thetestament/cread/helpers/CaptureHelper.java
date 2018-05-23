@@ -13,7 +13,7 @@ import android.support.v8.renderscript.ScriptIntrinsicBlur;
 import android.support.v8.renderscript.Type;
 import android.text.TextPaint;
 
-import com.google.firebase.crash.FirebaseCrash;
+import com.crashlytics.android.Crashlytics;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -187,7 +187,8 @@ public class CaptureHelper {
         } catch (Exception e) {
             //Handle exception
             e.printStackTrace();
-            FirebaseCrash.report(e);
+            Crashlytics.logException(e);
+            Crashlytics.setString("className", "CaptureHelper");
         }
     }
 

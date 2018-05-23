@@ -1,7 +1,6 @@
 package com.thetestament.cread.fragments;
 
 import android.content.Intent;
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.v7.preference.Preference;
 import android.support.v7.preference.PreferenceFragmentCompat;
@@ -13,16 +12,13 @@ import com.google.firebase.analytics.FirebaseAnalytics;
 import com.thetestament.cread.R;
 import com.thetestament.cread.activities.AboutUsActivity;
 import com.thetestament.cread.activities.FindFBFriendsActivity;
-import com.thetestament.cread.activities.WebViewActivity;
-import com.thetestament.cread.helpers.ChatHelper;
 import com.thetestament.cread.helpers.DeepLinkHelper;
+import com.thetestament.cread.helpers.IntentHelper;
 import com.thetestament.cread.helpers.SharedPreferenceHelper;
 
 import io.reactivex.disposables.CompositeDisposable;
 
 import static com.thetestament.cread.helpers.LogoutHelper.getLogOutDialog;
-import static com.thetestament.cread.utils.Constant.EXTRA_WEB_VIEW_TITLE;
-import static com.thetestament.cread.utils.Constant.EXTRA_WEB_VIEW_URL;
 import static com.thetestament.cread.utils.Constant.FIREBASE_EVENT_FIND_FRIENDS;
 import static com.thetestament.cread.utils.Constant.FIREBASE_EVENT_RATE_US_CLICKED;
 
@@ -94,10 +90,10 @@ public class SettingsFragment extends PreferenceFragmentCompat {
         tosItem.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
             @Override
             public boolean onPreferenceClick(Preference preference) {
-                Intent intent = new Intent(getActivity(), WebViewActivity.class);
-                intent.putExtra(EXTRA_WEB_VIEW_URL, "file:///android_asset/" + "cread_tos.html");
-                intent.putExtra(EXTRA_WEB_VIEW_TITLE, "Terms of Service");
-                startActivity(intent);
+                //Method called
+                IntentHelper.openWebViewActivity(getActivity()
+                        , "file:///android_asset/" + "cread_tos.html"
+                        , "Terms of Service");
                 return false;
             }
         });
@@ -107,7 +103,8 @@ public class SettingsFragment extends PreferenceFragmentCompat {
         rateUsItem.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
             @Override
             public boolean onPreferenceClick(Preference preference) {
-                redirectToPlayStore();
+                //Method called
+                IntentHelper.openPlayStore(getActivity());
                 //Log firebase event
                 setAnalytics(FIREBASE_EVENT_RATE_US_CLICKED);
                 return false;
@@ -119,11 +116,10 @@ public class SettingsFragment extends PreferenceFragmentCompat {
         faqItem.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
             @Override
             public boolean onPreferenceClick(Preference preference) {
-                //Start   FAQ Screen
-                Intent intent = new Intent(getActivity(), WebViewActivity.class);
-                intent.putExtra(EXTRA_WEB_VIEW_URL, "http://cread.in/FAQ-users.php");
-                intent.putExtra(EXTRA_WEB_VIEW_TITLE, "FAQ");
-                startActivity(intent);
+                //Start FAQ Screen
+                IntentHelper.openWebViewActivity(getActivity()
+                        , "http://cread.in/faq"
+                        , "FAQ");
                 return false;
             }
         });
@@ -146,25 +142,6 @@ public class SettingsFragment extends PreferenceFragmentCompat {
         mCompositeDisposable.dispose();
     }
 
-
-
-
-    /**
-     * Method to redirect user to Cread app on google play store.
-     */
-    private void redirectToPlayStore() {
-        //To get the package name
-        String appPackageName = getContext().getPackageName();
-        try {
-            //To redirect to google play store
-            startActivity(new Intent(Intent.ACTION_VIEW,
-                    Uri.parse("market://details?id=" + appPackageName)));
-        } catch (android.content.ActivityNotFoundException anfe) {
-            //if play store is not installed
-            startActivity(new Intent(Intent.ACTION_VIEW,
-                    Uri.parse("https://play.google.com/store/apps/details?id=" + appPackageName)));
-        }
-    }
 
     /**
      * Method to send analytics data on firebase server.
@@ -190,7 +167,7 @@ public class SettingsFragment extends PreferenceFragmentCompat {
             @Override
             public boolean onPreferenceClick(Preference preference) {
                 //Open chat details screen
-                ChatHelper.openChatWithCreadKalakaar(getActivity());
+                IntentHelper.openChatWithCreadKalakaar(getActivity());
                 return false;
             }
         });

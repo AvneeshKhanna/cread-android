@@ -2,7 +2,7 @@ package com.thetestament.cread.helpers;
 
 import android.support.v4.app.FragmentActivity;
 
-import com.google.firebase.crash.FirebaseCrash;
+import com.crashlytics.android.Crashlytics;
 import com.rx2androidnetworking.Rx2ANRequest;
 import com.rx2androidnetworking.Rx2AndroidNetworking;
 import com.thetestament.cread.BuildConfig;
@@ -62,7 +62,8 @@ public class HashTagOfTheDayHelper {
                             }
                         } catch (JSONException e) {
                             e.printStackTrace();
-                            FirebaseCrash.report(e);
+                            Crashlytics.logException(e);
+                            Crashlytics.setString("className", "HashTagOfTheDayHelper");
                             listener.onFailure(context.getString(R.string.error_msg_internal));
                         }
                     }
@@ -70,7 +71,8 @@ public class HashTagOfTheDayHelper {
                     @Override
                     public void onError(Throwable e) {
                         e.printStackTrace();
-                        FirebaseCrash.report(e);
+                        Crashlytics.logException(e);
+                        Crashlytics.setString("className", "HashTagOfTheDayHelper");
                         listener.onFailure(context.getString(R.string.error_msg_server));
                     }
 
