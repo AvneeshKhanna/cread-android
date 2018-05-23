@@ -496,7 +496,7 @@
             android:theme="@style/NoActionBarTheme" />
         <activity
             android:name=".activities.UserInterestsActivity"
-            android:label="What do you love?"
+            android:label="What's your art form?"
             android:screenOrientation="portrait" />
 
         <!--ContentPreview Screen-->
