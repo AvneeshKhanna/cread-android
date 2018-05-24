@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 
 import com.thetestament.cread.BuildConfig;
+import com.thetestament.cread.activities.BottomNavigationActivity;
 import com.thetestament.cread.activities.ChatDetailsActivity;
 import com.thetestament.cread.activities.ContentPreview;
 import com.thetestament.cread.activities.FollowActivity;
@@ -132,6 +133,17 @@ public class IntentHelper {
         bundle.putString(EXTRA_CHAT_DETAILS_CALLED_FROM, EXTRA_CHAT_DETAILS_CALLED_FROM_CHAT_WITH_US);
 
         intent.putExtra(EXTRA_CHAT_DETAILS_DATA, bundle);
+        context.startActivity(intent);
+    }
+
+
+    /**
+     * Open BottomNavigationActivity screen.
+     *
+     * @param context Context to use.
+     */
+    public static void openBottomNavigationctivity(Context context) {
+        Intent intent = new Intent(context, BottomNavigationActivity.class);
         context.startActivity(intent);
     }
 

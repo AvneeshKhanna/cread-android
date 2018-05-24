@@ -6,8 +6,6 @@ import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.text.Html;
 import android.view.View;
-import android.view.Window;
-import android.view.WindowManager;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.TextView;
@@ -55,9 +53,7 @@ public class UserInterestIntroductionActivity extends BaseActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        // init full screen
-        initFullScreen();
+        ViewHelper.initFullScreen(this);
 
         setContentView(R.layout.activity_user_interest_introduction);
         ButterKnife.bind(this);
@@ -127,14 +123,6 @@ public class UserInterestIntroductionActivity extends BaseActivity {
         getRuntimePermission();
     }
 
-    /**
-     * To open this screen in full screen mode.
-     */
-    private void initFullScreen() {
-        requestWindowFeature(Window.FEATURE_NO_TITLE);
-        getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
-                WindowManager.LayoutParams.FLAG_FULLSCREEN);
-    }
 
     private void initAnimatedText(final TextView textView, int delay) {
 

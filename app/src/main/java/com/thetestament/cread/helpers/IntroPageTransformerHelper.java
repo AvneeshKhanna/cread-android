@@ -14,7 +14,6 @@ public class IntroPageTransformerHelper implements ViewPager.PageTransformer {
         View view = page.findViewById(R.id.device);
         float f1 = page.getWidth() * position;
         float f2 = Math.abs(position);
-
         if ((position <= -1.0f) || (position >= -1.0f)) {
             localView1.setAlpha(1.0F - f2);
             localView2.setAlpha(1.0F - f2);

@@ -3,12 +3,15 @@ package com.thetestament.cread.helpers;
 import android.content.Context;
 import android.content.res.Resources;
 import android.support.design.widget.Snackbar;
+import android.support.v4.app.FragmentActivity;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.res.ResourcesCompat;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.TypedValue;
 import android.view.View;
+import android.view.Window;
+import android.view.WindowManager;
 import android.widget.Toast;
 
 import com.thetestament.cread.R;
@@ -78,6 +81,16 @@ public class ViewHelper {
                 .show();
     }
 
+    /**
+     * To open screen in full screen mode.
+     *
+     * @param context Context to use.
+     */
+    public static void initFullScreen(FragmentActivity context) {
+        context.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        context.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
+                WindowManager.LayoutParams.FLAG_FULLSCREEN);
+    }
 
     /**
      * Method to scroll recycler view to next item if last selected item was last visible/first visible item.

@@ -1,65 +1,88 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/loginParent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/rootView"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/white">
+    android:background="@color/grey_light">
 
-    <android.support.v4.view.ViewPager
-        android:id="@+id/viewPager"
+    <FrameLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_above="@+id/textTOS" />
+        android:layout_height="match_parent">
 
+        <android.support.v7.widget.AppCompatImageView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:scaleType="centerCrop"
+            android:src="@color/grey_light" />
+    </FrameLayout>
 
-    <LinearLayout
-        android:id="@+id/dotsLayout"
-        android:layout_width="match_parent"
-        android:layout_height="30dp"
-        android:layout_above="@+id/containerLoginButtons"
-        android:layout_marginBottom="10dp"
-        android:gravity="center"
-        android:orientation="horizontal" />
-
+    <!--Container signIn buttons-->
     <LinearLayout
         android:id="@+id/containerLoginButtons"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_above="@+id/textTOS"
-        android:layout_centerHorizontal="true"
-        android:orientation="vertical"
-        android:gravity="center">
+        android:layout_centerInParent="true"
+        android:layout_marginLeft="36dp"
+        android:layout_marginRight="36dp"
+        android:gravity="center"
+        android:orientation="vertical">
 
+
+        <!--Facebook sign in button-->
         <com.facebook.login.widget.LoginButton
-            android:id="@+id/loginButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-        android:paddingBottom="10dp"
-        android:paddingLeft="20dp"
-        android:paddingRight="20dp"
-        android:paddingTop="10dp" />
+            android:id="@+id/btnFBLogin"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginBottom="24dp"
+            android:paddingBottom="16dp"
+            android:paddingLeft="24dp"
+            android:paddingRight="24dp"
+            android:paddingTop="16dp"
+            android:textSize="16sp" />
 
-        <com.google.android.gms.common.SignInButton
-            android:id="@+id/buttonGoogleLogin"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:paddingTop="10dp"
-            android:paddingBottom="10dp" />
+        <!--Google sign in button-->
+        <RelativeLayout
+            android:id="@+id/btnGoogleLogin"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@drawable/corner_google_sign_in_btn"
+            android:clickable="true"
+            android:foreground="?android:selectableItemBackground"
+            android:gravity="center_vertical"
+            android:paddingBottom="16dp"
+            android:paddingLeft="24dp"
+            android:paddingRight="24dp"
+            android:paddingTop="16dp">
+
+            <android.support.v7.widget.AppCompatImageView
+                android:layout_width="18dp"
+                android:layout_height="18dp"
+                app:srcCompat="@drawable/ic_google_logo_vector" />
+
+            <android.support.v7.widget.AppCompatTextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerHorizontal="true"
+                android:text="Sign in with Google"
+                android:textSize="16sp" />
+        </RelativeLayout>
 
     </LinearLayout>
 
-    <TextView
+    <!--TextView Terms of service.-->
+    <android.support.v7.widget.AppCompatTextView
         android:id="@+id/textTOS"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
-        android:layout_marginBottom="18dp"
+        android:layout_marginBottom="16dp"
         android:gravity="center"
-        android:paddingLeft="10dp"
-        android:paddingRight="10dp"
+        android:paddingLeft="16dp"
+        android:paddingRight="16dp"
         android:text="@string/text_terms_of_service"
         android:textColor="@color/black_overlay"
-        android:textSize="10sp" />
+        android:textSize="12sp" />
 
 
 </RelativeLayout>

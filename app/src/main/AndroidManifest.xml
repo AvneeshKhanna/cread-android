@@ -504,6 +504,13 @@
             android:name=".activities.ContentPreview"
             android:screenOrientation="portrait"
             android:theme="@style/DarkTheme" />
+
+
+        <!-- ProductTourActivity screen -->
+        <activity
+            android:name=".activities.ProductTourActivity"
+            android:screenOrientation="portrait"
+            android:theme="@style/NoActionBarTheme" />
     </application>
 
 </manifest>
