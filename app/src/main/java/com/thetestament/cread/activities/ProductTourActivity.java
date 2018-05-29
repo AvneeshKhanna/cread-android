@@ -16,6 +16,7 @@ import android.support.v7.widget.AppCompatTextView;
 import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
+import android.widget.RelativeLayout;
 
 import com.thetestament.cread.R;
 import com.thetestament.cread.helpers.IntentHelper;
@@ -49,10 +50,8 @@ public class ProductTourActivity extends AppCompatActivity {
     TypeWriterText descTypewriterText;
     @BindView(R.id.collaboration_typewriter_text)
     TypeWriterText collaborationTypewriterText;
-    @BindView(R.id.text_got_it)
-    AppCompatTextView textGotIt;
-    @BindView(R.id.btn_replay_animation)
-    AppCompatImageView btnReplayAnimation;
+    @BindView(R.id.action_container)
+    RelativeLayout actionContainer;
     //endregion
 
     //region :Field and constants
@@ -108,8 +107,7 @@ public class ProductTourActivity extends AppCompatActivity {
     @OnClick(R.id.btn_replay_animation)
     void onReplayClick() {
         //toggle views visibility
-        textGotIt.setVisibility(View.GONE);
-        btnReplayAnimation.setVisibility(View.GONE);
+        actionContainer.setVisibility(View.GONE);
 
         slideInImageFirst.setVisibility(View.GONE);
         slideInImageSecond.setVisibility(View.GONE);
@@ -191,7 +189,7 @@ public class ProductTourActivity extends AppCompatActivity {
                 descTypewriterText.setVisibility(View.VISIBLE);
                 descTypewriterText.setText("");
                 descTypewriterText.setCharacterDelay(30);
-                descTypewriterText.animateText("Fostering the silence of my hand. I duly learnt i'm an articulate kind.");
+                descTypewriterText.animateText("Fostering the silence of my mind. I duly learnt i'm an articulate kind.");
             }
 
             @Override
@@ -285,8 +283,7 @@ public class ProductTourActivity extends AppCompatActivity {
                                             @Override
                                             public void onAnimationEnd(Animation animation) {
                                                 //Toggle views visibility
-                                                btnReplayAnimation.setVisibility(View.VISIBLE);
-                                                textGotIt.setVisibility(View.VISIBLE);
+                                                actionContainer.setVisibility(View.VISIBLE);
                                             }
 
                                             @Override

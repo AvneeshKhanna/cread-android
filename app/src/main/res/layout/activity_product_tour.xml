@@ -41,10 +41,10 @@
         android:id="@+id/title_text"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
         android:layout_marginTop="24dp"
         android:gravity="center"
         android:padding="16dp"
-        android:layout_gravity="center_horizontal"
         android:text="Express yourself with captivating words"
         android:textColor="@color/colorPrimary"
         android:textSize="20sp"
@@ -57,13 +57,14 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:paddingLeft="24dp"
-        android:paddingRight="24dp"
+        android:gravity="center"
+        android:paddingLeft="48dp"
+        android:paddingRight="48dp"
+        android:text="Fostering the silence of my mind. I duly learnt i'm an articulate kind."
         android:textColor="@color/black_defined"
-        android:textSize="18sp"
+        android:textSize="32sp"
         android:visibility="gone"
-        app:fontFamily="@font/bohemian_typewriter"
-        android:text="Fostering the silence of my hand. I duly learnt i'm an articulate kind." />
+        app:fontFamily="@font/amatic_sc_regular" />
 
     <!--Writing text-->
     <com.thetestament.cread.widgets.TypeWriterText
@@ -81,33 +82,45 @@
         tools:text="Express yourself by creating beautiful story , poem extra." />
 
 
-    <!--Text Got It-->
-    <android.support.v7.widget.AppCompatTextView
-        android:id="@+id/text_got_it"
-        android:layout_width="wrap_content"
+    <!--Container actions-->
+    <RelativeLayout
+        android:id="@+id/action_container"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_gravity="bottom|right"
-        android:clickable="true"
-        android:foreground="?android:selectableItemBackground"
-        android:gravity="center"
-        android:padding="16dp"
-        android:text="Got It"
-        android:textColor="@color/white"
-        android:textSize="16sp"
-        android:textStyle="bold"
-        android:visibility="gone" />
-
-    <!--Btn replay-->
-    <android.support.v7.widget.AppCompatImageView
-        android:id="@+id/btn_replay_animation"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="bottom|left"
-        android:clickable="true"
-        android:foreground="?android:selectableItemBackground"
-        android:gravity="center"
-        android:padding="16dp"
+        android:layout_gravity="bottom"
         android:visibility="gone"
-        app:srcCompat="@drawable/ic_replay_vector" />
+        android:background="@color/transparent_30"
+        android:gravity="center_vertical">
+
+        <!--Text Got It-->
+        <android.support.v7.widget.AppCompatTextView
+            android:id="@+id/text_got_it"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:clickable="true"
+            android:foreground="?android:selectableItemBackground"
+            android:gravity="center"
+            android:padding="16dp"
+            android:text="Got It"
+            android:textColor="@color/white"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:visibility="visible" />
+
+        <!--Btn replay-->
+        <android.support.v7.widget.AppCompatImageView
+            android:id="@+id/btn_replay_animation"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:clickable="true"
+            android:foreground="?android:selectableItemBackground"
+            android:gravity="center"
+            android:padding="16dp"
+            android:visibility="visible"
+            app:srcCompat="@drawable/ic_replay_vector" />
+    </RelativeLayout>
+
 
 </android.support.design.widget.CoordinatorLayout>
