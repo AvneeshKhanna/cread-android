@@ -683,7 +683,7 @@ public class SharedPreferenceHelper {
      *
      * @param status boolean value i.e true or false
      */
-    private void updateProductTourStatus(boolean status) {
+    public void updateProductTourStatus(boolean status) {
         SharedPreferences.Editor editor = mSharedPreferences.edit();
         editor.putBoolean(mContext.getString(R.string.key_product_tour), status);
         editor.apply();

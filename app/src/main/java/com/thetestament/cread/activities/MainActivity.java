@@ -347,7 +347,7 @@ public class MainActivity extends BaseActivity {
                                     CreadApp.initSocketIo(context);
 
                                     //Open BottomNavigationActivity screen
-                                    IntentHelper.openBottomNavigationctivity(context);
+                                    IntentHelper.openBottomNavigationActivity(context);
                                     //Finish this screen
                                     finish();
                                 }
