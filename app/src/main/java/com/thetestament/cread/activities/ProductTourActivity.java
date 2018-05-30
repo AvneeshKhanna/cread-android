@@ -350,13 +350,19 @@ public class ProductTourActivity extends AppCompatActivity {
         });
 
 
-        //Change title text with fade in animation
-        titleText.setText("Upload creative photographs");
-        Animation fadeInTitleText = AnimationUtils.loadAnimation(mContext, R.anim.fade_in);
-        fadeInTitleText.reset();
-        fadeInTitleText.setStartOffset(1000);
-        titleText.clearAnimation();
-        titleText.startAnimation(fadeInTitleText);
+        Handler  handler = new Handler();
+        handler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                //Change title text with fade in animation
+                titleText.setText("Upload creative photographs");
+                Animation fadeInTitleText = AnimationUtils.loadAnimation(mContext, R.anim.fade_in);
+                //fadeInTitleText.reset();
+                //titleText.clearAnimation();
+                titleText.startAnimation(fadeInTitleText);
+            }
+        },1000);
+
     }
 
 
