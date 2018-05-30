@@ -5,8 +5,8 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.design.widget.CoordinatorLayout;
 import android.support.v7.app.AppCompatActivity;
-import android.widget.RelativeLayout;
 
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.androidnetworking.AndroidNetworking;
@@ -72,7 +72,7 @@ public class MainActivity extends BaseActivity {
 
     //region :View binding with Butter knife
     @BindView(R.id.rootView)
-    RelativeLayout rootView;
+    CoordinatorLayout rootView;
     @BindView(R.id.btnFBLogin)
     LoginButton btnFBLogin;
     //endregion

@@ -2,14 +2,14 @@ package com.thetestament.cread.widgets;
 
 import android.content.Context;
 import android.os.Handler;
-import android.support.v7.widget.AppCompatTextView;
+import android.support.v7.widget.AppCompatEditText;
 import android.util.AttributeSet;
 
 /**
  * Custom textView implementation for typewriter effect.
  */
 
-public class TypeWriterText extends AppCompatTextView {
+public class TypeWriterText extends AppCompatEditText {
     private CharSequence mText;
     private int mIndex;
     private long mDelay = 150; // in ms
@@ -42,20 +42,20 @@ public class TypeWriterText extends AppCompatTextView {
     public TypeWriterText(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
     }
+
     //endregion
 
     private Handler mHandler = new Handler();
     private Runnable characterAdder = new Runnable() {
         @Override
         public void run() {
-            /*if (mIndex<mText.length()){
-                setText(mText.subSequence(0, mIndex++));
-                mHandler.postDelayed(this, mDelay);
-            }*/
+
             setText(mText.subSequence(0, mIndex++));
             if (mIndex <= mText.length()) {
+                setSelection(mIndex - 1);
                 mHandler.postDelayed(characterAdder, mDelay);
             } else {
+                setSelection(mIndex - 1);
                 //Set listener if not null
                 if (animationListener != null) {
                     animationListener.onFinish();

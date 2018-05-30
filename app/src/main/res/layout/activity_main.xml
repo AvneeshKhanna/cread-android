@@ -1,18 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/rootView"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:background="@drawable/img_login_bg">
+    android:layout_height="match_parent">
 
+    <!--Background pattern-->
+    <android.support.v7.widget.AppCompatImageView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:scaleType="centerCrop"
+        android:src="@drawable/img_login_bg" />
 
     <!--Container signIn buttons-->
     <LinearLayout
         android:id="@+id/containerLoginButtons"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_centerInParent="true"
+        android:layout_gravity="center"
         android:layout_marginLeft="36dp"
         android:layout_marginRight="36dp"
         android:gravity="center"
@@ -65,7 +70,7 @@
         android:id="@+id/textTOS"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
+        android:layout_gravity="bottom"
         android:layout_marginBottom="16dp"
         android:gravity="center"
         android:paddingLeft="16dp"
@@ -75,4 +80,4 @@
         android:textSize="12sp" />
 
 
-</RelativeLayout>
+</android.support.design.widget.CoordinatorLayout>

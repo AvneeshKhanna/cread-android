@@ -1,8 +1,5 @@
 package com.thetestament.cread.activities;
 
-import android.animation.Animator;
-import android.animation.AnimatorListenerAdapter;
-import android.animation.ObjectAnimator;
 import android.graphics.Typeface;
 import android.os.Bundle;
 import android.os.Handler;
@@ -21,13 +18,12 @@ import android.widget.RelativeLayout;
 import com.thetestament.cread.R;
 import com.thetestament.cread.helpers.IntentHelper;
 import com.thetestament.cread.helpers.ViewHelper;
-import com.thetestament.cread.utils.AspectRatioUtils;
-import com.thetestament.cread.utils.ReverseInterpolator;
 import com.thetestament.cread.widgets.TypeWriterText;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
+import de.hdodenhof.circleimageview.CircleImageView;
 
 /**
  * AppCompatActivity for product tour feature.
@@ -44,14 +40,37 @@ public class ProductTourActivity extends AppCompatActivity {
     AppCompatImageView slideInImageSecond;
     @BindView(R.id.slide_in_image_third)
     AppCompatImageView slideInImageThird;
+    @BindView(R.id.slide_in_image_fourth)
+    AppCompatImageView slideInImageFourth;
+    @BindView(R.id.slide_in_image_fifth)
+    AppCompatImageView slideInImageFifth;
     @BindView(R.id.title_text)
     AppCompatTextView titleText;
     @BindView(R.id.desc_typewriter_text)
     TypeWriterText descTypewriterText;
     @BindView(R.id.collaboration_typewriter_text)
-    TypeWriterText collaborationTypewriterText;
-    @BindView(R.id.action_container)
-    RelativeLayout actionContainer;
+    AppCompatTextView collaborationTypewriterText;
+    @BindView(R.id.text_got_it)
+    AppCompatTextView textGotIt;
+    @BindView(R.id.btn_replay_animation)
+    AppCompatTextView btnReplayAnimation;
+    @BindView(R.id.container_explore)
+    RelativeLayout containerExplore;
+    @BindView(R.id.img_explore_one)
+    CircleImageView imgExploreOne;
+    @BindView(R.id.img_explore_two)
+    CircleImageView imgExploreTwo;
+    @BindView(R.id.img_explore_three)
+    CircleImageView imgExploreThree;
+    @BindView(R.id.img_explore_four)
+    CircleImageView imgExploreFour;
+    @BindView(R.id.img_explore_five)
+    CircleImageView imgExploreFive;
+    @BindView(R.id.img_explore_six)
+    CircleImageView imgExploreSix;
+    @BindView(R.id.img_explore_seven)
+    CircleImageView imgExploreSeven;
+
     //endregion
 
     //region :Field and constants
@@ -59,6 +78,9 @@ public class ProductTourActivity extends AppCompatActivity {
      * Flag to maintain reference of this activity.
      */
     ProductTourActivity mContext;
+
+    Animation expandInOne, expandInTwo, expandInThree, expandInFour, expandInFive, expandInSix, expandInSeven;
+
     //endregion
 
     //region :Overridden methods
@@ -107,16 +129,43 @@ public class ProductTourActivity extends AppCompatActivity {
     @OnClick(R.id.btn_replay_animation)
     void onReplayClick() {
         //toggle views visibility
-        actionContainer.setVisibility(View.GONE);
-
         slideInImageFirst.setVisibility(View.GONE);
         slideInImageSecond.setVisibility(View.GONE);
         slideInImageThird.setVisibility(View.GONE);
-
+        slideInImageFourth.setVisibility(View.GONE);
+        slideInImageFifth.setVisibility(View.GONE);
+        titleText.setVisibility(View.GONE);
         descTypewriterText.setVisibility(View.GONE);
         collaborationTypewriterText.setVisibility(View.GONE);
-        titleText.setVisibility(View.GONE);
+        btnReplayAnimation.setVisibility(View.GONE);
+        containerExplore.setVisibility(View.GONE);
+        imgExploreOne.setVisibility(View.GONE);
+        imgExploreTwo.setVisibility(View.GONE);
+        imgExploreThree.setVisibility(View.GONE);
+        imgExploreFour.setVisibility(View.GONE);
+        imgExploreFive.setVisibility(View.GONE);
+        imgExploreSix.setVisibility(View.GONE);
+        imgExploreSeven.setVisibility(View.GONE);
+
+
+        //Set title text
         titleText.setText("Express yourself with captivating words");
+
+        //Clear animation
+        expandInOne.reset();
+        expandInTwo.reset();
+        expandInThree.reset();
+        expandInFour.reset();
+        expandInFive.reset();
+        expandInSix.reset();
+        expandInSeven.reset();
+        imgExploreOne.clearAnimation();
+        imgExploreTwo.clearAnimation();
+        imgExploreThree.clearAnimation();
+        imgExploreFour.clearAnimation();
+        imgExploreFive.clearAnimation();
+        imgExploreSix.clearAnimation();
+        imgExploreSeven.clearAnimation();
         //Method called
         initView();
     }
@@ -131,8 +180,10 @@ public class ProductTourActivity extends AppCompatActivity {
     private void initView() {
         //obtain reference of this screen.
         mContext = this;
-        // set fade in animations on title text
-        initFadeInAnimation(titleText);
+        //Method called
+        initWritingAnimation(titleText);
+
+
         //set animation end listener
         descTypewriterText.setOnAnimationFinishListener(new TypeWriterText.OnAnimationFinishListener() {
             @Override
@@ -157,7 +208,7 @@ public class ProductTourActivity extends AppCompatActivity {
                         descTypewriterText.setTextColor(ContextCompat.getColor(mContext, R.color.color_pink_500));
                         descTypewriterText.setTypeface(ResourcesCompat.getFont(mContext, R.font.thunder_pants), Typeface.NORMAL);
                         //Method called
-                        initSlideInAnimation(slideInImageFirst);
+                        initGraphicAnimation();
                     }
                 }, 2500);
             }
@@ -167,17 +218,19 @@ public class ProductTourActivity extends AppCompatActivity {
 
 
     /**
-     * Method to initialize fade in animation on title text.
+     * Method to initialize Writing animation.
      *
      * @param textView TextView to be animated.
      */
-    private void initFadeInAnimation(final AppCompatTextView textView) {
+    private void initWritingAnimation(final AppCompatTextView textView) {
+        //Toggle visibility
         textView.setVisibility(View.VISIBLE);
-        Animation fadeIn = AnimationUtils.loadAnimation(mContext, R.anim.scale);
-        fadeIn.reset();
+        //Obtain fade in reference
+        Animation fadeInAnimTitleText = AnimationUtils.loadAnimation(mContext, R.anim.fade_in);
+        fadeInAnimTitleText.reset();
         textView.clearAnimation();
-        textView.startAnimation(fadeIn);
-        fadeIn.setAnimationListener(new Animation.AnimationListener() {
+        textView.startAnimation(fadeInAnimTitleText);
+        fadeInAnimTitleText.setAnimationListener(new Animation.AnimationListener() {
             @Override
             public void onAnimationStart(Animation animation) {
 
@@ -185,8 +238,9 @@ public class ProductTourActivity extends AppCompatActivity {
 
             @Override
             public void onAnimationEnd(Animation animation) {
-                //Animate description text with typewriter animation.
+                //Animate description text with typewriter animation with moving cursor.
                 descTypewriterText.setVisibility(View.VISIBLE);
+                descTypewriterText.requestFocus();
                 descTypewriterText.setText("");
                 descTypewriterText.setCharacterDelay(30);
                 descTypewriterText.animateText("Fostering the silence of my mind. I duly learnt i'm an articulate kind.");
@@ -201,39 +255,56 @@ public class ProductTourActivity extends AppCompatActivity {
 
 
     /**
-     * Method to initialize slide in animation on first image.
-     *
-     * @param image Image to be animated.
+     * Method to initialize animation for graphics.
      */
-    private void initSlideInAnimation(final AppCompatImageView image) {
-        //Animate image with slide in right animation
-        Animation slideInFirst = AnimationUtils.loadAnimation(mContext, R.anim.slide_in_right);
-        image.setVisibility(View.VISIBLE);
-        image.startAnimation(slideInFirst);
-        slideInFirst.setStartOffset(1000);
-        slideInFirst.setFillAfter(false);
-        slideInFirst.setAnimationListener(new Animation.AnimationListener() {
+    private void initGraphicAnimation() {
+        //Obtain fade out animation for description text
+        Animation fadeInDescText = AnimationUtils.loadAnimation(mContext, R.anim.fade_out);
+        descTypewriterText.clearAnimation();
+        fadeInDescText.setStartOffset(1000);
+        descTypewriterText.startAnimation(fadeInDescText);
+        fadeInDescText.setAnimationListener(new Animation.AnimationListener() {
             @Override
             public void onAnimationStart(Animation animation) {
-                //Apply slide in animation on typewriter text
-                textSlideAnimation();
+
             }
 
             @Override
             public void onAnimationEnd(Animation animation) {
-                //Change text with fade in animation
-                titleText.setText("Upload creative photographs");
-                titleText.setVisibility(View.VISIBLE);
-                Animation fadeIn = AnimationUtils.loadAnimation(mContext, R.anim.scale);
-                fadeIn.reset();
-                titleText.clearAnimation();
-                titleText.startAnimation(fadeIn);
+                //Hide view and update properties
+                descTypewriterText.setVisibility(View.GONE);
+                descTypewriterText.setTypeface(ResourcesCompat.getFont(mContext, R.font.bohemian_typewriter), Typeface.NORMAL);
+                descTypewriterText.setTextColor(ContextCompat.getColor(mContext, R.color.black_defined));
+            }
+
+            @Override
+            public void onAnimationRepeat(Animation animation) {
+
+            }
+        });
+
+
+        //Obtain fade in animation for firstImage
+        slideInImageFirst.setVisibility(View.VISIBLE);
+        Animation fadeInImage = AnimationUtils.loadAnimation(mContext, R.anim.fade_in);
+        fadeInImage.setStartOffset(1000);
+        fadeInImage.reset();
+        slideInImageFirst.clearAnimation();
+        slideInImageFirst.startAnimation(fadeInImage);
+        fadeInImage.setAnimationListener(new Animation.AnimationListener() {
+            @Override
+            public void onAnimationStart(Animation animation) {
+
+            }
+
+            @Override
+            public void onAnimationEnd(Animation animation) {
                 //Second image slide in animation
-                Animation slideInSecond = AnimationUtils.loadAnimation(mContext, R.anim.slide_in_right);
-                slideInSecond.setStartOffset(1000);
+                Animation slideInSecondImage = AnimationUtils.loadAnimation(mContext, R.anim.slide_in_right);
+                slideInSecondImage.setStartOffset(1000);
                 slideInImageSecond.setVisibility(View.VISIBLE);
-                slideInImageSecond.startAnimation(slideInSecond);
-                slideInSecond.setAnimationListener(new Animation.AnimationListener() {
+                slideInImageSecond.startAnimation(slideInSecondImage);
+                slideInSecondImage.setAnimationListener(new Animation.AnimationListener() {
                     @Override
                     public void onAnimationStart(Animation animation) {
 
@@ -242,11 +313,11 @@ public class ProductTourActivity extends AppCompatActivity {
                     @Override
                     public void onAnimationEnd(Animation animation) {
                         //Third image slide in animation
-                        Animation slideIn = AnimationUtils.loadAnimation(mContext, R.anim.slide_in_right);
-                        slideIn.setStartOffset(1000);
+                        Animation slideInThirdImage = AnimationUtils.loadAnimation(mContext, R.anim.slide_in_right);
+                        slideInThirdImage.setStartOffset(1000);
                         slideInImageThird.setVisibility(View.VISIBLE);
-                        slideInImageThird.startAnimation(slideIn);
-                        slideIn.setAnimationListener(new Animation.AnimationListener() {
+                        slideInImageThird.startAnimation(slideInThirdImage);
+                        slideInThirdImage.setAnimationListener(new Animation.AnimationListener() {
                             @Override
                             public void onAnimationStart(Animation animation) {
 
@@ -254,47 +325,8 @@ public class ProductTourActivity extends AppCompatActivity {
 
                             @Override
                             public void onAnimationEnd(Animation animation) {
-                                titleText.setVisibility(View.GONE);
-                                Handler handler = new Handler();
-                                handler.postDelayed(new Runnable() {
-                                    @Override
-                                    public void run() {
-
-                                        titleText.setText("Place others' photos on your words or vice-versa to collaborate");
-                                        titleText.setVisibility(View.VISIBLE);
-                                        Animation fadeIn = AnimationUtils.loadAnimation(mContext, R.anim.scale);
-                                        fadeIn.reset();
-                                        titleText.clearAnimation();
-                                        titleText.startAnimation(fadeIn);
-
-                                        collaborationTypewriterText.setVisibility(View.VISIBLE);
-
-                                        Animation slideInFirst = AnimationUtils.loadAnimation(mContext, R.anim.slide_in_right);
-                                        collaborationTypewriterText.setVisibility(View.VISIBLE);
-                                        collaborationTypewriterText.startAnimation(slideInFirst);
-                                        slideInFirst.setStartOffset(1000);
-                                        slideInFirst.setFillAfter(false);
-                                        slideInFirst.setAnimationListener(new Animation.AnimationListener() {
-                                            @Override
-                                            public void onAnimationStart(Animation animation) {
-
-                                            }
-
-                                            @Override
-                                            public void onAnimationEnd(Animation animation) {
-                                                //Toggle views visibility
-                                                actionContainer.setVisibility(View.VISIBLE);
-                                            }
-
-                                            @Override
-                                            public void onAnimationRepeat(Animation animation) {
-
-                                            }
-                                        });
-
-                                    }
-                                }, 1000);
-
+                                //Method called
+                                initializeCollaborationAnimation();
                             }
 
                             @Override
@@ -316,41 +348,210 @@ public class ProductTourActivity extends AppCompatActivity {
 
             }
         });
+
+
+        //Change title text with fade in animation
+        titleText.setText("Upload creative photographs");
+        Animation fadeInTitleText = AnimationUtils.loadAnimation(mContext, R.anim.fade_in);
+        fadeInTitleText.reset();
+        fadeInTitleText.setStartOffset(1000);
+        titleText.clearAnimation();
+        titleText.startAnimation(fadeInTitleText);
     }
 
 
     /**
-     * Method to move text with slide out animation.
+     * Method to initialize collaboration animation.
      */
-    private void textSlideAnimation() {
-
+    private void initializeCollaborationAnimation() {
+        //Toggle view visibility
+        titleText.setVisibility(View.GONE);
         Handler handler = new Handler();
         handler.postDelayed(new Runnable() {
             @Override
             public void run() {
-                ObjectAnimator moveAnim = ObjectAnimator.ofFloat(descTypewriterText, "translationX"
-                        , -AspectRatioUtils.getDeviceScreenWidth());
-                moveAnim.setDuration(800);
-                moveAnim.start();
-                moveAnim.addListener(new AnimatorListenerAdapter() {
+                //Toggle view visibility and set titleText with fade in animation
+                titleText.setText("Place others' photos on your words or vice-versa to collaborate");
+                titleText.setVisibility(View.VISIBLE);
+                Animation fadeInTitleText = AnimationUtils.loadAnimation(mContext, R.anim.fade_in);
+                fadeInTitleText.reset();
+                titleText.clearAnimation();
+                titleText.startAnimation(fadeInTitleText);
+
+                //Collaboration text with fade in animation
+                collaborationTypewriterText.setVisibility(View.VISIBLE);
+                Animation slideInFirst = AnimationUtils.loadAnimation(mContext, R.anim.fade_in);
+                collaborationTypewriterText.startAnimation(slideInFirst);
+                slideInFirst.setFillAfter(false);
+                slideInFirst.setAnimationListener(new Animation.AnimationListener() {
                     @Override
-                    public void onAnimationEnd(Animator animation) {
-                        super.onAnimationEnd(animation);
+                    public void onAnimationStart(Animation animation) {
+
+                    }
+
+                    @Override
+                    public void onAnimationEnd(Animation animation) {
+
+                        //Update text color and font after 1.5 seconds
+                        Handler handler = new Handler();
+                        handler.postDelayed(new Runnable() {
+                            @Override
+                            public void run() {
+                                //Update text color and font
+                                collaborationTypewriterText.setTextColor(ContextCompat.getColor(mContext, R.color.blue));
+                                collaborationTypewriterText.setTypeface(ResourcesCompat.getFont(mContext, R.font.montserrat_regular), Typeface.BOLD);
+                            }
+                        }, 1000);
+
+                        //Update text color and font after 2.5 seconds
+                        Handler handlerTextUpdate = new Handler();
+                        handlerTextUpdate.postDelayed(new Runnable() {
+                            @Override
+                            public void run() {
+                                //Fourth image slide in animation
+                                Animation slideInFourth = AnimationUtils.loadAnimation(mContext, R.anim.slide_in_right);
+                                slideInImageFourth.setVisibility(View.VISIBLE);
+                                slideInFourth.reset();
+                                slideInImageFourth.clearAnimation();
+                                slideInImageFourth.startAnimation(slideInFourth);
+                                slideInFourth.setAnimationListener(new Animation.AnimationListener() {
+                                    @Override
+                                    public void onAnimationStart(Animation animation) {
+
+                                    }
+
+                                    @Override
+                                    public void onAnimationEnd(Animation animation) {
+                                        //Update text color and font
+                                        collaborationTypewriterText.setTextColor(ContextCompat.getColor(mContext, R.color.color_deep_orange_500));
+                                        collaborationTypewriterText.setTypeface(ResourcesCompat.getFont(mContext, R.font.a_love_of_thunder), Typeface.NORMAL);
+                                        //Fifth image slide in animation
+                                        Animation slideInFifth = AnimationUtils.loadAnimation(mContext, R.anim.slide_in_right);
+                                        slideInImageFifth.setVisibility(View.VISIBLE);
+                                        slideInFifth.reset();
+                                        slideInFifth.setStartOffset(500);
+                                        slideInImageFifth.clearAnimation();
+                                        slideInImageFifth.startAnimation(slideInFifth);
+                                        slideInFifth.setAnimationListener(new Animation.AnimationListener() {
+                                            @Override
+                                            public void onAnimationStart(Animation animation) {
+
+                                            }
+
+                                            @Override
+                                            public void onAnimationEnd(Animation animation) {
+                                                //Method called
+                                                initExploreAnimation();
+                                            }
+
+                                            @Override
+                                            public void onAnimationRepeat(Animation animation) {
+
+                                            }
+                                        });
+                                    }
+
+                                    @Override
+                                    public void onAnimationRepeat(Animation animation) {
+
+                                    }
+                                });
+                            }
+                        }, 2000);
+
+
+                    }
+
+                    @Override
+                    public void onAnimationRepeat(Animation animation) {
+
+                    }
+                });
+
+            }
+        }, 1000);
+    }
+
+    /**
+     * Method to initialize explore animation.
+     */
+    private void initExploreAnimation() {
+        collaborationTypewriterText.setTypeface(ResourcesCompat.getFont(mContext, R.font.amatic_sc_regular), Typeface.NORMAL);
+        collaborationTypewriterText.setTextColor(ContextCompat.getColor(mContext, R.color.black_defined));
+
+        containerExplore.setVisibility(View.VISIBLE);
+        Animation fadeInExplore = AnimationUtils.loadAnimation(mContext, R.anim.fade_in);
+        fadeInExplore.setStartOffset(2000);
+        fadeInExplore.reset();
+        containerExplore.clearAnimation();
+        containerExplore.startAnimation(fadeInExplore);
+        fadeInExplore.setAnimationListener(new Animation.AnimationListener() {
+            @Override
+            public void onAnimationStart(Animation animation) {
+
+            }
+
+            @Override
+            public void onAnimationEnd(Animation animation) {
+                expandInOne = AnimationUtils.loadAnimation(mContext, R.anim.pop_anim);
+                imgExploreOne.setVisibility(View.VISIBLE);
+                imgExploreOne.startAnimation(expandInOne);
+
+                expandInTwo = AnimationUtils.loadAnimation(mContext, R.anim.pop_anim);
+                expandInTwo.setStartOffset(300);
+                imgExploreTwo.setVisibility(View.VISIBLE);
+                imgExploreTwo.startAnimation(expandInTwo);
+
+                expandInThree = AnimationUtils.loadAnimation(mContext, R.anim.pop_anim);
+                expandInThree.setStartOffset(300);
+                imgExploreThree.setVisibility(View.VISIBLE);
+                imgExploreThree.startAnimation(expandInThree);
+
+                expandInFour = AnimationUtils.loadAnimation(mContext, R.anim.pop_anim);
+                expandInFour.setStartOffset(900);
+                imgExploreFour.setVisibility(View.VISIBLE);
+                imgExploreFour.startAnimation(expandInFour);
+
+                expandInFive = AnimationUtils.loadAnimation(mContext, R.anim.pop_anim);
+                expandInFive.setStartOffset(1200);
+                imgExploreFive.setVisibility(View.VISIBLE);
+                imgExploreFive.startAnimation(expandInFive);
+
+
+                expandInSix = AnimationUtils.loadAnimation(mContext, R.anim.pop_anim);
+                expandInSix.setStartOffset(1500);
+                imgExploreSix.setVisibility(View.VISIBLE);
+                imgExploreSix.startAnimation(expandInSix);
+
+
+                expandInSeven = AnimationUtils.loadAnimation(mContext, R.anim.pop_anim);
+                expandInSeven.setStartOffset(1800);
+                imgExploreSeven.setVisibility(View.VISIBLE);
+                imgExploreSeven.startAnimation(expandInSeven);
+                expandInSeven.setAnimationListener(new Animation.AnimationListener() {
+                    @Override
+                    public void onAnimationStart(Animation animation) {
+                    }
+
+                    @Override
+                    public void onAnimationEnd(Animation animation) {
                         //Toggle view visibility
-                        descTypewriterText.setVisibility(View.GONE);
-                        descTypewriterText.setTypeface(ResourcesCompat.getFont(mContext, R.font.bohemian_typewriter), Typeface.NORMAL);
-                        descTypewriterText.setTextColor(ContextCompat.getColor(mContext, R.color.black_defined));
-                        animation.removeListener(this);
-                        animation.setDuration(0);
-                        animation.setInterpolator(new ReverseInterpolator());
-                        animation.start();
+                        btnReplayAnimation.setVisibility(View.VISIBLE);
+                    }
+
+                    @Override
+                    public void onAnimationRepeat(Animation animation) {
+
                     }
                 });
             }
-        }, 1000);
 
+            @Override
+            public void onAnimationRepeat(Animation animation) {
+
+            }
+        });
     }
-
 
     //endregion
 }
