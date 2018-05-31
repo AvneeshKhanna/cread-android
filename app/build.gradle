@@ -16,8 +16,8 @@ android {
         applicationId "com.thetestament.cread"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 67
-        versionName "1.9.0"
+        versionCode 64
+        versionName "1.7.9"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         // Enabling multi-dex support.
         multiDexEnabled true
@@ -50,8 +50,8 @@ android {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
             //buildConfigField "String", "URL", '"http://cread-dev-remote.herokuapp.com"'
-            buildConfigField "String", "URL", '"http://a9f3bbce.ngrok.io"'
-            //buildConfigField "String", "URL", '"http://cread-server-dev.ap-northeast-1.elasticbeanstalk.com"'
+            //buildConfigField "String", "URL", '"http://7ecde8b4.ngrok.io"'
+            buildConfigField "String", "URL", '"http://cread-server-dev.ap-northeast-1.elasticbeanstalk.com"'
             buildConfigField "boolean", "VISIBILITY_RESTART_HEROKU_OPTION", "true"
             buildConfigField "String", "S3BUCKET", '"testamentbucketdev"'
             buildConfigField "String", "CREAD_KALAKAAR_UUID", '"40e88526-6e2f-49f1-82ae-ed2e52fc54fe"'
@@ -59,7 +59,7 @@ android {
             resValue "bool", "FIREBASE_ANALYTICS_ENABLED", "false"
             resValue "bool", "FIREBASE_CRASHLYTICS_ENABLED", "false"
             //resValue "string", "DEEP_LINK_HOST", '"http://cread-server-dev.ap-northeast-1.elasticbeanstalk.com"'
-            resValue "string", "DEEP_LINK_HOST", '"http://cread-server-dev.ap-northeast-1.elasticbeanstalk.com"'
+            resValue "string", "DEEP_LINK_HOST", '"http://ec40a3ca.ngrok.io"'
         }
     }
 }
@@ -82,6 +82,8 @@ dependencies {
     implementation "com.android.support:cardview-v7:$rootProject.supportLibraryVersion"
     implementation "com.android.support:preference-v7:$rootProject.supportLibraryVersion"
     implementation "com.android.support:palette-v7:$rootProject.supportLibraryVersion"
+    implementation "com.android.support:support-core-utils:$rootProject.supportLibraryVersion"
+
 
     //Firebase
     implementation "com.google.firebase:firebase-core:$rootProject.playServiceVersion"

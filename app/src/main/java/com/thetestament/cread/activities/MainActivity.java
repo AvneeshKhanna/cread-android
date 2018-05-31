@@ -5,15 +5,8 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.support.v4.view.ViewPager;
+import android.support.design.widget.CoordinatorLayout;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
-import android.view.View;
-import android.view.Window;
-import android.view.WindowManager;
-import android.widget.LinearLayout;
-import android.widget.RelativeLayout;
-import android.widget.TextView;
 
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.androidnetworking.AndroidNetworking;
@@ -50,9 +43,8 @@ import com.google.firebase.iid.FirebaseInstanceId;
 import com.thetestament.cread.BuildConfig;
 import com.thetestament.cread.CreadApp;
 import com.thetestament.cread.R;
-import com.thetestament.cread.adapters.IntroViewPagerAdapter;
+import com.thetestament.cread.dialog.CustomDialog;
 import com.thetestament.cread.helpers.IntentHelper;
-import com.thetestament.cread.helpers.IntroPageTransformerHelper;
 import com.thetestament.cread.helpers.NetworkHelper;
 import com.thetestament.cread.helpers.SharedPreferenceHelper;
 import com.thetestament.cread.helpers.ViewHelper;
@@ -78,66 +70,193 @@ import static com.thetestament.cread.utils.Constant.USER_INTERESTS_CALLED_FROM_L
 
 public class MainActivity extends BaseActivity {
 
-    private final String TAG = getClass().getSimpleName();
-    //Array to store  sliders layout
-    @BindView(R.id.dotsLayout)
-    LinearLayout dotsLayout;
-    @BindView(R.id.viewPager)
-    ViewPager viewPager;
-    @BindView(R.id.loginButton)
-    LoginButton loginButton;
-    @BindView(R.id.buttonGoogleLogin)
-    com.google.android.gms.common.SignInButton buttonGoogleLogin;
-    @BindView(R.id.loginParent)
-    RelativeLayout parentLayout;
+    //region :View binding with Butter knife
+    @BindView(R.id.rootView)
+    CoordinatorLayout rootView;
+    @BindView(R.id.btnFBLogin)
+    LoginButton btnFBLogin;
+    //endregion
+
+    //region :Fields and constant
     CallbackManager mCallbackManager;
     JSONObject graphObject;
-    String phoneNo;
     MaterialDialog verifyDialog;
-    private int[] mLayouts;
     SharedPreferenceHelper spHelper;
+
     GoogleSignInClient mGoogleSignInClient;
     GoogleSignInAccount mGoogleSignInAccount;
 
+
+    /**
+     * Flag to store user phone number.
+     */
+    @State
+    String phoneNo;
+    /**
+     * Flag to maintain  whether user is signing with FB or Google .
+     */
     @State
     String mLoginType;
 
+    /**
+     * Flag to maintain reference of this activity.
+     */
+    MainActivity mContext;
+    //endregion
 
-    //  viewpager change listener
-    ViewPager.OnPageChangeListener viewPagerPageChangeListener = new ViewPager.OnPageChangeListener() {
-
-        @Override
-        public void onPageSelected(int position) {
-            addDots(position);
-        }
-
-        @Override
-        public void onPageScrolled(int arg0, float arg1, int arg2) {
-        }
-
-        @Override
-        public void onPageScrollStateChanged(int arg0) {
-        }
-    };
-
+    //region :Overridden methods
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         //For fullscreen display
-        initFullScreen();
+        ViewHelper.initFullScreen(this);
         //Layout for this screen
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
+        //Method called
+        initView();
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        Icepick.saveInstanceState(this, outState);
+    }
+
+    @Override
+    protected void onRestoreInstanceState(Bundle savedInstanceState) {
+        super.onRestoreInstanceState(savedInstanceState);
+        Icepick.restoreInstanceState(this, savedInstanceState);
+        if (mGoogleSignInAccount == null) {
+            if (GoogleSignIn.getLastSignedInAccount(this) != null) {
+                mGoogleSignInAccount = GoogleSignIn.getLastSignedInAccount(this);
+            }
+        }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        mCallbackManager.onActivityResult(requestCode, resultCode, data);
+        // Handling the result of fb mobile verification
+        if (requestCode == Constant.REQUEST_CODE_FB_ACCOUNT_KIT) {
+            AccountKitLoginResult loginResult = data
+                    .getParcelableExtra(AccountKitLoginResult.RESULT_KEY);
+
+            if (loginResult.getError() != null) {
+                //Show snack bar
+                ViewHelper.getSnackBar(rootView
+                        , loginResult.getError().getUserFacingMessage());
+                //Update flags
+                mGoogleSignInClient.signOut();
+                AccessToken.setCurrentAccessToken(null);
+            } else if (loginResult.wasCancelled()) {
+                //Update flags
+                mGoogleSignInClient.signOut();
+                AccessToken.setCurrentAccessToken(null);
+                //Show snack bar
+                ViewHelper.getSnackBar(rootView, "Login cancelled");
+            } else {
+                //Device is connected to internet
+                if (NetworkHelper.getNetConnectionStatus(mContext)) {
+                    verifyDialog = CustomDialog.getProgressDialog(mContext
+                            , "Verifying...");
+                    if (mLoginType.equals(LOGIN_TYPE_FACEBOOK)) {
+                        getUserData();
+                    } else if (mLoginType.equals(LOGIN_TYPE_GOOGLE)) {
+                        retrieveUserPhoneNo();
+                    }
+                }
+                //Device is not connected to internet.
+                else {
+                    ////Update flags
+                    mGoogleSignInClient.signOut();
+                    AccessToken.setCurrentAccessToken(null);
+                    //Show snack bar
+                    ViewHelper.getSnackBar(rootView
+                            , getString(R.string.error_msg_no_connection));
+                }
+            }
+        } else
+            // Result returned from launching the Intent from GoogleSignInApi.getSignInIntent(...);
+            if (requestCode == REQUEST_CODE_GOOGLE_SIGN_IN) {
+                Task<GoogleSignInAccount> task = GoogleSignIn.getSignedInAccountFromIntent(data);
+                try {
+                    // Google Sign In was successful
+                    mGoogleSignInAccount = task.getResult(ApiException.class);
+                    checkUserStatus(null, mGoogleSignInAccount.getIdToken(), mContext);
+                } catch (ApiException e) {
+                    // Google Sign In failed, update UI appropriately
+                    e.printStackTrace();
+                    Crashlytics.logException(e);
+                    Crashlytics.setString("className", "MainActivity");
+                    ViewHelper.getSnackBar(rootView, "Google Sign in Failed");
+                }
+            }
+    }
+    //endregion
+
+    //region :Click functionality
+
+    /**
+     * Log In button onClick Listener
+     */
+    @OnClick(R.id.btnFBLogin)
+    public void logInOnClick() {
+        if (!NetworkHelper.getNetConnectionStatus(mContext)) {
+            ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_no_connection));
+        } else {
+            //Update flag
+            mLoginType = LOGIN_TYPE_FACEBOOK;
+        }
+    }
+
+    /**
+     * Functionality to launch TermsOfServiceActivity.
+     */
+    @OnClick(R.id.textTOS)
+    public void showTos() {
+        IntentHelper.openWebViewActivity(mContext
+                , "file:///android_asset/" + "cread_tos.html"
+                , "Terms of Service");
+    }
+
+    /**
+     * Google sign btn click functionality.
+     */
+    @OnClick(R.id.btnGoogleLogin)
+    public void googleLoginOnClick() {
+        if (!NetworkHelper.getNetConnectionStatus(mContext)) {
+            ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_no_connection));
+        } else {
+            //Update flag
+            mLoginType = LOGIN_TYPE_GOOGLE;
+            //Launch sign in options
+            Intent signInIntent = mGoogleSignInClient.getSignInIntent();
+            startActivityForResult(signInIntent, REQUEST_CODE_GOOGLE_SIGN_IN);
+        }
+    }
+    //endregion
+
+    //region :Private methods
+
+    /**
+     * Method to initialize views for this screen.
+     */
+    private void initView() {
+        //obtain reference of this screen.
+        mContext = this;
         // init shared prefs
-        spHelper = new SharedPreferenceHelper(MainActivity.this);
+        spHelper = new SharedPreferenceHelper(mContext);
+        //initialize  sign in options
+        initGoogleSignIn();
+        initFBLogin();
+    }
 
-        //For sliders
-        initSliders();
-        // Add bottom dots
-        addDots(0);
-        //Initialize view pager
-        initViewPager();
-
+    /**
+     * Method to initialize Google sign option.
+     */
+    private void initGoogleSignIn() {
         // Configure sign-in to request the user's ID, email address, and basic
         // profile. ID and basic profile are included in DEFAULT_SIGN_IN.
         GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
@@ -145,23 +264,26 @@ public class MainActivity extends BaseActivity {
                 .requestEmail()
                 .build();
         // Build a GoogleSignInClient with the options specified by gso.
-        mGoogleSignInClient = GoogleSignIn.getClient(this, gso);
+        mGoogleSignInClient = GoogleSignIn.getClient(mContext, gso);
+    }
 
-        // set google login button text
-        setGoogleLoginButtonText();
-
+    /**
+     * Method to initialize FB login option.
+     */
+    private void initFBLogin() {
         mCallbackManager = CallbackManager.Factory.create();
-        loginButton.setReadPermissions(Arrays.asList("email", "user_friends"));
-        loginButton.registerCallback(mCallbackManager, new FacebookCallback<LoginResult>() {
+        btnFBLogin.setReadPermissions(Arrays.asList("email", "user_friends"));
+        btnFBLogin.registerCallback(mCallbackManager, new FacebookCallback<LoginResult>() {
             @Override
             public void onSuccess(LoginResult loginResult) {
-
                 if (loginResult.getRecentlyDeniedPermissions().contains("user_friends")) {
-                    ViewHelper.getSnackBar(parentLayout, "You need to grant friends permission to continue");
+                    //Show snack bar
+                    ViewHelper.getSnackBar(rootView,
+                            "You need to grant friends permission to continue");
                     AccessToken.setCurrentAccessToken(null);
                 } else {
                     AccessToken accessToken = loginResult.getAccessToken();
-                    checkUserStatus(accessToken.getUserId(), null);
+                    checkUserStatus(accessToken.getUserId(), null, mContext);
                 }
             }
 
@@ -175,196 +297,22 @@ public class MainActivity extends BaseActivity {
 
             }
         });
-
-
     }
 
-    @Override
-    protected void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
-        Icepick.saveInstanceState(this, outState);
-    }
-
-    @Override
-    protected void onRestoreInstanceState(Bundle savedInstanceState) {
-        super.onRestoreInstanceState(savedInstanceState);
-        Icepick.restoreInstanceState(this, savedInstanceState);
-
-        if (mGoogleSignInAccount == null) {
-            if (GoogleSignIn.getLastSignedInAccount(this) != null) {
-                mGoogleSignInAccount = GoogleSignIn.getLastSignedInAccount(this);
-            }
-        }
-    }
-
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        mCallbackManager.onActivityResult(requestCode, resultCode, data);
-
-
-        // Handling the result of fb mobile verification
-        if (requestCode == Constant.REQUEST_CODE_FB_ACCOUNT_KIT) {
-            AccountKitLoginResult loginResult = data.getParcelableExtra(AccountKitLoginResult.RESULT_KEY);
-
-            if (loginResult.getError() != null) {
-                ViewHelper.getSnackBar(parentLayout, loginResult.getError().getUserFacingMessage());
-                mGoogleSignInClient.signOut();
-                AccessToken.setCurrentAccessToken(null);
-
-            } else if (loginResult.wasCancelled()) {
-                mGoogleSignInClient.signOut();
-                AccessToken.setCurrentAccessToken(null);
-                ViewHelper.getSnackBar(parentLayout, "Login cancelled");
-
-            } else {
-
-                if (NetworkHelper.getNetConnectionStatus(MainActivity.this)) {
-                    verifyDialog = new MaterialDialog.Builder(MainActivity.this)
-                            .title(getString(R.string.verif_title))
-                            .content(getString(R.string.waiting_msg))
-                            .progress(true, 0)
-                            .show();
-
-                    if (mLoginType.equals(LOGIN_TYPE_FACEBOOK)) {
-                        getUserData();
-                    } else if (mLoginType.equals(LOGIN_TYPE_GOOGLE)) {
-                        getPhoneNo();
-                    }
-
-                } else {
-                    mGoogleSignInClient.signOut();
-                    AccessToken.setCurrentAccessToken(null);
-                    ViewHelper.getSnackBar(parentLayout, getString(R.string.error_msg_no_connection));
-                }
-
-
-            }
-
-        } else  // Result returned from launching the Intent from GoogleSignInApi.getSignInIntent(...);
-            if (requestCode == REQUEST_CODE_GOOGLE_SIGN_IN) {
-                Task<GoogleSignInAccount> task = GoogleSignIn.getSignedInAccountFromIntent(data);
-                try {
-                    // Google Sign In was successful
-                    mGoogleSignInAccount = task.getResult(ApiException.class);
-
-                    checkUserStatus(null, mGoogleSignInAccount.getIdToken());
-
-                } catch (ApiException e) {
-                    // Google Sign In failed, update UI appropriately
-                    e.printStackTrace();
-                    Crashlytics.logException(e);
-                    Crashlytics.setString("className", "MainActivity");
-                    ViewHelper.getSnackBar(parentLayout, "Google Sign in Failed");
-                }
-            }
-    }
 
     /**
-     * Log In button onClick Listener
-     */
-    @OnClick(R.id.loginButton)
-    public void logInOnClick() {
-
-        if (!NetworkHelper.getNetConnectionStatus(MainActivity.this)) {
-            ViewHelper.getSnackBar(parentLayout, getString(R.string.error_msg_no_connection));
-        } else {
-            mLoginType = LOGIN_TYPE_FACEBOOK;
-        }
-
-    }
-
-    /**
-     * Functionality to launch TermsOfServiceActivity.
-     */
-    @OnClick(R.id.textTOS)
-    public void showTos() {
-        IntentHelper.openWebViewActivity(MainActivity.this
-                , "file:///android_asset/" + "cread_tos.html"
-                , "Terms of Service");
-    }
-
-    @OnClick(R.id.buttonGoogleLogin)
-    public void googleLoginOnClick() {
-
-        if (!NetworkHelper.getNetConnectionStatus(MainActivity.this)) {
-            ViewHelper.getSnackBar(parentLayout, getString(R.string.error_msg_no_connection));
-        } else {
-            mLoginType = LOGIN_TYPE_GOOGLE;
-            Intent signInIntent = mGoogleSignInClient.getSignInIntent();
-            startActivityForResult(signInIntent, REQUEST_CODE_GOOGLE_SIGN_IN);
-        }
-    }
-
-    /**
-     * Method to add dots  and to change the color of dots
+     * Checks whether the user is a returning user or a new user.
      *
-     * @param currentPage mGravityFlag of current page i.e 0(zero)
+     * @param fbUserID      FB user ID.
+     * @param googleIDToken Google token ID of user.
+     * @param context       Context to use.
      */
-    private void addDots(int currentPage) {
-        TextView[] dots = new TextView[mLayouts.length];
-        int[] colorsActive = getResources().getIntArray(R.array.array_dot_active_main);
-        int[] colorsInactive = getResources().getIntArray(R.array.array_dot_inactive_main);
-
-        dotsLayout.removeAllViews();
-
-        for (int i = 0; i < dots.length; i++) {
-            dots[i] = new TextView(this);
-            dots[i].setText("\u2022");   //\u2022 for dots
-            dots[i].setTextSize(35);
-            dots[i].setTextColor(colorsInactive[currentPage]);
-            dotsLayout.addView(dots[i]);
-        }
-
-        if (dots.length > 0)
-            dots[currentPage].setTextColor(colorsActive[currentPage]);
-    }
-
-    /**
-     * Method to initialize sliders for the view pager.
-     */
-    private void initSliders() {
-        mLayouts = new int[]{
-                R.layout.intro_screen_one,
-                R.layout.intro_screen_two,
-                R.layout.intro_screen_three
-        };
-    }
-
-    /**
-     * Method to initialize view pager for intro tour.
-     */
-    private void initViewPager() {
-        viewPager.setAdapter(new IntroViewPagerAdapter(mLayouts, getBaseContext()));
-        viewPager.addOnPageChangeListener(viewPagerPageChangeListener);
-        viewPager.setPageTransformer(false, new IntroPageTransformerHelper());
-    }
-
-    /**
-     * To open this screen in full screen mode.
-     */
-    private void initFullScreen() {
-        requestWindowFeature(Window.FEATURE_NO_TITLE);
-        getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
-                WindowManager.LayoutParams.FLAG_FULLSCREEN);
-    }
-
-
-    /**
-     * Checks whether the user is a returning user or a new user
-     *
-     * @param fbUserID
-     * @param googleIDToken
-     */
-    private void checkUserStatus(String fbUserID, String googleIDToken) {
+    private void checkUserStatus(String fbUserID, String googleIDToken, final AppCompatActivity context) {
         JSONObject object = new JSONObject();
-
         try {
-
             object.put("fbid", fbUserID);
             object.put("google_access_token", googleIDToken);
             object.put("fcmtoken", FirebaseInstanceId.getInstance().getToken());
-
         } catch (JSONException e) {
             e.printStackTrace();
             Crashlytics.logException(e);
@@ -372,15 +320,10 @@ public class MainActivity extends BaseActivity {
         }
 
         // check internet status
-        if (NetworkHelper.getNetConnectionStatus(MainActivity.this)) {
-            final MaterialDialog statusDialog = new MaterialDialog.Builder(MainActivity.this)
-                    .title(getString(R.string.verif_title))
-                    .content(getString(R.string.waiting_msg))
-                    .progress(true, 0)
-                    .cancelable(false)
-                    .canceledOnTouchOutside(false)
-                    .show();
-
+        if (NetworkHelper.getNetConnectionStatus(context)) {
+            //Show progress dialog
+            final MaterialDialog statusDialog = CustomDialog.getProgressDialog(context
+                    , "Verifying...");
 
             AndroidNetworking.post(BuildConfig.URL + "/user-access/sign-in")
                     .addJSONObjectBody(object)
@@ -389,59 +332,52 @@ public class MainActivity extends BaseActivity {
                         @Override
                         public void onResponse(JSONObject response) {
                             try {
-
                                 statusDialog.dismiss();
-
                                 JSONObject dataObject = response.getJSONObject("data");
 
-                                // user is already registered, so direct him to the main screen
+                                //User is already registered, so direct him to the main screen
                                 if (dataObject.getString("status").equals("existing-user")) {
-
-
-                                    SharedPreferenceHelper spHelper = new SharedPreferenceHelper(MainActivity.this);
+                                    SharedPreferenceHelper spHelper = new SharedPreferenceHelper(context);
                                     spHelper.setAuthToken(dataObject.getString("authkey"));
                                     spHelper.setUUID(dataObject.getString("uuid"));
                                     spHelper.setFirstName(dataObject.getString("firstname"));
                                     spHelper.setLastName(dataObject.getString("lastname"));
 
+                                    //Initialize for socket IO
+                                    CreadApp.initSocketIo(context);
 
-                                    CreadApp.initSocketIo(MainActivity.this);
-
-
-                                    // open the main screen
-                                    Intent startIntent = new Intent(MainActivity.this, BottomNavigationActivity.class);
-                                    startActivity(startIntent);
-
+                                    //Open BottomNavigationActivity screen
+                                    IntentHelper.openBottomNavigationActivity(context);
+                                    //Finish this screen
                                     finish();
                                 }
-
-                                // new user so mobile verification is to be done
+                                //New user so mobile verification is to be done
                                 else if (dataObject.getString("status").equals("new-user")) {
-                                    phoneLogin(MainActivity.this);
+                                    //Method called
+                                    phoneLogin(context);
                                 }
-
-
                             } catch (JSONException e) {
                                 e.printStackTrace();
                                 Crashlytics.logException(e);
                                 Crashlytics.setString("className", "MainActivity");
-
                             }
                         }
 
                         @Override
                         public void onError(ANError anError) {
+                            //Dismiss dialog
                             statusDialog.dismiss();
+                            //Update flags
                             AccessToken.setCurrentAccessToken(null);
                             mGoogleSignInClient.signOut();
-                            ViewHelper.getSnackBar(parentLayout, getString(R.string.error_msg_server));
-
+                            //Show snack bar
+                            ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_server));
                         }
-
-
                     });
         } else {
-            ViewHelper.getSnackBar(parentLayout, getString(R.string.error_msg_no_connection));
+            //Show snack bar
+            ViewHelper.getSnackBar(rootView
+                    , getString(R.string.error_msg_no_connection));
         }
 
 
@@ -449,58 +385,52 @@ public class MainActivity extends BaseActivity {
 
 
     /**
-     * To initiate facebook register flow for mobile verification
+     * To initiate facebook register flow for mobile verification.
+     *
+     * @param context Context to use.
      */
     public static void phoneLogin(AppCompatActivity context) {
-
         final Intent intent = new Intent(context, AccountKitActivity.class);
-        AccountKitConfiguration.AccountKitConfigurationBuilder configurationBuilder =
-                new AccountKitConfiguration.AccountKitConfigurationBuilder(
-                        LoginType.PHONE,
-                        AccountKitActivity.ResponseType.TOKEN);
-        intent.putExtra(
-                AccountKitActivity.ACCOUNT_KIT_ACTIVITY_CONFIGURATION,
-                configurationBuilder.build());
-        context.startActivityForResult(intent, Constant.REQUEST_CODE_FB_ACCOUNT_KIT);
 
+        AccountKitConfiguration.AccountKitConfigurationBuilder configurationBuilder
+                = new AccountKitConfiguration.AccountKitConfigurationBuilder(
+                LoginType.PHONE,
+                AccountKitActivity.ResponseType.TOKEN);
+
+        intent.putExtra(AccountKitActivity.ACCOUNT_KIT_ACTIVITY_CONFIGURATION,
+                configurationBuilder.build());
+
+        context.startActivityForResult(intent, Constant.REQUEST_CODE_FB_ACCOUNT_KIT);
     }
 
     /**
-     * gets the user data using facebook graph API
+     * Method to retrieve user data using facebook graph API.
      */
     private void getUserData() {
-
-
         // reading the user's data from graph API
         final GraphRequest request = GraphRequest.newMeRequest(
                 AccessToken.getCurrentAccessToken(),
                 new GraphRequest.GraphJSONObjectCallback() {
                     @Override
-                    public void onCompleted(
-                            JSONObject object,
-                            GraphResponse response) {
-                        Log.d(TAG, "onCompleted: " + object);
-
-
+                    public void onCompleted(JSONObject object, GraphResponse response) {
                         FacebookRequestError error = response.getError();
-
-                        //no error
+                        //No error
                         if (error == null) {
-
                             graphObject = object;
                             // retrieve the verified number and send the details to the server
-                            getPhoneNo();
+                            retrieveUserPhoneNo();
                         }
                         // error
                         else {
+                            //Dismiss dialog
                             verifyDialog.dismiss();
 
-                            Category errorCateg = error.getCategory();
+                            Category errorCategory = error.getCategory();
 
-                            switch (errorCateg) {
+                            switch (errorCategory) {
                                 case LOGIN_RECOVERABLE:
                                     // error is authentication related
-                                    LoginManager.getInstance().resolveError(MainActivity.this, response);
+                                    LoginManager.getInstance().resolveError(mContext, response);
                                     break;
                                 case TRANSIENT:
                                     // some temporary error occurred so try again
@@ -508,13 +438,11 @@ public class MainActivity extends BaseActivity {
                                     getUserData();
                                     break;
                                 case OTHER:
-                                    ViewHelper.getSnackBar(parentLayout, error.getErrorUserMessage());
+                                    ViewHelper.getSnackBar(rootView, error.getErrorUserMessage());
                                     AccessToken.setCurrentAccessToken(null);
                                     break;
                             }
                         }
-
-
                     }
                 });
         Bundle parameters = new Bundle();
@@ -523,18 +451,38 @@ public class MainActivity extends BaseActivity {
         request.executeAsync();
     }
 
+    /**
+     * Method to retrieve user phone number from FB account kit.
+     */
+    private void retrieveUserPhoneNo() {
+        AccountKit.getCurrentAccount(new AccountKitCallback<Account>() {
+            @Override
+            public void onSuccess(Account account) {
+                PhoneNumber number = account.getPhoneNumber();
+                phoneNo = number.toString();
+                saveUserDetails();
+            }
+
+            @Override
+            public void onError(AccountKitError accountKitError) {
+                //Dismiss dialog
+                verifyDialog.dismiss();
+                //Update flags
+                mGoogleSignInClient.signOut();
+                AccessToken.setCurrentAccessToken(null);
+                //Show snack bar
+                ViewHelper.getSnackBar(rootView, accountKitError.getUserFacingMessage());
+            }
+        });
+    }
 
     /**
-     * sends phone number and other user details to the server and takes action according to the response
+     * Method to send phone number and other user details to the server and takes action according to the response.
      */
-    private void setUserDetails() {
-
+    private void saveUserDetails() {
         JSONObject reqObject = new JSONObject();
-
-        Log.d(TAG, "setUserDetails: phone" + phoneNo);
-
         try {
-            // if fb sign up
+            //If FB login
             if (mLoginType.equals(LOGIN_TYPE_FACEBOOK)) {
                 graphObject.put("phone", phoneNo);
                 // processing picture object obtained from graph api
@@ -542,15 +490,14 @@ public class MainActivity extends BaseActivity {
                         graphObject.getJSONObject("picture").getJSONObject("data").getString("url"));
                 reqObject.put("userdata", graphObject);
             }
-            // google sign up
+            //Google sign in
             else if (mLoginType.equals(LOGIN_TYPE_GOOGLE)) {
                 // phone number
                 reqObject.put("userdata", new JSONObject().put("phone", phoneNo));
-
                 // put google id token
                 reqObject.put("google_access_token", mGoogleSignInAccount.getIdToken());
             }
-            // put fcm token
+            //Put fcm token
             reqObject.put("fcmtoken", FirebaseInstanceId.getInstance().getToken());
             // if from deep link
             // insert data
@@ -559,8 +506,6 @@ public class MainActivity extends BaseActivity {
                 // parse referral code
                 reqObject.put("referral_code", deepLinkUri.getQueryParameter("referral_code"));
             }
-
-
         } catch (JSONException e) {
             e.printStackTrace();
             Crashlytics.logException(e);
@@ -573,122 +518,83 @@ public class MainActivity extends BaseActivity {
                 .getAsJSONObject(new JSONObjectRequestListener() {
                     @Override
                     public void onResponse(JSONObject response) {
-
-                        verifyDialog.dismiss();
-
                         try {
-
                             JSONObject dataObject = response.getJSONObject("data");
-
                             // phone number verified by account kit doesn't exist already
                             if (dataObject.getString("status").equals("done")) {
-
                                 spHelper.setAuthToken(dataObject.getString("authkey"));
                                 spHelper.setUUID(dataObject.getString("uuid"));
-
                                 String profilePicUrl = null;
-
+                                //FB login
                                 if (mLoginType.equals(LOGIN_TYPE_FACEBOOK)) {
                                     // getting first name and last name from graph object
                                     spHelper.setFirstName(graphObject.getString("first_name"));
                                     spHelper.setLastName(graphObject.getString("last_name"));
-
                                     // if not null set profile pic url
-                                    if (graphObject.getString("picture") != null) {   // get profile pic url
+                                    if (graphObject.getString("picture") != null) {
+                                        // get profile pic url
                                         profilePicUrl = graphObject.getString("picture");
                                     }
-                                } else if (mLoginType.equals(LOGIN_TYPE_GOOGLE)) {
+                                }
+                                //Google login
+                                else if (mLoginType.equals(LOGIN_TYPE_GOOGLE)) {
                                     spHelper.setFirstName(mGoogleSignInAccount.getGivenName());
                                     spHelper.setLastName(mGoogleSignInAccount.getFamilyName());
-
                                     if (mGoogleSignInAccount.getPhotoUrl().toString() != null) {
                                         profilePicUrl = mGoogleSignInAccount.getPhotoUrl().toString();
                                     }
                                 }
 
-                                CreadApp.initSocketIo(MainActivity.this);
-
-
+                                //Initialize for  socket IO
+                                CreadApp.initSocketIo(mContext);
+                                //Dismiss dialog
+                                verifyDialog.dismiss();
                                 // open the user intro screen
                                 Intent startIntent = new Intent(MainActivity.this, UserInterestIntroductionActivity.class);
                                 startIntent.putExtra(EXTRA_USER_INTERESTS_CALLED_FROM, USER_INTERESTS_CALLED_FROM_LOGIN);
                                 startIntent.putExtra(EXTRA_PROFILE_PIC_URL, profilePicUrl);
                                 startActivity(startIntent);
-
                                 finish();
                             }
-
                             //phone number already exists
                             else if (dataObject.getString("status").equals("phone-exists")) {
+                                //Dismiss dialog
+                                verifyDialog.dismiss();
                                 mGoogleSignInClient.signOut();
                                 AccessToken.setCurrentAccessToken(null);
-                                ViewHelper.getSnackBar(parentLayout, "This number is already registered with us");
+                                ViewHelper.getSnackBar(rootView, "This number is already registered with us");
                             }
 
-
                         } catch (JSONException e) {
+                            //Dismiss dialog
+                            verifyDialog.dismiss();
                             //Invalidate token
                             mGoogleSignInClient.signOut();
                             AccessToken.setCurrentAccessToken(null);
+                            //Report error to firebase
                             e.printStackTrace();
                             Crashlytics.logException(e);
                             Crashlytics.setString("className", "MainActivity");
-                            ViewHelper.getSnackBar(parentLayout, getString(R.string.error_msg_internal));
+                            //Show snack bar
+                            ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_internal));
                         }
                     }
 
                     @Override
                     public void onError(ANError anError) {
+                        //Dismiss dialog
                         verifyDialog.dismiss();
+                        //Update flags
                         mGoogleSignInClient.signOut();
                         AccessToken.setCurrentAccessToken(null);
-                        ViewHelper.getSnackBar(parentLayout, getString(R.string.error_msg_server));
+                        //Show snack bar
+                        ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_server));
                     }
                 });
 
     }
 
-    /**
-     * method to get phone number from account kit
-     */
-    private void getPhoneNo() {
-        AccountKit.getCurrentAccount(new AccountKitCallback<Account>() {
-            @Override
-            public void onSuccess(Account account) {
-
-                PhoneNumber number = account.getPhoneNumber();
-                phoneNo = number.toString();
-
-                setUserDetails();
-            }
-
-            @Override
-            public void onError(AccountKitError accountKitError) {
-
-                verifyDialog.dismiss();
-                mGoogleSignInClient.signOut();
-                AccessToken.setCurrentAccessToken(null);
-                ViewHelper.getSnackBar(parentLayout, accountKitError.getUserFacingMessage());
-            }
-        });
-    }
-
-    /**
-     * Sets google login button text
-     */
-    private void setGoogleLoginButtonText() {
-        // Find the TextView that is inside of the SignInButton and set its text
-        for (int i = 0; i < buttonGoogleLogin.getChildCount(); i++) {
-            View v = buttonGoogleLogin.getChildAt(i);
-
-            if (v instanceof TextView) {
-                TextView tv = (TextView) v;
-                tv.setText("Sign In with Google   ");
-                return;
-            }
-        }
-    }
-
+    //endregion
 
 }
 

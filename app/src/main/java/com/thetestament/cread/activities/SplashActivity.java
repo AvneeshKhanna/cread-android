@@ -7,8 +7,6 @@ import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
-import android.view.Window;
-import android.view.WindowManager;
 
 import com.afollestad.materialdialogs.DialogAction;
 import com.afollestad.materialdialogs.GravityEnum;
@@ -27,6 +25,7 @@ import com.thetestament.cread.BuildConfig;
 import com.thetestament.cread.R;
 import com.thetestament.cread.helpers.IntentHelper;
 import com.thetestament.cread.helpers.SharedPreferenceHelper;
+import com.thetestament.cread.helpers.ViewHelper;
 
 import static com.thetestament.cread.BuildConfig.DEBUG;
 import static com.thetestament.cread.utils.Constant.MINIMUM_APP_VERSION_KEY;
@@ -37,27 +36,18 @@ import static com.thetestament.cread.utils.Constant.MINIMUM_APP_VERSION_KEY;
 
 public class SplashActivity extends AppCompatActivity {
 
-    FirebaseRemoteConfig mFirebaseRemoteConfig;
 
+    //region :Overridden methods
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         //For fullscreen display
-        initFullScreen();
+        ViewHelper.initFullScreen(this);
         //Set layout files
         setContentView(R.layout.activity_splash);
         //initialize force update system
-
+        //Method called
         initForceUpdateSystem();
-    }
-
-    /**
-     * To open this screen in full screen mode.
-     */
-    private void initFullScreen() {
-        requestWindowFeature(Window.FEATURE_NO_TITLE);
-        getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
-                WindowManager.LayoutParams.FLAG_FULLSCREEN);
     }
 
     @Override
@@ -72,6 +62,9 @@ public class SplashActivity extends AppCompatActivity {
         super.onRestoreInstanceState(savedInstanceState);
 
     }
+    //endregion
+
+    //region Private method
 
     /**
      * To make the screen wait for some time and then start the next screen.
@@ -90,28 +83,30 @@ public class SplashActivity extends AppCompatActivity {
      * Method to launch new screen depending upon the condition.
      */
     private void openNextScreen() {
-
-        SharedPreferenceHelper spHelper = new SharedPreferenceHelper(SplashActivity.this);
+        SharedPreferenceHelper spHelper = new SharedPreferenceHelper(this);
         String uuid = spHelper.getUUID();
         String authkey = spHelper.getAuthToken();
 
+        //if UUID and AuthKey are present
         if (uuid != null && authkey != null) {
+            //Open BottomNavigationActivity screen
             startActivity(new Intent(this, BottomNavigationActivity.class));
         } else {
-
             // to generate token when the app is installed first time
             // so that it can be sent to the server when user logs in
             FirebaseInstanceId.getInstance().getToken();
 
-            //startActivity(new Intent(this, MerchandizingProductsActivity.class));
-            //startActivity(new Intent(this, FindFBFriendsActivity.class));
-            startActivity(new Intent(this, MainActivity.class));
+            //If product tour is yet to be opened
+            if (spHelper.isProductTourFirstTime()) {
+                //Open MainActivity screen
+                startActivity(new Intent(this, ProductTourActivity.class));
+            } else {
+                //Open MainActivity screen
+                startActivity(new Intent(this, MainActivity.class));
+            }
+            //Finish this call
             finish();
-            //startActivity(new Intent(this, BottomNavigationActivity.class));
         }
-
-        //startActivity(new Intent(this,MainActivity.class));
-        //startActivity(new Intent(this, BottomNavigationActivity.class));
     }
 
 
@@ -119,9 +114,8 @@ public class SplashActivity extends AppCompatActivity {
      * To initialize force app update system
      */
     private void initForceUpdateSystem() {
-
         //Get Remote Config Instance
-        mFirebaseRemoteConfig = FirebaseRemoteConfig.getInstance();
+        final FirebaseRemoteConfig mFirebaseRemoteConfig = FirebaseRemoteConfig.getInstance();
 
         // Create Remote Config Setting to enable developer mode.
         // Fetching configs from the server is normally limited to 5 requests per hour.
@@ -153,7 +147,7 @@ public class SplashActivity extends AppCompatActivity {
                             // values are returned.
                             mFirebaseRemoteConfig.activateFetched();
                             // Product update dialog called
-                            getProductUpdateDialog();
+                            getProductUpdateDialog(mFirebaseRemoteConfig);
                         } else {
                             // initialize deep link
                             initDeepLink();
@@ -166,9 +160,9 @@ public class SplashActivity extends AppCompatActivity {
     /**
      * Method to display update dialog depending upon the Remote config value
      */
-    private void getProductUpdateDialog() {
+    private void getProductUpdateDialog(FirebaseRemoteConfig firebaseRemoteConfig) {
 
-        Long minimumAppVersion = mFirebaseRemoteConfig.getLong(MINIMUM_APP_VERSION_KEY);
+        Long minimumAppVersion = firebaseRemoteConfig.getLong(MINIMUM_APP_VERSION_KEY);
 
         if (minimumAppVersion > BuildConfig.VERSION_CODE) {
             MaterialDialog.Builder builder = new MaterialDialog.Builder(this)
@@ -197,8 +191,8 @@ public class SplashActivity extends AppCompatActivity {
     }
 
 
-    /*
-    Method to get check for deep link
+    /**
+     * Method to get check for deep link.
      */
     private void initDeepLink() {
         final SharedPreferenceHelper spHelper = new SharedPreferenceHelper(SplashActivity.this);
@@ -221,7 +215,6 @@ public class SplashActivity extends AppCompatActivity {
                             spHelper.setDeepLink(null);
                         }
 
-
                         //load data
                         waitScreen();
                     }
@@ -240,5 +233,7 @@ public class SplashActivity extends AppCompatActivity {
                     }
                 });
     }
+
+    //endregion
 
 }

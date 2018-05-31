@@ -694,4 +694,26 @@ public class SharedPreferenceHelper {
     }
 
 
+    /**
+     * Method to retrieve whether Product tour.
+     *
+     * @return True by default.
+     */
+    public boolean isProductTourFirstTime() {
+        return mSharedPreferences
+                .getBoolean(mContext.getString(R.string.key_product_tour), true);
+    }
+
+
+    /**
+     * Method to update product tour status.
+     *
+     * @param status boolean value i.e true or false
+     */
+    public void updateProductTourStatus(boolean status) {
+        SharedPreferences.Editor editor = mSharedPreferences.edit();
+        editor.putBoolean(mContext.getString(R.string.key_product_tour), status);
+        editor.apply();
+    }
+
 }

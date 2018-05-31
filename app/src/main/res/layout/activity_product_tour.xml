@@ -1,0 +1,273 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/root_view"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <!--Background pattern-->
+    <android.support.v7.widget.AppCompatImageView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:scaleType="centerCrop"
+        android:src="@drawable/img_login_bg" />
+
+    <!--First image container-->
+    <com.thetestament.cread.widgets.SquareView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center">
+        <!--First image-->
+        <android.support.v7.widget.AppCompatImageView
+            android:id="@+id/slide_in_image_first"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_toRightOf="@+id/view"
+            android:scaleType="centerCrop"
+            android:src="@drawable/img_product_tour_first"
+            android:visibility="gone" />
+    </com.thetestament.cread.widgets.SquareView>
+    <!--Second image container-->
+    <com.thetestament.cread.widgets.SquareView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center">
+        <!--Second image-->
+        <android.support.v7.widget.AppCompatImageView
+            android:id="@+id/slide_in_image_second"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_toRightOf="@+id/view"
+            android:scaleType="centerCrop"
+            android:src="@drawable/img_product_tour_second"
+            android:visibility="gone" />
+    </com.thetestament.cread.widgets.SquareView>
+    <!--Third image container-->
+    <com.thetestament.cread.widgets.SquareView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center">
+        <!--Third image-->
+        <android.support.v7.widget.AppCompatImageView
+            android:id="@+id/slide_in_image_third"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_toRightOf="@+id/view"
+            android:scaleType="centerCrop"
+            android:src="@drawable/img_product_tour_third"
+            android:visibility="gone" />
+    </com.thetestament.cread.widgets.SquareView>
+    <!--Fourth image container-->
+    <com.thetestament.cread.widgets.SquareView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center">
+        <!--First image-->
+        <android.support.v7.widget.AppCompatImageView
+            android:id="@+id/slide_in_image_fourth"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_toRightOf="@+id/view"
+            android:scaleType="centerCrop"
+            android:src="@drawable/img_product_tour_first"
+            android:visibility="gone" />
+    </com.thetestament.cread.widgets.SquareView>
+    <!--Fifth image container-->
+    <com.thetestament.cread.widgets.SquareView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center">
+        <!--Second image-->
+        <android.support.v7.widget.AppCompatImageView
+            android:id="@+id/slide_in_image_fifth"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_toRightOf="@+id/view"
+            android:scaleType="centerCrop"
+            android:src="@drawable/img_product_tour_second"
+            android:visibility="gone" />
+    </com.thetestament.cread.widgets.SquareView>
+
+
+    <!--Title text-->
+    <android.support.v7.widget.AppCompatTextView
+        android:id="@+id/title_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="24dp"
+        android:gravity="center"
+        android:padding="16dp"
+        android:text="Express yourself with captivating words"
+        android:textColor="@color/colorPrimary"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        android:visibility="gone" />
+    <!--Collaboration text-->
+    <android.support.v7.widget.AppCompatTextView
+        android:id="@+id/collaboration_typewriter_text"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:gravity="center"
+        android:paddingLeft="48dp"
+        android:paddingRight="48dp"
+        android:text="Fostering the silence of my mind. I duly learnt i'm an articulate kind."
+        android:textColor="@color/black_defined"
+        android:textSize="32sp"
+        android:visibility="gone"
+        app:fontFamily="@font/amatic_sc_regular" />
+    <!--Writing text-->
+    <com.thetestament.cread.widgets.TypeWriterText
+        android:id="@+id/desc_typewriter_text"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:background="@null"
+        android:cursorVisible="true"
+        android:gravity="center"
+        android:paddingLeft="24dp"
+        android:paddingRight="24dp"
+        android:textColor="@color/black_defined"
+        android:textSize="18sp"
+        android:visibility="gone"
+        app:fontFamily="@font/bohemian_typewriter"
+        tools:text="Express yourself by creating beautiful story , poem extra." />
+
+
+    <!--Container explore artists-->
+    <RelativeLayout
+        android:id="@+id/container_explore"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/white"
+        android:visibility="gone">
+
+        <!--Explore title text-->
+        <android.support.v7.widget.AppCompatTextView
+            android:id="@+id/explore_title_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="24dp"
+            android:gravity="center"
+            android:padding="16dp"
+            android:text="Connect with interesting people from a community of artists"
+            android:textColor="@color/colorPrimary"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:visibility="visible" />
+
+        <de.hdodenhof.circleimageview.CircleImageView
+            android:id="@+id/img_explore_one"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:layout_centerInParent="true"
+            android:src="@drawable/explore_icons_01"
+            android:visibility="gone" />
+
+        <de.hdodenhof.circleimageview.CircleImageView
+            android:id="@+id/img_explore_two"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:layout_above="@+id/img_explore_one"
+            android:layout_alignParentLeft="true"
+            android:layout_alignRight="@+id/img_explore_one"
+            android:layout_marginBottom="56dp"
+            android:layout_marginRight="64dp"
+            android:src="@drawable/explore_icons_02"
+            android:visibility="gone" />
+
+        <de.hdodenhof.circleimageview.CircleImageView
+            android:id="@+id/img_explore_three"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:layout_above="@+id/img_explore_one"
+            android:layout_alignLeft="@+id/img_explore_one"
+            android:layout_alignParentRight="true"
+            android:layout_marginBottom="56dp"
+            android:layout_marginLeft="64dp"
+            android:src="@drawable/explore_icons_03"
+            android:visibility="gone" />
+
+        <de.hdodenhof.circleimageview.CircleImageView
+            android:id="@+id/img_explore_four"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:layout_alignParentLeft="true"
+            android:layout_alignRight="@+id/img_explore_one"
+            android:layout_below="@+id/img_explore_one"
+            android:layout_marginRight="64dp"
+            android:layout_marginTop="56dp"
+            android:src="@drawable/explore_icons_04"
+            android:visibility="gone" />
+
+        <de.hdodenhof.circleimageview.CircleImageView
+            android:id="@+id/img_explore_five"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:layout_alignLeft="@+id/img_explore_one"
+            android:layout_alignParentRight="true"
+            android:layout_below="@+id/img_explore_one"
+            android:layout_marginLeft="64dp"
+            android:layout_marginTop="56dp"
+            android:src="@drawable/explore_icons_05"
+            android:visibility="gone" />
+
+
+        <de.hdodenhof.circleimageview.CircleImageView
+            android:id="@+id/img_explore_six"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:layout_alignParentBottom="true"
+            android:layout_below="@+id/img_explore_one"
+            android:layout_centerHorizontal="true"
+            android:src="@drawable/explore_icons_06"
+            android:visibility="gone" />
+
+        <de.hdodenhof.circleimageview.CircleImageView
+            android:id="@+id/img_explore_seven"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:layout_alignParentTop="true"
+            android:layout_above="@+id/img_explore_one"
+            android:layout_centerHorizontal="true"
+            android:src="@drawable/explore_icons_07"
+            android:visibility="gone" />
+    </RelativeLayout>
+
+    <!--Text Got It-->
+    <android.support.v7.widget.AppCompatTextView
+        android:id="@+id/text_got_it"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|right"
+        android:clickable="true"
+        android:foreground="?android:selectableItemBackground"
+        android:gravity="center"
+        android:padding="16dp"
+        android:text="Got It"
+        android:textColor="@color/grey_custom"
+        android:textSize="16sp"
+        android:textStyle="bold"
+        android:visibility="visible" />
+
+    <!--Text Replay-->
+    <android.support.v7.widget.AppCompatTextView
+        android:id="@+id/btn_replay_animation"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|left"
+        android:clickable="true"
+        android:foreground="?android:selectableItemBackground"
+        android:gravity="center"
+        android:padding="16dp"
+        android:text="Replay"
+        android:textColor="@color/grey_custom"
+        android:textSize="16sp"
+        android:textStyle="bold"
+        android:visibility="gone" />
+
+
+</android.support.design.widget.CoordinatorLayout>
