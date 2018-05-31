@@ -355,7 +355,7 @@ public class ProductTourActivity extends AppCompatActivity {
             @Override
             public void run() {
                 //Change title text with fade in animation
-                titleText.setText("Upload creative photographs");
+                titleText.setText("Or by uploading creative photographs");
                 Animation fadeInTitleText = AnimationUtils.loadAnimation(mContext, R.anim.fade_in);
                 //fadeInTitleText.reset();
                 //titleText.clearAnimation();
@@ -377,7 +377,7 @@ public class ProductTourActivity extends AppCompatActivity {
             @Override
             public void run() {
                 //Toggle view visibility and set titleText with fade in animation
-                titleText.setText("Place others' photos on your words or vice-versa to collaborate");
+                titleText.setText("Or both. Collaborate to place others' photos on your words and vice-versa");
                 titleText.setVisibility(View.VISIBLE);
                 Animation fadeInTitleText = AnimationUtils.loadAnimation(mContext, R.anim.fade_in);
                 fadeInTitleText.reset();
