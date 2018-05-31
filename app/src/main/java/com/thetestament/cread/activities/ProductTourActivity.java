@@ -429,13 +429,13 @@ public class ProductTourActivity extends AppCompatActivity {
                                     @Override
                                     public void onAnimationEnd(Animation animation) {
                                         //Update text color and font
-                                        collaborationTypewriterText.setTextColor(ContextCompat.getColor(mContext, R.color.color_deep_orange_500));
-                                        collaborationTypewriterText.setTypeface(ResourcesCompat.getFont(mContext, R.font.a_love_of_thunder), Typeface.NORMAL);
+                                        collaborationTypewriterText.setTextColor(ContextCompat.getColor(mContext, R.color.white));
+                                        collaborationTypewriterText.setTypeface(ResourcesCompat.getFont(mContext, R.font.joyful_juliana), Typeface.BOLD);
                                         //Fifth image slide in animation
                                         Animation slideInFifth = AnimationUtils.loadAnimation(mContext, R.anim.slide_in_right);
                                         slideInImageFifth.setVisibility(View.VISIBLE);
                                         slideInFifth.reset();
-                                        slideInFifth.setStartOffset(500);
+                                        slideInFifth.setStartOffset(1000);
                                         slideInImageFifth.clearAnimation();
                                         slideInImageFifth.startAnimation(slideInFifth);
                                         slideInFifth.setAnimationListener(new Animation.AnimationListener() {
@@ -509,7 +509,7 @@ public class ProductTourActivity extends AppCompatActivity {
                 imgExploreTwo.startAnimation(expandInTwo);
 
                 expandInThree = AnimationUtils.loadAnimation(mContext, R.anim.pop_anim);
-                expandInThree.setStartOffset(300);
+                expandInThree.setStartOffset(600);
                 imgExploreThree.setVisibility(View.VISIBLE);
                 imgExploreThree.startAnimation(expandInThree);
 
