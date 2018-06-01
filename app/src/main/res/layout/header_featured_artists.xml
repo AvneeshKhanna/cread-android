@@ -7,6 +7,7 @@
     android:orientation="vertical"
     android:padding="10dp">
 
+    <!--Image container-->
     <FrameLayout
         android:layout_width="60dp"
         android:layout_height="60dp">
@@ -21,20 +22,18 @@
             app:failureImage="@drawable/ic_account_circle_100"
             app:failureImageScaleType="centerCrop"
             app:roundAsCircle="true" />
-
-
-        <TextView
+        <!--Question mark text-->
+        <android.support.v7.widget.AppCompatTextView
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:gravity="center"
             android:text="\?"
             android:textSize="40sp" />
 
-
     </FrameLayout>
 
-
-    <TextView
+    <!--Artist Name-->
+    <android.support.v7.widget.AppCompatTextView
         android:id="@+id/textArtistName"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
