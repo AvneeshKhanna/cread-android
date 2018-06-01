@@ -52,7 +52,7 @@
     <string name="rating_status">ratingStatus</string>
     <string name="key_deep_link">deepLink</string>
     <string name="key_feed_item_type">meItemType</string>
-    <string name="key_show_notif_indicator"></string>
+    <string name="key_show_updates_badge">updatesBadge</string>
     <string name="key_show_selected_font">selectedFont</string>
     <string name="key_position_selected_font">positionSelectedFont</string>
     <string name="key_enable_chat_sound">enableChatSound</string>

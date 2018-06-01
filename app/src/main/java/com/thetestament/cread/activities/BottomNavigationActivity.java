@@ -50,6 +50,7 @@ import com.thetestament.cread.helpers.ImageHelper;
 import com.thetestament.cread.helpers.SharedPreferenceHelper;
 import com.thetestament.cread.helpers.ViewHelper;
 import com.thetestament.cread.listeners.listener.OnServerRequestedListener;
+import com.thetestament.cread.networkmanager.NotificationNetworkManager;
 import com.thetestament.cread.utils.AspectRatioUtils;
 import com.thetestament.cread.utils.Constant;
 import com.yalantis.ucrop.UCrop;
@@ -100,6 +101,11 @@ public class BottomNavigationActivity extends BaseActivity {
     Toolbar toolbar;
     @BindView(R.id.bottomNavigation)
     BottomNavigationView navigationView;
+
+    /**
+     * View for updates dot indicator
+     */
+    View badgeView;
     //endregion
 
     //region -Fields and constants
@@ -134,7 +140,6 @@ public class BottomNavigationActivity extends BaseActivity {
     private SharedPreferenceHelper mHelper;
     private CompositeDisposable mCompositeDisposable = new CompositeDisposable();
     private BottomNavigationActivity mContext;
-    View badgeView;
 
 
     // Constants
@@ -154,18 +159,19 @@ public class BottomNavigationActivity extends BaseActivity {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_bottom_navigation);
-        // Obtain the FirebaseAnalytics instance.
-        mFirebaseAnalytics = FirebaseAnalytics.getInstance(this);
-        //Obtain sharedPreference reference
-        mHelper = new SharedPreferenceHelper(this);
         //Obtain reference of this activity
         mContext = this;
+        // Obtain the FirebaseAnalytics instance.
+        mFirebaseAnalytics = FirebaseAnalytics.getInstance(mContext);
+        //Obtain sharedPreference reference
+        mHelper = new SharedPreferenceHelper(mContext);
         //Bind View to this activity
-        ButterKnife.bind(this);
+        ButterKnife.bind(mContext);
         //Set actionbar
         setSupportActionBar(toolbar);
         //Set title
         setTitle("Cread");
+
 
         if (savedInstanceState != null) {
             Icepick.restoreInstanceState(this, savedInstanceState);
@@ -183,6 +189,9 @@ public class BottomNavigationActivity extends BaseActivity {
         captureSendIntent(mHelper, getIntent());
         //Add badge view on me tab icon
         addPersonalChatIndicator();
+
+        //Network call for notification seen data
+        loadNotificationSeenStatus();
     }
 
     @Override
@@ -190,11 +199,6 @@ public class BottomNavigationActivity extends BaseActivity {
         super.onResume();
         //Toggle personal chat indicator
         togglePersonalChatIndicator(mHelper.getPersonalChatIndicatorStatus());
-    }
-
-    @Override
-    protected void onStart() {
-        super.onStart();
     }
 
     @Override
@@ -314,7 +318,7 @@ public class BottomNavigationActivity extends BaseActivity {
         //Set visibility of restart Heroku option according to build config
         menu.findItem(R.id.action_restart_heroku)
                 .setVisible(BuildConfig.VISIBILITY_RESTART_HEROKU_OPTION);
-
+        //Method called
         setupBadge(menu);
         super.onCreateOptionsMenu(menu);
         return true;
@@ -326,13 +330,10 @@ public class BottomNavigationActivity extends BaseActivity {
             case R.id.action_updates:
                 //Open updates screen
                 startActivity(new Intent(mContext, UpdatesActivity.class));
-                // set status to false
-                mHelper.setNotifIndicatorStatus(false);
                 // hide badge
                 badgeView.setVisibility(View.GONE);
                 //Log firebase analytics
                 setAnalytics(FIREBASE_EVENT_NOTIFICATION_CLICKED);
-
                 return true;
             case R.id.action_settings:
                 //Launch settings activity
@@ -340,6 +341,7 @@ public class BottomNavigationActivity extends BaseActivity {
                 return true;
 
             case R.id.action_restart_heroku:
+                //Method called
                 restartHerokuServer();
                 return true;
             default:
@@ -810,14 +812,8 @@ public class BottomNavigationActivity extends BaseActivity {
             }
         });
 
-        //Toggle visibility of dot indicator
-        if (mHelper.shouldShowNotifIndicator()) {
-            //Hide badge view
-            badgeView.setVisibility(View.VISIBLE);
-        } else {
-            //Show Badge View
-            badgeView.setVisibility(View.GONE);
-        }
+        //Method called
+        toggleUpdatesIndicator(mHelper.shouldShowUpdatesBadgeView());
     }
 
     /**
@@ -924,6 +920,22 @@ public class BottomNavigationActivity extends BaseActivity {
 
 
     /**
+     * Toggle personal chat indicator.
+     *
+     * @param showIndicator Whether to show indicator or not .
+     */
+    private void toggleUpdatesIndicator(boolean showIndicator) {
+        if (showIndicator) {
+            //Show badge view
+            badgeView.setVisibility(View.VISIBLE);
+        } else {
+            //Hide Badge View
+            badgeView.setVisibility(View.GONE);
+        }
+    }
+
+
+    /**
      * Method to perform square image manipulation.
      *
      * @param croppedImageUri
@@ -975,6 +987,33 @@ public class BottomNavigationActivity extends BaseActivity {
             processCroppedImage(croppedImageUri);
         }
     }
+
+
+    /**
+     * Method to load Notification seen status for chats and updates.
+     */
+    private void loadNotificationSeenStatus() {
+        NotificationNetworkManager.getNotificationSeenStatus(mContext
+                , mCompositeDisposable
+                , true
+                , new NotificationNetworkManager.OnNotificationSeenStatusLoadListener() {
+                    @Override
+                    public void onSuccess(boolean updatesSeenStatus, boolean chatSeenStatus) {
+                        //Updates flag and toggle updates badge view indicator
+                        mHelper.setNotifIndicatorStatus(updatesSeenStatus);
+                        toggleUpdatesIndicator(updatesSeenStatus);
+
+                        //Updates flag and toggle chat indicator
+                        mHelper.setPersonalChatIndicatorStatus(chatSeenStatus);
+                        togglePersonalChatIndicator(chatSeenStatus);
+                    }
+
+                    @Override
+                    public void onFailure(String errorMsg) {
+                    }
+                });
+    }
+
 
     //endregion
 }

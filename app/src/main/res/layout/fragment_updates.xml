@@ -18,8 +18,8 @@
             android:layout_width="100dp"
             android:layout_height="100dp"
             android:layout_gravity="center"
-            app:srcCompat="@drawable/ic_menu_updates"
-            android:tint="@color/black_overlay" />
+            android:tint="@color/black_overlay"
+            app:srcCompat="@drawable/ic_menu_updates" />
 
         <TextView
             android:layout_width="wrap_content"
@@ -34,9 +34,6 @@
 
     </LinearLayout>
 
-
-
-
     <android.support.v4.widget.SwipeRefreshLayout
         android:id="@+id/swipeToRefreshLayout"
         android:layout_width="match_parent"
@@ -46,7 +43,7 @@
             android:id="@+id/recycler_view"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:visibility="visible"/>
+            android:visibility="visible" />
     </android.support.v4.widget.SwipeRefreshLayout>
 
     <include

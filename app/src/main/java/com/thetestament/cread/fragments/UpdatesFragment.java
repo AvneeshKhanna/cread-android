@@ -30,6 +30,7 @@ import com.thetestament.cread.listeners.listener;
 import com.thetestament.cread.listeners.listener.OnServerRequestedListener;
 import com.thetestament.cread.models.FeedModel;
 import com.thetestament.cread.models.UpdatesModel;
+import com.thetestament.cread.networkmanager.NotificationNetworkManager;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -67,10 +68,9 @@ import static com.thetestament.cread.utils.Constant.NOTIFICATION_CATEGORY_PROFIL
 import static com.thetestament.cread.utils.Constant.NOTIFICATION_CATEGORY_PROFILE_MENTION_POST;
 
 
-
-        /*Fragment class which shows notification.*/
-
-
+/**
+ * Fragment class which shows notification.
+ */
 public class UpdatesFragment extends Fragment {
 
     // Required empty public constructor
@@ -123,6 +123,9 @@ public class UpdatesFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
         //load Data here
         initScreen();
+
+        //Method called
+        updateNotificationSeenStatus();
     }
 
     @Override
@@ -683,4 +686,31 @@ public class UpdatesFragment extends Fragment {
                     }
                 });
     }
+
+
+    /**
+     * Method to update notification seen status on server for 'Updates Screen'.
+     */
+    private void updateNotificationSeenStatus() {
+        //Update badge view is visible
+        if (mHelper.shouldShowUpdatesBadgeView()) {
+            NotificationNetworkManager.updateUpdatesSeenStatus(getActivity(), mCompositeDisposable
+                    , new NotificationNetworkManager.OnUpdatesSeenUpdateListener() {
+                        @Override
+                        public void onSuccess() {
+                            //Update flag
+                            mHelper.setNotifIndicatorStatus(false);
+                        }
+
+                        @Override
+                        public void onFailure(String errorMsg) {
+
+                        }
+                    });
+        } else {
+            //do nothing
+        }
+
+    }
+
 }
