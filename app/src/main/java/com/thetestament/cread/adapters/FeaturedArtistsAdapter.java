@@ -2,11 +2,11 @@ package com.thetestament.cread.adapters;
 
 import android.net.Uri;
 import android.support.v4.app.FragmentActivity;
+import android.support.v7.widget.AppCompatTextView;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.TextView;
 
 import com.facebook.drawee.view.SimpleDraweeView;
 import com.thetestament.cread.R;
@@ -25,7 +25,6 @@ import butterknife.ButterKnife;
  */
 
 public class FeaturedArtistsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
-
 
     private FragmentActivity mContext;
     private List<FeaturedArtistsModel> mArtistList;
@@ -55,9 +54,7 @@ public class FeaturedArtistsAdapter extends RecyclerView.Adapter<RecyclerView.Vi
                     .from(parent.getContext())
                     .inflate(R.layout.header_featured_artists, parent, false));
         }
-
         return null;
-
     }
 
 
@@ -68,12 +65,11 @@ public class FeaturedArtistsAdapter extends RecyclerView.Adapter<RecyclerView.Vi
 
     @Override
     public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
-
-        if (holder.getItemViewType() == VIEW_TYPE_ITEM) {   // get data
+        if (holder.getItemViewType() == VIEW_TYPE_ITEM) {
+            // get data
             FeaturedArtistsModel data = mArtistList.get(position - 1);
 
             ItemViewHolder itemViewHolder = (ItemViewHolder) holder;
-
             //load artist image
             ImageHelper.loadProgressiveImage(Uri.parse(data.getImageUrl())
                     , itemViewHolder.imageArtist);
@@ -93,8 +89,6 @@ public class FeaturedArtistsAdapter extends RecyclerView.Adapter<RecyclerView.Vi
             // init click
             initItemClick(holder, null);
         }
-
-
     }
 
     @Override
@@ -103,37 +97,35 @@ public class FeaturedArtistsAdapter extends RecyclerView.Adapter<RecyclerView.Vi
     }
 
 
-
-
     private void initItemClick(final RecyclerView.ViewHolder holder, final String uuid) {
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
                 mClickListener.onFeatArtistClicked(holder.getItemViewType(), uuid);
             }
         });
     }
 
 
+    //ItemViewHolder
     static class ItemViewHolder extends RecyclerView.ViewHolder {
         @BindView(R.id.imageArtist)
         SimpleDraweeView imageArtist;
         @BindView(R.id.textArtistName)
-        TextView textArtistName;
+        AppCompatTextView textArtistName;
 
         public ItemViewHolder(View itemView) {
             super(itemView);
-
             ButterKnife.bind(this, itemView);
         }
     }
 
+    //HeaderViewHolder
     static class HeaderViewHolder extends RecyclerView.ViewHolder {
         @BindView(R.id.imageArtist)
         SimpleDraweeView imageArtist;
         @BindView(R.id.textArtistName)
-        TextView textArtistName;
+        AppCompatTextView textArtistName;
 
         public HeaderViewHolder(View itemView) {
             super(itemView);

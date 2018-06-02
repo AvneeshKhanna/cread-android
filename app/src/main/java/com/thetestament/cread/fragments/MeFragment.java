@@ -72,6 +72,7 @@ import com.thetestament.cread.listeners.listener;
 import com.thetestament.cread.listeners.listener.OnServerRequestedListener;
 import com.thetestament.cread.listeners.listener.OnUserStatsClickedListener;
 import com.thetestament.cread.models.FeedModel;
+import com.thetestament.cread.networkmanager.NotificationNetworkManager;
 import com.thetestament.cread.utils.AspectRatioUtils;
 import com.thetestament.cread.utils.Constant.GratitudeNumbers;
 import com.thetestament.cread.utils.Constant.ITEM_TYPES;
@@ -608,8 +609,8 @@ public class MeFragment extends Fragment implements listener.OnCollaborationList
             //Change FAB  background color to color accent
             fabChat.setBackgroundTintList(ColorStateList.valueOf(ContextCompat.getColor(getActivity()
                     , R.color.colorAccent)));
-            //update flags in SharedPreference
-            mHelper.setPersonalChatIndicatorStatus(false);
+            //Method called
+            updateChatSeenStatus();
         }
     }
 
@@ -2343,6 +2344,27 @@ public class MeFragment extends Fragment implements listener.OnCollaborationList
             ViewHelper.getSnackBar(rootView, "No followers");
         }
     }
+
+    /**
+     * Method to update chat seen status.
+     */
+    private void updateChatSeenStatus() {
+        NotificationNetworkManager.updateChatSeenStatus(getActivity()
+                , mCompositeDisposable
+                , new NotificationNetworkManager.OnChatSeenUpdateListener() {
+                    @Override
+                    public void onSuccess() {
+                        //update flags in SharedPreference
+                        mHelper.setPersonalChatIndicatorStatus(false);
+                    }
+
+                    @Override
+                    public void onFailure(String errorMsg) {
+
+                    }
+                });
+    }
+
 
     //endregion
 

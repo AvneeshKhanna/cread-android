@@ -421,15 +421,23 @@ public class SharedPreferenceHelper {
         return Constant.ITEM_TYPES.toItemType(enumString);
     }
 
+    /**
+     *
+     * */
     public void setNotifIndicatorStatus(boolean shouldShow) {
         SharedPreferences.Editor editor = mSharedPreferences.edit();
-        editor.putBoolean(mContext.getString(R.string.key_show_notif_indicator), shouldShow);
+        editor.putBoolean(mContext.getString(R.string.key_show_updates_badge), shouldShow);
         editor.apply();
     }
 
-    public boolean shouldShowNotifIndicator() {
+    /**
+     * Method to return status whether to show badge view for updates screen or not.
+     *
+     * @return False by default.
+     */
+    public boolean shouldShowUpdatesBadgeView() {
         return mSharedPreferences
-                .getBoolean(mContext.getString(R.string.key_show_notif_indicator), false);
+                .getBoolean(mContext.getString(R.string.key_show_updates_badge), false);
     }
 
 
