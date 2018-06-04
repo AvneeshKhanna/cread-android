@@ -692,24 +692,20 @@ public class UpdatesFragment extends Fragment {
      * Method to update notification seen status on server for 'Updates Screen'.
      */
     private void updateNotificationSeenStatus() {
-        //Update badge view is visible
-        if (mHelper.shouldShowUpdatesBadgeView()) {
-            NotificationNetworkManager.updateUpdatesSeenStatus(getActivity(), mCompositeDisposable
-                    , new NotificationNetworkManager.OnUpdatesSeenUpdateListener() {
-                        @Override
-                        public void onSuccess() {
-                            //Update flag
-                            mHelper.setNotifIndicatorStatus(false);
-                        }
+        NotificationNetworkManager.updateUpdatesSeenStatus(getActivity(), mCompositeDisposable
+                , new NotificationNetworkManager.OnUpdatesSeenUpdateListener() {
+                    @Override
+                    public void onSuccess() {
+                        //Update flag
+                        mHelper.setNotifIndicatorStatus(false);
+                    }
 
-                        @Override
-                        public void onFailure(String errorMsg) {
+                    @Override
+                    public void onFailure(String errorMsg) {
 
-                        }
-                    });
-        } else {
-            //do nothing
-        }
+                    }
+                });
+
 
     }
 

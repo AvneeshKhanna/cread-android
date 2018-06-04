@@ -30,6 +30,20 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
 
+
+        <!--For notification handling-->
+        <service android:name=".services.MyFirebaseMessagingService">
+            <intent-filter>
+                <action android:name="com.google.firebase.MESSAGING_EVENT" />
+            </intent-filter>
+        </service>
+        <service android:name=".services.MyFirebaseInstanceIDService">
+            <intent-filter>
+                <action android:name="com.google.firebase.INSTANCE_ID_EVENT" />
+            </intent-filter>
+        </service>
+
+
         <!-- Search suggestion provider -->
         <!--
             <provider
@@ -288,17 +302,6 @@
             android:name=".activities.AboutUsActivity"
             android:screenOrientation="portrait"
             android:theme="@style/BottomNavigationActivityTheme" />
-
-        <service android:name=".services.MyFirebaseMessagingService">
-            <intent-filter>
-                <action android:name="com.google.firebase.MESSAGING_EVENT" />
-            </intent-filter>
-        </service>
-        <service android:name=".services.MyFirebaseInstanceIDService">
-            <intent-filter>
-                <action android:name="com.google.firebase.INSTANCE_ID_EVENT" />
-            </intent-filter>
-        </service>
 
 
         <!-- CollaborationActivity -->
