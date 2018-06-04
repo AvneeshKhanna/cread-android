@@ -7,8 +7,10 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
+import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
@@ -18,6 +20,8 @@ import android.util.Log;
 
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
+import com.squareup.picasso.Picasso;
+import com.squareup.picasso.Target;
 import com.thetestament.cread.BuildConfig;
 import com.thetestament.cread.R;
 import com.thetestament.cread.activities.BottomNavigationActivity;
@@ -55,6 +59,7 @@ import static com.thetestament.cread.utils.Constant.EXTRA_CHAT_ID;
 import static com.thetestament.cread.utils.Constant.EXTRA_CHAT_ITEM_POSITION;
 import static com.thetestament.cread.utils.Constant.EXTRA_CHAT_USER_NAME;
 import static com.thetestament.cread.utils.Constant.EXTRA_CHAT_UUID;
+import static com.thetestament.cread.utils.Constant.EXTRA_ENTITY_ID;
 import static com.thetestament.cread.utils.Constant.EXTRA_OPEN_SPECIFIC_BOTTOMNAV_FRAGMENT;
 import static com.thetestament.cread.utils.Constant.EXTRA_PROFILE_UUID;
 import static com.thetestament.cread.utils.Constant.NOTIFICATION_BUNDLE_DATA_ACTOR_ID;
@@ -79,6 +84,7 @@ import static com.thetestament.cread.utils.Constant.NOTIFICATION_CATEGORY_FEATUR
 import static com.thetestament.cread.utils.Constant.NOTIFICATION_CATEGORY_FEATURED_ARTIST_FOLLOWER;
 import static com.thetestament.cread.utils.Constant.NOTIFICATION_CATEGORY_PERSONAL_CHAT_MESSAGE;
 import static com.thetestament.cread.utils.Constant.NOTIFICATION_CATEGORY_PERSONAL_CHAT_REQUEST;
+import static com.thetestament.cread.utils.Constant.NOTIFICATION_CATEGORY_POST_AFTER_GAP;
 import static com.thetestament.cread.utils.Constant.NOTIFICATION_CATEGORY_PROFILE_MENTION_COMMENT;
 import static com.thetestament.cread.utils.Constant.NOTIFICATION_CATEGORY_PROFILE_MENTION_POST;
 import static com.thetestament.cread.utils.Constant.NOTIFICATION_CATEGORY_REFERRAL_SUCCESS;
@@ -95,6 +101,7 @@ import static com.thetestament.cread.utils.Constant.NOTIFICATION_ID_CREAD_TOP_PO
 import static com.thetestament.cread.utils.Constant.NOTIFICATION_ID_ENGAGEMENT_NOTIFICATIONS;
 import static com.thetestament.cread.utils.Constant.NOTIFICATION_ID_FEATURED_ARTIST;
 import static com.thetestament.cread.utils.Constant.NOTIFICATION_ID_FEATURED_ARTIST_FOLLOWER;
+import static com.thetestament.cread.utils.Constant.NOTIFICATION_ID_POST_AFTER_GAP;
 import static com.thetestament.cread.utils.Constant.NOTIFICATION_ID_PROFILE_MENTION_COMMENT;
 import static com.thetestament.cread.utils.Constant.NOTIFICATION_ID_PROFILE_MENTION_POST;
 import static com.thetestament.cread.utils.Constant.NOTIFICATION_ID_REFERRAL_SUCCESS;
@@ -134,13 +141,11 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
      * Method to perform respective operations depending upon the category of notifications.
      */
     private void performCategorySpecificOperations() {
-
         SharedPreferenceHelper spHelper = new SharedPreferenceHelper(getApplicationContext());
 
         boolean isValidCategory = true;
 
         switch (category) {
-
             case NOTIFICATION_CATEGORY_CREAD_FOLLOW:
                 mId = NOTIFICATION_ID_CREAD_FOLLOW;
                 actorUserID = data.get("actorid");
@@ -343,6 +348,16 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
                 intent.putExtra(EXTRA_PROFILE_UUID, actorUserID);
                 GET_RESPONSE_FROM_NETWORK_FIND_FRIENDS = true;
                 break;
+            case NOTIFICATION_CATEGORY_POST_AFTER_GAP:
+                mId = NOTIFICATION_ID_POST_AFTER_GAP;
+                resId = R.drawable.ic_cread_notification_general;
+                entityID = data.get("entityid");
+                entityImage = data.get("entityurl");
+
+                intent = new Intent(this, BottomNavigationActivity.class);
+                intent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
+                intent.putExtra(EXTRA_ENTITY_ID, entityID);
+                break;
             default:
                 isValidCategory = false;
                 break;
@@ -382,6 +397,8 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
                                 , message
                                 , intent
                                 , data.get("from_profilepicurl"));
+                    } else if (category.equals(NOTIFICATION_CATEGORY_POST_AFTER_GAP)) {
+                        buildNotificationPostAfterGap(message, mId, intent);
                     } else {
                         buildNotification(message, mId, intent);
                     }
@@ -401,6 +418,62 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
         nData.save(getApplicationContext(), data);
 
     }
+
+    /**
+     * Method to shoot notification.
+     *
+     * @param message Message to be displayed in notification
+     * @param mId     id for notification
+     */
+    private void buildNotificationPostAfterGap(final String message, final int mId, Intent intent) {
+
+        final PendingIntent pendingIntent = PendingIntent.getActivity(this, 0,
+                intent, PendingIntent.FLAG_UPDATE_CURRENT);
+
+        if (Build.VERSION.SDK_INT >= 26) {
+            createNotificationChannel();
+        }
+
+        //Load image here
+        Picasso.with(this)
+                .load(entityImage)
+                .into(new Target() {
+                    @Override
+                    public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
+                        //Create notification
+                        NotificationCompat.Builder mNotification =
+                                new NotificationCompat.Builder(getApplicationContext(), NOTIFICATION_CHANNEL_GENERAL)
+                                        .setSmallIcon(R.drawable.ic_stat_cread_logo)
+                                        .setContentText(message)
+                                        .setStyle(new NotificationCompat.BigTextStyle().bigText(message))
+                                        .setDefaults(Notification.DEFAULT_ALL)
+                                        .setStyle(new NotificationCompat.BigPictureStyle()
+                                                .bigPicture(bitmap))
+                                        .setContentIntent(pendingIntent)
+                                        .setAutoCancel(true)
+                                        .setPriority(IMPORTANCE_HIGH);
+
+                        // Gets an instance of the NotificationManager service
+                        NotificationManager notificationManager =
+                                (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+                        // Builds the notification and issues it.
+                        notificationManager.notify(mId, mNotification.build());
+                    }
+
+                    @Override
+                    public void onBitmapFailed(Drawable errorDrawable) {
+                        //Method called
+
+                    }
+
+                    @Override
+                    public void onPrepareLoad(Drawable placeHolderDrawable) {
+
+                    }
+                });
+
+    }
+
 
     /**
      * Method to shoot notification.

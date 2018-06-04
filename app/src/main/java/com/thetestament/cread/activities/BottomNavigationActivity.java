@@ -50,10 +50,14 @@ import com.thetestament.cread.helpers.ImageHelper;
 import com.thetestament.cread.helpers.SharedPreferenceHelper;
 import com.thetestament.cread.helpers.ViewHelper;
 import com.thetestament.cread.listeners.listener.OnServerRequestedListener;
+import com.thetestament.cread.models.FeedModel;
 import com.thetestament.cread.networkmanager.NotificationNetworkManager;
 import com.thetestament.cread.utils.AspectRatioUtils;
 import com.thetestament.cread.utils.Constant;
 import com.yalantis.ucrop.UCrop;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.File;
 import java.io.IOException;
@@ -64,12 +68,19 @@ import icepick.Icepick;
 import icepick.State;
 import io.reactivex.disposables.CompositeDisposable;
 
+import static com.thetestament.cread.CreadApp.GET_RESPONSE_FROM_NETWORK_ENTITY_SPECIFIC;
+import static com.thetestament.cread.helpers.FeedHelper.parseEntitySpecificJSON;
 import static com.thetestament.cread.helpers.ImageHelper.compressSpecific;
 import static com.thetestament.cread.helpers.ImageHelper.getImageUri;
 import static com.thetestament.cread.helpers.ImageHelper.startImageCropping;
+import static com.thetestament.cread.helpers.NetworkHelper.getEntitySpecificObservable;
 import static com.thetestament.cread.helpers.NetworkHelper.getRestartHerokuObservable;
 import static com.thetestament.cread.helpers.NetworkHelper.requestServer;
 import static com.thetestament.cread.helpers.ViewHelper.convertToPx;
+import static com.thetestament.cread.utils.Constant.EXTRA_DATA;
+import static com.thetestament.cread.utils.Constant.EXTRA_ENTITY_ID;
+import static com.thetestament.cread.utils.Constant.EXTRA_FEED_DESCRIPTION_DATA;
+import static com.thetestament.cread.utils.Constant.EXTRA_FROM_UPDATES_COMMENT_MENTION;
 import static com.thetestament.cread.utils.Constant.EXTRA_OPEN_SPECIFIC_BOTTOMNAV_FRAGMENT;
 import static com.thetestament.cread.utils.Constant.FIREBASE_EVENT_EXPLORE_CLICKED;
 import static com.thetestament.cread.utils.Constant.FIREBASE_EVENT_FEED_CLICKED;
@@ -140,6 +151,7 @@ public class BottomNavigationActivity extends BaseActivity {
     private SharedPreferenceHelper mHelper;
     private CompositeDisposable mCompositeDisposable = new CompositeDisposable();
     private BottomNavigationActivity mContext;
+    private FeedModel feedData;
 
 
     // Constants
@@ -211,6 +223,9 @@ public class BottomNavigationActivity extends BaseActivity {
         //When new intent for specific fragment
         else if (intent.hasExtra(EXTRA_OPEN_SPECIFIC_BOTTOMNAV_FRAGMENT)) {
             initSpecificFragment(intent);
+        } else if (getIntent().hasExtra(EXTRA_ENTITY_ID)) {
+            //Load data and open FeedDescription screen
+            getFeedDetails(getIntent().getStringExtra(EXTRA_ENTITY_ID));
         }
     }
 
@@ -295,8 +310,10 @@ public class BottomNavigationActivity extends BaseActivity {
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        if (mCurrentFragment.isAdded()) {
-            getSupportFragmentManager().putFragment(outState, mFragmentTag, mCurrentFragment);
+        if (mCurrentFragment != null) {
+            if (mCurrentFragment.isAdded()) {
+                getSupportFragmentManager().putFragment(outState, mFragmentTag, mCurrentFragment);
+            }
         }
         Icepick.saveInstanceState(this, outState);
     }
@@ -361,6 +378,11 @@ public class BottomNavigationActivity extends BaseActivity {
         //When bottom nav opened to open specific fragment
         if (getIntent().hasExtra(EXTRA_OPEN_SPECIFIC_BOTTOMNAV_FRAGMENT)) {
             initSpecificFragment(getIntent());
+        } else if (getIntent().hasExtra(EXTRA_ENTITY_ID)) {
+            //Load data and open FeedDescription screen
+            getFeedDetails(getIntent().getStringExtra(EXTRA_ENTITY_ID));
+            //Load feed data
+            openFeedFragment();
         } else {
             openFeedFragment();
         }
@@ -1010,6 +1032,79 @@ public class BottomNavigationActivity extends BaseActivity {
 
                     @Override
                     public void onFailure(String errorMsg) {
+                    }
+                });
+    }
+
+
+    /**
+     * RxJava2 implementation for retrieving feed details.
+     *
+     * @param entityID
+     */
+    private void getFeedDetails(final String entityID) {
+        final boolean[] tokenError = {false};
+        final boolean[] connectionError = {false};
+
+        SharedPreferenceHelper spHelper = new SharedPreferenceHelper(mContext);
+
+        requestServer(mCompositeDisposable,
+                getEntitySpecificObservable(spHelper.getUUID(),
+                        spHelper.getAuthToken(),
+                        entityID),
+                mContext,
+                new OnServerRequestedListener<JSONObject>() {
+                    @Override
+                    public void onDeviceOffline() {
+                        ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_no_connection));
+                    }
+
+                    @Override
+                    public void onNextCalled(JSONObject jsonObject) {
+                        try {
+                            //Token status is invalid
+                            if (jsonObject.getString("tokenstatus").equals("invalid")) {
+                                tokenError[0] = true;
+                            } else {
+                                feedData = parseEntitySpecificJSON(jsonObject, entityID);
+                            }
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                            Crashlytics.logException(e);
+                            Crashlytics.setString("className", "BottomNavigationActivity");
+                            connectionError[0] = true;
+                        }
+                    }
+
+                    @Override
+                    public void onErrorCalled(Throwable e) {
+                        Crashlytics.logException(e);
+                        Crashlytics.setString("className", "BottomNavigationActivity");
+                        //Server error Snack bar
+                        ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_server));
+                    }
+
+                    @Override
+                    public void onCompleteCalled() {
+                        GET_RESPONSE_FROM_NETWORK_ENTITY_SPECIFIC = false;
+                        // Token status invalid
+                        if (tokenError[0]) {
+                            ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_invalid_token));
+                        }
+                        //Error occurred
+                        else if (connectionError[0]) {
+                            ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_internal));
+
+                        } else {
+                            Bundle bundle = new Bundle();
+                            bundle.putParcelable(EXTRA_FEED_DESCRIPTION_DATA, feedData);
+                            bundle.putInt("position", -1);
+                            bundle.putBoolean(EXTRA_FROM_UPDATES_COMMENT_MENTION, true);
+
+                            Intent intent = new Intent(mContext, FeedDescriptionActivity.class);
+                            intent.putExtra(EXTRA_DATA, bundle);
+                            startActivity(intent);
+                        }
                     }
                 });
     }
