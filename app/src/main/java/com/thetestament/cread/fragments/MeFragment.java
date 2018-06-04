@@ -1,5 +1,6 @@
 package com.thetestament.cread.fragments;
 
+import android.animation.ObjectAnimator;
 import android.app.ActivityOptions;
 import android.content.ClipData;
 import android.content.ClipboardManager;
@@ -77,6 +78,7 @@ import com.thetestament.cread.utils.AspectRatioUtils;
 import com.thetestament.cread.utils.Constant.GratitudeNumbers;
 import com.thetestament.cread.utils.Constant.ITEM_TYPES;
 import com.thetestament.cread.utils.UserStatsViewPager;
+import com.thetestament.cread.widgets.InOutInterpolator;
 import com.yalantis.ucrop.UCrop;
 
 import org.json.JSONArray;
@@ -240,6 +242,7 @@ public class MeFragment extends Fragment implements listener.OnCollaborationList
     private int[] mLayouts;
     private int spanCount = 2;
     private ArrayList<String> mSelectedInterest = new ArrayList<>();
+    private ObjectAnimator mAnimator;
 
     /**
      * Flag to maintain user web store link.
@@ -611,6 +614,11 @@ public class MeFragment extends Fragment implements listener.OnCollaborationList
                     , R.color.colorAccent)));
             //Method called
             updateChatSeenStatus();
+
+            //if its not null
+            if (mAnimator != null) {
+                mAnimator.cancel();
+            }
         }
     }
 
@@ -2300,6 +2308,12 @@ public class MeFragment extends Fragment implements listener.OnCollaborationList
             //change fab background color to green
             fabChat.setBackgroundTintList(ColorStateList.valueOf(ContextCompat.getColor(getActivity()
                     , R.color.green)));
+            mAnimator = ObjectAnimator.ofFloat(fabChat, "translationX", 0, 25, 0);
+            mAnimator.setInterpolator(new InOutInterpolator());
+            mAnimator.setStartDelay(500);
+            mAnimator.setDuration(3000);
+            mAnimator.setRepeatCount(8);
+            mAnimator.start();
         }
         recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
