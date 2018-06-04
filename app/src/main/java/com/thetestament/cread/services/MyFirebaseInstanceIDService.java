@@ -25,33 +25,36 @@ public class MyFirebaseInstanceIDService extends FirebaseInstanceIdService {
 
     @Override
     public void onTokenRefresh() {
-        super.onTokenRefresh();
+        // Get updated InstanceID token.
+        String refreshedToken = FirebaseInstanceId.getInstance().getToken();
+        //Log token
+        Log.d("TAG", "Refreshed token: " + refreshedToken);
 
-        Log.d(getClass().getSimpleName(), "onTokenRefresh: called");
 
         SharedPreferenceHelper spHelper = new SharedPreferenceHelper(getApplicationContext());
 
         String uuid = spHelper.getUUID();
-        String authkey = spHelper.getAuthToken();
+        String authKey = spHelper.getAuthToken();
 
         // to check if the user is logged in
         // send token to server only if the user is logged in
-        if (uuid != null && authkey != null) {
-            updateFcmTokenOnServer(uuid);
+        if (uuid != null && authKey != null) {
+            updateFcmTokenOnServer(uuid, refreshedToken);
         }
 
     }
 
     /**
-     * Method to update the refreshed fcm token on server
+     * Method to update the refreshed fcm token on server.
      *
-     * @param uuid user id
+     * @param uuid           user id.
+     * @param refreshedToken Refreshed FCM token.
      */
-    private void updateFcmTokenOnServer(String uuid) {
+    private void updateFcmTokenOnServer(String uuid, String refreshedToken) {
         JSONObject jsonObject = new JSONObject();
         try {
             jsonObject.put("uuid", uuid);
-            jsonObject.put("fcmtoken", FirebaseInstanceId.getInstance().getToken());
+            jsonObject.put("fcmtoken", refreshedToken);
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -65,28 +68,23 @@ public class MyFirebaseInstanceIDService extends FirebaseInstanceIdService {
                 .subscribeWith(new Observer<JSONObject>() {
                     @Override
                     public void onSubscribe(@NonNull Disposable d) {
-
                         new CompositeDisposable().add(d);
                     }
 
                     @Override
                     public void onNext(@NonNull JSONObject jsonObject) {
-
                         // do nothing
-
                     }
 
                     @Override
                     public void onError(@NonNull Throwable e) {
-
                         e.printStackTrace();
                         Crashlytics.logException(e);
-                        Crashlytics.setString("className", "MyFirebaseMessagingService");
+                        Crashlytics.setString("className", "MyFirebaseInstanceIDService");
                     }
 
                     @Override
                     public void onComplete() {
-
                         // do nothing
                     }
                 });
