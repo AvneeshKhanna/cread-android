@@ -20,7 +20,6 @@ import android.widget.ImageView;
 
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.crashlytics.android.Crashlytics;
-import com.google.firebase.analytics.FirebaseAnalytics;
 import com.thetestament.cread.BuildConfig;
 import com.thetestament.cread.Manifest;
 import com.thetestament.cread.R;
@@ -98,7 +97,6 @@ public class FeedDescriptionActivity extends BaseActivity implements listener.On
     private SharedPreferenceHelper mHelper;
     private CompositeDisposable mCompositeDisposable = new CompositeDisposable();
     private FeedModel mFeedData;
-    private FirebaseAnalytics mFirebaseAnalytics;
     private AppCompatActivity mContext;
     FeedModel shareSpecificEntity;
 
@@ -139,12 +137,7 @@ public class FeedDescriptionActivity extends BaseActivity implements listener.On
         //Obtain reference of this activity
         mContext = this;
         //ShredPreference reference
-        mHelper = new SharedPreferenceHelper(this);
-        // Obtain the FirebaseAnalytics instance.
-        mFirebaseAnalytics = FirebaseAnalytics.getInstance(this);
-
-        // check if user is also creator of this post
-
+        mHelper = new SharedPreferenceHelper(mContext);
         //initialize views
         initViews();
     }
@@ -302,9 +295,46 @@ public class FeedDescriptionActivity extends BaseActivity implements listener.On
      * Method to initialize views for this screen.
      */
     private void initViews() {
+        //Set up navigation
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         //Get data from intent
         retrieveIntentData();
+    }
+
+    /**
+     * Method to retrieve data from intent and set it to respective views.
+     */
+    private void retrieveIntentData() {
+
+        Bundle bundle = getIntent().getBundleExtra(EXTRA_DATA);
+
+        mFeedData = bundle.getParcelable(EXTRA_FEED_DESCRIPTION_DATA);
+        mItemPosition = bundle.getInt("position");
+
+        shouldScroll = bundle.getBoolean(EXTRA_FROM_UPDATES_COMMENT_MENTION, false);
+
+        // method to initialize the result data
+        initResultBundle();
+
+        recyclerViewPosts.setLayoutManager(new WrapContentLinearLayoutManager(mContext));
+
+        mPostsList.add(mFeedData);
+        mPostsList.add(null);
+
+        mAdapter = new FeedDescriptionAdapter(mPostsList, mContext, mCompositeDisposable, shouldScroll);
+        recyclerViewPosts.setAdapter(mAdapter);
+
+        //Initialize listeners
+        initLoadMoreListener(mAdapter);
+        initHatsOffListener(mAdapter);
+        initShareListener(mAdapter);
+        initDownVoteListener(mAdapter);
+        initFollowListener();
+        initializeDeleteListener(mAdapter);
+
+        initViewsFromData();
+
+        storeUserActionsData(mFeedData.getEntityID(), USER_ACTION_TYPE_VIEW);
     }
 
     /**
@@ -560,43 +590,6 @@ public class FeedDescriptionActivity extends BaseActivity implements listener.On
                 });
     }
 
-    /**
-     * Method to retrieve data from intent and set it to respective views.
-     */
-    private void retrieveIntentData() {
-
-        Bundle bundle = getIntent().getBundleExtra(EXTRA_DATA);
-
-        mFeedData = bundle.getParcelable(EXTRA_FEED_DESCRIPTION_DATA);
-        mItemPosition = bundle.getInt("position");
-
-        shouldScroll = bundle.getBoolean(EXTRA_FROM_UPDATES_COMMENT_MENTION, false);
-
-        // method to initialize the result data
-        initResultBundle();
-
-        recyclerViewPosts.setLayoutManager(new WrapContentLinearLayoutManager(mContext));
-
-        mPostsList.add(mFeedData);
-        mPostsList.add(null);
-
-        mAdapter = new FeedDescriptionAdapter(mPostsList, mContext, mCompositeDisposable, shouldScroll);
-        recyclerViewPosts.setAdapter(mAdapter);
-
-        //Initialize listeners
-        initLoadMoreListener(mAdapter);
-        initHatsOffListener(mAdapter);
-        initShareListener(mAdapter);
-        initDownVoteListener(mAdapter);
-        initFollowListener();
-        initializeDeleteListener(mAdapter);
-
-
-        initViewsFromData();
-
-
-        storeUserActionsData(mFeedData.getEntityID(), USER_ACTION_TYPE_VIEW);
-    }
 
     /**
      * Initializes the result data to their existing values
@@ -1072,6 +1065,9 @@ public class FeedDescriptionActivity extends BaseActivity implements listener.On
         }
     }
 
+    /**
+     * Custom layout manager.
+     */
     public class WrapContentLinearLayoutManager extends LinearLayoutManager {
 
         public WrapContentLinearLayoutManager(Context context) {
@@ -1084,8 +1080,6 @@ public class FeedDescriptionActivity extends BaseActivity implements listener.On
                 super.onLayoutChildren(recycler, state);
             } catch (IndexOutOfBoundsException e) {
                 e.printStackTrace();
-                Crashlytics.logException(e);
-                Crashlytics.setString("className", "FeedDescriptionActivity");
             }
         }
     }

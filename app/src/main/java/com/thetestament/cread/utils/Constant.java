@@ -185,6 +185,7 @@ public class Constant {
     public static final String NOTIFICATION_CATEGORY_FEATURED_ARTIST = "featured-artist";
     public static final String NOTIFICATION_CATEGORY_FEATURED_ARTIST_FOLLOWER = "featured-artist-follower";
     public static final String NOTIFICATION_CATEGORY_REFERRAL_SUCCESS = "join-referral";
+    public static final String NOTIFICATION_CATEGORY_POST_AFTER_GAP = "post-after-gap";
 
 
     //Notification id cread
@@ -205,6 +206,7 @@ public class Constant {
     public static final int NOTIFICATION_ID_FEATURED_ARTIST = 1014;
     public static final int NOTIFICATION_ID_FEATURED_ARTIST_FOLLOWER = 1015;
     public static final int NOTIFICATION_ID_REFERRAL_SUCCESS = 1016;
+    public static final int NOTIFICATION_ID_POST_AFTER_GAP = 1017;
 
 
     public static final String NOTIFICATION_CHANNEL_GENERAL = "generalNotificationChannel";
