@@ -21,12 +21,12 @@ import static com.thetestament.cread.utils.Constant.TAG_UPDATES_FRAGMENT;
 
 
 public class UpdatesActivity extends BaseActivity {
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_updates);
         initView();
-
     }
 
     @Override
@@ -58,7 +58,6 @@ public class UpdatesActivity extends BaseActivity {
 
     @Override
     public void onBackPressed() {
-
         setBackButtonBehaviour();
     }
 
@@ -66,7 +65,6 @@ public class UpdatesActivity extends BaseActivity {
     @Override
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
-
         initView();
     }
 

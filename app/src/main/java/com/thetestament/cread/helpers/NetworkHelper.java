@@ -10,6 +10,7 @@ import com.crashlytics.android.Crashlytics;
 import com.rx2androidnetworking.Rx2ANRequest;
 import com.rx2androidnetworking.Rx2AndroidNetworking;
 import com.thetestament.cread.BuildConfig;
+import com.thetestament.cread.CreadApp;
 import com.thetestament.cread.listeners.listener;
 import com.thetestament.cread.utils.Constant;
 
@@ -789,5 +790,32 @@ public class NetworkHelper {
                 .getJSONObjectObservable();
     }
 
+
+    /**
+     * Method to return data from the server.
+     *
+     * @param serverURL    URL of the server.
+     * @param uuid         UUID of the user.
+     * @param authKey      AuthKey of user i.e String.*
+     * @param lastIndexKey Last index key
+     */
+    public static Observable<JSONObject> getNewUserDataObservable(String serverURL, String uuid, String authKey, String lastIndexKey, String entityIDList) {
+        Map<String, String> header = new HashMap<>();
+        header.put("uuid", uuid);
+        header.put("authkey", authKey);
+        header.put("entityids", entityIDList);
+
+        Rx2ANRequest.GetRequestBuilder requestBuilder = Rx2AndroidNetworking.get(serverURL)
+                .addHeaders(header)
+                .addQueryParameter("lastindexkey", lastIndexKey)
+                .addQueryParameter(Constant.PLATFORM_KEY, Constant.PLATFORM_VALUE);
+
+
+        if (CreadApp.GET_RESPONSE_FROM_NETWORK_NEW_USERS_POST) {
+            requestBuilder.getResponseOnlyFromNetwork();
+        }
+
+        return requestBuilder.build().getJSONObjectObservable();
+    }
 
 }
