@@ -949,10 +949,14 @@ public class BottomNavigationActivity extends BaseActivity {
     private void toggleUpdatesIndicator(boolean showIndicator) {
         if (showIndicator) {
             //Show badge view
-            badgeView.setVisibility(View.VISIBLE);
+            if (badgeView != null) {
+                badgeView.setVisibility(View.VISIBLE);
+            }
         } else {
             //Hide Badge View
-            badgeView.setVisibility(View.GONE);
+            if (badgeView != null) {
+                badgeView.setVisibility(View.GONE);
+            }
         }
     }
 

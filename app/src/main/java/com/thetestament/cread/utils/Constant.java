@@ -10,11 +10,12 @@ public class Constant {
     public static final String PLATFORM_VALUE = "android";
     //endregion
 
-    // region: login types
+    // region :Login types
     public static final String LOGIN_TYPE_FACEBOOK = "facebook";
     public static final String LOGIN_TYPE_GOOGLE = "google";
+    //endregion
 
-    //region Inspiration item view types
+    //region :Inspiration item view types
     public static final String INSPIRATION_ITEM_TYPE_SMALL = "itemSmall";
     public static final String INSPIRATION_ITEM_TYPE_DETAIL = "itemDetail";
     //endregion
@@ -167,7 +168,7 @@ public class Constant {
     //Action
     public static final String ACTION_LOG_OUT = "com.thetestament.cread.ACTION_LOGOUT";
 
-    //Notifications Cread category
+    //region :Notifications category
     public static final String NOTIFICATION_CATEGORY_CREAD_FOLLOW = "follow";
     public static final String NOTIFICATION_CATEGORY_CREAD_COLLABORATE = "collaborate";
     public static final String NOTIFICATION_CATEGORY_CREAD_HATSOFF = "hatsoff";
@@ -186,7 +187,8 @@ public class Constant {
     public static final String NOTIFICATION_CATEGORY_FEATURED_ARTIST_FOLLOWER = "featured-artist-follower";
     public static final String NOTIFICATION_CATEGORY_REFERRAL_SUCCESS = "join-referral";
     public static final String NOTIFICATION_CATEGORY_POST_AFTER_GAP = "post-after-gap";
-
+    public static final String NOTIFICATION_CATEGORY_FIRST_POST_USERS = "first-post-users";
+    //endregion
 
     //Notification id cread
     public static final int NOTIFICATION_ID_CREAD_FOLLOW = 1000;
@@ -197,16 +199,16 @@ public class Constant {
     public static final int NOTIFICATION_ID_CREAD_GENERAL = 1005;
     public static final int NOTIFICATION_ID_CREAD_COMMENT_OTHER = 1006;
     public static final int NOTIFICATION_ID_CREAD_TOP_POST = 1007;
-    public static final int NOTIFICATION_ID_CREAD_TEAM_CHAT = 1008;
-    public static final int NOTIFICATION_ID_PROFILE_MENTION_POST = 1009;
-    public static final int NOTIFICATION_ID_PROFILE_MENTION_COMMENT = 1010;
-    public static final int NOTIFICATION_ID_PERSONAL_CHAT_MESSAGE = 1011;
-    public static final int NOTIFICATION_ID_ENGAGEMENT_NOTIFICATIONS = 1012;
-    public static final int NOTIFICATION_ID_CREAD_FB_FRIEND = 1013;
-    public static final int NOTIFICATION_ID_FEATURED_ARTIST = 1014;
-    public static final int NOTIFICATION_ID_FEATURED_ARTIST_FOLLOWER = 1015;
-    public static final int NOTIFICATION_ID_REFERRAL_SUCCESS = 1016;
-    public static final int NOTIFICATION_ID_POST_AFTER_GAP = 1017;
+    public static final int NOTIFICATION_ID_PROFILE_MENTION_POST = 1008;
+    public static final int NOTIFICATION_ID_PROFILE_MENTION_COMMENT = 1009;
+    public static final int NOTIFICATION_ID_PERSONAL_CHAT_MESSAGE = 1010;
+    public static final int NOTIFICATION_ID_ENGAGEMENT_NOTIFICATIONS = 1011;
+    public static final int NOTIFICATION_ID_CREAD_FB_FRIEND = 1012;
+    public static final int NOTIFICATION_ID_FEATURED_ARTIST = 1013;
+    public static final int NOTIFICATION_ID_FEATURED_ARTIST_FOLLOWER = 1014;
+    public static final int NOTIFICATION_ID_REFERRAL_SUCCESS = 1015;
+    public static final int NOTIFICATION_ID_POST_AFTER_GAP = 1016;
+    public static final int NOTIFICATION_ID_FIRST_POST_USERS = 1017;
 
 
     public static final String NOTIFICATION_CHANNEL_GENERAL = "generalNotificationChannel";
@@ -221,6 +223,7 @@ public class Constant {
     public static final String NOTIFICATION_BUNDLE_DATA_ENTITY_IMAGE = "entityImage";
     public static final String NOTIFICATION_BUNDLE_DATA_PERSISTABLE = "persistable";
     public static final String NOTIFICATION_BUNDLE_DATA_OTHER_COLLABORATOR = "otherCollaborator";
+    public static final String NOTIFICATION_EXTRA_ENTITY_ID_LIST = "entityIDList";
 
 
     // bundle data key for hashtag

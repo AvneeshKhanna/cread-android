@@ -26,6 +26,7 @@ import com.thetestament.cread.BuildConfig;
 import com.thetestament.cread.R;
 import com.thetestament.cread.activities.BottomNavigationActivity;
 import com.thetestament.cread.activities.ChatDetailsActivity;
+import com.thetestament.cread.activities.NewUsersPostActivity;
 import com.thetestament.cread.activities.ProfileActivity;
 import com.thetestament.cread.activities.UpdatesActivity;
 import com.thetestament.cread.fragments.SettingsFragment;
@@ -82,6 +83,7 @@ import static com.thetestament.cread.utils.Constant.NOTIFICATION_CATEGORY_CREAD_
 import static com.thetestament.cread.utils.Constant.NOTIFICATION_CATEGORY_ENGAGEMENT_NOTIFICATIONS;
 import static com.thetestament.cread.utils.Constant.NOTIFICATION_CATEGORY_FEATURED_ARTIST;
 import static com.thetestament.cread.utils.Constant.NOTIFICATION_CATEGORY_FEATURED_ARTIST_FOLLOWER;
+import static com.thetestament.cread.utils.Constant.NOTIFICATION_CATEGORY_FIRST_POST_USERS;
 import static com.thetestament.cread.utils.Constant.NOTIFICATION_CATEGORY_PERSONAL_CHAT_MESSAGE;
 import static com.thetestament.cread.utils.Constant.NOTIFICATION_CATEGORY_PERSONAL_CHAT_REQUEST;
 import static com.thetestament.cread.utils.Constant.NOTIFICATION_CATEGORY_POST_AFTER_GAP;
@@ -89,6 +91,7 @@ import static com.thetestament.cread.utils.Constant.NOTIFICATION_CATEGORY_PROFIL
 import static com.thetestament.cread.utils.Constant.NOTIFICATION_CATEGORY_PROFILE_MENTION_POST;
 import static com.thetestament.cread.utils.Constant.NOTIFICATION_CATEGORY_REFERRAL_SUCCESS;
 import static com.thetestament.cread.utils.Constant.NOTIFICATION_CHANNEL_GENERAL;
+import static com.thetestament.cread.utils.Constant.NOTIFICATION_EXTRA_ENTITY_ID_LIST;
 import static com.thetestament.cread.utils.Constant.NOTIFICATION_ID_CREAD_BUY;
 import static com.thetestament.cread.utils.Constant.NOTIFICATION_ID_CREAD_COLLABORATE;
 import static com.thetestament.cread.utils.Constant.NOTIFICATION_ID_CREAD_COMMENT;
@@ -101,6 +104,7 @@ import static com.thetestament.cread.utils.Constant.NOTIFICATION_ID_CREAD_TOP_PO
 import static com.thetestament.cread.utils.Constant.NOTIFICATION_ID_ENGAGEMENT_NOTIFICATIONS;
 import static com.thetestament.cread.utils.Constant.NOTIFICATION_ID_FEATURED_ARTIST;
 import static com.thetestament.cread.utils.Constant.NOTIFICATION_ID_FEATURED_ARTIST_FOLLOWER;
+import static com.thetestament.cread.utils.Constant.NOTIFICATION_ID_FIRST_POST_USERS;
 import static com.thetestament.cread.utils.Constant.NOTIFICATION_ID_POST_AFTER_GAP;
 import static com.thetestament.cread.utils.Constant.NOTIFICATION_ID_PROFILE_MENTION_COMMENT;
 import static com.thetestament.cread.utils.Constant.NOTIFICATION_ID_PROFILE_MENTION_POST;
@@ -357,6 +361,13 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
                 intent = new Intent(this, BottomNavigationActivity.class);
                 intent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
                 intent.putExtra(EXTRA_ENTITY_ID, entityID);
+                break;
+            case NOTIFICATION_CATEGORY_FIRST_POST_USERS:
+                mId = NOTIFICATION_ID_FIRST_POST_USERS;
+                resId = R.drawable.ic_cread_notification_general;
+                intent = new Intent(this, NewUsersPostActivity.class);
+                intent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
+                intent.putExtra(NOTIFICATION_EXTRA_ENTITY_ID_LIST, data.get("entityids"));
                 break;
             default:
                 isValidCategory = false;
