@@ -298,7 +298,7 @@ public class NewUsersPostActivity extends BaseActivity implements listener.OnCol
      * Method to initialize views for this screen.
      */
     private void initScreen() {
-        mEntityIDList = getIntent().getStringExtra(Constant.NOTIFICATION_EXTRA_ENTITY_ID_LIST);
+        mEntityIDList = getIntent().getExtras().getString(Constant.NOTIFICATION_EXTRA_ENTITY_ID_LIST);
         //Set layout manger for recyclerView
         recyclerView.setLayoutManager(new LinearLayoutManager(mContext));
         //Set adapter

@@ -363,11 +363,15 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
                 intent.putExtra(EXTRA_ENTITY_ID, entityID);
                 break;
             case NOTIFICATION_CATEGORY_FIRST_POST_USERS:
+
+                Bundle firstPostBundle = new Bundle();
+                firstPostBundle.putString(NOTIFICATION_EXTRA_ENTITY_ID_LIST, data.get("entityids"));
+
                 mId = NOTIFICATION_ID_FIRST_POST_USERS;
                 resId = R.drawable.ic_cread_notification_general;
                 intent = new Intent(this, NewUsersPostActivity.class);
                 intent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
-                intent.putExtra(NOTIFICATION_EXTRA_ENTITY_ID_LIST, data.get("entityids"));
+                intent.putExtras(firstPostBundle);
                 break;
             default:
                 isValidCategory = false;
