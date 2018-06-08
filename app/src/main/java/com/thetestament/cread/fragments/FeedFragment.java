@@ -929,7 +929,7 @@ public class FeedFragment extends Fragment implements listener.OnCollaborationLi
      * @param feedAdapter FeedAdapter reference
      */
     private void initDownVoteListener(FeedAdapter feedAdapter) {
-        feedAdapter.setOnDownvoteClickedListener(new listener.OnDownvoteClickedListener() {
+        feedAdapter.setOnDownVoteClickedListener(new listener.OnDownvoteClickedListener() {
             @Override
             public void onDownvoteClicked(FeedModel data, int position, ImageView imageDownVote) {
 

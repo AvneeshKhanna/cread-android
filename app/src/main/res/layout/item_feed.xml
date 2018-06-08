@@ -24,20 +24,67 @@
             android:layout_height="wrap_content">
 
 
-            <com.facebook.drawee.view.SimpleDraweeView
-                android:id="@+id/imageFeed"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:adjustViewBounds="true"
-                app:actualImageScaleType="fitXY"
-                app:failureImage="@drawable/image_placeholder"
-                app:failureImageScaleType="centerCrop" />
+            <FrameLayout
+                android:id="@+id/container"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content">
+
+                <com.facebook.drawee.view.SimpleDraweeView
+                    android:id="@+id/imageFeed"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:adjustViewBounds="true"
+                    app:actualImageScaleType="fitXY"
+                    app:failureImage="@drawable/image_placeholder"
+                    app:failureImageScaleType="centerCrop" />
+
+                <com.jetradarmobile.snowfall.SnowfallView
+                    android:id="@+id/snow_fall_view"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:visibility="gone"
+                    app:snowflakeAlphaMax="255"
+                    app:snowflakeAlphaMin="150"
+                    app:snowflakeAngleMax="5"
+                    app:snowflakeImage="@drawable/snowflake"
+                    app:snowflakeSizeMax="32dp"
+                    app:snowflakeSizeMin="8dp"
+                    app:snowflakeSpeedMax="12"
+                    app:snowflakeSpeedMin="4"
+                    app:snowflakesAlreadyFalling="false"
+                    app:snowflakesFadingEnabled="true"
+                    app:snowflakesNum="250" />
+
+                <!--<com.github.glomadrian.grav.GravView
+                    android:id="@+id/grav"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_centerInParent="true"
+                    android:visibility="gone"
+                    app:animationGenerators="@array/BubbleAnimations"
+                    app:array_colors="@array/bubble"
+                    app:ball_from_size="10dp"
+                    app:ball_to_size="20dp"
+                    app:colorGenerator="com.github.glomadrian.grav.generator.paint.ArrayColorGenerator"
+                    app:gravGenerator="com.github.glomadrian.grav.generator.grav.BallGenerator"
+                    app:pointGenerator="com.github.glomadrian.grav.generator.point.RegularPointGenerator"
+                    app:regular_cell_size="300"
+                    app:regular_variance="200"
+                    app:shake_direction="vertical"
+                    app:shake_max_duration="20000"
+                    app:shake_min_duration="10000"
+                    app:shake_variance="500dp"
+                    app:side_to_side_direction="leftToRight"
+                    app:side_to_side_max_duration="10000"
+                    app:side_to_side_min_duration="10000" />-->
+
+            </FrameLayout>
 
 
             <FrameLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_alignBottom="@+id/imageFeed"
+                android:layout_alignBottom="@+id/container"
                 android:layout_alignParentRight="true"
                 android:layout_marginBottom="5dp"
                 android:layout_marginRight="3dp"

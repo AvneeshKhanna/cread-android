@@ -26,6 +26,7 @@ import android.widget.TextView;
 
 import com.facebook.drawee.view.SimpleDraweeView;
 import com.google.firebase.analytics.FirebaseAnalytics;
+import com.jetradarmobile.snowfall.SnowfallView;
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Target;
 import com.thetestament.cread.R;
@@ -159,7 +160,7 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     /**
      * Register a callback to be invoked when user clicks on down vote button.
      */
-    public void setOnDownvoteClickedListener(OnDownvoteClickedListener onDownvoteClickedListener) {
+    public void setOnDownVoteClickedListener(OnDownvoteClickedListener onDownvoteClickedListener) {
         this.onDownvoteClickedListener = onDownvoteClickedListener;
     }
 
@@ -207,7 +208,19 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             //Set image width and height
             AspectRatioUtils.setImageAspectRatio(data.getImgWidth()
                     , data.getImgHeight()
-                    , itemViewHolder.imageFeed);
+                    , itemViewHolder.imageFeed
+                    , true);
+
+            if (position == 1 ) {
+                itemViewHolder.snowfallView.setVisibility(View.VISIBLE);
+            } else {
+                itemViewHolder.snowfallView.setVisibility(View.GONE);
+            }
+            /*if (position == 5 ) {
+                itemViewHolder.gravView.setVisibility(View.VISIBLE);
+            } else {
+                itemViewHolder.gravView.setVisibility(View.GONE);
+            }*/
             //Load feed image
             ImageHelper.loadProgressiveImage(Uri.parse(data.getContentImage())
                     , itemViewHolder.imageFeed);
@@ -355,8 +368,6 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     public void setLoaded() {
         mIsLoading = false;
     }
-
-
 
 
     /**
@@ -679,6 +690,10 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         RelativeLayout containerCreator;
         @BindView(R.id.imageFeed)
         SimpleDraweeView imageFeed;
+        @BindView(R.id.snow_fall_view)
+        SnowfallView snowfallView;
+        /*@BindView(R.id.grav)
+        GravView gravView;*/
         @BindView(R.id.buttonCollaborate)
         TextView buttonCollaborate;
         @BindView(R.id.imageHatsOff)
