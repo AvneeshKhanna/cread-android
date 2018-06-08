@@ -3,7 +3,9 @@ package com.thetestament.cread.utils;
 
 public class Constant {
     public static final String MINIMUM_APP_VERSION_KEY = "minimum_app_version";
-
+    public static final String EXPLORE_CATEGORY_VIEW_VISIBILITY = "explore_category_view_visibility";
+    public static final String EXPLORE_CATEGORY_VIEW_VISIBILITY_VISIBLE = "visible";
+    public static final String EXPLORE_CATEGORY_VIEW_VISIBILITY_INVISIBLE = "invisible";
 
     //region :Platform key and value constant
     public static final String PLATFORM_KEY = "platform";

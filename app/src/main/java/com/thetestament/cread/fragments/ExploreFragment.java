@@ -32,7 +32,11 @@ import com.afollestad.materialdialogs.DialogAction;
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.crashlytics.android.Crashlytics;
 import com.facebook.drawee.view.SimpleDraweeView;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.analytics.FirebaseAnalytics;
+import com.google.firebase.remoteconfig.FirebaseRemoteConfig;
+import com.google.firebase.remoteconfig.FirebaseRemoteConfigSettings;
 import com.thetestament.cread.BuildConfig;
 import com.thetestament.cread.Manifest;
 import com.thetestament.cread.R;
@@ -78,6 +82,7 @@ import pl.tajchert.nammu.Nammu;
 import pl.tajchert.nammu.PermissionCallback;
 
 import static android.app.Activity.RESULT_OK;
+import static com.thetestament.cread.BuildConfig.DEBUG;
 import static com.thetestament.cread.CreadApp.GET_RESPONSE_FROM_NETWORK_EXPLORE;
 import static com.thetestament.cread.CreadApp.GET_RESPONSE_FROM_NETWORK_FEATURED_ARTISTS;
 import static com.thetestament.cread.CreadApp.GET_RESPONSE_FROM_NETWORK_ME;
@@ -92,6 +97,7 @@ import static com.thetestament.cread.helpers.NetworkHelper.getUserDataObservable
 import static com.thetestament.cread.helpers.NetworkHelper.requestServer;
 import static com.thetestament.cread.utils.Constant.CONTENT_TYPE_CAPTURE;
 import static com.thetestament.cread.utils.Constant.CONTENT_TYPE_SHORT;
+import static com.thetestament.cread.utils.Constant.EXPLORE_CATEGORY_VIEW_VISIBILITY;
 import static com.thetestament.cread.utils.Constant.EXTRA_DATA;
 import static com.thetestament.cread.utils.Constant.IMAGE_TYPE_USER_CAPTURE_PIC;
 import static com.thetestament.cread.utils.Constant.ITEM_TYPES.GRID;
@@ -501,7 +507,7 @@ public class ExploreFragment extends Fragment implements listener.OnCollaboratio
         initCaptureListener();
         initFollowListener();
         getFabCustomBehaviour(recyclerView, fabToggle);
-        initializeCategory();
+        initCategory();
     }
 
     /**
@@ -1227,9 +1233,62 @@ public class ExploreFragment extends Fragment implements listener.OnCollaboratio
 
 
     /**
+     * To initialize category
+     */
+    private void initCategory() {
+        //Get Remote Config Instance
+        final FirebaseRemoteConfig mFirebaseRemoteConfig = FirebaseRemoteConfig.getInstance();
+
+        // Create Remote Config Setting to enable developer mode.
+        // Fetching configs from the server is normally limited to 5 requests per hour.
+        // Enabling developer mode allows many more requests to be made per hour, so developers
+        // can test different config values during development.
+        FirebaseRemoteConfigSettings configSettings = new FirebaseRemoteConfigSettings.Builder()
+                .setDeveloperModeEnabled(DEBUG)
+                .build();
+        mFirebaseRemoteConfig.setConfigSettings(configSettings);
+
+        mFirebaseRemoteConfig.setDefaults(R.xml.remote_config);
+
+        long cacheExpiration; // 30 minutes in seconds.
+
+        // If in developer mode cacheExpiration is set to 0 so each fetch will retrieve values from
+        // the server.
+        if (BuildConfig.DEBUG) {
+            cacheExpiration = 0;
+        } else {
+            cacheExpiration = 1800;
+        }
+        mFirebaseRemoteConfig.fetch(cacheExpiration)
+                .addOnCompleteListener(getActivity(), new OnCompleteListener<Void>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Void> task) {
+                        if (task.isSuccessful()) {
+                            // Once the config is successfully fetched it must be activated before newly fetched
+                            // values are returned.
+                            mFirebaseRemoteConfig.activateFetched();
+                            String categoryVisibility = mFirebaseRemoteConfig.getString(EXPLORE_CATEGORY_VIEW_VISIBILITY);
+
+                            if (categoryVisibility.equals(Constant.EXPLORE_CATEGORY_VIEW_VISIBILITY_VISIBLE)) {
+                                //load category view here
+                                getCategoryData();
+                            } else if (categoryVisibility.equals(Constant.EXPLORE_CATEGORY_VIEW_VISIBILITY_INVISIBLE)) {
+                                //Hide category view
+                                recyclerViewCategory.setVisibility(View.GONE);
+                            } else {
+                                //do nothing
+                            }
+                        } else {
+                            getCategoryData();
+                        }
+                    }
+                });
+    }
+
+    /**
      * Method to initialize category view.
      */
-    private void initializeCategory() {
+    private void getCategoryData() {
         ExploreNetworkManager.getExploreCategoryData(getActivity()
                 , mCompositeDisposable
                 , new ExploreNetworkManager.OnExploreCategoryLoadListener() {
