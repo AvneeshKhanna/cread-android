@@ -210,7 +210,7 @@ public class MeFragment extends Fragment implements listener.OnCollaborationList
     @State
     String mFirstName, mLastName, mProfilePicURL, mUserBio;
     @State
-    long mPostCount, mFollowerCount, mFollowingCount, mHatsoffCount, mCommentsCount, mCollaborationCount;
+    long mPostCount, mFollowerCount, mFollowingCount, mFeatureCount, mHatsoffCount, mCommentsCount, mCollaborationCount;
     @State
     String mEmail, mContactNumber, mWaterMarkStatus;
     @State
@@ -651,7 +651,7 @@ public class MeFragment extends Fragment implements listener.OnCollaborationList
      */
     @OnClick(R.id.imageFeatured)
     void featuredOnClick() {
-        ViewHelper.getToolTip(imageFeatured, mFirstName + " is currently a featured artist"
+        ViewHelper.getToolTip(imageFeatured, mFirstName + " is currently a featured artist; featured " + mFeatureCount + " times"
                 , getActivity());
     }
 
@@ -961,6 +961,7 @@ public class MeFragment extends Fragment implements listener.OnCollaborationList
                                 mProfilePicURL = mainData.getString("profilepicurl");
                                 mUserBio = mainData.getString("bio");
                                 mFollowStatus = mainData.getBoolean("followstatus");
+                                mFeatureCount = mainData.getLong("featurecount");
                                 mPostCount = mainData.getLong("postcount");
                                 mFollowerCount = mainData.getLong("followercount");
                                 mFollowingCount = mainData.getLong("followingcount");
