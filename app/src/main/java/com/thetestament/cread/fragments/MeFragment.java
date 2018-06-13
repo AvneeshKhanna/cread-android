@@ -60,6 +60,7 @@ import com.thetestament.cread.activities.UpdateProfileDetailsActivity;
 import com.thetestament.cread.activities.UpdateProfileImageActivity;
 import com.thetestament.cread.adapters.MeAdapter;
 import com.thetestament.cread.adapters.UserStatsPagerAdapter;
+import com.thetestament.cread.dialog.CustomDialog;
 import com.thetestament.cread.helpers.DeletePostHelper;
 import com.thetestament.cread.helpers.FeedHelper;
 import com.thetestament.cread.helpers.FollowHelper;
@@ -651,8 +652,15 @@ public class MeFragment extends Fragment implements listener.OnCollaborationList
      */
     @OnClick(R.id.imageFeatured)
     void featuredOnClick() {
-        ViewHelper.getToolTip(imageFeatured, mFirstName + " is currently a featured artist; featured " + mFeatureCount + " times"
-                , getActivity());
+
+        CustomDialog.getGenericDialog(getActivity(),
+                getString(R.string.text_ok),
+                getString(R.string.text_title_dialog_featured_artist),
+                mFirstName + " is currently a featured artist. " + mFirstName + " has been featured " + mFeatureCount + " times.",
+                R.drawable.img_intro_feat_artist);
+
+        /*ViewHelper.getToolTip(imageFeatured, mFirstName + " is currently a featured artist; featured " + mFeatureCount + " times"
+                , getActivity());*/
     }
 
     /*
