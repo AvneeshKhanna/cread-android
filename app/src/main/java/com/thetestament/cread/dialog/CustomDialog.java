@@ -3,6 +3,7 @@ package com.thetestament.cread.dialog;
 import android.support.annotation.NonNull;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.content.ContextCompat;
+import android.text.SpannableString;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -57,6 +58,41 @@ public class CustomDialog {
      */
     public static void getGenericDialog(FragmentActivity context, String positiveBtnText, String dialogTitleText
             , String dialogContentText, int fillerImageID) {
+        MaterialDialog dialog = new MaterialDialog.Builder(context)
+                .customView(R.layout.dialog_generic, false)
+                .positiveText(positiveBtnText)
+                .onPositive(new MaterialDialog.SingleButtonCallback() {
+                    @Override
+                    public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
+                        //Dismiss dialog
+                        dialog.dismiss();
+                    }
+                })
+                .show();
+        //Obtain views reference
+        ImageView fillerImage = dialog.getCustomView().findViewById(R.id.viewFiller);
+        TextView textTitle = dialog.getCustomView().findViewById(R.id.textTitle);
+        TextView textDesc = dialog.getCustomView().findViewById(R.id.textDesc);
+
+        //Set filler image
+        fillerImage.setImageDrawable(ContextCompat.getDrawable(context, fillerImageID));
+        //Set title text
+        textTitle.setText(dialogTitleText);
+        //Set description text
+        textDesc.setText(dialogContentText);
+    }
+
+    /**
+     * Method to show Generic dialog with Spannable arguments.
+     *
+     * @param context           Context to use.
+     * @param positiveBtnText   Text for positive button.
+     * @param dialogTitleText   Text for dialog title.
+     * @param dialogContentText Text for dialog content.
+     * @param fillerImageID     Drawable ID of image to be displayed as filler.
+     */
+    public static void getGenericDialog(FragmentActivity context, String positiveBtnText, SpannableString dialogTitleText
+            , SpannableString dialogContentText, int fillerImageID) {
         MaterialDialog dialog = new MaterialDialog.Builder(context)
                 .customView(R.layout.dialog_generic, false)
                 .positiveText(positiveBtnText)

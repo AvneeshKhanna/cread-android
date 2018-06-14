@@ -146,7 +146,7 @@ public class ProfileMentionsHelper {
 
             for (int n = 0; n < uuids.size(); n++) {
 
-                int startPos = startIndi.get(n) + 0;
+                int startPos = startIndi.get(n);
                 int endPos = endIndi.get(n) + (-2);
 
                 spannableString.setSpan(new ProfileClickableSpan(context
