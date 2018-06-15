@@ -1625,4 +1625,6 @@ public class CollaborationActivity extends BaseActivity {
     }
 
     //endregion
+
+    //fixme retrieve live filter here
 }

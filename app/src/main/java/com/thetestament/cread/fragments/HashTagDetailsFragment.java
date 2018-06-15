@@ -69,8 +69,12 @@ import static com.thetestament.cread.utils.Constant.REQUEST_CODE_FEED_DESCRIPTIO
 import static com.thetestament.cread.utils.Constant.REQUEST_CODE_OPEN_GALLERY_FOR_CAPTURE;
 
 
+/**
+ * Method to load post with particular hashTag
+ */
 public class HashTagDetailsFragment extends Fragment implements listener.OnCollaborationListener {
 
+    //region :View binding with butter knife
     @BindView(R.id.rootView)
     CoordinatorLayout rootView;
     @BindView(R.id.swipeToRefreshLayout)
@@ -81,7 +85,9 @@ public class HashTagDetailsFragment extends Fragment implements listener.OnColla
     TextView noData;
     @BindView(R.id.tabLayout)
     TabLayout tabLayout;
+    //endregion
 
+    //region :Fields and constant
     CompositeDisposable mCompositeDisposable = new CompositeDisposable();
     List<FeedModel> mDataList = new ArrayList<>();
     ExploreAdapter mAdapter;
@@ -98,8 +104,9 @@ public class HashTagDetailsFragment extends Fragment implements listener.OnColla
 
     @State
     String mEntityID, mEntityType;
+    //endregion
 
-
+    //region :Overridden methods
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -224,6 +231,38 @@ public class HashTagDetailsFragment extends Fragment implements listener.OnColla
                 break;
         }
     }
+
+    @Override
+    public void collaborationOnGraphic() {
+
+    }
+
+    @Override
+    public void collaborationOnWriting(String entityID, String entityType) {
+        //Set entity id
+        mEntityID = entityID;
+        mEntityType = entityType;
+        //Check for Write permission
+        if (Nammu.checkPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+            //We have permission do whatever you want to do
+            ImageHelper.chooseImageFromGallery(HashTagDetailsFragment.this);
+        } else {
+            //We do not own this permission
+            if (Nammu.shouldShowRequestPermissionRationale(HashTagDetailsFragment.this
+                    , Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+                //User already refused to give us this permission or removed it
+                ViewHelper.getToast(getActivity()
+                        , getString(R.string.error_msg_capture_permission_denied));
+            } else {
+                //First time asking for permission
+                Nammu.askForPermission(HashTagDetailsFragment.this, Manifest.permission.WRITE_EXTERNAL_STORAGE, captureWritePermission);
+            }
+        }
+    }
+
+    //endregion
+
+    //region :Private methods
 
     /**
      * Method to initialize swipe refresh layout.
@@ -633,6 +672,8 @@ public class HashTagDetailsFragment extends Fragment implements listener.OnColla
             exploreData.setCommentCount(dataObj.getLong("commentcount"));
             exploreData.setContentImage(dataObj.getString("entityurl"));
             exploreData.setCollabCount(dataObj.getLong("collabcount"));
+            //fixme live filter value
+            //exploreData.setLiveFilterName(dataObj.getString("livefiltername"));
 
             //if image width pr image height is null
             if (dataObj.isNull("img_width") || dataObj.isNull("img_height")) {
@@ -700,31 +741,6 @@ public class HashTagDetailsFragment extends Fragment implements listener.OnColla
         }
     }
 
-    @Override
-    public void collaborationOnGraphic() {
+    //endregion
 
-    }
-
-    @Override
-    public void collaborationOnWriting(String entityID, String entityType) {
-        //Set entity id
-        mEntityID = entityID;
-        mEntityType = entityType;
-        //Check for Write permission
-        if (Nammu.checkPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
-            //We have permission do whatever you want to do
-            ImageHelper.chooseImageFromGallery(HashTagDetailsFragment.this);
-        } else {
-            //We do not own this permission
-            if (Nammu.shouldShowRequestPermissionRationale(HashTagDetailsFragment.this
-                    , Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
-                //User already refused to give us this permission or removed it
-                ViewHelper.getToast(getActivity()
-                        , getString(R.string.error_msg_capture_permission_denied));
-            } else {
-                //First time asking for permission
-                Nammu.askForPermission(HashTagDetailsFragment.this, Manifest.permission.WRITE_EXTERNAL_STORAGE, captureWritePermission);
-            }
-        }
-    }
 }

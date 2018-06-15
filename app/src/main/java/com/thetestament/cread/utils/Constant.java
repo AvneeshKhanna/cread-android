@@ -373,6 +373,7 @@ public class Constant {
     public static final String CONTENT_PREVIEW_EXTRA_IMAGE_URL = "contentPreviewImageUrl";
     public static final String CONTENT_PREVIEW_EXTRA_DATA = "contentPreviewData";
     public static final String CONTENT_PREVIEW_EXTRA_SIGNATURE_TEXT = "contentPreviewSignatureText";
+    public static final String CONTENT_PREVIEW_EXTRA_LIVE_FILTER_NAME = "contentPreviewLiveFilterName";
     //endregion
 
     //region Content type for labels
@@ -388,5 +389,14 @@ public class Constant {
     public static final String EXPLORE_CATEGORY_DEFAULT = "DEFAULT";
     public static final String EXPLORE_CATEGORY_ART = "ART";
     public static final String EXPLORE_CATEGORY_FEEL = "FEEL";
+    //endregion
+
+    //region :Live filter name
+    //fixme update name
+    public static final String LIVE_FILTER_NONE = "none";
+    public static final String LIVE_FILTER_SNOW = "snow";
+    public static final String LIVE_FILTER_RAIN = "rain";
+    public static final String LIVE_FILTER_BUBBLE = "bubble";
+    public static final String LIVE_FILTER_KONFETTI = "konfettin";
     //endregion
 }

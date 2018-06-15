@@ -8,23 +8,26 @@ import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentActivity;
 import android.support.v4.content.ContextCompat;
+import android.support.v7.widget.AppCompatImageView;
+import android.support.v7.widget.AppCompatTextView;
 import android.text.TextUtils;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
-import android.widget.ImageView;
-import android.widget.TextView;
 
+import com.github.glomadrian.grav.GravView;
+import com.github.matteobattilana.weather.PrecipType;
+import com.github.matteobattilana.weather.WeatherView;
 import com.thetestament.cread.R;
 import com.thetestament.cread.activities.ShortActivity;
 import com.thetestament.cread.helpers.ImageHelper;
 import com.thetestament.cread.helpers.LongShortHelper;
 import com.thetestament.cread.helpers.ViewHelper;
 import com.thetestament.cread.models.ShortModel;
+import com.thetestament.cread.utils.Constant;
 
 import java.io.IOException;
 
@@ -34,52 +37,52 @@ import butterknife.Unbinder;
 import icepick.Icepick;
 import icepick.State;
 import io.reactivex.disposables.CompositeDisposable;
+import nl.dionsegijn.konfetti.KonfettiView;
 
 import static com.thetestament.cread.helpers.FontsHelper.getFontType;
 
-/**
- * A simple {@link Fragment} subclass.
- */
 public class ViewLongShortFragment extends Fragment {
 
-
-    //region: Butterknife injections
-    @BindView(R.id.contentImage)
-    ImageView contentImage;
-    @BindView(R.id.textLongShort)
-    TextView textLongShort;
+    //region: Butter knife injections
+    @BindView(R.id.content_image)
+    AppCompatImageView contentImage;
+    @BindView(R.id.text_writing)
+    AppCompatTextView textLongShort;
+    @BindView(R.id.live_filter_bubble)
+    GravView liveFilterBubble;
+    @BindView(R.id.whether_view)
+    WeatherView whetherView;
+    @BindView(R.id.konfetti_view)
+    KonfettiView konfettiView;
     //endregion
 
+    //region :Fields and constants
     private Unbinder mUnbinder;
     CompositeDisposable mCompositeDisposable = new CompositeDisposable();
-    private FragmentActivity mContext;
     MediaPlayer mediaPlayer = new MediaPlayer();
-
     @State
     ShortModel mShortData;
+    //endregion
 
-
+    //region :Overridden methods
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        View view = inflater
+        return inflater
                 .inflate(R.layout.fragment_view_long_short
                         , container
                         , false);
-        mUnbinder = ButterKnife.bind(this, view);
-        return view;
     }
 
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-
+        mUnbinder = ButterKnife.bind(this, view);
         mShortData = getArguments().getParcelable("shortData");
-        mContext = getActivity();
-
-
+        //fixme Uncomment this
+        //initLiveFilters(Constant.LIVE_FILTER_RAIN);
     }
 
     @Override
@@ -101,16 +104,15 @@ public class ViewLongShortFragment extends Fragment {
         if (savedInstanceState != null) {
             Icepick.restoreInstanceState(this, savedInstanceState);
         }
-
-
         // apply style
         applyStyling();
         // play sound
         playSound(PreferenceManager.getDefaultSharedPreferences(getActivity())
                 .getBoolean(SettingsFragment.KEY_SETTINGS_LONGFORMSOUND, true));
     }
+    //endregion
 
-
+    //region :Private methods
     private void applyStyling() {
         // set IMAGE params
         String entityURL = mShortData.getImageURL();
@@ -121,14 +123,14 @@ public class ViewLongShortFragment extends Fragment {
 
             if (mShortData.getBgcolor().equals("FFFFFFFF")) {
                 // set default bg
-                contentImage.setBackground(ContextCompat.getDrawable(mContext, R.drawable.img_short_default_bg));
+                contentImage.setBackground(ContextCompat.getDrawable(getActivity(), R.drawable.img_short_default_bg));
             } else {
                 //Change backgroundColor
                 contentImage.setBackground(null);
                 contentImage.setBackgroundColor((int) Long.parseLong(mShortData.getBgcolor(), 16));
             }
         } else {
-            ImageHelper.loadImageFromPicasso(mContext, contentImage, entityURL, R.drawable.img_short_default_bg);
+            ImageHelper.loadImageFromPicasso(getActivity(), contentImage, entityURL, R.drawable.img_short_default_bg);
         }
 
         // apply image tint
@@ -143,7 +145,7 @@ public class ViewLongShortFragment extends Fragment {
                 float factor = imgWidth
                         / (float) mShortData.getImgWidth();
 
-                textLongShort.setTextSize(ViewHelper.pixelsToSp(mContext, (float) mShortData.getTextSize() * factor));
+                textLongShort.setTextSize(ViewHelper.pixelsToSp(getActivity(), (float) mShortData.getTextSize() * factor));
             }
         });
 
@@ -186,19 +188,19 @@ public class ViewLongShortFragment extends Fragment {
             switch (imageTint.toUpperCase()) {
                 case "4D000000":
                     //Apply tint
-                    contentImage.setColorFilter(ContextCompat.getColor(mContext, R.color.transparent_30));
+                    contentImage.setColorFilter(ContextCompat.getColor(getActivity(), R.color.transparent_30));
                     break;
                 case "80000000":
                     //Apply tint
-                    contentImage.setColorFilter(ContextCompat.getColor(mContext, R.color.transparent_50));
+                    contentImage.setColorFilter(ContextCompat.getColor(getActivity(), R.color.transparent_50));
                     break;
                 case "B3000000":
                     //Apply tint
-                    contentImage.setColorFilter(ContextCompat.getColor(mContext, R.color.transparent_70));
+                    contentImage.setColorFilter(ContextCompat.getColor(getActivity(), R.color.transparent_70));
                     break;
                 case "99000000":
                     //Apply tint
-                    contentImage.setColorFilter(ContextCompat.getColor(mContext, R.color.transparent_60));
+                    contentImage.setColorFilter(ContextCompat.getColor(getActivity(), R.color.transparent_60));
                     break;
                 default:
                     break;
@@ -221,16 +223,16 @@ public class ViewLongShortFragment extends Fragment {
         //Update short text typeface
         if (!isItalic && !isBold) {
             //Set typeface to normal
-            textLongShort.setTypeface(getFontType(fontType, mContext), Typeface.NORMAL);
+            textLongShort.setTypeface(getFontType(fontType, getActivity()), Typeface.NORMAL);
         } else if (!isItalic && isBold) {
             //Set typeface to bold
-            textLongShort.setTypeface(getFontType(fontType, mContext), Typeface.BOLD);
+            textLongShort.setTypeface(getFontType(fontType, getActivity()), Typeface.BOLD);
         } else if (isItalic && !isBold) {
             //Set typeface to italic
-            textLongShort.setTypeface(getFontType(fontType, mContext), Typeface.ITALIC);
+            textLongShort.setTypeface(getFontType(fontType, getActivity()), Typeface.ITALIC);
         } else if (isItalic && isBold) {
             //Set typeface to bold_italic
-            textLongShort.setTypeface(getFontType(fontType, mContext), Typeface.BOLD_ITALIC);
+            textLongShort.setTypeface(getFontType(fontType, getActivity()), Typeface.BOLD_ITALIC);
         }
     }
 
@@ -242,7 +244,7 @@ public class ViewLongShortFragment extends Fragment {
         if (mShortData.isTextShadow()) {
             //Apply text shadow
             textLongShort.setShadowLayer(3, 3, 3
-                    , ContextCompat.getColor(mContext, R.color.color_grey_600));
+                    , ContextCompat.getColor(getActivity(), R.color.color_grey_600));
         } else {
             textLongShort.setShadowLayer(0, 0, 0, 0);
         }
@@ -260,11 +262,11 @@ public class ViewLongShortFragment extends Fragment {
             //apply text shadow
             textLongShort.setShadowLayer(3, 3, 3, ContextCompat.getColor(getActivity(), R.color.color_grey_600));
             // show toast
-            ViewHelper.getToast(mContext, "Reading mode enabled");
+            ViewHelper.getToast(getActivity(), "Reading mode enabled");
 
         } else {
             //show toast
-            ViewHelper.getToast(mContext, "Reading mode disabled");
+            ViewHelper.getToast(getActivity(), "Reading mode disabled");
             // set original shadow
             applyTextShadow();
             // set original tint
@@ -353,5 +355,34 @@ public class ViewLongShortFragment extends Fragment {
 
     }
 
+
+    /**
+     * Method to initialize live filter.
+     *
+     * @param filterName Name of filter to be applied.
+     */
+    private void initLiveFilters(String filterName) {
+        switch (filterName) {
+            case Constant.LIVE_FILTER_SNOW:
+                whetherView.setWeatherData(PrecipType.SNOW);
+                whetherView.setVisibility(View.VISIBLE);
+                break;
+            case Constant.LIVE_FILTER_RAIN:
+                whetherView.setWeatherData(PrecipType.RAIN);
+                whetherView.setVisibility(View.VISIBLE);
+                break;
+            case Constant.LIVE_FILTER_BUBBLE:
+                liveFilterBubble.setVisibility(View.VISIBLE);
+                break;
+            case Constant.LIVE_FILTER_KONFETTI:
+                konfettiView.setVisibility(View.VISIBLE);
+                ViewHelper.showKonfetti(konfettiView);
+                break;
+            case Constant.LIVE_FILTER_NONE:
+                //do nothing
+                break;
+        }
+    }
+    //endregion
 
 }

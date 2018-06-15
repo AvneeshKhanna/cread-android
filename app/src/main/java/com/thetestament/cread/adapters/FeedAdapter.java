@@ -25,8 +25,10 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.facebook.drawee.view.SimpleDraweeView;
+import com.github.glomadrian.grav.GravView;
+import com.github.matteobattilana.weather.PrecipType;
+import com.github.matteobattilana.weather.WeatherView;
 import com.google.firebase.analytics.FirebaseAnalytics;
-import com.jetradarmobile.snowfall.SnowfallView;
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Target;
 import com.thetestament.cread.R;
@@ -50,12 +52,14 @@ import com.thetestament.cread.listeners.listener.OnShareListener;
 import com.thetestament.cread.models.FeedModel;
 import com.thetestament.cread.models.SuggestedArtistsModel;
 import com.thetestament.cread.utils.AspectRatioUtils;
+import com.thetestament.cread.utils.Constant;
 
 import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import io.reactivex.disposables.CompositeDisposable;
+import nl.dionsegijn.konfetti.KonfettiView;
 
 import static com.thetestament.cread.helpers.FeedHelper.initCaption;
 import static com.thetestament.cread.helpers.FeedHelper.initSocialActionsCount;
@@ -211,16 +215,7 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                     , itemViewHolder.imageFeed
                     , true);
 
-            if (position == 1 ) {
-                itemViewHolder.snowfallView.setVisibility(View.VISIBLE);
-            } else {
-                itemViewHolder.snowfallView.setVisibility(View.GONE);
-            }
-            /*if (position == 5 ) {
-                itemViewHolder.gravView.setVisibility(View.VISIBLE);
-            } else {
-                itemViewHolder.gravView.setVisibility(View.GONE);
-            }*/
+
             //Load feed image
             ImageHelper.loadProgressiveImage(Uri.parse(data.getContentImage())
                     , itemViewHolder.imageFeed);
@@ -237,11 +232,11 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
             //Update down vote and dot separator visibility
             updateDownvoteAndSeperatorVisibility(data, itemViewHolder.dotSeparatorRight
-                    , itemViewHolder.imageDownvote);
+                    , itemViewHolder.imageDownVote);
 
             //check down vote status
             DownvoteHelper downvoteHelper = new DownvoteHelper();
-            downvoteHelper.updateDownvoteUI(itemViewHolder.imageDownvote, data.isDownvoteStatus(), mContext);
+            downvoteHelper.updateDownvoteUI(itemViewHolder.imageDownVote, data.isDownvoteStatus(), mContext);
             //Check whether user has given hats off to this campaign or not
             checkHatsOffStatus(data.getHatsOffStatus(), itemViewHolder);
 
@@ -262,7 +257,7 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             //Comment count click functionality
             commentOnClick(itemViewHolder.containerCommentCount, data.getEntityID());
             // downVote click
-            downVoteOnClick(itemViewHolder.imageDownvote, data, position, itemViewHolder);
+            downVoteOnClick(itemViewHolder.imageDownVote, data, position, itemViewHolder);
             //check long form status
             checkLongFormStatus(itemViewHolder.containerLongShortPreview, data);
             //long form on click
@@ -281,6 +276,9 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             initCaption(mContext, data, itemViewHolder.textTitle);
             // init post timestamp
             updatePostTimestamp(itemViewHolder.textTimeStamp, data);
+            //Method called
+            //fixme update this with real data
+            //initLiveFilters(Constant.LIVE_FILTER_BUBBLE, itemViewHolder);
         } else if (holder.getItemViewType() == VIEW_TYPE_LOADING) {
             LoadingViewHolder loadingViewHolder = (LoadingViewHolder) holder;
             loadingViewHolder.progressView.setVisibility(View.VISIBLE);
@@ -365,6 +363,7 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     /**
      * Method is toggle the loading status
      */
+
     public void setLoaded() {
         mIsLoading = false;
     }
@@ -547,7 +546,7 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             @Override
             public void onClick(View view) {
 
-                onDownvoteClickedListener.onDownvoteClicked(data, position, itemViewHolder.imageDownvote);
+                onDownvoteClickedListener.onDownvoteClicked(data, position, itemViewHolder.imageDownVote);
             }
         });
     }
@@ -680,6 +679,34 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         recommendedArtistIndex = index;
     }
 
+    /**
+     * Method to initialize live filter.
+     *
+     * @param filterName Name of filter to be applied.
+     */
+    private void initLiveFilters(String filterName, ItemViewHolder viewHolder) {
+        switch (filterName) {
+            case Constant.LIVE_FILTER_SNOW:
+                viewHolder.whetherView.setWeatherData(PrecipType.SNOW);
+                viewHolder.whetherView.setVisibility(View.VISIBLE);
+                break;
+            case Constant.LIVE_FILTER_RAIN:
+                viewHolder.whetherView.setWeatherData(PrecipType.RAIN);
+                viewHolder.whetherView.setVisibility(View.VISIBLE);
+                break;
+            case Constant.LIVE_FILTER_BUBBLE:
+                viewHolder.liveFilterBubble.setVisibility(View.VISIBLE);
+                break;
+            case Constant.LIVE_FILTER_KONFETTI:
+                viewHolder.konfettiView.setVisibility(View.VISIBLE);
+                ViewHelper.showKonfetti(viewHolder.konfettiView);
+                break;
+            case Constant.LIVE_FILTER_NONE:
+                //do nothing
+                break;
+        }
+    }
+
     //ItemViewHolder class
     static class ItemViewHolder extends RecyclerView.ViewHolder {
         @BindView(R.id.imageCreator)
@@ -690,10 +717,6 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         RelativeLayout containerCreator;
         @BindView(R.id.imageFeed)
         SimpleDraweeView imageFeed;
-        @BindView(R.id.snow_fall_view)
-        SnowfallView snowfallView;
-        /*@BindView(R.id.grav)
-        GravView gravView;*/
         @BindView(R.id.buttonCollaborate)
         TextView buttonCollaborate;
         @BindView(R.id.imageHatsOff)
@@ -704,8 +727,6 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         LinearLayout containerComment;
         @BindView(R.id.textCollabCount)
         TextView textCollabCount;
-        @BindView(R.id.lineSeparatorTop)
-        View lineSeparator;
         @BindView(R.id.containerCollabCount)
         LinearLayout containerCollabCount;
         @BindView(R.id.textTitle)
@@ -725,7 +746,7 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         @BindView(R.id.dotSeperatorRight)
         TextView dotSeparatorRight;
         @BindView(R.id.imageDownvote)
-        ImageView imageDownvote;
+        ImageView imageDownVote;
         @BindView(R.id.containerLongShortPreview)
         FrameLayout containerLongShortPreview;
         @BindView(R.id.textTimestamp)
@@ -740,7 +761,14 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         AppCompatImageView logoMore;
         @BindView(R.id.layoutShareOptions)
         LinearLayout layoutShareOptions;
-
+        @BindView(R.id.container)
+        FrameLayout frameLayout;
+        @BindView(R.id.live_filter_bubble)
+        GravView liveFilterBubble;
+        @BindView(R.id.whether_view)
+        WeatherView whetherView;
+        @BindView(R.id.konfetti_view)
+        KonfettiView konfettiView;
 
         //Variable to maintain hats off status
         private boolean mIsHatsOff = false;
@@ -782,4 +810,24 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         }
     }
 
+    @Override
+    public void onViewDetachedFromWindow(RecyclerView.ViewHolder holder) {
+        super.onViewDetachedFromWindow(holder);
+        if (holder.getItemViewType() == VIEW_TYPE_ITEM) {
+            final ItemViewHolder itemViewHolder = (ItemViewHolder) holder;
+        }
+    }
+
+    @Override
+    public void onViewAttachedToWindow(RecyclerView.ViewHolder holder) {
+        super.onViewAttachedToWindow(holder);
+        if (holder.getItemViewType() == VIEW_TYPE_ITEM) {
+            final ItemViewHolder itemViewHolder = (ItemViewHolder) holder;
+        }
+    }
+
+    @Override
+    public boolean onFailedToRecycleView(RecyclerView.ViewHolder holder) {
+        return super.onFailedToRecycleView(holder);
+    }
 }

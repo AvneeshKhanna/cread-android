@@ -23,6 +23,9 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.facebook.drawee.view.SimpleDraweeView;
+import com.github.glomadrian.grav.GravView;
+import com.github.matteobattilana.weather.PrecipType;
+import com.github.matteobattilana.weather.WeatherView;
 import com.google.firebase.analytics.FirebaseAnalytics;
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Target;
@@ -43,6 +46,7 @@ import com.thetestament.cread.listeners.listener.OnUserActivityHatsOffListener;
 import com.thetestament.cread.listeners.listener.OnUserActivityLoadMoreListener;
 import com.thetestament.cread.models.FeedModel;
 import com.thetestament.cread.utils.AspectRatioUtils;
+import com.thetestament.cread.utils.Constant;
 import com.thetestament.cread.utils.Constant.ITEM_TYPES;
 
 import java.util.List;
@@ -50,6 +54,7 @@ import java.util.List;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import io.reactivex.disposables.CompositeDisposable;
+import nl.dionsegijn.konfetti.KonfettiView;
 
 import static com.thetestament.cread.helpers.ContentHelper.getMenuActionsBottomSheet;
 import static com.thetestament.cread.helpers.FeedHelper.setGridItemMargins;
@@ -202,6 +207,9 @@ public class MeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             checkLongFormStatus(itemViewHolder.containerLongShortPreview, data);
             //long form on click
             initLongFormPreviewClick(itemViewHolder.containerLongShortPreview, data, mContext, mCompositeDisposable);
+            //Method called
+            //fixme update this with real data
+            //initLiveFilters(Constant.LIVE_FILTER_BUBBLE, itemViewHolder);
         } else if (holder.getItemViewType() == VIEW_TYPE_LOADING) {
             LoadingViewHolder loadingViewHolder = (LoadingViewHolder) holder;
             loadingViewHolder.progressView.setVisibility(View.VISIBLE);
@@ -456,7 +464,8 @@ public class MeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         //Set image width and height
         AspectRatioUtils.setImageAspectRatio(data.getImgWidth()
                 , data.getImgHeight()
-                , itemViewHolder.imageContent);
+                , itemViewHolder.imageContent
+                , true);
         //Load content image
         ImageHelper.loadProgressiveImage(Uri.parse(data.getContentImage())
                 , itemViewHolder.imageContent);
@@ -509,6 +518,9 @@ public class MeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         // init post timestamp
         updatePostTimestamp(itemViewHolder.textTimeStamp, data);
 
+        //Method called
+        //fixme update this with real data
+        //initLiveFilters(Constant.LIVE_FILTER_BUBBLE, itemViewHolder);
     }
 
     /**
@@ -570,6 +582,63 @@ public class MeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         }
     }
 
+    /**
+     * Method to initialize live filter.
+     *
+     * @param filterName Name of filter to be applied.
+     */
+    private void initLiveFilters(String filterName, GridItemViewHolder viewHolder) {
+        switch (filterName) {
+            case Constant.LIVE_FILTER_SNOW:
+                viewHolder.whetherView.setWeatherData(PrecipType.SNOW);
+                viewHolder.whetherView.setVisibility(View.VISIBLE);
+                break;
+            case Constant.LIVE_FILTER_RAIN:
+                viewHolder.whetherView.setWeatherData(PrecipType.RAIN);
+                viewHolder.whetherView.setVisibility(View.VISIBLE);
+                break;
+            case Constant.LIVE_FILTER_BUBBLE:
+                viewHolder.liveFilterBubble.setVisibility(View.VISIBLE);
+                break;
+            case Constant.LIVE_FILTER_KONFETTI:
+                viewHolder.konfettiView.setVisibility(View.VISIBLE);
+                ViewHelper.showKonfetti(viewHolder.konfettiView);
+                break;
+            case Constant.LIVE_FILTER_NONE:
+                //do nothing
+                break;
+        }
+    }
+
+    /**
+     * Method to initialize live filter.
+     *
+     * @param filterName Name of filter to be applied.
+     */
+    private void initLiveFilters(String filterName, ListItemViewHolder viewHolder) {
+        switch (filterName) {
+            case Constant.LIVE_FILTER_SNOW:
+                viewHolder.whetherView.setWeatherData(PrecipType.SNOW);
+                viewHolder.whetherView.setVisibility(View.VISIBLE);
+                break;
+            case Constant.LIVE_FILTER_RAIN:
+                viewHolder.whetherView.setWeatherData(PrecipType.RAIN);
+                viewHolder.whetherView.setVisibility(View.VISIBLE);
+                break;
+            case Constant.LIVE_FILTER_BUBBLE:
+                viewHolder.liveFilterBubble.setVisibility(View.VISIBLE);
+                break;
+            case Constant.LIVE_FILTER_KONFETTI:
+                viewHolder.konfettiView.setVisibility(View.VISIBLE);
+                ViewHelper.showKonfetti(viewHolder.konfettiView);
+                break;
+            case Constant.LIVE_FILTER_NONE:
+                //do nothing
+                break;
+        }
+    }
+
+
     //ItemViewHolder class
     static class ListItemViewHolder extends RecyclerView.ViewHolder {
         @BindView(R.id.imageCreator)
@@ -604,6 +673,12 @@ public class MeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         AppCompatImageView logoInstagram;
         @BindView(R.id.logoMore)
         AppCompatImageView logoMore;
+        @BindView(R.id.live_filter_bubble)
+        GravView liveFilterBubble;
+        @BindView(R.id.whether_view)
+        WeatherView whetherView;
+        @BindView(R.id.konfetti_view)
+        KonfettiView konfettiView;
 
         //Variable to maintain hats off status
         private boolean mIsHatsOff = false;
@@ -623,6 +698,12 @@ public class MeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         SimpleDraweeView imageMe;
         @BindView(R.id.containerLongShortPreview)
         FrameLayout containerLongShortPreview;
+        @BindView(R.id.live_filter_bubble)
+        GravView liveFilterBubble;
+        @BindView(R.id.whether_view)
+        WeatherView whetherView;
+        @BindView(R.id.konfetti_view)
+        KonfettiView konfettiView;
 
         public GridItemViewHolder(View itemView) {
             super(itemView);

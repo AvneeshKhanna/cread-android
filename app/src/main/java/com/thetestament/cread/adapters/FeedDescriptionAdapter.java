@@ -26,6 +26,9 @@ import com.afollestad.materialdialogs.DialogAction;
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.afollestad.materialdialogs.MaterialDialog.SingleButtonCallback;
 import com.facebook.drawee.view.SimpleDraweeView;
+import com.github.glomadrian.grav.GravView;
+import com.github.matteobattilana.weather.PrecipType;
+import com.github.matteobattilana.weather.WeatherView;
 import com.google.firebase.analytics.FirebaseAnalytics;
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Target;
@@ -45,6 +48,7 @@ import com.thetestament.cread.listeners.listener;
 import com.thetestament.cread.models.CommentsModel;
 import com.thetestament.cread.models.FeedModel;
 import com.thetestament.cread.utils.AspectRatioUtils;
+import com.thetestament.cread.utils.Constant;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -52,6 +56,7 @@ import java.util.List;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import io.reactivex.disposables.CompositeDisposable;
+import nl.dionsegijn.konfetti.KonfettiView;
 
 import static com.thetestament.cread.adapters.CommentsAdapter.openCreatorProfile;
 import static com.thetestament.cread.adapters.CommentsAdapter.toggleComment;
@@ -221,11 +226,12 @@ public class FeedDescriptionAdapter extends RecyclerView.Adapter {
             final ItemViewHolder itemViewHolder = (ItemViewHolder) holder;
             //Load creator profile picture
             ImageHelper.loadProgressiveImage(Uri.parse(data.getCreatorImage())
-                    ,itemViewHolder.imageCreator);
+                    , itemViewHolder.imageCreator);
             //Set image width and height
             AspectRatioUtils.setImageAspectRatio(data.getImgWidth()
                     , data.getImgHeight()
-                    , itemViewHolder.image);
+                    , itemViewHolder.image
+                    , true);
             //Load feed image
             ImageHelper.loadProgressiveImage(Uri.parse(data.getContentImage())
                     , itemViewHolder.image);
@@ -330,6 +336,10 @@ public class FeedDescriptionAdapter extends RecyclerView.Adapter {
 
             // init post timestamp
             updatePostTimestamp(itemViewHolder.textTimeStamp, data);
+
+            //Method called
+            //fixme update this with real data
+            //initLiveFilters(Constant.LIVE_FILTER_BUBBLE, itemViewHolder);
 
         } else if (holder.getItemViewType() == VIEW_TYPE_LOADING) {
             LoadingViewHolder loadingViewHolder = (LoadingViewHolder) holder;
@@ -448,6 +458,12 @@ public class FeedDescriptionAdapter extends RecyclerView.Adapter {
         AppCompatImageView logoInstagram;
         @BindView(R.id.logoMore)
         AppCompatImageView logoMore;
+        @BindView(R.id.live_filter_bubble)
+        GravView liveFilterBubble;
+        @BindView(R.id.whether_view)
+        WeatherView whetherView;
+        @BindView(R.id.konfetti_view)
+        KonfettiView konfettiView;
 
         //Variable to maintain hats off status
         private boolean mIsHatsOff = false;
@@ -496,7 +512,7 @@ public class FeedDescriptionAdapter extends RecyclerView.Adapter {
             TextView textUserName = commentView.findViewById(R.id.textUserName);
             TextView textComment = commentView.findViewById(R.id.textComment);
 
-            ImageHelper.loadProgressiveImage(Uri.parse(comment.getProfilePicUrl()),imageUser);
+            ImageHelper.loadProgressiveImage(Uri.parse(comment.getProfilePicUrl()), imageUser);
 
             textUserName.setText(comment.getFirstName() + " " + comment.getLastName());
             textComment.setText(comment.getComment());
@@ -525,8 +541,6 @@ public class FeedDescriptionAdapter extends RecyclerView.Adapter {
     public void setLoaded() {
         mIsLoading = false;
     }
-
-
 
 
     /**
@@ -970,5 +984,34 @@ public class FeedDescriptionAdapter extends RecyclerView.Adapter {
             FirebaseAnalytics.getInstance(mContext).logEvent(FIREBASE_EVENT_CAPTURE_CLICKED, bundle);
         }
     }
+
+    /**
+     * Method to initialize live filter.
+     *
+     * @param filterName Name of filter to be applied.
+     */
+    private void initLiveFilters(String filterName, ItemViewHolder viewHolder) {
+        switch (filterName) {
+            case Constant.LIVE_FILTER_SNOW:
+                viewHolder.whetherView.setWeatherData(PrecipType.SNOW);
+                viewHolder.whetherView.setVisibility(View.VISIBLE);
+                break;
+            case Constant.LIVE_FILTER_RAIN:
+                viewHolder.whetherView.setWeatherData(PrecipType.RAIN);
+                viewHolder.whetherView.setVisibility(View.VISIBLE);
+                break;
+            case Constant.LIVE_FILTER_BUBBLE:
+                viewHolder.liveFilterBubble.setVisibility(View.VISIBLE);
+                break;
+            case Constant.LIVE_FILTER_KONFETTI:
+                viewHolder.konfettiView.setVisibility(View.VISIBLE);
+                ViewHelper.showKonfetti(viewHolder.konfettiView);
+                break;
+            case Constant.LIVE_FILTER_NONE:
+                //do nothing
+                break;
+        }
+    }
+
 
 }

@@ -6,6 +6,7 @@ package com.thetestament.cread.models;
 
 public class CollaborationDetailsModel {
     private String userName, uuid, profilePic, entityUrl, entityID;
+    private String liveFilterName;
     private int imgWidth, imgHeight;
 
 
@@ -47,6 +48,14 @@ public class CollaborationDetailsModel {
 
     public void setEntityID(String entityID) {
         this.entityID = entityID;
+    }
+
+    public String getLiveFilterName() {
+        return liveFilterName;
+    }
+
+    public void setLiveFilterName(String liveFilterName) {
+        this.liveFilterName = liveFilterName;
     }
 
     public int getImgWidth() {

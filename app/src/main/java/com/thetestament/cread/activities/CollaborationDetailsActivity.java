@@ -1,14 +1,12 @@
 package com.thetestament.cread.activities;
 
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.view.animation.AnimationUtils;
 import android.view.animation.LayoutAnimationController;
@@ -18,6 +16,7 @@ import com.takusemba.multisnaprecyclerview.MultiSnapRecyclerView;
 import com.thetestament.cread.BuildConfig;
 import com.thetestament.cread.R;
 import com.thetestament.cread.adapters.CollaborationDetailsAdapter;
+import com.thetestament.cread.helpers.IntentHelper;
 import com.thetestament.cread.helpers.SharedPreferenceHelper;
 import com.thetestament.cread.helpers.ViewHelper;
 import com.thetestament.cread.listeners.listener;
@@ -51,7 +50,6 @@ import static com.thetestament.cread.helpers.NetworkHelper.requestServer;
 import static com.thetestament.cread.utils.Constant.EXTRA_DATA;
 import static com.thetestament.cread.utils.Constant.EXTRA_ENTITY_ID;
 import static com.thetestament.cread.utils.Constant.EXTRA_ENTITY_TYPE;
-import static com.thetestament.cread.utils.Constant.EXTRA_FEED_DESCRIPTION_DATA;
 
 /**
  * To show the details of people who collaborated with other user contents.
@@ -59,13 +57,13 @@ import static com.thetestament.cread.utils.Constant.EXTRA_FEED_DESCRIPTION_DATA;
 public class CollaborationDetailsActivity extends BaseActivity {
 
     //region :Butter knife view binding
-    @BindView(R.id.rootView)
+    @BindView(R.id.root_view)
     CoordinatorLayout rootView;
-    @BindView(R.id.swipeRefreshLayout)
+    @BindView(R.id.swipe_refresh_layout)
     SwipeRefreshLayout swipeRefreshLayout;
-    @BindView(R.id.recyclerView)
+    @BindView(R.id.recycler_view)
     MultiSnapRecyclerView recyclerView;
-    @BindView(R.id.viewProgress)
+    @BindView(R.id.view_progress)
     View viewProgress;
     //endregion
 
@@ -75,7 +73,7 @@ public class CollaborationDetailsActivity extends BaseActivity {
 
     List<CollaborationDetailsModel> mDataList = new ArrayList<>();
     CollaborationDetailsAdapter mAdapter;
-    private AppCompatActivity mContext;
+    AppCompatActivity mContext;
 
     FeedModel entitySpecificData;
 
@@ -96,9 +94,7 @@ public class CollaborationDetailsActivity extends BaseActivity {
         setContentView(R.layout.activity_collaboration_details);
         //Bind view
         ButterKnife.bind(this);
-        //SharedPreference reference
-        mHelper = new SharedPreferenceHelper(this);
-        mContext = this;
+        //Method called
         initView();
     }
 
@@ -127,13 +123,18 @@ public class CollaborationDetailsActivity extends BaseActivity {
      * Method to initialize views and retrieve data from intent.
      */
     private void initView() {
+        //Obtain reference of this activity
+        mContext = this;
+        // Obtain SharedPreference reference
+        mHelper = new SharedPreferenceHelper(mContext);
+
         //Retrieve data from intent
         Bundle bundle = getIntent().getBundleExtra(EXTRA_DATA);
         mEntityID = bundle.getString(EXTRA_ENTITY_ID);
         mEntityType = bundle.getString(EXTRA_ENTITY_TYPE);
 
         //Set layout manger for recyclerView
-        RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(mContext
+        LinearLayoutManager layoutManager = new LinearLayoutManager(mContext
                 , LinearLayoutManager.HORIZONTAL
                 , false);
         recyclerView.setLayoutManager(layoutManager);
@@ -142,13 +143,13 @@ public class CollaborationDetailsActivity extends BaseActivity {
         mAdapter = new CollaborationDetailsAdapter(mDataList, mContext);
         recyclerView.setAdapter(mAdapter);
         //initialize swipeRefreshLayout
-        initScreen();
+        initSwipeRefreshLayoutScreen();
     }
 
     /**
      * Method to initialize swipe to refresh view.
      */
-    private void initScreen() {
+    private void initSwipeRefreshLayoutScreen() {
         swipeRefreshLayout.setRefreshing(true);
         swipeRefreshLayout.setColorSchemeColors(ContextCompat.getColor(mContext
                 , R.color.colorPrimary));
@@ -226,6 +227,8 @@ public class CollaborationDetailsActivity extends BaseActivity {
                                     model.setProfilePic(dataObj.getString("profilepicurl"));
                                     model.setEntityUrl(dataObj.getString("entityurl"));
                                     model.setEntityID(dataObj.getString("entityid"));
+                                    //fixme live filter value
+                                    //model.setLiveFilterName(dataObj.getString("livefiltername"));
 
                                     //if image width and image height is null
                                     if (dataObj.isNull("img_width") || dataObj.isNull("img_height")) {
@@ -235,7 +238,6 @@ public class CollaborationDetailsActivity extends BaseActivity {
                                         model.setImgWidth(dataObj.getInt("img_width"));
                                         model.setImgHeight(dataObj.getInt("img_height"));
                                     }
-
                                     mDataList.add(model);
                                 }
                             }
@@ -271,13 +273,14 @@ public class CollaborationDetailsActivity extends BaseActivity {
                         else if (connectionError[0]) {
                             ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_internal));
                         }
-                        //Error occurred
+                        //No data
                         else if (mDataList.size() == 0) {
                             ViewHelper.getSnackBar(rootView, "No data");
                         } else {
                             //Apply 'Slide Up' animation
                             int resId = R.anim.layout_animation_from_bottom;
-                            LayoutAnimationController animation = AnimationUtils.loadLayoutAnimation(mContext, resId);
+                            LayoutAnimationController animation = AnimationUtils.loadLayoutAnimation(mContext
+                                    , resId);
                             recyclerView.setLayoutAnimation(animation);
                             //Notify changes
                             mAdapter.notifyDataSetChanged();
@@ -293,7 +296,6 @@ public class CollaborationDetailsActivity extends BaseActivity {
      * @param adapter CollaborationDetails reference.
      */
     private void initLoadMoreListener(CollaborationDetailsAdapter adapter) {
-
         //Load more data listener
         adapter.setLoadMoreListener(new listener.OnCollaborationDetailsLoadMoreListener() {
             @Override
@@ -302,7 +304,7 @@ public class CollaborationDetailsActivity extends BaseActivity {
                 if (mRequestMoreData) {
                     //Show progress view
                     viewProgress.setVisibility(View.VISIBLE);
-                    //Load new set of data
+                    //Load next set of data
                     loadMoreData();
                 }
             }
@@ -364,6 +366,8 @@ public class CollaborationDetailsActivity extends BaseActivity {
                                     model.setProfilePic(dataObj.getString("profilepicurl"));
                                     model.setEntityUrl(dataObj.getString("entityurl"));
                                     model.setEntityID(dataObj.getString("entityid"));
+                                    //fixme live filter value
+                                    //model.setLiveFilterName(dataObj.getString("livefiltername"));
                                     //if image width and image height is null
                                     if (dataObj.isNull("img_width") || dataObj.isNull("img_height")) {
                                         model.setImgWidth(1);
@@ -417,7 +421,7 @@ public class CollaborationDetailsActivity extends BaseActivity {
     /**
      * RxJava2 implementation for retrieving feed details
      *
-     * @param entityID
+     * @param entityID entity id of post.
      */
     private void getFeedDetails(final String entityID) {
         viewProgress.setVisibility(View.VISIBLE);
@@ -425,11 +429,9 @@ public class CollaborationDetailsActivity extends BaseActivity {
         final boolean[] tokenError = {false};
         final boolean[] connectionError = {false};
 
-        SharedPreferenceHelper spHelper = new SharedPreferenceHelper(this);
-
         requestServer(mCompositeDisposable,
-                getEntitySpecificObservable(spHelper.getUUID(),
-                        spHelper.getAuthToken(),
+                getEntitySpecificObservable(mHelper.getUUID(),
+                        mHelper.getAuthToken(),
                         entityID),
                 this,
                 new listener.OnServerRequestedListener<JSONObject>() {
@@ -442,7 +444,6 @@ public class CollaborationDetailsActivity extends BaseActivity {
                     @Override
                     public void onNextCalled(JSONObject jsonObject) {
                         viewProgress.setVisibility(View.GONE);
-
                         try {
                             //Token status is invalid
                             if (jsonObject.getString("tokenstatus").equals("invalid")) {
@@ -469,9 +470,7 @@ public class CollaborationDetailsActivity extends BaseActivity {
 
                     @Override
                     public void onCompleteCalled() {
-
                         GET_RESPONSE_FROM_NETWORK_ENTITY_SPECIFIC = false;
-
                         // Token status invalid
                         if (tokenError[0]) {
                             ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_invalid_token));
@@ -481,13 +480,9 @@ public class CollaborationDetailsActivity extends BaseActivity {
                             ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_internal));
 
                         } else {
-                            Bundle bundle = new Bundle();
-                            bundle.putParcelable(EXTRA_FEED_DESCRIPTION_DATA, entitySpecificData);
-                            bundle.putInt("position", -1);
-
-                            Intent intent = new Intent(CollaborationDetailsActivity.this, FeedDescriptionActivity.class);
-                            intent.putExtra(EXTRA_DATA, bundle);
-                            startActivity(intent);
+                            //Method called
+                            IntentHelper.openFeedDescriptionActivity(mContext
+                                    , entitySpecificData);
                         }
                     }
                 });

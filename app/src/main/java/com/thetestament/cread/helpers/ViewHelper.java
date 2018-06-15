@@ -2,6 +2,7 @@ package com.thetestament.cread.helpers;
 
 import android.content.Context;
 import android.content.res.Resources;
+import android.graphics.Color;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.content.ContextCompat;
@@ -16,6 +17,10 @@ import android.widget.Toast;
 
 import com.thetestament.cread.R;
 import com.tooltip.Tooltip;
+
+import nl.dionsegijn.konfetti.KonfettiView;
+import nl.dionsegijn.konfetti.models.Shape;
+import nl.dionsegijn.konfetti.models.Size;
 
 /**
  * Helper class to show snack bar.
@@ -127,4 +132,22 @@ public class ViewHelper {
     }
 
 
+    /**
+     * Method to show konfetti animation.
+     *
+     * @param konfettiView View reference.
+     */
+    public static void showKonfetti(KonfettiView konfettiView) {
+        // FIXME: 15/06/18  Color extra
+        konfettiView.build()
+                .addColors(Color.YELLOW, Color.GREEN, Color.MAGENTA)
+                .setDirection(0.0, 359.0)
+                .setSpeed(1f, 5f)
+                .setFadeOutEnabled(true)
+                .setTimeToLive(2000L)
+                .addShapes(Shape.RECT, Shape.CIRCLE)
+                .addSizes(new Size(8, 5))
+                .setPosition(-50f, konfettiView.getWidth() + 50f, -50f, -50f)
+                .streamFor(300, 5000L);
+    }
 }

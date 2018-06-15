@@ -38,29 +38,13 @@
                     app:failureImage="@drawable/image_placeholder"
                     app:failureImageScaleType="centerCrop" />
 
-                <com.jetradarmobile.snowfall.SnowfallView
-                    android:id="@+id/snow_fall_view"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:visibility="gone"
-                    app:snowflakeAlphaMax="255"
-                    app:snowflakeAlphaMin="150"
-                    app:snowflakeAngleMax="5"
-                    app:snowflakeImage="@drawable/snowflake"
-                    app:snowflakeSizeMax="32dp"
-                    app:snowflakeSizeMin="8dp"
-                    app:snowflakeSpeedMax="12"
-                    app:snowflakeSpeedMin="4"
-                    app:snowflakesAlreadyFalling="false"
-                    app:snowflakesFadingEnabled="true"
-                    app:snowflakesNum="250" />
-
-                <!--<com.github.glomadrian.grav.GravView
-                    android:id="@+id/grav"
+                <!--Bubble live filter-->
+                <com.github.glomadrian.grav.GravView
+                    android:id="@+id/live_filter_bubble"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:layout_centerInParent="true"
-                    android:visibility="gone"
+                    android:visibility="invisible"
                     app:animationGenerators="@array/BubbleAnimations"
                     app:array_colors="@array/bubble"
                     app:ball_from_size="10dp"
@@ -74,9 +58,23 @@
                     app:shake_max_duration="20000"
                     app:shake_min_duration="10000"
                     app:shake_variance="500dp"
-                    app:side_to_side_direction="leftToRight"
+                    app:side_to_side_direction="upToDown"
                     app:side_to_side_max_duration="10000"
-                    app:side_to_side_min_duration="10000" />-->
+                    app:side_to_side_min_duration="1000" />
+
+                <!--Snowfall and rain filter-->
+                <com.github.matteobattilana.weather.WeatherView
+                    android:id="@+id/whether_view"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:visibility="gone" />
+
+                <!--Konfetti view-->
+                <nl.dionsegijn.konfetti.KonfettiView
+                    android:id="@+id/konfetti_view"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:visibility="gone" />
 
             </FrameLayout>
 
@@ -292,85 +290,68 @@
             android:textColor="@color/grey_dark"
             android:textSize="14sp" />
 
-        <!--Separator view-->
-        <View
-            android:id="@+id/lineSeparatorTop"
-            android:layout_width="match_parent"
-            android:layout_height="0.3dp"
-            android:layout_marginLeft="16dp"
-            android:layout_marginRight="16dp"
-            android:layout_marginTop="8dp"
-            android:alpha="0.4"
-            android:background="@color/grey_dark"
-            android:visibility="gone" />
 
         <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginBottom="8dp"
+            android:layout_marginTop="8dp"
             android:paddingLeft="16dp"
             android:paddingRight="6dp">
 
+
             <LinearLayout
-                android:id="@+id/containerActions"
+                android:id="@+id/containerHatsOff"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_alignParentLeft="true"
-                android:layout_marginTop="8dp"
-                android:orientation="horizontal"
-                android:paddingBottom="8dp">
+                android:gravity="center_horizontal"
+                android:orientation="vertical"
+                android:paddingRight="7dp">
 
-                <LinearLayout
-                    android:id="@+id/containerHatsOff"
+                <ImageView
+                    android:id="@+id/imageHatsOff"
+                    android:layout_width="30dp"
+                    android:layout_height="30dp"
+                    app:srcCompat="@drawable/ic_hats_off" />
+
+                <TextView
+                    android:id="@+id/textHatsOff"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:gravity="center_horizontal"
-                    android:orientation="vertical"
-                    android:paddingRight="7dp">
-
-                    <ImageView
-                        android:id="@+id/imageHatsOff"
-                        android:layout_width="30dp"
-                        android:layout_height="30dp"
-                        app:srcCompat="@drawable/ic_hats_off" />
-
-                    <TextView
-                        android:id="@+id/textHatsOff"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="center"
-                        android:gravity="center"
-                        android:text="Hats off"
-                        android:textSize="10sp" />
-
-                </LinearLayout>
-
-                <LinearLayout
-                    android:id="@+id/containerComment"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:gravity="center_horizontal"
-                    android:orientation="vertical"
-                    android:paddingLeft="7dp">
-
-                    <ImageView
-                        android:id="@+id/imageComment"
-                        android:layout_width="30dp"
-                        android:layout_height="30dp"
-                        android:padding="4dp"
-                        app:srcCompat="@drawable/ic_comment" />
-
-                    <TextView
-                        android:id="@+id/textComment"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="center"
-                        android:gravity="center"
-                        android:text="Comment"
-                        android:textSize="10sp" />
-                </LinearLayout>
-
+                    android:layout_gravity="center"
+                    android:gravity="center"
+                    android:text="Hats off"
+                    android:textSize="10sp" />
 
             </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/containerComment"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_toRightOf="@+id/containerHatsOff"
+                android:gravity="center_horizontal"
+                android:orientation="vertical"
+                android:paddingLeft="7dp">
+
+                <ImageView
+                    android:id="@+id/imageComment"
+                    android:layout_width="30dp"
+                    android:layout_height="30dp"
+                    android:padding="4dp"
+                    app:srcCompat="@drawable/ic_comment" />
+
+                <TextView
+                    android:id="@+id/textComment"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:gravity="center"
+                    android:text="Comment"
+                    android:textSize="10sp" />
+            </LinearLayout>
+
 
             <include
                 android:id="@+id/layoutShareOptions"
@@ -384,6 +365,8 @@
 
 
         </RelativeLayout>
+
+
     </LinearLayout>
 
 </android.support.v7.widget.CardView>

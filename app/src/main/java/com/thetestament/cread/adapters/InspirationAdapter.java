@@ -6,17 +6,21 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
+import android.support.v7.widget.AppCompatTextView;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.RelativeLayout;
-import android.widget.TextView;
 
 import com.facebook.drawee.view.SimpleDraweeView;
+import com.github.glomadrian.grav.GravView;
+import com.github.matteobattilana.weather.PrecipType;
+import com.github.matteobattilana.weather.WeatherView;
 import com.thetestament.cread.R;
 import com.thetestament.cread.helpers.ImageHelper;
 import com.thetestament.cread.helpers.IntentHelper;
+import com.thetestament.cread.helpers.ViewHelper;
 import com.thetestament.cread.listeners.listener.OnInspirationLoadMoreListener;
 import com.thetestament.cread.listeners.listener.OnInspirationSelectListener;
 import com.thetestament.cread.models.InspirationModel;
@@ -27,6 +31,7 @@ import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import nl.dionsegijn.konfetti.KonfettiView;
 
 import static com.thetestament.cread.utils.Constant.EXTRA_CAPTURE_ID;
 import static com.thetestament.cread.utils.Constant.EXTRA_CAPTURE_URL;
@@ -114,7 +119,6 @@ public class InspirationAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
 
     @Override
     public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
-
         InspirationModel data = mInspirationList.get(position);
 
         if (holder.getItemViewType() == VIEW_TYPE_ITEM) {
@@ -128,14 +132,16 @@ public class InspirationAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
         } else if (holder.getItemViewType() == VIEW_TYPE_ITEM_DETAIL) {
             final ItemViewHolderDetail itemViewHolder = (ItemViewHolderDetail) holder;
             //Load creator profile picture
-            ImageHelper.loadProgressiveImage(Uri.parse(data.getCreatorProfilePic()), itemViewHolder.imageCreator);
+            ImageHelper.loadProgressiveImage(Uri.parse(data.getCreatorProfilePic())
+                    , itemViewHolder.imageCreator);
             //Set creator name
             itemViewHolder.textCreatorName.setText(data.getCreatorName());
 
             //Set image width and height
             AspectRatioUtils.setImageAspectRatio(data.getImgWidth()
                     , data.getImgHeight()
-                    , itemViewHolder.imageInspiration);
+                    , itemViewHolder.imageInspiration
+                    , true);
             //Load inspiration image
             ImageHelper.loadProgressiveImage(Uri.parse(data.getCapturePic())
                     , itemViewHolder.imageInspiration);
@@ -145,7 +151,9 @@ public class InspirationAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
 
             //ItemView onClick functionality
             itemOnClick(itemViewHolder.itemView, data);
-
+            //Method called
+            //fixme update this with real data
+            //initLiveFilters(Constant.LIVE_FILTER_BUBBLE, itemViewHolder);
 
         } else if (holder.getItemViewType() == VIEW_TYPE_LOADING) {
             LoadingViewHolder loadingViewHolder = (LoadingViewHolder) holder;
@@ -177,7 +185,6 @@ public class InspirationAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
     public void setLoaded() {
         mIsLoading = false;
     }
-
 
 
     /**
@@ -216,7 +223,6 @@ public class InspirationAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
     }
 
 
-
     /**
      * Method to open creator profile.
      *
@@ -233,6 +239,33 @@ public class InspirationAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
         });
     }
 
+    /**
+     * Method to initialize live filter.
+     *
+     * @param filterName Name of filter to be applied.
+     */
+    private void initLiveFilters(String filterName, ItemViewHolderDetail viewHolder) {
+        switch (filterName) {
+            case Constant.LIVE_FILTER_SNOW:
+                viewHolder.whetherView.setWeatherData(PrecipType.SNOW);
+                viewHolder.whetherView.setVisibility(View.VISIBLE);
+                break;
+            case Constant.LIVE_FILTER_RAIN:
+                viewHolder.whetherView.setWeatherData(PrecipType.RAIN);
+                viewHolder.whetherView.setVisibility(View.VISIBLE);
+                break;
+            case Constant.LIVE_FILTER_BUBBLE:
+                viewHolder.liveFilterBubble.setVisibility(View.VISIBLE);
+                break;
+            case Constant.LIVE_FILTER_KONFETTI:
+                viewHolder.konfettiView.setVisibility(View.VISIBLE);
+                ViewHelper.showKonfetti(viewHolder.konfettiView);
+                break;
+            case Constant.LIVE_FILTER_NONE:
+                //do nothing
+                break;
+        }
+    }
 
     //ItemViewHolder class
     static class ItemViewHolder extends RecyclerView.ViewHolder {
@@ -250,11 +283,17 @@ public class InspirationAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
         @BindView(R.id.imageCreator)
         SimpleDraweeView imageCreator;
         @BindView(R.id.textCreatorName)
-        TextView textCreatorName;
+        AppCompatTextView textCreatorName;
         @BindView(R.id.containerCreator)
         RelativeLayout containerCreator;
         @BindView(R.id.imageInspiration)
         SimpleDraweeView imageInspiration;
+        @BindView(R.id.live_filter_bubble)
+        GravView liveFilterBubble;
+        @BindView(R.id.whether_view)
+        WeatherView whetherView;
+        @BindView(R.id.konfetti_view)
+        KonfettiView konfettiView;
 
         public ItemViewHolderDetail(View itemView) {
             super(itemView);

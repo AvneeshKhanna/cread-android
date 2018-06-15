@@ -10,10 +10,12 @@ import com.thetestament.cread.BuildConfig;
 import com.thetestament.cread.activities.BottomNavigationActivity;
 import com.thetestament.cread.activities.ChatDetailsActivity;
 import com.thetestament.cread.activities.ContentPreview;
+import com.thetestament.cread.activities.FeedDescriptionActivity;
 import com.thetestament.cread.activities.FollowActivity;
 import com.thetestament.cread.activities.MainActivity;
 import com.thetestament.cread.activities.ProfileActivity;
 import com.thetestament.cread.activities.WebViewActivity;
+import com.thetestament.cread.models.FeedModel;
 import com.thetestament.cread.utils.Constant;
 
 import static com.thetestament.cread.utils.Constant.EXTRA_CHAT_DETAILS_CALLED_FROM;
@@ -23,6 +25,8 @@ import static com.thetestament.cread.utils.Constant.EXTRA_CHAT_ID;
 import static com.thetestament.cread.utils.Constant.EXTRA_CHAT_ITEM_POSITION;
 import static com.thetestament.cread.utils.Constant.EXTRA_CHAT_USER_NAME;
 import static com.thetestament.cread.utils.Constant.EXTRA_CHAT_UUID;
+import static com.thetestament.cread.utils.Constant.EXTRA_DATA;
+import static com.thetestament.cread.utils.Constant.EXTRA_FEED_DESCRIPTION_DATA;
 import static com.thetestament.cread.utils.Constant.EXTRA_FOLLOW_REQUESTED_UUID;
 import static com.thetestament.cread.utils.Constant.EXTRA_FOLLOW_TYPE;
 import static com.thetestament.cread.utils.Constant.EXTRA_PROFILE_UUID;
@@ -158,4 +162,19 @@ public class IntentHelper {
         context.startActivity(intent);
     }
 
+    /**
+     * Method to open FeedDescriptionActivity screen.
+     *
+     * @param context Context to use.
+     * @param model   FeedModel data
+     */
+    public static void openFeedDescriptionActivity(Context context, FeedModel model) {
+        Bundle bundle = new Bundle();
+        bundle.putParcelable(EXTRA_FEED_DESCRIPTION_DATA, model);
+        bundle.putInt("position", -1);
+
+        Intent intent = new Intent(context, FeedDescriptionActivity.class);
+        intent.putExtra(EXTRA_DATA, bundle);
+        context.startActivity(intent);
+    }
 }

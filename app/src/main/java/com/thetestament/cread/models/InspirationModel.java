@@ -9,6 +9,7 @@ public class InspirationModel {
     private String entityID, captureID, UUID, creatorName, creatorProfilePic, capturePic;
     private boolean merchantable;
     private int imgWidth, imgHeight;
+    private String liveFilterName;
 
     public String getEntityID() {
         return entityID;
@@ -80,5 +81,13 @@ public class InspirationModel {
 
     public void setImgHeight(int imgHeight) {
         this.imgHeight = imgHeight;
+    }
+
+    public String getLiveFilterName() {
+        return liveFilterName;
+    }
+
+    public void setLiveFilterName(String liveFilterName) {
+        this.liveFilterName = liveFilterName;
     }
 }

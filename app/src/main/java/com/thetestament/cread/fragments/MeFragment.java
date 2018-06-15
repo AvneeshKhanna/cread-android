@@ -1343,92 +1343,7 @@ public class MeFragment extends Fragment implements listener.OnCollaborationList
                             if (jsonObject.getString("tokenstatus").equals("invalid")) {
                                 tokenError[0] = true;
                             } else {
-                                JSONObject mainData = jsonObject.getJSONObject("data");
-                                mRequestMoreData = mainData.getBoolean("requestmore");
-                                mLastIndexKey = mainData.getString("lastindexkey");
-                                mCanDownvote = mainData.getBoolean("candownvote");
-                                //UserActivity array list
-                                JSONArray UserActivityArray = mainData.getJSONArray("items");
-                                for (int i = 0; i < UserActivityArray.length(); i++) {
-                                    JSONObject dataObj = UserActivityArray.getJSONObject(i);
-                                    String type = dataObj.getString("type");
-
-                                    FeedModel data = new FeedModel();
-                                    data.setEntityID(dataObj.getString("entityid"));
-                                    data.setContentType(dataObj.getString("type"));
-                                    data.setUUID(dataObj.getString("uuid"));
-                                    data.setCreatorImage(dataObj.getString("profilepicurl"));
-                                    data.setCreatorName(dataObj.getString("creatorname"));
-                                    data.setHatsOffStatus(dataObj.getBoolean("hatsoffstatus"));
-                                    data.setMerchantable(dataObj.getBoolean("merchantable"));
-                                    data.setDownvoteStatus(dataObj.getBoolean("downvotestatus"));
-                                    data.setEligibleForDownvote(mCanDownvote);
-                                    data.setPostTimeStamp(dataObj.getString("regdate"));
-                                    data.setLongForm(dataObj.getBoolean("long_form"));
-                                    data.setHatsOffCount(dataObj.getLong("hatsoffcount"));
-                                    data.setCommentCount(dataObj.getLong("commentcount"));
-                                    data.setContentImage(dataObj.getString("entityurl"));
-                                    data.setFollowStatus(dataObj.getBoolean("followstatus"));
-                                    data.setCollabCount(dataObj.getLong("collabcount"));
-                                    //if image width pr image height is null
-                                    if (dataObj.isNull("img_width") || dataObj.isNull("img_height")) {
-                                        data.setImgWidth(1);
-                                        data.setImgHeight(1);
-                                    } else {
-                                        data.setImgWidth(dataObj.getInt("img_width"));
-                                        data.setImgHeight(dataObj.getInt("img_height"));
-                                    }
-                                    if (dataObj.isNull("caption")) {
-                                        data.setCaption(null);
-                                    } else {
-                                        data.setCaption(dataObj.getString("caption"));
-                                    }
-
-                                    if (type.equals(CONTENT_TYPE_CAPTURE)) {
-
-                                        //Retrieve "CAPTURE_ID" if type is capture
-                                        data.setCaptureID(dataObj.getString("captureid"));
-                                        // if capture
-                                        // then if key cpshort exists
-                                        // not available for collaboration
-                                        if (!dataObj.isNull("cpshort")) {
-                                            JSONObject collabObject = dataObj.getJSONObject("cpshort");
-
-                                            data.setAvailableForCollab(false);
-                                            // set collaborator details
-                                            data.setCollabWithUUID(collabObject.getString("uuid"));
-                                            data.setCollabWithName(collabObject.getString("name"));
-                                            data.setCollaboWithEntityID(collabObject.getString("entityid"));
-
-                                        } else {
-                                            data.setAvailableForCollab(true);
-                                        }
-
-                                    } else if (type.equals(CONTENT_TYPE_SHORT)) {
-
-                                        //Retrieve "SHORT_ID" if type is short
-                                        data.setShortID(dataObj.getString("shoid"));
-
-                                        // if short
-                                        // then if key shcapture exists
-                                        // not available for collaboration
-                                        if (!dataObj.isNull("shcapture")) {
-
-                                            JSONObject collabObject = dataObj.getJSONObject("shcapture");
-
-                                            data.setAvailableForCollab(false);
-                                            // set collaborator details
-                                            data.setCollabWithUUID(collabObject.getString("uuid"));
-                                            data.setCollabWithName(collabObject.getString("name"));
-                                            data.setCollaboWithEntityID(collabObject.getString("entityid"));
-                                        } else {
-                                            data.setAvailableForCollab(true);
-                                        }
-                                    }
-
-
-                                    mUserActivityDataList.add(data);
-                                }
+                                parsePostsData(jsonObject, false);
                             }
                         } catch (JSONException e) {
                             e.printStackTrace();
@@ -1699,6 +1614,16 @@ public class MeFragment extends Fragment implements listener.OnCollaborationList
             data.setContentImage(dataObj.getString("entityurl"));
             data.setFollowStatus(dataObj.getBoolean("followstatus"));
             data.setCollabCount(dataObj.getLong("collabcount"));
+            //fixme live filter value
+            //exploreData.setLiveFilterName(dataObj.getString("livefiltername"));
+            //if image width pr image height is null
+            if (dataObj.isNull("img_width") || dataObj.isNull("img_height")) {
+                data.setImgWidth(1);
+                data.setImgHeight(1);
+            } else {
+                data.setImgWidth(dataObj.getInt("img_width"));
+                data.setImgHeight(dataObj.getInt("img_height"));
+            }
             if (dataObj.isNull("caption")) {
                 data.setCaption(null);
             } else {
@@ -1844,94 +1769,7 @@ public class MeFragment extends Fragment implements listener.OnCollaborationList
                             if (jsonObject.getString("tokenstatus").equals("invalid")) {
                                 tokenError[0] = true;
                             } else {
-                                JSONObject mainData = jsonObject.getJSONObject("data");
-                                mRequestMoreData = mainData.getBoolean("requestmore");
-                                mLastIndexKey = mainData.getString("lastindexkey");
-                                //UserActivity array list
-                                JSONArray UserActivityArray = mainData.getJSONArray("items");
-                                for (int i = 0; i < UserActivityArray.length(); i++) {
-                                    JSONObject dataObj = UserActivityArray.getJSONObject(i);
-                                    String type = dataObj.getString("type");
-
-                                    FeedModel data = new FeedModel();
-                                    data.setEntityID(dataObj.getString("entityid"));
-                                    data.setContentType(dataObj.getString("type"));
-                                    data.setUUID(dataObj.getString("uuid"));
-                                    data.setCreatorImage(dataObj.getString("profilepicurl"));
-                                    data.setCreatorName(dataObj.getString("creatorname"));
-                                    data.setHatsOffStatus(dataObj.getBoolean("hatsoffstatus"));
-                                    data.setMerchantable(dataObj.getBoolean("merchantable"));
-                                    data.setDownvoteStatus(dataObj.getBoolean("downvotestatus"));
-                                    data.setEligibleForDownvote(mCanDownvote);
-                                    data.setPostTimeStamp(dataObj.getString("regdate"));
-                                    data.setLongForm(dataObj.getBoolean("long_form"));
-                                    data.setHatsOffCount(dataObj.getLong("hatsoffcount"));
-                                    data.setCommentCount(dataObj.getLong("commentcount"));
-                                    data.setContentImage(dataObj.getString("entityurl"));
-                                    data.setFollowStatus(dataObj.getBoolean("followstatus"));
-                                    data.setCollabCount(dataObj.getLong("collabcount"));
-                                    //if image width and image height is null
-                                    if (dataObj.isNull("img_width") || dataObj.isNull("img_height")) {
-                                        data.setImgWidth(1);
-                                        data.setImgHeight(1);
-                                    } else {
-                                        data.setImgWidth(dataObj.getInt("img_width"));
-                                        data.setImgHeight(dataObj.getInt("img_height"));
-                                    }
-
-                                    if (dataObj.isNull("caption")) {
-                                        data.setCaption(null);
-                                    } else {
-                                        data.setCaption(dataObj.getString("caption"));
-                                    }
-
-
-                                    if (type.equals(CONTENT_TYPE_CAPTURE)) {
-
-                                        //Retrieve "CAPTURE_ID" if type is capture
-                                        data.setCaptureID(dataObj.getString("captureid"));
-                                        // if capture
-                                        // then if key cpshort exists
-                                        // not available for collaboration
-                                        if (!dataObj.isNull("cpshort")) {
-                                            JSONObject collabObject = dataObj.getJSONObject("cpshort");
-
-                                            data.setAvailableForCollab(false);
-                                            // set collaborator details
-                                            data.setCollabWithUUID(collabObject.getString("uuid"));
-                                            data.setCollabWithName(collabObject.getString("name"));
-                                            data.setCollaboWithEntityID(collabObject.getString("entityid"));
-
-                                        } else {
-                                            data.setAvailableForCollab(true);
-                                        }
-
-                                    } else if (type.equals(CONTENT_TYPE_SHORT)) {
-
-
-                                        //Retrieve "SHORT_ID" if type is short
-                                        data.setShortID(dataObj.getString("shoid"));// if short
-                                        // then if key shcapture exists
-                                        // not available for collaboration
-                                        if (!dataObj.isNull("shcapture")) {
-
-                                            JSONObject collabObject = dataObj.getJSONObject("shcapture");
-
-                                            data.setAvailableForCollab(false);
-                                            // set collaborator details
-                                            data.setCollabWithUUID(collabObject.getString("uuid"));
-                                            data.setCollabWithName(collabObject.getString("name"));
-                                            data.setCollaboWithEntityID(collabObject.getString("entityid"));
-                                        } else {
-                                            data.setAvailableForCollab(true);
-                                        }
-                                    }
-
-                                    mUserActivityDataList.add(data);
-                                    //Notify item insertion
-                                    mAdapter.notifyItemInserted(mUserActivityDataList.size() - 1);
-
-                                }
+                                parsePostsData(jsonObject, true);
                             }
                         } catch (JSONException e) {
                             e.printStackTrace();
@@ -2379,6 +2217,111 @@ public class MeFragment extends Fragment implements listener.OnCollaborationList
                 });
     }
 
+
+    /**
+     * Method to parse Json.
+     *
+     * @param jsonObject JsonObject to be parsed
+     * @param isLoadMore Whether called from load more or not.
+     * @throws JSONException
+     */
+    private void parsePostsData(JSONObject jsonObject, boolean isLoadMore) throws JSONException {
+        JSONObject mainData = jsonObject.getJSONObject("data");
+        mRequestMoreData = mainData.getBoolean("requestmore");
+        mLastIndexKey = mainData.getString("lastindexkey");
+        mCanDownvote = mainData.getBoolean("candownvote");
+        //UserActivity array list
+        JSONArray UserActivityArray = mainData.getJSONArray("items");
+        for (int i = 0; i < UserActivityArray.length(); i++) {
+            JSONObject dataObj = UserActivityArray.getJSONObject(i);
+            String type = dataObj.getString("type");
+
+            FeedModel data = new FeedModel();
+            data.setEntityID(dataObj.getString("entityid"));
+            data.setContentType(dataObj.getString("type"));
+            data.setUUID(dataObj.getString("uuid"));
+            data.setCreatorImage(dataObj.getString("profilepicurl"));
+            data.setCreatorName(dataObj.getString("creatorname"));
+            data.setHatsOffStatus(dataObj.getBoolean("hatsoffstatus"));
+            data.setMerchantable(dataObj.getBoolean("merchantable"));
+            data.setDownvoteStatus(dataObj.getBoolean("downvotestatus"));
+            data.setEligibleForDownvote(mCanDownvote);
+            data.setPostTimeStamp(dataObj.getString("regdate"));
+            data.setLongForm(dataObj.getBoolean("long_form"));
+            data.setHatsOffCount(dataObj.getLong("hatsoffcount"));
+            data.setCommentCount(dataObj.getLong("commentcount"));
+            data.setContentImage(dataObj.getString("entityurl"));
+            data.setFollowStatus(dataObj.getBoolean("followstatus"));
+            data.setCollabCount(dataObj.getLong("collabcount"));
+            //fixme live filter value
+            //exploreData.setLiveFilterName(dataObj.getString("livefiltername"));
+            //if image width pr image height is null
+            if (dataObj.isNull("img_width") || dataObj.isNull("img_height")) {
+                data.setImgWidth(1);
+                data.setImgHeight(1);
+            } else {
+                data.setImgWidth(dataObj.getInt("img_width"));
+                data.setImgHeight(dataObj.getInt("img_height"));
+            }
+            if (dataObj.isNull("caption")) {
+                data.setCaption(null);
+            } else {
+                data.setCaption(dataObj.getString("caption"));
+            }
+
+            if (type.equals(CONTENT_TYPE_CAPTURE)) {
+
+                //Retrieve "CAPTURE_ID" if type is capture
+                data.setCaptureID(dataObj.getString("captureid"));
+                // if capture
+                // then if key cpshort exists
+                // not available for collaboration
+                if (!dataObj.isNull("cpshort")) {
+                    JSONObject collabObject = dataObj.getJSONObject("cpshort");
+
+                    data.setAvailableForCollab(false);
+                    // set collaborator details
+                    data.setCollabWithUUID(collabObject.getString("uuid"));
+                    data.setCollabWithName(collabObject.getString("name"));
+                    data.setCollaboWithEntityID(collabObject.getString("entityid"));
+
+                } else {
+                    data.setAvailableForCollab(true);
+                }
+
+            } else if (type.equals(CONTENT_TYPE_SHORT)) {
+
+                //Retrieve "SHORT_ID" if type is short
+                data.setShortID(dataObj.getString("shoid"));
+
+                // if short
+                // then if key shcapture exists
+                // not available for collaboration
+                if (!dataObj.isNull("shcapture")) {
+
+                    JSONObject collabObject = dataObj.getJSONObject("shcapture");
+
+                    data.setAvailableForCollab(false);
+                    // set collaborator details
+                    data.setCollabWithUUID(collabObject.getString("uuid"));
+                    data.setCollabWithName(collabObject.getString("name"));
+                    data.setCollaboWithEntityID(collabObject.getString("entityid"));
+                } else {
+                    data.setAvailableForCollab(true);
+                }
+            }
+
+
+            mUserActivityDataList.add(data);
+            //Called from load more
+            if (isLoadMore) {
+                //Notify item insertion
+                mAdapter.notifyItemInserted(mUserActivityDataList.size() - 1);
+            }
+
+
+        }
+    }
 
     //endregion
 

@@ -82,14 +82,14 @@ import static com.thetestament.cread.utils.Constant.SHARE_OPTION_OTHER;
 import static com.thetestament.cread.utils.Constant.USER_ACTION_TYPE_VIEW;
 
 /**
- * Class to show detailed information of post item.
+ * Class to show detailed information of post.
  */
 public class FeedDescriptionActivity extends BaseActivity implements listener.OnCollaborationListener {
 
     //region :View binding with Butter knife
-    @BindView(R.id.rootView)
+    @BindView(R.id.root_view)
     CoordinatorLayout rootView;
-    @BindView(R.id.recyclerViewPosts)
+    @BindView(R.id.recycler_view_posts)
     RecyclerView recyclerViewPosts;
     //endregion
 
@@ -999,6 +999,8 @@ public class FeedDescriptionActivity extends BaseActivity implements listener.On
             data.setContentImage(dataObj.getString("entityurl"));
             data.setFollowStatus(dataObj.getBoolean("followstatus"));
             data.setCollabCount(dataObj.getLong("collabcount"));
+            //fixme live filter value
+            //data.setLiveFilterName(dataObj.getString("livefiltername"));
 
             //if image width pr image height is null
             if (dataObj.isNull("img_width") || dataObj.isNull("img_height")) {
