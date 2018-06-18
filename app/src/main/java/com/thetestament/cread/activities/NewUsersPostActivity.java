@@ -731,8 +731,7 @@ public class NewUsersPostActivity extends BaseActivity implements listener.OnCol
             feedData.setCommentCount(dataObj.getLong("commentcount"));
             feedData.setContentImage(dataObj.getString("entityurl"));
             feedData.setCollabCount(dataObj.getLong("collabcount"));
-            //fixme live filter value
-            //feedData.setLiveFilterName(dataObj.getString("livefiltername"));
+            feedData.setLiveFilterName(dataObj.getString("livefilter"));
             //if image width pr image height is null
             if (dataObj.isNull("img_width") || dataObj.isNull("img_height")) {
                 feedData.setImgWidth(1);

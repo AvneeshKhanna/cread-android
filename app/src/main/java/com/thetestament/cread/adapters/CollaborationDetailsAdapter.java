@@ -174,7 +174,7 @@ public class CollaborationDetailsAdapter extends RecyclerView.Adapter<Collaborat
             case Constant.LIVE_FILTER_BUBBLE:
                 viewHolder.liveFilterBubble.setVisibility(View.VISIBLE);
                 break;
-            case Constant.LIVE_FILTER_KONFETTI:
+            case Constant.LIVE_FILTER_CONFETTI:
                 viewHolder.konfettiView.setVisibility(View.VISIBLE);
                 ViewHelper.showKonfetti(viewHolder.konfettiView);
                 break;

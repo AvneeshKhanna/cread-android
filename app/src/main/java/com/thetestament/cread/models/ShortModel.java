@@ -13,6 +13,7 @@ public class ShortModel implements Parcelable {
     String contentText, bgcolor, font, imgTintColor, textColor, textGravity, imageURL, bgSound;
     boolean bold, italic, textShadow;
     double textSize, imgWidth;
+    String liveFilterName;
 
     // Required constructor
     public ShortModel() {
@@ -124,6 +125,14 @@ public class ShortModel implements Parcelable {
         this.bgSound = bgSound;
     }
 
+    public String getLiveFilterName() {
+        return liveFilterName;
+    }
+
+    public void setLiveFilterName(String liveFilterName) {
+        this.liveFilterName = liveFilterName;
+    }
+
     @Override
     public int describeContents() {
         return 0;
@@ -145,8 +154,7 @@ public class ShortModel implements Parcelable {
         parcel.writeDouble(textSize);
         parcel.writeDouble(imgWidth);
         parcel.writeString(bgSound);
-
-
+        parcel.writeString(liveFilterName);
     }
 
 
@@ -178,6 +186,7 @@ public class ShortModel implements Parcelable {
         textSize = in.readDouble();
         imgWidth = in.readDouble();
         bgSound = in.readString();
+        liveFilterName = in.readString();
     }
 
     /**

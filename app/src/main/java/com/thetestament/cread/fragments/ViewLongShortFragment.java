@@ -43,7 +43,7 @@ import static com.thetestament.cread.helpers.FontsHelper.getFontType;
 
 public class ViewLongShortFragment extends Fragment {
 
-    //region: Butter knife injections
+    //region:Butter knife injections
     @BindView(R.id.content_image)
     AppCompatImageView contentImage;
     @BindView(R.id.text_writing)
@@ -81,8 +81,8 @@ public class ViewLongShortFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
         mUnbinder = ButterKnife.bind(this, view);
         mShortData = getArguments().getParcelable("shortData");
-        //fixme Uncomment this
-        //initLiveFilters(Constant.LIVE_FILTER_RAIN);
+        //Method called
+        initLiveFilters(mShortData.getLiveFilterName());
     }
 
     @Override
@@ -374,12 +374,14 @@ public class ViewLongShortFragment extends Fragment {
             case Constant.LIVE_FILTER_BUBBLE:
                 liveFilterBubble.setVisibility(View.VISIBLE);
                 break;
-            case Constant.LIVE_FILTER_KONFETTI:
+            case Constant.LIVE_FILTER_CONFETTI:
                 konfettiView.setVisibility(View.VISIBLE);
                 ViewHelper.showKonfetti(konfettiView);
                 break;
             case Constant.LIVE_FILTER_NONE:
                 //do nothing
+                break;
+            default:
                 break;
         }
     }

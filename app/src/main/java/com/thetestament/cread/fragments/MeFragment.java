@@ -1614,8 +1614,7 @@ public class MeFragment extends Fragment implements listener.OnCollaborationList
             data.setContentImage(dataObj.getString("entityurl"));
             data.setFollowStatus(dataObj.getBoolean("followstatus"));
             data.setCollabCount(dataObj.getLong("collabcount"));
-            //fixme live filter value
-            //exploreData.setLiveFilterName(dataObj.getString("livefiltername"));
+            data.setLiveFilterName(dataObj.getString("livefilter"));
             //if image width pr image height is null
             if (dataObj.isNull("img_width") || dataObj.isNull("img_height")) {
                 data.setImgWidth(1);
@@ -2253,8 +2252,7 @@ public class MeFragment extends Fragment implements listener.OnCollaborationList
             data.setContentImage(dataObj.getString("entityurl"));
             data.setFollowStatus(dataObj.getBoolean("followstatus"));
             data.setCollabCount(dataObj.getLong("collabcount"));
-            //fixme live filter value
-            //exploreData.setLiveFilterName(dataObj.getString("livefiltername"));
+            data.setLiveFilterName(dataObj.getString("livefilter"));
             //if image width pr image height is null
             if (dataObj.isNull("img_width") || dataObj.isNull("img_height")) {
                 data.setImgWidth(1);

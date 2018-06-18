@@ -14,8 +14,10 @@ import com.thetestament.cread.activities.FeedDescriptionActivity;
 import com.thetestament.cread.activities.FollowActivity;
 import com.thetestament.cread.activities.MainActivity;
 import com.thetestament.cread.activities.ProfileActivity;
+import com.thetestament.cread.activities.ViewLongShortActivity;
 import com.thetestament.cread.activities.WebViewActivity;
 import com.thetestament.cread.models.FeedModel;
+import com.thetestament.cread.models.ShortModel;
 import com.thetestament.cread.utils.Constant;
 
 import static com.thetestament.cread.utils.Constant.EXTRA_CHAT_DETAILS_CALLED_FROM;
@@ -30,6 +32,7 @@ import static com.thetestament.cread.utils.Constant.EXTRA_FEED_DESCRIPTION_DATA;
 import static com.thetestament.cread.utils.Constant.EXTRA_FOLLOW_REQUESTED_UUID;
 import static com.thetestament.cread.utils.Constant.EXTRA_FOLLOW_TYPE;
 import static com.thetestament.cread.utils.Constant.EXTRA_PROFILE_UUID;
+import static com.thetestament.cread.utils.Constant.EXTRA_SHORT_DATA;
 import static com.thetestament.cread.utils.Constant.EXTRA_WEB_VIEW_TITLE;
 import static com.thetestament.cread.utils.Constant.EXTRA_WEB_VIEW_URL;
 
@@ -42,18 +45,20 @@ public class IntentHelper {
     /**
      * Method to open ContentPreview activity.
      *
-     * @param context       Context to use.
-     * @param imageWidth    Width of image.
-     * @param imageHeight   Height of image.
-     * @param imageUrl      Url of the image.
-     * @param signatureText Signature text of the user.
+     * @param context        Context to use.
+     * @param imageWidth     Width of image.
+     * @param imageHeight    Height of image.
+     * @param imageUrl       Url of the image.
+     * @param signatureText  Signature text of the user.
+     * @param liveFilterName Name of live filter
      */
-    public static void openContentPreviewActivity(Context context, int imageWidth, int imageHeight, String imageUrl, String signatureText) {
+    public static void openContentPreviewActivity(Context context, int imageWidth, int imageHeight, String imageUrl, String signatureText, String liveFilterName) {
         Bundle bundle = new Bundle();
         bundle.putInt(Constant.CONTENT_PREVIEW_EXTRA_IMAGE_WIDTH, imageWidth);
         bundle.putInt(Constant.CONTENT_PREVIEW_EXTRA_IMAGE_HEIGHT, imageHeight);
         bundle.putString(Constant.CONTENT_PREVIEW_EXTRA_IMAGE_URL, imageUrl);
         bundle.putString(Constant.CONTENT_PREVIEW_EXTRA_SIGNATURE_TEXT, signatureText);
+        bundle.putString(Constant.CONTENT_PREVIEW_EXTRA_LIVE_FILTER_NAME, liveFilterName);
 
         Intent intent = new Intent(context, ContentPreview.class);
         intent.putExtra(Constant.CONTENT_PREVIEW_EXTRA_DATA, bundle);
@@ -175,6 +180,18 @@ public class IntentHelper {
 
         Intent intent = new Intent(context, FeedDescriptionActivity.class);
         intent.putExtra(EXTRA_DATA, bundle);
+        context.startActivity(intent);
+    }
+
+    /**
+     * Method to open ViewLongShortActivity screen.
+     *
+     * @param context Context to use.
+     * @param model   ShortModel data
+     */
+    public static void openLongFormWritingActivity(Context context, ShortModel model) {
+        Intent intent = new Intent(context, ViewLongShortActivity.class);
+        intent.putExtra(EXTRA_SHORT_DATA, model);
         context.startActivity(intent);
     }
 }

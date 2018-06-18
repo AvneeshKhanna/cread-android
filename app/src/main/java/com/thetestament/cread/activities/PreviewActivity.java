@@ -36,6 +36,9 @@ import com.androidnetworking.AndroidNetworking;
 import com.androidnetworking.error.ANError;
 import com.androidnetworking.interfaces.JSONObjectRequestListener;
 import com.crashlytics.android.Crashlytics;
+import com.github.glomadrian.grav.GravView;
+import com.github.matteobattilana.weather.PrecipType;
+import com.github.matteobattilana.weather.WeatherView;
 import com.linkedin.android.spyglass.suggestions.SuggestionsResult;
 import com.linkedin.android.spyglass.suggestions.interfaces.Suggestible;
 import com.linkedin.android.spyglass.suggestions.interfaces.SuggestionsResultListener;
@@ -52,12 +55,14 @@ import com.thetestament.cread.Manifest;
 import com.thetestament.cread.R;
 import com.thetestament.cread.adapters.FilterAdapter;
 import com.thetestament.cread.adapters.LabelsAdapter;
+import com.thetestament.cread.adapters.LiveFilterAdapter;
 import com.thetestament.cread.adapters.PersonMentionAdapter;
 import com.thetestament.cread.dialog.CustomDialog;
 import com.thetestament.cread.helpers.CaptureHelper;
 import com.thetestament.cread.helpers.CustomFilters;
 import com.thetestament.cread.helpers.ImageHelper;
 import com.thetestament.cread.helpers.IntentHelper;
+import com.thetestament.cread.helpers.LiveFilterHelper;
 import com.thetestament.cread.helpers.LongShortHelper;
 import com.thetestament.cread.helpers.NetworkHelper;
 import com.thetestament.cread.helpers.ProfileMentionsHelper;
@@ -66,6 +71,7 @@ import com.thetestament.cread.helpers.ViewHelper;
 import com.thetestament.cread.listeners.listener;
 import com.thetestament.cread.models.FilterModel;
 import com.thetestament.cread.models.LabelsModel;
+import com.thetestament.cread.models.LiveFilterModel;
 import com.thetestament.cread.models.PersonMentionModel;
 import com.thetestament.cread.models.ShortModel;
 import com.thetestament.cread.networkmanager.HashTagNetworkManager;
@@ -100,6 +106,7 @@ import io.reactivex.functions.Function;
 import io.reactivex.functions.Predicate;
 import io.reactivex.schedulers.Schedulers;
 import io.reactivex.subjects.PublishSubject;
+import nl.dionsegijn.konfetti.KonfettiView;
 import okhttp3.OkHttpClient;
 import pl.tajchert.nammu.Nammu;
 import pl.tajchert.nammu.PermissionCallback;
@@ -126,7 +133,6 @@ import static com.thetestament.cread.utils.Constant.CONTENT_TYPE_CAPTURE;
 import static com.thetestament.cread.utils.Constant.CONTENT_TYPE_SHORT;
 import static com.thetestament.cread.utils.Constant.EXTRA_IMAGE_HEIGHT;
 import static com.thetestament.cread.utils.Constant.EXTRA_IMAGE_WIDTH;
-import static com.thetestament.cread.utils.Constant.EXTRA_SHORT_DATA;
 import static com.thetestament.cread.utils.Constant.IMAGE_TYPE_USER_CAPTURE_PIC;
 import static com.thetestament.cread.utils.Constant.IMAGE_TYPE_USER_SHORT_PIC;
 import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_AUTH_KEY;
@@ -205,6 +211,16 @@ public class PreviewActivity extends BaseActivity implements QueryTokenReceiver,
     RecyclerView recyclerViewLabels;
     @BindView(R.id.containerLabelHint)
     LinearLayout containerLabelHint;
+    @BindView(R.id.live_filter_bubble)
+    GravView liveFilterBubble;
+    @BindView(R.id.whether_view)
+    WeatherView whetherView;
+    @BindView(R.id.konfetti_view)
+    KonfettiView konfettiView;
+    @BindView(R.id.live_filter_bottom_sheet_view)
+    NestedScrollView liveFilterBottomSheetView;
+    @BindView(R.id.recycler_view_live_filter)
+    RecyclerView liveFilterRecyclerView;
     //endregion
 
     //region :Fields and constants
@@ -212,6 +228,10 @@ public class PreviewActivity extends BaseActivity implements QueryTokenReceiver,
      * BottomSheet behaviour for filters.
      */
     BottomSheetBehavior filterSheetBehavior;
+    /**
+     * BottomSheet behaviour for live filters.
+     */
+    BottomSheetBehavior liveFilterSheetBehavior;
 
     /**
      * Field to store bundle data from intent.
@@ -287,6 +307,12 @@ public class PreviewActivity extends BaseActivity implements QueryTokenReceiver,
      */
     @State
     int mMaxLabelSelection;
+
+    /**
+     * Flag to maintain selected live filter status.
+     */
+    @State
+    String mSelectedLiveFilter = Constant.LIVE_FILTER_NONE;
 
 
     //endregion
@@ -485,11 +511,10 @@ public class PreviewActivity extends BaseActivity implements QueryTokenReceiver,
         shortModel.setTextShadow(convertStringToBool(mBundle.getString(PREVIEW_EXTRA_IS_SHADOW_SELECTED)));
         shortModel.setImgWidth(Double.valueOf(mBundle.getString(PREVIEW_EXTRA_IMG_WIDTH)));
         shortModel.setBgSound(mBgSound);
+        shortModel.setLiveFilterName(mSelectedLiveFilter);
 
-        // open activity and pass data
-        Intent intent = new Intent(mContext, ViewLongShortActivity.class);
-        intent.putExtra(EXTRA_SHORT_DATA, shortModel);
-        mContext.startActivity(intent);
+        IntentHelper.openLongFormWritingActivity(mContext, shortModel);
+
     }
 
     @OnClick(R.id.containerLongShortSound)
@@ -592,7 +617,7 @@ public class PreviewActivity extends BaseActivity implements QueryTokenReceiver,
     }
 
     /**
-     * Image click functionality to show preview in fullscreen.
+     * Click functionality to show preview in fullscreen.
      */
     @OnClick(R.id.imagePreview)
     void imageOnClick() {
@@ -600,7 +625,8 @@ public class PreviewActivity extends BaseActivity implements QueryTokenReceiver,
                 , mImagePreviewWidth
                 , mImagePreviewHeight
                 , mImageUrl
-                , mWaterMarkText);
+                , mWaterMarkText
+                , mSelectedLiveFilter);
     }
 
     /**
@@ -614,6 +640,15 @@ public class PreviewActivity extends BaseActivity implements QueryTokenReceiver,
                 , getString(R.string.text_title_label_dialog)
                 , getString(R.string.text_content_label_dialog)
                 , R.drawable.img_interests_dialog);
+    }
+
+    /**
+     * Click functionality to toggle live filter bottom sheet.
+     */
+    @OnClick({R.id.container_live_filter, R.id.image_live_filter,R.id.button_close})
+    void toggleLiveFilterOnClick() {
+        //Method called
+        toggleLiveFilterBottomSheet();
     }
     //endregion
 
@@ -725,6 +760,8 @@ public class PreviewActivity extends BaseActivity implements QueryTokenReceiver,
             //set bg sound for long form
             mBgSound = mBundle.getString(PREVIEW_EXTRA_BG_SOUND);
         }
+        //Method called
+        initLiveFilter();
     }
 
     /**
@@ -981,6 +1018,7 @@ public class PreviewActivity extends BaseActivity implements QueryTokenReceiver,
                 .addMultipartParameter("text_long", longText)
                 .addMultipartParameter("bg_sound", mBgSound)
                 .addMultipartParameter("interests", new JSONArray(mLabelList).toString())
+                .addMultipartParameter("livefilter", mSelectedLiveFilter)
                 .build()
                 .getJSONObjectObservable()
                 .subscribeOn(Schedulers.io())
@@ -1105,6 +1143,7 @@ public class PreviewActivity extends BaseActivity implements QueryTokenReceiver,
                 .addMultipartParameter("text_long", longText)
                 .addMultipartParameter("bg_sound", mBgSound)
                 .addMultipartParameter("interests", new JSONArray(mLabelList).toString())
+                .addMultipartParameter("livefilter", mSelectedLiveFilter)
                 .build()
                 .getJSONObjectObservable()
                 .subscribeOn(Schedulers.io())
@@ -1231,6 +1270,7 @@ public class PreviewActivity extends BaseActivity implements QueryTokenReceiver,
                 .addMultipartParameter("text_long", longText)
                 .addMultipartParameter("bg_sound", mBgSound)
                 .addMultipartParameter("interests", new JSONArray(mLabelList).toString())
+                .addMultipartParameter("livefilter", mSelectedLiveFilter)
                 .build()
                 .getJSONObjectObservable()
                 .subscribeOn(Schedulers.io())
@@ -1350,6 +1390,7 @@ public class PreviewActivity extends BaseActivity implements QueryTokenReceiver,
                 .addMultipartParameter("img_width", String.valueOf(imageWidth))
                 .addMultipartParameter("img_height", String.valueOf(imageHeight))
                 .addMultipartParameter("interests", new JSONArray(mLabelList).toString())
+                .addMultipartParameter("livefilter", mSelectedLiveFilter)
                 .setOkHttpClient(okHttpClient)
                 .build()
                 .getAsJSONObject(new JSONObjectRequestListener() {
@@ -1430,6 +1471,7 @@ public class PreviewActivity extends BaseActivity implements QueryTokenReceiver,
                 .addBodyParameter("caption", captionText)
                 .addBodyParameter("entityid", entityID)
                 .addBodyParameter("interests", new JSONArray(mLabelList).toString())
+                .addBodyParameter("livefilter", mSelectedLiveFilter)
                 .setOkHttpClient(okHttpClient)
                 .build()
                 .getAsJSONObject(new JSONObjectRequestListener() {
@@ -1479,6 +1521,11 @@ public class PreviewActivity extends BaseActivity implements QueryTokenReceiver,
      * Method to toggle visibility of filter bottomSheet.
      */
     private void toggleFilterBottomSheet() {
+        if (liveFilterSheetBehavior.getState() == BottomSheetBehavior.STATE_EXPANDED) {
+            //Hide bottom sheet
+            liveFilterSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
+        }
+
         if (filterSheetBehavior.getState() == BottomSheetBehavior.STATE_EXPANDED) {
             //Hide bottom sheet
             filterSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
@@ -1512,7 +1559,7 @@ public class PreviewActivity extends BaseActivity implements QueryTokenReceiver,
             }
         });
         //Set layout manager
-        filterRecyclerView.setLayoutManager(new LinearLayoutManager(PreviewActivity.this
+        filterRecyclerView.setLayoutManager(new LinearLayoutManager(mContext
                 , LinearLayoutManager.HORIZONTAL
                 , false));
         filterRecyclerView.setHasFixedSize(true);
@@ -2080,8 +2127,119 @@ public class PreviewActivity extends BaseActivity implements QueryTokenReceiver,
         mImagePreviewHeight = options.outHeight;
         mImagePreviewWidth = options.outWidth;
         mImageUrl = getImageUri(imageUrl).toString();
-        AspectRatioUtils.setImageAspectRatio(mImagePreviewWidth, mImagePreviewHeight, imagePreview);
+        AspectRatioUtils.setImageAspectRatio(mImagePreviewWidth
+                , mImagePreviewHeight
+                , imagePreview
+                , true);
     }
+
+    /**
+     * Method to toggle visibility of live filter bottomSheet.
+     */
+    private void toggleLiveFilterBottomSheet() {
+
+        if (filterSheetBehavior.getState() == BottomSheetBehavior.STATE_EXPANDED) {
+            //Hide bottom sheet
+            filterSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
+        }
+
+        if (liveFilterSheetBehavior.getState() == BottomSheetBehavior.STATE_EXPANDED) {
+            //Hide bottom sheet
+            liveFilterSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
+        } else if (liveFilterSheetBehavior.getState() == BottomSheetBehavior.STATE_COLLAPSED) {
+            //Show bottom sheet
+            liveFilterSheetBehavior.setState(BottomSheetBehavior.STATE_EXPANDED);
+        }
+    }
+
+    /**
+     * Method to initialize live filter bottom sheet.
+     */
+    private void initLiveFilter() {
+        //Setup bottom sheets
+        liveFilterSheetBehavior = BottomSheetBehavior.from(liveFilterBottomSheetView);
+        liveFilterSheetBehavior.setPeekHeight(0);
+
+        final ArrayList<LiveFilterModel> liveFilterList = new ArrayList<>();
+        //initialize live filter data list
+        for (String name : LiveFilterHelper.liveFilterList) {
+            LiveFilterModel data = new LiveFilterModel();
+            data.setLiveFilterName(name);
+            liveFilterList.add(data);
+        }
+        //Set layout manager
+        final LinearLayoutManager layoutManager = new LinearLayoutManager(mContext
+                , LinearLayoutManager.HORIZONTAL
+                , false);
+        liveFilterRecyclerView.setLayoutManager(layoutManager);
+        //Set adapter
+        final LiveFilterAdapter liveFilterAdapter = new LiveFilterAdapter(liveFilterList, mContext);
+        liveFilterRecyclerView.setHasFixedSize(true);
+        liveFilterRecyclerView.setAdapter(liveFilterAdapter);
+
+        //Live filter click listener
+        liveFilterAdapter.setOnLiveFilterClickListener(new listener.OnLiveFilterClickListener() {
+            @Override
+            public void onLiveFilterClick(String liveFilterName, int itemPosition) {
+                switch (liveFilterName) {
+                    case Constant.LIVE_FILTER_SNOW:
+                        //Toggle visibility
+                        liveFilterBubble.setVisibility(View.INVISIBLE);
+                        konfettiView.setVisibility(View.GONE);
+
+                        whetherView.setWeatherData(PrecipType.SNOW);
+                        whetherView.setVisibility(View.VISIBLE);
+                        //update flag
+                        mSelectedLiveFilter = Constant.LIVE_FILTER_SNOW;
+                        break;
+                    case Constant.LIVE_FILTER_RAIN:
+                        //Toggle visibility
+                        liveFilterBubble.setVisibility(View.INVISIBLE);
+                        konfettiView.setVisibility(View.GONE);
+
+                        whetherView.setWeatherData(PrecipType.RAIN);
+                        whetherView.setVisibility(View.VISIBLE);
+                        //update flag
+                        mSelectedLiveFilter = Constant.LIVE_FILTER_RAIN;
+                        break;
+                    case Constant.LIVE_FILTER_BUBBLE:
+                        //Toggle visibility
+                        konfettiView.setVisibility(View.GONE);
+                        whetherView.setVisibility(View.GONE);
+
+                        liveFilterBubble.setVisibility(View.VISIBLE);
+                        //update flag
+                        mSelectedLiveFilter = Constant.LIVE_FILTER_BUBBLE;
+                        break;
+
+                    case Constant.LIVE_FILTER_CONFETTI:
+                        //Toggle visibility
+                        whetherView.setVisibility(View.GONE);
+                        liveFilterBubble.setVisibility(View.INVISIBLE);
+
+                        //Show Confetti
+                        konfettiView.setVisibility(View.VISIBLE);
+                        ViewHelper.showKonfetti(konfettiView);
+                        //update flag
+                        mSelectedLiveFilter = Constant.LIVE_FILTER_CONFETTI;
+                        break;
+                    case Constant.LIVE_FILTER_NONE:
+                        //Toggle visibility
+                        whetherView.setVisibility(View.GONE);
+                        liveFilterBubble.setVisibility(View.INVISIBLE);
+                        konfettiView.setVisibility(View.GONE);
+
+                        //update flag
+                        mSelectedLiveFilter = Constant.LIVE_FILTER_NONE;
+                        break;
+                    default:
+                        //do nothing
+                        break;
+                }
+            }
+        });
+    }
+
     //endregion
 
 }

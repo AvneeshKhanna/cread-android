@@ -106,8 +106,7 @@ public class ContentPreview extends BaseActivity {
             textSignature.setText(bundle.getString(Constant.CONTENT_PREVIEW_EXTRA_SIGNATURE_TEXT));
         }
 
-        //fixme Uncomment this
-        //initLiveFilters(bundle.getString(Constant.CONTENT_PREVIEW_EXTRA_LIVE_FILTER_NAME));
+        initLiveFilters(bundle.getString(Constant.CONTENT_PREVIEW_EXTRA_LIVE_FILTER_NAME));
     }
 
     /**
@@ -128,7 +127,7 @@ public class ContentPreview extends BaseActivity {
             case Constant.LIVE_FILTER_BUBBLE:
                 liveFilterBubble.setVisibility(View.VISIBLE);
                 break;
-            case Constant.LIVE_FILTER_KONFETTI:
+            case Constant.LIVE_FILTER_CONFETTI:
                 konfettiView.setVisibility(View.VISIBLE);
                 ViewHelper.showKonfetti(konfettiView);
                 break;

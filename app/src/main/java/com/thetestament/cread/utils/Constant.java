@@ -397,6 +397,6 @@ public class Constant {
     public static final String LIVE_FILTER_SNOW = "snow";
     public static final String LIVE_FILTER_RAIN = "rain";
     public static final String LIVE_FILTER_BUBBLE = "bubble";
-    public static final String LIVE_FILTER_KONFETTI = "konfettin";
+    public static final String LIVE_FILTER_CONFETTI = "confetti";
     //endregion
 }

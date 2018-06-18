@@ -17,10 +17,10 @@ import android.text.style.ClickableSpan;
 import android.text.style.URLSpan;
 import android.text.util.Linkify;
 import android.view.View;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.afollestad.materialdialogs.DialogAction;
@@ -801,8 +801,8 @@ public class FeedHelper {
      * @param image    Image View
      */
     public static void setGridItemMargins(FragmentActivity context, int position, ImageView image) {
-        RelativeLayout.LayoutParams params = new
-                RelativeLayout
+        FrameLayout.LayoutParams params = new
+                FrameLayout
                         .LayoutParams(image
                 .getLayoutParams());
 

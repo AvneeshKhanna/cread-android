@@ -51,8 +51,8 @@ android {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
             //buildConfigField "String", "URL", '"http://cread-dev-remote.herokuapp.com"'
-            //buildConfigField "String", "URL", '"http://b72930d6.ngrok.io"'
-            buildConfigField "String", "URL", '"http://cread-server-dev.ap-northeast-1.elasticbeanstalk.com"'
+            buildConfigField "String", "URL", '"http://39de9ccd.ngrok.io"'
+            //buildConfigField "String", "URL", '"http://cread-server-dev.ap-northeast-1.elasticbeanstalk.com"'
             buildConfigField "boolean", "VISIBILITY_RESTART_HEROKU_OPTION", "true"
             buildConfigField "String", "S3BUCKET", '"testamentbucketdev"'
             buildConfigField "String", "CREAD_KALAKAAR_UUID", '"40e88526-6e2f-49f1-82ae-ed2e52fc54fe"'

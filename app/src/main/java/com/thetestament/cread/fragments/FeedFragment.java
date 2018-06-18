@@ -1145,6 +1145,7 @@ public class FeedFragment extends Fragment implements listener.OnCollaborationLi
             feedData.setCommentCount(dataObj.getLong("commentcount"));
             feedData.setContentImage(dataObj.getString("entityurl"));
             feedData.setCollabCount(dataObj.getLong("collabcount"));
+            feedData.setLiveFilterName(dataObj.getString("livefilter"));
             //if image width pr image height is null
             if (dataObj.isNull("img_width") || dataObj.isNull("img_height")) {
                 feedData.setImgWidth(1);
@@ -1153,8 +1154,7 @@ public class FeedFragment extends Fragment implements listener.OnCollaborationLi
                 feedData.setImgWidth(dataObj.getInt("img_width"));
                 feedData.setImgHeight(dataObj.getInt("img_height"));
             }
-            //feedData.setImageWidth(dataObj.getInt("imgwidth"));
-            //feedData.setImageHeight(dataObj.getInt("imgheight"));
+
             if (dataObj.isNull("caption")) {
                 feedData.setCaption(null);
             } else {

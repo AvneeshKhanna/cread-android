@@ -207,8 +207,7 @@ public class ExploreAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
             // init post timestamp
             updatePostTimestamp(itemViewHolder.textTimeStamp, data);
             //Method called
-            //fixme update this with real data
-            //initLiveFilters(Constant.LIVE_FILTER_BUBBLE, itemViewHolder);
+            initLiveFilters(data.getLiveFilterName(), itemViewHolder);
 
         } else if (holder.getItemViewType() == VIEW_TYPE_ITEM_GRID) {
             final GridItemViewHolder itemViewHolder = (GridItemViewHolder) holder;
@@ -225,8 +224,7 @@ public class ExploreAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
             initLongFormPreviewClick(itemViewHolder.containerLongShortPreview, data, mContext, mCompositeDisposable);
 
             //Method called
-            //fixme update this with real data
-            //initLiveFilters(Constant.LIVE_FILTER_BUBBLE, itemViewHolder);
+            initLiveFilters(data.getLiveFilterName(), itemViewHolder);
         } else if (holder.getItemViewType() == VIEW_TYPE_LOADING) {
             LoadingViewHolder loadingViewHolder = (LoadingViewHolder) holder;
             loadingViewHolder.progressView.setVisibility(View.VISIBLE);
@@ -495,7 +493,7 @@ public class ExploreAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
             case Constant.LIVE_FILTER_BUBBLE:
                 viewHolder.liveFilterBubble.setVisibility(View.VISIBLE);
                 break;
-            case Constant.LIVE_FILTER_KONFETTI:
+            case Constant.LIVE_FILTER_CONFETTI:
                 viewHolder.konfettiView.setVisibility(View.VISIBLE);
                 ViewHelper.showKonfetti(viewHolder.konfettiView);
                 break;
@@ -523,7 +521,7 @@ public class ExploreAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
             case Constant.LIVE_FILTER_BUBBLE:
                 viewHolder.liveFilterBubble.setVisibility(View.VISIBLE);
                 break;
-            case Constant.LIVE_FILTER_KONFETTI:
+            case Constant.LIVE_FILTER_CONFETTI:
                 viewHolder.konfettiView.setVisibility(View.VISIBLE);
                 ViewHelper.showKonfetti(viewHolder.konfettiView);
                 break;

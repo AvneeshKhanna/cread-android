@@ -1211,8 +1211,7 @@ public class ExploreFragment extends Fragment implements listener.OnCollaboratio
             exploreData.setCommentCount(dataObj.getLong("commentcount"));
             exploreData.setContentImage(dataObj.getString("entityurl"));
             exploreData.setCollabCount(dataObj.getLong("collabcount"));
-            //fixme live filter value
-            //exploreData.setLiveFilterName(dataObj.getString("livefiltername"));
+            exploreData.setLiveFilterName(dataObj.getString("livefilter"));
 
             //if image width pr image height is null
             if (dataObj.isNull("img_width") || dataObj.isNull("img_height")) {

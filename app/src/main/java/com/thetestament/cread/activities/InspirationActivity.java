@@ -334,8 +334,7 @@ public class InspirationActivity extends BaseActivity {
             data.setCreatorName(dataObj.getString("creatorname"));
             data.setCapturePic(dataObj.getString("captureurl"));
             data.setMerchantable(dataObj.getBoolean("merchantable"));
-            //fixme live filter value
-            //data.setLiveFilterName(dataObj.getString("livefiltername"));
+            data.setLiveFilterName(dataObj.getString("livefilter"));
             //if image width pr image height is null
             if (dataObj.isNull("img_width") || dataObj.isNull("img_height")) {
                 data.setImgWidth(1);
