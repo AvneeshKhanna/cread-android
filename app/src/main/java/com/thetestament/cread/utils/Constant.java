@@ -392,7 +392,6 @@ public class Constant {
     //endregion
 
     //region :Live filter name
-    //fixme update name
     public static final String LIVE_FILTER_NONE = "none";
     public static final String LIVE_FILTER_SNOW = "snow";
     public static final String LIVE_FILTER_RAIN = "rain";

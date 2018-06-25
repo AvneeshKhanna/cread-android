@@ -11,24 +11,18 @@ import android.widget.FrameLayout;
 import android.widget.RelativeLayout;
 
 import com.facebook.drawee.view.SimpleDraweeView;
-import com.github.glomadrian.grav.GravView;
-import com.github.matteobattilana.weather.PrecipType;
-import com.github.matteobattilana.weather.WeatherView;
 import com.thetestament.cread.R;
 import com.thetestament.cread.helpers.ImageHelper;
 import com.thetestament.cread.helpers.IntentHelper;
-import com.thetestament.cread.helpers.ViewHelper;
 import com.thetestament.cread.listeners.listener.OnCollaborationDetailsLoadMoreListener;
 import com.thetestament.cread.listeners.listener.OnCollaborationItemClickedListener;
 import com.thetestament.cread.models.CollaborationDetailsModel;
 import com.thetestament.cread.utils.AspectRatioUtils;
-import com.thetestament.cread.utils.Constant;
 
 import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import nl.dionsegijn.konfetti.KonfettiView;
 
 /**
  * Adapter class to provide a binding from data set to views that are displayed within collaboration details RecyclerView.
@@ -96,9 +90,6 @@ public class CollaborationDetailsAdapter extends RecyclerView.Adapter<Collaborat
         // init click listener
         initItemClick(holder.imageCollaboration, data.getEntityID());
 
-        //Method called
-        //fixme update this with real data
-        //initLiveFilters(Constant.LIVE_FILTER_BUBBLE, itemViewHolder);
 
         //If last item is visible to user and new set of data is to yet to be loaded
         if (position == mCollaborationList.size() - 1 && !mIsLoading) {
@@ -156,33 +147,6 @@ public class CollaborationDetailsAdapter extends RecyclerView.Adapter<Collaborat
         });
     }
 
-    /**
-     * Method to initialize live filter.
-     *
-     * @param filterName Name of filter to be applied.
-     */
-    private void initLiveFilters(String filterName, CollaborationDetailsAdapter.ItemViewHolder viewHolder) {
-        switch (filterName) {
-            case Constant.LIVE_FILTER_SNOW:
-                viewHolder.weatherView.setWeatherData(PrecipType.SNOW);
-                viewHolder.weatherView.setVisibility(View.VISIBLE);
-                break;
-            case Constant.LIVE_FILTER_RAIN:
-                viewHolder.weatherView.setWeatherData(PrecipType.RAIN);
-                viewHolder.weatherView.setVisibility(View.VISIBLE);
-                break;
-            case Constant.LIVE_FILTER_BUBBLE:
-                viewHolder.liveFilterBubble.setVisibility(View.VISIBLE);
-                break;
-            case Constant.LIVE_FILTER_CONFETTI:
-                viewHolder.konfettiView.setVisibility(View.VISIBLE);
-                ViewHelper.showKonfetti(viewHolder.konfettiView);
-                break;
-            case Constant.LIVE_FILTER_NONE:
-                //do nothing
-                break;
-        }
-    }
 
 
     //ItemViewHolder class
@@ -197,12 +161,6 @@ public class CollaborationDetailsAdapter extends RecyclerView.Adapter<Collaborat
         SimpleDraweeView imageCollaboration;
         @BindView(R.id.image_container)
         FrameLayout imageContainer;
-        @BindView(R.id.live_filter_bubble)
-        GravView liveFilterBubble;
-        @BindView(R.id.weather_view)
-        WeatherView weatherView;
-        @BindView(R.id.konfetti_view)
-        KonfettiView konfettiView;
 
         public ItemViewHolder(View itemView) {
             super(itemView);

@@ -6,6 +6,7 @@ import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.content.ContextCompat;
@@ -39,6 +40,7 @@ import com.thetestament.cread.activities.HatsOffActivity;
 import com.thetestament.cread.activities.MerchandisingProductsActivity;
 import com.thetestament.cread.helpers.DownvoteHelper;
 import com.thetestament.cread.helpers.FeedHelper;
+import com.thetestament.cread.helpers.GifHelper;
 import com.thetestament.cread.helpers.ImageHelper;
 import com.thetestament.cread.helpers.NetworkHelper;
 import com.thetestament.cread.helpers.ProfileMentionsHelper;
@@ -98,6 +100,7 @@ public class FeedDescriptionAdapter extends RecyclerView.Adapter {
     private List<CommentsModel> mCommentsList = new ArrayList<>();
     private FragmentActivity mContext;
     private boolean mIsLoading;
+    private  Bitmap bitmap;
     /*
     Flag to check whether to scroll to comments section
     when opened from updates screen
@@ -463,6 +466,8 @@ public class FeedDescriptionAdapter extends RecyclerView.Adapter {
         WeatherView whetherView;
         @BindView(R.id.konfetti_view)
         KonfettiView konfettiView;
+        @BindView(R.id.container)
+        FrameLayout frameLayout;
 
         //Variable to maintain hats off status
         private boolean mIsHatsOff = false;
@@ -589,13 +594,15 @@ public class FeedDescriptionAdapter extends RecyclerView.Adapter {
      * @param data
      */
     private void shareOnClick(final ItemViewHolder itemViewHolder, final FeedModel data) {
-
-
         itemViewHolder.logoWhatsapp.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
-                loadBitmapForSharing(data, SHARE_OPTION_WHATSAPP);
+                if (GifHelper.hasLiveFilter(data.getLiveFilterName())) {
+                    new GifHelper(mContext, bitmap, itemViewHolder.frameLayout, SHARE_OPTION_WHATSAPP)
+                            .startHandlerTask(new Handler(), 0);
+                } else {
+                    loadBitmapForSharing(data, SHARE_OPTION_WHATSAPP);
+                }
             }
         });
 
@@ -603,23 +610,38 @@ public class FeedDescriptionAdapter extends RecyclerView.Adapter {
             @Override
             public void onClick(View view) {
 
-                loadBitmapForSharing(data, SHARE_OPTION_FACEBOOK);
+                if (GifHelper.hasLiveFilter(data.getLiveFilterName())) {
+                    new GifHelper(mContext, bitmap, itemViewHolder.frameLayout, SHARE_OPTION_FACEBOOK)
+                            .startHandlerTask(new Handler(), 0);
+                } else {
+                    loadBitmapForSharing(data, SHARE_OPTION_FACEBOOK);
+                }
+
             }
         });
 
         itemViewHolder.logoInstagram.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                if (GifHelper.hasLiveFilter(data.getLiveFilterName())) {
+                    new GifHelper(mContext, bitmap, itemViewHolder.frameLayout, SHARE_OPTION_INSTAGRAM)
+                            .startHandlerTask(new Handler(), 0);
+                } else {
+                    loadBitmapForSharing(data, SHARE_OPTION_INSTAGRAM);
+                }
 
-                loadBitmapForSharing(data, SHARE_OPTION_INSTAGRAM);
             }
         });
 
         itemViewHolder.logoMore.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
-                loadBitmapForSharing(data, SHARE_OPTION_OTHER);
+                if (GifHelper.hasLiveFilter(data.getLiveFilterName())) {
+                    new GifHelper(mContext, bitmap, itemViewHolder.frameLayout, SHARE_OPTION_OTHER)
+                            .startHandlerTask(new Handler(), 0);
+                } else {
+                    loadBitmapForSharing(data, SHARE_OPTION_OTHER);
+                }
             }
         });
 

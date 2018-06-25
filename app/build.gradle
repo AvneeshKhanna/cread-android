@@ -28,7 +28,6 @@ android {
 
         renderscriptTargetApi 19
         renderscriptSupportModeEnabled true
-
     }
     buildToolsVersion rootProject.ext.buildToolsVersion
     buildTypes {
@@ -51,8 +50,8 @@ android {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
             //buildConfigField "String", "URL", '"http://cread-dev-remote.herokuapp.com"'
-            buildConfigField "String", "URL", '"http://39de9ccd.ngrok.io"'
-            //buildConfigField "String", "URL", '"http://cread-server-dev.ap-northeast-1.elasticbeanstalk.com"'
+            //buildConfigField "String", "URL", '"http://9d3f08d8.ngrok.io"'
+            buildConfigField "String", "URL", '"http://cread-server-dev.ap-northeast-1.elasticbeanstalk.com"'
             buildConfigField "boolean", "VISIBILITY_RESTART_HEROKU_OPTION", "true"
             buildConfigField "String", "S3BUCKET", '"testamentbucketdev"'
             buildConfigField "String", "CREAD_KALAKAAR_UUID", '"40e88526-6e2f-49f1-82ae-ed2e52fc54fe"'
@@ -62,6 +61,9 @@ android {
             //resValue "string", "DEEP_LINK_HOST", '"http://cread-server-dev.ap-northeast-1.elasticbeanstalk.com"'
             resValue "string", "DEEP_LINK_HOST", '"http://ec40a3ca.ngrok.io"'
         }
+    }
+    configurations.all {
+        resolutionStrategy.force 'com.google.code.findbugs:jsr305:3.0.2'
     }
 }
 
@@ -73,7 +75,7 @@ dependencies {
     })
 
     //Generate multiple dalvik executable files
-    compile "com.android.support:multidex:$rootProject.multiDexVersion"
+    implementation "com.android.support:multidex:$rootProject.multiDexVersion"
 
     //Android Support library
     implementation "com.android.support:appcompat-v7:$rootProject.supportLibraryVersion"
@@ -128,7 +130,7 @@ dependencies {
     compile 'com.github.takusemba:multisnaprecyclerview:1.1.1'
 
     //Code generator for view
-    compile "com.jakewharton:butterknife:$rootProject.butterKnifeVersion"
+    implementation "com.jakewharton:butterknife:$rootProject.butterKnifeVersion"
     annotationProcessor "com.jakewharton:butterknife-compiler:$rootProject.butterKnifeVersion"
 
     //To maintain instance state
@@ -143,27 +145,22 @@ dependencies {
     //Circular imageView
     implementation 'de.hdodenhof:circleimageview:2.2.0'
 
-    /*//Sectioned RecyclerView
-            compile 'com.github.zhukic:sectioned-recyclerview:0.2.2'*/
 
     //Tooltip
-    compile 'com.github.vihtarb:tooltip:0.1.9'
+    implementation 'com.github.vihtarb:tooltip:0.1.9'
 
     //Material Dialog
-    compile 'com.afollestad.material-dialogs:commons:0.9.3.0'
+    implementation 'com.afollestad.material-dialogs:commons:0.9.3.0'
 
-    /*Image cropping*/
+    //Image cropping
+    implementation 'com.github.yalantis:ucrop:2.2.1-native'
 
-    //compile 'com.github.yalantis:ucrop:2.2.1'
-    compile 'com.github.yalantis:ucrop:2.2.1-native'
 
-    //compile 'com.theartofdev.edmodo:android-image-cropper:2.5.1'
+    //Image compression library
+    implementation 'id.zelory:compressor:2.1.0'
 
-    /*Image compression library*/
-    compile 'id.zelory:compressor:2.1.0'
-
-    // for Razor pay
-    compile 'com.razorpay:checkout:1.4.1'
+    //Razor pay
+    implementation 'com.razorpay:checkout:1.4.1'
 
     //For photo filter sdk
     implementation 'com.github.zomato:androidphotofilters:1.0.1'
@@ -172,9 +169,8 @@ dependencies {
     testCompile "junit:junit:$rootProject.ext.junitVersion"
 
     //Linkedin profile mentions
-    compile 'com.linkedin.android.spyglass:spyglass:1.4.0'
+    implementation 'com.linkedin.android.spyglass:spyglass:1.4.0'
 
-    /*compile 'com.jackandphantom.android:blurimage:1.2.0'*/
 
     //For Socket IO
     compile('io.socket:socket.io-client:1.0.0') {
@@ -183,13 +179,17 @@ dependencies {
     }
 
     //showcase library
-    compile 'com.github.wooplr:Spotlight:1.2.3'
-    //Shimmer library
+    implementation 'com.github.wooplr:Spotlight:1.2.3'
+
     implementation 'com.github.glomadrian:Grav:1.1'
     implementation 'nl.dionsegijn:konfetti:1.1.2'
     implementation 'com.github.MatteoBattilana:WeatherView:2.0.3'
 
-    compile "org.jetbrains.kotlin:kotlin-stdlib-jre7:$kotlin_version"
+    //For video/Gif creation
+    implementation 'com.writingminds:FFmpegAndroid:0.3.2'
+
+
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jre7:$kotlin_version"
 }
 
 // Add this line at the bottom of the file for firebase services

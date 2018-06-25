@@ -221,7 +221,10 @@ public class PreviewActivity extends BaseActivity implements QueryTokenReceiver,
     NestedScrollView liveFilterBottomSheetView;
     @BindView(R.id.recycler_view_live_filter)
     RecyclerView liveFilterRecyclerView;
+    @BindView(R.id.containerImagePreview)
+    FrameLayout frameLayout;
     //endregion
+
 
     //region :Fields and constants
     /**
@@ -313,6 +316,8 @@ public class PreviewActivity extends BaseActivity implements QueryTokenReceiver,
      */
     @State
     String mSelectedLiveFilter = Constant.LIVE_FILTER_NONE;
+
+    Bitmap bm;
 
 
     //endregion
@@ -645,7 +650,7 @@ public class PreviewActivity extends BaseActivity implements QueryTokenReceiver,
     /**
      * Click functionality to toggle live filter bottom sheet.
      */
-    @OnClick({R.id.container_live_filter, R.id.image_live_filter,R.id.button_close})
+    @OnClick({R.id.container_live_filter, R.id.image_live_filter, R.id.button_close})
     void toggleLiveFilterOnClick() {
         //Method called
         toggleLiveFilterBottomSheet();
@@ -2240,6 +2245,6 @@ public class PreviewActivity extends BaseActivity implements QueryTokenReceiver,
         });
     }
 
-    //endregion
 
+    //endregion
 }

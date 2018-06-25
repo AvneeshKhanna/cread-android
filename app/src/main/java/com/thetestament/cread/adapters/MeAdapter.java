@@ -7,6 +7,7 @@ import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.content.ContextCompat;
@@ -34,6 +35,7 @@ import com.thetestament.cread.activities.CollaborationDetailsActivity;
 import com.thetestament.cread.activities.CommentsActivity;
 import com.thetestament.cread.activities.FeedDescriptionActivity;
 import com.thetestament.cread.helpers.FeedHelper;
+import com.thetestament.cread.helpers.GifHelper;
 import com.thetestament.cread.helpers.ImageHelper;
 import com.thetestament.cread.helpers.NetworkHelper;
 import com.thetestament.cread.helpers.SharedPreferenceHelper;
@@ -92,6 +94,7 @@ public class MeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     private SharedPreferenceHelper mHelper;
     private ITEM_TYPES mItemType;
     private CompositeDisposable mCompositeDisposable;
+    private Bitmap bitmap;
 
     private OnUserActivityLoadMoreListener onLoadMore;
     private OnUserActivityHatsOffListener onHatsOffListener;
@@ -388,12 +391,15 @@ public class MeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
      * @param data
      */
     private void shareOnClick(final ListItemViewHolder itemViewHolder, final FeedModel data) {
-
         itemViewHolder.logoWhatsapp.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
-                loadBitmapForSharing(data, SHARE_OPTION_WHATSAPP);
+                if (GifHelper.hasLiveFilter(data.getLiveFilterName())) {
+                    new GifHelper(mContext, bitmap, itemViewHolder.frameLayout, SHARE_OPTION_WHATSAPP)
+                            .startHandlerTask(new Handler(), 0);
+                } else {
+                    loadBitmapForSharing(data, SHARE_OPTION_WHATSAPP);
+                }
             }
         });
 
@@ -401,25 +407,41 @@ public class MeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             @Override
             public void onClick(View view) {
 
-                loadBitmapForSharing(data, SHARE_OPTION_FACEBOOK);
+                if (GifHelper.hasLiveFilter(data.getLiveFilterName())) {
+                    new GifHelper(mContext, bitmap, itemViewHolder.frameLayout, SHARE_OPTION_FACEBOOK)
+                            .startHandlerTask(new Handler(), 0);
+                } else {
+                    loadBitmapForSharing(data, SHARE_OPTION_FACEBOOK);
+                }
+
             }
         });
 
         itemViewHolder.logoInstagram.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                if (GifHelper.hasLiveFilter(data.getLiveFilterName())) {
+                    new GifHelper(mContext, bitmap, itemViewHolder.frameLayout, SHARE_OPTION_INSTAGRAM)
+                            .startHandlerTask(new Handler(), 0);
+                } else {
+                    loadBitmapForSharing(data, SHARE_OPTION_INSTAGRAM);
+                }
 
-                loadBitmapForSharing(data, SHARE_OPTION_INSTAGRAM);
             }
         });
 
         itemViewHolder.logoMore.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
-                loadBitmapForSharing(data, SHARE_OPTION_OTHER);
+                if (GifHelper.hasLiveFilter(data.getLiveFilterName())) {
+                    new GifHelper(mContext, bitmap, itemViewHolder.frameLayout, SHARE_OPTION_OTHER)
+                            .startHandlerTask(new Handler(), 0);
+                } else {
+                    loadBitmapForSharing(data, SHARE_OPTION_OTHER);
+                }
             }
         });
+
 
     }
 
@@ -677,6 +699,8 @@ public class MeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         WeatherView whetherView;
         @BindView(R.id.konfetti_view)
         KonfettiView konfettiView;
+        @BindView(R.id.containerImage)
+        FrameLayout frameLayout;
 
         //Variable to maintain hats off status
         private boolean mIsHatsOff = false;
