@@ -60,6 +60,8 @@ import com.thetestament.cread.adapters.PersonMentionAdapter;
 import com.thetestament.cread.dialog.CustomDialog;
 import com.thetestament.cread.helpers.CaptureHelper;
 import com.thetestament.cread.helpers.CustomFilters;
+import com.thetestament.cread.helpers.FirebaseEventHelper;
+import com.thetestament.cread.helpers.GifHelper;
 import com.thetestament.cread.helpers.ImageHelper;
 import com.thetestament.cread.helpers.IntentHelper;
 import com.thetestament.cread.helpers.LiveFilterHelper;
@@ -224,7 +226,6 @@ public class PreviewActivity extends BaseActivity implements QueryTokenReceiver,
     @BindView(R.id.containerImagePreview)
     FrameLayout frameLayout;
     //endregion
-
 
     //region :Fields and constants
     /**
@@ -402,9 +403,10 @@ public class PreviewActivity extends BaseActivity implements QueryTokenReceiver,
                 toggleFilterBottomSheet();
                 return true;
 
-            //Upload click functionality
-            case R.id.action_upload:
-                updateOnClick();
+            //Next click functionality
+            case R.id.action_next:
+                //Method called
+                showNextDialog();
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
@@ -2246,5 +2248,68 @@ public class PreviewActivity extends BaseActivity implements QueryTokenReceiver,
     }
 
 
+    /**
+     * Method to show dialog with option of Save and Upload.
+     */
+    private void showNextDialog() {
+        final MaterialDialog dialog = new MaterialDialog.Builder(mContext)
+                .customView(R.layout.dialog_next, false)
+                .cancelable(false)
+                .canceledOnTouchOutside(true)
+                .show();
+
+        //Obtain view reference
+        LinearLayout btnSavePost = dialog.getCustomView().findViewById(R.id.btn_save_post);
+        LinearLayout btnUploadPost = dialog.getCustomView().findViewById(R.id.btn_upload_post);
+
+        //Save btn click functionality
+        btnSavePost.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                //Log firebase event
+                FirebaseEventHelper.logPostCreationEvent(mContext, Constant.FIREBASE_EVENT_POST_SAVED);
+                //Dismiss dialog
+                dialog.dismiss();
+                //IF live filter is present
+                if (GifHelper.hasLiveFilter(mSelectedLiveFilter)) {
+                    //Create GIF
+                    new GifHelper(mContext, bm, frameLayout, Constant.SHARE_OPTION_OTHER)
+                            .startHandlerTask(new Handler(), 0);
+                }
+                //No filter
+                else {
+                    switch (mCalledFrom) {
+                        case PREVIEW_EXTRA_CALLED_FROM_CAPTURE:
+                        case PREVIEW_EXTRA_CALLED_FROM_EDIT_CAPTURE:
+                            ViewHelper.getToast(mContext
+                                    , "Image saved to: " + "Cread/Capture/capture_pic.jpg");
+                            break;
+                        case PREVIEW_EXTRA_CALLED_FROM_EDIT_SHORT:
+                        case PREVIEW_EXTRA_CALLED_FROM_COLLABORATION:
+                        default:
+                            ViewHelper.getToast(mContext
+                                    , "Image saved to: " + "Cread/Short/short_pic.jpg");
+                            break;
+                    }
+
+                }
+            }
+        });
+
+        //Upload btn click functionality
+        btnUploadPost.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                //Log firebase event
+                FirebaseEventHelper.logPostCreationEvent(mContext, Constant.FIREBASE_EVENT_POST_UPLOADED);
+                //Dismiss dialog
+                dialog.dismiss();
+                //Method called
+                updateOnClick();
+
+            }
+        });
+
+    }
     //endregion
 }
