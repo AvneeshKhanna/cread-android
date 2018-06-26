@@ -10,11 +10,14 @@ import android.os.HandlerThread;
 import android.support.v4.app.FragmentActivity;
 import android.widget.FrameLayout;
 
+import com.afollestad.materialdialogs.MaterialDialog;
 import com.github.hiteshsondhi88.libffmpeg.FFmpeg;
 import com.github.hiteshsondhi88.libffmpeg.FFmpegExecuteResponseHandler;
 import com.github.hiteshsondhi88.libffmpeg.FFmpegLoadBinaryResponseHandler;
 import com.github.hiteshsondhi88.libffmpeg.exceptions.FFmpegCommandAlreadyRunningException;
 import com.github.hiteshsondhi88.libffmpeg.exceptions.FFmpegNotSupportedException;
+import com.thetestament.cread.R;
+import com.thetestament.cread.dialog.CustomDialog;
 import com.thetestament.cread.utils.Constant;
 
 import java.io.File;
@@ -33,6 +36,7 @@ public class GifHelper {
     Bitmap mBitmap;
     FrameLayout frameLayout;
     String mShareOption;
+    MaterialDialog materialDialog;
     //endregion
 
     public interface Listener {
@@ -45,12 +49,14 @@ public class GifHelper {
      * @param context     Context to use.
      * @param bitmap      Bitmap object.
      * @param frameLayout FrameLayout reference.
+     * @param shareOption Medium where GIF to be shared.
      */
     public GifHelper(FragmentActivity context, Bitmap bitmap, FrameLayout frameLayout, String shareOption) {
         this.mContext = context;
         this.mBitmap = bitmap;
         this.frameLayout = frameLayout;
         this.mShareOption = shareOption;
+        materialDialog = CustomDialog.getProgressDialog(mContext, mContext.getString(R.string.title_gif_dialog));
     }
 
     /**
@@ -60,7 +66,6 @@ public class GifHelper {
      * @param counter Counter value i.e 0.
      */
     public void startHandlerTask(final Handler handler, final int counter) {
-        final int finalI = counter;
         handler.postDelayed(new Runnable() {
             @Override
             public void run() {
@@ -68,7 +73,7 @@ public class GifHelper {
                     @Override
                     public void listen() {
                         try {
-                            File file = new File(Environment.getExternalStorageDirectory().getPath() + "/Cread/Short/short_pic" + finalI + ".jpg");
+                            File file = new File(Environment.getExternalStorageDirectory().getPath() + "/Cread/LiveFilter/live_filter_pic" + counter + ".jpg");
                             file.getParentFile().mkdirs();
 
                             if (!file.exists()) {
@@ -104,7 +109,7 @@ public class GifHelper {
      *
      * @param listener Listener reference.
      */
-    public void runBitmapOnUi(final Listener listener) {
+    private void runBitmapOnUi(final Listener listener) {
         mContext.runOnUiThread(new Runnable() {
             @Override
             public void run() {
@@ -136,7 +141,11 @@ public class GifHelper {
             ffmpeg.loadBinary(new FFmpegLoadBinaryResponseHandler() {
                 @Override
                 public void onFailure() {
-                    // FIXME: 25/06/18  If device does not support ffmpeg
+                    //Hide progress dialog
+                    materialDialog.dismiss();
+                    //Show toast
+                    ViewHelper.getShortToast(mContext
+                            , mContext.getString(R.string.error_ffmpeg));
                 }
 
                 @Override
@@ -156,6 +165,11 @@ public class GifHelper {
             });
         } catch (FFmpegNotSupportedException e) {
             e.printStackTrace();
+            //Hide progress dialog
+            materialDialog.dismiss();
+            //Show toast
+            ViewHelper.getShortToast(mContext
+                    , mContext.getString(R.string.error_ffmpeg));
         }
     }
 
@@ -172,14 +186,16 @@ public class GifHelper {
         cmd[3] = "18";
         cmd[4] = "-y";
         cmd[5] = "-i";
-        cmd[6] = Environment.getExternalStorageDirectory() + "/Cread/Short/short_pic%d.jpg";
-        cmd[7] = Environment.getExternalStorageDirectory() + "/tmp/output.gif";
-        //fixme  fix these above path
+        cmd[6] = Environment.getExternalStorageDirectory() + "/Cread/LiveFilter/live_filter_pic%d.jpg";
+        cmd[7] = Environment.getExternalStorageDirectory() + "/Cread/output.gif";
         try {
             fFmpeg.execute(cmd, new FFmpegExecuteResponseHandler() {
                 @Override
                 public void onSuccess(String message) {
-                    lauchShareIntent(mContext);
+                    //Dismiss material dialog
+                    materialDialog.dismiss();
+                    //Method called
+                    launchShareIntent(mContext);
                 }
 
                 @Override
@@ -188,7 +204,11 @@ public class GifHelper {
 
                 @Override
                 public void onFailure(String message) {
-
+                    //Hide progress dialog
+                    materialDialog.dismiss();
+                    //Show toast
+                    ViewHelper.getShortToast(mContext
+                            , mContext.getString(R.string.error_ffmpeg));
                 }
 
                 @Override
@@ -204,17 +224,27 @@ public class GifHelper {
             });
         } catch (FFmpegCommandAlreadyRunningException e) {
             e.printStackTrace();
+            //Hide progress dialog
+            materialDialog.dismiss();
+            //Show toast
+            ViewHelper.getShortToast(mContext
+                    , mContext.getString(R.string.error_ffmpeg));
         }
     }
 
-    private void lauchShareIntent(Context context) {
+    /**
+     * Method to launch required intent for GIF sharing.
+     *
+     * @param context Context to use.
+     */
+    private void launchShareIntent(Context context) {
         switch (mShareOption) {
             case Constant.SHARE_OPTION_WHATSAPP:
                 if (ShareHelper.isAppInstalled(context, "com.whatsapp")) {
                     Intent shareWhatsAppIntent = new Intent();
                     shareWhatsAppIntent.setAction(Intent.ACTION_SEND);
                     shareWhatsAppIntent.setPackage("com.whatsapp");
-                    shareWhatsAppIntent.putExtra(Intent.EXTRA_STREAM, Uri.parse(Environment.getExternalStorageDirectory() + "/tmp/output.gif"));
+                    shareWhatsAppIntent.putExtra(Intent.EXTRA_STREAM, Uri.parse(Environment.getExternalStorageDirectory() + "/Cread/output.gif"));
                     shareWhatsAppIntent.setType("video/*");
                     shareWhatsAppIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
                     mContext.startActivity(shareWhatsAppIntent);
@@ -226,7 +256,7 @@ public class GifHelper {
                 if (ShareHelper.isAppInstalled(context, "com.facebook.katana")) {
                     Intent shareFacebookIntent = new Intent(Intent.ACTION_SEND);
                     shareFacebookIntent.setPackage("com.facebook.katana");
-                    shareFacebookIntent.putExtra(Intent.EXTRA_STREAM, Uri.parse(Environment.getExternalStorageDirectory() + "/tmp/output.gif"));
+                    shareFacebookIntent.putExtra(Intent.EXTRA_STREAM, Uri.parse(Environment.getExternalStorageDirectory() + "/Cread/output.gif"));
                     shareFacebookIntent.setType("video/*");
                     shareFacebookIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
                     mContext.startActivity(shareFacebookIntent);
@@ -239,7 +269,7 @@ public class GifHelper {
                     Intent shareInstagramIntent = new Intent();
                     shareInstagramIntent.setAction(Intent.ACTION_SEND);
                     shareInstagramIntent.setPackage("com.instagram.android");
-                    shareInstagramIntent.putExtra(Intent.EXTRA_STREAM, Uri.parse(Environment.getExternalStorageDirectory() + "/tmp/output.gif"));
+                    shareInstagramIntent.putExtra(Intent.EXTRA_STREAM, Uri.parse(Environment.getExternalStorageDirectory() + "/Cread/output.gif"));
                     shareInstagramIntent.setType("video/*");
                     shareInstagramIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
                     mContext.startActivity(shareInstagramIntent);
@@ -251,7 +281,7 @@ public class GifHelper {
             case Constant.SHARE_OPTION_OTHER:
                 Intent intent = new Intent();
                 intent.setAction(Intent.ACTION_SEND);
-                intent.putExtra(Intent.EXTRA_STREAM, Uri.parse(Environment.getExternalStorageDirectory() + "/tmp/output.gif"));
+                intent.putExtra(Intent.EXTRA_STREAM, Uri.parse(Environment.getExternalStorageDirectory() + "/Cread/output.gif"));
                 intent.setType("video/*");
                 intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
                 mContext.startActivity(intent);
@@ -263,6 +293,8 @@ public class GifHelper {
     }
 
     /**
+     * Method to return True if live filter is present else return false.
+     *
      * @param s Filter name.
      * @return true if filter is present false otherwise.
      */

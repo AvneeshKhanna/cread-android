@@ -3,8 +3,15 @@ package com.thetestament.cread.helpers;
 import android.content.Context;
 import android.graphics.drawable.Drawable;
 import android.support.v4.content.ContextCompat;
+import android.view.View;
 
+import com.github.glomadrian.grav.GravView;
+import com.github.matteobattilana.weather.PrecipType;
+import com.github.matteobattilana.weather.WeatherView;
 import com.thetestament.cread.R;
+import com.thetestament.cread.utils.Constant;
+
+import nl.dionsegijn.konfetti.KonfettiView;
 
 /**
  * Helper class which provides utility methods for live filters.
@@ -54,5 +61,58 @@ public class LiveFilterHelper {
         }
     }
 
+
+    /**
+     * Method to initialize live filter.
+     *
+     * @param filterName   Name of filter to be applied.
+     * @param weatherView  WeatherView for snow and rain filters.
+     * @param konfettiView KonfettiView view for confetti filter.
+     * @param bubbleView   BubbleView for bubble filter.
+     */
+    public static void initLiveFilters(String filterName, WeatherView weatherView, KonfettiView konfettiView, GravView bubbleView) {
+        switch (filterName) {
+            case Constant.LIVE_FILTER_SNOW:
+                weatherView.setWeatherData(PrecipType.SNOW);
+                weatherView.setVisibility(View.VISIBLE);
+                //Toggle view visibility
+                konfettiView.setVisibility(View.GONE);
+                bubbleView.setVisibility(View.INVISIBLE);
+                break;
+            case Constant.LIVE_FILTER_RAIN:
+                weatherView.setWeatherData(PrecipType.RAIN);
+                weatherView.setVisibility(View.VISIBLE);
+                //Toggle view visibility
+                konfettiView.setVisibility(View.GONE);
+                bubbleView.setVisibility(View.INVISIBLE);
+                break;
+            case Constant.LIVE_FILTER_BUBBLE:
+                bubbleView.setVisibility(View.VISIBLE);
+                //Toggle view visibility
+                konfettiView.setVisibility(View.GONE);
+                weatherView.setVisibility(View.GONE);
+                break;
+            case Constant.LIVE_FILTER_CONFETTI:
+                konfettiView.setVisibility(View.VISIBLE);
+                ViewHelper.showKonfetti(konfettiView);
+                //Toggle view visibility
+                bubbleView.setVisibility(View.INVISIBLE);
+                weatherView.setVisibility(View.GONE);
+                break;
+            case Constant.LIVE_FILTER_NONE:
+                //Toggle view visibility
+                konfettiView.setVisibility(View.GONE);
+                bubbleView.setVisibility(View.INVISIBLE);
+                weatherView.setVisibility(View.GONE);
+                //do nothing
+                break;
+            default:
+                //Toggle view visibility
+                konfettiView.setVisibility(View.GONE);
+                bubbleView.setVisibility(View.INVISIBLE);
+                weatherView.setVisibility(View.GONE);
+                break;
+        }
+    }
 
 }

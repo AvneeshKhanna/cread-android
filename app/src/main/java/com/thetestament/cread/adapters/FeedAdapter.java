@@ -27,7 +27,6 @@ import android.widget.TextView;
 
 import com.facebook.drawee.view.SimpleDraweeView;
 import com.github.glomadrian.grav.GravView;
-import com.github.matteobattilana.weather.PrecipType;
 import com.github.matteobattilana.weather.WeatherView;
 import com.google.firebase.analytics.FirebaseAnalytics;
 import com.squareup.picasso.Picasso;
@@ -42,6 +41,7 @@ import com.thetestament.cread.helpers.DownvoteHelper;
 import com.thetestament.cread.helpers.FeedHelper;
 import com.thetestament.cread.helpers.GifHelper;
 import com.thetestament.cread.helpers.ImageHelper;
+import com.thetestament.cread.helpers.LiveFilterHelper;
 import com.thetestament.cread.helpers.NetworkHelper;
 import com.thetestament.cread.helpers.SuggestionHelper;
 import com.thetestament.cread.helpers.ViewHelper;
@@ -54,7 +54,6 @@ import com.thetestament.cread.listeners.listener.OnShareListener;
 import com.thetestament.cread.models.FeedModel;
 import com.thetestament.cread.models.SuggestedArtistsModel;
 import com.thetestament.cread.utils.AspectRatioUtils;
-import com.thetestament.cread.utils.Constant;
 
 import java.util.List;
 
@@ -280,7 +279,10 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             // init post timestamp
             updatePostTimestamp(itemViewHolder.textTimeStamp, data);
             //Method called
-            initLiveFilters(data.getLiveFilterName(), itemViewHolder);
+            LiveFilterHelper.initLiveFilters(data.getLiveFilterName()
+                    , itemViewHolder.weatherView
+                    , itemViewHolder.konfettiView
+                    , itemViewHolder.liveFilterBubble);
         } else if (holder.getItemViewType() == VIEW_TYPE_LOADING) {
             LoadingViewHolder loadingViewHolder = (LoadingViewHolder) holder;
             loadingViewHolder.progressView.setVisibility(View.VISIBLE);
@@ -699,33 +701,6 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         recommendedArtistIndex = index;
     }
 
-    /**
-     * Method to initialize live filter.
-     *
-     * @param filterName Name of filter to be applied.
-     */
-    private void initLiveFilters(String filterName, ItemViewHolder viewHolder) {
-        switch (filterName) {
-            case Constant.LIVE_FILTER_SNOW:
-                viewHolder.whetherView.setWeatherData(PrecipType.SNOW);
-                viewHolder.whetherView.setVisibility(View.VISIBLE);
-                break;
-            case Constant.LIVE_FILTER_RAIN:
-                viewHolder.whetherView.setWeatherData(PrecipType.RAIN);
-                viewHolder.whetherView.setVisibility(View.VISIBLE);
-                break;
-            case Constant.LIVE_FILTER_BUBBLE:
-                viewHolder.liveFilterBubble.setVisibility(View.VISIBLE);
-                break;
-            case Constant.LIVE_FILTER_CONFETTI:
-                viewHolder.konfettiView.setVisibility(View.VISIBLE);
-                ViewHelper.showKonfetti(viewHolder.konfettiView);
-                break;
-            case Constant.LIVE_FILTER_NONE:
-                //do nothing
-                break;
-        }
-    }
 
     //ItemViewHolder class
     static class ItemViewHolder extends RecyclerView.ViewHolder {
@@ -786,7 +761,7 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         @BindView(R.id.live_filter_bubble)
         GravView liveFilterBubble;
         @BindView(R.id.whether_view)
-        WeatherView whetherView;
+        WeatherView weatherView;
         @BindView(R.id.konfetti_view)
         KonfettiView konfettiView;
 

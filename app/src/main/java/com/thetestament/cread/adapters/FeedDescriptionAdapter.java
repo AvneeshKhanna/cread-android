@@ -28,7 +28,6 @@ import com.afollestad.materialdialogs.MaterialDialog;
 import com.afollestad.materialdialogs.MaterialDialog.SingleButtonCallback;
 import com.facebook.drawee.view.SimpleDraweeView;
 import com.github.glomadrian.grav.GravView;
-import com.github.matteobattilana.weather.PrecipType;
 import com.github.matteobattilana.weather.WeatherView;
 import com.google.firebase.analytics.FirebaseAnalytics;
 import com.squareup.picasso.Picasso;
@@ -42,6 +41,7 @@ import com.thetestament.cread.helpers.DownvoteHelper;
 import com.thetestament.cread.helpers.FeedHelper;
 import com.thetestament.cread.helpers.GifHelper;
 import com.thetestament.cread.helpers.ImageHelper;
+import com.thetestament.cread.helpers.LiveFilterHelper;
 import com.thetestament.cread.helpers.NetworkHelper;
 import com.thetestament.cread.helpers.ProfileMentionsHelper;
 import com.thetestament.cread.helpers.SharedPreferenceHelper;
@@ -50,7 +50,6 @@ import com.thetestament.cread.listeners.listener;
 import com.thetestament.cread.models.CommentsModel;
 import com.thetestament.cread.models.FeedModel;
 import com.thetestament.cread.utils.AspectRatioUtils;
-import com.thetestament.cread.utils.Constant;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -100,7 +99,7 @@ public class FeedDescriptionAdapter extends RecyclerView.Adapter {
     private List<CommentsModel> mCommentsList = new ArrayList<>();
     private FragmentActivity mContext;
     private boolean mIsLoading;
-    private  Bitmap bitmap;
+    private Bitmap bitmap;
     /*
     Flag to check whether to scroll to comments section
     when opened from updates screen
@@ -341,7 +340,10 @@ public class FeedDescriptionAdapter extends RecyclerView.Adapter {
             updatePostTimestamp(itemViewHolder.textTimeStamp, data);
 
             //Method called
-            initLiveFilters(data.getLiveFilterName(), itemViewHolder);
+            LiveFilterHelper.initLiveFilters(data.getLiveFilterName()
+                    , itemViewHolder.whetherView
+                    , itemViewHolder.konfettiView
+                    , itemViewHolder.liveFilterBubble);
 
         } else if (holder.getItemViewType() == VIEW_TYPE_LOADING) {
             LoadingViewHolder loadingViewHolder = (LoadingViewHolder) holder;
@@ -1005,34 +1007,5 @@ public class FeedDescriptionAdapter extends RecyclerView.Adapter {
             FirebaseAnalytics.getInstance(mContext).logEvent(FIREBASE_EVENT_CAPTURE_CLICKED, bundle);
         }
     }
-
-    /**
-     * Method to initialize live filter.
-     *
-     * @param filterName Name of filter to be applied.
-     */
-    private void initLiveFilters(String filterName, ItemViewHolder viewHolder) {
-        switch (filterName) {
-            case Constant.LIVE_FILTER_SNOW:
-                viewHolder.whetherView.setWeatherData(PrecipType.SNOW);
-                viewHolder.whetherView.setVisibility(View.VISIBLE);
-                break;
-            case Constant.LIVE_FILTER_RAIN:
-                viewHolder.whetherView.setWeatherData(PrecipType.RAIN);
-                viewHolder.whetherView.setVisibility(View.VISIBLE);
-                break;
-            case Constant.LIVE_FILTER_BUBBLE:
-                viewHolder.liveFilterBubble.setVisibility(View.VISIBLE);
-                break;
-            case Constant.LIVE_FILTER_CONFETTI:
-                viewHolder.konfettiView.setVisibility(View.VISIBLE);
-                ViewHelper.showKonfetti(viewHolder.konfettiView);
-                break;
-            case Constant.LIVE_FILTER_NONE:
-                //do nothing
-                break;
-        }
-    }
-
 
 }
