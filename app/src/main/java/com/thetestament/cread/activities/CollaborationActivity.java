@@ -64,6 +64,7 @@ import com.thetestament.cread.models.ColorModel;
 import com.thetestament.cread.models.FontModel;
 import com.thetestament.cread.models.TemplateModel;
 import com.thetestament.cread.utils.AspectRatioUtils;
+import com.thetestament.cread.utils.Constant;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -143,6 +144,7 @@ import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_IMG_HEIGHT;
 import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_IMG_WIDTH;
 import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_IS_SHADOW_SELECTED;
 import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_ITALIC;
+import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_LIVE_FILTER;
 import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_LONG_TEXT;
 import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_MERCHANTABLE;
 import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_SHORT_ID;
@@ -306,6 +308,9 @@ public class CollaborationActivity extends BaseActivity {
      */
     @State
     String mBgSound = LongShortHelper.LONG_FORM_SOUND_NONE;
+
+    @State
+    String mLiveFilter = Constant.LIVE_FILTER_NONE;
     //endregion
 
     //region :Overridden methods
@@ -1459,6 +1464,7 @@ public class CollaborationActivity extends BaseActivity {
         bundle.putString(PREVIEW_EXTRA_IS_SHADOW_SELECTED, isShadowSelected);
         bundle.putString(PREVIEW_EXTRA_LONG_TEXT, longText.trim());
         bundle.putString(PREVIEW_EXTRA_BG_SOUND, bgSound);
+        bundle.putString(PREVIEW_EXTRA_LIVE_FILTER, mLiveFilter);
 
         intent.putExtra(PREVIEW_EXTRA_DATA, bundle);
         startActivityForResult(intent, REQUEST_CODE_PREVIEW_ACTIVITY);

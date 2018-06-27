@@ -102,6 +102,7 @@ public class Constant {
     public static final String EXTRA_MERCHANTABLE = "merchantable";
     public static final String EXTRA_IMAGE_WIDTH = "imageWidth";
     public static final String EXTRA_IMAGE_HEIGHT = "imageHeight";
+    public static final String EXTRA_LIVE_FILTER = "liveFilter";
     public static final String EXTRA_DATA = "data";
     public static final String EXTRA_PROFILE_UUID = "profileUUID";
     public static final String EXTRA_FEED_DESCRIPTION_DATA = "dataFeedDescription";
@@ -310,11 +311,13 @@ public class Constant {
     public static final String PREVIEW_EXTRA_IMAGE_TINT_COLOR = "imageTintColor";
     public static final String PREVIEW_EXTRA_CAPTION_TEXT = "captionText";
     public static final String PREVIEW_EXTRA_CONTENT_IMAGE = "contentImage";
+    public static final String PREVIEW_EXTRA_LIVE_FILTER = "liveFilter";
     public static final String PREVIEW_EXTRA_CALLED_FROM_COLLABORATION = "collaboration";
     public static final String PREVIEW_EXTRA_CALLED_FROM_SHORT = "short";
     public static final String PREVIEW_EXTRA_CALLED_FROM_CAPTURE = "capture";
     public static final String PREVIEW_EXTRA_CALLED_FROM_EDIT_CAPTURE = "editCapture";
     public static final String PREVIEW_EXTRA_CALLED_FROM_EDIT_SHORT = "editShort";
+
     //endregion
 
     //region :Data for  Short activity
@@ -399,5 +402,11 @@ public class Constant {
     public static final String LIVE_FILTER_RAIN = "rain";
     public static final String LIVE_FILTER_BUBBLE = "bubble";
     public static final String LIVE_FILTER_CONFETTI = "confetti";
+    //endregion
+
+    //region  :Apps package name
+    public static final String PACKAGE_NAME_WHATSAPP = "com.whatsapp";
+    public static final String PACKAGE_NAME_FACEBOOK = "com.facebook.katana";
+    public static final String PACKAGE_NAME_INSTAGRAM = "com.instagram.android";
     //endregion
 }

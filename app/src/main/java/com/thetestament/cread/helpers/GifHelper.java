@@ -8,6 +8,7 @@ import android.os.Environment;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.support.v4.app.FragmentActivity;
+import android.support.v4.content.FileProvider;
 import android.widget.FrameLayout;
 
 import com.afollestad.materialdialogs.MaterialDialog;
@@ -24,6 +25,8 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 /**
  * Helper class to create sharable GIF.
@@ -192,7 +195,7 @@ public class GifHelper {
         if (mCreateForSharing) {
             mGifPath = "/Cread/output.gif";
         } else {
-            double i =  Math.random();
+            String i = new SimpleDateFormat("yyyyMMddhhmm").format(new Date());
             mGifPath = "/Cread/output" + i + ".gif";
         }
 
@@ -217,6 +220,13 @@ public class GifHelper {
                     } else {
                         ViewHelper.getToast(mContext, "GIF saved to : " + mGifPath);
                     }
+                    //To update gallery
+                    File file = new File(Environment.getExternalStorageDirectory() + mGifPath);
+                    Uri uri = FileProvider.getUriForFile(mContext, mContext.getPackageName() + ".provider", file);
+
+                    mContext.sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE
+                            , uri));
+
                 }
 
                 @Override
@@ -261,48 +271,62 @@ public class GifHelper {
     private void launchShareIntent(Context context) {
         switch (mShareOption) {
             case Constant.SHARE_OPTION_WHATSAPP:
-                if (ShareHelper.isAppInstalled(context, "com.whatsapp")) {
+                if (ShareHelper.isAppInstalled(context, Constant.PACKAGE_NAME_WHATSAPP)) {
+                    File file = new File(Environment.getExternalStorageDirectory() + "/Cread/output.gif");
+                    Uri uri = FileProvider.getUriForFile(context.getApplicationContext(), context.getPackageName() + ".provider", file);
+
                     Intent shareWhatsAppIntent = new Intent();
                     shareWhatsAppIntent.setAction(Intent.ACTION_SEND);
-                    shareWhatsAppIntent.setPackage("com.whatsapp");
-                    shareWhatsAppIntent.putExtra(Intent.EXTRA_STREAM, Uri.parse(Environment.getExternalStorageDirectory() + "/Cread/output.gif"));
+                    shareWhatsAppIntent.setPackage(Constant.PACKAGE_NAME_WHATSAPP);
+                    shareWhatsAppIntent.putExtra(Intent.EXTRA_STREAM, uri);
                     shareWhatsAppIntent.setType("video/*");
                     shareWhatsAppIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-                    mContext.startActivity(shareWhatsAppIntent);
+                    mContext.startActivity(Intent.createChooser(shareWhatsAppIntent, "Share"));
                 } else {
                     ViewHelper.getToast(context, "Problem in sharing because you might not have Whatsapp installed");
                 }
                 break;
             case Constant.SHARE_OPTION_FACEBOOK:
-                if (ShareHelper.isAppInstalled(context, "com.facebook.katana")) {
+                if (ShareHelper.isAppInstalled(context, Constant.PACKAGE_NAME_FACEBOOK)) {
+                    File file = new File(Environment.getExternalStorageDirectory() + "/Cread/output.gif");
+                    Uri uri = FileProvider.getUriForFile(context.getApplicationContext(), context.getPackageName() + ".provider", file);
+
+
                     Intent shareFacebookIntent = new Intent(Intent.ACTION_SEND);
-                    shareFacebookIntent.setPackage("com.facebook.katana");
-                    shareFacebookIntent.putExtra(Intent.EXTRA_STREAM, Uri.parse(Environment.getExternalStorageDirectory() + "/Cread/output.gif"));
-                    shareFacebookIntent.setType("image/*");
+                    shareFacebookIntent.setPackage(Constant.PACKAGE_NAME_FACEBOOK);
+                    shareFacebookIntent.putExtra(Intent.EXTRA_STREAM, uri);
+                    shareFacebookIntent.setType("image/gif");
                     shareFacebookIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-                    mContext.startActivity(shareFacebookIntent);
+                    mContext.startActivity(Intent.createChooser(shareFacebookIntent, "Share"));
                 } else {
                     ViewHelper.getToast(context, "Problem in sharing because you might not have Facebook installed");
                 }
                 break;
             case Constant.SHARE_OPTION_INSTAGRAM:
-                if (ShareHelper.isAppInstalled(context, "com.instagram.android")) {
+                if (ShareHelper.isAppInstalled(context, Constant.PACKAGE_NAME_INSTAGRAM)) {
+                    File file = new File(Environment.getExternalStorageDirectory() + "/Cread/output.gif");
+                    Uri uri = FileProvider.getUriForFile(context.getApplicationContext(), context.getPackageName() + ".provider", file);
+
                     Intent shareInstagramIntent = new Intent();
                     shareInstagramIntent.setAction(Intent.ACTION_SEND);
-                    shareInstagramIntent.setPackage("com.instagram.android");
-                    shareInstagramIntent.putExtra(Intent.EXTRA_STREAM, Uri.parse(Environment.getExternalStorageDirectory() + "/Cread/output.gif"));
                     shareInstagramIntent.setType("image/*");
+                    shareInstagramIntent.setPackage(Constant.PACKAGE_NAME_INSTAGRAM);
+                    shareInstagramIntent.putExtra(Intent.EXTRA_STREAM, uri);
+
                     shareInstagramIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-                    mContext.startActivity(shareInstagramIntent);
+                    mContext.startActivity(Intent.createChooser(shareInstagramIntent, "Share"));
                 } else {
                     ViewHelper.getToast(context, "Problem in sharing because you might not have Instagram installed");
                 }
 
                 break;
             case Constant.SHARE_OPTION_OTHER:
+                File file = new File(Environment.getExternalStorageDirectory() + "/Cread/output.gif");
+                Uri uri = FileProvider.getUriForFile(context.getApplicationContext(), context.getPackageName() + ".provider", file);
+
                 Intent intent = new Intent();
                 intent.setAction(Intent.ACTION_SEND);
-                intent.putExtra(Intent.EXTRA_STREAM, Uri.parse(Environment.getExternalStorageDirectory() + "/Cread/output.gif"));
+                intent.putExtra(Intent.EXTRA_STREAM, uri);
                 intent.setType("video/*");
                 intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
                 mContext.startActivity(intent);

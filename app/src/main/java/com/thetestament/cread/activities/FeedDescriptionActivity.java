@@ -24,6 +24,7 @@ import com.thetestament.cread.BuildConfig;
 import com.thetestament.cread.Manifest;
 import com.thetestament.cread.R;
 import com.thetestament.cread.adapters.FeedDescriptionAdapter;
+import com.thetestament.cread.dialog.CustomDialog;
 import com.thetestament.cread.helpers.DownvoteHelper;
 import com.thetestament.cread.helpers.FeedHelper;
 import com.thetestament.cread.helpers.FollowHelper;
@@ -59,7 +60,6 @@ import pl.tajchert.nammu.Nammu;
 import pl.tajchert.nammu.PermissionCallback;
 
 import static com.thetestament.cread.CreadApp.GET_RESPONSE_FROM_NETWORK_MORE_POSTS;
-import static com.thetestament.cread.dialog.DialogHelper.getDeletePostDialog;
 import static com.thetestament.cread.helpers.DeepLinkHelper.getDeepLinkOnValidShareOption;
 import static com.thetestament.cread.helpers.DeletePostHelper.deletePost;
 import static com.thetestament.cread.helpers.FeedHelper.updateFollowForAll;
@@ -561,7 +561,7 @@ public class FeedDescriptionActivity extends BaseActivity implements listener.On
     }
 
     private void deleteContent(String entityID, final int position) {
-        final MaterialDialog dialog = getDeletePostDialog(mContext);
+        final MaterialDialog dialog = CustomDialog.getProgressDialog(mContext,"Deleting...");
 
         deletePost(mContext,
                 mCompositeDisposable,

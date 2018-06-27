@@ -16,6 +16,7 @@ import android.view.WindowManager;
 import android.widget.Toast;
 
 import com.thetestament.cread.R;
+import com.thetestament.cread.utils.AspectRatioUtils;
 import com.tooltip.Tooltip;
 
 import nl.dionsegijn.konfetti.KonfettiView;
@@ -147,7 +148,7 @@ public class ViewHelper {
                 .setTimeToLive(2000L)
                 .addShapes(Shape.RECT, Shape.CIRCLE)
                 .addSizes(new Size(8, 5))
-                .setPosition(-50f, konfettiView.getWidth() + 50f, -50f, -50f)
+                .setPosition(0f, (float) AspectRatioUtils.getDeviceScreenWidth(), -50f, -50f)
                 .streamFor(300, 5000L);
     }
 }

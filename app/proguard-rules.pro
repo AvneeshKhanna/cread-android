@@ -128,6 +128,9 @@
  -keepattributes SourceFile,LineNumberTable
  -keep public class * extends java.lang.Exception
 
+ ######For weather view
+ -keep,includedescriptorclasses com.github.matteobattilana.weather.**
+
 
 
 

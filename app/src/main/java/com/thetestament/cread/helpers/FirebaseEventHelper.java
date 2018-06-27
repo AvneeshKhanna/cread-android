@@ -5,6 +5,7 @@ import android.support.v4.app.FragmentActivity;
 
 import com.google.firebase.analytics.FirebaseAnalytics;
 
+import static com.thetestament.cread.utils.Constant.FIREBASE_EVENT_COLLAB_INVITE_CLICKED;
 import static com.thetestament.cread.utils.Constant.FIREBASE_EVENT_POST_SAVED;
 import static com.thetestament.cread.utils.Constant.FIREBASE_EVENT_POST_UPLOADED;
 
@@ -32,4 +33,19 @@ public class FirebaseEventHelper {
             firebaseAnalytics.logEvent(FIREBASE_EVENT_POST_UPLOADED, bundle);
         }
     }
+
+
+    /**
+     * Method to log Collab Invite firebase event {@link com.thetestament.cread.utils.Constant#FIREBASE_EVENT_COLLAB_INVITE_CLICKED}.
+     *
+     * @param context Context to use.
+     */
+    public static void logCollabInviteEvent(FragmentActivity context) {
+        SharedPreferenceHelper helper = new SharedPreferenceHelper(context);
+        Bundle bundle = new Bundle();
+        bundle.putString("uuid", helper.getUUID());
+        FirebaseAnalytics.getInstance(context)
+                .logEvent(FIREBASE_EVENT_COLLAB_INVITE_CLICKED, bundle);
+    }
+
 }

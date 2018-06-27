@@ -60,6 +60,7 @@ import com.thetestament.cread.activities.UpdateProfileDetailsActivity;
 import com.thetestament.cread.activities.UpdateProfileImageActivity;
 import com.thetestament.cread.adapters.MeAdapter;
 import com.thetestament.cread.adapters.UserStatsPagerAdapter;
+import com.thetestament.cread.dialog.CustomDialog;
 import com.thetestament.cread.helpers.DeletePostHelper;
 import com.thetestament.cread.helpers.FeedHelper;
 import com.thetestament.cread.helpers.FollowHelper;
@@ -107,7 +108,6 @@ import pl.tajchert.nammu.PermissionCallback;
 
 import static android.app.Activity.RESULT_OK;
 import static com.thetestament.cread.CreadApp.GET_RESPONSE_FROM_NETWORK_ME;
-import static com.thetestament.cread.dialog.DialogHelper.getDeletePostDialog;
 import static com.thetestament.cread.fragments.ExploreFragment.defaultItemType;
 import static com.thetestament.cread.helpers.DeepLinkHelper.getDeepLinkOnValidShareOption;
 import static com.thetestament.cread.helpers.FeedHelper.updateFollowForAll;
@@ -1869,7 +1869,7 @@ public class MeFragment extends Fragment implements listener.OnCollaborationList
      */
     private void deleteContent(String entityID, final int itemPosition) {
         // init dialog
-        final MaterialDialog dialog = getDeletePostDialog(getActivity());
+        final MaterialDialog dialog = CustomDialog.getProgressDialog(getActivity(), "Deleting...");
 
         DeletePostHelper.deletePost(getActivity(),
                 mCompositeDisposable,

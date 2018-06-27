@@ -716,7 +716,7 @@ public class PreviewActivity extends BaseActivity implements QueryTokenReceiver,
             AspectRatioUtils.setImageAspectRatio(mBundle.getInt(EXTRA_IMAGE_WIDTH)
                     , mBundle.getInt(EXTRA_IMAGE_HEIGHT)
                     , imagePreview
-            ,true);
+                    , true);
             //Load label data
             loadLabelsData(mBundle.getString(PREVIEW_EXTRA_ENTITY_ID), Constant.LABEL_TYPE_GRAPHIC);
             //Load capture pic
@@ -863,7 +863,7 @@ public class PreviewActivity extends BaseActivity implements QueryTokenReceiver,
                     public void onInput(@NonNull MaterialDialog dialog, CharSequence input) {
                         String s = String.valueOf(input).trim();
                         if (s.length() < 1) {
-                            ViewHelper.getToast(PreviewActivity.this, "This field can't be empty");
+                            ViewHelper.getToast(mContext, "This field can't be empty");
                         } else {
                             //Dismiss
                             dialog.dismiss();
@@ -1068,6 +1068,9 @@ public class PreviewActivity extends BaseActivity implements QueryTokenReceiver,
                                     showCollabInvitationDialog(mContext
                                             , mCompositeDisposable
                                             , rootView
+                                            , mSelectedLiveFilter
+                                            , bm
+                                            , frameLayout
                                             , uuid
                                             , authToken
                                             , dataObject.getString("entityid")
@@ -1193,6 +1196,9 @@ public class PreviewActivity extends BaseActivity implements QueryTokenReceiver,
                                     showCollabInvitationDialog(mContext
                                             , mCompositeDisposable
                                             , rootView
+                                            , mSelectedLiveFilter
+                                            , bm
+                                            , frameLayout
                                             , uuid
                                             , authToken
                                             , dataObject.getString("entityid")
@@ -1428,6 +1434,9 @@ public class PreviewActivity extends BaseActivity implements QueryTokenReceiver,
                                     showCollabInvitationDialog(mContext
                                             , mCompositeDisposable
                                             , rootView
+                                            , mSelectedLiveFilter
+                                            , bm
+                                            , frameLayout
                                             , uuid
                                             , authToken
                                             , dataObject.getString("entityid")
@@ -1696,7 +1705,7 @@ public class PreviewActivity extends BaseActivity implements QueryTokenReceiver,
                     , Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
                 //User already refused to give us this permission or removed it
                 //Show error message
-                ViewHelper.getToast(PreviewActivity.this
+                ViewHelper.getToast(mContext
                         , getString(R.string.error_msg_permission_denied));
             } else {
                 //First time asking for permission
@@ -2329,6 +2338,13 @@ public class PreviewActivity extends BaseActivity implements QueryTokenReceiver,
         }
         //Update status
         mHelper.updateLiveFilterStatus(false);
+
+
+        //Method called
+        LiveFilterHelper.initLiveFilters(mBundle.getString(Constant.PREVIEW_EXTRA_LIVE_FILTER)
+                , whetherView
+                , konfettiView
+                , liveFilterBubble);
     }
     //endregion
 }
