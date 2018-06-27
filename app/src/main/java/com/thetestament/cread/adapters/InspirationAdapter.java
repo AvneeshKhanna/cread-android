@@ -150,12 +150,7 @@ public class InspirationAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
 
             //ItemView onClick functionality
             itemOnClick(itemViewHolder.itemView, data);
-            //Method called
-            LiveFilterHelper.initLiveFilters(data.getLiveFilterName()
-                    , itemViewHolder.whetherView
-                    , itemViewHolder.konfettiView
-                    , itemViewHolder.liveFilterBubble
-                    , mContext);
+
 
         } else if (holder.getItemViewType() == VIEW_TYPE_LOADING) {
             LoadingViewHolder loadingViewHolder = (LoadingViewHolder) holder;
@@ -284,6 +279,20 @@ public class InspirationAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
         public LoadingViewHolder(View itemView) {
             super(itemView);
             ButterKnife.bind(this, itemView);
+        }
+    }
+
+
+    @Override
+    public void onViewAttachedToWindow(RecyclerView.ViewHolder holder) {
+        super.onViewAttachedToWindow(holder);
+        if (holder.getItemViewType() == VIEW_TYPE_ITEM_DETAIL) {
+            final ItemViewHolderDetail itemViewHolder = (ItemViewHolderDetail) holder;
+            LiveFilterHelper.initLiveFilters(mInspirationList.get(holder.getAdapterPosition()).getLiveFilterName()
+                    , itemViewHolder.whetherView
+                    , itemViewHolder.konfettiView
+                    , itemViewHolder.liveFilterBubble
+                    , mContext);
         }
     }
 

@@ -54,6 +54,7 @@ import com.thetestament.cread.listeners.listener.OnShareListener;
 import com.thetestament.cread.models.FeedModel;
 import com.thetestament.cread.models.SuggestedArtistsModel;
 import com.thetestament.cread.utils.AspectRatioUtils;
+import com.thetestament.cread.utils.Constant;
 
 import java.util.List;
 
@@ -800,14 +801,7 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         }
     }
 
-    @Override
-    public void onViewDetachedFromWindow(RecyclerView.ViewHolder holder) {
-        super.onViewDetachedFromWindow(holder);
-        if (holder.getItemViewType() == VIEW_TYPE_ITEM) {
-            final ItemViewHolder itemViewHolder = (ItemViewHolder) holder;
 
-        }
-    }
 
     @Override
     public void onViewAttachedToWindow(RecyclerView.ViewHolder holder) {
@@ -822,8 +816,4 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         }
     }
 
-    @Override
-    public boolean onFailedToRecycleView(RecyclerView.ViewHolder holder) {
-        return super.onFailedToRecycleView(holder);
-    }
 }

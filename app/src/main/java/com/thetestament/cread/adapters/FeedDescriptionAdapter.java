@@ -1001,14 +1001,6 @@ public class FeedDescriptionAdapter extends RecyclerView.Adapter {
         }
     }
 
-    @Override
-    public void onViewDetachedFromWindow(RecyclerView.ViewHolder holder) {
-        super.onViewDetachedFromWindow(holder);
-        if (holder.getItemViewType() == VIEW_TYPE_ITEM) {
-            final ItemViewHolder itemViewHolder = (ItemViewHolder) holder;
-
-        }
-    }
 
     @Override
     public void onViewAttachedToWindow(RecyclerView.ViewHolder holder) {
@@ -1021,11 +1013,6 @@ public class FeedDescriptionAdapter extends RecyclerView.Adapter {
                     , itemViewHolder.liveFilterBubble
                     , mContext);
         }
-    }
-
-    @Override
-    public boolean onFailedToRecycleView(RecyclerView.ViewHolder holder) {
-        return super.onFailedToRecycleView(holder);
     }
 
 }

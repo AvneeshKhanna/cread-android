@@ -538,17 +538,6 @@ public class ExploreAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
 
 
     @Override
-    public void onViewDetachedFromWindow(RecyclerView.ViewHolder holder) {
-        super.onViewDetachedFromWindow(holder);
-        if (holder.getItemViewType() == VIEW_TYPE_ITEM_LIST) {
-            final ListItemViewHolder itemViewHolder = (ListItemViewHolder) holder;
-
-        } else if (holder.getItemViewType() == VIEW_TYPE_ITEM_GRID) {
-            final GridItemViewHolder itemViewHolder = (GridItemViewHolder) holder;
-        }
-    }
-
-    @Override
     public void onViewAttachedToWindow(RecyclerView.ViewHolder holder) {
         super.onViewAttachedToWindow(holder);
         if (holder.getItemViewType() == VIEW_TYPE_ITEM_LIST) {
@@ -568,8 +557,4 @@ public class ExploreAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
         }
     }
 
-    @Override
-    public boolean onFailedToRecycleView(RecyclerView.ViewHolder holder) {
-        return super.onFailedToRecycleView(holder);
-    }
 }
