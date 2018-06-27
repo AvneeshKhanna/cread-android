@@ -128,13 +128,13 @@
  -keepattributes SourceFile,LineNumberTable
  -keep public class * extends java.lang.Exception
 
- ######For weather view
-## -keep com.github.matteobattilana.weather.**
 
-#### For Grav
--keep class com.github.glomadrian.** { }
--dontwarn com.github.glomadrian.*
--keepattributes Exceptions, Signature, InnerClasses
+ ### For Grav library
+ -keep class com.github.glomadrian.** { }
+ -dontwarn com.github.glomadrian.*
+ -keepattributes Exceptions, Signature, InnerClasses
+
+
 
 
 
