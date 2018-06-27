@@ -45,6 +45,7 @@ import com.thetestament.cread.listeners.listener.OnShareLinkClickedListener;
 import com.thetestament.cread.listeners.listener.OnShareListener;
 import com.thetestament.cread.models.FeedModel;
 import com.thetestament.cread.utils.AspectRatioUtils;
+import com.thetestament.cread.utils.Constant;
 
 import java.util.List;
 
@@ -674,7 +675,10 @@ public class NewUsersPostAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
         super.onViewDetachedFromWindow(holder);
         if (holder.getItemViewType() == VIEW_TYPE_ITEM) {
             final ItemViewHolder itemViewHolder = (ItemViewHolder) holder;
-
+            if (mFeedList.get(holder.getAdapterPosition()).getLiveFilterName()
+                    .equals(Constant.LIVE_FILTER_CONFETTI)) {
+                itemViewHolder.konfettiView.getActiveSystems().clear();
+            }
         }
     }
 

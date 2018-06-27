@@ -48,6 +48,7 @@ import com.thetestament.cread.listeners.listener.OnUserActivityHatsOffListener;
 import com.thetestament.cread.listeners.listener.OnUserActivityLoadMoreListener;
 import com.thetestament.cread.models.FeedModel;
 import com.thetestament.cread.utils.AspectRatioUtils;
+import com.thetestament.cread.utils.Constant;
 import com.thetestament.cread.utils.Constant.ITEM_TYPES;
 
 import java.util.List;
@@ -689,10 +690,17 @@ public class MeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         super.onViewDetachedFromWindow(holder);
         if (holder.getItemViewType() == VIEW_TYPE_ITEM_LIST) {
             final ListItemViewHolder itemViewHolder = (ListItemViewHolder) holder;
-
+            if (mUserContentList.get(holder.getAdapterPosition()).getLiveFilterName()
+                    == Constant.LIVE_FILTER_CONFETTI) {
+                itemViewHolder.konfettiView.getActiveSystems().clear();
+            }
         }
         if (holder.getItemViewType() == VIEW_TYPE_ITEM_GRID) {
             final GridItemViewHolder itemViewHolder = (GridItemViewHolder) holder;
+            if (mUserContentList.get(holder.getAdapterPosition()).getLiveFilterName()
+                    .equals(Constant.LIVE_FILTER_CONFETTI)) {
+                itemViewHolder.konfettiView.getActiveSystems().clear();
+            }
         }
     }
 

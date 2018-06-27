@@ -149,6 +149,6 @@ public class ViewHelper {
                 .addShapes(Shape.RECT, Shape.CIRCLE)
                 .addSizes(new Size(8, 5))
                 .setPosition(0f, (float) AspectRatioUtils.getDeviceScreenWidth(), -50f, -50f)
-                .streamFor(300, 5000L);
+                .streamFor(120, 20000L);
     }
 }

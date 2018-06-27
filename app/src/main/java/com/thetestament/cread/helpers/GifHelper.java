@@ -3,6 +3,7 @@ package com.thetestament.cread.helpers;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.media.MediaScannerConnection;
 import android.net.Uri;
 import android.os.Environment;
 import android.os.Handler;
@@ -222,11 +223,37 @@ public class GifHelper {
                     }
                     //To update gallery
                     File file = new File(Environment.getExternalStorageDirectory() + mGifPath);
+                    //Uri uri = FileProvider.getUriForFile(mContext, mContext.getPackageName() + ".provider", file);
+/*
+
+
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+                        MediaScannerConnection.scanFile(mContext, new String[]{Environment.getExternalStorageDirectory() + mGifPath}, null, new MediaScannerConnection.OnScanCompletedListener() {
+                            public void onScanCompleted(String path, Uri uri) {
+                                //something that you want to do
+                            }
+                        });
+                    } else {
+                        mContext.sendBroadcast(new Intent(Intent.ACTION_MEDIA_MOUNTED,
+                                Uri.parse("file://" + Environment.getExternalStorageDirectory() + mGifPath)));
+                    }
+*/
+
+                    /*Intent mediaScanIntent = new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
+                    File file = new File(Environment.getExternalStorageDirectory() + mGifPath);
                     Uri uri = FileProvider.getUriForFile(mContext, mContext.getPackageName() + ".provider", file);
+                    mediaScanIntent.setData(uri);
+                    mContext.sendBroadcast(mediaScanIntent);*/
 
-                    mContext.sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE
-                            , uri));
+                    //mContext.sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, uri));
 
+                    MediaScannerConnection.scanFile(mContext.getApplicationContext()
+                            , new String[]{file.getAbsolutePath()}
+                            , null, new MediaScannerConnection.OnScanCompletedListener() {
+                                public void onScanCompleted(String path, Uri uri) {
+                                    //something that you want to do
+                                }
+                            });
                 }
 
                 @Override
