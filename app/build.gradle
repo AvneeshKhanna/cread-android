@@ -8,7 +8,7 @@ android {
         config {
             keyAlias 'cread2.0'
             keyPassword 'creadtt'
-            storeFile file('C:/Users/avnee/Desktop/The Testament/Product Development/App/Cread/APK/playstore-key.jks')
+            //storeFile file('C:/Users/avnee/Desktop/TheTestament/ProductDevelopment/App/Cread/APK/playstore-key.jks')
             storePassword 'creadtt'
         }
     }
@@ -35,8 +35,7 @@ android {
             shrinkResources true
             minifyEnabled true
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
-//            buildConfigField "String", "URL", '"http://cread-server-main.ap-northeast-1.elasticbeanstalk.com"'
-            buildConfigField "String", "URL", '"http://ca7d17c9.ngrok.io"'
+            buildConfigField "String", "URL", '"http://cread-server-main.ap-northeast-1.elasticbeanstalk.com"'
             buildConfigField "boolean", "VISIBILITY_RESTART_HEROKU_OPTION", "false"
             buildConfigField "String", "S3BUCKET", '"testamentbucket"'
             buildConfigField "String", "CREAD_KALAKAAR_UUID", '"6732bb8e-cffd-4e1b-906f-dc75873a5d92"'

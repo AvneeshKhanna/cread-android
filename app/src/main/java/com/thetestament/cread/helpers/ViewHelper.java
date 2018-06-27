@@ -9,22 +9,17 @@ import android.support.v4.content.ContextCompat;
 import android.support.v4.content.res.ResourcesCompat;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.util.TypedValue;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
-import android.view.animation.Animation;
 import android.widget.Toast;
 
 import com.thetestament.cread.R;
 import com.thetestament.cread.utils.AspectRatioUtils;
 import com.tooltip.Tooltip;
 
-import java.util.logging.Handler;
-
 import nl.dionsegijn.konfetti.KonfettiView;
-import nl.dionsegijn.konfetti.ParticleSystem;
 import nl.dionsegijn.konfetti.models.Shape;
 import nl.dionsegijn.konfetti.models.Size;
 
@@ -156,6 +151,6 @@ public class ViewHelper {
                 .addShapes(Shape.RECT, Shape.CIRCLE)
                 .addSizes(new Size(8, 5))
                 .setPosition(0f, (float) AspectRatioUtils.getDeviceScreenWidth(), -50f, -50f)
-                .streamFor(120, 5000L);
+                .streamFor(120, 20000L);
     }
 }

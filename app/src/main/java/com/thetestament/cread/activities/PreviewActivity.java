@@ -2240,6 +2240,7 @@ public class PreviewActivity extends BaseActivity implements QueryTokenReceiver,
 
                         //Show Confetti
                         konfettiView.setVisibility(View.VISIBLE);
+                        konfettiView.getActiveSystems().clear();
                         ViewHelper.showKonfetti(konfettiView, mContext);
                         //update flag
                         mSelectedLiveFilter = Constant.LIVE_FILTER_CONFETTI;
