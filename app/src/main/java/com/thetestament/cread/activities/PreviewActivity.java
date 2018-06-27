@@ -2240,7 +2240,7 @@ public class PreviewActivity extends BaseActivity implements QueryTokenReceiver,
 
                         //Show Confetti
                         konfettiView.setVisibility(View.VISIBLE);
-                        ViewHelper.showKonfetti(konfettiView);
+                        ViewHelper.showKonfetti(konfettiView, mContext);
                         //update flag
                         mSelectedLiveFilter = Constant.LIVE_FILTER_CONFETTI;
                         break;
@@ -2344,7 +2344,8 @@ public class PreviewActivity extends BaseActivity implements QueryTokenReceiver,
         LiveFilterHelper.initLiveFilters(mBundle.getString(Constant.PREVIEW_EXTRA_LIVE_FILTER)
                 , whetherView
                 , konfettiView
-                , liveFilterBubble);
+                , liveFilterBubble
+                , mContext);
     }
     //endregion
 }

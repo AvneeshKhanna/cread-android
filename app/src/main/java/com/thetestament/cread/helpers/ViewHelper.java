@@ -137,11 +137,11 @@ public class ViewHelper {
      * Method to show konfetti animation.
      *
      * @param konfettiView View reference.
+     * @param context      Context to use.
      */
-    public static void showKonfetti(KonfettiView konfettiView) {
-        // FIXME: 15/06/18  Color extra
+    public static void showKonfetti(KonfettiView konfettiView, Context context) {
         konfettiView.build()
-                .addColors(Color.YELLOW, Color.GREEN, Color.MAGENTA)
+                .addColors(Color.YELLOW, ContextCompat.getColor(context, R.color.blue), ContextCompat.getColor(context, R.color.lt_orange), ContextCompat.getColor(context, R.color.color_green_500))
                 .setDirection(0.0, 359.0)
                 .setSpeed(1f, 5f)
                 .setFadeOutEnabled(true)

@@ -121,4 +121,9 @@
     <color name="Smooch_accentDark">@color/colorPrimaryDark</color>
     <color name="Smooch_accentLight">@color/colorPrimary</color>
 
+
+    <color name="lt_orange">#ff726d</color>
+
+
+
 </resources>

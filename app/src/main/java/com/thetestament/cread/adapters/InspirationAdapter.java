@@ -15,12 +15,11 @@ import android.widget.RelativeLayout;
 
 import com.facebook.drawee.view.SimpleDraweeView;
 import com.github.glomadrian.grav.GravView;
-import com.github.matteobattilana.weather.PrecipType;
 import com.github.matteobattilana.weather.WeatherView;
 import com.thetestament.cread.R;
 import com.thetestament.cread.helpers.ImageHelper;
 import com.thetestament.cread.helpers.IntentHelper;
-import com.thetestament.cread.helpers.ViewHelper;
+import com.thetestament.cread.helpers.LiveFilterHelper;
 import com.thetestament.cread.listeners.listener.OnInspirationLoadMoreListener;
 import com.thetestament.cread.listeners.listener.OnInspirationSelectListener;
 import com.thetestament.cread.models.InspirationModel;
@@ -152,8 +151,11 @@ public class InspirationAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
             //ItemView onClick functionality
             itemOnClick(itemViewHolder.itemView, data);
             //Method called
-
-            initLiveFilters(data.getLiveFilterName(), itemViewHolder);
+            LiveFilterHelper.initLiveFilters(data.getLiveFilterName()
+                    , itemViewHolder.whetherView
+                    , itemViewHolder.konfettiView
+                    , itemViewHolder.liveFilterBubble
+                    , mContext);
 
         } else if (holder.getItemViewType() == VIEW_TYPE_LOADING) {
             LoadingViewHolder loadingViewHolder = (LoadingViewHolder) holder;
@@ -239,33 +241,6 @@ public class InspirationAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
         });
     }
 
-    /**
-     * Method to initialize live filter.
-     *
-     * @param filterName Name of filter to be applied.
-     */
-    private void initLiveFilters(String filterName, ItemViewHolderDetail viewHolder) {
-        switch (filterName) {
-            case Constant.LIVE_FILTER_SNOW:
-                viewHolder.whetherView.setWeatherData(PrecipType.SNOW);
-                viewHolder.whetherView.setVisibility(View.VISIBLE);
-                break;
-            case Constant.LIVE_FILTER_RAIN:
-                viewHolder.whetherView.setWeatherData(PrecipType.RAIN);
-                viewHolder.whetherView.setVisibility(View.VISIBLE);
-                break;
-            case Constant.LIVE_FILTER_BUBBLE:
-                viewHolder.liveFilterBubble.setVisibility(View.VISIBLE);
-                break;
-            case Constant.LIVE_FILTER_CONFETTI:
-                viewHolder.konfettiView.setVisibility(View.VISIBLE);
-                ViewHelper.showKonfetti(viewHolder.konfettiView);
-                break;
-            case Constant.LIVE_FILTER_NONE:
-                //do nothing
-                break;
-        }
-    }
 
     //ItemViewHolder class
     static class ItemViewHolder extends RecyclerView.ViewHolder {

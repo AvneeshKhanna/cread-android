@@ -129,7 +129,7 @@ public class ContentPreview extends BaseActivity {
                 break;
             case Constant.LIVE_FILTER_CONFETTI:
                 konfettiView.setVisibility(View.VISIBLE);
-                ViewHelper.showKonfetti(konfettiView);
+                ViewHelper.showKonfetti(konfettiView, mContext);
                 break;
             case Constant.LIVE_FILTER_NONE:
                 //do nothing

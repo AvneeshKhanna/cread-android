@@ -376,7 +376,7 @@ public class ViewLongShortFragment extends Fragment {
                 break;
             case Constant.LIVE_FILTER_CONFETTI:
                 konfettiView.setVisibility(View.VISIBLE);
-                ViewHelper.showKonfetti(konfettiView);
+                ViewHelper.showKonfetti(konfettiView, getActivity());
                 break;
             case Constant.LIVE_FILTER_NONE:
                 //do nothing

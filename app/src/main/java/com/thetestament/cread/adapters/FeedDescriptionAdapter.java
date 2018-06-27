@@ -338,13 +338,6 @@ public class FeedDescriptionAdapter extends RecyclerView.Adapter {
 
             // init post timestamp
             updatePostTimestamp(itemViewHolder.textTimeStamp, data);
-
-            //Method called
-            LiveFilterHelper.initLiveFilters(data.getLiveFilterName()
-                    , itemViewHolder.whetherView
-                    , itemViewHolder.konfettiView
-                    , itemViewHolder.liveFilterBubble);
-
         } else if (holder.getItemViewType() == VIEW_TYPE_LOADING) {
             LoadingViewHolder loadingViewHolder = (LoadingViewHolder) holder;
             loadingViewHolder.progressView.setVisibility(View.VISIBLE);
@@ -1006,6 +999,33 @@ public class FeedDescriptionAdapter extends RecyclerView.Adapter {
             bundle.putString("class_name", "feed_description");
             FirebaseAnalytics.getInstance(mContext).logEvent(FIREBASE_EVENT_CAPTURE_CLICKED, bundle);
         }
+    }
+
+    @Override
+    public void onViewDetachedFromWindow(RecyclerView.ViewHolder holder) {
+        super.onViewDetachedFromWindow(holder);
+        if (holder.getItemViewType() == VIEW_TYPE_ITEM) {
+            final ItemViewHolder itemViewHolder = (ItemViewHolder) holder;
+
+        }
+    }
+
+    @Override
+    public void onViewAttachedToWindow(RecyclerView.ViewHolder holder) {
+        super.onViewAttachedToWindow(holder);
+        if (holder.getItemViewType() == VIEW_TYPE_ITEM) {
+            final ItemViewHolder itemViewHolder = (ItemViewHolder) holder;
+            LiveFilterHelper.initLiveFilters(mFeedList.get(holder.getAdapterPosition()).getLiveFilterName()
+                    , itemViewHolder.whetherView
+                    , itemViewHolder.konfettiView
+                    , itemViewHolder.liveFilterBubble
+                    , mContext);
+        }
+    }
+
+    @Override
+    public boolean onFailedToRecycleView(RecyclerView.ViewHolder holder) {
+        return super.onFailedToRecycleView(holder);
     }
 
 }

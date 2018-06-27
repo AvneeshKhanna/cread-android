@@ -278,11 +278,6 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             initCaption(mContext, data, itemViewHolder.textTitle);
             // init post timestamp
             updatePostTimestamp(itemViewHolder.textTimeStamp, data);
-            //Method called
-            LiveFilterHelper.initLiveFilters(data.getLiveFilterName()
-                    , itemViewHolder.weatherView
-                    , itemViewHolder.konfettiView
-                    , itemViewHolder.liveFilterBubble);
         } else if (holder.getItemViewType() == VIEW_TYPE_LOADING) {
             LoadingViewHolder loadingViewHolder = (LoadingViewHolder) holder;
             loadingViewHolder.progressView.setVisibility(View.VISIBLE);
@@ -810,6 +805,7 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         super.onViewDetachedFromWindow(holder);
         if (holder.getItemViewType() == VIEW_TYPE_ITEM) {
             final ItemViewHolder itemViewHolder = (ItemViewHolder) holder;
+
         }
     }
 
@@ -818,6 +814,11 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         super.onViewAttachedToWindow(holder);
         if (holder.getItemViewType() == VIEW_TYPE_ITEM) {
             final ItemViewHolder itemViewHolder = (ItemViewHolder) holder;
+            LiveFilterHelper.initLiveFilters(mFeedList.get(holder.getAdapterPosition()).getLiveFilterName()
+                    , itemViewHolder.weatherView
+                    , itemViewHolder.konfettiView
+                    , itemViewHolder.liveFilterBubble
+                    , mContext);
         }
     }
 
