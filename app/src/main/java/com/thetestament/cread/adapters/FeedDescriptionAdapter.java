@@ -6,7 +6,6 @@ import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.content.ContextCompat;
@@ -112,6 +111,7 @@ public class FeedDescriptionAdapter extends RecyclerView.Adapter {
     private listener.OnFeedLoadMoreListener onFeedLoadMoreListener;
     private listener.OnHatsOffListener onHatsOffListener;
     private listener.OnShareListener onShareListener;
+    private listener.OnGifShareListener onGifShareListener;
     private listener.OnShareLinkClickedListener onShareLinkClickedListener;
     private listener.OnDownvoteClickedListener onDownvoteClickedListener;
     private listener.OnExploreFollowListener onExploreFollowListener;
@@ -157,6 +157,14 @@ public class FeedDescriptionAdapter extends RecyclerView.Adapter {
     public void setOnShareListener(listener.OnShareListener onShareListener) {
         this.onShareListener = onShareListener;
     }
+
+    /**
+     * Register a callback to be invoked when user clicks on share button for gif sharing.
+     */
+    public void setOnGifShareListener(listener.OnGifShareListener onGifShareListener) {
+        this.onGifShareListener = onGifShareListener;
+    }
+
 
     /**
      * Register a callback to be invoked when user clicks on share link button.
@@ -593,8 +601,7 @@ public class FeedDescriptionAdapter extends RecyclerView.Adapter {
             @Override
             public void onClick(View view) {
                 if (GifHelper.hasLiveFilter(data.getLiveFilterName())) {
-                    new GifHelper(mContext, bitmap, itemViewHolder.frameLayout, SHARE_OPTION_WHATSAPP, true)
-                            .startHandlerTask(new Handler(), 0);
+                    onGifShareListener.onGifShareClick(itemViewHolder.frameLayout, SHARE_OPTION_WHATSAPP);
                 } else {
                     loadBitmapForSharing(data, SHARE_OPTION_WHATSAPP);
                 }
@@ -606,8 +613,7 @@ public class FeedDescriptionAdapter extends RecyclerView.Adapter {
             public void onClick(View view) {
 
                 if (GifHelper.hasLiveFilter(data.getLiveFilterName())) {
-                    new GifHelper(mContext, bitmap, itemViewHolder.frameLayout, SHARE_OPTION_FACEBOOK, true)
-                            .startHandlerTask(new Handler(), 0);
+                    onGifShareListener.onGifShareClick(itemViewHolder.frameLayout, SHARE_OPTION_FACEBOOK);
                 } else {
                     loadBitmapForSharing(data, SHARE_OPTION_FACEBOOK);
                 }
@@ -619,8 +625,7 @@ public class FeedDescriptionAdapter extends RecyclerView.Adapter {
             @Override
             public void onClick(View view) {
                 if (GifHelper.hasLiveFilter(data.getLiveFilterName())) {
-                    new GifHelper(mContext, bitmap, itemViewHolder.frameLayout, SHARE_OPTION_INSTAGRAM, true)
-                            .startHandlerTask(new Handler(), 0);
+                    onGifShareListener.onGifShareClick(itemViewHolder.frameLayout, SHARE_OPTION_INSTAGRAM);
                 } else {
                     loadBitmapForSharing(data, SHARE_OPTION_INSTAGRAM);
                 }
@@ -632,8 +637,7 @@ public class FeedDescriptionAdapter extends RecyclerView.Adapter {
             @Override
             public void onClick(View view) {
                 if (GifHelper.hasLiveFilter(data.getLiveFilterName())) {
-                    new GifHelper(mContext, bitmap, itemViewHolder.frameLayout, SHARE_OPTION_OTHER, true)
-                            .startHandlerTask(new Handler(), 0);
+                    onGifShareListener.onGifShareClick(itemViewHolder.frameLayout, SHARE_OPTION_OTHER);
                 } else {
                     loadBitmapForSharing(data, SHARE_OPTION_OTHER);
                 }

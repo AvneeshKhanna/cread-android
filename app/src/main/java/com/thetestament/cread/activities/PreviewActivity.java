@@ -2334,7 +2334,7 @@ public class PreviewActivity extends BaseActivity implements QueryTokenReceiver,
         if (mHelper.isLiveFilterFirstTime()) {
             //Show tooltip on live filter icon
             ViewHelper.getToolTip(containerLiveFilter
-                    , "Tap to apply live filter"
+                    , "New! Apply live filters to give your post a cool animation!"
                     , mContext);
         }
         //Update status

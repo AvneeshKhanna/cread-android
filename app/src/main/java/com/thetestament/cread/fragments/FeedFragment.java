@@ -24,6 +24,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.AnimationUtils;
 import android.view.animation.LayoutAnimationController;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -44,6 +45,7 @@ import com.thetestament.cread.adapters.FeedAdapter;
 import com.thetestament.cread.adapters.SuggestedArtistsAdapter;
 import com.thetestament.cread.helpers.DownvoteHelper;
 import com.thetestament.cread.helpers.FeedHelper;
+import com.thetestament.cread.helpers.GifHelper;
 import com.thetestament.cread.helpers.HashTagOfTheDayHelper;
 import com.thetestament.cread.helpers.HatsOffHelper;
 import com.thetestament.cread.helpers.ImageHelper;
@@ -151,6 +153,12 @@ public class FeedFragment extends Fragment implements listener.OnCollaborationLi
 
     @State
     String textHashTagOFTheDay = "";
+
+    /**
+     * Parent view of live filter
+     */
+    FrameLayout mFrameLayout;
+
     //endregion
 
     //region :Overridden methods
@@ -437,6 +445,7 @@ public class FeedFragment extends Fragment implements listener.OnCollaborationLi
         initLoadMoreListener(mAdapter);
         initHatsOffListener(mAdapter);
         initShareListener(mAdapter);
+        initGifShareListener(mAdapter);
         initDownVoteListener(mAdapter);
         //Load data here
         loadFeedData();
@@ -511,7 +520,7 @@ public class FeedFragment extends Fragment implements listener.OnCollaborationLi
                             if (jsonObject.getString("tokenstatus").equals("invalid")) {
                                 tokenError[0] = true;
                             } else {
-                                parsePostsData(jsonObject,false);
+                                parsePostsData(jsonObject, false);
                             }
                         } catch (JSONException e) {
                             e.printStackTrace();
@@ -622,7 +631,7 @@ public class FeedFragment extends Fragment implements listener.OnCollaborationLi
                             if (jsonObject.getString("tokenstatus").equals("invalid")) {
                                 tokenError[0] = true;
                             } else {
-                                parsePostsData(jsonObject,true);
+                                parsePostsData(jsonObject, true);
                             }
                         } catch (JSONException e) {
                             e.printStackTrace();
@@ -753,6 +762,36 @@ public class FeedFragment extends Fragment implements listener.OnCollaborationLi
     }
 
     /**
+     * Initialize gif share listener.
+     */
+    private void initGifShareListener(FeedAdapter feedAdapter) {
+        feedAdapter.setOnGifShareListener(new listener.OnGifShareListener() {
+            @Override
+            public void onGifShareClick(FrameLayout frameLayout, String shareOption) {
+                mFrameLayout = frameLayout;
+                mShareOption = shareOption;
+                //Check for Write permission
+                if (Nammu.checkPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+                    //We have permission do whatever you want to do
+                    new GifHelper(getActivity(), mBitmap, frameLayout, shareOption, true)
+                            .startHandlerTask(new Handler(), 0);
+                } else {
+                    //We do not own this permission
+                    if (Nammu.shouldShowRequestPermissionRationale(FeedFragment.this
+                            , Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+                        //User already refused to give us this permission or removed it
+                        ViewHelper.getToast(getActivity()
+                                , getString(R.string.error_msg_share_permission_denied));
+                    } else {
+                        //First time asking for permission
+                        Nammu.askForPermission(FeedFragment.this, Manifest.permission.WRITE_EXTERNAL_STORAGE, shareGifPermission);
+                    }
+                }
+            }
+        });
+    }
+
+    /**
      * Initialize down vote listener.
      *
      * @param feedAdapter FeedAdapter reference
@@ -832,6 +871,25 @@ public class FeedFragment extends Fragment implements listener.OnCollaborationLi
                     mBitmap,
                     mShareOption);
 
+        }
+
+        @Override
+        public void permissionRefused() {
+            //Show error message
+            ViewHelper.getToast(getActivity()
+                    , getString(R.string.error_msg_share_permission_denied));
+        }
+    };
+
+    /**
+     * Used to handle result of askForPermission for gif sharing
+     */
+    PermissionCallback shareGifPermission = new PermissionCallback() {
+        @Override
+        public void permissionGranted() {
+            //We have permission do whatever you want to do
+            new GifHelper(getActivity(), mBitmap, mFrameLayout, mShareOption, true)
+                    .startHandlerTask(new Handler(), 0);
         }
 
         @Override

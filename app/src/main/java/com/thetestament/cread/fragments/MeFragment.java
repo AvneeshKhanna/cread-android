@@ -36,6 +36,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.AnimationUtils;
 import android.view.animation.LayoutAnimationController;
+import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -64,6 +65,7 @@ import com.thetestament.cread.dialog.CustomDialog;
 import com.thetestament.cread.helpers.DeletePostHelper;
 import com.thetestament.cread.helpers.FeedHelper;
 import com.thetestament.cread.helpers.FollowHelper;
+import com.thetestament.cread.helpers.GifHelper;
 import com.thetestament.cread.helpers.HatsOffHelper;
 import com.thetestament.cread.helpers.ImageHelper;
 import com.thetestament.cread.helpers.IntentHelper;
@@ -249,6 +251,11 @@ public class MeFragment extends Fragment implements listener.OnCollaborationList
      */
     @State
     String mWebStoreUrl;
+
+    /**
+     * Parent view of live filter
+     */
+    FrameLayout mFrameLayout;
 
     //endregion
 
@@ -1685,6 +1692,7 @@ public class MeFragment extends Fragment implements listener.OnCollaborationList
         initHatsOffListener(mAdapter);
         initializeDeleteListener(mAdapter);
         initShareListener(mAdapter);
+        initGifShareListener(mAdapter);
 
         // init swipe refresh listener for list
         initOnSwipeRefreshListener(itemType);
@@ -1941,6 +1949,36 @@ public class MeFragment extends Fragment implements listener.OnCollaborationList
     }
 
     /**
+     * Initialize gif share listener.
+     */
+    private void initGifShareListener(MeAdapter meAdapter) {
+        meAdapter.setOnGifShareListener(new listener.OnGifShareListener() {
+            @Override
+            public void onGifShareClick(FrameLayout frameLayout, String shareOption) {
+                mFrameLayout = frameLayout;
+                mShareOption = shareOption;
+                //Check for Write permission
+                if (Nammu.checkPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+                    //We have permission do whatever you want to do
+                    new GifHelper(getActivity(), mBitmap, frameLayout, shareOption, true)
+                            .startHandlerTask(new Handler(), 0);
+                } else {
+                    //We do not own this permission
+                    if (Nammu.shouldShowRequestPermissionRationale(MeFragment.this
+                            , Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+                        //User already refused to give us this permission or removed it
+                        ViewHelper.getToast(getActivity()
+                                , getString(R.string.error_msg_share_permission_denied));
+                    } else {
+                        //First time asking for permission
+                        Nammu.askForPermission(MeFragment.this, Manifest.permission.WRITE_EXTERNAL_STORAGE, shareGifPermission);
+                    }
+                }
+            }
+        });
+    }
+
+    /**
      * Used to handle result of askForPermission for share
      */
     PermissionCallback shareWritePermission = new PermissionCallback() {
@@ -1997,6 +2035,25 @@ public class MeFragment extends Fragment implements listener.OnCollaborationList
         public void permissionRefused() {
             ViewHelper.getToast(getActivity()
                     , "Please grant storage permission from settings to edit your profile picture.");
+        }
+    };
+
+    /**
+     * Used to handle result of askForPermission for gif sharing
+     */
+    PermissionCallback shareGifPermission = new PermissionCallback() {
+        @Override
+        public void permissionGranted() {
+            //We have permission do whatever you want to do
+            new GifHelper(getActivity(), mBitmap, mFrameLayout, mShareOption, true)
+                    .startHandlerTask(new Handler(), 0);
+        }
+
+        @Override
+        public void permissionRefused() {
+            //Show error message
+            ViewHelper.getToast(getActivity()
+                    , getString(R.string.error_msg_share_permission_denied));
         }
     };
 

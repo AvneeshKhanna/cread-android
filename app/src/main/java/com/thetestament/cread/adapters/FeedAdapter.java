@@ -6,7 +6,6 @@ import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.Handler;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.content.ContextCompat;
@@ -54,7 +53,6 @@ import com.thetestament.cread.listeners.listener.OnShareListener;
 import com.thetestament.cread.models.FeedModel;
 import com.thetestament.cread.models.SuggestedArtistsModel;
 import com.thetestament.cread.utils.AspectRatioUtils;
-import com.thetestament.cread.utils.Constant;
 
 import java.util.List;
 
@@ -115,6 +113,7 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     private OnFeedLoadMoreListener onFeedLoadMoreListener;
     private OnHatsOffListener onHatsOffListener;
     private OnShareListener onShareListener;
+    private listener.OnGifShareListener onGifShareListener;
     private OnShareLinkClickedListener onShareLinkClickedListener;
     private OnDownvoteClickedListener onDownvoteClickedListener;
 
@@ -155,6 +154,13 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
      */
     public void setOnShareListener(OnShareListener onShareListener) {
         this.onShareListener = onShareListener;
+    }
+
+    /**
+     * Register a callback to be invoked when user clicks on share button for gif sharing.
+     */
+    public void setOnGifShareListener(listener.OnGifShareListener onGifShareListener) {
+        this.onGifShareListener = onGifShareListener;
     }
 
     /**
@@ -420,8 +426,7 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             @Override
             public void onClick(View view) {
                 if (GifHelper.hasLiveFilter(data.getLiveFilterName())) {
-                    new GifHelper(mContext, bitmap, itemViewHolder.frameLayout, SHARE_OPTION_WHATSAPP, true)
-                            .startHandlerTask(new Handler(), 0);
+                    onGifShareListener.onGifShareClick(itemViewHolder.frameLayout, SHARE_OPTION_WHATSAPP);
                 } else {
                     loadBitmapForSharing(data, SHARE_OPTION_WHATSAPP);
                 }
@@ -433,8 +438,8 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             public void onClick(View view) {
 
                 if (GifHelper.hasLiveFilter(data.getLiveFilterName())) {
-                    new GifHelper(mContext, bitmap, itemViewHolder.frameLayout, SHARE_OPTION_FACEBOOK, true)
-                            .startHandlerTask(new Handler(), 0);
+                    onGifShareListener.onGifShareClick(itemViewHolder.frameLayout, SHARE_OPTION_FACEBOOK);
+
                 } else {
                     loadBitmapForSharing(data, SHARE_OPTION_FACEBOOK);
                 }
@@ -446,8 +451,8 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             @Override
             public void onClick(View view) {
                 if (GifHelper.hasLiveFilter(data.getLiveFilterName())) {
-                    new GifHelper(mContext, bitmap, itemViewHolder.frameLayout, SHARE_OPTION_INSTAGRAM, true)
-                            .startHandlerTask(new Handler(), 0);
+                    onGifShareListener.onGifShareClick(itemViewHolder.frameLayout, SHARE_OPTION_INSTAGRAM);
+
                 } else {
                     loadBitmapForSharing(data, SHARE_OPTION_INSTAGRAM);
                 }
@@ -459,8 +464,7 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             @Override
             public void onClick(View view) {
                 if (GifHelper.hasLiveFilter(data.getLiveFilterName())) {
-                    new GifHelper(mContext, bitmap, itemViewHolder.frameLayout, SHARE_OPTION_OTHER, true)
-                            .startHandlerTask(new Handler(), 0);
+                    onGifShareListener.onGifShareClick(itemViewHolder.frameLayout, SHARE_OPTION_OTHER);
                 } else {
                     loadBitmapForSharing(data, SHARE_OPTION_OTHER);
                 }
@@ -800,7 +804,6 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             ButterKnife.bind(this, itemView);
         }
     }
-
 
 
     @Override
