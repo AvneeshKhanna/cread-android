@@ -37,25 +37,34 @@ public class GifHelper {
     FrameLayout frameLayout;
     String mShareOption;
     MaterialDialog materialDialog;
+    boolean mCreateForSharing;
+
+    /**
+     * Flag to maintain path of live filter GIF.
+     */
+    String mGifPath = null;
     //endregion
 
     public interface Listener {
         void listen();
     }
 
+
     /**
      * Required constructor.
      *
-     * @param context     Context to use.
-     * @param bitmap      Bitmap object.
-     * @param frameLayout FrameLayout reference.
-     * @param shareOption Medium where GIF to be shared.
+     * @param context          Context to use.
+     * @param bitmap           Bitmap object.
+     * @param frameLayout      FrameLayout reference.
+     * @param shareOption      Medium where GIF to be shared.
+     * @param createForSharing false if called from 'Save on your phone' false otherwise.
      */
-    public GifHelper(FragmentActivity context, Bitmap bitmap, FrameLayout frameLayout, String shareOption) {
+    public GifHelper(FragmentActivity context, Bitmap bitmap, FrameLayout frameLayout, String shareOption, boolean createForSharing) {
         this.mContext = context;
         this.mBitmap = bitmap;
         this.frameLayout = frameLayout;
         this.mShareOption = shareOption;
+        this.mCreateForSharing = createForSharing;
         materialDialog = CustomDialog.getProgressDialog(mContext, mContext.getString(R.string.title_gif_dialog));
     }
 
@@ -179,6 +188,14 @@ public class GifHelper {
      * @param fFmpeg FFmpeg instance.
      */
     private void createGif(FFmpeg fFmpeg) {
+        //Called from sharing
+        if (mCreateForSharing) {
+            mGifPath = "/Cread/output.gif";
+        } else {
+            double i =  Math.random();
+            mGifPath = "/Cread/output" + i + ".gif";
+        }
+
         String[] cmd = new String[8];
         cmd[0] = "-f";
         cmd[1] = "image2";
@@ -187,7 +204,7 @@ public class GifHelper {
         cmd[4] = "-y";
         cmd[5] = "-i";
         cmd[6] = Environment.getExternalStorageDirectory() + "/Cread/LiveFilter/live_filter_pic%d.jpg";
-        cmd[7] = Environment.getExternalStorageDirectory() + "/Cread/output.gif";
+        cmd[7] = Environment.getExternalStorageDirectory() + mGifPath;
         try {
             fFmpeg.execute(cmd, new FFmpegExecuteResponseHandler() {
                 @Override
@@ -195,7 +212,11 @@ public class GifHelper {
                     //Dismiss material dialog
                     materialDialog.dismiss();
                     //Method called
-                    launchShareIntent(mContext);
+                    if (mCreateForSharing) {
+                        launchShareIntent(mContext);
+                    } else {
+                        ViewHelper.getToast(mContext, "GIF saved to : " + mGifPath);
+                    }
                 }
 
                 @Override
@@ -257,7 +278,7 @@ public class GifHelper {
                     Intent shareFacebookIntent = new Intent(Intent.ACTION_SEND);
                     shareFacebookIntent.setPackage("com.facebook.katana");
                     shareFacebookIntent.putExtra(Intent.EXTRA_STREAM, Uri.parse(Environment.getExternalStorageDirectory() + "/Cread/output.gif"));
-                    shareFacebookIntent.setType("video/*");
+                    shareFacebookIntent.setType("image/*");
                     shareFacebookIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
                     mContext.startActivity(shareFacebookIntent);
                 } else {
@@ -270,7 +291,7 @@ public class GifHelper {
                     shareInstagramIntent.setAction(Intent.ACTION_SEND);
                     shareInstagramIntent.setPackage("com.instagram.android");
                     shareInstagramIntent.putExtra(Intent.EXTRA_STREAM, Uri.parse(Environment.getExternalStorageDirectory() + "/Cread/output.gif"));
-                    shareInstagramIntent.setType("video/*");
+                    shareInstagramIntent.setType("image/*");
                     shareInstagramIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
                     mContext.startActivity(shareInstagramIntent);
                 } else {

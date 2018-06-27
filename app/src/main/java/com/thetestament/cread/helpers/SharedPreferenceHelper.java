@@ -697,4 +697,25 @@ public class SharedPreferenceHelper {
         editor.apply();
     }
 
+    /**
+     * Method to retrieve first time run status live filters.
+     *
+     * @return True by default.
+     */
+    public boolean isLiveFilterFirstTime() {
+        return mSharedPreferences
+                .getBoolean(mContext.getString(R.string.key_live_filter), true);
+    }
+
+
+    /**
+     * Method to update live filter first time status.
+     *
+     * @param status boolean value i.e true or false
+     */
+    public void updateLiveFilterStatus(boolean status) {
+        SharedPreferences.Editor editor = mSharedPreferences.edit();
+        editor.putBoolean(mContext.getString(R.string.key_live_filter), status);
+        editor.apply();
+    }
 }

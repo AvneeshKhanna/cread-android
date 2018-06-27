@@ -225,6 +225,8 @@ public class PreviewActivity extends BaseActivity implements QueryTokenReceiver,
     RecyclerView liveFilterRecyclerView;
     @BindView(R.id.containerImagePreview)
     FrameLayout frameLayout;
+    @BindView(R.id.container_live_filter)
+    FrameLayout containerLiveFilter;
     //endregion
 
     //region :Fields and constants
@@ -687,6 +689,8 @@ public class PreviewActivity extends BaseActivity implements QueryTokenReceiver,
 
         initLoadMoreSuggestionsListener(mMentionsAdapter);
         initSuggestionsClickListener(mMentionsAdapter);
+        //Method called
+        checkLiveFilterStatus();
     }
 
     /**
@@ -711,7 +715,8 @@ public class PreviewActivity extends BaseActivity implements QueryTokenReceiver,
             mImageUrl = Uri.parse(mBundle.getString(PREVIEW_EXTRA_CONTENT_IMAGE)).toString();
             AspectRatioUtils.setImageAspectRatio(mBundle.getInt(EXTRA_IMAGE_WIDTH)
                     , mBundle.getInt(EXTRA_IMAGE_HEIGHT)
-                    , imagePreview);
+                    , imagePreview
+            ,true);
             //Load label data
             loadLabelsData(mBundle.getString(PREVIEW_EXTRA_ENTITY_ID), Constant.LABEL_TYPE_GRAPHIC);
             //Load capture pic
@@ -851,7 +856,7 @@ public class PreviewActivity extends BaseActivity implements QueryTokenReceiver,
         new MaterialDialog.Builder(this)
                 .title("Signature")
                 .autoDismiss(false)
-                .inputRange(1, 20, ContextCompat.getColor(PreviewActivity.this, R.color.red))
+                .inputRange(1, 20, ContextCompat.getColor(mContext, R.color.red))
                 .inputType(InputType.TYPE_TEXT_FLAG_CAP_SENTENCES | InputType.TYPE_TEXT_VARIATION_SHORT_MESSAGE)
                 .input(null, null, false, new MaterialDialog.InputCallback() {
                     @Override
@@ -1047,7 +1052,7 @@ public class PreviewActivity extends BaseActivity implements QueryTokenReceiver,
                             } else {
                                 JSONObject dataObject = jsonObject.getJSONObject("data");
                                 if (dataObject.getString("status").equals("done")) {
-                                    ViewHelper.getToast(PreviewActivity.this, "Capture uploaded successfully.");
+                                    ViewHelper.getToast(mContext, "Capture uploaded successfully.");
                                     setResult(RESULT_OK);
 
                                     // set feeds data to be loaded from network
@@ -1172,7 +1177,7 @@ public class PreviewActivity extends BaseActivity implements QueryTokenReceiver,
                             } else {
                                 JSONObject dataObject = jsonObject.getJSONObject("data");
                                 if (dataObject.getString("status").equals("done")) {
-                                    ViewHelper.getToast(PreviewActivity.this, "Writing uploaded successfully.");
+                                    ViewHelper.getToast(mContext, "Writing uploaded successfully.");
                                     setResult(RESULT_OK);
 
                                     // set feeds data to be loaded from network
@@ -1299,7 +1304,7 @@ public class PreviewActivity extends BaseActivity implements QueryTokenReceiver,
                             } else {
                                 JSONObject dataObject = jsonObject.getJSONObject("data");
                                 if (dataObject.getString("status").equals("done")) {
-                                    ViewHelper.getToast(PreviewActivity.this, "Changes updated successfully.");
+                                    ViewHelper.getToast(mContext, "Changes updated successfully.");
 
 
                                     // set feeds data to be loaded from network
@@ -1315,7 +1320,7 @@ public class PreviewActivity extends BaseActivity implements QueryTokenReceiver,
                                     IMAGE_LOAD_FROM_NETWORK_ME = true;
                                     IMAGE_LOAD_FROM_NETWORK_FEED_DESCRIPTION = true;
 
-                                    Picasso.with(PreviewActivity.this).invalidate(file);
+                                    Picasso.with(mContext).invalidate(file);
 
 
                                     //finish this activity and set result ok
@@ -1411,7 +1416,7 @@ public class PreviewActivity extends BaseActivity implements QueryTokenReceiver,
                             } else {
                                 JSONObject dataObject = response.getJSONObject("data");
                                 if (dataObject.getString("status").equals("done")) {
-                                    ViewHelper.getToast(PreviewActivity.this, "Graphic art uploaded successfully");
+                                    ViewHelper.getToast(mContext, "Graphic art uploaded successfully");
 
                                     // Set feeds data to be loaded from network instead of cached data
                                     GET_RESPONSE_FROM_NETWORK_MAIN = true;
@@ -1472,7 +1477,7 @@ public class PreviewActivity extends BaseActivity implements QueryTokenReceiver,
                 .writeTimeout(20, TimeUnit.MINUTES)
                 .build();
 
-        AndroidNetworking.post(BuildConfig.URL + "/entity-manage/edit-caption")
+        AndroidNetworking.post(BuildConfig.URL + "/capture-manage/edit-caption")
                 .addBodyParameter("uuid", uuid)
                 .addBodyParameter("authkey", authToken)
                 .addBodyParameter("caption", captionText)
@@ -1492,7 +1497,7 @@ public class PreviewActivity extends BaseActivity implements QueryTokenReceiver,
                             } else {
                                 JSONObject dataObject = response.getJSONObject("data");
                                 if (dataObject.getString("status").equals("done")) {
-                                    ViewHelper.getToast(PreviewActivity.this, "Caption updated successfully");
+                                    ViewHelper.getToast(mContext, "Caption updated successfully");
 
                                     // Set feeds data to be loaded from network instead of cached data
                                     GET_RESPONSE_FROM_NETWORK_MAIN = true;
@@ -1616,11 +1621,11 @@ public class PreviewActivity extends BaseActivity implements QueryTokenReceiver,
                     FilterModel cruz = new FilterModel("Cruz", bmp, CustomFilters.getCruzFilter());
                     FilterModel metropolis = new FilterModel("Metropolis", bmp, CustomFilters.getMetropolisFilter());
                     FilterModel audrey = new FilterModel("Audrey", bmp, CustomFilters.getAudreyFilter());
-                    FilterModel rise = new FilterModel("Rise", bmp, CustomFilters.getRiseFilter(PreviewActivity.this));
+                    FilterModel rise = new FilterModel("Rise", bmp, CustomFilters.getRiseFilter(mContext));
                     FilterModel mars = new FilterModel("Mars", bmp, CustomFilters.getMarsFilter());
-                    FilterModel april = new FilterModel("April", bmp, CustomFilters.getAprilFilter(PreviewActivity.this));
-                    FilterModel han = new FilterModel("Han", bmp, CustomFilters.getHanFilter(PreviewActivity.this));
-                    FilterModel oldMan = new FilterModel("Old Man", bmp, CustomFilters.getOldManFilter(PreviewActivity.this));
+                    FilterModel april = new FilterModel("April", bmp, CustomFilters.getAprilFilter(mContext));
+                    FilterModel han = new FilterModel("Han", bmp, CustomFilters.getHanFilter(mContext));
+                    FilterModel oldMan = new FilterModel("Old Man", bmp, CustomFilters.getOldManFilter(mContext));
                     FilterModel clarendon = new FilterModel("Clarendon", bmp, CustomFilters.getClarendonFilter());
 
                     dataList.clear();
@@ -1687,7 +1692,7 @@ public class PreviewActivity extends BaseActivity implements QueryTokenReceiver,
             saveBmpToFile();
         } else {
             //We do not own this permission
-            if (Nammu.shouldShowRequestPermissionRationale(PreviewActivity.this
+            if (Nammu.shouldShowRequestPermissionRationale(mContext
                     , Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
                 //User already refused to give us this permission or removed it
                 //Show error message
@@ -1695,7 +1700,7 @@ public class PreviewActivity extends BaseActivity implements QueryTokenReceiver,
                         , getString(R.string.error_msg_permission_denied));
             } else {
                 //First time asking for permission
-                Nammu.askForPermission(PreviewActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE, writePermission);
+                Nammu.askForPermission(mContext, Manifest.permission.WRITE_EXTERNAL_STORAGE, writePermission);
             }
         }
     }
@@ -1712,7 +1717,7 @@ public class PreviewActivity extends BaseActivity implements QueryTokenReceiver,
         @Override
         public void permissionRefused() {
             //Show error message
-            ViewHelper.getToast(PreviewActivity.this
+            ViewHelper.getToast(mContext
                     , getString(R.string.error_msg_permission_denied));
         }
     };
@@ -2033,7 +2038,7 @@ public class PreviewActivity extends BaseActivity implements QueryTokenReceiver,
      * Update button click functionality to upload content on server.
      */
     void updateOnClick() {
-        if (NetworkHelper.getNetConnectionStatus(PreviewActivity.this)) {
+        if (NetworkHelper.getNetConnectionStatus(mContext)) {
             // get caption in mentions format
             mCapInMentionFormat = ProfileMentionsHelper.convertToMentionsFormat(etCaption);
             // edit capture
@@ -2273,7 +2278,7 @@ public class PreviewActivity extends BaseActivity implements QueryTokenReceiver,
                 //IF live filter is present
                 if (GifHelper.hasLiveFilter(mSelectedLiveFilter)) {
                     //Create GIF
-                    new GifHelper(mContext, bm, frameLayout, Constant.SHARE_OPTION_OTHER)
+                    new GifHelper(mContext, bm, frameLayout, Constant.SHARE_OPTION_OTHER, false)
                             .startHandlerTask(new Handler(), 0);
                 }
                 //No filter
@@ -2310,6 +2315,20 @@ public class PreviewActivity extends BaseActivity implements QueryTokenReceiver,
             }
         });
 
+    }
+
+    /**
+     * Method to check live filter status and take appropriate action.
+     */
+    private void checkLiveFilterStatus() {
+        if (mHelper.isLiveFilterFirstTime()) {
+            //Show tooltip on live filter icon
+            ViewHelper.getToolTip(containerLiveFilter
+                    , "Tap to apply live filter"
+                    , mContext);
+        }
+        //Update status
+        mHelper.updateLiveFilterStatus(false);
     }
     //endregion
 }

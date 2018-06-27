@@ -600,7 +600,7 @@ public class FeedDescriptionAdapter extends RecyclerView.Adapter {
             @Override
             public void onClick(View view) {
                 if (GifHelper.hasLiveFilter(data.getLiveFilterName())) {
-                    new GifHelper(mContext, bitmap, itemViewHolder.frameLayout, SHARE_OPTION_WHATSAPP)
+                    new GifHelper(mContext, bitmap, itemViewHolder.frameLayout, SHARE_OPTION_WHATSAPP, true)
                             .startHandlerTask(new Handler(), 0);
                 } else {
                     loadBitmapForSharing(data, SHARE_OPTION_WHATSAPP);
@@ -613,7 +613,7 @@ public class FeedDescriptionAdapter extends RecyclerView.Adapter {
             public void onClick(View view) {
 
                 if (GifHelper.hasLiveFilter(data.getLiveFilterName())) {
-                    new GifHelper(mContext, bitmap, itemViewHolder.frameLayout, SHARE_OPTION_FACEBOOK)
+                    new GifHelper(mContext, bitmap, itemViewHolder.frameLayout, SHARE_OPTION_FACEBOOK, true)
                             .startHandlerTask(new Handler(), 0);
                 } else {
                     loadBitmapForSharing(data, SHARE_OPTION_FACEBOOK);
@@ -626,7 +626,7 @@ public class FeedDescriptionAdapter extends RecyclerView.Adapter {
             @Override
             public void onClick(View view) {
                 if (GifHelper.hasLiveFilter(data.getLiveFilterName())) {
-                    new GifHelper(mContext, bitmap, itemViewHolder.frameLayout, SHARE_OPTION_INSTAGRAM)
+                    new GifHelper(mContext, bitmap, itemViewHolder.frameLayout, SHARE_OPTION_INSTAGRAM, true)
                             .startHandlerTask(new Handler(), 0);
                 } else {
                     loadBitmapForSharing(data, SHARE_OPTION_INSTAGRAM);
@@ -639,7 +639,7 @@ public class FeedDescriptionAdapter extends RecyclerView.Adapter {
             @Override
             public void onClick(View view) {
                 if (GifHelper.hasLiveFilter(data.getLiveFilterName())) {
-                    new GifHelper(mContext, bitmap, itemViewHolder.frameLayout, SHARE_OPTION_OTHER)
+                    new GifHelper(mContext, bitmap, itemViewHolder.frameLayout, SHARE_OPTION_OTHER, true)
                             .startHandlerTask(new Handler(), 0);
                 } else {
                     loadBitmapForSharing(data, SHARE_OPTION_OTHER);

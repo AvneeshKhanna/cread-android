@@ -265,7 +265,7 @@
             android:id="@+id/image_live_filter"
             android:layout_width="24dp"
             android:layout_height="24dp"
-            android:background="@drawable/circle_transparent_bg"
+            android:background="@drawable/circle_transparent_bg_dark"
             android:padding="5dp"
             android:tooltipText="Live Filter button"
             app:srcCompat="@drawable/ic_live_filter_vector" />

@@ -68,6 +68,7 @@
     <string name="key_htod_new_posts_indicator_visibility">keyHtNewPostsIndicatorVisibility</string>
     <string name="key_web_store_dot">keyWebStoreDot</string>
     <string name="key_product_tour">keyProductTour</string>
+    <string name="key_live_filter">keyLiveFilter</string>
 
 
     // dialog messages
