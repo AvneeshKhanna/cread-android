@@ -19,15 +19,14 @@ import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
 
 import com.github.glomadrian.grav.GravView;
-import com.github.matteobattilana.weather.PrecipType;
 import com.github.matteobattilana.weather.WeatherView;
 import com.thetestament.cread.R;
 import com.thetestament.cread.activities.ShortActivity;
 import com.thetestament.cread.helpers.ImageHelper;
+import com.thetestament.cread.helpers.LiveFilterHelper;
 import com.thetestament.cread.helpers.LongShortHelper;
 import com.thetestament.cread.helpers.ViewHelper;
 import com.thetestament.cread.models.ShortModel;
-import com.thetestament.cread.utils.Constant;
 
 import java.io.IOException;
 
@@ -82,7 +81,12 @@ public class ViewLongShortFragment extends Fragment {
         mUnbinder = ButterKnife.bind(this, view);
         mShortData = getArguments().getParcelable("shortData");
         //Method called
-        initLiveFilters(mShortData.getLiveFilterName());
+        LiveFilterHelper.initLiveFilters(mShortData.getLiveFilterName()
+                , whetherView
+                , konfettiView
+                , liveFilterBubble
+                , getActivity());
+
     }
 
     @Override
@@ -355,36 +359,6 @@ public class ViewLongShortFragment extends Fragment {
 
     }
 
-
-    /**
-     * Method to initialize live filter.
-     *
-     * @param filterName Name of filter to be applied.
-     */
-    private void initLiveFilters(String filterName) {
-        switch (filterName) {
-            case Constant.LIVE_FILTER_SNOW:
-                whetherView.setWeatherData(PrecipType.SNOW);
-                whetherView.setVisibility(View.VISIBLE);
-                break;
-            case Constant.LIVE_FILTER_RAIN:
-                whetherView.setWeatherData(PrecipType.RAIN);
-                whetherView.setVisibility(View.VISIBLE);
-                break;
-            case Constant.LIVE_FILTER_BUBBLE:
-                liveFilterBubble.setVisibility(View.VISIBLE);
-                break;
-            case Constant.LIVE_FILTER_CONFETTI:
-                konfettiView.setVisibility(View.VISIBLE);
-                ViewHelper.showKonfetti(konfettiView, getActivity());
-                break;
-            case Constant.LIVE_FILTER_NONE:
-                //do nothing
-                break;
-            default:
-                break;
-        }
-    }
     //endregion
 
 }

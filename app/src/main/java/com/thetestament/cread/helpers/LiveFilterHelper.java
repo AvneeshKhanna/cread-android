@@ -91,6 +91,7 @@ public class LiveFilterHelper {
                 break;
             case Constant.LIVE_FILTER_BUBBLE:
                 bubbleView.setVisibility(View.VISIBLE);
+                bubbleView.start();
                 //Toggle view visibility
                 konfettiView.setVisibility(View.GONE);
                 weatherView.setVisibility(View.GONE);
