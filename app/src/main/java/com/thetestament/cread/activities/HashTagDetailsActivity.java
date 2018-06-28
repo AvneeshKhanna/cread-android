@@ -15,6 +15,10 @@ import butterknife.ButterKnife;
 import static com.thetestament.cread.utils.Constant.BUNDLE_HASHTAG_NAME;
 import static com.thetestament.cread.utils.Constant.TAG_HASH_TAG_DETAILS_FRAGMENT;
 
+
+/**
+ * Reference : http://sourabhsoni.com/implementing-hashtags-in-android-application/
+ */
 public class HashTagDetailsActivity extends BaseActivity {
 
     SharedPreferenceHelper spHelper;
@@ -25,7 +29,6 @@ public class HashTagDetailsActivity extends BaseActivity {
         setContentView(R.layout.activity_hash_tag_details);
         ButterKnife.bind(this);
 
-        // set new posts htag indicator visibility
         spHelper = new SharedPreferenceHelper(this);
         // initialize view
         initView();
@@ -63,6 +66,7 @@ public class HashTagDetailsActivity extends BaseActivity {
 
         long postsCount = Long.parseLong(hashTagPostCount);
 
+        // posts count is not equal to -1 when hash tag screen is opened by clicking hash tag of the day
         if (postsCount != -1) {
             spHelper.setHTagCount(postsCount);
             spHelper.setHTagNewPostsIndicatorVisibility(false);

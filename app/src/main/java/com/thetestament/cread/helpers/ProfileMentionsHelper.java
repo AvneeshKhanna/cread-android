@@ -4,7 +4,6 @@ import android.graphics.Color;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.content.ContextCompat;
 import android.text.SpannableString;
-import android.text.SpannableStringBuilder;
 import android.text.Spanned;
 import android.text.TextUtils;
 import android.text.method.LinkMovementMethod;
@@ -18,23 +17,30 @@ import com.thetestament.cread.R;
 import com.thetestament.cread.models.PersonMentionModel;
 import com.thetestament.cread.widgets.ProfileClickableSpan;
 
-import org.w3c.dom.Text;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+/**
+ * Blog Reference: https://engineering.linkedin.com/android/open-sourcing-spyglass-flexible-library-implementing-mentions-android
+ * <p>
+ * Github : https://github.com/linkedin/Spyglass
+ * <p>
+ * Sample App : https://github.com/linkedin/Spyglass/blob/master/spyglass-sample/README.md
+ */
 public class ProfileMentionsHelper {
-
+    // static string to be passed to Linkedin library
     public static final String BUCKET = "people-network";
 
+    // initialize word tokenizer (linkedin class)
     public static final WordTokenizerConfig tokenizerConfig = new WordTokenizerConfig
             .Builder()
+            // Number of characters required in a word before returning a mention suggestion starting with the word
             .setThreshold(Integer.MAX_VALUE)
             .build();
 
-
+    // custom config for mention color
     public static MentionSpanConfig getMentionSpanConfig(FragmentActivity context) {
         return new MentionSpanConfig
                 .Builder()
@@ -44,18 +50,27 @@ public class ProfileMentionsHelper {
     }
 
 
+    // Regex for mention pattern
     private static Pattern mentionPattern = Pattern.compile
             ("\\@\\[\\(u:[\\w\\-]+\\+n:([^\\x00-\\x7F]|\\w|\\s|\\n)+\\)\\]",
                     Pattern.CASE_INSENSITIVE);
 
+    // Regex for name part of the pattern
     private static Pattern namePattern = Pattern.compile
             ("\\+n:([^\\x00-\\x7F]|\\w|\\s|\\n)+",
                     Pattern.CASE_INSENSITIVE);
 
+    // Regex for uuid part of the pattern
     private static Pattern uuidPattern = Pattern.compile
             ("u:[\\w\\-]+",
                     Pattern.CASE_INSENSITIVE);
 
+
+    /**
+     * Retrieves the mentions text from MentionsEditText and converts it into our custom format
+     * @param mentionsEditText
+     * @return Custom Mentions formatted string
+     */
     public static String convertToMentionsFormat(MentionsEditText mentionsEditText) {
 
         String originalText = mentionsEditText.getText().toString().trim();
@@ -64,18 +79,18 @@ public class ProfileMentionsHelper {
 
         List<MentionSpan> mentionSpans = mentionsEditText.getMentionsText().getMentionSpans();
 
-        // if mentions exist format them
+        // if mentions exist then
+        // extract each mention span from the mentions text and replace it with our custom format
         if (mentionSpans.size() != 0) {
             for (int i = mentionSpans.size() - 1; i >= 0; i--) {
 
                 int start = mentionsEditText.getMentionsText().getSpanStart(mentionSpans.get(i));
                 int end = mentionsEditText.getMentionsText().getSpanEnd(mentionSpans.get(i));
 
+                // get custom mention formatted string from a mention
                 String customMention = setMentionFormat(mentionSpans.get(i));
 
                 // replacing mention with the custom mention format in the string
-
-
                 stringBuilder.replace(start, end, customMention);
 
             }
@@ -84,7 +99,11 @@ public class ProfileMentionsHelper {
         return stringBuilder.toString();
     }
 
-
+    /**
+     * Converts a mention span into our custom mention formatted string
+     * @param mentionSpan
+     * @return
+     */
     private static String setMentionFormat(MentionSpan mentionSpan) {
         String uuid = ((PersonMentionModel) mentionSpan.getMention()).getUserUUID();
         String name = mentionSpan.getDisplayString();
@@ -94,6 +113,14 @@ public class ProfileMentionsHelper {
 
     }
 
+    /**
+     * Parses the entire text by replacing the custom formatted mentions string with clickable spans and sets the resulting string in the text view
+     *
+     * Used when Profile Mention has to be set for viewing purpose of user
+     * @param mentionText
+     * @param context
+     * @param textView
+     */
     public static void setProfileMentionsForViewing(String mentionText, FragmentActivity context, TextView textView) {
 
 
@@ -141,7 +168,7 @@ public class ProfileMentionsHelper {
 
             }
 
-
+            // Now convert the mentions into spans
             SpannableString spannableString = new SpannableString(mentionText);
 
             for (int n = 0; n < uuids.size(); n++) {
@@ -165,6 +192,14 @@ public class ProfileMentionsHelper {
     }
 
 
+    /**
+     * Parses the entire text by replacing the custom formatted mentions string with the Linkedin Library Mentionables and sets the resulting text in Mentions edit text
+     *
+     * Used when Profile Mention has to be set for editing purpose of user
+     * @param context
+     * @param mentionText
+     * @param mentionsEditText
+     */
     public static void setProfileMentionsForEditing(FragmentActivity context, String mentionText, MentionsEditText mentionsEditText) {
 
 
@@ -221,7 +256,7 @@ public class ProfileMentionsHelper {
             }
 
             mentionsEditText.setText(mentionText);
-
+            // Now convert the mentions into Linkedin library format
             for (int n = 0; n < mentions.size(); n++) {
 
                 int startPos = startIndi.get(n) + 0;
