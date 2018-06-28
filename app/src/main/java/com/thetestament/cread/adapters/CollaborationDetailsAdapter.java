@@ -2,12 +2,13 @@ package com.thetestament.cread.adapters;
 
 import android.net.Uri;
 import android.support.v4.app.FragmentActivity;
+import android.support.v7.widget.AppCompatTextView;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.FrameLayout;
 import android.widget.RelativeLayout;
-import android.widget.TextView;
 
 import com.facebook.drawee.view.SimpleDraweeView;
 import com.thetestament.cread.R;
@@ -60,25 +61,26 @@ public class CollaborationDetailsAdapter extends RecyclerView.Adapter<Collaborat
     }
 
     @Override
-    public CollaborationDetailsAdapter.ItemViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+    public ItemViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         return new ItemViewHolder(LayoutInflater
-                .from(parent.getContext())
-                .inflate(R.layout.item_collaboration_details
+                .from(parent.getContext()).inflate(R.layout.item_collaboration_details
                         , parent
                         , false));
     }
 
     @Override
-    public void onBindViewHolder(CollaborationDetailsAdapter.ItemViewHolder holder, int position) {
+    public void onBindViewHolder(ItemViewHolder holder, int position) {
         CollaborationDetailsModel data = mCollaborationList.get(position);
         //Set creator name
         holder.textCreatorName.setText(data.getUserName());
         //Load creator image
         ImageHelper.loadProgressiveImage(Uri.parse(data.getProfilePic()), holder.imageCreator);
+
         //Set image width and height
         AspectRatioUtils.setImageAspectRatio(data.getImgWidth()
                 , data.getImgHeight()
-                , holder.imageCollaboration);
+                , holder.imageCollaboration
+                , true);
         //Load content image
         ImageHelper.loadProgressiveImage(Uri.parse(data.getEntityUrl())
                 , holder.imageCollaboration);
@@ -87,6 +89,7 @@ public class CollaborationDetailsAdapter extends RecyclerView.Adapter<Collaborat
 
         // init click listener
         initItemClick(holder.imageCollaboration, data.getEntityID());
+
 
         //If last item is visible to user and new set of data is to yet to be loaded
         if (position == mCollaborationList.size() - 1 && !mIsLoading) {
@@ -112,6 +115,12 @@ public class CollaborationDetailsAdapter extends RecyclerView.Adapter<Collaborat
     }
 
 
+    /**
+     * Method to initialize item click functionality.
+     *
+     * @param view     View to be clicked
+     * @param entityID Entity id of the post.
+     */
     private void initItemClick(View view, final String entityID) {
         view.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -138,16 +147,20 @@ public class CollaborationDetailsAdapter extends RecyclerView.Adapter<Collaborat
         });
     }
 
+
+
     //ItemViewHolder class
     static class ItemViewHolder extends RecyclerView.ViewHolder {
-        @BindView(R.id.containerCreator)
+        @BindView(R.id.container_creator)
         RelativeLayout containerCreator;
-        @BindView(R.id.imageCreator)
+        @BindView(R.id.image_creator)
         SimpleDraweeView imageCreator;
-        @BindView(R.id.textCreatorName)
-        TextView textCreatorName;
-        @BindView(R.id.imageCollaboration)
+        @BindView(R.id.text_creator_name)
+        AppCompatTextView textCreatorName;
+        @BindView(R.id.image_collaboration)
         SimpleDraweeView imageCollaboration;
+        @BindView(R.id.image_container)
+        FrameLayout imageContainer;
 
         public ItemViewHolder(View itemView) {
             super(itemView);

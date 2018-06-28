@@ -90,6 +90,7 @@ import static com.thetestament.cread.utils.Constant.IMAGE_TYPE_USER_CAPTURE_PIC;
 import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_CALLED_FROM;
 import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_CALLED_FROM_CAPTURE;
 import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_DATA;
+import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_LIVE_FILTER;
 import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_MERCHANTABLE;
 import static com.thetestament.cread.utils.Constant.REQUEST_CODE_EDIT_POST;
 import static com.thetestament.cread.utils.Constant.REQUEST_CODE_OPEN_GALLERY;
@@ -590,6 +591,7 @@ public class BottomNavigationActivity extends BaseActivity {
                 //Open preview screen
                 Bundle bundle = new Bundle();
                 bundle.putString(PREVIEW_EXTRA_MERCHANTABLE, "1");
+                bundle.putString(PREVIEW_EXTRA_LIVE_FILTER,Constant.LIVE_FILTER_NONE);
                 bundle.putString(PREVIEW_EXTRA_CALLED_FROM, PREVIEW_EXTRA_CALLED_FROM_CAPTURE);
 
                 Intent intent = new Intent(mContext, PreviewActivity.class);
@@ -599,6 +601,7 @@ public class BottomNavigationActivity extends BaseActivity {
                 //Open preview screen
                 Bundle bundle = new Bundle();
                 bundle.putString(PREVIEW_EXTRA_MERCHANTABLE, "1");
+                bundle.putString(PREVIEW_EXTRA_LIVE_FILTER,Constant.LIVE_FILTER_NONE);
                 bundle.putString(PREVIEW_EXTRA_CALLED_FROM, PREVIEW_EXTRA_CALLED_FROM_CAPTURE);
 
                 Intent intent = new Intent(mContext, PreviewActivity.class);
@@ -719,6 +722,7 @@ public class BottomNavigationActivity extends BaseActivity {
                         //Open preview screen
                         Bundle bundle = new Bundle();
                         bundle.putString(PREVIEW_EXTRA_MERCHANTABLE, "0");
+                        bundle.putString(PREVIEW_EXTRA_LIVE_FILTER,Constant.LIVE_FILTER_NONE);
                         bundle.putString(PREVIEW_EXTRA_CALLED_FROM, PREVIEW_EXTRA_CALLED_FROM_CAPTURE);
 
                         Intent intent = new Intent(mContext, PreviewActivity.class);

@@ -167,6 +167,7 @@ import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_IMG_HEIGHT;
 import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_IMG_WIDTH;
 import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_IS_SHADOW_SELECTED;
 import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_ITALIC;
+import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_LIVE_FILTER;
 import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_LONG_TEXT;
 import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_MERCHANTABLE;
 import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_SHORT_ID;
@@ -353,6 +354,9 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
 
     @State
     String mCalledFrom = PREVIEW_EXTRA_CALLED_FROM_SHORT;
+
+    @State
+    String mLiveFilter = Constant.LIVE_FILTER_NONE;
 
     ShortActivity mContext;
 
@@ -958,6 +962,7 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
                 mIsMerchantable = bundle.getBoolean(EXTRA_MERCHANTABLE);
                 mCaptionText = bundle.getString(SHORT_EXTRA_CAPTION_TEXT);
                 mEntityID = bundle.getString(EXTRA_ENTITY_ID);
+                mLiveFilter= bundle.getString(Constant.EXTRA_LIVE_FILTER);
 
                 //Hide remove image button
                 btnRemoveImage.setVisibility(View.GONE);
@@ -1726,6 +1731,7 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
         bundle.putString(PREVIEW_EXTRA_LONG_TEXT, longText);
         bundle.putString(PREVIEW_EXTRA_IMAGE_URL, mCaptureUrl);
         bundle.putString(PREVIEW_EXTRA_BG_SOUND, bgSound);
+        bundle.putString(PREVIEW_EXTRA_LIVE_FILTER, mLiveFilter);
 
 
         intent.putExtra(PREVIEW_EXTRA_DATA, bundle);

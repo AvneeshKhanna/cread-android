@@ -12,6 +12,7 @@ import com.thetestament.cread.activities.PreviewActivity;
 import com.thetestament.cread.activities.ShortActivity;
 import com.thetestament.cread.listeners.listener;
 import com.thetestament.cread.models.FeedModel;
+import com.thetestament.cread.utils.Constant;
 
 import static com.thetestament.cread.helpers.DeletePostHelper.showDeleteConfirmationDialog;
 import static com.thetestament.cread.utils.Constant.CONTENT_TYPE_CAPTURE;
@@ -57,6 +58,7 @@ public class ContentHelper {
                 bundle.putString(PREVIEW_EXTRA_CONTENT_IMAGE, data.getContentImage());
                 bundle.putInt(EXTRA_IMAGE_WIDTH, data.getImgWidth());
                 bundle.putInt(EXTRA_IMAGE_HEIGHT, data.getImgHeight());
+                bundle.putString(Constant.PREVIEW_EXTRA_LIVE_FILTER, data.getLiveFilterName());
                 bundle.putString(PREVIEW_EXTRA_CALLED_FROM, PREVIEW_EXTRA_CALLED_FROM_EDIT_CAPTURE);
                 intent.putExtra(PREVIEW_EXTRA_DATA, bundle);
 
@@ -69,6 +71,7 @@ public class ContentHelper {
                 Bundle bundleShort = new Bundle();
                 bundleShort.putString(EXTRA_ENTITY_ID, data.getEntityID());
                 bundleShort.putString(EXTRA_ENTITY_TYPE, data.getContentType());
+                bundleShort.putString(Constant.EXTRA_LIVE_FILTER, data.getLiveFilterName());
                 bundleShort.putString(SHORT_EXTRA_CALLED_FROM, SHORT_EXTRA_CALLED_FROM_EDIT_SHORT);
                 bundleShort.putBoolean(EXTRA_MERCHANTABLE, data.isMerchantable());
                 bundleShort.putString(SHORT_EXTRA_CAPTION_TEXT, data.getCaption());

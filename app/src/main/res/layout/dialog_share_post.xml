@@ -7,7 +7,7 @@
     android:padding="20dp">
 
 
-    <TextView
+    <android.support.v7.widget.AppCompatTextView
         android:id="@+id/textShareTitle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -16,7 +16,7 @@
         android:textSize="16sp" />
 
 
-    <TextView
+    <android.support.v7.widget.AppCompatTextView
         android:id="@+id/textShareDesc"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -67,8 +67,9 @@
     </LinearLayout>
 
 
-    <TextView
-        android:id="@+id/buttonCancel"
+    <!--Button Dismiss-->
+    <android.support.v7.widget.AppCompatTextView
+        android:id="@+id/btn_dismiss"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentRight="true"

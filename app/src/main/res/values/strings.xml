@@ -29,6 +29,7 @@
     <string name="error_msg_no_image">Image could not be loaded. Please try again</string>
     <string name="error_img_not_attached">Image from gallery was not attached</string>
     <string name="error_img_not_cropped">Image could not be cropped due to some error</string>
+    <string name="error_ffmpeg">Your phone doen\'t support GIF.</string>
 
     //Shared preferences key
     <string name="cread_preferences">creadPrefs</string>
@@ -68,6 +69,7 @@
     <string name="key_user_interests_prof_first_time">keyUserInterestProf</string>
     <string name="key_web_store_dot">keyWebStoreDot</string>
     <string name="key_product_tour">keyProductTour</string>
+    <string name="key_live_filter">keyLiveFilter</string>
 
 
     // dialog messages
@@ -211,6 +213,7 @@
 
     <string name="action_text_filters">Filters</string>
     <string name="action_text_upload">Upload</string>
+    <string name="action_text_next">Next</string>
     <string name="text_follow"> \u2022 Follow</string>
     <string name="text_cread_name">Cread \u2022  New message</string>
 
@@ -224,4 +227,18 @@
     <string name="text_title_label_dialog">Label Your Post</string>
     <string name="message_tooltip_user_interests">New! Now you can select your interests to see more relevant posts on the app</string>
 
+
+    <string name="circle">
+M527.023,71.8233 C780.213,71.8233,985.464,277.075,985.464,530.265
+C985.464,783.455,780.213,988.707,527.023,988.707
+C273.832,988.707,68.5809,783.455,68.5809,530.265
+C68.5809,277.075,273.832,71.8233,527.023,71.8233 Z
+  </string>
+    <integer name="circle_original_width">1062</integer>
+    <integer name="circle_original_height">1062</integer>
+
+
+    <string name="title_gif_dialog">"Creating GIF..."</string>
+    <string name="live_filter_enable">"Live filter enabled"</string>
+    <string name="live_filter_disable">Live filter disabled</string>
 </resources>

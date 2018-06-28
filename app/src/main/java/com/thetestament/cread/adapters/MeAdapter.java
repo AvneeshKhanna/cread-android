@@ -23,6 +23,8 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.facebook.drawee.view.SimpleDraweeView;
+import com.github.glomadrian.grav.GravView;
+import com.github.matteobattilana.weather.WeatherView;
 import com.google.firebase.analytics.FirebaseAnalytics;
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Target;
@@ -31,7 +33,9 @@ import com.thetestament.cread.activities.CollaborationDetailsActivity;
 import com.thetestament.cread.activities.CommentsActivity;
 import com.thetestament.cread.activities.FeedDescriptionActivity;
 import com.thetestament.cread.helpers.FeedHelper;
+import com.thetestament.cread.helpers.GifHelper;
 import com.thetestament.cread.helpers.ImageHelper;
+import com.thetestament.cread.helpers.LiveFilterHelper;
 import com.thetestament.cread.helpers.NetworkHelper;
 import com.thetestament.cread.helpers.SharedPreferenceHelper;
 import com.thetestament.cread.helpers.ViewHelper;
@@ -50,6 +54,7 @@ import java.util.List;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import io.reactivex.disposables.CompositeDisposable;
+import nl.dionsegijn.konfetti.KonfettiView;
 
 import static com.thetestament.cread.helpers.ContentHelper.getMenuActionsBottomSheet;
 import static com.thetestament.cread.helpers.FeedHelper.setGridItemMargins;
@@ -87,12 +92,14 @@ public class MeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     private SharedPreferenceHelper mHelper;
     private ITEM_TYPES mItemType;
     private CompositeDisposable mCompositeDisposable;
+    private Bitmap bitmap;
 
     private OnUserActivityLoadMoreListener onLoadMore;
     private OnUserActivityHatsOffListener onHatsOffListener;
     private OnContentDeleteListener onContentDeleteListener;
     private OnContentEditListener onContentEditListener;
     private listener.OnShareListener onShareListener;
+    private listener.OnGifShareListener onGifShareListener;
     private OnShareLinkClickedListener onShareLinkClickedListener;
 
     /**
@@ -139,6 +146,13 @@ public class MeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
      */
     public void setOnShareListener(listener.OnShareListener onShareListener) {
         this.onShareListener = onShareListener;
+    }
+
+    /**
+     * Register a callback to be invoked when user clicks on share button for gif sharing.
+     */
+    public void setOnGifShareListener(listener.OnGifShareListener onGifShareListener) {
+        this.onGifShareListener = onGifShareListener;
     }
 
     /**
@@ -381,12 +395,14 @@ public class MeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
      * @param data
      */
     private void shareOnClick(final ListItemViewHolder itemViewHolder, final FeedModel data) {
-
         itemViewHolder.logoWhatsapp.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
-                loadBitmapForSharing(data, SHARE_OPTION_WHATSAPP);
+                if (GifHelper.hasLiveFilter(data.getLiveFilterName())) {
+                    onGifShareListener.onGifShareClick(itemViewHolder.frameLayout, SHARE_OPTION_WHATSAPP);
+                } else {
+                    loadBitmapForSharing(data, SHARE_OPTION_WHATSAPP);
+                }
             }
         });
 
@@ -394,25 +410,38 @@ public class MeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             @Override
             public void onClick(View view) {
 
-                loadBitmapForSharing(data, SHARE_OPTION_FACEBOOK);
+                if (GifHelper.hasLiveFilter(data.getLiveFilterName())) {
+                    onGifShareListener.onGifShareClick(itemViewHolder.frameLayout, SHARE_OPTION_FACEBOOK);
+                } else {
+                    loadBitmapForSharing(data, SHARE_OPTION_FACEBOOK);
+                }
+
             }
         });
 
         itemViewHolder.logoInstagram.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                if (GifHelper.hasLiveFilter(data.getLiveFilterName())) {
+                    onGifShareListener.onGifShareClick(itemViewHolder.frameLayout, SHARE_OPTION_INSTAGRAM);
+                } else {
+                    loadBitmapForSharing(data, SHARE_OPTION_INSTAGRAM);
+                }
 
-                loadBitmapForSharing(data, SHARE_OPTION_INSTAGRAM);
             }
         });
 
         itemViewHolder.logoMore.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
-                loadBitmapForSharing(data, SHARE_OPTION_OTHER);
+                if (GifHelper.hasLiveFilter(data.getLiveFilterName())) {
+                    onGifShareListener.onGifShareClick(itemViewHolder.frameLayout, SHARE_OPTION_OTHER);
+                } else {
+                    loadBitmapForSharing(data, SHARE_OPTION_OTHER);
+                }
             }
         });
+
 
     }
 
@@ -456,7 +485,8 @@ public class MeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         //Set image width and height
         AspectRatioUtils.setImageAspectRatio(data.getImgWidth()
                 , data.getImgHeight()
-                , itemViewHolder.imageContent);
+                , itemViewHolder.imageContent
+                , true);
         //Load content image
         ImageHelper.loadProgressiveImage(Uri.parse(data.getContentImage())
                 , itemViewHolder.imageContent);
@@ -570,6 +600,7 @@ public class MeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         }
     }
 
+
     //ItemViewHolder class
     static class ListItemViewHolder extends RecyclerView.ViewHolder {
         @BindView(R.id.imageCreator)
@@ -604,6 +635,14 @@ public class MeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         AppCompatImageView logoInstagram;
         @BindView(R.id.logoMore)
         AppCompatImageView logoMore;
+        @BindView(R.id.live_filter_bubble)
+        GravView liveFilterBubble;
+        @BindView(R.id.whether_view)
+        WeatherView whetherView;
+        @BindView(R.id.konfetti_view)
+        KonfettiView konfettiView;
+        @BindView(R.id.containerImage)
+        FrameLayout frameLayout;
 
         //Variable to maintain hats off status
         private boolean mIsHatsOff = false;
@@ -623,6 +662,12 @@ public class MeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         SimpleDraweeView imageMe;
         @BindView(R.id.containerLongShortPreview)
         FrameLayout containerLongShortPreview;
+        @BindView(R.id.live_filter_bubble)
+        GravView liveFilterBubble;
+        @BindView(R.id.whether_view)
+        WeatherView whetherView;
+        @BindView(R.id.konfetti_view)
+        KonfettiView konfettiView;
 
         public GridItemViewHolder(View itemView) {
             super(itemView);
@@ -640,4 +685,26 @@ public class MeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             ButterKnife.bind(this, itemView);
         }
     }
+
+    @Override
+    public void onViewAttachedToWindow(RecyclerView.ViewHolder holder) {
+        super.onViewAttachedToWindow(holder);
+        if (holder.getItemViewType() == VIEW_TYPE_ITEM_LIST) {
+            final ListItemViewHolder itemViewHolder = (ListItemViewHolder) holder;
+            LiveFilterHelper.initLiveFilters(mUserContentList.get(holder.getAdapterPosition()).getLiveFilterName()
+                    , itemViewHolder.whetherView
+                    , itemViewHolder.konfettiView
+                    , itemViewHolder.liveFilterBubble
+                    , mContext);
+        } else if (holder.getItemViewType() == VIEW_TYPE_ITEM_GRID) {
+            final GridItemViewHolder itemViewHolder = (GridItemViewHolder) holder;
+            LiveFilterHelper.initLiveFilters(mUserContentList.get(holder.getAdapterPosition()).getLiveFilterName()
+                    , itemViewHolder.whetherView
+                    , itemViewHolder.konfettiView
+                    , itemViewHolder.liveFilterBubble
+                    , mContext);
+        }
+    }
+
+
 }

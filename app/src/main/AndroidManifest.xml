@@ -399,6 +399,7 @@
         <activity
             android:name=".activities.PreviewActivity"
             android:label="Preview"
+            android:windowSoftInputMode="stateHidden"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme">
 

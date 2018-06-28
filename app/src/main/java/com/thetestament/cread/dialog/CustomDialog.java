@@ -120,7 +120,7 @@ public class CustomDialog {
     /**
      * To return the indeterminate progress dialog.
      *
-     * @param context     context to0 use.
+     * @param context     context to use.
      * @param contentText Text to be displayed.
      */
 
@@ -135,5 +135,28 @@ public class CustomDialog {
         return dialog;
     }
 
+    /**
+     * To return the determinate progress dialog with initial progress set to 0.
+     *
+     * @param context     context to use.
+     * @param contentText Text to be displayed.
+     */
+
+    public static MaterialDialog getDeterminateProgressDialog(FragmentActivity context, String contentText) {
+        MaterialDialog.Builder builder = new MaterialDialog.Builder(context)
+                .content(contentText)
+                .autoDismiss(false)
+                .cancelable(false)
+                .progress(false, 100, true);
+
+        final MaterialDialog dialog = builder.build();
+        dialog.show();
+        dialog.setProgress(0);
+        return dialog;
+    }
+
+    public static void setProgressDeterminateDialog(MaterialDialog dialog, int progress){
+        dialog.setProgress(progress);
+    }
 
 }

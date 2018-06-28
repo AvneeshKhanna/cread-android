@@ -25,6 +25,8 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.facebook.drawee.view.SimpleDraweeView;
+import com.github.glomadrian.grav.GravView;
+import com.github.matteobattilana.weather.WeatherView;
 import com.google.firebase.analytics.FirebaseAnalytics;
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Target;
@@ -36,7 +38,9 @@ import com.thetestament.cread.activities.MerchandisingProductsActivity;
 import com.thetestament.cread.activities.RecommendedArtistsActivity;
 import com.thetestament.cread.helpers.DownvoteHelper;
 import com.thetestament.cread.helpers.FeedHelper;
+import com.thetestament.cread.helpers.GifHelper;
 import com.thetestament.cread.helpers.ImageHelper;
+import com.thetestament.cread.helpers.LiveFilterHelper;
 import com.thetestament.cread.helpers.NetworkHelper;
 import com.thetestament.cread.helpers.SuggestionHelper;
 import com.thetestament.cread.helpers.ViewHelper;
@@ -55,6 +59,7 @@ import java.util.List;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import io.reactivex.disposables.CompositeDisposable;
+import nl.dionsegijn.konfetti.KonfettiView;
 
 import static com.thetestament.cread.helpers.FeedHelper.initCaption;
 import static com.thetestament.cread.helpers.FeedHelper.initSocialActionsCount;
@@ -97,6 +102,7 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     private boolean mIsLoading;
     private String mUUID;
     private CompositeDisposable mCompositeDisposable;
+    private Bitmap bitmap;
 
     /**
      * Flag to store 'Recommended Artists' position in list. Default value is 5.
@@ -107,6 +113,7 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     private OnFeedLoadMoreListener onFeedLoadMoreListener;
     private OnHatsOffListener onHatsOffListener;
     private OnShareListener onShareListener;
+    private listener.OnGifShareListener onGifShareListener;
     private OnShareLinkClickedListener onShareLinkClickedListener;
     private OnDownvoteClickedListener onDownvoteClickedListener;
 
@@ -150,6 +157,13 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     }
 
     /**
+     * Register a callback to be invoked when user clicks on share button for gif sharing.
+     */
+    public void setOnGifShareListener(listener.OnGifShareListener onGifShareListener) {
+        this.onGifShareListener = onGifShareListener;
+    }
+
+    /**
      * Register a callback to be invoked when user clicks on share link button.
      */
     public void setOnShareLinkClickedListener(OnShareLinkClickedListener onShareLinkClickedListener) {
@@ -159,7 +173,7 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     /**
      * Register a callback to be invoked when user clicks on down vote button.
      */
-    public void setOnDownvoteClickedListener(OnDownvoteClickedListener onDownvoteClickedListener) {
+    public void setOnDownVoteClickedListener(OnDownvoteClickedListener onDownvoteClickedListener) {
         this.onDownvoteClickedListener = onDownvoteClickedListener;
     }
 
@@ -207,7 +221,10 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             //Set image width and height
             AspectRatioUtils.setImageAspectRatio(data.getImgWidth()
                     , data.getImgHeight()
-                    , itemViewHolder.imageFeed);
+                    , itemViewHolder.imageFeed
+                    , true);
+
+
             //Load feed image
             ImageHelper.loadProgressiveImage(Uri.parse(data.getContentImage())
                     , itemViewHolder.imageFeed);
@@ -224,11 +241,11 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
             //Update down vote and dot separator visibility
             updateDownvoteAndSeperatorVisibility(data, itemViewHolder.dotSeparatorRight
-                    , itemViewHolder.imageDownvote);
+                    , itemViewHolder.imageDownVote);
 
             //check down vote status
             DownvoteHelper downvoteHelper = new DownvoteHelper();
-            downvoteHelper.updateDownvoteUI(itemViewHolder.imageDownvote, data.isDownvoteStatus(), mContext);
+            downvoteHelper.updateDownvoteUI(itemViewHolder.imageDownVote, data.isDownvoteStatus(), mContext);
             //Check whether user has given hats off to this campaign or not
             checkHatsOffStatus(data.getHatsOffStatus(), itemViewHolder);
 
@@ -249,7 +266,7 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             //Comment count click functionality
             commentOnClick(itemViewHolder.containerCommentCount, data.getEntityID());
             // downVote click
-            downVoteOnClick(itemViewHolder.imageDownvote, data, position, itemViewHolder);
+            downVoteOnClick(itemViewHolder.imageDownVote, data, position, itemViewHolder);
             //check long form status
             checkLongFormStatus(itemViewHolder.containerLongShortPreview, data);
             //long form on click
@@ -352,11 +369,10 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     /**
      * Method is toggle the loading status
      */
+
     public void setLoaded() {
         mIsLoading = false;
     }
-
-
 
 
     /**
@@ -406,12 +422,14 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
      * @param data
      */
     private void shareOnClick(final ItemViewHolder itemViewHolder, final FeedModel data) {
-
         itemViewHolder.logoWhatsapp.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
-                loadBitmapForSharing(data, SHARE_OPTION_WHATSAPP);
+                if (GifHelper.hasLiveFilter(data.getLiveFilterName())) {
+                    onGifShareListener.onGifShareClick(itemViewHolder.frameLayout, SHARE_OPTION_WHATSAPP);
+                } else {
+                    loadBitmapForSharing(data, SHARE_OPTION_WHATSAPP);
+                }
             }
         });
 
@@ -419,23 +437,37 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             @Override
             public void onClick(View view) {
 
-                loadBitmapForSharing(data, SHARE_OPTION_FACEBOOK);
+                if (GifHelper.hasLiveFilter(data.getLiveFilterName())) {
+                    onGifShareListener.onGifShareClick(itemViewHolder.frameLayout, SHARE_OPTION_FACEBOOK);
+
+                } else {
+                    loadBitmapForSharing(data, SHARE_OPTION_FACEBOOK);
+                }
+
             }
         });
 
         itemViewHolder.logoInstagram.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                if (GifHelper.hasLiveFilter(data.getLiveFilterName())) {
+                    onGifShareListener.onGifShareClick(itemViewHolder.frameLayout, SHARE_OPTION_INSTAGRAM);
 
-                loadBitmapForSharing(data, SHARE_OPTION_INSTAGRAM);
+                } else {
+                    loadBitmapForSharing(data, SHARE_OPTION_INSTAGRAM);
+                }
+
             }
         });
 
         itemViewHolder.logoMore.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
-                loadBitmapForSharing(data, SHARE_OPTION_OTHER);
+                if (GifHelper.hasLiveFilter(data.getLiveFilterName())) {
+                    onGifShareListener.onGifShareClick(itemViewHolder.frameLayout, SHARE_OPTION_OTHER);
+                } else {
+                    loadBitmapForSharing(data, SHARE_OPTION_OTHER);
+                }
             }
         });
 
@@ -536,7 +568,7 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             @Override
             public void onClick(View view) {
 
-                onDownvoteClickedListener.onDownvoteClicked(data, position, itemViewHolder.imageDownvote);
+                onDownvoteClickedListener.onDownvoteClicked(data, position, itemViewHolder.imageDownVote);
             }
         });
     }
@@ -669,6 +701,7 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         recommendedArtistIndex = index;
     }
 
+
     //ItemViewHolder class
     static class ItemViewHolder extends RecyclerView.ViewHolder {
         @BindView(R.id.imageCreator)
@@ -689,8 +722,6 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         LinearLayout containerComment;
         @BindView(R.id.textCollabCount)
         TextView textCollabCount;
-        @BindView(R.id.lineSeparatorTop)
-        View lineSeparator;
         @BindView(R.id.containerCollabCount)
         LinearLayout containerCollabCount;
         @BindView(R.id.textTitle)
@@ -710,7 +741,7 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         @BindView(R.id.dotSeperatorRight)
         TextView dotSeparatorRight;
         @BindView(R.id.imageDownvote)
-        ImageView imageDownvote;
+        ImageView imageDownVote;
         @BindView(R.id.containerLongShortPreview)
         FrameLayout containerLongShortPreview;
         @BindView(R.id.textTimestamp)
@@ -725,7 +756,14 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         AppCompatImageView logoMore;
         @BindView(R.id.layoutShareOptions)
         LinearLayout layoutShareOptions;
-
+        @BindView(R.id.container)
+        FrameLayout frameLayout;
+        @BindView(R.id.live_filter_bubble)
+        GravView liveFilterBubble;
+        @BindView(R.id.whether_view)
+        WeatherView weatherView;
+        @BindView(R.id.konfetti_view)
+        KonfettiView konfettiView;
 
         //Variable to maintain hats off status
         private boolean mIsHatsOff = false;
@@ -764,6 +802,20 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         public RecommendedArtistViewHolder(View itemView) {
             super(itemView);
             ButterKnife.bind(this, itemView);
+        }
+    }
+
+
+    @Override
+    public void onViewAttachedToWindow(RecyclerView.ViewHolder holder) {
+        super.onViewAttachedToWindow(holder);
+        if (holder.getItemViewType() == VIEW_TYPE_ITEM) {
+            final ItemViewHolder itemViewHolder = (ItemViewHolder) holder;
+            LiveFilterHelper.initLiveFilters(mFeedList.get(holder.getAdapterPosition()).getLiveFilterName()
+                    , itemViewHolder.weatherView
+                    , itemViewHolder.konfettiView
+                    , itemViewHolder.liveFilterBubble
+                    , mContext);
         }
     }
 

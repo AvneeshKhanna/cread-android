@@ -22,6 +22,8 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.facebook.drawee.view.SimpleDraweeView;
+import com.github.glomadrian.grav.GravView;
+import com.github.matteobattilana.weather.WeatherView;
 import com.google.firebase.analytics.FirebaseAnalytics;
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Target;
@@ -33,6 +35,7 @@ import com.thetestament.cread.activities.MerchandisingProductsActivity;
 import com.thetestament.cread.helpers.DownvoteHelper;
 import com.thetestament.cread.helpers.FeedHelper;
 import com.thetestament.cread.helpers.ImageHelper;
+import com.thetestament.cread.helpers.LiveFilterHelper;
 import com.thetestament.cread.helpers.NetworkHelper;
 import com.thetestament.cread.helpers.ViewHelper;
 import com.thetestament.cread.listeners.listener.OnDownvoteClickedListener;
@@ -48,6 +51,7 @@ import java.util.List;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import io.reactivex.disposables.CompositeDisposable;
+import nl.dionsegijn.konfetti.KonfettiView;
 
 import static com.thetestament.cread.helpers.FeedHelper.initCaption;
 import static com.thetestament.cread.helpers.FeedHelper.initSocialActionsCount;
@@ -245,6 +249,7 @@ public class NewUsersPostAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
             initCaption(mContext, data, itemViewHolder.textTitle);
             // init post timestamp
             updatePostTimestamp(itemViewHolder.textTimeStamp, data);
+
         } else if (holder.getItemViewType() == VIEW_TYPE_LOADING) {
             LoadingViewHolder loadingViewHolder = (LoadingViewHolder) holder;
             loadingViewHolder.progressView.setVisibility(View.VISIBLE);
@@ -634,6 +639,12 @@ public class NewUsersPostAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
         AppCompatImageView logoMore;
         @BindView(R.id.layoutShareOptions)
         LinearLayout layoutShareOptions;
+        @BindView(R.id.live_filter_bubble)
+        GravView liveFilterBubble;
+        @BindView(R.id.whether_view)
+        WeatherView whetherView;
+        @BindView(R.id.konfetti_view)
+        KonfettiView konfettiView;
 
 
         //Variable to maintain hats off status
@@ -657,6 +668,21 @@ public class NewUsersPostAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
             ButterKnife.bind(this, itemView);
         }
     }
+
+    @Override
+    public void onViewAttachedToWindow(RecyclerView.ViewHolder holder) {
+        super.onViewAttachedToWindow(holder);
+        if (holder.getItemViewType() == VIEW_TYPE_ITEM) {
+            final ItemViewHolder itemViewHolder = (ItemViewHolder) holder;
+            LiveFilterHelper.initLiveFilters(mFeedList.get(holder.getAdapterPosition()).getLiveFilterName()
+                    , itemViewHolder.whetherView
+                    , itemViewHolder.konfettiView
+                    , itemViewHolder.liveFilterBubble
+                    , mContext);
+        }
+    }
+
+
 
 
 }

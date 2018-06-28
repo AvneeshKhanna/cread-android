@@ -6,17 +6,20 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
+import android.support.v7.widget.AppCompatTextView;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.RelativeLayout;
-import android.widget.TextView;
 
 import com.facebook.drawee.view.SimpleDraweeView;
+import com.github.glomadrian.grav.GravView;
+import com.github.matteobattilana.weather.WeatherView;
 import com.thetestament.cread.R;
 import com.thetestament.cread.helpers.ImageHelper;
 import com.thetestament.cread.helpers.IntentHelper;
+import com.thetestament.cread.helpers.LiveFilterHelper;
 import com.thetestament.cread.listeners.listener.OnInspirationLoadMoreListener;
 import com.thetestament.cread.listeners.listener.OnInspirationSelectListener;
 import com.thetestament.cread.models.InspirationModel;
@@ -27,6 +30,7 @@ import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import nl.dionsegijn.konfetti.KonfettiView;
 
 import static com.thetestament.cread.utils.Constant.EXTRA_CAPTURE_ID;
 import static com.thetestament.cread.utils.Constant.EXTRA_CAPTURE_URL;
@@ -114,7 +118,6 @@ public class InspirationAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
 
     @Override
     public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
-
         InspirationModel data = mInspirationList.get(position);
 
         if (holder.getItemViewType() == VIEW_TYPE_ITEM) {
@@ -128,14 +131,16 @@ public class InspirationAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
         } else if (holder.getItemViewType() == VIEW_TYPE_ITEM_DETAIL) {
             final ItemViewHolderDetail itemViewHolder = (ItemViewHolderDetail) holder;
             //Load creator profile picture
-            ImageHelper.loadProgressiveImage(Uri.parse(data.getCreatorProfilePic()), itemViewHolder.imageCreator);
+            ImageHelper.loadProgressiveImage(Uri.parse(data.getCreatorProfilePic())
+                    , itemViewHolder.imageCreator);
             //Set creator name
             itemViewHolder.textCreatorName.setText(data.getCreatorName());
 
             //Set image width and height
             AspectRatioUtils.setImageAspectRatio(data.getImgWidth()
                     , data.getImgHeight()
-                    , itemViewHolder.imageInspiration);
+                    , itemViewHolder.imageInspiration
+                    , true);
             //Load inspiration image
             ImageHelper.loadProgressiveImage(Uri.parse(data.getCapturePic())
                     , itemViewHolder.imageInspiration);
@@ -179,7 +184,6 @@ public class InspirationAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
     }
 
 
-
     /**
      * ItemView click functionality.
      */
@@ -216,7 +220,6 @@ public class InspirationAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
     }
 
 
-
     /**
      * Method to open creator profile.
      *
@@ -250,11 +253,17 @@ public class InspirationAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
         @BindView(R.id.imageCreator)
         SimpleDraweeView imageCreator;
         @BindView(R.id.textCreatorName)
-        TextView textCreatorName;
+        AppCompatTextView textCreatorName;
         @BindView(R.id.containerCreator)
         RelativeLayout containerCreator;
         @BindView(R.id.imageInspiration)
         SimpleDraweeView imageInspiration;
+        @BindView(R.id.live_filter_bubble)
+        GravView liveFilterBubble;
+        @BindView(R.id.whether_view)
+        WeatherView whetherView;
+        @BindView(R.id.konfetti_view)
+        KonfettiView konfettiView;
 
         public ItemViewHolderDetail(View itemView) {
             super(itemView);
@@ -270,6 +279,20 @@ public class InspirationAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
         public LoadingViewHolder(View itemView) {
             super(itemView);
             ButterKnife.bind(this, itemView);
+        }
+    }
+
+
+    @Override
+    public void onViewAttachedToWindow(RecyclerView.ViewHolder holder) {
+        super.onViewAttachedToWindow(holder);
+        if (holder.getItemViewType() == VIEW_TYPE_ITEM_DETAIL) {
+            final ItemViewHolderDetail itemViewHolder = (ItemViewHolderDetail) holder;
+            LiveFilterHelper.initLiveFilters(mInspirationList.get(holder.getAdapterPosition()).getLiveFilterName()
+                    , itemViewHolder.whetherView
+                    , itemViewHolder.konfettiView
+                    , itemViewHolder.liveFilterBubble
+                    , mContext);
         }
     }
 

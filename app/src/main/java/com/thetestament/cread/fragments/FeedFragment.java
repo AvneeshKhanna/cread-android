@@ -24,6 +24,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.AnimationUtils;
 import android.view.animation.LayoutAnimationController;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -44,6 +45,7 @@ import com.thetestament.cread.adapters.FeedAdapter;
 import com.thetestament.cread.adapters.SuggestedArtistsAdapter;
 import com.thetestament.cread.helpers.DownvoteHelper;
 import com.thetestament.cread.helpers.FeedHelper;
+import com.thetestament.cread.helpers.GifHelper;
 import com.thetestament.cread.helpers.HashTagOfTheDayHelper;
 import com.thetestament.cread.helpers.HatsOffHelper;
 import com.thetestament.cread.helpers.ImageHelper;
@@ -151,6 +153,12 @@ public class FeedFragment extends Fragment implements listener.OnCollaborationLi
 
     @State
     String textHashTagOFTheDay = "";
+
+    /**
+     * Parent view of live filter
+     */
+    FrameLayout mFrameLayout;
+
     //endregion
 
     //region :Overridden methods
@@ -437,6 +445,7 @@ public class FeedFragment extends Fragment implements listener.OnCollaborationLi
         initLoadMoreListener(mAdapter);
         initHatsOffListener(mAdapter);
         initShareListener(mAdapter);
+        initGifShareListener(mAdapter);
         initDownVoteListener(mAdapter);
         //Load data here
         loadFeedData();
@@ -511,92 +520,7 @@ public class FeedFragment extends Fragment implements listener.OnCollaborationLi
                             if (jsonObject.getString("tokenstatus").equals("invalid")) {
                                 tokenError[0] = true;
                             } else {
-                                JSONObject mainData = jsonObject.getJSONObject("data");
-                                mRequestMoreData = mainData.getBoolean("requestmore");
-                                mLastIndexKey = mainData.getString("lastindexkey");
-                                mCanDownvote = mainData.getBoolean("candownvote");
-                                //FeedArray list
-                                JSONArray feedArray = mainData.getJSONArray("feed");
-                                int feedArrayLength = feedArray.length();
-                                for (int i = 0; i < feedArrayLength; i++) {
-
-                                    JSONObject dataObj = feedArray.getJSONObject(i);
-                                    String type = dataObj.getString("type");
-
-                                    FeedModel feedData = new FeedModel();
-                                    feedData.setEntityID(dataObj.getString("entityid"));
-                                    feedData.setContentType(dataObj.getString("type"));
-                                    feedData.setUUID(dataObj.getString("uuid"));
-                                    feedData.setCreatorImage(dataObj.getString("profilepicurl"));
-                                    feedData.setCreatorName(dataObj.getString("creatorname"));
-                                    feedData.setHatsOffStatus(dataObj.getBoolean("hatsoffstatus"));
-                                    feedData.setMerchantable(dataObj.getBoolean("merchantable"));
-                                    feedData.setDownvoteStatus(dataObj.getBoolean("downvotestatus"));
-                                    feedData.setEligibleForDownvote(mCanDownvote);
-                                    feedData.setPostTimeStamp(dataObj.getString("regdate"));
-                                    feedData.setLongForm(dataObj.getBoolean("long_form"));
-                                    feedData.setHatsOffCount(dataObj.getLong("hatsoffcount"));
-                                    feedData.setCommentCount(dataObj.getLong("commentcount"));
-                                    feedData.setContentImage(dataObj.getString("entityurl"));
-                                    feedData.setCollabCount(dataObj.getLong("collabcount"));
-                                    //if image width pr image height is null
-                                    if (dataObj.isNull("img_width") || dataObj.isNull("img_height")) {
-                                        feedData.setImgWidth(1);
-                                        feedData.setImgHeight(1);
-                                    } else {
-                                        feedData.setImgWidth(dataObj.getInt("img_width"));
-                                        feedData.setImgHeight(dataObj.getInt("img_height"));
-                                    }
-                                    //feedData.setImageWidth(dataObj.getInt("imgwidth"));
-                                    //feedData.setImageHeight(dataObj.getInt("imgheight"));
-                                    if (dataObj.isNull("caption")) {
-                                        feedData.setCaption(null);
-                                    } else {
-                                        feedData.setCaption(dataObj.getString("caption"));
-                                    }
-
-                                    if (type.equals(CONTENT_TYPE_CAPTURE)) {
-
-                                        //Retrieve "CAPTURE_ID" if type is capture
-                                        feedData.setCaptureID(dataObj.getString("captureid"));
-                                        // if capture
-                                        // then if key cpshort exists
-                                        // not available for collaboration
-                                        if (!dataObj.isNull("cpshort")) {
-                                            JSONObject collabObject = dataObj.getJSONObject("cpshort");
-
-                                            feedData.setAvailableForCollab(false);
-                                            // set collaborator details
-                                            feedData.setCollabWithUUID(collabObject.getString("uuid"));
-                                            feedData.setCollabWithName(collabObject.getString("name"));
-                                            feedData.setCollaboWithEntityID(collabObject.getString("entityid"));
-                                        } else {
-                                            feedData.setAvailableForCollab(true);
-                                        }
-
-                                    } else if (type.equals(CONTENT_TYPE_SHORT)) {
-                                        //Retrieve "SHORT_ID" if type is short
-                                        feedData.setShortID(dataObj.getString("shoid"));
-
-                                        // if short
-                                        // then if key shcapture exists
-                                        // not available for collaboration
-                                        if (!dataObj.isNull("shcapture")) {
-
-                                            JSONObject collabObject = dataObj.getJSONObject("shcapture");
-
-                                            feedData.setAvailableForCollab(false);
-                                            // set collaborator details
-                                            feedData.setCollabWithUUID(collabObject.getString("uuid"));
-                                            feedData.setCollabWithName(collabObject.getString("name"));
-                                            feedData.setCollaboWithEntityID(collabObject.getString("entityid"));
-                                        } else {
-                                            feedData.setAvailableForCollab(true);
-                                        }
-                                    }
-
-                                    mFeedDataList.add(feedData);
-                                }
+                                parsePostsData(jsonObject, false);
                             }
                         } catch (JSONException e) {
                             e.printStackTrace();
@@ -707,93 +631,7 @@ public class FeedFragment extends Fragment implements listener.OnCollaborationLi
                             if (jsonObject.getString("tokenstatus").equals("invalid")) {
                                 tokenError[0] = true;
                             } else {
-                                JSONObject mainData = jsonObject.getJSONObject("data");
-                                mRequestMoreData = mainData.getBoolean("requestmore");
-                                mLastIndexKey = mainData.getString("lastindexkey");
-                                //FeedArray list
-                                JSONArray feedArray = mainData.getJSONArray("feed");
-
-                                for (int i = 0; i < feedArray.length(); i++) {
-                                    JSONObject dataObj = feedArray.getJSONObject(i);
-                                    String type = dataObj.getString("type");
-
-                                    FeedModel feedData = new FeedModel();
-                                    feedData.setEntityID(dataObj.getString("entityid"));
-                                    feedData.setContentType(dataObj.getString("type"));
-                                    feedData.setUUID(dataObj.getString("uuid"));
-                                    feedData.setCreatorImage(dataObj.getString("profilepicurl"));
-                                    feedData.setCreatorName(dataObj.getString("creatorname"));
-                                    feedData.setHatsOffStatus(dataObj.getBoolean("hatsoffstatus"));
-                                    feedData.setMerchantable(dataObj.getBoolean("merchantable"));
-                                    feedData.setDownvoteStatus(dataObj.getBoolean("downvotestatus"));
-                                    feedData.setEligibleForDownvote(mCanDownvote);
-                                    feedData.setPostTimeStamp(dataObj.getString("regdate"));
-                                    feedData.setLongForm(dataObj.getBoolean("long_form"));
-                                    feedData.setHatsOffCount(dataObj.getLong("hatsoffcount"));
-                                    feedData.setCommentCount(dataObj.getLong("commentcount"));
-                                    feedData.setContentImage(dataObj.getString("entityurl"));
-                                    feedData.setCollabCount(dataObj.getLong("collabcount"));
-                                    //if image width pr image height is null
-                                    if (dataObj.isNull("img_width") || dataObj.isNull("img_height")) {
-                                        feedData.setImgWidth(1);
-                                        feedData.setImgHeight(1);
-                                    } else {
-                                        feedData.setImgWidth(dataObj.getInt("img_width"));
-                                        feedData.setImgHeight(dataObj.getInt("img_height"));
-                                    }
-                                    //feedData.setImageWidth(dataObj.getInt("imgwidth"));
-                                    //feedData.setImageHeight(dataObj.getInt("imgheight"));
-                                    if (dataObj.isNull("caption")) {
-                                        feedData.setCaption(null);
-                                    } else {
-                                        feedData.setCaption(dataObj.getString("caption"));
-                                    }
-
-                                    if (type.equals(CONTENT_TYPE_CAPTURE)) {
-
-                                        //Retrieve "CAPTURE_ID" if type is capture
-                                        feedData.setCaptureID(dataObj.getString("captureid"));
-                                        // if capture
-                                        // then if key cpshort exists
-                                        // not available for collaboration
-                                        if (!dataObj.isNull("cpshort")) {
-                                            JSONObject collabObject = dataObj.getJSONObject("cpshort");
-
-                                            feedData.setAvailableForCollab(false);
-                                            // set collaborator details
-                                            feedData.setCollabWithUUID(collabObject.getString("uuid"));
-                                            feedData.setCollabWithName(collabObject.getString("name"));
-                                            feedData.setCollaboWithEntityID(collabObject.getString("entityid"));
-
-                                        } else {
-                                            feedData.setAvailableForCollab(true);
-                                        }
-
-                                    } else if (type.equals(CONTENT_TYPE_SHORT)) {
-
-
-                                        //Retrieve "SHORT_ID" if type is short
-                                        feedData.setShortID(dataObj.getString("shoid"));// if short
-                                        // then if key shcapture exists
-                                        // not available for collaboration
-                                        if (!dataObj.isNull("shcapture")) {
-
-                                            JSONObject collabObject = dataObj.getJSONObject("shcapture");
-
-                                            feedData.setAvailableForCollab(false);
-                                            // set collaborator details
-                                            feedData.setCollabWithUUID(collabObject.getString("uuid"));
-                                            feedData.setCollabWithName(collabObject.getString("name"));
-                                            feedData.setCollaboWithEntityID(collabObject.getString("entityid"));
-                                        } else {
-                                            feedData.setAvailableForCollab(true);
-                                        }
-                                    }
-
-                                    mFeedDataList.add(feedData);
-                                    //Notify item changes
-                                    mAdapter.notifyItemInserted(mFeedDataList.size() - 1);
-                                }
+                                parsePostsData(jsonObject, true);
                             }
                         } catch (JSONException e) {
                             e.printStackTrace();
@@ -924,12 +762,42 @@ public class FeedFragment extends Fragment implements listener.OnCollaborationLi
     }
 
     /**
+     * Initialize gif share listener.
+     */
+    private void initGifShareListener(FeedAdapter feedAdapter) {
+        feedAdapter.setOnGifShareListener(new listener.OnGifShareListener() {
+            @Override
+            public void onGifShareClick(FrameLayout frameLayout, String shareOption) {
+                mFrameLayout = frameLayout;
+                mShareOption = shareOption;
+                //Check for Write permission
+                if (Nammu.checkPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+                    //We have permission do whatever you want to do
+                    new GifHelper(getActivity(), mBitmap, frameLayout, shareOption, true)
+                            .startHandlerTask(new Handler(), 0);
+                } else {
+                    //We do not own this permission
+                    if (Nammu.shouldShowRequestPermissionRationale(FeedFragment.this
+                            , Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+                        //User already refused to give us this permission or removed it
+                        ViewHelper.getToast(getActivity()
+                                , getString(R.string.error_msg_share_permission_denied));
+                    } else {
+                        //First time asking for permission
+                        Nammu.askForPermission(FeedFragment.this, Manifest.permission.WRITE_EXTERNAL_STORAGE, shareGifPermission);
+                    }
+                }
+            }
+        });
+    }
+
+    /**
      * Initialize down vote listener.
      *
      * @param feedAdapter FeedAdapter reference
      */
     private void initDownVoteListener(FeedAdapter feedAdapter) {
-        feedAdapter.setOnDownvoteClickedListener(new listener.OnDownvoteClickedListener() {
+        feedAdapter.setOnDownVoteClickedListener(new listener.OnDownvoteClickedListener() {
             @Override
             public void onDownvoteClicked(FeedModel data, int position, ImageView imageDownVote) {
 
@@ -1003,6 +871,25 @@ public class FeedFragment extends Fragment implements listener.OnCollaborationLi
                     mBitmap,
                     mShareOption);
 
+        }
+
+        @Override
+        public void permissionRefused() {
+            //Show error message
+            ViewHelper.getToast(getActivity()
+                    , getString(R.string.error_msg_share_permission_denied));
+        }
+    };
+
+    /**
+     * Used to handle result of askForPermission for gif sharing
+     */
+    PermissionCallback shareGifPermission = new PermissionCallback() {
+        @Override
+        public void permissionGranted() {
+            //We have permission do whatever you want to do
+            new GifHelper(getActivity(), mBitmap, mFrameLayout, mShareOption, true)
+                    .startHandlerTask(new Handler(), 0);
         }
 
         @Override
@@ -1277,6 +1164,111 @@ public class FeedFragment extends Fragment implements listener.OnCollaborationLi
         textTitle.setText("Hashtag for Today");
         //Set description text
         textDesc.setText("Create an artwork with " + hashTagText + " in your caption and your post will get featured under this hashtag for today");
+    }
+
+
+    /**
+     * Method to parse Json.
+     *
+     * @param jsonObject JsonObject to be parsed
+     * @param isLoadMore Whether called from load more or not.
+     * @throws JSONException
+     */
+    private void parsePostsData(JSONObject jsonObject, boolean isLoadMore) throws JSONException {
+        JSONObject mainData = jsonObject.getJSONObject("data");
+        mRequestMoreData = mainData.getBoolean("requestmore");
+        mLastIndexKey = mainData.getString("lastindexkey");
+        mCanDownvote = mainData.getBoolean("candownvote");
+        //FeedArray list
+        JSONArray feedArray = mainData.getJSONArray("feed");
+        int feedArrayLength = feedArray.length();
+        for (int i = 0; i < feedArrayLength; i++) {
+
+            JSONObject dataObj = feedArray.getJSONObject(i);
+            String type = dataObj.getString("type");
+
+            FeedModel feedData = new FeedModel();
+            feedData.setEntityID(dataObj.getString("entityid"));
+            feedData.setContentType(dataObj.getString("type"));
+            feedData.setUUID(dataObj.getString("uuid"));
+            feedData.setCreatorImage(dataObj.getString("profilepicurl"));
+            feedData.setCreatorName(dataObj.getString("creatorname"));
+            feedData.setHatsOffStatus(dataObj.getBoolean("hatsoffstatus"));
+            feedData.setMerchantable(dataObj.getBoolean("merchantable"));
+            feedData.setDownvoteStatus(dataObj.getBoolean("downvotestatus"));
+            feedData.setEligibleForDownvote(mCanDownvote);
+            feedData.setPostTimeStamp(dataObj.getString("regdate"));
+            feedData.setLongForm(dataObj.getBoolean("long_form"));
+            feedData.setHatsOffCount(dataObj.getLong("hatsoffcount"));
+            feedData.setCommentCount(dataObj.getLong("commentcount"));
+            feedData.setContentImage(dataObj.getString("entityurl"));
+            feedData.setCollabCount(dataObj.getLong("collabcount"));
+            feedData.setLiveFilterName(dataObj.getString("livefilter"));
+            //if image width pr image height is null
+            if (dataObj.isNull("img_width") || dataObj.isNull("img_height")) {
+                feedData.setImgWidth(1);
+                feedData.setImgHeight(1);
+            } else {
+                feedData.setImgWidth(dataObj.getInt("img_width"));
+                feedData.setImgHeight(dataObj.getInt("img_height"));
+            }
+
+            if (dataObj.isNull("caption")) {
+                feedData.setCaption(null);
+            } else {
+                feedData.setCaption(dataObj.getString("caption"));
+            }
+
+            if (type.equals(CONTENT_TYPE_CAPTURE)) {
+
+                //Retrieve "CAPTURE_ID" if type is capture
+                feedData.setCaptureID(dataObj.getString("captureid"));
+                // if capture
+                // then if key cpshort exists
+                // not available for collaboration
+                if (!dataObj.isNull("cpshort")) {
+                    JSONObject collabObject = dataObj.getJSONObject("cpshort");
+
+                    feedData.setAvailableForCollab(false);
+                    // set collaborator details
+                    feedData.setCollabWithUUID(collabObject.getString("uuid"));
+                    feedData.setCollabWithName(collabObject.getString("name"));
+                    feedData.setCollaboWithEntityID(collabObject.getString("entityid"));
+                } else {
+                    feedData.setAvailableForCollab(true);
+                }
+
+            } else if (type.equals(CONTENT_TYPE_SHORT)) {
+                //Retrieve "SHORT_ID" if type is short
+                feedData.setShortID(dataObj.getString("shoid"));
+
+                // if short
+                // then if key shcapture exists
+                // not available for collaboration
+                if (!dataObj.isNull("shcapture")) {
+
+                    JSONObject collabObject = dataObj.getJSONObject("shcapture");
+
+                    feedData.setAvailableForCollab(false);
+                    // set collaborator details
+                    feedData.setCollabWithUUID(collabObject.getString("uuid"));
+                    feedData.setCollabWithName(collabObject.getString("name"));
+                    feedData.setCollaboWithEntityID(collabObject.getString("entityid"));
+                } else {
+                    feedData.setAvailableForCollab(true);
+                }
+            }
+
+            mFeedDataList.add(feedData);
+            //Called from load more
+            if (isLoadMore) {
+                //Notify item insertion
+                mAdapter.notifyItemInserted(mFeedDataList.size() - 1);
+            }
+
+        }
+
+
     }
 //endregion
 }

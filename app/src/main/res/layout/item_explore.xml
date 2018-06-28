@@ -107,7 +107,7 @@
 
         </RelativeLayout>
 
-        <RelativeLayout
+        <FrameLayout
             android:id="@+id/containerImage"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -126,8 +126,7 @@
                 android:id="@+id/containerLongShortPreview"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_alignParentRight="true"
-                android:layout_alignParentTop="true"
+                android:layout_gravity="right"
                 android:padding="5dp"
                 android:visibility="visible">
 
@@ -143,7 +142,46 @@
 
             </FrameLayout>
 
-        </RelativeLayout>
+            <!--Bubble live filter-->
+            <com.github.glomadrian.grav.GravView
+                android:id="@+id/live_filter_bubble"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_centerInParent="true"
+                android:visibility="invisible"
+                app:animationGenerators="@array/BubbleAnimations"
+                app:array_colors="@array/bubble"
+                app:ball_from_size="10dp"
+                app:ball_to_size="20dp"
+                app:colorGenerator="com.github.glomadrian.grav.generator.paint.ArrayColorGenerator"
+                app:gravGenerator="com.github.glomadrian.grav.generator.grav.BallGenerator"
+                app:pointGenerator="com.github.glomadrian.grav.generator.point.RegularPointGenerator"
+                app:regular_cell_size="300"
+                app:regular_variance="200"
+                app:shake_direction="vertical"
+                app:shake_max_duration="20000"
+                app:shake_min_duration="10000"
+                app:shake_variance="500dp"
+                app:side_to_side_direction="upToDown"
+                app:side_to_side_max_duration="10000"
+                app:side_to_side_min_duration="1000" />
+
+            <!--Snowfall and rain filter-->
+            <com.github.matteobattilana.weather.WeatherView
+                android:id="@+id/whether_view"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:visibility="gone" />
+
+            <!--Konfetti view-->
+            <nl.dionsegijn.konfetti.KonfettiView
+                android:id="@+id/konfetti_view"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:visibility="gone" />
+
+
+        </FrameLayout>
 
         <View
             android:id="@+id/viewDivider"

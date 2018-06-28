@@ -2,6 +2,7 @@ package com.thetestament.cread.listeners;
 
 import android.graphics.Bitmap;
 import android.graphics.Typeface;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 
@@ -498,5 +499,23 @@ public class listener {
          * @param qaID Question ID.
          */
         void onFeedBackUpdate(String qaID);
+    }
+
+    /**
+     * Interface definition for a callback to be invoked when user selects live filter from bottom sheet.
+     */
+    public interface OnLiveFilterClickListener {
+        /**
+         * @param liveFilterName Name of liveFilterName
+         * @param itemPosition   Position of item in list
+         **/
+        void onLiveFilterClick(String liveFilterName, int itemPosition);
+    }
+
+    /**
+     * Interface definition for a callback to be invoked when user click on share button for gif sharing.
+     */
+    public interface OnGifShareListener {
+        void onGifShareClick(FrameLayout frameLayout, String shareOption);
     }
 }

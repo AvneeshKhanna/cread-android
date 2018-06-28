@@ -129,5 +129,13 @@
  -keep public class * extends java.lang.Exception
 
 
+ ### For Grav library
+ -keep class com.github.glomadrian.** { }
+ -dontwarn com.github.glomadrian.*
+ -keepattributes Exceptions, Signature, InnerClasses
+
+
+
+
 
 
