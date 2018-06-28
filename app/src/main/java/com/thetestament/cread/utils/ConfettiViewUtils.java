@@ -4,7 +4,6 @@ import android.content.Context;
 import android.graphics.Color;
 import android.os.Handler;
 import android.support.v4.content.ContextCompat;
-import android.util.Log;
 import android.view.View;
 
 import com.thetestament.cread.R;
@@ -63,11 +62,11 @@ public class ConfettiViewUtils {
                         .addShapes(Shape.RECT, Shape.CIRCLE)
                         .addSizes(new Size(8, 5))
                         .setPosition(0f, (float) AspectRatioUtils.getDeviceScreenWidth(), -50f, -50f)
-                        .streamFor(120, 5000L);
+                        .streamFor(75, 5000L);
 
                 showKonfettiRepeating(konfettiView, context);
             }
-        }, 6500);
+        }, 8000);
     }
 
     private void stopConfettiFilter(KonfettiView konfettiView){
