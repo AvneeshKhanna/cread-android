@@ -28,9 +28,7 @@ import nl.dionsegijn.konfetti.models.Size;
  */
 
 public class ViewHelper {
-
-    private static final String TAG = ViewHelper.class.getSimpleName();
-
+    
     /**
      * Method to show snack bar.
      *
@@ -151,6 +149,6 @@ public class ViewHelper {
                 .addShapes(Shape.RECT, Shape.CIRCLE)
                 .addSizes(new Size(8, 5))
                 .setPosition(0f, (float) AspectRatioUtils.getDeviceScreenWidth(), -50f, -50f)
-                .streamFor(120, 20000L);
+                .streamFor(40, 20000L);
     }
 }

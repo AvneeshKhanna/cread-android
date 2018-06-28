@@ -359,6 +359,45 @@ public class ViewLongShortFragment extends Fragment {
 
     }
 
-    //endregion
+
+    /**
+     * Method to toggle live filter visibility.
+     *
+     * @param isLiveFilterEnable
+     */
+    public void toggleLiveFilter(boolean isLiveFilterEnable) {
+        if (isLiveFilterEnable) {
+            LiveFilterHelper.initLiveFilters(mShortData.getLiveFilterName()
+                    , whetherView
+                    , konfettiView
+                    , liveFilterBubble
+                    , getActivity());
+            ViewHelper.getShortToast(getActivity(), getActivity().getString(R.string.live_filter_enable));
+        } else {
+            stopLiveFilters(whetherView
+                    , konfettiView
+                    , liveFilterBubble);
+            ViewHelper.getShortToast(getActivity(), getActivity().getString(R.string.live_filter_disable));
+        }
+
+    }
+
+
+    /**
+     * Method to stop live filter.
+     *
+     * @param weatherView  WeatherView for snow and rain filters.
+     * @param konfettiView KonfettiView view for confetti filter.
+     * @param bubbleView   BubbleView for bubble filter.
+     */
+    private void stopLiveFilters(WeatherView weatherView, KonfettiView konfettiView, GravView bubbleView) {
+        //Stop view visibility
+        konfettiView.setVisibility(View.GONE);
+        bubbleView.setVisibility(View.INVISIBLE);
+        weatherView.setVisibility(View.GONE);
+    }
+
+
+//endregion
 
 }

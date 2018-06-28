@@ -1991,11 +1991,13 @@ public class PreviewActivity extends BaseActivity implements QueryTokenReceiver,
      */
     private void checkLongShortStatus() {
         // if short is long show preview option
-        if (!TextUtils.isEmpty(mBundle.getString(PREVIEW_EXTRA_LONG_TEXT)) && !mBundle.getString(PREVIEW_EXTRA_LONG_TEXT).equals("null")) {
+        if (!TextUtils.isEmpty(mBundle.getString(PREVIEW_EXTRA_LONG_TEXT))
+                && !mBundle.getString(PREVIEW_EXTRA_LONG_TEXT).equals("null")) {
             containerLongFormPreview.setVisibility(View.VISIBLE);
 
-            // show sound view only in tje case of short and edit short
-            if (mCalledFrom.equals(PREVIEW_EXTRA_CALLED_FROM_EDIT_SHORT) || mCalledFrom.equals(PREVIEW_EXTRA_CALLED_FROM_SHORT)) {
+            // show sound view only in the case of short and edit short
+            if (mCalledFrom.equals(PREVIEW_EXTRA_CALLED_FROM_EDIT_SHORT)
+                    || mCalledFrom.equals(PREVIEW_EXTRA_CALLED_FROM_SHORT)) {
                 containerLongFormSound.setVisibility(View.VISIBLE);
             } else {
                 containerLongFormSound.setVisibility(View.GONE);
@@ -2003,10 +2005,16 @@ public class PreviewActivity extends BaseActivity implements QueryTokenReceiver,
 
             //show preview tooltip
             if (mHelper.isLongFormPreviewFirstTime()) {
-                //Show tooltip on preview icon
-                ViewHelper.getToolTip(containerLongFormPreview
-                        , "Tap to see the full writing"
-                        , mContext);
+                //For delay of 2.5 seconds
+                new Handler().postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        //Show tooltip on preview icon
+                        ViewHelper.getToolTip(containerLongFormPreview
+                                , "Tap to see the full writing"
+                                , mContext);
+                    }
+                }, 2500);
             }
 
             //Update status
@@ -2014,27 +2022,32 @@ public class PreviewActivity extends BaseActivity implements QueryTokenReceiver,
 
             if (mCalledFrom.equals(PREVIEW_EXTRA_CALLED_FROM_SHORT)) {
                 // show showcase view on long form sound option
-                new SpotlightView.Builder(mContext)
-                        .introAnimationDuration(400)
-                        .enableRevealAnimation(true)
-                        .performClick(true)
-                        .fadeinTextDuration(400)
-                        .headingTvColor(Color.parseColor("#eb273f"))
-                        .headingTvSize(32)
-                        .headingTvText("Background Music")
-                        .subHeadingTvColor(Color.parseColor("#ffffff"))
-                        .subHeadingTvSize(16)
-                        .subHeadingTvText("Select a melodious background music that goes with your writing. It will play while others read your work.")
-                        .maskColor(Color.parseColor("#dc000000"))
-                        .target(containerLongFormSound)
-                        .usageId("LONG_FORM_SOUND")
-                        .lineAnimDuration(400)
-                        .lineAndArcColor(Color.parseColor("#eb273f"))
-                        .dismissOnTouch(true)
-                        .dismissOnBackPress(true)
-                        .enableDismissAfterShown(true)
-                        .show();
-
+                //for delay of 4 seconds
+                new Handler().postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        new SpotlightView.Builder(mContext)
+                                .introAnimationDuration(400)
+                                .enableRevealAnimation(true)
+                                .performClick(true)
+                                .fadeinTextDuration(400)
+                                .headingTvColor(Color.parseColor("#eb273f"))
+                                .headingTvSize(32)
+                                .headingTvText("Background Music")
+                                .subHeadingTvColor(Color.parseColor("#ffffff"))
+                                .subHeadingTvSize(16)
+                                .subHeadingTvText("Select a melodious background music that goes with your writing. It will play while others read your work.")
+                                .maskColor(Color.parseColor("#dc000000"))
+                                .target(containerLongFormSound)
+                                .usageId("LONG_FORM_SOUND")
+                                .lineAnimDuration(400)
+                                .lineAndArcColor(Color.parseColor("#eb273f"))
+                                .dismissOnTouch(true)
+                                .dismissOnBackPress(true)
+                                .enableDismissAfterShown(true)
+                                .show();
+                    }
+                }, 6000);
             }
 
 
@@ -2333,16 +2346,24 @@ public class PreviewActivity extends BaseActivity implements QueryTokenReceiver,
     private void checkLiveFilterStatus() {
         if (mHelper.isLiveFilterFirstTime()) {
             //Show tooltip on live filter icon
-            ViewHelper.getToolTip(containerLiveFilter
-                    , "New! Apply live filters to give your post a cool animation!"
-                    , mContext);
+            new Handler().postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    ViewHelper.getToolTip(containerLiveFilter
+                            , "New! Apply live filters to give your post a cool animation!"
+                            , mContext);
+                }
+            }, 1000);
+
         }
         //Update status
         mHelper.updateLiveFilterStatus(false);
 
 
+        //Update flag
+        mSelectedLiveFilter = mBundle.getString(Constant.PREVIEW_EXTRA_LIVE_FILTER);
         //Method called
-        LiveFilterHelper.initLiveFilters(mBundle.getString(Constant.PREVIEW_EXTRA_LIVE_FILTER)
+        LiveFilterHelper.initLiveFilters(mSelectedLiveFilter
                 , whetherView
                 , konfettiView
                 , liveFilterBubble

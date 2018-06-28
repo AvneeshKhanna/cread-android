@@ -236,4 +236,6 @@ C68.5809,277.075,273.832,71.8233,527.023,71.8233 Z
 
 
     <string name="title_gif_dialog">"Creating GIF..."</string>
+    <string name="live_filter_enable">"Live filter enabled"</string>
+    <string name="live_filter_disable">Live filter disabled</string>
 </resources>

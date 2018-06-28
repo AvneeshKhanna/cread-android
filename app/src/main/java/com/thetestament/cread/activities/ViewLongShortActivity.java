@@ -89,6 +89,14 @@ public class ViewLongShortActivity extends BaseActivity {
                 menu.findItem(R.id.menu_enable_disable_sound).setIcon(R.drawable.ic_menu_sound_disabled);
             }
         }
+
+        //check for live filter
+        if (retrieveIntentData().getLiveFilterName().equals(Constant.LIVE_FILTER_NONE)) {
+            //hide icon
+            menu.findItem(R.id.action_toggle_live_filter).setVisible(false);
+            //Update flag
+            mIsLiveFilterEnable = false;
+        }
         return super.onCreateOptionsMenu(menu);
     }
 
@@ -113,7 +121,10 @@ public class ViewLongShortActivity extends BaseActivity {
                 mLongShortFragment.toggleSoundMode(mIsSoundEnabled);
                 return true;
             case R.id.action_toggle_live_filter:
-
+                //Update flag
+                mIsLiveFilterEnable = !mIsLiveFilterEnable;
+                //Method called
+                mLongShortFragment.toggleLiveFilter(mIsLiveFilterEnable);
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
