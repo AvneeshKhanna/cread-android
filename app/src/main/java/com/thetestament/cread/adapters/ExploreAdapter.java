@@ -3,6 +3,7 @@ package com.thetestament.cread.adapters;
 
 import android.app.ActivityOptions;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
@@ -20,13 +21,14 @@ import android.widget.TextView;
 
 import com.afollestad.materialdialogs.DialogAction;
 import com.afollestad.materialdialogs.MaterialDialog;
+import com.facebook.drawee.view.SimpleDraweeView;
 import com.google.firebase.analytics.FirebaseAnalytics;
-import com.squareup.picasso.Picasso;
 import com.thetestament.cread.R;
 import com.thetestament.cread.activities.CollaborationDetailsActivity;
 import com.thetestament.cread.activities.FeedDescriptionActivity;
-import com.thetestament.cread.activities.ProfileActivity;
 import com.thetestament.cread.helpers.FeedHelper;
+import com.thetestament.cread.helpers.ImageHelper;
+import com.thetestament.cread.helpers.IntentHelper;
 import com.thetestament.cread.helpers.NetworkHelper;
 import com.thetestament.cread.helpers.SharedPreferenceHelper;
 import com.thetestament.cread.helpers.ViewHelper;
@@ -41,7 +43,6 @@ import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import de.hdodenhof.circleimageview.CircleImageView;
 import io.reactivex.disposables.CompositeDisposable;
 
 import static com.thetestament.cread.helpers.FeedHelper.setGridItemMargins;
@@ -52,7 +53,6 @@ import static com.thetestament.cread.utils.Constant.EXTRA_DATA;
 import static com.thetestament.cread.utils.Constant.EXTRA_ENTITY_ID;
 import static com.thetestament.cread.utils.Constant.EXTRA_ENTITY_TYPE;
 import static com.thetestament.cread.utils.Constant.EXTRA_FEED_DESCRIPTION_DATA;
-import static com.thetestament.cread.utils.Constant.EXTRA_PROFILE_UUID;
 import static com.thetestament.cread.utils.Constant.FIREBASE_EVENT_CAPTURE_CLICKED;
 import static com.thetestament.cread.utils.Constant.FIREBASE_EVENT_FOLLOW_FROM_EXPLORE;
 import static com.thetestament.cread.utils.Constant.FIREBASE_EVENT_WRITE_CLICKED;
@@ -159,7 +159,8 @@ public class ExploreAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
         if (holder.getItemViewType() == VIEW_TYPE_ITEM_LIST) {
             final ListItemViewHolder itemViewHolder = (ListItemViewHolder) holder;
             //Load creator profile picture
-            loadCreatorPic(data.getCreatorImage(), itemViewHolder.imageCreator);
+            ImageHelper.loadProgressiveImage(Uri.parse(data.getCreatorImage())
+                    , itemViewHolder.imageCreator);
             //Set text and click actions according to content type
             FeedHelper.performContentTypeSpecificOperations(mContext
                     , data
@@ -182,7 +183,8 @@ public class ExploreAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
                     , data.getImgHeight()
                     , itemViewHolder.imageExplore);
             //Load explore feed image
-            loadFeedImage(data.getContentImage(), itemViewHolder.imageExplore);
+            ImageHelper.loadProgressiveImage(Uri.parse(data.getContentImage())
+                    , itemViewHolder.imageExplore);
 
 
             //Follow button click functionality
@@ -205,7 +207,7 @@ public class ExploreAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
             // set margins
             setGridItemMargins(mContext, position, itemViewHolder.imageExplore);
             //Load explore feed image
-            loadFeedImage(data.getContentImage(), itemViewHolder.imageExplore);
+            ImageHelper.loadProgressiveImage(Uri.parse(data.getContentImage()), itemViewHolder.imageExplore);
 
             itemViewOnClick(itemViewHolder.itemView, data, position, true);
 
@@ -244,31 +246,7 @@ public class ExploreAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
         mIsLoading = false;
     }
 
-    /**
-     * Method to load creator profile picture.
-     *
-     * @param picUrl    picture URL.
-     * @param imageView View where image to be loaded.
-     */
-    private void loadCreatorPic(String picUrl, CircleImageView imageView) {
-        Picasso.with(mContext)
-                .load(picUrl)
-                .error(R.drawable.ic_account_circle_100)
-                .into(imageView);
-    }
 
-    /**
-     * Method to load explore feed image.
-     *
-     * @param imageUrl  picture URL.
-     * @param imageView View where image to be loaded.
-     */
-    private void loadFeedImage(String imageUrl, ImageView imageView) {
-        Picasso.with(mContext)
-                .load(imageUrl)
-                .error(R.drawable.image_placeholder)
-                .into(imageView);
-    }
 
     /**
      * Method to open creator profile.
@@ -280,9 +258,8 @@ public class ExploreAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
         view.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent = new Intent(mContext, ProfileActivity.class);
-                intent.putExtra(EXTRA_PROFILE_UUID, creatorUUID);
-                mContext.startActivity(intent);
+                //Method called
+                IntentHelper.openProfileActivity(mContext, creatorUUID);
             }
         });
     }
@@ -494,7 +471,7 @@ public class ExploreAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
     //ListItemViewHolder class
     static class ListItemViewHolder extends RecyclerView.ViewHolder {
         @BindView(R.id.imageCreator)
-        CircleImageView imageCreator;
+        SimpleDraweeView imageCreator;
         @BindView(R.id.textCreatorName)
         TextView textCreatorName;
         @BindView(R.id.buttonFollow)
@@ -502,7 +479,7 @@ public class ExploreAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
         @BindView(R.id.containerCreator)
         RelativeLayout containerCreator;
         @BindView(R.id.imageExplore)
-        ImageView imageExplore;
+        SimpleDraweeView imageExplore;
         @BindView(R.id.buttonCollaborate)
         TextView buttonCollaborate;
         @BindView(R.id.collabCount)
@@ -522,7 +499,7 @@ public class ExploreAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
     static class GridItemViewHolder extends RecyclerView.ViewHolder {
 
         @BindView(R.id.imageGrid)
-        ImageView imageExplore;
+        SimpleDraweeView imageExplore;
         @BindView(R.id.containerLongShortPreview)
         FrameLayout containerLongShortPreview;
 

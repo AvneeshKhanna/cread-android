@@ -11,7 +11,7 @@ import android.support.v7.widget.RecyclerView;
 import android.view.animation.AnimationUtils;
 import android.view.animation.LayoutAnimationController;
 
-import com.google.firebase.crash.FirebaseCrash;
+import com.crashlytics.android.Crashlytics;
 import com.thetestament.cread.BuildConfig;
 import com.thetestament.cread.R;
 import com.thetestament.cread.adapters.InspirationAdapter;
@@ -213,7 +213,8 @@ public class InspirationActivity extends BaseActivity {
                             }
                         } catch (JSONException e) {
                             e.printStackTrace();
-                            FirebaseCrash.report(e);
+                            Crashlytics.logException(e);
+                            Crashlytics.setString("className", "InspirationActivity");
                             connectionError[0] = true;
                         }
                     }
@@ -221,7 +222,8 @@ public class InspirationActivity extends BaseActivity {
                     @Override
                     public void onError(Throwable e) {
                         swipeRefreshLayout.setRefreshing(false);
-                        FirebaseCrash.report(e);
+                        Crashlytics.logException(e);
+                        Crashlytics.setString("className", "InspirationActivity");
                         //Server error Snack bar
                         ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_server));
                     }
@@ -312,7 +314,8 @@ public class InspirationActivity extends BaseActivity {
                             }
                         } catch (JSONException e) {
                             e.printStackTrace();
-                            FirebaseCrash.report(e);
+                            Crashlytics.logException(e);
+                            Crashlytics.setString("className", "InspirationActivity");
                             connectionError[0] = true;
                         }
                     }
@@ -322,7 +325,8 @@ public class InspirationActivity extends BaseActivity {
                         //Remove loading item
                         mInspirationDataList.remove(mInspirationDataList.size() - 1);
                         mAdapter.notifyItemRemoved(mInspirationDataList.size());
-                        FirebaseCrash.report(e);
+                        Crashlytics.logException(e);
+                        Crashlytics.setString("className", "InspirationActivity");
                         //Server error Snack bar
                         ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_server));
                     }

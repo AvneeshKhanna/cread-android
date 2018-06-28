@@ -1,6 +1,5 @@
 package com.thetestament.cread.widgets;
 
-import android.content.Intent;
 import android.graphics.Typeface;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.content.ContextCompat;
@@ -9,9 +8,7 @@ import android.text.style.ClickableSpan;
 import android.view.View;
 
 import com.thetestament.cread.R;
-import com.thetestament.cread.activities.ProfileActivity;
-
-import static com.thetestament.cread.utils.Constant.EXTRA_PROFILE_UUID;
+import com.thetestament.cread.helpers.IntentHelper;
 
 
 public class ProfileClickableSpan extends ClickableSpan {
@@ -28,9 +25,8 @@ public class ProfileClickableSpan extends ClickableSpan {
 
     @Override
     public void onClick(View view) {
-
-        mContext.startActivity(new Intent(mContext, ProfileActivity.class).putExtra(EXTRA_PROFILE_UUID, mUUID));
-
+        //Method called
+        IntentHelper.openProfileActivity(mContext, mUUID);
     }
 
     @Override

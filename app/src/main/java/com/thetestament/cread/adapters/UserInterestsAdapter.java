@@ -1,5 +1,6 @@
 package com.thetestament.cread.adapters;
 
+import android.net.Uri;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.AppCompatImageView;
@@ -8,9 +9,9 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
-import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.facebook.drawee.view.SimpleDraweeView;
 import com.thetestament.cread.R;
 import com.thetestament.cread.helpers.FeedHelper;
 import com.thetestament.cread.helpers.ImageHelper;
@@ -87,7 +88,7 @@ public class UserInterestsAdapter extends RecyclerView.Adapter {
             // set grid margins
             FeedHelper.setGridItemMargins(mContext, position, itemViewHolder.imageUserInterest);
             //Load interest picture
-            ImageHelper.loadImageFromPicasso(mContext, itemViewHolder.imageUserInterest, data.getInterestImageURL(), R.drawable.image_placeholder);
+            ImageHelper.loadProgressiveImage(Uri.parse(data.getInterestImageURL()),itemViewHolder.imageUserInterest);
             // check user interests status
             checkUserInterestStatus(data, itemViewHolder);
             //Click functionality
@@ -179,7 +180,7 @@ public class UserInterestsAdapter extends RecyclerView.Adapter {
 
     static class ItemViewHolder extends RecyclerView.ViewHolder {
         @BindView(R.id.imageUserInterest)
-        ImageView imageUserInterest;
+        SimpleDraweeView imageUserInterest;
         @BindView(R.id.textInterestName)
         TextView textInterestName;
         @BindView(R.id.containerUserInterestText)

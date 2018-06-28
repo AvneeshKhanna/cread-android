@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
+
+    <!--Title text-->
+    <android.support.v7.widget.AppCompatTextView
+        android:id="@+id/textTitle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:clickable="true"
+        android:foreground="?android:selectableItemBackground"
+        android:gravity="center_vertical"
+        android:paddingBottom="16dp"
+        android:paddingLeft="16dp"
+        android:paddingRight="16dp"
+        android:paddingTop="16dp"
+        android:text="What is Cread?"
+        android:textColor="@color/grey_dark"
+        android:textSize="18sp" />
+
+    <!--Container desc and button-->
+    <LinearLayout
+        android:id="@+id/containerHelp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:visibility="gone">
+        <!--Desc text-->
+        <android.support.v7.widget.AppCompatTextView
+            android:id="@+id/textDesc"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingBottom="16dp"
+            android:paddingLeft="16dp"
+            android:paddingRight="16dp"
+            android:autoLink="all"
+            android:textColorLink="@color/blue_dark"
+            android:text="Cread is a social platform where literary artists (writers, poets, musicians and comedians) and graphic artists (photographers, graphic designers, doodlers and comic art creators) can collaborate and showcase their work to earn goodwill and royalties."
+            android:textSize="14sp" />
+
+        <!--Btn text-->
+        <android.support.v7.widget.AppCompatTextView
+            android:id="@+id/btnSubmit"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginBottom="16dp"
+            android:background="@drawable/button_filled"
+            android:clickable="true"
+            android:foreground="?android:selectableItemBackground"
+            android:paddingBottom="8dp"
+            android:paddingLeft="24dp"
+            android:paddingRight="24dp"
+            android:paddingTop="8dp"
+            android:text="Submit"
+            android:textColor="@color/white" />
+    </LinearLayout>
+
+    <!--SeparatorView-->
+    <View
+        android:id="@+id/lineSeparatorTop"
+        android:layout_width="match_parent"
+        android:layout_height="0.3dp"
+        android:layout_marginLeft="16dp"
+        android:layout_marginRight="16dp"
+        android:alpha="0.4"
+        android:background="@color/grey_dark"
+        android:visibility="visible" />
+
+</LinearLayout>

@@ -1,6 +1,9 @@
 package com.thetestament.cread.activities;
 
 
+import android.content.ClipData;
+import android.content.ClipboardManager;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -9,24 +12,25 @@ import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.TextInputEditText;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.AppCompatSpinner;
+import android.support.v7.widget.AppCompatTextView;
 import android.text.InputType;
 import android.text.TextUtils;
 import android.view.View;
 import android.widget.ArrayAdapter;
-import android.widget.TextView;
 
 import com.afollestad.materialdialogs.DialogAction;
 import com.afollestad.materialdialogs.MaterialDialog;
+import com.crashlytics.android.Crashlytics;
 import com.facebook.accountkit.Account;
 import com.facebook.accountkit.AccountKit;
 import com.facebook.accountkit.AccountKitCallback;
 import com.facebook.accountkit.AccountKitError;
 import com.facebook.accountkit.AccountKitLoginResult;
 import com.facebook.accountkit.PhoneNumber;
-import com.google.firebase.crash.FirebaseCrash;
 import com.rx2androidnetworking.Rx2AndroidNetworking;
 import com.thetestament.cread.BuildConfig;
 import com.thetestament.cread.R;
+import com.thetestament.cread.dialog.CustomDialog;
 import com.thetestament.cread.helpers.SharedPreferenceHelper;
 import com.thetestament.cread.helpers.ViewHelper;
 import com.thetestament.cread.utils.Constant;
@@ -59,7 +63,7 @@ import static com.thetestament.cread.utils.Constant.EXTRA_USER_INTERESTS_CALLED_
 import static com.thetestament.cread.utils.Constant.EXTRA_USER_INTERESTS_COUNT;
 import static com.thetestament.cread.utils.Constant.EXTRA_USER_LAST_NAME;
 import static com.thetestament.cread.utils.Constant.EXTRA_USER_WATER_MARK_STATUS;
-import static com.thetestament.cread.utils.Constant.REQUEST_CODE_FB_ACCOUNT_KIT;
+import static com.thetestament.cread.utils.Constant.EXTRA_USER_WEB_STORE_LINK;
 import static com.thetestament.cread.utils.Constant.REQUEST_CODE_USER_INTERESTS;
 import static com.thetestament.cread.utils.Constant.USER_INTERESTS_CALLED_FROM_PROFILE;
 import static com.thetestament.cread.utils.Constant.WATERMARK_STATUS_ASK_ALWAYS;
@@ -71,6 +75,7 @@ import static com.thetestament.cread.utils.Constant.WATERMARK_STATUS_YES;
  */
 public class UpdateProfileDetailsActivity extends BaseActivity {
 
+    //region :Views binding with Butter knife
     @BindView(R.id.rootView)
     CoordinatorLayout rootView;
     @BindView(R.id.etFirstName)
@@ -81,32 +86,47 @@ public class UpdateProfileDetailsActivity extends BaseActivity {
     TextInputEditText etEmail;
     @BindView(R.id.etBio)
     TextInputEditText etBio;
+    @BindView(R.id.textWebStoreUrl)
+    AppCompatTextView textWebStoreUrl;
     @BindView(R.id.etContact)
     TextInputEditText etContact;
-    @BindView(R.id.textCopyRight)
-    TextView textWatermark;
     @BindView(R.id.spinnerWaterMark)
     AppCompatSpinner spinnerWaterMark;
     @BindView(R.id.progressView)
     View progressView;
     @BindView(R.id.textUserInterests)
-    TextView textUserInterests;
+    AppCompatTextView textUserInterests;
+    //endregion
 
+
+    //region Fields and constant
     @State
     String mFirstName, mLastName, mEmail, mBio, mContact, mWaterMarkStatus, mWaterMarkText = "";
 
-    private CompositeDisposable mCompositeDisposable = new CompositeDisposable();
+    /**
+     * Flag to store wen store link.
+     */
+    @State
+    String mWebStoreLink;
 
-    private SharedPreferenceHelper mPreferenceHelper;
+    CompositeDisposable mCompositeDisposable = new CompositeDisposable();
+    SharedPreferenceHelper mPreferenceHelper;
+    UpdateProfileDetailsActivity mContext;
 
+    //endregion
+
+    //region :Overridden methods
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_update_profile_details);
         //Bind views
         ButterKnife.bind(this);
+        //Obtain this reference
+        mContext = this;
         //Get reference
-        mPreferenceHelper = new SharedPreferenceHelper(this);
+        mPreferenceHelper = new SharedPreferenceHelper(mContext);
+        //Method called
         initScreen();
     }
 
@@ -134,7 +154,7 @@ public class UpdateProfileDetailsActivity extends BaseActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         // Handling the result of fb mobile verification
-        if (requestCode == REQUEST_CODE_FB_ACCOUNT_KIT) {
+        if (requestCode == Constant.REQUEST_CODE_FB_ACCOUNT_KIT) {
             AccountKitLoginResult loginResult = data.getParcelableExtra(AccountKitLoginResult.RESULT_KEY);
 
             if (loginResult.getError() != null) {
@@ -143,11 +163,10 @@ public class UpdateProfileDetailsActivity extends BaseActivity {
                 ViewHelper.getSnackBar(rootView, "Contact number updation cancelled");
             } else {
                 // showing dialog
-                MaterialDialog dialog = initializeUpdateContactDialog();
-                dialog.show();
+                MaterialDialog dialog = CustomDialog.getProgressDialog(mContext
+                        , "Updating Contact Number");
                 // get phone number from account kit
                 getPhoneNo(dialog);
-
             }
 
         } else if (requestCode == REQUEST_CODE_USER_INTERESTS && resultCode == RESULT_OK) {
@@ -155,6 +174,10 @@ public class UpdateProfileDetailsActivity extends BaseActivity {
             textUserInterests.setText(getUserInterestsMessage(interests.size(), interests));
         }
     }
+
+    //endregion
+
+    //region :Click functionality
 
     /**
      * Save button onClick functionality to update user details server.
@@ -190,7 +213,7 @@ public class UpdateProfileDetailsActivity extends BaseActivity {
             }
 
             //Check connection status
-            if (getNetConnectionStatus(UpdateProfileDetailsActivity.this)) {
+            if (getNetConnectionStatus(mContext)) {
                 //Save user details
                 saveUserDetails();
             } else {
@@ -206,7 +229,7 @@ public class UpdateProfileDetailsActivity extends BaseActivity {
     @OnClick(R.id.lockIconContact)
     void onLockIconClick() {
         //To show prompt dialog
-        new MaterialDialog.Builder(this)
+        new MaterialDialog.Builder(mContext)
                 .title("Update Contact number")
                 .content("Changing the Contact number requires validation using verification code. Do you wish to proceed?")
                 .positiveText("Yes")
@@ -214,7 +237,7 @@ public class UpdateProfileDetailsActivity extends BaseActivity {
                 .onPositive(new MaterialDialog.SingleButtonCallback() {
                     @Override
                     public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
-                        phoneLogin(UpdateProfileDetailsActivity.this);
+                        phoneLogin(mContext);
                         dialog.dismiss();
                     }
                 })
@@ -245,14 +268,61 @@ public class UpdateProfileDetailsActivity extends BaseActivity {
      */
     @OnClick(R.id.textCopyRight)
     void watermarkOnClick() {
+        //Method called
         showWaterMarkInputDialog();
     }
+
+    /**
+     * Click functionality to copy web store link
+     */
+    @OnClick(R.id.iconCopy)
+    void onCopyIconClick() {
+        // Gets a handle to the clipboard service.
+        ClipboardManager manager = (ClipboardManager)
+                getSystemService(Context.CLIPBOARD_SERVICE);
+        // Creates a new text clip to put on the clipboard
+        ClipData clip = ClipData.newPlainText("webStoreLink", mWebStoreLink);
+        // Set the clipboard's primary clip.
+        manager.setPrimaryClip(clip);
+        ViewHelper.getSnackBar(rootView, "Link copied to clipboard");
+    }
+
+    /**
+     * Web profile link click functionality.
+     */
+    @OnClick(R.id.btnInfoWebProfileLink)
+    void onWebProfileLinkOnClick() {
+        MaterialDialog dialog = new MaterialDialog.Builder(mContext)
+                .title("Web Profile Link")
+                .positiveText("Copy link")
+                .customView(R.layout.dialog_profile_lweb_ink, false)
+                .onPositive(new MaterialDialog.SingleButtonCallback() {
+                    @Override
+                    public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
+                        // Gets a handle to the clipboard service.
+                        ClipboardManager manager = (ClipboardManager)
+                                getSystemService(Context.CLIPBOARD_SERVICE);
+                        // Creates a new text clip to put on the clipboard
+                        ClipData clip = ClipData.newPlainText("webStoreLink", mWebStoreLink);
+                        // Set the clipboard's primary clip.
+                        manager.setPrimaryClip(clip);
+                        ViewHelper.getSnackBar(rootView, "Link copied to clipboard");
+                    }
+                })
+                .show();
+        AppCompatTextView linkText = dialog.getCustomView().findViewById(R.id.textProfileLink);
+        linkText.setText(mWebStoreLink +
+                "\n\nThis is the web version of the profile.");
+    }
+    //endregion
+
+    //region :Private methods
 
     /**
      * Method to show input dialog where user enters his/her watermark.
      */
     private void showWaterMarkInputDialog() {
-        new MaterialDialog.Builder(this)
+        new MaterialDialog.Builder(mContext)
                 .title("Signature")
                 .autoDismiss(false)
                 .inputRange(1, 20, ContextCompat.getColor(UpdateProfileDetailsActivity.this, R.color.red))
@@ -307,6 +377,9 @@ public class UpdateProfileDetailsActivity extends BaseActivity {
      * To retrieve data from intent and set data to respective views.
      */
     private void retrieveIntentData() {
+        //Obtain web store link
+        mWebStoreLink = getIntent().getStringExtra(EXTRA_USER_WEB_STORE_LINK);
+        textWebStoreUrl.setText(mWebStoreLink);
 
         mFirstName = getIntent().getStringExtra(EXTRA_USER_FIRST_NAME);
         etFirstName.setText(mFirstName);
@@ -383,7 +456,8 @@ public class UpdateProfileDetailsActivity extends BaseActivity {
             jsonObject.put("userdata", userObject);
         } catch (JSONException e) {
             e.printStackTrace();
-            FirebaseCrash.report(e);
+            Crashlytics.logException(e);
+            Crashlytics.setString("className", "UpdateProfileDetailsActivity");
             progressView.setVisibility(View.GONE);
         }
 
@@ -422,14 +496,15 @@ public class UpdateProfileDetailsActivity extends BaseActivity {
                                     //Set result ok
                                     setResult(RESULT_OK, returnIntent);
                                     //Show toast
-                                    ViewHelper.getToast(UpdateProfileDetailsActivity.this, "Details saved");
+                                    ViewHelper.getToast(mContext, "Details saved");
                                     //Finish this activity and navigate back to previous screen
                                     finish();
                                 }
                             }
                         } catch (JSONException e) {
                             e.printStackTrace();
-                            FirebaseCrash.report(e);
+                            Crashlytics.logException(e);
+                            Crashlytics.setString("className", "UpdateProfileDetailsActivity");
                             //Show error snack bar
                             ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_internal));
                         }
@@ -451,20 +526,6 @@ public class UpdateProfileDetailsActivity extends BaseActivity {
                 });
     }
 
-    /**
-     * Method to initialize update contact number dialog
-     */
-    private MaterialDialog initializeUpdateContactDialog() {
-        //Material progress dialog
-        return new MaterialDialog.Builder(this)
-                .title("Updating Contact Number")
-                .content(getString(R.string.waiting_msg))
-                .autoDismiss(false)
-                .cancelable(false)
-                .progress(true, 0)
-                .build();
-
-    }
 
     /**
      * Method to get phone number from account kit.
@@ -509,7 +570,8 @@ public class UpdateProfileDetailsActivity extends BaseActivity {
             jsonObject.put("phone", newNumber);
         } catch (JSONException e) {
             e.printStackTrace();
-            FirebaseCrash.report(e);
+            Crashlytics.logException(e);
+            Crashlytics.setString("className", "UpdateProfileDetailsActivity");
             dialog.dismiss();
         }
 
@@ -542,7 +604,8 @@ public class UpdateProfileDetailsActivity extends BaseActivity {
                             }
                         } catch (JSONException e) {
                             e.printStackTrace();
-                            FirebaseCrash.report(e);
+                            Crashlytics.logException(e);
+                            Crashlytics.setString("className", "UpdateProfileDetailsActivity");
                             ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_internal));
                         }
 
@@ -553,7 +616,8 @@ public class UpdateProfileDetailsActivity extends BaseActivity {
                     public void onError(@io.reactivex.annotations.NonNull Throwable e) {
                         dialog.dismiss();
                         e.printStackTrace();
-                        FirebaseCrash.report(e);
+                        Crashlytics.logException(e);
+                        Crashlytics.setString("className", "UpdateProfileDetailsActivity");
                         ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_server));
 
                     }
@@ -564,6 +628,7 @@ public class UpdateProfileDetailsActivity extends BaseActivity {
                     }
                 });
     }
+
 
     /**
      * Returns the message to be displayed in interest section depending on the no of interests
@@ -586,5 +651,5 @@ public class UpdateProfileDetailsActivity extends BaseActivity {
         }
     }
 
-
+//endregion
 }

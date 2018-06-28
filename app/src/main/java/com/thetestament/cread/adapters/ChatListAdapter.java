@@ -1,6 +1,7 @@
 package com.thetestament.cread.adapters;
 
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.support.v7.widget.AppCompatTextView;
@@ -10,10 +11,11 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import com.squareup.picasso.Picasso;
+import com.facebook.drawee.view.SimpleDraweeView;
 import com.thetestament.cread.R;
 import com.thetestament.cread.activities.ChatDetailsActivity;
 import com.thetestament.cread.activities.ChatRequestActivity;
+import com.thetestament.cread.helpers.ImageHelper;
 import com.thetestament.cread.listeners.listener.OnChatListLoadMoreListener;
 import com.thetestament.cread.models.ChatListModel;
 
@@ -21,7 +23,6 @@ import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import de.hdodenhof.circleimageview.CircleImageView;
 
 import static com.thetestament.cread.utils.Constant.EXTRA_CHAT_DETAILS_CALLED_FROM;
 import static com.thetestament.cread.utils.Constant.EXTRA_CHAT_DETAILS_CALLED_FROM_CHAT_LIST;
@@ -101,7 +102,8 @@ public class ChatListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         if (holder.getItemViewType() == VIEW_TYPE_ITEM) {
             ItemViewHolder itemViewHolder = (ItemViewHolder) holder;
             //Load profile picture
-            loadProfilePicture(data.getProfileImgUrl(), itemViewHolder.imageUser);
+            ImageHelper.loadProgressiveImage(Uri.parse(data.getProfileImgUrl())
+                    , itemViewHolder.imageUser);
             //set receiver user name
             itemViewHolder.textUserName.setText(data.getReceiverName());
             //set Last message
@@ -143,18 +145,6 @@ public class ChatListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         mIsLoading = false;
     }
 
-    /**
-     * Method to load profile picture.
-     *
-     * @param picUrl    picture URL.
-     * @param imageView View where image to be loaded.
-     */
-    private void loadProfilePicture(String picUrl, CircleImageView imageView) {
-        Picasso.with(mContext)
-                .load(picUrl)
-                .error(R.drawable.ic_account_circle_100)
-                .into(imageView);
-    }
 
     /**
      * ItemView onClick functionality.
@@ -200,7 +190,7 @@ public class ChatListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
             public void onClick(View view) {
                 //Open ChatRequestActivity
                 Intent intent = new Intent(mContext, ChatRequestActivity.class);
-                mContext.startActivityForResult(intent , REQUEST_CODE_CHAT_REQUEST);
+                mContext.startActivityForResult(intent, REQUEST_CODE_CHAT_REQUEST);
             }
         });
     }
@@ -224,7 +214,7 @@ public class ChatListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
     //ItemViewHolder class
     static class ItemViewHolder extends RecyclerView.ViewHolder {
         @BindView(R.id.imageUser)
-        CircleImageView imageUser;
+        SimpleDraweeView imageUser;
         @BindView(R.id.textUserName)
         TextView textUserName;
         @BindView(R.id.textLastMessage)

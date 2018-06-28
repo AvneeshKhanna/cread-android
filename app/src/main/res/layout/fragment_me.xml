@@ -6,6 +6,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
+    <!--Appbar layout-->
     <android.support.design.widget.AppBarLayout
         android:id="@+id/appBarLayout"
         android:layout_width="match_parent"
@@ -14,6 +15,7 @@
         android:fitsSystemWindows="true"
         android:visibility="invisible">
 
+        <!--Collapsing toolbar-->
         <android.support.design.widget.CollapsingToolbarLayout
             android:id="@+id/collapsingToolbar"
             android:layout_width="match_parent"
@@ -22,12 +24,13 @@
             app:contentScrim="@color/colorPrimary"
             app:layout_scrollFlags="scroll|exitUntilCollapsed">
 
+            <!--Profile details and settings icon container-->
             <FrameLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:background="@color/white">
 
-
+                <!--Profile details container-->
                 <LinearLayout
                     android:id="@+id/containerUserProfile"
                     android:layout_width="match_parent"
@@ -72,8 +75,8 @@
                                 android:paddingTop="5dp"
                                 android:textColor="@color/grey_dark"
                                 android:textSize="24sp"
-                                app:autoSizeTextType="uniform"
                                 app:autoSizeMinTextSize="14sp"
+                                app:autoSizeTextType="uniform"
                                 tools:text="Gaurav k" />
 
                             <android.support.v7.widget.AppCompatImageView
@@ -153,6 +156,7 @@
 
                     </LinearLayout>
 
+                    <!--View separator-->
                     <View
                         android:id="@+id/lineSeparator"
                         android:layout_width="match_parent"
@@ -160,7 +164,7 @@
                         android:alpha="0.4"
                         android:background="@color/grey_dark" />
 
-
+                    <!--TabLayout-->
                     <android.support.design.widget.TabLayout
                         android:id="@+id/tabLayout"
                         android:layout_width="match_parent"
@@ -170,67 +174,9 @@
                         app:tabIndicatorColor="@color/colorPrimary"
                         app:tabIndicatorHeight="2dp"
                         app:tabMode="fixed" />
-
-                    <!-- <LinearLayout
-                         android:layout_width="match_parent"
-                         android:layout_height="wrap_content"
-                         android:background="@color/grey_light"
-                         android:orientation="horizontal"
-                         android:paddingTop="13dp"
-                         android:paddingBottom="5dp"
-                         android:paddingLeft="10dp"
-                         android:gravity="center">
-
-                         <LinearLayout
-                             android:layout_width="wrap_content"
-                             android:layout_height="wrap_content"
-                             android:layout_gravity="center"
-                             android:gravity="center"
-                             android:orientation="horizontal">
-
-                             <ImageView
-                                 android:layout_width="wrap_content"
-                                 android:layout_height="wrap_content"
-                                 android:layout_gravity="center_horizontal"
-                                 app:srcCompat="@drawable/ic_me_all_tab" />
-
-                             <TextView
-                                 android:layout_width="wrap_content"
-                                 android:layout_height="wrap_content"
-                                 android:layout_marginLeft="10dp"
-                                 android:text="Grid"
-                                 android:textSize="16sp"/>
-
-                             <TextView
-                                 android:layout_width="wrap_content"
-                                 android:layout_height="wrap_content"
-                                 android:layout_marginLeft="20dp"
-                                 android:layout_marginRight="20dp"
-                                 android:textSize="18sp"
-                                 android:text="|"/>
-
-                             <ImageView
-                                 android:layout_width="wrap_content"
-                                 android:layout_height="wrap_content"
-                                 android:layout_gravity="center_horizontal"
-                                 app:srcCompat="@drawable/ic_list" />
-
-                             <TextView
-                                 android:layout_width="wrap_content"
-                                 android:layout_height="wrap_content"
-                                 android:layout_marginLeft="10dp"
-                                 android:textSize="16sp"
-                                 android:text="List"/>
-
-
-
-                         </LinearLayout>
-                     </LinearLayout>-->
-
-
                 </LinearLayout>
 
-
+                <!--Setting/WebStore link-->
                 <android.support.v7.widget.AppCompatImageButton
                     android:id="@+id/buttonProfileSettings"
                     android:layout_width="wrap_content"
@@ -240,6 +186,16 @@
                     android:padding="10dp"
                     app:srcCompat="@drawable/ic_profile_settings" />
 
+                <!--Dot indicator view-->
+                <include
+                    android:id="@+id/dotIndicator"
+                    layout="@layout/dot_indicator"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="right"
+                    android:layout_margin="10dp"
+                    android:visibility="gone" />
+
             </FrameLayout>
 
 
@@ -247,6 +203,7 @@
 
     </android.support.design.widget.AppBarLayout>
 
+    <!--SwipeRefresh layout-->
     <android.support.v4.widget.SwipeRefreshLayout
         android:id="@+id/swipeToRefreshLayout"
         android:layout_width="match_parent"
@@ -263,32 +220,6 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:layoutAnimation="@anim/layout_animation_from_bottom" />
-
-
-            <!--<LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:orientation="vertical"
-                app:layout_behavior="@string/appbar_scrolling_view_behavior">
-
-
-                <ImageView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center_horizontal"
-                    android:layout_marginBottom="5dp"
-                    android:layout_marginTop="13dp"
-                    app:srcCompat="@drawable/ic_me_all_tab" />
-
-                <android.support.v7.widget.RecyclerView
-                    android:id="@+id/recyclerView"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:layoutAnimation="@anim/layout_animation_from_bottom" />
-
-
-            </LinearLayout>-->
-
 
             <!-- No data view-->
             <LinearLayout
@@ -340,6 +271,7 @@
 
     </android.support.v4.widget.SwipeRefreshLayout>
 
+    <!--Progress view-->
     <include
         android:id="@+id/progressView"
         layout="@layout/layout_progress_bar"

@@ -4,5 +4,9 @@
         <key>minimum_app_version</key>
         <value>0</value>
     </entry>
+    <entry>
+        <key>explore_category_view_visibility</key>
+        <value>visible</value>
+    </entry>
 
 </defaultsMap>

@@ -6,10 +6,11 @@ import android.net.NetworkInfo;
 import android.support.v4.app.FragmentActivity;
 
 import com.androidnetworking.common.Priority;
-import com.google.firebase.crash.FirebaseCrash;
+import com.crashlytics.android.Crashlytics;
 import com.rx2androidnetworking.Rx2ANRequest;
 import com.rx2androidnetworking.Rx2AndroidNetworking;
 import com.thetestament.cread.BuildConfig;
+import com.thetestament.cread.CreadApp;
 import com.thetestament.cread.listeners.listener;
 import com.thetestament.cread.utils.Constant;
 
@@ -332,7 +333,8 @@ public class NetworkHelper {
             jsonObject.put("share_source", shareSource);
         } catch (JSONException e) {
             e.printStackTrace();
-            FirebaseCrash.report(e);
+            Crashlytics.logException(e);
+            Crashlytics.setString("className", "NetworkHelper");
         }
         return Rx2AndroidNetworking.post(serverURL)
                 .addJSONObjectBody(jsonObject)
@@ -443,7 +445,8 @@ public class NetworkHelper {
 
         } catch (JSONException e) {
             e.printStackTrace();
-            FirebaseCrash.report(e);
+            Crashlytics.logException(e);
+            Crashlytics.setString("className", "NetworkHelper");
         }
 
         return Rx2AndroidNetworking
@@ -469,7 +472,8 @@ public class NetworkHelper {
 
         } catch (JSONException e) {
             e.printStackTrace();
-            FirebaseCrash.report(e);
+            Crashlytics.logException(e);
+            Crashlytics.setString("className", "NetworkHelper");
         }
 
         return Rx2AndroidNetworking
@@ -493,7 +497,8 @@ public class NetworkHelper {
 
         } catch (JSONException e) {
             e.printStackTrace();
-            FirebaseCrash.report(e);
+            Crashlytics.logException(e);
+            Crashlytics.setString("className", "NetworkHelper");
         }
 
         return Rx2AndroidNetworking
@@ -512,7 +517,8 @@ public class NetworkHelper {
             jsonObject.put("entityid", entityID);
         } catch (JSONException e) {
             e.printStackTrace();
-            FirebaseCrash.report(e);
+            Crashlytics.logException(e);
+            Crashlytics.setString("className", "NetworkHelper");
         }
 
         return Rx2AndroidNetworking
@@ -551,7 +557,8 @@ public class NetworkHelper {
 
         } catch (JSONException e) {
             e.printStackTrace();
-            FirebaseCrash.report(e);
+            Crashlytics.logException(e);
+            Crashlytics.setString("className", "NetworkHelper");
         }
 
         return Rx2AndroidNetworking
@@ -663,38 +670,11 @@ public class NetworkHelper {
 
         } catch (JSONException e) {
             e.printStackTrace();
-            FirebaseCrash.report(e);
+            Crashlytics.logException(e);
+            Crashlytics.setString("className", "NetworkHelper");
         }
         return Rx2AndroidNetworking.post(serverURL)
                 .addJSONObjectBody(jsonObject)
-                .build()
-                .getJSONObjectObservable();
-    }
-
-
-    /**
-     * Method to return requested data from the server.
-     *
-     * @param serverURL URL of the server
-     * @param uuid      UUID of the user.
-     * @param authKey   Authentication key of the user
-     */
-    public static Observable<JSONObject> getFeatArtistsObservable(String serverURL, String uuid, String authKey, boolean getResponseFromNetwork) {
-
-
-        Map<String, String> headers = new HashMap<>();
-        headers.put("uuid", uuid);
-        headers.put("authkey", authKey);
-
-
-        Rx2ANRequest.GetRequestBuilder requestBuilder = Rx2AndroidNetworking.get(serverURL)
-                .addHeaders(headers);
-
-        if (getResponseFromNetwork) {
-            requestBuilder.getResponseOnlyFromNetwork();
-        }
-
-        return requestBuilder
                 .build()
                 .getJSONObjectObservable();
     }
@@ -811,5 +791,31 @@ public class NetworkHelper {
     }
 
 
+    /**
+     * Method to return data from the server.
+     *
+     * @param serverURL    URL of the server.
+     * @param uuid         UUID of the user.
+     * @param authKey      AuthKey of user i.e String.*
+     * @param lastIndexKey Last index key
+     */
+    public static Observable<JSONObject> getNewUserDataObservable(String serverURL, String uuid, String authKey, String lastIndexKey, String entityIDList) {
+        Map<String, String> header = new HashMap<>();
+        header.put("uuid", uuid);
+        header.put("authkey", authKey);
+        header.put("entityids", entityIDList);
+
+        Rx2ANRequest.GetRequestBuilder requestBuilder = Rx2AndroidNetworking.get(serverURL)
+                .addHeaders(header)
+                .addQueryParameter("lastindexkey", lastIndexKey)
+                .addQueryParameter(Constant.PLATFORM_KEY, Constant.PLATFORM_VALUE);
+
+
+        if (CreadApp.GET_RESPONSE_FROM_NETWORK_NEW_USERS_POST) {
+            requestBuilder.getResponseOnlyFromNetwork();
+        }
+
+        return requestBuilder.build().getJSONObjectObservable();
+    }
 
 }

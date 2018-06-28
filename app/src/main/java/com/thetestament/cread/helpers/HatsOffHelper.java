@@ -5,7 +5,7 @@ import android.content.SharedPreferences;
 import android.media.MediaPlayer;
 import android.preference.PreferenceManager;
 
-import com.google.firebase.crash.FirebaseCrash;
+import com.crashlytics.android.Crashlytics;
 import com.rx2androidnetworking.Rx2AndroidNetworking;
 import com.thetestament.cread.BuildConfig;
 import com.thetestament.cread.R;
@@ -114,7 +114,8 @@ public class HatsOffHelper {
             jsonObject.put("register", isHatsOff);
         } catch (JSONException e) {
             e.printStackTrace();
-            FirebaseCrash.report(e);
+            Crashlytics.logException(e);
+            Crashlytics.setString("className", "HatsOffHelper");
         }
         Rx2AndroidNetworking.post(BuildConfig.URL + "/hatsoff/on-click")
                 .addJSONObjectBody(jsonObject)
@@ -155,7 +156,8 @@ public class HatsOffHelper {
                             }
                         } catch (JSONException e) {
                             e.printStackTrace();
-                            FirebaseCrash.report(e);
+                            Crashlytics.logException(e);
+                            Crashlytics.setString("className", "HatsOffHelper");
                             //Set listener
                             onHatsOffFailureListener.onFailure(mContext.getString(R.string.error_msg_internal));
                         }
@@ -164,7 +166,8 @@ public class HatsOffHelper {
                     @Override
                     public void onError(Throwable e) {
                         e.printStackTrace();
-                        FirebaseCrash.report(e);
+                        Crashlytics.logException(e);
+                        Crashlytics.setString("className", "HatsOffHelper");
                         //Set listener
                         onHatsOffFailureListener.onFailure(mContext.getString(R.string.error_msg_server));
                     }

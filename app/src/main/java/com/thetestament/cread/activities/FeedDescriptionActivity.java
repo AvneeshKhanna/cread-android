@@ -19,8 +19,7 @@ import android.view.View;
 import android.widget.ImageView;
 
 import com.afollestad.materialdialogs.MaterialDialog;
-import com.google.firebase.analytics.FirebaseAnalytics;
-import com.google.firebase.crash.FirebaseCrash;
+import com.crashlytics.android.Crashlytics;
 import com.thetestament.cread.BuildConfig;
 import com.thetestament.cread.Manifest;
 import com.thetestament.cread.R;
@@ -83,22 +82,21 @@ import static com.thetestament.cread.utils.Constant.SHARE_OPTION_OTHER;
 import static com.thetestament.cread.utils.Constant.USER_ACTION_TYPE_VIEW;
 
 /**
- * Class to show detailed information of explore/feed item.
+ * Class to show detailed information of post item.
  */
 public class FeedDescriptionActivity extends BaseActivity implements listener.OnCollaborationListener {
 
-    //region: Butterknife view bindings
+    //region :View binding with Butter knife
     @BindView(R.id.rootView)
     CoordinatorLayout rootView;
     @BindView(R.id.recyclerViewPosts)
     RecyclerView recyclerViewPosts;
     //endregion
 
-    //region: variables and flags
+    //region :Fields and constants
     private SharedPreferenceHelper mHelper;
     private CompositeDisposable mCompositeDisposable = new CompositeDisposable();
     private FeedModel mFeedData;
-    private FirebaseAnalytics mFirebaseAnalytics;
     private AppCompatActivity mContext;
     FeedModel shareSpecificEntity;
 
@@ -136,16 +134,10 @@ public class FeedDescriptionActivity extends BaseActivity implements listener.On
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_feed_description);
         ButterKnife.bind(this);
-
         //Obtain reference of this activity
         mContext = this;
         //ShredPreference reference
-        mHelper = new SharedPreferenceHelper(this);
-        // Obtain the FirebaseAnalytics instance.
-        mFirebaseAnalytics = FirebaseAnalytics.getInstance(this);
-
-        // check if user is also creator of this post
-
+        mHelper = new SharedPreferenceHelper(mContext);
         //initialize views
         initViews();
     }
@@ -303,11 +295,46 @@ public class FeedDescriptionActivity extends BaseActivity implements listener.On
      * Method to initialize views for this screen.
      */
     private void initViews() {
+        //Set up navigation
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-
-
         //Get data from intent
         retrieveIntentData();
+    }
+
+    /**
+     * Method to retrieve data from intent and set it to respective views.
+     */
+    private void retrieveIntentData() {
+
+        Bundle bundle = getIntent().getBundleExtra(EXTRA_DATA);
+
+        mFeedData = bundle.getParcelable(EXTRA_FEED_DESCRIPTION_DATA);
+        mItemPosition = bundle.getInt("position");
+
+        shouldScroll = bundle.getBoolean(EXTRA_FROM_UPDATES_COMMENT_MENTION, false);
+
+        // method to initialize the result data
+        initResultBundle();
+
+        recyclerViewPosts.setLayoutManager(new WrapContentLinearLayoutManager(mContext));
+
+        mPostsList.add(mFeedData);
+        mPostsList.add(null);
+
+        mAdapter = new FeedDescriptionAdapter(mPostsList, mContext, mCompositeDisposable, shouldScroll);
+        recyclerViewPosts.setAdapter(mAdapter);
+
+        //Initialize listeners
+        initLoadMoreListener(mAdapter);
+        initHatsOffListener(mAdapter);
+        initShareListener(mAdapter);
+        initDownVoteListener(mAdapter);
+        initFollowListener();
+        initializeDeleteListener(mAdapter);
+
+        initViewsFromData();
+
+        storeUserActionsData(mFeedData.getEntityID(), USER_ACTION_TYPE_VIEW);
     }
 
     /**
@@ -374,7 +401,7 @@ public class FeedDescriptionActivity extends BaseActivity implements listener.On
         });
     }
 
-    private void initDownvoteListener(FeedDescriptionAdapter feedAdapter) {
+    private void initDownVoteListener(FeedDescriptionAdapter feedAdapter) {
         feedAdapter.setOnDownvoteClickedListener(new listener.OnDownvoteClickedListener() {
             @Override
             public void onDownvoteClicked(FeedModel data, int position, ImageView imageDownvote) {
@@ -563,43 +590,6 @@ public class FeedDescriptionActivity extends BaseActivity implements listener.On
                 });
     }
 
-    /**
-     * Method to retrieve data from intent and set it to respective views.
-     */
-    private void retrieveIntentData() {
-
-        Bundle bundle = getIntent().getBundleExtra(EXTRA_DATA);
-
-        mFeedData = bundle.getParcelable(EXTRA_FEED_DESCRIPTION_DATA);
-        mItemPosition = bundle.getInt("position");
-
-        shouldScroll = bundle.getBoolean(EXTRA_FROM_UPDATES_COMMENT_MENTION, false);
-
-        // method to initialize the result data
-        initResultBundle();
-
-        recyclerViewPosts.setLayoutManager(new WrapContentLinearLayoutManager(mContext));
-
-        mPostsList.add(mFeedData);
-        mPostsList.add(null);
-
-        mAdapter = new FeedDescriptionAdapter(mPostsList, mContext, mCompositeDisposable, shouldScroll);
-        recyclerViewPosts.setAdapter(mAdapter);
-
-        //Initialize listeners
-        initLoadMoreListener(mAdapter);
-        initHatsOffListener(mAdapter);
-        initShareListener(mAdapter);
-        initDownvoteListener(mAdapter);
-        initFollowListener();
-        initializeDeleteListener(mAdapter);
-
-
-        initViewsFromData();
-
-
-        storeUserActionsData(mFeedData.getEntityID(), USER_ACTION_TYPE_VIEW);
-    }
 
     /**
      * Initializes the result data to their existing values
@@ -719,14 +709,16 @@ public class FeedDescriptionActivity extends BaseActivity implements listener.On
                             }
                         } catch (JSONException e) {
                             e.printStackTrace();
-                            FirebaseCrash.report(e);
+                            Crashlytics.logException(e);
+                            Crashlytics.setString("className", "FeedDescriptionActivity");
                             connectionError[0] = true;
                         }
                     }
 
                     @Override
                     public void onError(Throwable e) {
-                        FirebaseCrash.report(e);
+                        Crashlytics.logException(e);
+                        Crashlytics.setString("className", "FeedDescriptionActivity");
                     }
 
                     @Override
@@ -835,7 +827,8 @@ public class FeedDescriptionActivity extends BaseActivity implements listener.On
 
                         } catch (JSONException e) {
                             e.printStackTrace();
-                            FirebaseCrash.report(e);
+                            Crashlytics.logException(e);
+                            Crashlytics.setString("className", "FeedDescriptionActivity");
                             connectionError[0] = true;
                         }
                     }
@@ -844,7 +837,8 @@ public class FeedDescriptionActivity extends BaseActivity implements listener.On
                     public void onErrorCalled(Throwable e) {
 
                         e.printStackTrace();
-                        FirebaseCrash.report(e);
+                        Crashlytics.logException(e);
+                        Crashlytics.setString("className", "FeedDescriptionActivity");
 
                         //Remove loading item
                         mPostsList.remove(mPostsList.size() - 1);
@@ -934,7 +928,8 @@ public class FeedDescriptionActivity extends BaseActivity implements listener.On
 
                         } catch (JSONException e) {
                             e.printStackTrace();
-                            FirebaseCrash.report(e);
+                            Crashlytics.logException(e);
+                            Crashlytics.setString("className", "FeedDescriptionActivity");
                             connectionError[0] = true;
                         }
                     }
@@ -946,7 +941,8 @@ public class FeedDescriptionActivity extends BaseActivity implements listener.On
                         mPostsList.remove(mPostsList.size() - 1);
                         //Notify changes
                         mAdapter.notifyItemRemoved(mPostsList.size());
-                        FirebaseCrash.report(e);
+                        Crashlytics.logException(e);
+                        Crashlytics.setString("className", "FeedDescriptionActivity");
                         //Server error Snack bar
                         ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_server));
 
@@ -1069,6 +1065,9 @@ public class FeedDescriptionActivity extends BaseActivity implements listener.On
         }
     }
 
+    /**
+     * Custom layout manager.
+     */
     public class WrapContentLinearLayoutManager extends LinearLayoutManager {
 
         public WrapContentLinearLayoutManager(Context context) {
@@ -1081,7 +1080,6 @@ public class FeedDescriptionActivity extends BaseActivity implements listener.On
                 super.onLayoutChildren(recycler, state);
             } catch (IndexOutOfBoundsException e) {
                 e.printStackTrace();
-                FirebaseCrash.report(e);
             }
         }
     }

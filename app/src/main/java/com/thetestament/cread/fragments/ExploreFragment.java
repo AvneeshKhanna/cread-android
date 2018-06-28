@@ -1,17 +1,18 @@
 package com.thetestament.cread.fragments;
 
+import android.content.Context;
 import android.content.Intent;
-import android.graphics.PorterDuff;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.CoordinatorLayout;
-import android.support.design.widget.TabLayout;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.widget.SwipeRefreshLayout;
+import android.support.v7.widget.AppCompatTextView;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -29,24 +30,33 @@ import android.widget.TextView;
 
 import com.afollestad.materialdialogs.DialogAction;
 import com.afollestad.materialdialogs.MaterialDialog;
-import com.google.firebase.crash.FirebaseCrash;
+import com.crashlytics.android.Crashlytics;
+import com.facebook.drawee.view.SimpleDraweeView;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.analytics.FirebaseAnalytics;
+import com.google.firebase.remoteconfig.FirebaseRemoteConfig;
+import com.google.firebase.remoteconfig.FirebaseRemoteConfigSettings;
 import com.thetestament.cread.BuildConfig;
 import com.thetestament.cread.Manifest;
 import com.thetestament.cread.R;
 import com.thetestament.cread.activities.FindFBFriendsActivity;
-import com.thetestament.cread.activities.ProfileActivity;
 import com.thetestament.cread.activities.SearchActivity;
 import com.thetestament.cread.adapters.ExploreAdapter;
+import com.thetestament.cread.adapters.ExploreCategoryAdapter;
 import com.thetestament.cread.adapters.FeaturedArtistsAdapter;
 import com.thetestament.cread.dialog.CustomDialog;
 import com.thetestament.cread.helpers.FeedHelper;
 import com.thetestament.cread.helpers.FollowHelper;
 import com.thetestament.cread.helpers.ImageHelper;
+import com.thetestament.cread.helpers.IntentHelper;
 import com.thetestament.cread.helpers.SharedPreferenceHelper;
 import com.thetestament.cread.helpers.ViewHelper;
 import com.thetestament.cread.listeners.listener;
+import com.thetestament.cread.models.ExploreCategoryModel;
 import com.thetestament.cread.models.FeaturedArtistsModel;
 import com.thetestament.cread.models.FeedModel;
+import com.thetestament.cread.networkmanager.ExploreNetworkManager;
 import com.thetestament.cread.utils.AspectRatioUtils;
 import com.thetestament.cread.utils.Constant;
 import com.yalantis.ucrop.UCrop;
@@ -60,8 +70,8 @@ import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import butterknife.OnClick;
 import butterknife.Unbinder;
-import de.hdodenhof.circleimageview.CircleImageView;
 import icepick.Icepick;
 import icepick.State;
 import io.reactivex.android.schedulers.AndroidSchedulers;
@@ -72,6 +82,7 @@ import pl.tajchert.nammu.Nammu;
 import pl.tajchert.nammu.PermissionCallback;
 
 import static android.app.Activity.RESULT_OK;
+import static com.thetestament.cread.BuildConfig.DEBUG;
 import static com.thetestament.cread.CreadApp.GET_RESPONSE_FROM_NETWORK_EXPLORE;
 import static com.thetestament.cread.CreadApp.GET_RESPONSE_FROM_NETWORK_FEATURED_ARTISTS;
 import static com.thetestament.cread.CreadApp.GET_RESPONSE_FROM_NETWORK_ME;
@@ -81,15 +92,13 @@ import static com.thetestament.cread.fragments.MeFragment.isCountOne;
 import static com.thetestament.cread.helpers.FeedHelper.updateFollowForAll;
 import static com.thetestament.cread.helpers.ImageHelper.getImageUri;
 import static com.thetestament.cread.helpers.ImageHelper.processCroppedImage;
-import static com.thetestament.cread.helpers.NetworkHelper.getFeatArtistsObservable;
 import static com.thetestament.cread.helpers.NetworkHelper.getNetConnectionStatus;
-import static com.thetestament.cread.helpers.NetworkHelper.getObservableFromServer;
 import static com.thetestament.cread.helpers.NetworkHelper.getUserDataObservableFromServer;
 import static com.thetestament.cread.helpers.NetworkHelper.requestServer;
 import static com.thetestament.cread.utils.Constant.CONTENT_TYPE_CAPTURE;
 import static com.thetestament.cread.utils.Constant.CONTENT_TYPE_SHORT;
+import static com.thetestament.cread.utils.Constant.EXPLORE_CATEGORY_VIEW_VISIBILITY;
 import static com.thetestament.cread.utils.Constant.EXTRA_DATA;
-import static com.thetestament.cread.utils.Constant.EXTRA_PROFILE_UUID;
 import static com.thetestament.cread.utils.Constant.IMAGE_TYPE_USER_CAPTURE_PIC;
 import static com.thetestament.cread.utils.Constant.ITEM_TYPES.GRID;
 import static com.thetestament.cread.utils.Constant.ITEM_TYPES.LIST;
@@ -99,25 +108,35 @@ import static com.thetestament.cread.utils.Constant.REQUEST_CODE_OPEN_GALLERY_FO
 
 public class ExploreFragment extends Fragment implements listener.OnCollaborationListener {
 
-    //region -View binding with butter knife
+    //region :View binding with butter knife
     @BindView(R.id.rootView)
     CoordinatorLayout rootView;
     @BindView(R.id.swipeToRefreshLayout)
     SwipeRefreshLayout swipeRefreshLayout;
     @BindView(R.id.recyclerView)
     RecyclerView recyclerView;
-    @BindView(R.id.tabLayout)
-    TabLayout tabLayout;
     @BindView(R.id.recyclerViewFeatArtists)
     RecyclerView recyclerViewFeatArtists;
+    @BindView(R.id.recyclerViewCategory)
+    RecyclerView recyclerViewCategory;
+    @BindView(R.id.fabToggle)
+    FloatingActionButton fabToggle;
+    @BindView(R.id.containerCategory)
+    LinearLayout containerCategory;
     //endregion
 
     //region :Fields and constants
     CompositeDisposable mCompositeDisposable = new CompositeDisposable();
+
     List<FeedModel> mExploreDataList = new ArrayList<>();
     List<FeaturedArtistsModel> mFeatArtistsList = new ArrayList<>();
+    List<ExploreCategoryModel> mCategoryList = new ArrayList<>();
+    List<ExploreCategoryModel> mtempCategoryList = new ArrayList<>();
+
     ExploreAdapter mAdapter;
-    FeaturedArtistsAdapter mFeatArstistsAdapter;
+    FeaturedArtistsAdapter mFeatArtistsAdapter;
+    ExploreCategoryAdapter mCategoryAdapter;
+
     SharedPreferenceHelper mHelper;
     private Unbinder mUnbinder;
     private String mLastIndexKey;
@@ -127,13 +146,29 @@ public class ExploreFragment extends Fragment implements listener.OnCollaboratio
 
 
     @State
-    boolean mCanDownvote;
-    @State
     String mEntityID, mEntityType;
     @State
     String mFirstName, mLastName, mProfilePicURL;
     @State
     long mPostCount, mFollowerCount, mCollaborationCount;
+
+
+    /**
+     * Flag to maintain user down vote capability.
+     */
+    @State
+    boolean mCanDownVote;
+    /**
+     * Flag to store selected Category.
+     */
+    @State
+    String mCategory = Constant.EXPLORE_CATEGORY_DEFAULT;
+
+    /**
+     * Flag to store selected Category ID.
+     */
+    @State
+    String mSelectedCategoryID = "";
     //endregion
 
     //region :Overridden methods
@@ -146,9 +181,7 @@ public class ExploreFragment extends Fragment implements listener.OnCollaboratio
         setHasOptionsMenu(true);
         //inflate this view
         return inflater
-                .inflate(R.layout.fragment_explore
-                        , container
-                        , false);
+                .inflate(R.layout.fragment_explore, container, false);
     }
 
     @Override
@@ -321,6 +354,88 @@ public class ExploreFragment extends Fragment implements listener.OnCollaboratio
     }
     //endregion
 
+    //region :Click functionality
+
+    /**
+     * Click functionality to toggle b/w  grid and list view.
+     */
+    @OnClick(R.id.fabToggle)
+    void fabOnClick() {
+        if (defaultItemType == GRID) {
+            // Update preferences and flags
+            mHelper.setFeedItemType(Constant.ITEM_TYPES.LIST);
+            defaultItemType = LIST;
+            //set layout manager
+            recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
+            mAdapter = new ExploreAdapter(mExploreDataList, getActivity()
+                    , mHelper.getUUID(), ExploreFragment.this
+                    , Constant.ITEM_TYPES.LIST, mCompositeDisposable);
+            recyclerView.setAdapter(mAdapter);
+            initListeners();
+        } else if (defaultItemType == LIST) {
+            // Update preferences and flags
+            mHelper.setFeedItemType(Constant.ITEM_TYPES.GRID);
+            defaultItemType = GRID;
+            // setting layout manager
+            GridLayoutManager gridLayoutManager = new GridLayoutManager(getActivity(), spanCount);
+            recyclerView.setLayoutManager(gridLayoutManager);
+
+            mAdapter = new ExploreAdapter(mExploreDataList, getActivity()
+                    , mHelper.getUUID(), ExploreFragment.this, GRID, mCompositeDisposable);
+            recyclerView.setAdapter(mAdapter);
+            initListeners();
+        } else {
+        }
+    }
+
+    /**
+     * Click functionality to toggle b/w category.
+     */
+    @OnClick(R.id.btnToggle)
+    void btnToggleCategoryOnClick(AppCompatTextView textView) {
+        //set last index key to nul
+        //mLastIndexKey = null;
+        switch (mCategory) {
+            case Constant.EXPLORE_CATEGORY_DEFAULT:
+                //Update flag ,text and notify changes
+                mCategory = Constant.EXPLORE_CATEGORY_ART;
+                textView.setText("Arts");
+                //Method called
+                updateCategorySelection(Constant.EXPLORE_CATEGORY_ART);
+                //load data here
+                //mAdapter.setLoaded();
+                //mExploreDataList.clear();
+                //loadExploreData();
+                break;
+            case Constant.EXPLORE_CATEGORY_ART:
+                //Update flag ,text and notify changes
+                mCategory = Constant.EXPLORE_CATEGORY_FEEL;
+                textView.setText("Feel");
+                //Method called
+                updateCategorySelection(Constant.EXPLORE_CATEGORY_FEEL);
+                //load data here
+                //mAdapter.setLoaded();
+                //mExploreDataList.clear();
+                //loadExploreData();
+                break;
+            case Constant.EXPLORE_CATEGORY_FEEL:
+                //Update flag ,text and notify changes
+                mCategory = Constant.EXPLORE_CATEGORY_DEFAULT;
+                textView.setText("Default");
+                //Method called
+                updateCategorySelection(Constant.EXPLORE_CATEGORY_DEFAULT);
+                //load data here
+                //mAdapter.setLoaded();
+                //mExploreDataList.clear();
+                //loadExploreData();
+                break;
+            default:
+                break;
+
+        }
+    }
+    //endregion
+
     //region :Private method
 
     /**
@@ -330,8 +445,8 @@ public class ExploreFragment extends Fragment implements listener.OnCollaboratio
         //initializes grid view or list view from preferences
         initItemTypePreference();
         //init feat artists recycler view
-        mFeatArstistsAdapter = new FeaturedArtistsAdapter(getActivity(), mFeatArtistsList);
-        recyclerViewFeatArtists.setAdapter(mFeatArstistsAdapter);
+        mFeatArtistsAdapter = new FeaturedArtistsAdapter(getActivity(), mFeatArtistsList);
+        recyclerViewFeatArtists.setAdapter(mFeatArtistsAdapter);
 
         swipeRefreshLayout.setRefreshing(true);
         swipeRefreshLayout.setColorSchemeColors(ContextCompat.getColor(getActivity()
@@ -344,7 +459,7 @@ public class ExploreFragment extends Fragment implements listener.OnCollaboratio
                 mFeatArtistsList.clear();
                 //Notify for changes
                 mAdapter.notifyDataSetChanged();
-                mFeatArstistsAdapter.notifyDataSetChanged();
+                mFeatArtistsAdapter.notifyDataSetChanged();
                 //hide featured view
                 recyclerViewFeatArtists.setVisibility(View.GONE);
                 mAdapter.setLoaded();
@@ -357,12 +472,12 @@ public class ExploreFragment extends Fragment implements listener.OnCollaboratio
         });
 
 
-        initTabLayout();
         initListeners();
         initFeatArtistClickListener();
         //Load data here
         getFeaturedArtistsData();
         loadExploreData();
+        //initializeCategory();
     }
 
     /**
@@ -375,7 +490,7 @@ public class ExploreFragment extends Fragment implements listener.OnCollaboratio
             //Set layout manger for recyclerView
             GridLayoutManager gridLayoutManager = new GridLayoutManager(getActivity(), spanCount);
             recyclerView.setLayoutManager(gridLayoutManager);
-        } else if (mHelper.getFeedItemType() == LIST) {
+        } else if (defaultItemType == LIST) {
             recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
         }
         //Set adapter
@@ -383,65 +498,6 @@ public class ExploreFragment extends Fragment implements listener.OnCollaboratio
         recyclerView.setAdapter(mAdapter);
     }
 
-    /**
-     * Method to initialize tab layout.
-     */
-    private void initTabLayout() {
-        //initialize tabs icon tint
-        if (defaultItemType == GRID) {
-            tabLayout.getTabAt(0).select();
-            tabLayout.getTabAt(0).getIcon().setColorFilter(ContextCompat.getColor(getActivity(), R.color.colorPrimary), PorterDuff.Mode.SRC_IN);
-            tabLayout.getTabAt(1).getIcon().setColorFilter(ContextCompat.getColor(getActivity(), R.color.grey_custom), PorterDuff.Mode.SRC_IN);
-        } else if (defaultItemType == LIST) {
-            tabLayout.getTabAt(1).select();
-            tabLayout.getTabAt(1).getIcon().setColorFilter(ContextCompat.getColor(getActivity(), R.color.colorPrimary), PorterDuff.Mode.SRC_IN);
-            tabLayout.getTabAt(0).getIcon().setColorFilter(ContextCompat.getColor(getActivity(), R.color.grey_custom), PorterDuff.Mode.SRC_IN);
-        }
-
-        tabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
-            @Override
-            public void onTabSelected(TabLayout.Tab tab) {
-
-                //To change tab icon color from grey to white
-                tab.getIcon().setColorFilter(ContextCompat.getColor(getActivity(), R.color.colorPrimary), PorterDuff.Mode.SRC_IN);
-
-                switch (tab.getPosition()) {
-                    case 0:
-                        // setting pref
-                        mHelper.setFeedItemType(GRID);
-                        // setting layout manager
-                        GridLayoutManager gridLayoutManager = new GridLayoutManager(getActivity(), spanCount);
-                        recyclerView.setLayoutManager(gridLayoutManager);
-
-                        mAdapter = new ExploreAdapter(mExploreDataList, getActivity(), mHelper.getUUID(), ExploreFragment.this, GRID, mCompositeDisposable);
-                        recyclerView.setAdapter(mAdapter);
-                        initListeners();
-                        break;
-
-                    case 1:
-                        // setting pref
-                        mHelper.setFeedItemType(Constant.ITEM_TYPES.LIST);
-                        // setting layout manager
-                        recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
-                        mAdapter = new ExploreAdapter(mExploreDataList, getActivity(), mHelper.getUUID(), ExploreFragment.this, Constant.ITEM_TYPES.LIST, mCompositeDisposable);
-                        recyclerView.setAdapter(mAdapter);
-                        initListeners();
-                        break;
-                }
-
-            }
-
-            @Override
-            public void onTabUnselected(TabLayout.Tab tab) {
-                //To change tab icon color from white color to grey
-                tab.getIcon().setColorFilter(ContextCompat.getColor(getActivity(), R.color.grey_custom), PorterDuff.Mode.SRC_IN);
-            }
-
-            @Override
-            public void onTabReselected(TabLayout.Tab tab) {
-            }
-        });
-    }
 
     /**
      * Method to initialize listeners.
@@ -450,13 +506,15 @@ public class ExploreFragment extends Fragment implements listener.OnCollaboratio
         initLoadMoreListener();
         initCaptureListener();
         initFollowListener();
+        getFabCustomBehaviour(recyclerView, fabToggle);
+        initCategory();
     }
 
     /**
      * Method to initialize featured artist item click listener.
      */
     private void initFeatArtistClickListener() {
-        mFeatArstistsAdapter.setFeatArtistClickListener(new listener.OnFeatArtistClickedListener() {
+        mFeatArtistsAdapter.setFeatArtistClickListener(new listener.OnFeatArtistClickedListener() {
             @Override
             public void onFeatArtistClicked(int itemType, String uuid) {
                 //Item type is header
@@ -543,7 +601,8 @@ public class ExploreFragment extends Fragment implements listener.OnCollaboratio
                             }
                         } catch (JSONException e) {
                             e.printStackTrace();
-                            FirebaseCrash.report(e);
+                            Crashlytics.logException(e);
+                            Crashlytics.setString("className", "ExploreFragment");
                             connectionError[0] = true;
                         }
 
@@ -553,7 +612,8 @@ public class ExploreFragment extends Fragment implements listener.OnCollaboratio
                     public void onErrorCalled(Throwable e) {
                         // dismiss dialog
                         loadingDialog.dismiss();
-                        FirebaseCrash.report(e);
+                        Crashlytics.logException(e);
+                        Crashlytics.setString("className", "ExploreFragment");
                         //Server error Snack bar
                         ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_server));
                     }
@@ -580,7 +640,7 @@ public class ExploreFragment extends Fragment implements listener.OnCollaboratio
                             // init views
                             View rootViewDialog = dialog.getCustomView();
                             TextView artistName = rootViewDialog.findViewById(R.id.textFeatArtist);
-                            CircleImageView imageArtist = rootViewDialog.findViewById(R.id.imageFeatArtist);
+                            SimpleDraweeView imageArtist = rootViewDialog.findViewById(R.id.imageFeatArtist);
                             final TextView textPostsCount = rootViewDialog.findViewById(R.id.textPostsCount);
                             final TextView textFollowersCount = rootViewDialog.findViewById(R.id.textFollowersCount);
                             final TextView textCollaborationsCount = rootViewDialog.findViewById(R.id.textCollaborationsCount);
@@ -603,10 +663,8 @@ public class ExploreFragment extends Fragment implements listener.OnCollaboratio
                             buttonViewProfile.setOnClickListener(new View.OnClickListener() {
                                 @Override
                                 public void onClick(View view) {
-
-                                    Intent intent = new Intent(getActivity(), ProfileActivity.class);
-                                    intent.putExtra(EXTRA_PROFILE_UUID, uuid);
-                                    startActivity(intent);
+                                    //Method called
+                                    IntentHelper.openProfileActivity(getActivity(), uuid);
 
                                     // dismiss dialog
                                     dialog.dismiss();
@@ -615,7 +673,7 @@ public class ExploreFragment extends Fragment implements listener.OnCollaboratio
                             });
 
                             //Load user profile picture
-                            ImageHelper.loadImageFromPicasso(getActivity(), imageArtist, mProfilePicURL, R.drawable.ic_account_circle_100);
+                            ImageHelper.loadProgressiveImage(Uri.parse(mProfilePicURL), imageArtist);
 
                             //if last name is present
                             if (mLastName != null) {
@@ -651,7 +709,7 @@ public class ExploreFragment extends Fragment implements listener.OnCollaboratio
         final boolean[] connectionError = {false};
 
         requestServer(mCompositeDisposable
-                , getFeatArtistsObservable(BuildConfig.URL + "/featured-artists/load", mHelper.getUUID(), mHelper.getAuthToken(), GET_RESPONSE_FROM_NETWORK_FEATURED_ARTISTS)
+                , ExploreNetworkManager.getFeatArtistsObservable(BuildConfig.URL + "/featured-artists/load", mHelper.getUUID(), mHelper.getAuthToken(), GET_RESPONSE_FROM_NETWORK_FEATURED_ARTISTS)
                 , getActivity(), new listener.OnServerRequestedListener<JSONObject>() {
                     @Override
                     public void onDeviceOffline() {
@@ -681,7 +739,8 @@ public class ExploreFragment extends Fragment implements listener.OnCollaboratio
                             }
                         } catch (JSONException e) {
                             e.printStackTrace();
-                            FirebaseCrash.report(e);
+                            Crashlytics.logException(e);
+                            Crashlytics.setString("className", "ExploreFragment");
                             connectionError[0] = true;
                         }
                     }
@@ -689,7 +748,8 @@ public class ExploreFragment extends Fragment implements listener.OnCollaboratio
                     @Override
                     public void onErrorCalled(Throwable e) {
                         swipeRefreshLayout.setRefreshing(false);
-                        FirebaseCrash.report(e);
+                        Crashlytics.logException(e);
+                        Crashlytics.setString("className", "ExploreFragment");
                         //Server error Snack bar
                         ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_server));
                     }
@@ -713,7 +773,7 @@ public class ExploreFragment extends Fragment implements listener.OnCollaboratio
 
                         } else {
                             recyclerViewFeatArtists.setVisibility(View.VISIBLE);
-                            mFeatArstistsAdapter.notifyDataSetChanged();
+                            mFeatArtistsAdapter.notifyDataSetChanged();
                         }
 
                     }
@@ -726,6 +786,8 @@ public class ExploreFragment extends Fragment implements listener.OnCollaboratio
     private void loadExploreData() {
         // if user device is connected to net
         if (getNetConnectionStatus(getActivity())) {
+            //Set progress indicator
+            swipeRefreshLayout.setRefreshing(true);
             //Get data from server
             getExploreData();
         } else {
@@ -742,11 +804,12 @@ public class ExploreFragment extends Fragment implements listener.OnCollaboratio
         final boolean[] tokenError = {false};
         final boolean[] connectionError = {false};
 
-        mCompositeDisposable.add(getObservableFromServer(BuildConfig.URL + "/explore-feed/load"
+        mCompositeDisposable.add(ExploreNetworkManager.getExploreFeedObservable(BuildConfig.URL + "/explore-feed/load"
                 , mHelper.getUUID()
                 , mHelper.getAuthToken()
                 , mLastIndexKey
-                , GET_RESPONSE_FROM_NETWORK_EXPLORE)
+                , GET_RESPONSE_FROM_NETWORK_EXPLORE
+                , mSelectedCategoryID)
                 //Run on a background thread
                 .subscribeOn(Schedulers.io())
                 //Be notified on the main thread
@@ -762,7 +825,7 @@ public class ExploreFragment extends Fragment implements listener.OnCollaboratio
                                 JSONObject mainData = jsonObject.getJSONObject("data");
                                 mRequestMoreData = mainData.getBoolean("requestmore");
                                 mLastIndexKey = mainData.getString("lastindexkey");
-                                mCanDownvote = mainData.getBoolean("candownvote");
+                                mCanDownVote = mainData.getBoolean("candownvote");
                                 //ExploreArray list
                                 JSONArray exploreArray = mainData.getJSONArray("feed");
                                 for (int i = 0; i < exploreArray.length(); i++) {
@@ -779,7 +842,7 @@ public class ExploreFragment extends Fragment implements listener.OnCollaboratio
                                     exploreData.setFollowStatus(dataObj.getBoolean("followstatus"));
                                     exploreData.setMerchantable(dataObj.getBoolean("merchantable"));
                                     exploreData.setDownvoteStatus(dataObj.getBoolean("downvotestatus"));
-                                    exploreData.setEligibleForDownvote(mCanDownvote);
+                                    exploreData.setEligibleForDownvote(mCanDownVote);
                                     exploreData.setPostTimeStamp(dataObj.getString("regdate"));
                                     exploreData.setLongForm(dataObj.getBoolean("long_form"));
                                     exploreData.setHatsOffCount(dataObj.getLong("hatsoffcount"));
@@ -849,7 +912,8 @@ public class ExploreFragment extends Fragment implements listener.OnCollaboratio
                             }
                         } catch (JSONException e) {
                             e.printStackTrace();
-                            FirebaseCrash.report(e);
+                            Crashlytics.logException(e);
+                            Crashlytics.setString("className", "ExploreFragment");
                             connectionError[0] = true;
                         }
                     }
@@ -857,7 +921,8 @@ public class ExploreFragment extends Fragment implements listener.OnCollaboratio
                     @Override
                     public void onError(Throwable e) {
                         swipeRefreshLayout.setRefreshing(false);
-                        FirebaseCrash.report(e);
+                        Crashlytics.logException(e);
+                        Crashlytics.setString("className", "ExploreFragment");
                         //Server error Snack bar
                         ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_server));
                     }
@@ -871,6 +936,8 @@ public class ExploreFragment extends Fragment implements listener.OnCollaboratio
                         // Token status invalid
                         if (tokenError[0]) {
                             ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_invalid_token));
+                        } else if (mExploreDataList.size() == 0) {
+                            ViewHelper.getSnackBar(rootView, "Nothing to show right now");
                         }
                         //Error occurred
                         else if (connectionError[0]) {
@@ -893,11 +960,12 @@ public class ExploreFragment extends Fragment implements listener.OnCollaboratio
     private void loadMoreData() {
         final boolean[] tokenError = {false};
         final boolean[] connectionError = {false};
-        mCompositeDisposable.add(getObservableFromServer(BuildConfig.URL + "/explore-feed/load"
+        mCompositeDisposable.add(ExploreNetworkManager.getExploreFeedObservable(BuildConfig.URL + "/explore-feed/load"
                 , mHelper.getUUID()
                 , mHelper.getAuthToken()
                 , mLastIndexKey
-                , GET_RESPONSE_FROM_NETWORK_EXPLORE)
+                , GET_RESPONSE_FROM_NETWORK_EXPLORE
+                , mSelectedCategoryID)
                 //Run on a background thread
                 .subscribeOn(Schedulers.io())
                 //Be notified on the main thread
@@ -932,7 +1000,7 @@ public class ExploreFragment extends Fragment implements listener.OnCollaboratio
                                     exploreData.setFollowStatus(dataObj.getBoolean("followstatus"));
                                     exploreData.setMerchantable(dataObj.getBoolean("merchantable"));
                                     exploreData.setDownvoteStatus(dataObj.getBoolean("downvotestatus"));
-                                    exploreData.setEligibleForDownvote(mCanDownvote);
+                                    exploreData.setEligibleForDownvote(mCanDownVote);
                                     exploreData.setPostTimeStamp(dataObj.getString("regdate"));
                                     exploreData.setLongForm(dataObj.getBoolean("long_form"));
                                     exploreData.setHatsOffCount(dataObj.getLong("hatsoffcount"));
@@ -1005,7 +1073,8 @@ public class ExploreFragment extends Fragment implements listener.OnCollaboratio
                             }
                         } catch (JSONException e) {
                             e.printStackTrace();
-                            FirebaseCrash.report(e);
+                            Crashlytics.logException(e);
+                            Crashlytics.setString("className", "ExploreFragment");
                             connectionError[0] = true;
                         }
                     }
@@ -1015,7 +1084,8 @@ public class ExploreFragment extends Fragment implements listener.OnCollaboratio
                         //Remove loading item
                         mExploreDataList.remove(mExploreDataList.size() - 1);
                         mAdapter.notifyItemRemoved(mExploreDataList.size());
-                        FirebaseCrash.report(e);
+                        Crashlytics.logException(e);
+                        Crashlytics.setString("className", "ExploreFragment");
                         //Server error Snack bar
                         ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_server));
                     }
@@ -1066,7 +1136,6 @@ public class ExploreFragment extends Fragment implements listener.OnCollaboratio
                 new listener.OnFollowRequestedListener() {
                     @Override
                     public void onFollowSuccess() {
-
                         // updates follow status in all occurrence of the followed user
                         updateFollowForAll(exploreData, mExploreDataList);
                         mAdapter.notifyDataSetChanged();
@@ -1161,5 +1230,183 @@ public class ExploreFragment extends Fragment implements listener.OnCollaboratio
         //Set description text
         textDesc.setText("Find the best of Cread from all around the app. Explore the good stuff everyone is posting by navigating to this section");
     }
+
+
+    /**
+     * To initialize category
+     */
+    private void initCategory() {
+        //Get Remote Config Instance
+        final FirebaseRemoteConfig mFirebaseRemoteConfig = FirebaseRemoteConfig.getInstance();
+
+        // Create Remote Config Setting to enable developer mode.
+        // Fetching configs from the server is normally limited to 5 requests per hour.
+        // Enabling developer mode allows many more requests to be made per hour, so developers
+        // can test different config values during development.
+        FirebaseRemoteConfigSettings configSettings = new FirebaseRemoteConfigSettings.Builder()
+                .setDeveloperModeEnabled(DEBUG)
+                .build();
+        mFirebaseRemoteConfig.setConfigSettings(configSettings);
+
+        mFirebaseRemoteConfig.setDefaults(R.xml.remote_config);
+
+        long cacheExpiration; // 30 minutes in seconds.
+
+        // If in developer mode cacheExpiration is set to 0 so each fetch will retrieve values from
+        // the server.
+        if (BuildConfig.DEBUG) {
+            cacheExpiration = 0;
+        } else {
+            cacheExpiration = 1800;
+        }
+        mFirebaseRemoteConfig.fetch(cacheExpiration)
+                .addOnCompleteListener(getActivity(), new OnCompleteListener<Void>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Void> task) {
+                        if (task.isSuccessful()) {
+                            // Once the config is successfully fetched it must be activated before newly fetched
+                            // values are returned.
+                            mFirebaseRemoteConfig.activateFetched();
+                            String categoryVisibility = mFirebaseRemoteConfig.getString(EXPLORE_CATEGORY_VIEW_VISIBILITY);
+
+                            if (categoryVisibility.equals(Constant.EXPLORE_CATEGORY_VIEW_VISIBILITY_VISIBLE)) {
+                                //load category view here
+                                getCategoryData();
+                            } else if (categoryVisibility.equals(Constant.EXPLORE_CATEGORY_VIEW_VISIBILITY_INVISIBLE)) {
+                                //Hide category view
+                                recyclerViewCategory.setVisibility(View.GONE);
+                            } else {
+                                //do nothing
+                            }
+                        } else {
+                            getCategoryData();
+                        }
+                    }
+                });
+    }
+
+    /**
+     * Method to initialize category view.
+     */
+    private void getCategoryData() {
+        ExploreNetworkManager.getExploreCategoryData(getActivity()
+                , mCompositeDisposable
+                , new ExploreNetworkManager.OnExploreCategoryLoadListener() {
+                    @Override
+                    public void onSuccess(List<ExploreCategoryModel> dataList) {
+                        //Update list
+                        mCategoryList = dataList;
+                        //Show view
+                        containerCategory.setVisibility(View.VISIBLE);
+
+                        //Set layout manager
+                        final LinearLayoutManager layoutManager = new LinearLayoutManager(getActivity()
+                                , LinearLayoutManager.HORIZONTAL
+                                , false);
+                        recyclerViewCategory.setLayoutManager(layoutManager);
+                        //Set adapter
+                        mCategoryAdapter = new ExploreCategoryAdapter(mCategoryList, getActivity(), mSelectedCategoryID);
+                        recyclerViewCategory.setAdapter(mCategoryAdapter);
+                        //Method called
+                        updateCategorySelection(Constant.EXPLORE_CATEGORY_DEFAULT);
+                    }
+
+                    @Override
+                    public void onFailure(String errorMsg) {
+                        //Show error snack bar
+                        ViewHelper.getSnackBar(rootView, errorMsg);
+                        //Hide view
+                        containerCategory.setVisibility(View.GONE);
+                    }
+                });
+    }
+
+
+    /**
+     * Method to hide and show the FAB depending upon scrolling behaviour of user.
+     *
+     * @param recyclerView View to be scrolled.
+     * @param fab          FAB which visibility to be toggled.
+     */
+    private void getFabCustomBehaviour(RecyclerView recyclerView, final FloatingActionButton fab) {
+        recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+                super.onScrolled(recyclerView, dx, dy);
+                //if this view is not null
+                if (fab != null) {
+                    //Scroll Down
+                    if (dy > 0 && fab.getVisibility() == View.VISIBLE) {
+                        fab.hide();
+                    }
+                    //Scroll Up
+                    else if (dy < 0 && fab.getVisibility() != View.VISIBLE) {
+                        fab.show();
+                    }
+                }
+            }
+        });
+    }
+
+    /**
+     * Method to update selected category data.
+     *
+     * @param categoryType Type of category.
+     */
+    private void updateCategorySelection(String categoryType) {
+        //Clear list
+        mtempCategoryList.clear();
+
+        for (ExploreCategoryModel model : mCategoryList) {
+            if (model.getCategoryType().equals(categoryType)) {
+                mtempCategoryList.add(model);
+            }
+        }
+        //Set adapter and notify changes
+        mCategoryAdapter = new ExploreCategoryAdapter(mtempCategoryList
+                , getActivity(), mSelectedCategoryID);
+        recyclerViewCategory.setAdapter(mCategoryAdapter);
+        mCategoryAdapter.notifyDataSetChanged();
+
+        //Update flag
+        mSelectedCategoryID = mCategoryAdapter.getSelectedItemID();
+
+        //Set listener
+        mCategoryAdapter.setCategorySelectListener(new listener.OnCategorySelectListener() {
+            @Override
+            public void onCategorySelected(ExploreCategoryModel model, int itemPosition) {
+                //Set firebase analytics data
+                setAnalytics(getActivity(), model.getCategoryText());
+                //set last index key to nul
+                mLastIndexKey = null;
+                //Method called
+                ViewHelper.scrollToNextItemPosition((LinearLayoutManager) recyclerViewCategory.getLayoutManager(), recyclerViewCategory
+                        , itemPosition, mCategoryList.size());
+                //Update flag
+                mSelectedCategoryID = model.getCategoryID();
+                //Load data here
+                mAdapter.setLoaded();
+                mExploreDataList.clear();
+                //Remove previous requests here
+                mCompositeDisposable.clear();
+                loadExploreData();
+            }
+        });
+    }
+
+
+    /**
+     * Method to send analytics data on firebase server.
+     *
+     * @param context      Context to use.
+     * @param categoryText category text.
+     */
+    private void setAnalytics(Context context, String categoryText) {
+        Bundle bundle = new Bundle();
+        bundle.putString("category_text", categoryText);
+        FirebaseAnalytics mFirebaseAnalytics = FirebaseAnalytics.getInstance(context);
+        mFirebaseAnalytics.logEvent(Constant.FIREBASE_EVENT_EXPLORE_CATEGORY_CLICKED, bundle);
+    }
+
     //endregion
 }

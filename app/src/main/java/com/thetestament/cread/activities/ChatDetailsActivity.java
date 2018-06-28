@@ -24,7 +24,7 @@ import android.widget.TextView;
 
 import com.afollestad.materialdialogs.DialogAction;
 import com.afollestad.materialdialogs.MaterialDialog;
-import com.google.firebase.crash.FirebaseCrash;
+import com.crashlytics.android.Crashlytics;
 import com.thetestament.cread.BuildConfig;
 import com.thetestament.cread.CreadApp;
 import com.thetestament.cread.R;
@@ -268,7 +268,8 @@ public class ChatDetailsActivity extends BaseActivity {
                 jsonObject.put("chatid", mBundle.getString(EXTRA_CHAT_ID));
                 jsonObject.put("from_name", mPreferenceHelper.getFirstName() + " " + mPreferenceHelper.getLastName());
             } catch (JSONException e) {
-                FirebaseCrash.report(e);
+                Crashlytics.logException(e);
+                Crashlytics.setString("className", "ChatDetailsActivity");
                 e.printStackTrace();
             }
             //Send message
@@ -459,7 +460,8 @@ public class ChatDetailsActivity extends BaseActivity {
                         processIncomingMessage((JSONObject) args[0]);
                     } catch (JSONException e) {
                         e.printStackTrace();
-                        FirebaseCrash.report(e);
+                        Crashlytics.logException(e);
+                        Crashlytics.setString("className", "ChatDetailsActivity");
                     }
                 }
             });
@@ -632,7 +634,8 @@ public class ChatDetailsActivity extends BaseActivity {
 
                     @Override
                     public void onError(Throwable e) {
-                        FirebaseCrash.report(e);
+                        Crashlytics.logException(e);
+                        Crashlytics.setString("className", "ChatDetailsActivity");
                         e.printStackTrace();
                     }
 
@@ -792,7 +795,8 @@ public class ChatDetailsActivity extends BaseActivity {
                             }
                         } catch (JSONException e) {
                             e.printStackTrace();
-                            FirebaseCrash.report(e);
+                            Crashlytics.logException(e);
+                            Crashlytics.setString("className", "ChatDetailsActivity");
                             connectionError[0] = true;
                         }
                     }
@@ -802,7 +806,8 @@ public class ChatDetailsActivity extends BaseActivity {
                         //Hide progress view
                         progressView.setVisibility(View.GONE);
                         e.printStackTrace();
-                        FirebaseCrash.report(e);
+                        Crashlytics.logException(e);
+                        Crashlytics.setString("className", "ChatDetailsActivity");
                         //Server error Snack bar
                         ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_server));
                     }
@@ -920,7 +925,8 @@ public class ChatDetailsActivity extends BaseActivity {
                             }
                         } catch (JSONException e) {
                             e.printStackTrace();
-                            FirebaseCrash.report(e);
+                            Crashlytics.logException(e);
+                            Crashlytics.setString("className", "ChatDetailsActivity");
                             connectionError[0] = true;
                         }
                     }
@@ -936,7 +942,8 @@ public class ChatDetailsActivity extends BaseActivity {
                         mAdapter.setLoadingIconVisibility((ChatDetailsAdapter.HeaderViewHolder) recyclerView.
                                 findViewHolderForAdapterPosition(0), View.GONE);
                         //Remove loading item
-                        FirebaseCrash.report(e);
+                        Crashlytics.logException(e);
+                        Crashlytics.setString("className", "ChatDetailsActivity");
                         //Server error Snack bar
                         ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_server));
                     }

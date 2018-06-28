@@ -5,11 +5,14 @@ import android.support.multidex.MultiDexApplication;
 import android.support.v7.app.AppCompatDelegate;
 
 import com.androidnetworking.AndroidNetworking;
-import com.google.firebase.crash.FirebaseCrash;
+import com.crashlytics.android.Crashlytics;
+import com.crashlytics.android.core.CrashlyticsCore;
+import com.facebook.drawee.backends.pipeline.Fresco;
 import com.thetestament.cread.helpers.SharedPreferenceHelper;
 
 import java.net.URISyntaxException;
 
+import io.fabric.sdk.android.Fabric;
 import io.socket.client.IO;
 import io.socket.client.Socket;
 import pl.tajchert.nammu.Nammu;
@@ -44,6 +47,8 @@ public class CreadApp extends MultiDexApplication {
     public static boolean GET_RESPONSE_FROM_NETWORK_MORE_POSTS = false;
     public static boolean GET_RESPONSE_FROM_NETWORK_HASHTAG_OF_THE_DAY = false;
     public static boolean GET_RESPONSE_FROM_NETWORK_HASHTAG_SUGGETION = false;
+    public static boolean GET_RESPONSE_FROM_NETWORK_EXPLORE_CATEGORY = false;
+    public static boolean GET_RESPONSE_FROM_NETWORK_NEW_USERS_POST = false;
 
     // for picasso image loading
     public static boolean IMAGE_LOAD_FROM_NETWORK_ME = false;
@@ -60,6 +65,9 @@ public class CreadApp extends MultiDexApplication {
     public void onCreate() {
         super.onCreate();
         singleTone = this;
+
+        //Method called
+        initCrashLytics();
         //For calligraphy
         initCalligraphy();
         //Networking library initialization
@@ -70,6 +78,8 @@ public class CreadApp extends MultiDexApplication {
         AppCompatDelegate.setCompatVectorFromResourcesEnabled(true);
         //For socket io
         initSocketIo(getApplicationContext());
+        //initialize fresco
+        Fresco.initialize(this);
     }
 
     /**
@@ -80,6 +90,20 @@ public class CreadApp extends MultiDexApplication {
                 .setDefaultFontPath("fonts/HelveticaNeueMedium.ttf")
                 .setFontAttrId(R.attr.fontPath)
                 .build());
+    }
+
+    /**
+     * Method to initialize  CrashLytics.
+     */
+    private void initCrashLytics() {
+        CrashlyticsCore crashlyticsCore = new CrashlyticsCore.Builder()
+                .disabled(BuildConfig.DEBUG)
+                .build();
+
+        Fabric.with(this
+                , new Crashlytics.Builder()
+                        .core(crashlyticsCore)
+                        .build());
     }
 
 
@@ -95,11 +119,13 @@ public class CreadApp extends MultiDexApplication {
             try {
                 mSocket = IO.socket(BuildConfig.URL, opts);
             } catch (URISyntaxException e) {
-                FirebaseCrash.report(e);
+                Crashlytics.logException(e);
+                Crashlytics.setString("className", "CreadApp");
                 e.printStackTrace();
             }
         }
     }
+
 
     /**
      * Method to return Socket io instance

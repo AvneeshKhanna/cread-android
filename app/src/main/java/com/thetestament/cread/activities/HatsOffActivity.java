@@ -11,7 +11,7 @@ import android.support.v7.widget.RecyclerView;
 import android.view.animation.AnimationUtils;
 import android.view.animation.LayoutAnimationController;
 
-import com.google.firebase.crash.FirebaseCrash;
+import com.crashlytics.android.Crashlytics;
 import com.thetestament.cread.BuildConfig;
 import com.thetestament.cread.R;
 import com.thetestament.cread.adapters.HatsOffAdapter;
@@ -37,7 +37,6 @@ import io.reactivex.observers.DisposableObserver;
 import io.reactivex.schedulers.Schedulers;
 
 import static com.thetestament.cread.CreadApp.GET_RESPONSE_FROM_NETWORK_HATSOFF;
-import static com.thetestament.cread.CreadApp.GET_RESPONSE_FROM_NETWORK_MAIN;
 import static com.thetestament.cread.helpers.NetworkHelper.getHatsOffObservableFromServer;
 import static com.thetestament.cread.helpers.NetworkHelper.getNetConnectionStatus;
 import static com.thetestament.cread.utils.Constant.EXTRA_ENTITY_ID;
@@ -194,7 +193,8 @@ public class HatsOffActivity extends BaseActivity {
                             }
                         } catch (JSONException e) {
                             e.printStackTrace();
-                            FirebaseCrash.report(e);
+                            Crashlytics.logException(e);
+                            Crashlytics.setString("className", "HatsOffActivity");
                             connectionError[0] = true;
                         }
                     }
@@ -203,7 +203,8 @@ public class HatsOffActivity extends BaseActivity {
                     public void onError(Throwable e) {
                         //Dismiss progress indicator
                         swipeRefreshLayout.setRefreshing(false);
-                        FirebaseCrash.report(e);
+                        Crashlytics.logException(e);
+                        Crashlytics.setString("className", "HatsOffActivity");
                         //Server error Snack bar
                         ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_server));
                     }
@@ -309,7 +310,8 @@ public class HatsOffActivity extends BaseActivity {
                             }
                         } catch (JSONException e) {
                             e.printStackTrace();
-                            FirebaseCrash.report(e);
+                            Crashlytics.logException(e);
+                            Crashlytics.setString("className", "HatsOffActivity");
                             connectionError[0] = true;
                         }
                     }
@@ -319,7 +321,8 @@ public class HatsOffActivity extends BaseActivity {
                         //Remove loading item
                         mHatsOffList.remove(mHatsOffList.size() - 1);
                         mAdapter.notifyItemRemoved(mHatsOffList.size());
-                        FirebaseCrash.report(e);
+                        Crashlytics.logException(e);
+                        Crashlytics.setString("className", "HatsOffActivity");
                         //Server error Snack bar
                         ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_server));
                     }

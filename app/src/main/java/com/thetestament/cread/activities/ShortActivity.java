@@ -43,8 +43,8 @@ import android.widget.RelativeLayout;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
+import com.crashlytics.android.Crashlytics;
 import com.google.firebase.analytics.FirebaseAnalytics;
-import com.google.firebase.crash.FirebaseCrash;
 import com.rx2androidnetworking.Rx2AndroidNetworking;
 import com.squareup.picasso.Callback;
 import com.squareup.picasso.Picasso;
@@ -1643,7 +1643,7 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
                     , mHelper.getAuthToken()
                     , mCaptureID
                     , String.valueOf(textShort.getX() / divisionFactor)
-                    , String.valueOf((textShort.getY() - imageShortContainer.getY() /*+ ViewHelper.convertToPx(mContext, 48)*/) / divisionFactor)
+                    , String.valueOf((textShort.getY() /*- imageShortContainer.getY()*/ /*+ ViewHelper.convertToPx(mContext, 48)*/) / divisionFactor)
                     , String.valueOf(textShort.getWidth() / divisionFactor)
                     , String.valueOf(textShort.getHeight() / divisionFactor)
                     , textShort.getText().toString()
@@ -1979,7 +1979,7 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
                                 }
 
                                 //Obtain x and y position of text
-                                float dy = (float) (responseObject.getDouble("dy") - imageShortContainer.getY() /*+ ViewHelper.convertToPx(mContext, 48)*/) * factor;
+                                float dy = (float) (responseObject.getDouble("dy") /*- imageShortContainer.getY()*/ /*+ ViewHelper.convertToPx(mContext, 48)*/) * factor;
                                 float dx = (float) (responseObject.getDouble("dx") * factor);
 
                                 //Update textView xPosition  and yPosition
@@ -2046,7 +2046,8 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
                             //Hide progress indicator
                             imageProgressView.setVisibility(View.GONE);
                             e.printStackTrace();
-                            FirebaseCrash.report(e);
+                            Crashlytics.logException(e);
+                            Crashlytics.setString("className", "ShortActivity");
                             ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_internal));
                         }
                     }
@@ -2056,7 +2057,8 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
                         //Hide progress indicator
                         imageProgressView.setVisibility(View.GONE);
                         e.printStackTrace();
-                        FirebaseCrash.report(e);
+                        Crashlytics.logException(e);
+                        Crashlytics.setString("className", "ShortActivity");
                         ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_server));
                     }
 
@@ -2158,7 +2160,8 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
                             }
                         } catch (JSONException e) {
                             e.printStackTrace();
-                            FirebaseCrash.report(e);
+                            Crashlytics.logException(e);
+                            Crashlytics.setString("className", "ShortActivity");
                             connectionError[0] = true;
                         }
                     }
@@ -2167,7 +2170,8 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
                     public void onError(Throwable e) {
                         //Hide progress view
                         progressViewInspiration.setVisibility(View.GONE);
-                        FirebaseCrash.report(e);
+                        Crashlytics.logException(e);
+                        Crashlytics.setString("className", "ShortActivity");
                         //Server error Snack bar
                         ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_server));
                     }
@@ -2255,7 +2259,8 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
                             }
                         } catch (JSONException e) {
                             e.printStackTrace();
-                            FirebaseCrash.report(e);
+                            Crashlytics.logException(e);
+                            Crashlytics.setString("className", "ShortActivity");
                             connectionError[0] = true;
                         }
                     }
@@ -2265,7 +2270,8 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
                         //Remove loading item
                         mInspirationDataList.remove(mInspirationDataList.size() - 1);
                         mAdapter.notifyItemRemoved(mInspirationDataList.size());
-                        FirebaseCrash.report(e);
+                        Crashlytics.logException(e);
+                        Crashlytics.setString("className", "ShortActivity");
                         //Server error Snack bar
                         ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_server));
                     }

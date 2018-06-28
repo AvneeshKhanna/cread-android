@@ -5,7 +5,7 @@ import android.support.v4.app.FragmentActivity;
 import android.view.View;
 
 import com.afollestad.materialdialogs.MaterialDialog;
-import com.google.firebase.crash.FirebaseCrash;
+import com.crashlytics.android.Crashlytics;
 import com.thetestament.cread.BuildConfig;
 import com.thetestament.cread.R;
 import com.thetestament.cread.activities.ViewLongShortActivity;
@@ -96,7 +96,8 @@ public class LongShortHelper {
                             }
                         } catch (JSONException e) {
                             e.printStackTrace();
-                            FirebaseCrash.report(e);
+                            Crashlytics.logException(e);
+                            Crashlytics.setString("className", "LongShortHelper");
                             //Set listener
                             onLongShortDataRequestedListener.onLongShortDataFailiure((context.getString(R.string.error_msg_internal)));
                         }
@@ -106,7 +107,8 @@ public class LongShortHelper {
                     public void onErrorCalled(Throwable e) {
                         dialog.dismiss();
                         e.printStackTrace();
-                        FirebaseCrash.report(e);
+                        Crashlytics.logException(e);
+                        Crashlytics.setString("className", "LongShortHelper");
                         //Set listener
                         onLongShortDataRequestedListener.onLongShortDataFailiure(context.getString(R.string.error_msg_server));
                     }

@@ -1,6 +1,7 @@
 package com.thetestament.cread.adapters;
 
 import android.graphics.Color;
+import android.net.Uri;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.RecyclerView;
@@ -9,8 +10,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import com.squareup.picasso.Picasso;
+import com.facebook.drawee.view.SimpleDraweeView;
 import com.thetestament.cread.R;
+import com.thetestament.cread.helpers.ImageHelper;
 import com.thetestament.cread.listeners.listener;
 import com.thetestament.cread.listeners.listener.NotificationItemClick;
 import com.thetestament.cread.models.UpdatesModel;
@@ -19,7 +21,6 @@ import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import de.hdodenhof.circleimageview.CircleImageView;
 
 import static com.thetestament.cread.utils.Constant.CONTENT_TYPE_CAPTURE;
 import static com.thetestament.cread.utils.Constant.NOTIFICATION_CATEGORY_CREAD_BUY;
@@ -112,7 +113,9 @@ public class UpdatesAdapter extends RecyclerView.Adapter {
                     .equals(NOTIFICATION_CATEGORY_CREAD_TOP_POST)
                     ? updatesData.getEntityImage() : updatesData.getActorImage();
 
-            loadImage(imageUrl, itemViewHolder.imgNotification);
+            ImageHelper.loadProgressiveImage(Uri.parse(imageUrl)
+                    , itemViewHolder.imgNotification);
+
 
             //Change notification item color depending upon seen status
             initBackgroundColor(itemViewHolder, updatesData);
@@ -148,7 +151,7 @@ public class UpdatesAdapter extends RecyclerView.Adapter {
         @BindView(R.id.text_description)
         TextView textDescription;
         @BindView(R.id.img_updates)
-        CircleImageView imgNotification;
+        SimpleDraweeView imgNotification;
         int _id;
 
         public ItemViewHolder(View itemView) {
@@ -193,19 +196,6 @@ public class UpdatesAdapter extends RecyclerView.Adapter {
                 notificationItemClick.onNotificationClick(updatesModel, position);
             }
         });
-    }
-
-    /**
-     * Method to load item image.
-     *
-     * @param picUrl    picture URL.
-     * @param imageView View where image to be loaded.
-     */
-    private void loadImage(String picUrl, CircleImageView imageView) {
-        Picasso.with(mContext)
-                .load(picUrl)
-                .error(R.drawable.ic_account_circle_100)
-                .into(imageView);
     }
 
 

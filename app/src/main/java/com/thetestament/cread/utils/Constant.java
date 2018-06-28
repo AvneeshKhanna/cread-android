@@ -3,18 +3,21 @@ package com.thetestament.cread.utils;
 
 public class Constant {
     public static final String MINIMUM_APP_VERSION_KEY = "minimum_app_version";
-
+    public static final String EXPLORE_CATEGORY_VIEW_VISIBILITY = "explore_category_view_visibility";
+    public static final String EXPLORE_CATEGORY_VIEW_VISIBILITY_VISIBLE = "visible";
+    public static final String EXPLORE_CATEGORY_VIEW_VISIBILITY_INVISIBLE = "invisible";
 
     //region :Platform key and value constant
     public static final String PLATFORM_KEY = "platform";
     public static final String PLATFORM_VALUE = "android";
     //endregion
 
-    // region: login types
+    // region :Login types
     public static final String LOGIN_TYPE_FACEBOOK = "facebook";
     public static final String LOGIN_TYPE_GOOGLE = "google";
+    //endregion
 
-    //region Inspiration item view types
+    //region :Inspiration item view types
     public static final String INSPIRATION_ITEM_TYPE_SMALL = "itemSmall";
     public static final String INSPIRATION_ITEM_TYPE_DETAIL = "itemDetail";
     //endregion
@@ -51,11 +54,11 @@ public class Constant {
     public static final String TAG_FEED_FRAGMENT = "TagFeedFragment";
     public static final String TAG_EXPLORE_FRAGMENT = "TagExploreFragment";
     public static final String TAG_ME_FRAGMENT = "TagMeFragment";
+    public static final String TAG_HELP_FRAGMENT = "TagHelpFragment";
     public static final String TAG_UPDATES_FRAGMENT = "TagUpdatesFragment";
     public static final String TAG_ROYALTIES_FRAGMENT = "TagRoyaltiesFragment";
     public static final String TAG_HASH_TAG_DETAILS_FRAGMENT = "HashTagDetailsFragment";
     public static final String TAG_SEARCH_PEOPLE_FRAGMENT = "SearchPeopleFragment";
-    public static final String TAG_SEARCH_HASH_TAG_FRAGMENT = "SearchHashTagFragment";
     public static final String TAG_VIEW_LONG_SHORT_FRAGMENT = "ViewLongShortFragment";
     //endregion
 
@@ -110,6 +113,7 @@ public class Constant {
     public static final String EXTRA_USER_EMAIL = "userEmail";
     public static final String EXTRA_USER_BIO = "userBio";
     public static final String EXTRA_USER_CONTACT = "userContact";
+    public static final String EXTRA_USER_WEB_STORE_LINK = "userWebStoreLink";
     public static final String EXTRA_USER_WATER_MARK_STATUS = "userWaterMarkStatus";
     public static final String EXTRA_USER_IMAGE_PATH = "userImagePath";
     public static final String EXTRA_TOP_USER_INTERESTS = "topUserInterests";
@@ -163,11 +167,10 @@ public class Constant {
     public static final String EXTRA_USER_INTERESTS_DATA = "userInterestsData";
 
 
-
     //Action
     public static final String ACTION_LOG_OUT = "com.thetestament.cread.ACTION_LOGOUT";
 
-    //Notifications Cread category
+    //region :Notifications category
     public static final String NOTIFICATION_CATEGORY_CREAD_FOLLOW = "follow";
     public static final String NOTIFICATION_CATEGORY_CREAD_COLLABORATE = "collaborate";
     public static final String NOTIFICATION_CATEGORY_CREAD_HATSOFF = "hatsoff";
@@ -185,7 +188,9 @@ public class Constant {
     public static final String NOTIFICATION_CATEGORY_FEATURED_ARTIST = "featured-artist";
     public static final String NOTIFICATION_CATEGORY_FEATURED_ARTIST_FOLLOWER = "featured-artist-follower";
     public static final String NOTIFICATION_CATEGORY_REFERRAL_SUCCESS = "join-referral";
-
+    public static final String NOTIFICATION_CATEGORY_POST_AFTER_GAP = "post-after-gap";
+    public static final String NOTIFICATION_CATEGORY_FIRST_POST_USERS = "first-post-users";
+    //endregion
 
     //Notification id cread
     public static final int NOTIFICATION_ID_CREAD_FOLLOW = 1000;
@@ -196,15 +201,16 @@ public class Constant {
     public static final int NOTIFICATION_ID_CREAD_GENERAL = 1005;
     public static final int NOTIFICATION_ID_CREAD_COMMENT_OTHER = 1006;
     public static final int NOTIFICATION_ID_CREAD_TOP_POST = 1007;
-    public static final int NOTIFICATION_ID_CREAD_TEAM_CHAT = 1008;
-    public static final int NOTIFICATION_ID_PROFILE_MENTION_POST = 1009;
-    public static final int NOTIFICATION_ID_PROFILE_MENTION_COMMENT = 1010;
-    public static final int NOTIFICATION_ID_PERSONAL_CHAT_MESSAGE = 1011;
-    public static final int NOTIFICATION_ID_ENGAGEMENT_NOTIFICATIONS = 1012;
-    public static final int NOTIFICATION_ID_CREAD_FB_FRIEND = 1013;
-    public static final int NOTIFICATION_ID_FEATURED_ARTIST = 1014;
-    public static final int NOTIFICATION_ID_FEATURED_ARTIST_FOLLOWER = 1015;
-    public static final int NOTIFICATION_ID_REFERRAL_SUCCESS = 1016;
+    public static final int NOTIFICATION_ID_PROFILE_MENTION_POST = 1008;
+    public static final int NOTIFICATION_ID_PROFILE_MENTION_COMMENT = 1009;
+    public static final int NOTIFICATION_ID_PERSONAL_CHAT_MESSAGE = 1010;
+    public static final int NOTIFICATION_ID_ENGAGEMENT_NOTIFICATIONS = 1011;
+    public static final int NOTIFICATION_ID_CREAD_FB_FRIEND = 1012;
+    public static final int NOTIFICATION_ID_FEATURED_ARTIST = 1013;
+    public static final int NOTIFICATION_ID_FEATURED_ARTIST_FOLLOWER = 1014;
+    public static final int NOTIFICATION_ID_REFERRAL_SUCCESS = 1015;
+    public static final int NOTIFICATION_ID_POST_AFTER_GAP = 1016;
+    public static final int NOTIFICATION_ID_FIRST_POST_USERS = 1017;
 
 
     public static final String NOTIFICATION_CHANNEL_GENERAL = "generalNotificationChannel";
@@ -219,6 +225,7 @@ public class Constant {
     public static final String NOTIFICATION_BUNDLE_DATA_ENTITY_IMAGE = "entityImage";
     public static final String NOTIFICATION_BUNDLE_DATA_PERSISTABLE = "persistable";
     public static final String NOTIFICATION_BUNDLE_DATA_OTHER_COLLABORATOR = "otherCollaborator";
+    public static final String NOTIFICATION_EXTRA_ENTITY_ID_LIST = "entityIDList";
 
 
     // bundle data key for hashtag
@@ -233,6 +240,8 @@ public class Constant {
     public static final String FIREBASE_EVENT_CAPTURE_CLICKED = "capture_clicked";
     public static final String FIREBASE_EVENT_FEED_CLICKED = "feed_clicked";
     public static final String FIREBASE_EVENT_EXPLORE_CLICKED = "explore_clicked";
+    public static final String FIREBASE_EVENT_HELP_CLICKED = "help_question_clicked";
+    public static final String FIREBASE_EVENT_EXPLORE_CATEGORY_CLICKED = "explore_category_clicked";
     public static final String FIREBASE_EVENT_INSPIRATION_CLICKED = "inspire_clicked";
     public static final String FIREBASE_EVENT_NOTIFICATION_CLICKED = "notification_clicked";
     public static final String FIREBASE_EVENT_FIND_FRIENDS = "find_friends";
@@ -375,4 +384,11 @@ public class Constant {
 
     public static final String USER_INTERESTS_CALLED_FROM_LOGIN = "userInterestsCalledFromLogin";
     public static final String USER_INTERESTS_CALLED_FROM_PROFILE = "userInterestsCalledFromProfile";
+    //endregion
+
+    //region
+    public static final String EXPLORE_CATEGORY_DEFAULT = "DEFAULT";
+    public static final String EXPLORE_CATEGORY_ART = "ART";
+    public static final String EXPLORE_CATEGORY_FEEL = "FEEL";
+    //endregion
 }

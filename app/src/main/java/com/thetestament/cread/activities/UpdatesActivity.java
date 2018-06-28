@@ -15,18 +15,18 @@ import com.thetestament.cread.fragments.UpdatesFragment;
 import static com.thetestament.cread.utils.Constant.TAG_UPDATES_FRAGMENT;
 
 
-
-
-  /*AppcompatActivity class for Updates system i.e notification system.*/
-
-
+/**
+ * AppcompatActivity class for Updates system i.e notification system.
+ */
 public class UpdatesActivity extends BaseActivity {
+
+    //region : Overridden methods
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_updates);
+        //Method called
         initView();
-
     }
 
     @Override
@@ -58,7 +58,6 @@ public class UpdatesActivity extends BaseActivity {
 
     @Override
     public void onBackPressed() {
-
         setBackButtonBehaviour();
     }
 
@@ -66,10 +65,16 @@ public class UpdatesActivity extends BaseActivity {
     @Override
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
-
+        //Method called
         initView();
     }
+    //endregion
 
+    //region Private methods
+
+    /**
+     * Back button functionality.
+     */
     private void setBackButtonBehaviour() {
         Intent upIntent = NavUtils.getParentActivityIntent(this);
         if (NavUtils.shouldUpRecreateTask(this, upIntent) || isTaskRoot()) {
@@ -88,11 +93,14 @@ public class UpdatesActivity extends BaseActivity {
     }
 
 
-    /*Method to initialize views for this screen*/
+    /**
+     * Method to initialize views for this screen.
+     */
     private void initView() {
         getSupportFragmentManager().beginTransaction()
                 .replace(R.id.updates_container, new UpdatesFragment(), TAG_UPDATES_FRAGMENT)
                 .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE)
                 .commit();
     }
+    //endregion
 }

@@ -80,7 +80,7 @@
         android:layout_marginRight="25dp"
         android:layout_marginTop="15dp"
         android:gravity="left"
-        android:text="We'd like to know you a little better. So, what art forms do you like?"
+        android:text="We'd like to know you a little better. So, what's your art form?"
         android:textSize="16sp"
         android:visibility="invisible" />
 

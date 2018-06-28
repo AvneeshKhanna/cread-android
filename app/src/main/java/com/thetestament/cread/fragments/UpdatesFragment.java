@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.Nullable;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.widget.SwipeRefreshLayout;
@@ -18,18 +19,19 @@ import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 
-import com.google.firebase.crash.FirebaseCrash;
+import com.crashlytics.android.Crashlytics;
 import com.thetestament.cread.R;
 import com.thetestament.cread.activities.FeedDescriptionActivity;
-import com.thetestament.cread.activities.ProfileActivity;
 import com.thetestament.cread.activities.RoyaltiesActivity;
 import com.thetestament.cread.adapters.UpdatesAdapter;
+import com.thetestament.cread.helpers.IntentHelper;
 import com.thetestament.cread.helpers.SharedPreferenceHelper;
 import com.thetestament.cread.helpers.ViewHelper;
 import com.thetestament.cread.listeners.listener;
 import com.thetestament.cread.listeners.listener.OnServerRequestedListener;
 import com.thetestament.cread.models.FeedModel;
 import com.thetestament.cread.models.UpdatesModel;
+import com.thetestament.cread.networkmanager.NotificationNetworkManager;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -41,6 +43,7 @@ import java.util.List;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.Unbinder;
+import icepick.Icepick;
 import icepick.State;
 import io.reactivex.disposables.CompositeDisposable;
 
@@ -54,7 +57,6 @@ import static com.thetestament.cread.helpers.NetworkHelper.requestServer;
 import static com.thetestament.cread.utils.Constant.EXTRA_DATA;
 import static com.thetestament.cread.utils.Constant.EXTRA_FEED_DESCRIPTION_DATA;
 import static com.thetestament.cread.utils.Constant.EXTRA_FROM_UPDATES_COMMENT_MENTION;
-import static com.thetestament.cread.utils.Constant.EXTRA_PROFILE_UUID;
 import static com.thetestament.cread.utils.Constant.NOTIFICATION_CATEGORY_CREAD_BUY;
 import static com.thetestament.cread.utils.Constant.NOTIFICATION_CATEGORY_CREAD_COLLABORATE;
 import static com.thetestament.cread.utils.Constant.NOTIFICATION_CATEGORY_CREAD_COMMENT;
@@ -68,16 +70,16 @@ import static com.thetestament.cread.utils.Constant.NOTIFICATION_CATEGORY_PROFIL
 import static com.thetestament.cread.utils.Constant.NOTIFICATION_CATEGORY_PROFILE_MENTION_POST;
 
 
-
-        /*Fragment class which shows notification.*/
-
-
+/**
+ * Fragment class which shows notification.
+ */
 public class UpdatesFragment extends Fragment {
 
     // Required empty public constructor
     public UpdatesFragment() {
     }
 
+    //region Views binding with Butter knife
     @BindView(R.id.view_no_notifications)
     LinearLayout viewNoNotification;
     @BindView(R.id.swipeToRefreshLayout)
@@ -88,52 +90,63 @@ public class UpdatesFragment extends Fragment {
     ProgressBar progressBar;
     @BindView(R.id.rootView)
     RelativeLayout rootView;
+    //endregion
 
+    //region :Fields and constants
     private Unbinder unbinder;
-    private UpdatesFragment mUpdatesFragment;
     private CompositeDisposable mCompositeDisposable = new CompositeDisposable();
-    private final String TAG = getClass().getSimpleName();
     private SharedPreferenceHelper mHelper;
 
     private FeedModel feedData;
     List<UpdatesModel> mDataList = new ArrayList<>();
     UpdatesAdapter mAdapter;
 
+    /**
+     * Flag to maintain last index key value for pagination.
+     */
     @State
     String mLastIndexKey;
 
+    /**
+     * Flag to maintain whether the next set of data is available or not.
+     */
     @State
     boolean mRequestMoreData = false;
+    //endregion
 
+    //region :Overridden methods
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        mUpdatesFragment = this;
         mHelper = new SharedPreferenceHelper(getActivity());
-
         //set indicator status
         mHelper.setNotifIndicatorStatus(false);
         //Inflate this view
-        View view = inflater.inflate(R.layout.fragment_updates, container, false);
-        unbinder = ButterKnife.bind(this, view);
-        return view;
+        return inflater.inflate(R.layout.fragment_updates
+                , container
+                , false);
     }
 
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+        unbinder = ButterKnife.bind(this, view);
         //load Data here
         initScreen();
+        //Method called
+        updateNotificationSeenStatus();
     }
 
     @Override
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
+        Icepick.saveInstanceState(this, outState);
     }
 
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         if (savedInstanceState != null) {
+            Icepick.restoreInstanceState(this, savedInstanceState);
         }
         super.onActivityCreated(savedInstanceState);
     }
@@ -144,20 +157,19 @@ public class UpdatesFragment extends Fragment {
         unbinder.unbind();
         mCompositeDisposable.dispose();
     }
+    //endregion
 
+    //region :Private methods
 
-    //Method to initialize this screen.
+    /**
+     * Method to initialize view for this screen.
+     */
     private void initScreen() {
-
         //Set layout manger for recyclerView
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
         //Set adapter
         mAdapter = new UpdatesAdapter(mDataList, getActivity());
         recyclerView.setAdapter(mAdapter);
-
-        // init listeners
-        initLoadMoreNotifListener();
-        initNotificationClickedListener();
 
         swipeRefreshLayout.setRefreshing(true);
         swipeRefreshLayout.setColorSchemeColors(ContextCompat.getColor(getContext()
@@ -165,7 +177,6 @@ public class UpdatesFragment extends Fragment {
         swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
-
                 //Clear data
                 mDataList.clear();
                 //Notify for changes
@@ -176,18 +187,20 @@ public class UpdatesFragment extends Fragment {
                 // hide no posts view
                 viewNoNotification.setVisibility(View.GONE);
                 //For loading the notifications
-                loadUpdates();
+                getUpdatesData();
             }
         });
-        loadUpdates(); //For loading the notifications
-
-
+        //For loading the notifications
+        getUpdatesData();
+        // initialize listeners
+        initLoadMoreListener();
+        initNotificationClickedListener();
     }
 
     /**
-     * initialize load more listener
+     * Initialize load more listener.
      */
-    private void initLoadMoreNotifListener() {
+    private void initLoadMoreListener() {
         mAdapter.setNotificationsLoadMoreListener(new listener.onNotificationsLoadMore() {
             @Override
             public void onLoadMore() {
@@ -210,13 +223,15 @@ public class UpdatesFragment extends Fragment {
         });
     }
 
+    /**
+     * Notification click functionality.
+     */
     private void initNotificationClickedListener() {
 
         mAdapter.setNotificationItemClick(new listener.NotificationItemClick() {
             @Override
             public void onNotificationClick(UpdatesModel updatesModel, int position) {
-
-                // update unread status on server
+                // Method called
                 updateUnread(updatesModel, position);
 
                 switch (updatesModel.getCategory()) {
@@ -224,38 +239,31 @@ public class UpdatesFragment extends Fragment {
                         openProfileScreen(updatesModel);
                         break;
                     case NOTIFICATION_CATEGORY_CREAD_COLLABORATE:
-
                         // gets feed details and opens details screen
                         getFeedDetails(updatesModel.getEntityID(), false);
-
                         break;
 
                     case NOTIFICATION_CATEGORY_CREAD_HATSOFF:
-
                         // gets feed details and opens details screen
                         getFeedDetails(updatesModel.getEntityID(), false);
                         break;
 
                     case NOTIFICATION_CATEGORY_CREAD_COMMENT:
-
                         // gets feed details and opens details screen
                         getFeedDetails(updatesModel.getEntityID(), false);
                         break;
 
                     case NOTIFICATION_CATEGORY_CREAD_COMMENT_OTHER:
-
                         // gets feed details and opens details screen
                         getFeedDetails(updatesModel.getEntityID(), false);
                         break;
 
                     case NOTIFICATION_CATEGORY_CREAD_TOP_POST:
-
                         // gets feed details and opens details screen
                         getFeedDetails(updatesModel.getEntityID(), false);
                         break;
 
                     case NOTIFICATION_CATEGORY_CREAD_BUY:
-
                         // open royalties screen
                         startActivity(new Intent(getActivity(), RoyaltiesActivity.class));
                         break;
@@ -283,13 +291,9 @@ public class UpdatesFragment extends Fragment {
         });
     }
 
-    /*Method to get updates data.*/
-    private void loadUpdates() {
-        getUpdatesData();
-    }
 
     /**
-     * gets updates data from server
+     * Get updates data from server.
      */
     private void getUpdatesData() {
 
@@ -304,30 +308,26 @@ public class UpdatesFragment extends Fragment {
                 , new OnServerRequestedListener<JSONObject>() {
                     @Override
                     public void onDeviceOffline() {
-
                         swipeRefreshLayout.setRefreshing(false);
                         //No connection Snack bar
-                        ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_no_connection));
-
+                        showSnackBar(getString(R.string.error_msg_no_connection), false);
                     }
 
                     @Override
                     public void onNextCalled(JSONObject jsonObject) {
-
                         try {
                             //Token status is invalid
                             if (jsonObject.getString("tokenstatus").equals("invalid")) {
                                 tokenError[0] = true;
                             } else {
-
                                 // add data to dat list
                                 parseJSONData(jsonObject, false);
-
                             }
 
                         } catch (JSONException e) {
                             e.printStackTrace();
-                            FirebaseCrash.report(e);
+                            Crashlytics.logException(e);
+                            Crashlytics.setString("className", "UpdatesFragment");
                             connectionError[0] = true;
                         }
 
@@ -336,17 +336,15 @@ public class UpdatesFragment extends Fragment {
 
                     @Override
                     public void onErrorCalled(Throwable e) {
-
                         swipeRefreshLayout.setRefreshing(false);
-                        FirebaseCrash.report(e);
-                        //Server error Snack bar
-                        ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_server));
-
+                        Crashlytics.logException(e);
+                        Crashlytics.setString("className", "UpdatesFragment");
+                        //Show Snack bar
+                        showSnackBar(getString(R.string.error_msg_server), false);
                     }
 
                     @Override
                     public void onCompleteCalled() {
-
                         //Dismiss progress indicator
                         swipeRefreshLayout.setRefreshing(false);
 
@@ -354,16 +352,16 @@ public class UpdatesFragment extends Fragment {
 
                         // Token status invalid
                         if (tokenError[0]) {
-                            ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_invalid_token));
+                            //Show Snack bar
+                            showSnackBar(getString(R.string.error_msg_invalid_token), false);
                         }
                         //Error occurred
                         else if (connectionError[0]) {
-                            ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_internal));
+                            //Show Snack bar
+                            showSnackBar(getString(R.string.error_msg_internal), false);
 
                         } else if (mDataList.size() == 0) {
-
                             viewNoNotification.setVisibility(View.VISIBLE);
-
                         } else {
                             //Apply 'Slide Up' animation
                             int resId = R.anim.layout_animation_from_bottom;
@@ -376,6 +374,9 @@ public class UpdatesFragment extends Fragment {
                 });
     }
 
+    /**
+     * Methods to retrieve next set of data.
+     */
     private void loadMoreNotificationsData() {
         final boolean[] tokenError = {false};
         final boolean[] connectionError = {false};
@@ -388,10 +389,8 @@ public class UpdatesFragment extends Fragment {
                 , new OnServerRequestedListener<JSONObject>() {
                     @Override
                     public void onDeviceOffline() {
-
                         //No connection Snack bar
-                        ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_no_connection));
-
+                        showSnackBar(getString(R.string.error_msg_no_connection), true);
                     }
 
                     @Override
@@ -411,34 +410,34 @@ public class UpdatesFragment extends Fragment {
                             }
                         } catch (JSONException e) {
                             e.printStackTrace();
-                            FirebaseCrash.report(e);
+                            Crashlytics.logException(e);
+                            Crashlytics.setString("className", "UpdatesFragment");
                             connectionError[0] = true;
                         }
                     }
 
                     @Override
                     public void onErrorCalled(Throwable e) {
-
                         //Remove loading item
                         mDataList.remove(mDataList.size() - 1);
                         //Notify changes
                         mAdapter.notifyItemRemoved(mDataList.size());
-                        FirebaseCrash.report(e);
+                        Crashlytics.logException(e);
+                        Crashlytics.setString("className", "UpdatesFragment");
                         //Server error Snack bar
-                        ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_server));
+                        showSnackBar(getString(R.string.error_msg_server), true);
 
                     }
 
                     @Override
                     public void onCompleteCalled() {
-
                         // Token status invalid
                         if (tokenError[0]) {
-                            ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_invalid_token));
+                            showSnackBar(getString(R.string.error_msg_invalid_token), true);
                         }
                         //Error occurred
                         else if (connectionError[0]) {
-                            ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_internal));
+                            showSnackBar(getString(R.string.error_msg_internal), true);
                         } else {
                             //Notify changes
                             mAdapter.setLoaded();
@@ -454,10 +453,8 @@ public class UpdatesFragment extends Fragment {
                 , new OnServerRequestedListener<JSONObject>() {
                     @Override
                     public void onDeviceOffline() {
-
                         updatesModel.setUnread(true);
                         mAdapter.notifyItemChanged(position);
-
                         ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_no_connection));
                     }
 
@@ -487,7 +484,10 @@ public class UpdatesFragment extends Fragment {
                             mAdapter.notifyItemChanged(position);
 
                             e.printStackTrace();
-                            FirebaseCrash.report(e);
+                            Crashlytics.logException(e);
+                            Crashlytics.setString("className", "UpdatesFragment");
+                            Crashlytics.logException(e);
+                            Crashlytics.setString("className", "UpdatesFragment");
                             ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_server));
                         }
                     }
@@ -499,7 +499,8 @@ public class UpdatesFragment extends Fragment {
                         mAdapter.notifyItemChanged(position);
 
                         e.printStackTrace();
-                        FirebaseCrash.report(e);
+                        Crashlytics.logException(e);
+                        Crashlytics.setString("className", "UpdatesFragment");
                         ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_server));
 
                     }
@@ -588,11 +589,9 @@ public class UpdatesFragment extends Fragment {
 
 
     private void openProfileScreen(UpdatesModel updatesModel) {
-        //Launch profile screen
-        Intent profileIntent = new Intent(getActivity(), ProfileActivity.class);
-        profileIntent.putExtra(EXTRA_PROFILE_UUID, updatesModel.getActorID());
-        startActivity(profileIntent);
-
+        //Method called
+        IntentHelper.openProfileActivity(getActivity()
+                , updatesModel.getActorID());
     }
 
 
@@ -636,7 +635,8 @@ public class UpdatesFragment extends Fragment {
                             }
                         } catch (JSONException e) {
                             e.printStackTrace();
-                            FirebaseCrash.report(e);
+                            Crashlytics.logException(e);
+                            Crashlytics.setString("className", "UpdatesFragment");
                             connectionError[0] = true;
                         }
                     }
@@ -645,7 +645,8 @@ public class UpdatesFragment extends Fragment {
                     public void onErrorCalled(Throwable e) {
 
                         progressBar.setVisibility(View.GONE);
-                        FirebaseCrash.report(e);
+                        Crashlytics.logException(e);
+                        Crashlytics.setString("className", "UpdatesFragment");
                         //Server error Snack bar
                         ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_server));
                     }
@@ -675,5 +676,48 @@ public class UpdatesFragment extends Fragment {
                         }
                     }
                 });
+    }
+
+
+    /**
+     * Method to update notification seen status on server for 'Updates Screen'.
+     */
+    private void updateNotificationSeenStatus() {
+        NotificationNetworkManager.updateUpdatesSeenStatus(getActivity(), mCompositeDisposable
+                , new NotificationNetworkManager.OnUpdatesSeenUpdateListener() {
+                    @Override
+                    public void onSuccess() {
+                        //Update flag
+                        mHelper.setNotifIndicatorStatus(false);
+                    }
+
+                    @Override
+                    public void onFailure(String errorMsg) {
+
+                    }
+                });
+
+
+    }
+
+
+    /**
+     * Method to show snack bar with reload option.
+     */
+    private void showSnackBar(String message, final boolean isLoadMore) {
+        Snackbar.make(rootView, message, Snackbar.LENGTH_INDEFINITE)
+                .setAction("Reload", new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        if (isLoadMore) {
+                            loadMoreNotificationsData();
+                        } else {
+                            swipeRefreshLayout.setRefreshing(true);
+                            getUpdatesData();
+                        }
+                    }
+                })
+                .setActionTextColor(ContextCompat.getColor(getActivity(), R.color.colorPrimary))
+                .show();
     }
 }

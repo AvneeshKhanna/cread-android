@@ -10,7 +10,7 @@ import android.widget.ImageView;
 
 import com.afollestad.materialdialogs.DialogAction;
 import com.afollestad.materialdialogs.MaterialDialog;
-import com.google.firebase.crash.FirebaseCrash;
+import com.crashlytics.android.Crashlytics;
 import com.thetestament.cread.R;
 import com.thetestament.cread.listeners.listener;
 import com.thetestament.cread.models.FeedModel;
@@ -82,7 +82,8 @@ public class DownvoteHelper {
                             }
                         } catch (JSONException e) {
                             e.printStackTrace();
-                            FirebaseCrash.report(e);
+                            Crashlytics.logException(e);
+                            Crashlytics.setString("className", "DeletePostHelper");
                             //Set listener
                             onDownvoteRequestedListener.onDownvoteFailiure((context.getString(R.string.error_msg_internal)));
                         }
@@ -92,7 +93,8 @@ public class DownvoteHelper {
                     public void onErrorCalled(Throwable e) {
 
                         e.printStackTrace();
-                        FirebaseCrash.report(e);
+                        Crashlytics.logException(e);
+                        Crashlytics.setString("className", "DeletePostHelper");
                         //Set listener
                         onDownvoteRequestedListener.onDownvoteFailiure(context.getString(R.string.error_msg_server));
                     }

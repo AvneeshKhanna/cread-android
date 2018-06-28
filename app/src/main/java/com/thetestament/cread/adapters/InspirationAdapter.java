@@ -3,19 +3,20 @@ package com.thetestament.cread.adapters;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
-import com.squareup.picasso.Picasso;
+import com.facebook.drawee.view.SimpleDraweeView;
 import com.thetestament.cread.R;
-import com.thetestament.cread.activities.ProfileActivity;
+import com.thetestament.cread.helpers.ImageHelper;
+import com.thetestament.cread.helpers.IntentHelper;
 import com.thetestament.cread.listeners.listener.OnInspirationLoadMoreListener;
 import com.thetestament.cread.listeners.listener.OnInspirationSelectListener;
 import com.thetestament.cread.models.InspirationModel;
@@ -26,7 +27,6 @@ import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import de.hdodenhof.circleimageview.CircleImageView;
 
 import static com.thetestament.cread.utils.Constant.EXTRA_CAPTURE_ID;
 import static com.thetestament.cread.utils.Constant.EXTRA_CAPTURE_URL;
@@ -34,7 +34,6 @@ import static com.thetestament.cread.utils.Constant.EXTRA_DATA;
 import static com.thetestament.cread.utils.Constant.EXTRA_IMAGE_HEIGHT;
 import static com.thetestament.cread.utils.Constant.EXTRA_IMAGE_WIDTH;
 import static com.thetestament.cread.utils.Constant.EXTRA_MERCHANTABLE;
-import static com.thetestament.cread.utils.Constant.EXTRA_PROFILE_UUID;
 
 /**
  * Adapter class to provide a binding from data set to views that are displayed within a inspiration RecyclerView.
@@ -121,14 +120,15 @@ public class InspirationAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
         if (holder.getItemViewType() == VIEW_TYPE_ITEM) {
             final ItemViewHolder itemViewHolder = (ItemViewHolder) holder;
             //Load inspiration image
-            loadInspirationImage(data.getCapturePic(), itemViewHolder.imageInspiration);
+            ImageHelper.loadProgressiveImage(Uri.parse(data.getCapturePic())
+                    , itemViewHolder.imageInspiration);
             //ItemView onClick functionality
             itemViewOnClick(itemViewHolder.itemView, data, itemViewHolder.getAdapterPosition());
 
         } else if (holder.getItemViewType() == VIEW_TYPE_ITEM_DETAIL) {
             final ItemViewHolderDetail itemViewHolder = (ItemViewHolderDetail) holder;
             //Load creator profile picture
-            loadCreatorPic(data.getCreatorProfilePic(), itemViewHolder.imageCreator);
+            ImageHelper.loadProgressiveImage(Uri.parse(data.getCreatorProfilePic()), itemViewHolder.imageCreator);
             //Set creator name
             itemViewHolder.textCreatorName.setText(data.getCreatorName());
 
@@ -137,7 +137,8 @@ public class InspirationAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
                     , data.getImgHeight()
                     , itemViewHolder.imageInspiration);
             //Load inspiration image
-            loadInspirationImage(data.getCapturePic(), itemViewHolder.imageInspiration);
+            ImageHelper.loadProgressiveImage(Uri.parse(data.getCapturePic())
+                    , itemViewHolder.imageInspiration);
 
             //Click functionality to launch profile of creator
             openCreatorProfile(itemViewHolder.containerCreator, data.getUUID());
@@ -177,18 +178,7 @@ public class InspirationAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
         mIsLoading = false;
     }
 
-    /**
-     * Method to load inspiration image.
-     *
-     * @param imageUrl  picture URL.
-     * @param imageView View where image to be loaded.
-     */
-    private void loadInspirationImage(String imageUrl, ImageView imageView) {
-        Picasso.with(mContext)
-                .load(imageUrl)
-                .error(R.drawable.image_placeholder)
-                .into(imageView);
-    }
+
 
     /**
      * ItemView click functionality.
@@ -225,18 +215,7 @@ public class InspirationAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
         });
     }
 
-    /**
-     * Method to load creator profile picture.
-     *
-     * @param picUrl    picture URL.
-     * @param imageView View where image to be loaded.
-     */
-    private void loadCreatorPic(String picUrl, CircleImageView imageView) {
-        Picasso.with(mContext)
-                .load(picUrl)
-                .error(R.drawable.ic_account_circle_100)
-                .into(imageView);
-    }
+
 
     /**
      * Method to open creator profile.
@@ -248,9 +227,8 @@ public class InspirationAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
         view.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent = new Intent(mContext, ProfileActivity.class);
-                intent.putExtra(EXTRA_PROFILE_UUID, creatorUUID);
-                mContext.startActivity(intent);
+                //Method called
+                IntentHelper.openProfileActivity(mContext, creatorUUID);
             }
         });
     }
@@ -259,7 +237,7 @@ public class InspirationAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
     //ItemViewHolder class
     static class ItemViewHolder extends RecyclerView.ViewHolder {
         @BindView(R.id.inspirationImage)
-        ImageView imageInspiration;
+        SimpleDraweeView imageInspiration;
 
         public ItemViewHolder(View itemView) {
             super(itemView);
@@ -270,13 +248,13 @@ public class InspirationAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
     //ItemViewDetailsHolder class
     static class ItemViewHolderDetail extends RecyclerView.ViewHolder {
         @BindView(R.id.imageCreator)
-        CircleImageView imageCreator;
+        SimpleDraweeView imageCreator;
         @BindView(R.id.textCreatorName)
         TextView textCreatorName;
         @BindView(R.id.containerCreator)
         RelativeLayout containerCreator;
         @BindView(R.id.imageInspiration)
-        ImageView imageInspiration;
+        SimpleDraweeView imageInspiration;
 
         public ItemViewHolderDetail(View itemView) {
             super(itemView);

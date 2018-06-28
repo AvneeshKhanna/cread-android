@@ -15,8 +15,8 @@ import android.widget.TextView;
 
 import com.afollestad.materialdialogs.DialogAction;
 import com.afollestad.materialdialogs.MaterialDialog;
+import com.crashlytics.android.Crashlytics;
 import com.google.firebase.analytics.FirebaseAnalytics;
-import com.google.firebase.crash.FirebaseCrash;
 import com.razorpay.Checkout;
 import com.razorpay.PaymentResultListener;
 import com.rx2androidnetworking.Rx2AndroidNetworking;
@@ -342,7 +342,8 @@ public class AddressActivity extends BaseActivity implements PaymentResultListen
         } catch (Exception e) {
             e.printStackTrace();
             ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_internal));
-            FirebaseCrash.report(e);
+            Crashlytics.logException(e);
+            Crashlytics.setString("className", "AddressActivity");
         }
     }
 
@@ -363,7 +364,8 @@ public class AddressActivity extends BaseActivity implements PaymentResultListen
             }
         } catch (Exception e) {
             e.printStackTrace();
-            FirebaseCrash.report(e);
+            Crashlytics.logException(e);
+            Crashlytics.setString("className", "AddressActivity");
 
             showPaymentStatusDialog(PAYMENT_STATUS_SERVER_ERROR);
         }
@@ -470,7 +472,8 @@ public class AddressActivity extends BaseActivity implements PaymentResultListen
 
         } catch (JSONException e) {
             e.printStackTrace();
-            FirebaseCrash.report(e);
+            Crashlytics.logException(e);
+            Crashlytics.setString("className", "AddressActivity");
         }
 
         Rx2AndroidNetworking.post(BuildConfig.URL + "/order/place")
@@ -506,7 +509,8 @@ public class AddressActivity extends BaseActivity implements PaymentResultListen
                             }
                         } catch (JSONException e) {
                             e.printStackTrace();
-                            FirebaseCrash.report(e);
+                            Crashlytics.logException(e);
+                            Crashlytics.setString("className", "AddressActivity");
                             showPaymentStatusDialog(PAYMENT_STATUS_SERVER_ERROR);
                         }
                     }
@@ -517,7 +521,8 @@ public class AddressActivity extends BaseActivity implements PaymentResultListen
                         dialog.dismiss();
 
                         e.printStackTrace();
-                        FirebaseCrash.report(e);
+                        Crashlytics.logException(e);
+                        Crashlytics.setString("className", "AddressActivity");
                         showPaymentStatusDialog(PAYMENT_STATUS_SERVER_ERROR);
                     }
 

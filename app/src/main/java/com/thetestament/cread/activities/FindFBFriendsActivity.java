@@ -22,13 +22,13 @@ import com.afollestad.materialdialogs.MaterialDialog;
 import com.androidnetworking.AndroidNetworking;
 import com.androidnetworking.error.ANError;
 import com.androidnetworking.interfaces.JSONObjectRequestListener;
+import com.crashlytics.android.Crashlytics;
 import com.facebook.AccessToken;
 import com.facebook.CallbackManager;
 import com.facebook.FacebookCallback;
 import com.facebook.FacebookException;
 import com.facebook.login.LoginResult;
 import com.facebook.login.widget.LoginButton;
-import com.google.firebase.crash.FirebaseCrash;
 import com.rx2androidnetworking.Rx2ANRequest;
 import com.rx2androidnetworking.Rx2AndroidNetworking;
 import com.thetestament.cread.BuildConfig;
@@ -335,7 +335,8 @@ public class FindFBFriendsActivity extends BaseActivity {
                             }
                         } catch (JSONException e) {
                             e.printStackTrace();
-                            FirebaseCrash.report(e);
+                            Crashlytics.logException(e);
+                            Crashlytics.setString("className", "FindFBFriendsActivity");
                             connectionError[0] = true;
                         }
                     }
@@ -345,7 +346,8 @@ public class FindFBFriendsActivity extends BaseActivity {
 
                         //Dismiss progress indicator
                         swipeRefreshLayout.setRefreshing(false);
-                        FirebaseCrash.report(e);
+                        Crashlytics.logException(e);
+                        Crashlytics.setString("className", "FindFBFriendsActivity");
 
                         ANError error = (ANError) e;
 
@@ -357,7 +359,8 @@ public class FindFBFriendsActivity extends BaseActivity {
 
                             } catch (JSONException e1) {
                                 e1.printStackTrace();
-                                FirebaseCrash.report(e1);
+                                Crashlytics.logException(e);
+                                Crashlytics.setString("className", "FindFBFriendsActivity");
                             }
                         }
                         // case when server is down
@@ -580,7 +583,8 @@ public class FindFBFriendsActivity extends BaseActivity {
                             }
                         } catch (JSONException e) {
                             e.printStackTrace();
-                            FirebaseCrash.report(e);
+                            Crashlytics.logException(e);
+                            Crashlytics.setString("className", "FindFBFriendsActivity");
                             connectionError[0] = true;
                         }
                     }
@@ -592,7 +596,8 @@ public class FindFBFriendsActivity extends BaseActivity {
                         //Remove loading item
                         mDataList.remove(mDataList.size() - 1);
                         mAdapter.notifyItemRemoved(mDataList.size());
-                        FirebaseCrash.report(e);
+                        Crashlytics.logException(e);
+                        Crashlytics.setString("className", "FindFBFriendsActivity");
                         //Server error Snack bar
                         ANError error = (ANError) e;
 
@@ -604,7 +609,8 @@ public class FindFBFriendsActivity extends BaseActivity {
 
                             } catch (JSONException e1) {
                                 e1.printStackTrace();
-                                FirebaseCrash.report(e1);
+                                Crashlytics.logException(e);
+                                Crashlytics.setString("className", "FindFBFriendsActivity");
                             }
                         }
                         // case when server is down
@@ -648,7 +654,8 @@ public class FindFBFriendsActivity extends BaseActivity {
                     jsonObject.put("fbaccesstoken", AccessToken.getCurrentAccessToken().getToken());
                 } catch (JSONException e) {
                     e.printStackTrace();
-                    FirebaseCrash.report(e);
+                    Crashlytics.logException(e);
+                    Crashlytics.setString("className", "FindFBFriendsActivity");
                 }
 
 
@@ -694,7 +701,8 @@ public class FindFBFriendsActivity extends BaseActivity {
                                     }
                                 } catch (JSONException e) {
                                     e.printStackTrace();
-                                    FirebaseCrash.report(e);
+                                    Crashlytics.logException(e);
+                                    Crashlytics.setString("className", "FindFBFriendsActivity");
                                     ViewHelper.getSnackBar(rootView
                                             , getString(R.string.error_msg_internal));
                                 }
@@ -703,7 +711,8 @@ public class FindFBFriendsActivity extends BaseActivity {
                             @Override
                             public void onError(ANError anError) {
                                 anError.printStackTrace();
-                                FirebaseCrash.report(anError);
+                                Crashlytics.logException(anError);
+                                Crashlytics.setString("className", "FindFBFriendsActivity");
 
                                 if (anError.getErrorCode() == 500) {
                                     try {

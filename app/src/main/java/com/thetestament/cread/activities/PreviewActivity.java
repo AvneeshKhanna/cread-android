@@ -35,7 +35,7 @@ import com.afollestad.materialdialogs.MaterialDialog;
 import com.androidnetworking.AndroidNetworking;
 import com.androidnetworking.error.ANError;
 import com.androidnetworking.interfaces.JSONObjectRequestListener;
-import com.google.firebase.crash.FirebaseCrash;
+import com.crashlytics.android.Crashlytics;
 import com.linkedin.android.spyglass.suggestions.SuggestionsResult;
 import com.linkedin.android.spyglass.suggestions.interfaces.Suggestible;
 import com.linkedin.android.spyglass.suggestions.interfaces.SuggestionsResultListener;
@@ -949,7 +949,6 @@ public class PreviewActivity extends BaseActivity implements QueryTokenReceiver,
 
         final MaterialDialog dialog = CustomDialog
                 .getProgressDialog(mContext, "Uploading your capture");
-        dialog.show();
 
 
         Rx2AndroidNetworking.upload(BuildConfig.URL + "/capture-upload/collaborated")
@@ -1030,7 +1029,8 @@ public class PreviewActivity extends BaseActivity implements QueryTokenReceiver,
                             }
                         } catch (JSONException e) {
                             e.printStackTrace();
-                            FirebaseCrash.report(e);
+                            Crashlytics.logException(e);
+                            Crashlytics.setString("className", "PreviewActivity");
                             ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_internal));
                         }
                     }
@@ -1039,7 +1039,8 @@ public class PreviewActivity extends BaseActivity implements QueryTokenReceiver,
                     public void onError(@io.reactivex.annotations.NonNull Throwable e) {
                         dialog.dismiss();
                         e.printStackTrace();
-                        FirebaseCrash.report(e);
+                        Crashlytics.logException(e);
+                        Crashlytics.setString("className", "PreviewActivity");
                         ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_server));
                     }
 
@@ -1073,7 +1074,6 @@ public class PreviewActivity extends BaseActivity implements QueryTokenReceiver,
         //To show the progress dialog
         final MaterialDialog dialog = CustomDialog.
                 getProgressDialog(mContext, "Uploading your writing");
-        dialog.show();
 
 
         Rx2AndroidNetworking.upload(BuildConfig.URL + "/short-upload")
@@ -1153,7 +1153,8 @@ public class PreviewActivity extends BaseActivity implements QueryTokenReceiver,
                             }
                         } catch (JSONException e) {
                             e.printStackTrace();
-                            FirebaseCrash.report(e);
+                            Crashlytics.logException(e);
+                            Crashlytics.setString("className", "PreviewActivity");
                             ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_internal));
                         }
                     }
@@ -1162,7 +1163,8 @@ public class PreviewActivity extends BaseActivity implements QueryTokenReceiver,
                     public void onError(@io.reactivex.annotations.NonNull Throwable e) {
                         dialog.dismiss();
                         e.printStackTrace();
-                        FirebaseCrash.report(e);
+                        Crashlytics.logException(e);
+                        Crashlytics.setString("className", "PreviewActivity");
                         ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_server));
                     }
 
@@ -1196,7 +1198,7 @@ public class PreviewActivity extends BaseActivity implements QueryTokenReceiver,
         //To show the progress dialog
         final MaterialDialog dialog = CustomDialog
                 .getProgressDialog(mContext, "Uploading your writing");
-        dialog.show();
+
 
         Rx2AndroidNetworking.upload(BuildConfig.URL + "/short-upload/edit")
                 .setOkHttpClient(okHttpClient)
@@ -1277,7 +1279,8 @@ public class PreviewActivity extends BaseActivity implements QueryTokenReceiver,
                             }
                         } catch (JSONException e) {
                             e.printStackTrace();
-                            FirebaseCrash.report(e);
+                            Crashlytics.logException(e);
+                            Crashlytics.setString("className", "PreviewActivity");
                             ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_internal));
                         }
                     }
@@ -1286,7 +1289,8 @@ public class PreviewActivity extends BaseActivity implements QueryTokenReceiver,
                     public void onError(@io.reactivex.annotations.NonNull Throwable e) {
                         dialog.dismiss();
                         e.printStackTrace();
-                        FirebaseCrash.report(e);
+                        Crashlytics.logException(e);
+                        Crashlytics.setString("className", "PreviewActivity");
                         ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_server));
                     }
 
@@ -1311,7 +1315,6 @@ public class PreviewActivity extends BaseActivity implements QueryTokenReceiver,
         //To show the progress dialog
         final MaterialDialog dialog = CustomDialog
                 .getProgressDialog(mContext, "Uploading your graphic art");
-        dialog.show();
 
         //Decode image file
         BitmapFactory.Options options = new BitmapFactory.Options();
@@ -1383,7 +1386,8 @@ public class PreviewActivity extends BaseActivity implements QueryTokenReceiver,
                             }
                         } catch (JSONException e) {
                             e.printStackTrace();
-                            FirebaseCrash.report(e);
+                            Crashlytics.logException(e);
+                            Crashlytics.setString("className", "PreviewActivity");
                             ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_internal));
                         }
                     }
@@ -1391,7 +1395,8 @@ public class PreviewActivity extends BaseActivity implements QueryTokenReceiver,
                     @Override
                     public void onError(ANError anError) {
                         dialog.dismiss();
-                        FirebaseCrash.report(anError);
+                        Crashlytics.logException(anError);
+                        Crashlytics.setString("className", "PreviewActivity");
                         ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_server));
                     }
                 });
@@ -1411,7 +1416,6 @@ public class PreviewActivity extends BaseActivity implements QueryTokenReceiver,
 
         final MaterialDialog dialog = CustomDialog
                 .getProgressDialog(mContext, "Updating your caption");
-        dialog.show();
 
         //Configure OkHttpClient for time out
         OkHttpClient okHttpClient = new OkHttpClient().newBuilder()
@@ -1455,7 +1459,8 @@ public class PreviewActivity extends BaseActivity implements QueryTokenReceiver,
                             }
                         } catch (JSONException e) {
                             e.printStackTrace();
-                            FirebaseCrash.report(e);
+                            Crashlytics.logException(e);
+                            Crashlytics.setString("className", "PreviewActivity");
                             ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_internal));
                         }
                     }
@@ -1463,7 +1468,8 @@ public class PreviewActivity extends BaseActivity implements QueryTokenReceiver,
                     @Override
                     public void onError(ANError anError) {
                         dialog.dismiss();
-                        FirebaseCrash.report(anError);
+                        Crashlytics.logException(anError);
+                        Crashlytics.setString("className", "PreviewActivity");
                         ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_server));
                     }
                 });
@@ -1808,7 +1814,8 @@ public class PreviewActivity extends BaseActivity implements QueryTokenReceiver,
 
                         } catch (JSONException e) {
                             e.printStackTrace();
-                            FirebaseCrash.report(e);
+                            Crashlytics.logException(e);
+                            Crashlytics.setString("className", "PreviewActivity");
                             ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_internal));
                         }
                     }
@@ -1817,7 +1824,8 @@ public class PreviewActivity extends BaseActivity implements QueryTokenReceiver,
                     public void onError(Throwable e) {
 
                         e.printStackTrace();
-                        FirebaseCrash.report(e);
+                        Crashlytics.logException(e);
+                        Crashlytics.setString("className", "PreviewActivity");
                         //Server error Snack bar
                         ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_server));
                     }
@@ -1854,7 +1862,8 @@ public class PreviewActivity extends BaseActivity implements QueryTokenReceiver,
 
                         } catch (JSONException e) {
                             e.printStackTrace();
-                            FirebaseCrash.report(e);
+                            Crashlytics.logException(e);
+                            Crashlytics.setString("className", "PreviewActivity");
                             ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_internal));
                         }
 
@@ -1866,7 +1875,8 @@ public class PreviewActivity extends BaseActivity implements QueryTokenReceiver,
                         //Remove loading item
                         mSuggestionsList.remove(mSuggestionsList.size() - 1);
                         mMentionsAdapter.notifyItemRemoved(mSuggestionsList.size());
-                        FirebaseCrash.report(e);
+                        Crashlytics.logException(e);
+                        Crashlytics.setString("className", "PreviewActivity");
                         //Server error Snack bar
                         ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_server));
 
@@ -1994,7 +2004,7 @@ public class PreviewActivity extends BaseActivity implements QueryTokenReceiver,
      * @param contentType GRAPHICS or WRITING.
      */
     private void loadLabelsData(String entityID, String contentType) {
-        HashTagNetworkManager.geHashTagSuggestionData(mContext
+        HashTagNetworkManager.getHashTagSuggestionData(mContext
                 , mCompositeDisposable
                 , entityID
                 , contentType

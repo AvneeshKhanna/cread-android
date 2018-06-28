@@ -23,14 +23,12 @@ import android.widget.TextView;
 
 import com.afollestad.materialdialogs.DialogAction;
 import com.afollestad.materialdialogs.MaterialDialog;
-import com.google.firebase.crash.FirebaseCrash;
-import com.rx2androidnetworking.Rx2AndroidNetworking;
+import com.crashlytics.android.Crashlytics;
 import com.thetestament.cread.BuildConfig;
 import com.thetestament.cread.R;
 import com.thetestament.cread.activities.CashInActivity;
 import com.thetestament.cread.activities.FeedDescriptionActivity;
 import com.thetestament.cread.adapters.RoyaltiesAdapter;
-import com.thetestament.cread.helpers.NetworkHelper;
 import com.thetestament.cread.helpers.SharedPreferenceHelper;
 import com.thetestament.cread.helpers.ViewHelper;
 import com.thetestament.cread.listeners.listener;
@@ -50,12 +48,7 @@ import butterknife.ButterKnife;
 import butterknife.OnClick;
 import butterknife.Unbinder;
 import icepick.Icepick;
-import io.reactivex.Observer;
-import io.reactivex.android.schedulers.AndroidSchedulers;
-import io.reactivex.annotations.NonNull;
 import io.reactivex.disposables.CompositeDisposable;
-import io.reactivex.disposables.Disposable;
-import io.reactivex.schedulers.Schedulers;
 
 import static android.app.Activity.RESULT_OK;
 import static com.thetestament.cread.CreadApp.GET_RESPONSE_FROM_NETWORK_ENTITY_SPECIFIC;
@@ -63,8 +56,6 @@ import static com.thetestament.cread.helpers.FeedHelper.parseEntitySpecificJSON;
 import static com.thetestament.cread.helpers.NetworkHelper.getEntitySpecificObservable;
 import static com.thetestament.cread.helpers.NetworkHelper.getRoyaltiesObservable;
 import static com.thetestament.cread.helpers.NetworkHelper.requestServer;
-import static com.thetestament.cread.utils.Constant.CONTENT_TYPE_CAPTURE;
-import static com.thetestament.cread.utils.Constant.CONTENT_TYPE_SHORT;
 import static com.thetestament.cread.utils.Constant.EXTRA_CASH_IN_AMOUNT;
 import static com.thetestament.cread.utils.Constant.EXTRA_DATA;
 import static com.thetestament.cread.utils.Constant.EXTRA_FEED_DESCRIPTION_DATA;
@@ -325,7 +316,8 @@ public class RoyaltiesFragment extends Fragment {
 
                         } catch (JSONException e) {
                             e.printStackTrace();
-                            FirebaseCrash.report(e);
+                            Crashlytics.logException(e);
+                            Crashlytics.setString("className", "RoyaltiesFragment");
                             connectionError[0] = true;
                         }
 
@@ -335,7 +327,8 @@ public class RoyaltiesFragment extends Fragment {
                     public void onErrorCalled(Throwable e) {
 
                         swipeRefreshLayout.setRefreshing(false);
-                        FirebaseCrash.report(e);
+                        Crashlytics.logException(e);
+                        Crashlytics.setString("className", "RoyaltiesFragment");
                         //Server error Snack bar
                         ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_server));
                     }
@@ -417,7 +410,8 @@ public class RoyaltiesFragment extends Fragment {
 
                         } catch (JSONException e) {
                             e.printStackTrace();
-                            FirebaseCrash.report(e);
+                            Crashlytics.logException(e);
+                            Crashlytics.setString("className", "RoyaltiesFragment");
                             connectionError[0] = true;
                         }
                     }
@@ -429,7 +423,8 @@ public class RoyaltiesFragment extends Fragment {
                         mDataList.remove(mDataList.size() - 1);
                         //Notify changes
                         mAdapter.notifyItemRemoved(mDataList.size());
-                        FirebaseCrash.report(e);
+                        Crashlytics.logException(e);
+                        Crashlytics.setString("className", "RoyaltiesFragment");
                         //Server error Snack bar
                         ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_server));
                     }
@@ -551,7 +546,8 @@ public class RoyaltiesFragment extends Fragment {
                             }
                         } catch (JSONException e) {
                             e.printStackTrace();
-                            FirebaseCrash.report(e);
+                            Crashlytics.logException(e);
+                            Crashlytics.setString("className", "RoyaltiesFragment");
                             connectionError[0] = true;
                         }
                     }
@@ -560,7 +556,8 @@ public class RoyaltiesFragment extends Fragment {
                     public void onErrorCalled(Throwable e) {
 
                         progressBar.setVisibility(View.GONE);
-                        FirebaseCrash.report(e);
+                        Crashlytics.logException(e);
+                        Crashlytics.setString("className", "RoyaltiesFragment");
                         //Server error Snack bar
                         ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_server));
                     }

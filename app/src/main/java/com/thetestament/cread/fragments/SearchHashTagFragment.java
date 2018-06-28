@@ -19,7 +19,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 
-import com.google.firebase.crash.FirebaseCrash;
+import com.crashlytics.android.Crashlytics;
 import com.thetestament.cread.R;
 import com.thetestament.cread.adapters.SearchAdapter;
 import com.thetestament.cread.helpers.ViewHelper;
@@ -259,7 +259,8 @@ public class SearchHashTagFragment extends Fragment {
 
                         } catch (JSONException e) {
                             e.printStackTrace();
-                            FirebaseCrash.report(e);
+                            Crashlytics.logException(e);
+                            Crashlytics.setString("className", "SearchHashTagFragment");
                             ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_internal));
                         }
                     }
@@ -271,7 +272,8 @@ public class SearchHashTagFragment extends Fragment {
                         mDataList.clear();
                         mAdapter.notifyDataSetChanged();
                         e.printStackTrace();
-                        FirebaseCrash.report(e);
+                        Crashlytics.logException(e);
+                        Crashlytics.setString("className", "SearchHashTagFragment");
                         //Server error Snack bar
                         ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_server));
                     }
@@ -347,7 +349,8 @@ public class SearchHashTagFragment extends Fragment {
 
                         } catch (JSONException e) {
                             e.printStackTrace();
-                            FirebaseCrash.report(e);
+                            Crashlytics.logException(e);
+                            Crashlytics.setString("className", "SearchHashTagFragment");
                             ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_internal));
                         }
                     }
@@ -357,7 +360,8 @@ public class SearchHashTagFragment extends Fragment {
                         //Remove loading item
                         mDataList.remove(mDataList.size() - 1);
                         mAdapter.notifyItemRemoved(mDataList.size());
-                        FirebaseCrash.report(e);
+                        Crashlytics.logException(e);
+                        Crashlytics.setString("className", "SearchHashTagFragment");
                         //Server error Snack bar
                         ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_server));
                     }

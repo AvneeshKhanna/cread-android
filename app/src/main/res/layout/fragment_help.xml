@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/rootView"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:animateLayoutChanges="true">
+
+
+    <!--Swipe to refresh layout which contains help recyclerView-->
+    <android.support.v4.widget.SwipeRefreshLayout
+        android:id="@+id/swipeToRefreshLayout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/recyclerView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layoutAnimation="@anim/layout_animation_from_bottom"
+            app:layoutManager="android.support.v7.widget.LinearLayoutManager"
+            tools:itemCount="6"
+            tools:listitem="@layout/item_feed" />
+    </android.support.v4.widget.SwipeRefreshLayout>
+
+
+</android.support.design.widget.CoordinatorLayout>

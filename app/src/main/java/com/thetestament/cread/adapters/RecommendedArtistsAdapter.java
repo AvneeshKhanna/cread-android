@@ -1,7 +1,6 @@
 package com.thetestament.cread.adapters;
 
-import android.content.Context;
-import android.content.Intent;
+import android.net.Uri;
 import android.support.v4.app.FragmentActivity;
 import android.support.v7.widget.AppCompatTextView;
 import android.support.v7.widget.LinearLayoutManager;
@@ -10,11 +9,11 @@ import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
 
-import com.squareup.picasso.Picasso;
+import com.facebook.drawee.view.SimpleDraweeView;
 import com.thetestament.cread.R;
-import com.thetestament.cread.activities.ProfileActivity;
+import com.thetestament.cread.helpers.ImageHelper;
+import com.thetestament.cread.helpers.IntentHelper;
 import com.thetestament.cread.listeners.listener;
 import com.thetestament.cread.models.RecommendedArtistsModel;
 
@@ -22,9 +21,6 @@ import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import de.hdodenhof.circleimageview.CircleImageView;
-
-import static com.thetestament.cread.utils.Constant.EXTRA_PROFILE_UUID;
 
 /**
  * Adapter class to provide a binding from data set to views that are displayed within a RecommendedArtist RecyclerView.
@@ -98,8 +94,9 @@ public class RecommendedArtistsAdapter extends RecyclerView.Adapter<RecyclerView
             setArtistBio(data.getArtistBio(), itemViewHolder.textArtistBio);
 
             //Load Artist profile image view
-            loadImageFromUrl(mContext, itemViewHolder.imageArtist
-                    , data.getArtistProfilePic(), R.drawable.ic_account_circle_100);
+            ImageHelper.loadProgressiveImage(Uri.parse(data.getArtistProfilePic())
+                    , itemViewHolder.imageArtist);
+
             //Method called
             setArtistContentImage(data, itemViewHolder.recyclerView);
             followOnClick(itemViewHolder.buttonFollow, data.getArtistUUID(), itemViewHolder.getAdapterPosition());
@@ -121,7 +118,7 @@ public class RecommendedArtistsAdapter extends RecyclerView.Adapter<RecyclerView
     //ItemViewHolder class
     static class ItemViewHolder extends RecyclerView.ViewHolder {
         @BindView(R.id.imageArtist)
-        CircleImageView imageArtist;
+        SimpleDraweeView imageArtist;
         @BindView(R.id.textArtistName)
         AppCompatTextView textArtistName;
         @BindView(R.id.textPostCount)
@@ -206,18 +203,6 @@ public class RecommendedArtistsAdapter extends RecyclerView.Adapter<RecyclerView
 
     }
 
-    /**
-     * @param context     Context to use.
-     * @param imageView   View where image to be loaded.
-     * @param url         Url of image.
-     * @param placeholder Resource ID of error placeholder drawable.
-     */
-    private void loadImageFromUrl(Context context, ImageView imageView, String url, int placeholder) {
-        Picasso.with(context)
-                .load(url)
-                .error(placeholder)
-                .into(imageView);
-    }
 
     /**
      * @param data         Instance of RecommendedArtistsModel.
@@ -258,9 +243,8 @@ public class RecommendedArtistsAdapter extends RecyclerView.Adapter<RecyclerView
         itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent = new Intent(mContext, ProfileActivity.class);
-                intent.putExtra(EXTRA_PROFILE_UUID, UUID);
-                mContext.startActivity(intent);
+                //Method called
+                IntentHelper.openProfileActivity(mContext, UUID);
             }
         });
     }

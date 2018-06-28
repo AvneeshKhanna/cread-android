@@ -325,28 +325,6 @@ public class SharedPreferenceHelper {
      *
      * @return True by default.
      */
-    public boolean isMeFragmentFirstTime() {
-        return mSharedPreferences
-                .getBoolean(mContext.getString(R.string.key_me_dialog), true);
-    }
-
-
-    /**
-     * Method to update 'Write button' tooltip status.
-     *
-     * @param status boolean value i.e true or false
-     */
-    public void updateMeFragmentStatus(boolean status) {
-        SharedPreferences.Editor editor = mSharedPreferences.edit();
-        editor.putBoolean(mContext.getString(R.string.key_me_dialog), status);
-        editor.apply();
-    }
-
-    /**
-     * Method to retrieve "Write button " tooltip status.
-     *
-     * @return True by default.
-     */
     public boolean isRoyaltyFirstTime() {
         return mSharedPreferences
                 .getBoolean(mContext.getString(R.string.key_royalty_dialog), true);
@@ -443,15 +421,23 @@ public class SharedPreferenceHelper {
         return Constant.ITEM_TYPES.toItemType(enumString);
     }
 
+    /**
+     *
+     * */
     public void setNotifIndicatorStatus(boolean shouldShow) {
         SharedPreferences.Editor editor = mSharedPreferences.edit();
-        editor.putBoolean(mContext.getString(R.string.key_show_notif_indicator), shouldShow);
+        editor.putBoolean(mContext.getString(R.string.key_show_updates_badge), shouldShow);
         editor.apply();
     }
 
-    public boolean shouldShowNotifIndicator() {
+    /**
+     * Method to return status whether to show badge view for updates screen or not.
+     *
+     * @return False by default.
+     */
+    public boolean shouldShowUpdatesBadgeView() {
         return mSharedPreferences
-                .getBoolean(mContext.getString(R.string.key_show_notif_indicator), false);
+                .getBoolean(mContext.getString(R.string.key_show_updates_badge), false);
     }
 
 
@@ -514,27 +500,6 @@ public class SharedPreferenceHelper {
                 .getBoolean(mContext.getString(R.string.key_personal_chat_indicator), false);
     }
 
-    /**
-     * Method to retrieve chat dialog.
-     *
-     * @return True by default.
-     */
-    public boolean isChatDialogFirstTime() {
-        return mSharedPreferences
-                .getBoolean(mContext.getString(R.string.key_personal_chat_dialog), true);
-    }
-
-
-    /**
-     * Method to update 'Write button' tooltip status.
-     *
-     * @param status boolean value i.e true or false
-     */
-    public void updateChatDialogStatus(boolean status) {
-        SharedPreferences.Editor editor = mSharedPreferences.edit();
-        editor.putBoolean(mContext.getString(R.string.key_personal_chat_dialog), status);
-        editor.apply();
-    }
 
     /**
      * Method to retrieve chat dialog.
@@ -714,6 +679,49 @@ public class SharedPreferenceHelper {
     }
 
 
+    /**
+     * Method to retrieve web store dot indicator status.
+     *
+     * @return True by default.
+     */
+    public boolean isWebStoreDotIndicatorFirstTime() {
+        return mSharedPreferences
+                .getBoolean(mContext.getString(R.string.key_web_store_dot), true);
+    }
 
+
+    /**
+     * Method to update web store dot indicator status.
+     *
+     * @param status boolean value i.e true or false
+     */
+    public void updateWebStoreDotIndicatorStatus(boolean status) {
+        SharedPreferences.Editor editor = mSharedPreferences.edit();
+        editor.putBoolean(mContext.getString(R.string.key_web_store_dot), status);
+        editor.apply();
+    }
+
+
+    /**
+     * Method to retrieve whether Product tour.
+     *
+     * @return True by default.
+     */
+    public boolean isProductTourFirstTime() {
+        return mSharedPreferences
+                .getBoolean(mContext.getString(R.string.key_product_tour), true);
+    }
+
+
+    /**
+     * Method to update product tour status.
+     *
+     * @param status boolean value i.e true or false
+     */
+    public void updateProductTourStatus(boolean status) {
+        SharedPreferences.Editor editor = mSharedPreferences.edit();
+        editor.putBoolean(mContext.getString(R.string.key_product_tour), status);
+        editor.apply();
+    }
 
 }

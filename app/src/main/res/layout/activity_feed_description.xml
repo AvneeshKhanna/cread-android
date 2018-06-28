@@ -5,13 +5,10 @@
     android:layout_height="match_parent"
     android:background="@color/grey_light">
 
-
     <android.support.v7.widget.RecyclerView
         android:id="@+id/recyclerViewPosts"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
-
-    </android.support.v7.widget.RecyclerView>
+        android:layout_height="wrap_content" />
 
 
 </android.support.design.widget.CoordinatorLayout>

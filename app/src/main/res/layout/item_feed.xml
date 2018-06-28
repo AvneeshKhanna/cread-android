@@ -24,13 +24,14 @@
             android:layout_height="wrap_content">
 
 
-            <ImageView
+            <com.facebook.drawee.view.SimpleDraweeView
                 android:id="@+id/imageFeed"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:adjustViewBounds="true"
-                android:scaleType="fitXY"
-                android:src="@drawable/image_placeholder" />
+                app:actualImageScaleType="fitXY"
+                app:failureImage="@drawable/image_placeholder"
+                app:failureImageScaleType="centerCrop" />
 
 
             <FrameLayout
@@ -40,8 +41,11 @@
                 android:layout_alignParentRight="true"
                 android:layout_marginBottom="5dp"
                 android:layout_marginRight="3dp"
-                android:background="@color/black_overlay"
-                android:padding="5dp">
+                android:background="@drawable/bg_buy_button"
+                android:paddingBottom="5dp"
+                android:paddingLeft="16dp"
+                android:paddingRight="16dp"
+                android:paddingTop="5dp">
 
                 <LinearLayout
                     android:id="@+id/buttonHave"
@@ -59,9 +63,8 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginLeft="5dp"
-                        android:text="Have"
+                        android:text="Buy"
                         android:textColor="@color/white" />
-
 
                 </LinearLayout>
 
@@ -264,10 +267,10 @@
                 android:id="@+id/containerActions"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_alignParentLeft="true"
                 android:layout_marginTop="8dp"
                 android:orientation="horizontal"
-                android:paddingBottom="8dp"
-                android:layout_alignParentLeft="true">
+                android:paddingBottom="8dp">
 
                 <LinearLayout
                     android:id="@+id/containerHatsOff"
@@ -325,8 +328,8 @@
             <include
                 android:id="@+id/layoutShareOptions"
                 layout="@layout/layout_share_options"
-                android:layout_height="wrap_content"
                 android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
                 android:layout_alignParentRight="true"
                 android:layout_centerInParent="true">
 

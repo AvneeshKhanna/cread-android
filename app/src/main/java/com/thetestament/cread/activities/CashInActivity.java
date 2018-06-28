@@ -18,7 +18,7 @@ import com.afollestad.materialdialogs.MaterialDialog;
 import com.androidnetworking.AndroidNetworking;
 import com.androidnetworking.error.ANError;
 import com.androidnetworking.interfaces.JSONObjectRequestListener;
-import com.google.firebase.crash.FirebaseCrash;
+import com.crashlytics.android.Crashlytics;
 import com.thetestament.cread.BuildConfig;
 import com.thetestament.cread.R;
 import com.thetestament.cread.helpers.SharedPreferenceHelper;
@@ -33,7 +33,6 @@ import butterknife.ButterKnife;
 import butterknife.OnClick;
 import icepick.Icepick;
 import icepick.State;
-
 import uk.co.chrisjenx.calligraphy.CalligraphyContextWrapper;
 
 import static com.thetestament.cread.utils.Constant.EXTRA_CASH_IN_AMOUNT;
@@ -205,7 +204,7 @@ public class CashInActivity extends BaseActivity {
         final MaterialDialog dialog = builder.build();
         dialog.show();
 
-        
+
         final JSONObject jsonObject = new JSONObject();
         try {
             jsonObject.put("uuid", mHelper.getUUID());
@@ -215,7 +214,8 @@ public class CashInActivity extends BaseActivity {
         } catch (JSONException e) {
             dialog.dismiss();
             e.printStackTrace();
-            FirebaseCrash.report(e);
+            Crashlytics.logException(e);
+            Crashlytics.setString("className", "CashInActivity");
         }
         AndroidNetworking.post(BuildConfig.URL + "/redeem-from-wallet")
                 .addJSONObjectBody(jsonObject)
@@ -248,7 +248,8 @@ public class CashInActivity extends BaseActivity {
                             }
                         } catch (JSONException e) {
                             e.printStackTrace();
-                            FirebaseCrash.report(e);
+                            Crashlytics.logException(e);
+                            Crashlytics.setString("className", "CashInActivity");
                             dialog.dismiss();
                             ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_server));
                         }

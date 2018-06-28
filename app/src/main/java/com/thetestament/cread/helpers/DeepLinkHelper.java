@@ -10,7 +10,7 @@ import android.view.View;
 
 import com.afollestad.materialdialogs.DialogAction;
 import com.afollestad.materialdialogs.MaterialDialog;
-import com.google.firebase.crash.FirebaseCrash;
+import com.crashlytics.android.Crashlytics;
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Target;
 import com.thetestament.cread.BuildConfig;
@@ -82,7 +82,8 @@ public class DeepLinkHelper {
                             }
                         } catch (JSONException e) {
                             e.printStackTrace();
-                            FirebaseCrash.report(e);
+                            Crashlytics.logException(e);
+                            Crashlytics.setString("className", "DeepLinkHelper");
                             onDeepLinkRequestedListener.onDeepLinkFailiure(context.getString(R.string.error_msg_internal), dialog);
 
                         }
@@ -91,7 +92,8 @@ public class DeepLinkHelper {
                     @Override
                     public void onErrorCalled(Throwable e) {
                         e.printStackTrace();
-                        FirebaseCrash.report(e);
+                        Crashlytics.logException(e);
+                        Crashlytics.setString("className", "DeepLinkHelper");
                         dialog.dismiss();
                         onDeepLinkRequestedListener.onDeepLinkFailiure(context.getString(R.string.error_msg_server), dialog);
 

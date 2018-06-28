@@ -11,11 +11,13 @@
     android:padding="16dp">
 
     <!--Artist image-->
-    <de.hdodenhof.circleimageview.CircleImageView
+    <com.facebook.drawee.view.SimpleDraweeView
         android:id="@+id/imageArtist"
         android:layout_width="40dp"
         android:layout_height="40dp"
-        tools:src="@tools:sample/avatars" />
+        app:failureImage="@drawable/ic_account_circle_100"
+        app:failureImageScaleType="centerCrop"
+        app:roundAsCircle="true" />
 
     <!--Artist name-->
     <android.support.v7.widget.AppCompatTextView

@@ -35,13 +35,13 @@
                     android:layout_marginLeft="8dp"
                     android:orientation="vertical">
 
-                    <de.hdodenhof.circleimageview.CircleImageView
+                    <com.facebook.drawee.view.SimpleDraweeView
                         android:id="@+id/imageCreator"
                         android:layout_width="35dp"
                         android:layout_height="35dp"
-                        android:scaleType="centerCrop"
-                        app:civ_border_color="@color/black_defined"
-                        tools:src="@drawable/ic_account_circle_100" />
+                        app:failureImage="@drawable/ic_account_circle_100"
+                        app:failureImageScaleType="centerCrop"
+                        app:roundAsCircle="true" />
 
                     <TextView
                         android:id="@+id/buttonFollow"
@@ -113,13 +113,14 @@
             android:layout_height="wrap_content"
             android:layout_below="@+id/containerCreator">
 
-            <ImageView
+            <com.facebook.drawee.view.SimpleDraweeView
                 android:id="@+id/imageExplore"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:adjustViewBounds="true"
-                android:scaleType="fitXY"
-                android:src="@drawable/image_placeholder" />
+                app:actualImageScaleType="fitXY"
+                app:failureImage="@drawable/image_placeholder"
+                app:failureImageScaleType="centerCrop" />
 
             <FrameLayout
                 android:id="@+id/containerLongShortPreview"

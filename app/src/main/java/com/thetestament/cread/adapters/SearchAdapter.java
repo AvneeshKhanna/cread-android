@@ -9,9 +9,10 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import com.squareup.picasso.Picasso;
+import com.facebook.drawee.view.SimpleDraweeView;
 import com.thetestament.cread.R;
-import com.thetestament.cread.activities.ProfileActivity;
+import com.thetestament.cread.helpers.ImageHelper;
+import com.thetestament.cread.helpers.IntentHelper;
 import com.thetestament.cread.listeners.listener;
 import com.thetestament.cread.models.SearchModel;
 
@@ -19,9 +20,7 @@ import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import de.hdodenhof.circleimageview.CircleImageView;
 
-import static com.thetestament.cread.utils.Constant.EXTRA_PROFILE_UUID;
 import static com.thetestament.cread.utils.Constant.SEARCH_TYPE_HASHTAG;
 import static com.thetestament.cread.utils.Constant.SEARCH_TYPE_NO_RESULTS;
 import static com.thetestament.cread.utils.Constant.SEARCH_TYPE_PEOPLE;
@@ -119,7 +118,8 @@ public class SearchAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
             //Set user name
             peopleViewHolder.textUserName.setText(data.getUserName());
             //Load profile picture
-            loadProfilePicture(data.getProfilePicUrl(), peopleViewHolder.imageUser);
+            ImageHelper.loadProgressiveImage(Uri.parse(data.getProfilePicUrl())
+                    , peopleViewHolder.imageUser);
             //Click functionality
             peopleItemViewOnClick(peopleViewHolder.itemView, data.getUserUUID());
         }
@@ -164,18 +164,6 @@ public class SearchAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
         mIsLoading = false;
     }
 
-    /**
-     * Method to load profile picture.
-     *
-     * @param picUrl    picture URL.
-     * @param imageView View where image to be loaded.
-     */
-    private void loadProfilePicture(String picUrl, CircleImageView imageView) {
-        Picasso.with(mContext)
-                .load(picUrl)
-                .error(R.drawable.ic_account_circle_100)
-                .into(imageView);
-    }
 
     /**
      * ItemView collabOnWritingClick functionality.
@@ -186,9 +174,8 @@ public class SearchAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
         view.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent = new Intent(mContext, ProfileActivity.class);
-                intent.putExtra(EXTRA_PROFILE_UUID, uuid);
-                mContext.startActivity(intent);
+                //Method called
+                IntentHelper.openProfileActivity(mContext, uuid);
             }
         });
     }
@@ -217,7 +204,7 @@ public class SearchAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
     //PeopleViewHolder class
     static class PeopleViewHolder extends RecyclerView.ViewHolder {
         @BindView(R.id.imageUser)
-        CircleImageView imageUser;
+        SimpleDraweeView imageUser;
         @BindView(R.id.textUserName)
         TextView textUserName;
 

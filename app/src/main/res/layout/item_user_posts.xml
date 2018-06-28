@@ -1,11 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.v7.widget.AppCompatImageView xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
+<com.facebook.drawee.view.SimpleDraweeView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/imgUserPost"
     android:layout_width="100dp"
     android:layout_height="100dp"
     android:layout_marginRight="5dp"
-    android:scaleType="fitXY"
-    tools:src="@tools:sample/backgrounds/scenic">
+    android:adjustViewBounds="true"
+    app:actualImageScaleType="centerCrop"
+    app:failureImage="@drawable/image_placeholder"
+    app:failureImageScaleType="centerCrop">
 
-</android.support.v7.widget.AppCompatImageView>
+</com.facebook.drawee.view.SimpleDraweeView>

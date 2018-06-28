@@ -6,15 +6,13 @@ import android.content.ContentProviderClient;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.SyncResult;
-import android.database.Cursor;
 import android.os.Bundle;
 import android.util.Log;
-
 
 import com.androidnetworking.AndroidNetworking;
 import com.androidnetworking.error.ANError;
 import com.androidnetworking.interfaces.JSONObjectRequestListener;
-import com.google.firebase.crash.FirebaseCrash;
+import com.crashlytics.android.Crashlytics;
 import com.thetestament.cread.BuildConfig;
 import com.thetestament.cread.database.NotificationsDBFunctions;
 import com.thetestament.cread.helpers.SharedPreferenceHelper;
@@ -102,7 +100,8 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 
         } catch (JSONException e) {
             e.printStackTrace();
-            FirebaseCrash.report(e);
+            Crashlytics.logException(e);
+            Crashlytics.setString("className", "SyncAdapter");
         }
 
         AndroidNetworking.post(BuildConfig.URL + "/user-events/save")
@@ -132,14 +131,16 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
                             }
                         } catch (JSONException e) {
                             e.printStackTrace();
-                            FirebaseCrash.report(e);
+                            Crashlytics.logException(e);
+                            Crashlytics.setString("className", "SyncAdapter");
                         }
                     }
 
                     @Override
                     public void onError(ANError anError) {
                         anError.printStackTrace();
-                        FirebaseCrash.report(anError);
+                        Crashlytics.logException(anError);
+                        Crashlytics.setString("className", "SyncAdapter");
                     }
                 });
     }

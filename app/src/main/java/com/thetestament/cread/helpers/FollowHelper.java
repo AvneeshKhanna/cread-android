@@ -2,7 +2,7 @@ package com.thetestament.cread.helpers;
 
 import android.support.v4.app.FragmentActivity;
 
-import com.google.firebase.crash.FirebaseCrash;
+import com.crashlytics.android.Crashlytics;
 import com.thetestament.cread.R;
 import com.thetestament.cread.listeners.listener;
 import com.thetestament.cread.listeners.listener.OnFollowRequestedListener;
@@ -85,7 +85,8 @@ public class FollowHelper {
                             }
                         } catch (JSONException e) {
                             e.printStackTrace();
-                            FirebaseCrash.report(e);
+                            Crashlytics.logException(e);
+                            Crashlytics.setString("className", "FollowHelper");
                             //Set listener
                             onFollowRequestedListener.onFollowFailure((context.getString(R.string.error_msg_internal)));
                         }
@@ -94,7 +95,8 @@ public class FollowHelper {
                     @Override
                     public void onErrorCalled(Throwable e) {
                         e.printStackTrace();
-                        FirebaseCrash.report(e);
+                        Crashlytics.logException(e);
+                        Crashlytics.setString("className", "FollowHelper");
                         //Set listener
                         onFollowRequestedListener.onFollowFailure((context.getString(R.string.error_msg_server)));
                     }

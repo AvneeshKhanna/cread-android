@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
@@ -23,6 +24,7 @@ import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import com.facebook.drawee.view.SimpleDraweeView;
 import com.google.firebase.analytics.FirebaseAnalytics;
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Target;
@@ -52,7 +54,6 @@ import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import de.hdodenhof.circleimageview.CircleImageView;
 import io.reactivex.disposables.CompositeDisposable;
 
 import static com.thetestament.cread.helpers.FeedHelper.initCaption;
@@ -200,16 +201,16 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         if (holder.getItemViewType() == VIEW_TYPE_ITEM) {
             final ItemViewHolder itemViewHolder = (ItemViewHolder) holder;
             //Load creator profile picture
-            ImageHelper.loadImageFromPicasso(mContext, itemViewHolder.imageCreator
-                    , data.getCreatorImage(), R.drawable.ic_account_circle_100);
+            ImageHelper.loadProgressiveImage(Uri.parse(data.getCreatorImage())
+                    , itemViewHolder.imageCreator);
 
             //Set image width and height
             AspectRatioUtils.setImageAspectRatio(data.getImgWidth()
                     , data.getImgHeight()
                     , itemViewHolder.imageFeed);
             //Load feed image
-            loadFeedImage(data.getContentImage(), itemViewHolder.imageFeed);
-
+            ImageHelper.loadProgressiveImage(Uri.parse(data.getContentImage())
+                    , itemViewHolder.imageFeed);
             // Set text and click actions acc. to content type
             FeedHelper.performContentTypeSpecificOperations(mContext
                     , data
@@ -356,18 +357,6 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     }
 
 
-    /**
-     * Method to load feed image.
-     *
-     * @param imageUrl  picture URL.
-     * @param imageView View where image to be loaded.
-     */
-    private void loadFeedImage(String imageUrl, final ImageView imageView) {
-        Picasso.with(mContext)
-                .load(imageUrl)
-                .error(R.drawable.image_placeholder)
-                .into(imageView);
-    }
 
 
     /**
@@ -683,13 +672,13 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     //ItemViewHolder class
     static class ItemViewHolder extends RecyclerView.ViewHolder {
         @BindView(R.id.imageCreator)
-        CircleImageView imageCreator;
+        SimpleDraweeView imageCreator;
         @BindView(R.id.textCreatorName)
         TextView textCreatorName;
         @BindView(R.id.containerCreator)
         RelativeLayout containerCreator;
         @BindView(R.id.imageFeed)
-        ImageView imageFeed;
+        SimpleDraweeView imageFeed;
         @BindView(R.id.buttonCollaborate)
         TextView buttonCollaborate;
         @BindView(R.id.imageHatsOff)

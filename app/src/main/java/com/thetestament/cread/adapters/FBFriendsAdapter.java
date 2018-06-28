@@ -1,6 +1,6 @@
 package com.thetestament.cread.adapters;
 
-import android.content.Intent;
+import android.net.Uri;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.view.ViewCompat;
@@ -10,9 +10,10 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import com.squareup.picasso.Picasso;
+import com.facebook.drawee.view.SimpleDraweeView;
 import com.thetestament.cread.R;
-import com.thetestament.cread.activities.ProfileActivity;
+import com.thetestament.cread.helpers.ImageHelper;
+import com.thetestament.cread.helpers.IntentHelper;
 import com.thetestament.cread.listeners.listener.OnFollowFriendsClickedListener;
 import com.thetestament.cread.listeners.listener.OnFriendsLoadMoreListener;
 import com.thetestament.cread.models.FBFriendsModel;
@@ -21,9 +22,6 @@ import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import de.hdodenhof.circleimageview.CircleImageView;
-
-import static com.thetestament.cread.utils.Constant.EXTRA_PROFILE_UUID;
 
 public class FBFriendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
@@ -98,7 +96,8 @@ public class FBFriendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
             //set user name
             itemViewHolder.textUserName.setText(data.getFirstName() + " " + data.getLastName());
             //Load profile picture
-            loadProfilePicture(data.getProfilePicUrl(), itemViewHolder.imageUser);
+            ImageHelper.loadProgressiveImage(Uri.parse(data.getProfilePicUrl())
+                    , itemViewHolder.imageUser);
 
 
             itemViewHolder.isFollowing = data.isFollowStatus();
@@ -140,7 +139,7 @@ public class FBFriendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
     //ItemViewHolder class
     static class ItemViewHolder extends RecyclerView.ViewHolder {
         @BindView(R.id.imageUser)
-        CircleImageView imageUser;
+        SimpleDraweeView imageUser;
         @BindView(R.id.textUserName)
         TextView textUserName;
         @BindView(R.id.buttonFollow)
@@ -180,18 +179,7 @@ public class FBFriendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
         }
     }
 
-    /**
-     * Method to load creator profile picture.
-     *
-     * @param picUrl    picture URL.
-     * @param imageView View where image to be loaded.
-     */
-    private void loadProfilePicture(String picUrl, CircleImageView imageView) {
-        Picasso.with(mContext)
-                .load(picUrl)
-                .error(R.drawable.ic_account_circle_100)
-                .into(imageView);
-    }
+
 
     /**
      * Method is toggle the loading status
@@ -209,9 +197,8 @@ public class FBFriendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
         view.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent = new Intent(mContext, ProfileActivity.class);
-                intent.putExtra(EXTRA_PROFILE_UUID, uuid);
-                mContext.startActivity(intent);
+                //Method called
+                IntentHelper.openProfileActivity(mContext, uuid);
             }
         });
     }
