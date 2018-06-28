@@ -69,7 +69,7 @@ public class GifHelper {
         this.frameLayout = frameLayout;
         this.mShareOption = shareOption;
         this.mCreateForSharing = createForSharing;
-        materialDialog = CustomDialog.getProgressDialog(mContext, mContext.getString(R.string.title_gif_dialog));
+        materialDialog = CustomDialog.getDeterminateProgressDialog(mContext, mContext.getString(R.string.title_gif_dialog));
     }
 
     /**
@@ -107,6 +107,12 @@ public class GifHelper {
                         }
 
                         if (counter < 72) {
+                            mContext.runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    CustomDialog.setProgressDeterminateDialog(materialDialog, counter);
+                                }
+                            });
                             startHandlerTask(handler, counter + 1);
                         } else {
                             initFFmpeg();
@@ -213,6 +219,8 @@ public class GifHelper {
             fFmpeg.execute(cmd, new FFmpegExecuteResponseHandler() {
                 @Override
                 public void onSuccess(String message) {
+                    //Setting progress as 100%
+                    CustomDialog.setProgressDeterminateDialog(materialDialog, 100);
                     //Dismiss material dialog
                     materialDialog.dismiss();
                     //Method called
@@ -223,29 +231,6 @@ public class GifHelper {
                     }
                     //To update gallery
                     File file = new File(Environment.getExternalStorageDirectory() + mGifPath);
-                    //Uri uri = FileProvider.getUriForFile(mContext, mContext.getPackageName() + ".provider", file);
-/*
-
-
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-                        MediaScannerConnection.scanFile(mContext, new String[]{Environment.getExternalStorageDirectory() + mGifPath}, null, new MediaScannerConnection.OnScanCompletedListener() {
-                            public void onScanCompleted(String path, Uri uri) {
-                                //something that you want to do
-                            }
-                        });
-                    } else {
-                        mContext.sendBroadcast(new Intent(Intent.ACTION_MEDIA_MOUNTED,
-                                Uri.parse("file://" + Environment.getExternalStorageDirectory() + mGifPath)));
-                    }
-*/
-
-                    /*Intent mediaScanIntent = new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
-                    File file = new File(Environment.getExternalStorageDirectory() + mGifPath);
-                    Uri uri = FileProvider.getUriForFile(mContext, mContext.getPackageName() + ".provider", file);
-                    mediaScanIntent.setData(uri);
-                    mContext.sendBroadcast(mediaScanIntent);*/
-
-                    //mContext.sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, uri));
 
                     MediaScannerConnection.scanFile(mContext.getApplicationContext()
                             , new String[]{file.getAbsolutePath()}
@@ -258,6 +243,7 @@ public class GifHelper {
 
                 @Override
                 public void onProgress(String message) {
+                    CustomDialog.setProgressDeterminateDialog(materialDialog, materialDialog.getCurrentProgress() + 1);
                 }
 
                 @Override
@@ -276,7 +262,6 @@ public class GifHelper {
 
                 @Override
                 public void onFinish() {
-
 
                 }
             });
