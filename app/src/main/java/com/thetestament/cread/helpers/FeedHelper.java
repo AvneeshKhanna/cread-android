@@ -312,7 +312,7 @@ public class FeedHelper {
             feedData.setLiveFilterName(dataObj.getString("livefilter"));
         } else {
             //set live filter to none
-            feedData.setLiveFilterName(dataObj.getString(Constant.LIVE_FILTER_NONE));
+            feedData.setLiveFilterName(Constant.LIVE_FILTER_NONE);
         }
 
         if (dataObj.has("img_width") || dataObj.has("img_height")) {
