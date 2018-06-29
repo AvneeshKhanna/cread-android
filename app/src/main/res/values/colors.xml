@@ -56,6 +56,7 @@
     <!--Transparent color with % -->
     <color name="transparent_15">#26000000</color>
     <color name="transparent_30">#4D000000</color>
+    <color name="transparent_40">#66000000</color>
     <color name="transparent_50">#80000000</color>
     <color name="transparent_60">#99000000</color>
     <color name="transparent_70">#B3000000</color>
@@ -119,5 +120,10 @@
     <color name="Smooch_accent">@color/colorPrimary</color>
     <color name="Smooch_accentDark">@color/colorPrimaryDark</color>
     <color name="Smooch_accentLight">@color/colorPrimary</color>
+
+
+    <color name="lt_orange">#ff726d</color>
+
+
 
 </resources>

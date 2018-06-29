@@ -5,11 +5,18 @@
     <item
         android:id="@+id/menu_enable_disable_sound"
         android:title="Enable/Disable sound"
-        app:showAsAction="always"></item>
+        app:showAsAction="always" />
 
     <item
         android:id="@+id/menu_reading_mode"
-        android:title="Reading Mode"
         android:icon="@drawable/ic_reading_mode"
-        app:showAsAction="always"></item>
+        android:title="Reading Mode"
+        app:showAsAction="always" />
+
+    <item
+        android:id="@+id/action_toggle_live_filter"
+        android:icon="@drawable/ic_live_filter_vector"
+        android:title="Disable Live Filter"
+        android:visible="true"
+        app:showAsAction="always" />
 </menu>

@@ -4,6 +4,7 @@ package com.thetestament.cread.utils;
 import android.content.res.Resources;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.FrameLayout;
 import android.widget.RelativeLayout;
 
 import java.util.Locale;
@@ -82,6 +83,60 @@ public class AspectRatioUtils {
                 break;
         }
     }
+
+    /**
+     * Method to set appropriate height and width of imageView to keep its aspect ratio intact.
+     *
+     * @param imgHeight Height of image.
+     * @param imgWidth  Width of image.
+     * @param imageView ImageView where image to be displayed.
+     */
+    public static void setImageAspectRatio(int imgWidth, int imgHeight, View imageView ,boolean isOverridden) {
+        float valueAspectRatio = (float) imgWidth / imgHeight;
+        String formattedAspectRatio = String.format(Locale.ENGLISH, "%.2f", valueAspectRatio);
+
+        FrameLayout.LayoutParams params;
+
+        switch (formattedAspectRatio) {
+            //1:1 aspect ratio
+            case ASPECT_RATIO_ONE_TO_ONE:
+                params = new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT
+                        , AspectRatioUtils.getDeviceScreenWidth());
+                imageView.setLayoutParams(params);
+                break;
+
+            //4:5 aspect ratio
+            case Constant.ASPECT_RATIO_FOUR_TO_FIVE:
+                params = new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT
+                        , Math.round((AspectRatioUtils.getDeviceScreenWidth() / ASPECT_RATIO_FOUR_TO_FIVE_VALUE)));
+                imageView.setLayoutParams(params);
+                break;
+
+            //5:4 aspect ratio
+            case Constant.ASPECT_RATIO_FIVE_TO_FOUR:
+                params = new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT
+                        , Math.round((AspectRatioUtils.getDeviceScreenWidth() / ASPECT_RATIO_FIVE_TO_FOUR_VALUE)));
+                imageView.setLayoutParams(params);
+                break;
+
+            //4:3 aspect ratio
+            case Constant.ASPECT_RATIO_FOUR_TO_THREE:
+                params = new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT
+                        , Math.round((AspectRatioUtils.getDeviceScreenWidth() / ASPECT_RATIO_FOUR_TO_THREE_VALUE)));
+                imageView.setLayoutParams(params);
+                break;
+            //3:4 aspect ratio
+            case Constant.ASPECT_RATIO_THREE_TO_FOUR:
+                params = new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT
+                        , Math.round((AspectRatioUtils.getDeviceScreenWidth() / ASPECT_RATIO_THREE_TO_FOUR_VALUE)));
+                imageView.setLayoutParams(params);
+                break;
+            //For original and other views
+            default:
+                break;
+        }
+    }
+
 
     /**
      * Method to return true and false depending upon whether Square image manipulation required or not.

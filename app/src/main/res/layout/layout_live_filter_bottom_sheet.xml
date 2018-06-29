@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.v4.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/live_filter_bottom_sheet_view"
+    android:layout_width="match_parent"
+    android:layout_height="140dp"
+    android:background="@color/custom_white"
+    app:layout_behavior="@string/bottom_sheet_behavior">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="140dp">
+
+
+        <!--Text live filter-->
+        <android.support.v7.widget.AppCompatTextView
+            android:id="@+id/text_live_filter"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="10dp"
+            android:text="Choose live filter "
+            android:textColor="@color/black_defined"
+            android:textSize="16sp" />
+
+        <android.support.v7.widget.AppCompatImageView
+            android:id="@+id/button_close"
+            android:layout_width="25dp"
+            android:layout_height="25dp"
+            android:layout_alignParentRight="true"
+            android:layout_marginRight="10dp"
+            android:layout_marginTop="10dp"
+            android:src="@drawable/ic_close_24" />
+
+        <!--RecyclerView-->
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/recycler_view_live_filter"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:layout_below="@+id/text_live_filter"
+            android:orientation="horizontal"
+            android:visibility="visible"
+            app:layoutManager="android.support.v7.widget.LinearLayoutManager"
+            tools:itemCount="5"
+            tools:listitem="@layout/item_live_filter" />
+    </RelativeLayout>
+
+
+</android.support.v4.widget.NestedScrollView>

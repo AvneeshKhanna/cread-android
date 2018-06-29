@@ -74,7 +74,6 @@ public class UserInterestIntroductionActivity extends BaseActivity {
         textWelcomeLine1.setText(Html.fromHtml("Hey" + "<font color=black>" + " " + spHelper.getFirstName() + "!" + "</font>"));
         // if called from profile set diff text
         if (mCalledFrom.equals(USER_INTERESTS_CALLED_FROM_PROFILE)) {
-            // TODO update text
             textWelcomeLine2.setText("As you know Cread is a community of artists");
         }
 

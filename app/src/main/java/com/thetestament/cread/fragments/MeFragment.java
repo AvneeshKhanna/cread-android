@@ -36,6 +36,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.AnimationUtils;
 import android.view.animation.LayoutAnimationController;
+import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -60,9 +61,11 @@ import com.thetestament.cread.activities.UpdateProfileDetailsActivity;
 import com.thetestament.cread.activities.UpdateProfileImageActivity;
 import com.thetestament.cread.adapters.MeAdapter;
 import com.thetestament.cread.adapters.UserStatsPagerAdapter;
+import com.thetestament.cread.dialog.CustomDialog;
 import com.thetestament.cread.helpers.DeletePostHelper;
 import com.thetestament.cread.helpers.FeedHelper;
 import com.thetestament.cread.helpers.FollowHelper;
+import com.thetestament.cread.helpers.GifHelper;
 import com.thetestament.cread.helpers.HatsOffHelper;
 import com.thetestament.cread.helpers.ImageHelper;
 import com.thetestament.cread.helpers.IntentHelper;
@@ -107,7 +110,6 @@ import pl.tajchert.nammu.PermissionCallback;
 
 import static android.app.Activity.RESULT_OK;
 import static com.thetestament.cread.CreadApp.GET_RESPONSE_FROM_NETWORK_ME;
-import static com.thetestament.cread.dialog.DialogHelper.getDeletePostDialog;
 import static com.thetestament.cread.fragments.ExploreFragment.defaultItemType;
 import static com.thetestament.cread.helpers.DeepLinkHelper.getDeepLinkOnValidShareOption;
 import static com.thetestament.cread.helpers.FeedHelper.updateFollowForAll;
@@ -249,6 +251,11 @@ public class MeFragment extends Fragment implements listener.OnCollaborationList
      */
     @State
     String mWebStoreUrl;
+
+    /**
+     * Parent view of live filter
+     */
+    FrameLayout mFrameLayout;
 
     //endregion
 
@@ -1343,92 +1350,7 @@ public class MeFragment extends Fragment implements listener.OnCollaborationList
                             if (jsonObject.getString("tokenstatus").equals("invalid")) {
                                 tokenError[0] = true;
                             } else {
-                                JSONObject mainData = jsonObject.getJSONObject("data");
-                                mRequestMoreData = mainData.getBoolean("requestmore");
-                                mLastIndexKey = mainData.getString("lastindexkey");
-                                mCanDownvote = mainData.getBoolean("candownvote");
-                                //UserActivity array list
-                                JSONArray UserActivityArray = mainData.getJSONArray("items");
-                                for (int i = 0; i < UserActivityArray.length(); i++) {
-                                    JSONObject dataObj = UserActivityArray.getJSONObject(i);
-                                    String type = dataObj.getString("type");
-
-                                    FeedModel data = new FeedModel();
-                                    data.setEntityID(dataObj.getString("entityid"));
-                                    data.setContentType(dataObj.getString("type"));
-                                    data.setUUID(dataObj.getString("uuid"));
-                                    data.setCreatorImage(dataObj.getString("profilepicurl"));
-                                    data.setCreatorName(dataObj.getString("creatorname"));
-                                    data.setHatsOffStatus(dataObj.getBoolean("hatsoffstatus"));
-                                    data.setMerchantable(dataObj.getBoolean("merchantable"));
-                                    data.setDownvoteStatus(dataObj.getBoolean("downvotestatus"));
-                                    data.setEligibleForDownvote(mCanDownvote);
-                                    data.setPostTimeStamp(dataObj.getString("regdate"));
-                                    data.setLongForm(dataObj.getBoolean("long_form"));
-                                    data.setHatsOffCount(dataObj.getLong("hatsoffcount"));
-                                    data.setCommentCount(dataObj.getLong("commentcount"));
-                                    data.setContentImage(dataObj.getString("entityurl"));
-                                    data.setFollowStatus(dataObj.getBoolean("followstatus"));
-                                    data.setCollabCount(dataObj.getLong("collabcount"));
-                                    //if image width pr image height is null
-                                    if (dataObj.isNull("img_width") || dataObj.isNull("img_height")) {
-                                        data.setImgWidth(1);
-                                        data.setImgHeight(1);
-                                    } else {
-                                        data.setImgWidth(dataObj.getInt("img_width"));
-                                        data.setImgHeight(dataObj.getInt("img_height"));
-                                    }
-                                    if (dataObj.isNull("caption")) {
-                                        data.setCaption(null);
-                                    } else {
-                                        data.setCaption(dataObj.getString("caption"));
-                                    }
-
-                                    if (type.equals(CONTENT_TYPE_CAPTURE)) {
-
-                                        //Retrieve "CAPTURE_ID" if type is capture
-                                        data.setCaptureID(dataObj.getString("captureid"));
-                                        // if capture
-                                        // then if key cpshort exists
-                                        // not available for collaboration
-                                        if (!dataObj.isNull("cpshort")) {
-                                            JSONObject collabObject = dataObj.getJSONObject("cpshort");
-
-                                            data.setAvailableForCollab(false);
-                                            // set collaborator details
-                                            data.setCollabWithUUID(collabObject.getString("uuid"));
-                                            data.setCollabWithName(collabObject.getString("name"));
-                                            data.setCollaboWithEntityID(collabObject.getString("entityid"));
-
-                                        } else {
-                                            data.setAvailableForCollab(true);
-                                        }
-
-                                    } else if (type.equals(CONTENT_TYPE_SHORT)) {
-
-                                        //Retrieve "SHORT_ID" if type is short
-                                        data.setShortID(dataObj.getString("shoid"));
-
-                                        // if short
-                                        // then if key shcapture exists
-                                        // not available for collaboration
-                                        if (!dataObj.isNull("shcapture")) {
-
-                                            JSONObject collabObject = dataObj.getJSONObject("shcapture");
-
-                                            data.setAvailableForCollab(false);
-                                            // set collaborator details
-                                            data.setCollabWithUUID(collabObject.getString("uuid"));
-                                            data.setCollabWithName(collabObject.getString("name"));
-                                            data.setCollaboWithEntityID(collabObject.getString("entityid"));
-                                        } else {
-                                            data.setAvailableForCollab(true);
-                                        }
-                                    }
-
-
-                                    mUserActivityDataList.add(data);
-                                }
+                                parsePostsData(jsonObject, false);
                             }
                         } catch (JSONException e) {
                             e.printStackTrace();
@@ -1699,6 +1621,15 @@ public class MeFragment extends Fragment implements listener.OnCollaborationList
             data.setContentImage(dataObj.getString("entityurl"));
             data.setFollowStatus(dataObj.getBoolean("followstatus"));
             data.setCollabCount(dataObj.getLong("collabcount"));
+            data.setLiveFilterName(dataObj.getString("livefilter"));
+            //if image width pr image height is null
+            if (dataObj.isNull("img_width") || dataObj.isNull("img_height")) {
+                data.setImgWidth(1);
+                data.setImgHeight(1);
+            } else {
+                data.setImgWidth(dataObj.getInt("img_width"));
+                data.setImgHeight(dataObj.getInt("img_height"));
+            }
             if (dataObj.isNull("caption")) {
                 data.setCaption(null);
             } else {
@@ -1761,6 +1692,7 @@ public class MeFragment extends Fragment implements listener.OnCollaborationList
         initHatsOffListener(mAdapter);
         initializeDeleteListener(mAdapter);
         initShareListener(mAdapter);
+        initGifShareListener(mAdapter);
 
         // init swipe refresh listener for list
         initOnSwipeRefreshListener(itemType);
@@ -1844,94 +1776,7 @@ public class MeFragment extends Fragment implements listener.OnCollaborationList
                             if (jsonObject.getString("tokenstatus").equals("invalid")) {
                                 tokenError[0] = true;
                             } else {
-                                JSONObject mainData = jsonObject.getJSONObject("data");
-                                mRequestMoreData = mainData.getBoolean("requestmore");
-                                mLastIndexKey = mainData.getString("lastindexkey");
-                                //UserActivity array list
-                                JSONArray UserActivityArray = mainData.getJSONArray("items");
-                                for (int i = 0; i < UserActivityArray.length(); i++) {
-                                    JSONObject dataObj = UserActivityArray.getJSONObject(i);
-                                    String type = dataObj.getString("type");
-
-                                    FeedModel data = new FeedModel();
-                                    data.setEntityID(dataObj.getString("entityid"));
-                                    data.setContentType(dataObj.getString("type"));
-                                    data.setUUID(dataObj.getString("uuid"));
-                                    data.setCreatorImage(dataObj.getString("profilepicurl"));
-                                    data.setCreatorName(dataObj.getString("creatorname"));
-                                    data.setHatsOffStatus(dataObj.getBoolean("hatsoffstatus"));
-                                    data.setMerchantable(dataObj.getBoolean("merchantable"));
-                                    data.setDownvoteStatus(dataObj.getBoolean("downvotestatus"));
-                                    data.setEligibleForDownvote(mCanDownvote);
-                                    data.setPostTimeStamp(dataObj.getString("regdate"));
-                                    data.setLongForm(dataObj.getBoolean("long_form"));
-                                    data.setHatsOffCount(dataObj.getLong("hatsoffcount"));
-                                    data.setCommentCount(dataObj.getLong("commentcount"));
-                                    data.setContentImage(dataObj.getString("entityurl"));
-                                    data.setFollowStatus(dataObj.getBoolean("followstatus"));
-                                    data.setCollabCount(dataObj.getLong("collabcount"));
-                                    //if image width and image height is null
-                                    if (dataObj.isNull("img_width") || dataObj.isNull("img_height")) {
-                                        data.setImgWidth(1);
-                                        data.setImgHeight(1);
-                                    } else {
-                                        data.setImgWidth(dataObj.getInt("img_width"));
-                                        data.setImgHeight(dataObj.getInt("img_height"));
-                                    }
-
-                                    if (dataObj.isNull("caption")) {
-                                        data.setCaption(null);
-                                    } else {
-                                        data.setCaption(dataObj.getString("caption"));
-                                    }
-
-
-                                    if (type.equals(CONTENT_TYPE_CAPTURE)) {
-
-                                        //Retrieve "CAPTURE_ID" if type is capture
-                                        data.setCaptureID(dataObj.getString("captureid"));
-                                        // if capture
-                                        // then if key cpshort exists
-                                        // not available for collaboration
-                                        if (!dataObj.isNull("cpshort")) {
-                                            JSONObject collabObject = dataObj.getJSONObject("cpshort");
-
-                                            data.setAvailableForCollab(false);
-                                            // set collaborator details
-                                            data.setCollabWithUUID(collabObject.getString("uuid"));
-                                            data.setCollabWithName(collabObject.getString("name"));
-                                            data.setCollaboWithEntityID(collabObject.getString("entityid"));
-
-                                        } else {
-                                            data.setAvailableForCollab(true);
-                                        }
-
-                                    } else if (type.equals(CONTENT_TYPE_SHORT)) {
-
-
-                                        //Retrieve "SHORT_ID" if type is short
-                                        data.setShortID(dataObj.getString("shoid"));// if short
-                                        // then if key shcapture exists
-                                        // not available for collaboration
-                                        if (!dataObj.isNull("shcapture")) {
-
-                                            JSONObject collabObject = dataObj.getJSONObject("shcapture");
-
-                                            data.setAvailableForCollab(false);
-                                            // set collaborator details
-                                            data.setCollabWithUUID(collabObject.getString("uuid"));
-                                            data.setCollabWithName(collabObject.getString("name"));
-                                            data.setCollaboWithEntityID(collabObject.getString("entityid"));
-                                        } else {
-                                            data.setAvailableForCollab(true);
-                                        }
-                                    }
-
-                                    mUserActivityDataList.add(data);
-                                    //Notify item insertion
-                                    mAdapter.notifyItemInserted(mUserActivityDataList.size() - 1);
-
-                                }
+                                parsePostsData(jsonObject, true);
                             }
                         } catch (JSONException e) {
                             e.printStackTrace();
@@ -2032,7 +1877,7 @@ public class MeFragment extends Fragment implements listener.OnCollaborationList
      */
     private void deleteContent(String entityID, final int itemPosition) {
         // init dialog
-        final MaterialDialog dialog = getDeletePostDialog(getActivity());
+        final MaterialDialog dialog = CustomDialog.getProgressDialog(getActivity(), "Deleting...");
 
         DeletePostHelper.deletePost(getActivity(),
                 mCompositeDisposable,
@@ -2104,6 +1949,36 @@ public class MeFragment extends Fragment implements listener.OnCollaborationList
     }
 
     /**
+     * Initialize gif share listener.
+     */
+    private void initGifShareListener(MeAdapter meAdapter) {
+        meAdapter.setOnGifShareListener(new listener.OnGifShareListener() {
+            @Override
+            public void onGifShareClick(FrameLayout frameLayout, String shareOption) {
+                mFrameLayout = frameLayout;
+                mShareOption = shareOption;
+                //Check for Write permission
+                if (Nammu.checkPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+                    //We have permission do whatever you want to do
+                    new GifHelper(getActivity(), mBitmap, frameLayout, shareOption, true)
+                            .startHandlerTask(new Handler(), 0);
+                } else {
+                    //We do not own this permission
+                    if (Nammu.shouldShowRequestPermissionRationale(MeFragment.this
+                            , Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+                        //User already refused to give us this permission or removed it
+                        ViewHelper.getToast(getActivity()
+                                , getString(R.string.error_msg_share_permission_denied));
+                    } else {
+                        //First time asking for permission
+                        Nammu.askForPermission(MeFragment.this, Manifest.permission.WRITE_EXTERNAL_STORAGE, shareGifPermission);
+                    }
+                }
+            }
+        });
+    }
+
+    /**
      * Used to handle result of askForPermission for share
      */
     PermissionCallback shareWritePermission = new PermissionCallback() {
@@ -2160,6 +2035,25 @@ public class MeFragment extends Fragment implements listener.OnCollaborationList
         public void permissionRefused() {
             ViewHelper.getToast(getActivity()
                     , "Please grant storage permission from settings to edit your profile picture.");
+        }
+    };
+
+    /**
+     * Used to handle result of askForPermission for gif sharing
+     */
+    PermissionCallback shareGifPermission = new PermissionCallback() {
+        @Override
+        public void permissionGranted() {
+            //We have permission do whatever you want to do
+            new GifHelper(getActivity(), mBitmap, mFrameLayout, mShareOption, true)
+                    .startHandlerTask(new Handler(), 0);
+        }
+
+        @Override
+        public void permissionRefused() {
+            //Show error message
+            ViewHelper.getToast(getActivity()
+                    , getString(R.string.error_msg_share_permission_denied));
         }
     };
 
@@ -2379,6 +2273,110 @@ public class MeFragment extends Fragment implements listener.OnCollaborationList
                 });
     }
 
+
+    /**
+     * Method to parse Json.
+     *
+     * @param jsonObject JsonObject to be parsed
+     * @param isLoadMore Whether called from load more or not.
+     * @throws JSONException
+     */
+    private void parsePostsData(JSONObject jsonObject, boolean isLoadMore) throws JSONException {
+        JSONObject mainData = jsonObject.getJSONObject("data");
+        mRequestMoreData = mainData.getBoolean("requestmore");
+        mLastIndexKey = mainData.getString("lastindexkey");
+        mCanDownvote = mainData.getBoolean("candownvote");
+        //UserActivity array list
+        JSONArray UserActivityArray = mainData.getJSONArray("items");
+        for (int i = 0; i < UserActivityArray.length(); i++) {
+            JSONObject dataObj = UserActivityArray.getJSONObject(i);
+            String type = dataObj.getString("type");
+
+            FeedModel data = new FeedModel();
+            data.setEntityID(dataObj.getString("entityid"));
+            data.setContentType(dataObj.getString("type"));
+            data.setUUID(dataObj.getString("uuid"));
+            data.setCreatorImage(dataObj.getString("profilepicurl"));
+            data.setCreatorName(dataObj.getString("creatorname"));
+            data.setHatsOffStatus(dataObj.getBoolean("hatsoffstatus"));
+            data.setMerchantable(dataObj.getBoolean("merchantable"));
+            data.setDownvoteStatus(dataObj.getBoolean("downvotestatus"));
+            data.setEligibleForDownvote(mCanDownvote);
+            data.setPostTimeStamp(dataObj.getString("regdate"));
+            data.setLongForm(dataObj.getBoolean("long_form"));
+            data.setHatsOffCount(dataObj.getLong("hatsoffcount"));
+            data.setCommentCount(dataObj.getLong("commentcount"));
+            data.setContentImage(dataObj.getString("entityurl"));
+            data.setFollowStatus(dataObj.getBoolean("followstatus"));
+            data.setCollabCount(dataObj.getLong("collabcount"));
+            data.setLiveFilterName(dataObj.getString("livefilter"));
+            //if image width pr image height is null
+            if (dataObj.isNull("img_width") || dataObj.isNull("img_height")) {
+                data.setImgWidth(1);
+                data.setImgHeight(1);
+            } else {
+                data.setImgWidth(dataObj.getInt("img_width"));
+                data.setImgHeight(dataObj.getInt("img_height"));
+            }
+            if (dataObj.isNull("caption")) {
+                data.setCaption(null);
+            } else {
+                data.setCaption(dataObj.getString("caption"));
+            }
+
+            if (type.equals(CONTENT_TYPE_CAPTURE)) {
+
+                //Retrieve "CAPTURE_ID" if type is capture
+                data.setCaptureID(dataObj.getString("captureid"));
+                // if capture
+                // then if key cpshort exists
+                // not available for collaboration
+                if (!dataObj.isNull("cpshort")) {
+                    JSONObject collabObject = dataObj.getJSONObject("cpshort");
+
+                    data.setAvailableForCollab(false);
+                    // set collaborator details
+                    data.setCollabWithUUID(collabObject.getString("uuid"));
+                    data.setCollabWithName(collabObject.getString("name"));
+                    data.setCollaboWithEntityID(collabObject.getString("entityid"));
+
+                } else {
+                    data.setAvailableForCollab(true);
+                }
+
+            } else if (type.equals(CONTENT_TYPE_SHORT)) {
+
+                //Retrieve "SHORT_ID" if type is short
+                data.setShortID(dataObj.getString("shoid"));
+
+                // if short
+                // then if key shcapture exists
+                // not available for collaboration
+                if (!dataObj.isNull("shcapture")) {
+
+                    JSONObject collabObject = dataObj.getJSONObject("shcapture");
+
+                    data.setAvailableForCollab(false);
+                    // set collaborator details
+                    data.setCollabWithUUID(collabObject.getString("uuid"));
+                    data.setCollabWithName(collabObject.getString("name"));
+                    data.setCollaboWithEntityID(collabObject.getString("entityid"));
+                } else {
+                    data.setAvailableForCollab(true);
+                }
+            }
+
+
+            mUserActivityDataList.add(data);
+            //Called from load more
+            if (isLoadMore) {
+                //Notify item insertion
+                mAdapter.notifyItemInserted(mUserActivityDataList.size() - 1);
+            }
+
+
+        }
+    }
 
     //endregion
 

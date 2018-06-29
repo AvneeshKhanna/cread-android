@@ -26,6 +26,8 @@ import com.afollestad.materialdialogs.DialogAction;
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.afollestad.materialdialogs.MaterialDialog.SingleButtonCallback;
 import com.facebook.drawee.view.SimpleDraweeView;
+import com.github.glomadrian.grav.GravView;
+import com.github.matteobattilana.weather.WeatherView;
 import com.google.firebase.analytics.FirebaseAnalytics;
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Target;
@@ -36,7 +38,9 @@ import com.thetestament.cread.activities.HatsOffActivity;
 import com.thetestament.cread.activities.MerchandisingProductsActivity;
 import com.thetestament.cread.helpers.DownvoteHelper;
 import com.thetestament.cread.helpers.FeedHelper;
+import com.thetestament.cread.helpers.GifHelper;
 import com.thetestament.cread.helpers.ImageHelper;
+import com.thetestament.cread.helpers.LiveFilterHelper;
 import com.thetestament.cread.helpers.NetworkHelper;
 import com.thetestament.cread.helpers.ProfileMentionsHelper;
 import com.thetestament.cread.helpers.SharedPreferenceHelper;
@@ -52,6 +56,7 @@ import java.util.List;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import io.reactivex.disposables.CompositeDisposable;
+import nl.dionsegijn.konfetti.KonfettiView;
 
 import static com.thetestament.cread.adapters.CommentsAdapter.openCreatorProfile;
 import static com.thetestament.cread.adapters.CommentsAdapter.toggleComment;
@@ -93,6 +98,7 @@ public class FeedDescriptionAdapter extends RecyclerView.Adapter {
     private List<CommentsModel> mCommentsList = new ArrayList<>();
     private FragmentActivity mContext;
     private boolean mIsLoading;
+    private Bitmap bitmap;
     /*
     Flag to check whether to scroll to comments section
     when opened from updates screen
@@ -105,6 +111,7 @@ public class FeedDescriptionAdapter extends RecyclerView.Adapter {
     private listener.OnFeedLoadMoreListener onFeedLoadMoreListener;
     private listener.OnHatsOffListener onHatsOffListener;
     private listener.OnShareListener onShareListener;
+    private listener.OnGifShareListener onGifShareListener;
     private listener.OnShareLinkClickedListener onShareLinkClickedListener;
     private listener.OnDownvoteClickedListener onDownvoteClickedListener;
     private listener.OnExploreFollowListener onExploreFollowListener;
@@ -150,6 +157,14 @@ public class FeedDescriptionAdapter extends RecyclerView.Adapter {
     public void setOnShareListener(listener.OnShareListener onShareListener) {
         this.onShareListener = onShareListener;
     }
+
+    /**
+     * Register a callback to be invoked when user clicks on share button for gif sharing.
+     */
+    public void setOnGifShareListener(listener.OnGifShareListener onGifShareListener) {
+        this.onGifShareListener = onGifShareListener;
+    }
+
 
     /**
      * Register a callback to be invoked when user clicks on share link button.
@@ -221,11 +236,12 @@ public class FeedDescriptionAdapter extends RecyclerView.Adapter {
             final ItemViewHolder itemViewHolder = (ItemViewHolder) holder;
             //Load creator profile picture
             ImageHelper.loadProgressiveImage(Uri.parse(data.getCreatorImage())
-                    ,itemViewHolder.imageCreator);
+                    , itemViewHolder.imageCreator);
             //Set image width and height
             AspectRatioUtils.setImageAspectRatio(data.getImgWidth()
                     , data.getImgHeight()
-                    , itemViewHolder.image);
+                    , itemViewHolder.image
+                    , true);
             //Load feed image
             ImageHelper.loadProgressiveImage(Uri.parse(data.getContentImage())
                     , itemViewHolder.image);
@@ -330,7 +346,6 @@ public class FeedDescriptionAdapter extends RecyclerView.Adapter {
 
             // init post timestamp
             updatePostTimestamp(itemViewHolder.textTimeStamp, data);
-
         } else if (holder.getItemViewType() == VIEW_TYPE_LOADING) {
             LoadingViewHolder loadingViewHolder = (LoadingViewHolder) holder;
             loadingViewHolder.progressView.setVisibility(View.VISIBLE);
@@ -448,6 +463,14 @@ public class FeedDescriptionAdapter extends RecyclerView.Adapter {
         AppCompatImageView logoInstagram;
         @BindView(R.id.logoMore)
         AppCompatImageView logoMore;
+        @BindView(R.id.live_filter_bubble)
+        GravView liveFilterBubble;
+        @BindView(R.id.whether_view)
+        WeatherView whetherView;
+        @BindView(R.id.konfetti_view)
+        KonfettiView konfettiView;
+        @BindView(R.id.container)
+        FrameLayout frameLayout;
 
         //Variable to maintain hats off status
         private boolean mIsHatsOff = false;
@@ -496,7 +519,7 @@ public class FeedDescriptionAdapter extends RecyclerView.Adapter {
             TextView textUserName = commentView.findViewById(R.id.textUserName);
             TextView textComment = commentView.findViewById(R.id.textComment);
 
-            ImageHelper.loadProgressiveImage(Uri.parse(comment.getProfilePicUrl()),imageUser);
+            ImageHelper.loadProgressiveImage(Uri.parse(comment.getProfilePicUrl()), imageUser);
 
             textUserName.setText(comment.getFirstName() + " " + comment.getLastName());
             textComment.setText(comment.getComment());
@@ -525,8 +548,6 @@ public class FeedDescriptionAdapter extends RecyclerView.Adapter {
     public void setLoaded() {
         mIsLoading = false;
     }
-
-
 
 
     /**
@@ -576,13 +597,14 @@ public class FeedDescriptionAdapter extends RecyclerView.Adapter {
      * @param data
      */
     private void shareOnClick(final ItemViewHolder itemViewHolder, final FeedModel data) {
-
-
         itemViewHolder.logoWhatsapp.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
-                loadBitmapForSharing(data, SHARE_OPTION_WHATSAPP);
+                if (GifHelper.hasLiveFilter(data.getLiveFilterName())) {
+                    onGifShareListener.onGifShareClick(itemViewHolder.frameLayout, SHARE_OPTION_WHATSAPP);
+                } else {
+                    loadBitmapForSharing(data, SHARE_OPTION_WHATSAPP);
+                }
             }
         });
 
@@ -590,23 +612,35 @@ public class FeedDescriptionAdapter extends RecyclerView.Adapter {
             @Override
             public void onClick(View view) {
 
-                loadBitmapForSharing(data, SHARE_OPTION_FACEBOOK);
+                if (GifHelper.hasLiveFilter(data.getLiveFilterName())) {
+                    onGifShareListener.onGifShareClick(itemViewHolder.frameLayout, SHARE_OPTION_FACEBOOK);
+                } else {
+                    loadBitmapForSharing(data, SHARE_OPTION_FACEBOOK);
+                }
+
             }
         });
 
         itemViewHolder.logoInstagram.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                if (GifHelper.hasLiveFilter(data.getLiveFilterName())) {
+                    onGifShareListener.onGifShareClick(itemViewHolder.frameLayout, SHARE_OPTION_INSTAGRAM);
+                } else {
+                    loadBitmapForSharing(data, SHARE_OPTION_INSTAGRAM);
+                }
 
-                loadBitmapForSharing(data, SHARE_OPTION_INSTAGRAM);
             }
         });
 
         itemViewHolder.logoMore.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
-                loadBitmapForSharing(data, SHARE_OPTION_OTHER);
+                if (GifHelper.hasLiveFilter(data.getLiveFilterName())) {
+                    onGifShareListener.onGifShareClick(itemViewHolder.frameLayout, SHARE_OPTION_OTHER);
+                } else {
+                    loadBitmapForSharing(data, SHARE_OPTION_OTHER);
+                }
             }
         });
 
@@ -968,6 +1002,20 @@ public class FeedDescriptionAdapter extends RecyclerView.Adapter {
         } else if (firebaseEvent.equals(FIREBASE_EVENT_CAPTURE_CLICKED)) {
             bundle.putString("class_name", "feed_description");
             FirebaseAnalytics.getInstance(mContext).logEvent(FIREBASE_EVENT_CAPTURE_CLICKED, bundle);
+        }
+    }
+
+
+    @Override
+    public void onViewAttachedToWindow(RecyclerView.ViewHolder holder) {
+        super.onViewAttachedToWindow(holder);
+        if (holder.getItemViewType() == VIEW_TYPE_ITEM) {
+            final ItemViewHolder itemViewHolder = (ItemViewHolder) holder;
+            LiveFilterHelper.initLiveFilters(mFeedList.get(holder.getAdapterPosition()).getLiveFilterName()
+                    , itemViewHolder.whetherView
+                    , itemViewHolder.konfettiView
+                    , itemViewHolder.liveFilterBubble
+                    , mContext);
         }
     }
 

@@ -822,93 +822,8 @@ public class ExploreFragment extends Fragment implements listener.OnCollaboratio
                             if (jsonObject.getString("tokenstatus").equals("invalid")) {
                                 tokenError[0] = true;
                             } else {
-                                JSONObject mainData = jsonObject.getJSONObject("data");
-                                mRequestMoreData = mainData.getBoolean("requestmore");
-                                mLastIndexKey = mainData.getString("lastindexkey");
-                                mCanDownVote = mainData.getBoolean("candownvote");
-                                //ExploreArray list
-                                JSONArray exploreArray = mainData.getJSONArray("feed");
-                                for (int i = 0; i < exploreArray.length(); i++) {
-                                    JSONObject dataObj = exploreArray.getJSONObject(i);
-                                    String type = dataObj.getString("type");
+                                parsePostsData(jsonObject, false);
 
-                                    FeedModel exploreData = new FeedModel();
-                                    exploreData.setEntityID(dataObj.getString("entityid"));
-                                    exploreData.setContentType(dataObj.getString("type"));
-                                    exploreData.setUUID(dataObj.getString("uuid"));
-                                    exploreData.setCreatorImage(dataObj.getString("profilepicurl"));
-                                    exploreData.setCreatorName(dataObj.getString("creatorname"));
-                                    exploreData.setHatsOffStatus(dataObj.getBoolean("hatsoffstatus"));
-                                    exploreData.setFollowStatus(dataObj.getBoolean("followstatus"));
-                                    exploreData.setMerchantable(dataObj.getBoolean("merchantable"));
-                                    exploreData.setDownvoteStatus(dataObj.getBoolean("downvotestatus"));
-                                    exploreData.setEligibleForDownvote(mCanDownVote);
-                                    exploreData.setPostTimeStamp(dataObj.getString("regdate"));
-                                    exploreData.setLongForm(dataObj.getBoolean("long_form"));
-                                    exploreData.setHatsOffCount(dataObj.getLong("hatsoffcount"));
-                                    exploreData.setCommentCount(dataObj.getLong("commentcount"));
-                                    exploreData.setContentImage(dataObj.getString("entityurl"));
-                                    exploreData.setCollabCount(dataObj.getLong("collabcount"));
-
-                                    //if image width pr image height is null
-                                    if (dataObj.isNull("img_width") || dataObj.isNull("img_height")) {
-                                        exploreData.setImgWidth(1);
-                                        exploreData.setImgHeight(1);
-                                    } else {
-                                        exploreData.setImgWidth(dataObj.getInt("img_width"));
-                                        exploreData.setImgHeight(dataObj.getInt("img_height"));
-                                    }
-
-                                    if (dataObj.isNull("caption")) {
-                                        exploreData.setCaption(null);
-                                    } else {
-                                        exploreData.setCaption(dataObj.getString("caption"));
-                                    }
-
-
-                                    if (type.equals(CONTENT_TYPE_CAPTURE)) {
-
-                                        //Retrieve "CAPTURE_ID" if type is capture
-                                        exploreData.setCaptureID(dataObj.getString("captureid"));
-                                        // if capture
-                                        // then if key cpshort exists
-                                        // not available for collaboration
-                                        if (!dataObj.isNull("cpshort")) {
-                                            JSONObject collabObject = dataObj.getJSONObject("cpshort");
-
-                                            exploreData.setAvailableForCollab(false);
-                                            // set collaborator details
-                                            exploreData.setCollabWithUUID(collabObject.getString("uuid"));
-                                            exploreData.setCollabWithName(collabObject.getString("name"));
-                                            exploreData.setCollaboWithEntityID(collabObject.getString("entityid"));
-
-                                        } else {
-                                            exploreData.setAvailableForCollab(true);
-                                        }
-
-                                    } else if (type.equals(CONTENT_TYPE_SHORT)) {
-
-                                        //Retrieve "SHORT_ID" if type is short
-                                        exploreData.setShortID(dataObj.getString("shoid"));
-
-                                        // if short
-                                        // then if key shcapture exists
-                                        // not available for collaboration
-                                        if (!dataObj.isNull("shcapture")) {
-
-                                            JSONObject collabObject = dataObj.getJSONObject("shcapture");
-
-                                            exploreData.setAvailableForCollab(false);
-                                            // set collaborator details
-                                            exploreData.setCollabWithUUID(collabObject.getString("uuid"));
-                                            exploreData.setCollabWithName(collabObject.getString("name"));
-                                            exploreData.setCollaboWithEntityID(collabObject.getString("entityid"));
-                                        } else {
-                                            exploreData.setAvailableForCollab(true);
-                                        }
-                                    }
-                                    mExploreDataList.add(exploreData);
-                                }
                             }
                         } catch (JSONException e) {
                             e.printStackTrace();
@@ -981,95 +896,7 @@ public class ExploreFragment extends Fragment implements listener.OnCollaboratio
                             if (jsonObject.getString("tokenstatus").equals("invalid")) {
                                 tokenError[0] = true;
                             } else {
-                                JSONObject mainData = jsonObject.getJSONObject("data");
-                                mRequestMoreData = mainData.getBoolean("requestmore");
-                                mLastIndexKey = mainData.getString("lastindexkey");
-                                //ExploreArray list
-                                JSONArray exploreArray = mainData.getJSONArray("feed");
-                                for (int i = 0; i < exploreArray.length(); i++) {
-                                    JSONObject dataObj = exploreArray.getJSONObject(i);
-                                    String type = dataObj.getString("type");
-
-                                    FeedModel exploreData = new FeedModel();
-                                    exploreData.setEntityID(dataObj.getString("entityid"));
-                                    exploreData.setContentType(dataObj.getString("type"));
-                                    exploreData.setUUID(dataObj.getString("uuid"));
-                                    exploreData.setCreatorImage(dataObj.getString("profilepicurl"));
-                                    exploreData.setCreatorName(dataObj.getString("creatorname"));
-                                    exploreData.setHatsOffStatus(dataObj.getBoolean("hatsoffstatus"));
-                                    exploreData.setFollowStatus(dataObj.getBoolean("followstatus"));
-                                    exploreData.setMerchantable(dataObj.getBoolean("merchantable"));
-                                    exploreData.setDownvoteStatus(dataObj.getBoolean("downvotestatus"));
-                                    exploreData.setEligibleForDownvote(mCanDownVote);
-                                    exploreData.setPostTimeStamp(dataObj.getString("regdate"));
-                                    exploreData.setLongForm(dataObj.getBoolean("long_form"));
-                                    exploreData.setHatsOffCount(dataObj.getLong("hatsoffcount"));
-                                    exploreData.setCommentCount(dataObj.getLong("commentcount"));
-                                    exploreData.setContentImage(dataObj.getString("entityurl"));
-                                    exploreData.setCollabCount(dataObj.getLong("collabcount"));
-                                    //if image width pr image height is null
-                                    if (dataObj.isNull("img_width") || dataObj.isNull("img_height")) {
-                                        exploreData.setImgWidth(1);
-                                        exploreData.setImgHeight(1);
-                                    } else {
-                                        exploreData.setImgWidth(dataObj.getInt("img_width"));
-                                        exploreData.setImgHeight(dataObj.getInt("img_height"));
-                                    }
-                                    if (dataObj.isNull("caption")) {
-                                        exploreData.setCaption(null);
-                                    } else {
-                                        exploreData.setCaption(dataObj.getString("caption"));
-                                    }
-
-
-                                    if (type.equals(CONTENT_TYPE_CAPTURE)) {
-
-                                        //Retrieve "CAPTURE_ID" if type is capture
-                                        exploreData.setCaptureID(dataObj.getString("captureid"));
-                                        // if capture
-                                        // then if key cpshort exists
-                                        // not available for collaboration
-                                        if (!dataObj.isNull("cpshort")) {
-                                            JSONObject collabObject = dataObj.getJSONObject("cpshort");
-
-                                            exploreData.setAvailableForCollab(false);
-                                            // set collaborator details
-                                            exploreData.setCollabWithUUID(collabObject.getString("uuid"));
-                                            exploreData.setCollabWithName(collabObject.getString("name"));
-                                            exploreData.setCollaboWithEntityID(collabObject.getString("entityid"));
-
-                                        } else {
-                                            exploreData.setAvailableForCollab(true);
-                                        }
-
-                                    } else if (type.equals(CONTENT_TYPE_SHORT)) {
-
-                                        //Retrieve "SHORT_ID" if type is short
-                                        exploreData.setShortID(dataObj.getString("shoid"));
-
-                                        // if short
-                                        // then if key shcapture exists
-                                        // not available for collaboration
-                                        if (!dataObj.isNull("shcapture")) {
-
-                                            JSONObject collabObject = dataObj.getJSONObject("shcapture");
-
-                                            exploreData.setAvailableForCollab(false);
-                                            // set collaborator details
-                                            exploreData.setCollabWithUUID(collabObject.getString("uuid"));
-                                            exploreData.setCollabWithName(collabObject.getString("name"));
-                                            exploreData.setCollaboWithEntityID(collabObject.getString("entityid"));
-                                        } else {
-                                            exploreData.setAvailableForCollab(true);
-                                        }
-                                    }
-
-
-                                    mExploreDataList.add(exploreData);
-
-                                    //Notify item insertion
-                                    mAdapter.notifyItemInserted(mExploreDataList.size() - 1);
-                                }
+                                parsePostsData(jsonObject, true);
                             }
                         } catch (JSONException e) {
                             e.printStackTrace();
@@ -1408,5 +1235,109 @@ public class ExploreFragment extends Fragment implements listener.OnCollaboratio
         mFirebaseAnalytics.logEvent(Constant.FIREBASE_EVENT_EXPLORE_CATEGORY_CLICKED, bundle);
     }
 
+    /**
+     * Method to parse Json.
+     *
+     * @param jsonObject JsonObject to be parsed
+     * @param isLoadMore Whether called from load more or not.
+     * @throws JSONException
+     */
+    private void parsePostsData(JSONObject jsonObject, boolean isLoadMore) throws JSONException {
+        JSONObject mainData = jsonObject.getJSONObject("data");
+        mRequestMoreData = mainData.getBoolean("requestmore");
+        mLastIndexKey = mainData.getString("lastindexkey");
+        mCanDownVote = mainData.getBoolean("candownvote");
+        //ExploreArray list
+        JSONArray exploreArray = mainData.getJSONArray("feed");
+        for (int i = 0; i < exploreArray.length(); i++) {
+            JSONObject dataObj = exploreArray.getJSONObject(i);
+            String type = dataObj.getString("type");
+
+            FeedModel exploreData = new FeedModel();
+            exploreData.setEntityID(dataObj.getString("entityid"));
+            exploreData.setContentType(dataObj.getString("type"));
+            exploreData.setUUID(dataObj.getString("uuid"));
+            exploreData.setCreatorImage(dataObj.getString("profilepicurl"));
+            exploreData.setCreatorName(dataObj.getString("creatorname"));
+            exploreData.setHatsOffStatus(dataObj.getBoolean("hatsoffstatus"));
+            exploreData.setFollowStatus(dataObj.getBoolean("followstatus"));
+            exploreData.setMerchantable(dataObj.getBoolean("merchantable"));
+            exploreData.setDownvoteStatus(dataObj.getBoolean("downvotestatus"));
+            exploreData.setEligibleForDownvote(mCanDownVote);
+            exploreData.setPostTimeStamp(dataObj.getString("regdate"));
+            exploreData.setLongForm(dataObj.getBoolean("long_form"));
+            exploreData.setHatsOffCount(dataObj.getLong("hatsoffcount"));
+            exploreData.setCommentCount(dataObj.getLong("commentcount"));
+            exploreData.setContentImage(dataObj.getString("entityurl"));
+            exploreData.setCollabCount(dataObj.getLong("collabcount"));
+            exploreData.setLiveFilterName(dataObj.getString("livefilter"));
+
+            //if image width pr image height is null
+            if (dataObj.isNull("img_width") || dataObj.isNull("img_height")) {
+                exploreData.setImgWidth(1);
+                exploreData.setImgHeight(1);
+            } else {
+                exploreData.setImgWidth(dataObj.getInt("img_width"));
+                exploreData.setImgHeight(dataObj.getInt("img_height"));
+            }
+
+            if (dataObj.isNull("caption")) {
+                exploreData.setCaption(null);
+            } else {
+                exploreData.setCaption(dataObj.getString("caption"));
+            }
+
+
+            if (type.equals(CONTENT_TYPE_CAPTURE)) {
+
+                //Retrieve "CAPTURE_ID" if type is capture
+                exploreData.setCaptureID(dataObj.getString("captureid"));
+                // if capture
+                // then if key cpshort exists
+                // not available for collaboration
+                if (!dataObj.isNull("cpshort")) {
+                    JSONObject collabObject = dataObj.getJSONObject("cpshort");
+
+                    exploreData.setAvailableForCollab(false);
+                    // set collaborator details
+                    exploreData.setCollabWithUUID(collabObject.getString("uuid"));
+                    exploreData.setCollabWithName(collabObject.getString("name"));
+                    exploreData.setCollaboWithEntityID(collabObject.getString("entityid"));
+
+                } else {
+                    exploreData.setAvailableForCollab(true);
+                }
+
+            } else if (type.equals(CONTENT_TYPE_SHORT)) {
+
+                //Retrieve "SHORT_ID" if type is short
+                exploreData.setShortID(dataObj.getString("shoid"));
+
+                // if short
+                // then if key shcapture exists
+                // not available for collaboration
+                if (!dataObj.isNull("shcapture")) {
+
+                    JSONObject collabObject = dataObj.getJSONObject("shcapture");
+
+                    exploreData.setAvailableForCollab(false);
+                    // set collaborator details
+                    exploreData.setCollabWithUUID(collabObject.getString("uuid"));
+                    exploreData.setCollabWithName(collabObject.getString("name"));
+                    exploreData.setCollaboWithEntityID(collabObject.getString("entityid"));
+                } else {
+                    exploreData.setAvailableForCollab(true);
+                }
+            }
+            mExploreDataList.add(exploreData);
+            //Called from load more
+            if (isLoadMore) {
+                //Notify item insertion
+                mAdapter.notifyItemInserted(mExploreDataList.size() - 1);
+            }
+
+
+        }
+    }
     //endregion
 }

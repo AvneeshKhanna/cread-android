@@ -40,30 +40,40 @@ import static com.thetestament.cread.CreadApp.GET_RESPONSE_FROM_NETWORK_INSPIRAT
 import static com.thetestament.cread.helpers.NetworkHelper.getNetConnectionStatus;
 import static com.thetestament.cread.helpers.NetworkHelper.getObservableFromServer;
 
+/**
+ * Activity class to show images available for inspiration.
+ */
 public class InspirationActivity extends BaseActivity {
 
-    @BindView(R.id.rootView)
+    //region :View binding with butter knife
+    @BindView(R.id.root_view)
     CoordinatorLayout rootView;
-    @BindView(R.id.swipeToRefreshLayout)
+    @BindView(R.id.swipe_refresh_layout)
     SwipeRefreshLayout swipeRefreshLayout;
-    @BindView(R.id.recyclerView)
+    @BindView(R.id.recycler_view)
     RecyclerView recyclerView;
+    //endregion
 
+    //region :Fields and constants
     CompositeDisposable mCompositeDisposable = new CompositeDisposable();
     List<InspirationModel> mInspirationDataList = new ArrayList<>();
     InspirationAdapter mAdapter;
     SharedPreferenceHelper mHelper;
     private String mLastIndexKey;
     private boolean mRequestMoreData;
+    InspirationActivity mContext;
+    //endregion
 
+    //region :Overridden methods
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        //SharedPreference reference
-        mHelper = new SharedPreferenceHelper(this);
         setContentView(R.layout.activity_inspiration);
+        mContext = this;
         //ButterKnife view binding
-        ButterKnife.bind(this);
+        ButterKnife.bind(mContext);
+        //SharedPreference reference
+        mHelper = new SharedPreferenceHelper(mContext);
         initScreen();
     }
 
@@ -84,19 +94,22 @@ public class InspirationActivity extends BaseActivity {
         super.onRestoreInstanceState(savedInstanceState);
         Icepick.restoreInstanceState(this, savedInstanceState);
     }
+    //endregion
+
+    //region :Private methods
 
     /**
      * Method to initialize swipe refresh layout.
      */
     private void initScreen() {
         //Set layout manger for recyclerView
-        recyclerView.setLayoutManager(new LinearLayoutManager(this));
+        recyclerView.setLayoutManager(new LinearLayoutManager(mContext));
         //Set adapter
-        mAdapter = new InspirationAdapter(mInspirationDataList, this, Constant.INSPIRATION_ITEM_TYPE_DETAIL);
+        mAdapter = new InspirationAdapter(mInspirationDataList, mContext, Constant.INSPIRATION_ITEM_TYPE_DETAIL);
         recyclerView.setAdapter(mAdapter);
 
         swipeRefreshLayout.setRefreshing(true);
-        swipeRefreshLayout.setColorSchemeColors(ContextCompat.getColor(this
+        swipeRefreshLayout.setColorSchemeColors(ContextCompat.getColor(mContext
                 , R.color.colorPrimary));
         swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
@@ -185,31 +198,7 @@ public class InspirationActivity extends BaseActivity {
                             if (jsonObject.getString("tokenstatus").equals("invalid")) {
                                 tokenError[0] = true;
                             } else {
-                                JSONObject mainData = jsonObject.getJSONObject("data");
-                                mRequestMoreData = mainData.getBoolean("requestmore");
-                                mLastIndexKey = mainData.getString("lastindexkey");
-                                //Inspiration list
-                                JSONArray array = mainData.getJSONArray("items");
-                                for (int i = 0; i < array.length(); i++) {
-                                    JSONObject dataObj = array.getJSONObject(i);
-                                    InspirationModel data = new InspirationModel();
-                                    data.setEntityID(dataObj.getString("entityid"));
-                                    data.setCaptureID(dataObj.getString("captureid"));
-                                    data.setUUID(dataObj.getString("uuid"));
-                                    data.setCreatorProfilePic(dataObj.getString("profilepicurl"));
-                                    data.setCreatorName(dataObj.getString("creatorname"));
-                                    data.setCapturePic(dataObj.getString("captureurl"));
-                                    data.setMerchantable(dataObj.getBoolean("merchantable"));
-                                    //if image width pr image height is null
-                                    if (dataObj.isNull("img_width") || dataObj.isNull("img_height")) {
-                                        data.setImgWidth(1);
-                                        data.setImgHeight(1);
-                                    } else {
-                                        data.setImgWidth(dataObj.getInt("img_width"));
-                                        data.setImgHeight(dataObj.getInt("img_height"));
-                                    }
-                                    mInspirationDataList.add(data);
-                                }
+                                parsePostsData(jsonObject, false);
                             }
                         } catch (JSONException e) {
                             e.printStackTrace();
@@ -248,7 +237,7 @@ public class InspirationActivity extends BaseActivity {
                         } else {
                             //Apply 'Slide Up' animation
                             int resId = R.anim.layout_animation_from_bottom;
-                            LayoutAnimationController animation = AnimationUtils.loadLayoutAnimation(InspirationActivity.this, resId);
+                            LayoutAnimationController animation = AnimationUtils.loadLayoutAnimation(mContext, resId);
                             recyclerView.setLayoutAnimation(animation);
                             mAdapter.notifyDataSetChanged();
                         }
@@ -283,34 +272,7 @@ public class InspirationActivity extends BaseActivity {
                             if (jsonObject.getString("tokenstatus").equals("invalid")) {
                                 tokenError[0] = true;
                             } else {
-
-                                JSONObject mainData = jsonObject.getJSONObject("data");
-                                mRequestMoreData = mainData.getBoolean("requestmore");
-                                mLastIndexKey = mainData.getString("lastindexkey");
-                                //Inspiration list
-                                JSONArray array = mainData.getJSONArray("items");
-                                for (int i = 0; i < array.length(); i++) {
-                                    JSONObject dataObj = array.getJSONObject(i);
-                                    InspirationModel data = new InspirationModel();
-                                    data.setEntityID(dataObj.getString("entityid"));
-                                    data.setCaptureID(dataObj.getString("captureid"));
-                                    data.setUUID(dataObj.getString("uuid"));
-                                    data.setCreatorProfilePic(dataObj.getString("profilepicurl"));
-                                    data.setCreatorName(dataObj.getString("creatorname"));
-                                    data.setCapturePic(dataObj.getString("captureurl"));
-                                    data.setMerchantable(dataObj.getBoolean("merchantable"));
-                                    //if image width pr image height is null
-                                    if (dataObj.isNull("img_width") || dataObj.isNull("img_height")) {
-                                        data.setImgWidth(1);
-                                        data.setImgHeight(1);
-                                    } else {
-                                        data.setImgWidth(dataObj.getInt("img_width"));
-                                        data.setImgHeight(dataObj.getInt("img_height"));
-                                    }
-                                    mInspirationDataList.add(data);
-                                    //Notify item insertion
-                                    mAdapter.notifyItemInserted(mInspirationDataList.size() - 1);
-                                }
+                                parsePostsData(jsonObject, true);
                             }
                         } catch (JSONException e) {
                             e.printStackTrace();
@@ -348,4 +310,50 @@ public class InspirationActivity extends BaseActivity {
                 })
         );
     }
+
+    /**
+     * Method to parse Json.
+     *
+     * @param jsonObject JsonObject to be parsed
+     * @param isLoadMore Whether called from load more or not.
+     * @throws JSONException
+     */
+    private void parsePostsData(JSONObject jsonObject, boolean isLoadMore) throws JSONException {
+        JSONObject mainData = jsonObject.getJSONObject("data");
+        mRequestMoreData = mainData.getBoolean("requestmore");
+        mLastIndexKey = mainData.getString("lastindexkey");
+        //Inspiration list
+        JSONArray array = mainData.getJSONArray("items");
+        for (int i = 0; i < array.length(); i++) {
+            JSONObject dataObj = array.getJSONObject(i);
+            InspirationModel data = new InspirationModel();
+            data.setEntityID(dataObj.getString("entityid"));
+            data.setCaptureID(dataObj.getString("captureid"));
+            data.setUUID(dataObj.getString("uuid"));
+            data.setCreatorProfilePic(dataObj.getString("profilepicurl"));
+            data.setCreatorName(dataObj.getString("creatorname"));
+            data.setCapturePic(dataObj.getString("captureurl"));
+            data.setMerchantable(dataObj.getBoolean("merchantable"));
+            data.setLiveFilterName(dataObj.getString("livefilter"));
+            //if image width pr image height is null
+            if (dataObj.isNull("img_width") || dataObj.isNull("img_height")) {
+                data.setImgWidth(1);
+                data.setImgHeight(1);
+            } else {
+                data.setImgWidth(dataObj.getInt("img_width"));
+                data.setImgHeight(dataObj.getInt("img_height"));
+            }
+            mInspirationDataList.add(data);
+            //Called from load more
+            if (isLoadMore) {
+                //Notify item insertion
+                mAdapter.notifyItemInserted(mInspirationDataList.size() - 1);
+            }
+        }
+
+    }
+    //endregion
 }
+
+
+

@@ -15,21 +15,26 @@ import butterknife.ButterKnife;
 import static com.thetestament.cread.utils.Constant.BUNDLE_HASHTAG_NAME;
 import static com.thetestament.cread.utils.Constant.TAG_HASH_TAG_DETAILS_FRAGMENT;
 
+/**
+ * Activity class for hashTag details.
+ */
 public class HashTagDetailsActivity extends BaseActivity {
 
+    //region :Fields and constant
     SharedPreferenceHelper spHelper;
+    //endregion
 
+    //region :Overridden methods
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_hash_tag_details);
         ButterKnife.bind(this);
 
-        // set new posts htag indicator visibility
+        //obtain reference
         spHelper = new SharedPreferenceHelper(this);
         // initialize view
         initView();
-
     }
 
     @Override
@@ -39,7 +44,6 @@ public class HashTagDetailsActivity extends BaseActivity {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-
         switch (item.getItemId()) {
             case android.R.id.home:
                 //Navigate back to previous screen
@@ -49,6 +53,9 @@ public class HashTagDetailsActivity extends BaseActivity {
                 return super.onOptionsItemSelected(item);
         }
     }
+    //endregion
+
+    //region :Private methods
 
     /**
      * Initialize view
@@ -56,7 +63,7 @@ public class HashTagDetailsActivity extends BaseActivity {
     private void initView() {
         //Get the content URI
         Uri uri = getIntent().getData();
-        //strip off hashtag from the URI
+        //Strip off hash tag from the URI
         String hashTagData = uri.toString().split("/")[3];
         String hashTagPostCount = hashTagData.split(":")[0];
         String hashTag = hashTagData.split(":")[1];
@@ -82,4 +89,6 @@ public class HashTagDetailsActivity extends BaseActivity {
                 .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE)
                 .commit();
     }
+
+    //endregion
 }

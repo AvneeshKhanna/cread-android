@@ -27,7 +27,7 @@
                 android:layout_gravity="center"
                 android:scrollbars="vertical">
 
-                <RelativeLayout
+                <FrameLayout
                     android:id="@+id/containerImagePreview"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -45,12 +45,49 @@
                         tools:src="@tools:sample/avatars" />
 
 
+                    <!--Bubble live filter-->
+                    <com.github.glomadrian.grav.GravView
+                        android:id="@+id/live_filter_bubble"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:layout_centerInParent="true"
+                        android:visibility="invisible"
+                        app:animationGenerators="@array/BubbleAnimations"
+                        app:array_colors="@array/bubble"
+                        app:ball_from_size="10dp"
+                        app:ball_to_size="20dp"
+                        app:colorGenerator="com.github.glomadrian.grav.generator.paint.ArrayColorGenerator"
+                        app:gravGenerator="com.github.glomadrian.grav.generator.grav.BallGenerator"
+                        app:pointGenerator="com.github.glomadrian.grav.generator.point.RegularPointGenerator"
+                        app:regular_cell_size="300"
+                        app:regular_variance="200"
+                        app:shake_direction="vertical"
+                        app:shake_max_duration="20000"
+                        app:shake_min_duration="10000"
+                        app:shake_variance="500dp"
+                        app:side_to_side_direction="upToDown"
+                        app:side_to_side_max_duration="10000"
+                        app:side_to_side_min_duration="1000" />
+
+                    <!--Snowfall and rain filter-->
+                    <com.github.matteobattilana.weather.WeatherView
+                        android:id="@+id/whether_view"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:visibility="gone" />
+
+                    <!--Konfetti view-->
+                    <nl.dionsegijn.konfetti.KonfettiView
+                        android:id="@+id/konfetti_view"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:visibility="gone" />
+
                     <!--Signature view container-->
                     <FrameLayout
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_alignParentBottom="true"
-                        android:layout_alignParentLeft="true"
+                        android:layout_gravity="bottom|left"
                         android:layout_marginBottom="5dp"
                         android:background="@color/black_overlay">
 
@@ -66,7 +103,7 @@
                             tools:text="~The testament" />
                     </FrameLayout>
 
-                </RelativeLayout>
+                </FrameLayout>
 
             </android.support.v4.widget.NestedScrollView>
 
@@ -106,6 +143,7 @@
                     app:srcCompat="@drawable/ic_menu_sound_enabled" />
 
             </FrameLayout>
+
 
             <!--RecyclerView profile mention-->
             <android.support.v7.widget.RecyclerView
@@ -176,11 +214,11 @@
                     android:id="@+id/textLabelHint"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:paddingBottom="5dp"
                     android:paddingLeft="8dp"
                     android:paddingRight="8dp"
-                    android:paddingBottom="5dp"
-                    android:textSize="12sp"
-                    android:text="Choose labels which might help you" />
+                    android:text="Choose labels which might help you"
+                    android:textSize="12sp" />
 
                 <android.support.v7.widget.AppCompatTextView
                     android:id="@+id/textLabelHelp"
@@ -188,9 +226,9 @@
                     android:layout_height="wrap_content"
                     android:clickable="true"
                     android:paddingBottom="5dp"
-                    android:textSize="12sp"
                     android:text="(Why?)"
-                    android:textColor="@color/blue" />
+                    android:textColor="@color/blue"
+                    android:textSize="12sp" />
 
             </LinearLayout>
 
@@ -211,5 +249,47 @@
 
     <!--Filter option bottom sheet-->
     <include layout="@layout/layout_filter_bottom_sheet" />
+    <!--Live filter bottom sheet-->
+    <include layout="@layout/layout_live_filter_bottom_sheet" />
+
+    <!--Live filter container-->
+    <FrameLayout
+        android:id="@+id/container_live_filter"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:layout_marginLeft="3dp"
+        android:layout_marginTop="8dp"
+        android:background="@drawable/bg_btn_live_filter"
+        android:paddingBottom="5dp"
+        android:paddingLeft="8dp"
+        android:paddingRight="8dp"
+        android:paddingTop="5dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:orientation="horizontal">
+
+            <android.support.v7.widget.AppCompatImageView
+                android:id="@+id/image_live_filter"
+                android:layout_width="16dp"
+                android:layout_height="16dp"
+                android:layout_gravity="center"
+                app:srcCompat="@drawable/ic_live_filter_vector" />
+
+            <android.support.v7.widget.AppCompatTextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="8dp"
+                android:text="Live Filter"
+                android:textColor="@color/white" />
+
+        </LinearLayout>
+
+
+    </FrameLayout>
+
 
 </android.support.design.widget.CoordinatorLayout>

@@ -18,6 +18,7 @@ public class FeedModel implements Parcelable {
     private String contentImage;
     private String collaboWithEntityID;
     private int imgWidth, imgHeight;
+    private String liveFilterName;
 
 
     //Required constructor
@@ -225,6 +226,14 @@ public class FeedModel implements Parcelable {
         this.imgHeight = imgHeight;
     }
 
+    public String getLiveFilterName() {
+        return liveFilterName;
+    }
+
+    public void setLiveFilterName(String liveFilterName) {
+        this.liveFilterName = liveFilterName;
+    }
+
     @Override
     public int describeContents() {
         return 0;
@@ -257,6 +266,7 @@ public class FeedModel implements Parcelable {
         parcel.writeString(postTimeStamp);
         parcel.writeInt(imgWidth);
         parcel.writeInt(imgHeight);
+        parcel.writeString(liveFilterName);
 
     }
 
@@ -299,6 +309,7 @@ public class FeedModel implements Parcelable {
         postTimeStamp = in.readString();
         imgWidth = in.readInt();
         imgHeight = in.readInt();
+        liveFilterName = in.readString();
     }
 
 }

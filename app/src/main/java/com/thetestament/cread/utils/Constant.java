@@ -104,6 +104,7 @@ public class Constant {
     public static final String EXTRA_MERCHANTABLE = "merchantable";
     public static final String EXTRA_IMAGE_WIDTH = "imageWidth";
     public static final String EXTRA_IMAGE_HEIGHT = "imageHeight";
+    public static final String EXTRA_LIVE_FILTER = "liveFilter";
     public static final String EXTRA_DATA = "data";
     public static final String EXTRA_PROFILE_UUID = "profileUUID";
     public static final String EXTRA_FEED_DESCRIPTION_DATA = "dataFeedDescription";
@@ -254,6 +255,8 @@ public class Constant {
     public static final String FIREBASE_EVENT_RATE_US_CLICKED = "rate_us_clicked";
     public static final String FIREBASE_EVENT_COLLAB_INVITE_CLICKED = "collab_invite_clicked";
     public static final String FIREBASE_EVENT_DEEP_LINK_USED = "deep_link_open";
+    public static final String FIREBASE_EVENT_POST_SAVED = "post_saved";
+    public static final String FIREBASE_EVENT_POST_UPLOADED = "post_clicked";
     //endregion
 
 
@@ -310,11 +313,13 @@ public class Constant {
     public static final String PREVIEW_EXTRA_IMAGE_TINT_COLOR = "imageTintColor";
     public static final String PREVIEW_EXTRA_CAPTION_TEXT = "captionText";
     public static final String PREVIEW_EXTRA_CONTENT_IMAGE = "contentImage";
+    public static final String PREVIEW_EXTRA_LIVE_FILTER = "liveFilter";
     public static final String PREVIEW_EXTRA_CALLED_FROM_COLLABORATION = "collaboration";
     public static final String PREVIEW_EXTRA_CALLED_FROM_SHORT = "short";
     public static final String PREVIEW_EXTRA_CALLED_FROM_CAPTURE = "capture";
     public static final String PREVIEW_EXTRA_CALLED_FROM_EDIT_CAPTURE = "editCapture";
     public static final String PREVIEW_EXTRA_CALLED_FROM_EDIT_SHORT = "editShort";
+
     //endregion
 
     //region :Data for  Short activity
@@ -375,6 +380,7 @@ public class Constant {
     public static final String CONTENT_PREVIEW_EXTRA_IMAGE_URL = "contentPreviewImageUrl";
     public static final String CONTENT_PREVIEW_EXTRA_DATA = "contentPreviewData";
     public static final String CONTENT_PREVIEW_EXTRA_SIGNATURE_TEXT = "contentPreviewSignatureText";
+    public static final String CONTENT_PREVIEW_EXTRA_LIVE_FILTER_NAME = "contentPreviewLiveFilterName";
     //endregion
 
     //region Content type for labels
@@ -390,5 +396,19 @@ public class Constant {
     public static final String EXPLORE_CATEGORY_DEFAULT = "DEFAULT";
     public static final String EXPLORE_CATEGORY_ART = "ART";
     public static final String EXPLORE_CATEGORY_FEEL = "FEEL";
+    //endregion
+
+    //region :Live filter name
+    public static final String LIVE_FILTER_NONE = "none";
+    public static final String LIVE_FILTER_SNOW = "snow";
+    public static final String LIVE_FILTER_RAIN = "rain";
+    public static final String LIVE_FILTER_BUBBLE = "bubble";
+    public static final String LIVE_FILTER_CONFETTI = "confetti";
+    //endregion
+
+    //region  :Apps package name
+    public static final String PACKAGE_NAME_WHATSAPP = "com.whatsapp";
+    public static final String PACKAGE_NAME_FACEBOOK = "com.facebook.katana";
+    public static final String PACKAGE_NAME_INSTAGRAM = "com.instagram.android";
     //endregion
 }

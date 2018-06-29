@@ -16,6 +16,7 @@ import android.support.v7.widget.RecyclerView;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
 
 import com.afollestad.materialdialogs.MaterialDialog;
@@ -24,9 +25,11 @@ import com.thetestament.cread.BuildConfig;
 import com.thetestament.cread.Manifest;
 import com.thetestament.cread.R;
 import com.thetestament.cread.adapters.FeedDescriptionAdapter;
+import com.thetestament.cread.dialog.CustomDialog;
 import com.thetestament.cread.helpers.DownvoteHelper;
 import com.thetestament.cread.helpers.FeedHelper;
 import com.thetestament.cread.helpers.FollowHelper;
+import com.thetestament.cread.helpers.GifHelper;
 import com.thetestament.cread.helpers.HatsOffHelper;
 import com.thetestament.cread.helpers.ImageHelper;
 import com.thetestament.cread.helpers.SharedPreferenceHelper;
@@ -59,7 +62,6 @@ import pl.tajchert.nammu.Nammu;
 import pl.tajchert.nammu.PermissionCallback;
 
 import static com.thetestament.cread.CreadApp.GET_RESPONSE_FROM_NETWORK_MORE_POSTS;
-import static com.thetestament.cread.dialog.DialogHelper.getDeletePostDialog;
 import static com.thetestament.cread.helpers.DeepLinkHelper.getDeepLinkOnValidShareOption;
 import static com.thetestament.cread.helpers.DeletePostHelper.deletePost;
 import static com.thetestament.cread.helpers.FeedHelper.updateFollowForAll;
@@ -82,14 +84,14 @@ import static com.thetestament.cread.utils.Constant.SHARE_OPTION_OTHER;
 import static com.thetestament.cread.utils.Constant.USER_ACTION_TYPE_VIEW;
 
 /**
- * Class to show detailed information of post item.
+ * Class to show detailed information of post.
  */
 public class FeedDescriptionActivity extends BaseActivity implements listener.OnCollaborationListener {
 
     //region :View binding with Butter knife
-    @BindView(R.id.rootView)
+    @BindView(R.id.root_view)
     CoordinatorLayout rootView;
-    @BindView(R.id.recyclerViewPosts)
+    @BindView(R.id.recycler_view_posts)
     RecyclerView recyclerViewPosts;
     //endregion
 
@@ -126,6 +128,11 @@ public class FeedDescriptionActivity extends BaseActivity implements listener.On
     private List<FeedModel> mPostsList = new ArrayList<>();
     Intent resultIntent = new Intent();
     FeedDescriptionAdapter mAdapter;
+
+    /**
+     * Parent view of live filter
+     */
+    FrameLayout mFrameLayout;
     //endregion
 
     //region: Overridden methods
@@ -328,6 +335,7 @@ public class FeedDescriptionActivity extends BaseActivity implements listener.On
         initLoadMoreListener(mAdapter);
         initHatsOffListener(mAdapter);
         initShareListener(mAdapter);
+        initGifShareListener(mAdapter);
         initDownVoteListener(mAdapter);
         initFollowListener();
         initializeDeleteListener(mAdapter);
@@ -400,6 +408,37 @@ public class FeedDescriptionActivity extends BaseActivity implements listener.On
             }
         });
     }
+
+    /**
+     * Initialize gif share listener.
+     */
+    private void initGifShareListener(FeedDescriptionAdapter feedAdapter) {
+        feedAdapter.setOnGifShareListener(new listener.OnGifShareListener() {
+            @Override
+            public void onGifShareClick(FrameLayout frameLayout, String shareOption) {
+                mFrameLayout = frameLayout;
+                mShareOption = shareOption;
+                //Check for Write permission
+                if (Nammu.checkPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+                    //We have permission do whatever you want to do
+                    new GifHelper(mContext, mBitmap, frameLayout, shareOption, true)
+                            .startHandlerTask(new Handler(), 0);
+                } else {
+                    //We do not own this permission
+                    if (Nammu.shouldShowRequestPermissionRationale(mContext
+                            , Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+                        //User already refused to give us this permission or removed it
+                        ViewHelper.getToast(mContext
+                                , getString(R.string.error_msg_share_permission_denied));
+                    } else {
+                        //First time asking for permission
+                        Nammu.askForPermission(mContext, Manifest.permission.WRITE_EXTERNAL_STORAGE, shareGifPermission);
+                    }
+                }
+            }
+        });
+    }
+
 
     private void initDownVoteListener(FeedDescriptionAdapter feedAdapter) {
         feedAdapter.setOnDownvoteClickedListener(new listener.OnDownvoteClickedListener() {
@@ -561,7 +600,7 @@ public class FeedDescriptionActivity extends BaseActivity implements listener.On
     }
 
     private void deleteContent(String entityID, final int position) {
-        final MaterialDialog dialog = getDeletePostDialog(mContext);
+        final MaterialDialog dialog = CustomDialog.getProgressDialog(mContext, "Deleting...");
 
         deletePost(mContext,
                 mCompositeDisposable,
@@ -999,6 +1038,7 @@ public class FeedDescriptionActivity extends BaseActivity implements listener.On
             data.setContentImage(dataObj.getString("entityurl"));
             data.setFollowStatus(dataObj.getBoolean("followstatus"));
             data.setCollabCount(dataObj.getLong("collabcount"));
+            data.setLiveFilterName(dataObj.getString("livefilter"));
 
             //if image width pr image height is null
             if (dataObj.isNull("img_width") || dataObj.isNull("img_height")) {
@@ -1135,6 +1175,27 @@ public class FeedDescriptionActivity extends BaseActivity implements listener.On
                     , getString(R.string.error_msg_share_permission_denied));
         }
     };
+
+
+    /**
+     * Used to handle result of askForPermission for gif sharing
+     */
+    PermissionCallback shareGifPermission = new PermissionCallback() {
+        @Override
+        public void permissionGranted() {
+            //We have permission do whatever you want to do
+            new GifHelper(mContext, mBitmap, mFrameLayout, mShareOption, true)
+                    .startHandlerTask(new Handler(), 0);
+        }
+
+        @Override
+        public void permissionRefused() {
+            //Show error message
+            ViewHelper.getToast(mContext
+                    , getString(R.string.error_msg_share_permission_denied));
+        }
+    };
+
     //endregion
 
 }

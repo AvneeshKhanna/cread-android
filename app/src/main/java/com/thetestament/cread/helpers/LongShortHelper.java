@@ -1,6 +1,5 @@
 package com.thetestament.cread.helpers;
 
-import android.content.Intent;
 import android.support.v4.app.FragmentActivity;
 import android.view.View;
 
@@ -8,7 +7,6 @@ import com.afollestad.materialdialogs.MaterialDialog;
 import com.crashlytics.android.Crashlytics;
 import com.thetestament.cread.BuildConfig;
 import com.thetestament.cread.R;
-import com.thetestament.cread.activities.ViewLongShortActivity;
 import com.thetestament.cread.listeners.listener;
 import com.thetestament.cread.models.FeedModel;
 import com.thetestament.cread.models.ShortModel;
@@ -20,7 +18,6 @@ import io.reactivex.disposables.CompositeDisposable;
 
 import static com.thetestament.cread.CreadApp.GET_RESPONSE_FROM_NETWORK_VIEW_LONG_SHORT;
 import static com.thetestament.cread.helpers.NetworkHelper.requestServer;
-import static com.thetestament.cread.utils.Constant.EXTRA_SHORT_DATA;
 
 /**
  * Created by prakharchandna on 29/03/18.
@@ -88,6 +85,8 @@ public class LongShortHelper {
                                 shortModel.setImageURL(mainData.getString("entityurl"));
                                 shortModel.setImgWidth(mainData.getDouble("img_width"));
                                 shortModel.setBgSound(mainData.getString("bg_sound"));
+                                shortModel.setLiveFilterName(mainData.getString("livefilter"));
+
 
                                 //Set listener
                                 onLongShortDataRequestedListener.onLongShortDataSuccess(shortModel);
@@ -153,17 +152,12 @@ public class LongShortHelper {
                     @Override
                     public void onLongShortDataSuccess(ShortModel shortModel) {
                         // open activity and pass data
-                        Intent intent = new Intent(context, ViewLongShortActivity.class);
-                        intent.putExtra(EXTRA_SHORT_DATA, shortModel);
-                        context.startActivity(intent);
-
+                        IntentHelper.openLongFormWritingActivity(context,shortModel);
                     }
 
                     @Override
                     public void onLongShortDataFailiure(String errorMsg) {
-
                         ViewHelper.getToast(context, errorMsg);
-
                     }
                 });
             }

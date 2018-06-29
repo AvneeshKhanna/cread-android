@@ -8,8 +8,8 @@
         app:showAsAction="always" />
 
     <item
-        android:id="@+id/action_upload"
-        android:title="@string/action_text_upload"
+        android:id="@+id/action_next"
+        android:title="@string/action_text_next"
         app:showAsAction="always" />
 
 </menu>

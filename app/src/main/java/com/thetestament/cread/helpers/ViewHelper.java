@@ -2,6 +2,7 @@ package com.thetestament.cread.helpers;
 
 import android.content.Context;
 import android.content.res.Resources;
+import android.graphics.Color;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.content.ContextCompat;
@@ -15,14 +16,19 @@ import android.view.WindowManager;
 import android.widget.Toast;
 
 import com.thetestament.cread.R;
+import com.thetestament.cread.utils.AspectRatioUtils;
 import com.tooltip.Tooltip;
+
+import nl.dionsegijn.konfetti.KonfettiView;
+import nl.dionsegijn.konfetti.models.Shape;
+import nl.dionsegijn.konfetti.models.Size;
 
 /**
  * Helper class to show snack bar.
  */
 
 public class ViewHelper {
-
+    
     /**
      * Method to show snack bar.
      *
@@ -127,4 +133,22 @@ public class ViewHelper {
     }
 
 
+    /**
+     * Method to show konfetti animation.
+     *
+     * @param konfettiView View reference.
+     * @param context      Context to use.
+     */
+    public static void showKonfetti(KonfettiView konfettiView, Context context) {
+        konfettiView.build()
+                .addColors(Color.YELLOW, ContextCompat.getColor(context, R.color.blue), ContextCompat.getColor(context, R.color.lt_orange), ContextCompat.getColor(context, R.color.color_green_500))
+                .setDirection(0.0, 359.0)
+                .setSpeed(1f, 5f)
+                .setFadeOutEnabled(true)
+                .setTimeToLive(2000L)
+                .addShapes(Shape.RECT, Shape.CIRCLE)
+                .addSizes(new Size(8, 5))
+                .setPosition(0f, (float) AspectRatioUtils.getDeviceScreenWidth(), -50f, -50f)
+                .streamFor(40, 20000L);
+    }
 }

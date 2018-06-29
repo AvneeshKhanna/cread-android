@@ -22,6 +22,8 @@ import android.widget.TextView;
 import com.afollestad.materialdialogs.DialogAction;
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.facebook.drawee.view.SimpleDraweeView;
+import com.github.glomadrian.grav.GravView;
+import com.github.matteobattilana.weather.WeatherView;
 import com.google.firebase.analytics.FirebaseAnalytics;
 import com.thetestament.cread.R;
 import com.thetestament.cread.activities.CollaborationDetailsActivity;
@@ -29,6 +31,7 @@ import com.thetestament.cread.activities.FeedDescriptionActivity;
 import com.thetestament.cread.helpers.FeedHelper;
 import com.thetestament.cread.helpers.ImageHelper;
 import com.thetestament.cread.helpers.IntentHelper;
+import com.thetestament.cread.helpers.LiveFilterHelper;
 import com.thetestament.cread.helpers.NetworkHelper;
 import com.thetestament.cread.helpers.SharedPreferenceHelper;
 import com.thetestament.cread.helpers.ViewHelper;
@@ -44,6 +47,7 @@ import java.util.List;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import io.reactivex.disposables.CompositeDisposable;
+import nl.dionsegijn.konfetti.KonfettiView;
 
 import static com.thetestament.cread.helpers.FeedHelper.setGridItemMargins;
 import static com.thetestament.cread.helpers.FeedHelper.updatePostTimestamp;
@@ -181,7 +185,8 @@ public class ExploreAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
             //Set image width and height
             AspectRatioUtils.setImageAspectRatio(data.getImgWidth()
                     , data.getImgHeight()
-                    , itemViewHolder.imageExplore);
+                    , itemViewHolder.imageExplore
+                    , true);
             //Load explore feed image
             ImageHelper.loadProgressiveImage(Uri.parse(data.getContentImage())
                     , itemViewHolder.imageExplore);
@@ -200,7 +205,6 @@ public class ExploreAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
             initLongFormPreviewClick(itemViewHolder.containerLongShortPreview, data, mContext, mCompositeDisposable);
             // init post timestamp
             updatePostTimestamp(itemViewHolder.textTimeStamp, data);
-
 
         } else if (holder.getItemViewType() == VIEW_TYPE_ITEM_GRID) {
             final GridItemViewHolder itemViewHolder = (GridItemViewHolder) holder;
@@ -245,7 +249,6 @@ public class ExploreAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
     public void setLoaded() {
         mIsLoading = false;
     }
-
 
 
     /**
@@ -488,6 +491,12 @@ public class ExploreAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
         FrameLayout containerLongShortPreview;
         @BindView(R.id.textTimestamp)
         TextView textTimeStamp;
+        @BindView(R.id.live_filter_bubble)
+        GravView liveFilterBubble;
+        @BindView(R.id.whether_view)
+        WeatherView whetherView;
+        @BindView(R.id.konfetti_view)
+        KonfettiView konfettiView;
 
         public ListItemViewHolder(View itemView) {
             super(itemView);
@@ -497,11 +506,18 @@ public class ExploreAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
 
     //GridItemViewHolder class
     static class GridItemViewHolder extends RecyclerView.ViewHolder {
-
+        @BindView(R.id.imageContainer)
+        FrameLayout squareView;
         @BindView(R.id.imageGrid)
         SimpleDraweeView imageExplore;
         @BindView(R.id.containerLongShortPreview)
         FrameLayout containerLongShortPreview;
+        @BindView(R.id.live_filter_bubble)
+        GravView liveFilterBubble;
+        @BindView(R.id.whether_view)
+        WeatherView whetherView;
+        @BindView(R.id.konfetti_view)
+        KonfettiView konfettiView;
 
         public GridItemViewHolder(View itemView) {
             super(itemView);
@@ -520,5 +536,25 @@ public class ExploreAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
         }
     }
 
+
+    @Override
+    public void onViewAttachedToWindow(RecyclerView.ViewHolder holder) {
+        super.onViewAttachedToWindow(holder);
+        if (holder.getItemViewType() == VIEW_TYPE_ITEM_LIST) {
+            final ListItemViewHolder itemViewHolder = (ListItemViewHolder) holder;
+            LiveFilterHelper.initLiveFilters(mExploreList.get(holder.getAdapterPosition()).getLiveFilterName()
+                    , itemViewHolder.whetherView
+                    , itemViewHolder.konfettiView
+                    , itemViewHolder.liveFilterBubble
+                    , mContext);
+        } else if (holder.getItemViewType() == VIEW_TYPE_ITEM_GRID) {
+            final GridItemViewHolder itemViewHolder = (GridItemViewHolder) holder;
+            LiveFilterHelper.initLiveFilters(mExploreList.get(holder.getAdapterPosition()).getLiveFilterName()
+                    , itemViewHolder.whetherView
+                    , itemViewHolder.konfettiView
+                    , itemViewHolder.liveFilterBubble
+                    , mContext);
+        }
+    }
 
 }
