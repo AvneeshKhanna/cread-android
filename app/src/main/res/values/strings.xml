@@ -30,6 +30,7 @@
     <string name="error_img_not_attached">Image from gallery was not attached</string>
     <string name="error_img_not_cropped">Image could not be cropped due to some error</string>
     <string name="error_ffmpeg">Your phone doen\'t support GIF.</string>
+    <string name="error_ffmpeg_video">Your phone doen\'t support Video creation.</string>
 
     //Shared preferences key
     <string name="cread_preferences">creadPrefs</string>

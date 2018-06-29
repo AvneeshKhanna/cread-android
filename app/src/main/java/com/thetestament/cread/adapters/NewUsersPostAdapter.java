@@ -188,7 +188,8 @@ public class NewUsersPostAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
             //Set image width and height
             AspectRatioUtils.setImageAspectRatio(data.getImgWidth()
                     , data.getImgHeight()
-                    , itemViewHolder.imageFeed);
+                    , itemViewHolder.imageFeed
+                    , true);
             //Load feed image
             ImageHelper.loadProgressiveImage(Uri.parse(data.getContentImage())
                     , itemViewHolder.imageFeed);
@@ -681,8 +682,6 @@ public class NewUsersPostAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
                     , mContext);
         }
     }
-
-
 
 
 }
