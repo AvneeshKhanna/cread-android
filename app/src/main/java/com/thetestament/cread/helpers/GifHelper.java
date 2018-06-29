@@ -169,8 +169,12 @@ public class GifHelper {
 
                 @Override
                 public void onSuccess() {
-                    //Method called
-                    createGif(ffmpeg);
+                    if (mShareOption.equals(Constant.SHARE_OPTION_INSTAGRAM)) {
+                        creatVideo(ffmpeg);
+                    } else {
+                        //Method called
+                        createGif(ffmpeg);
+                    }
                 }
 
                 @Override
@@ -272,6 +276,99 @@ public class GifHelper {
             //Show toast
             ViewHelper.getShortToast(mContext
                     , mContext.getString(R.string.error_ffmpeg));
+        }
+    }
+
+    /**
+     * Method to create video from images.
+     *
+     * @param fFmpeg FFmpeg instance.
+     */
+    private void creatVideo(final FFmpeg fFmpeg) {
+        //Called from sharing
+        if (mCreateForSharing) {
+            mGifPath = "/Cread/output.mp4";
+        } else {
+            String i = new SimpleDateFormat("yyyyMMddhhmm").format(new Date());
+            mGifPath = "/Cread/output" + i + ".mp4";
+        }
+
+        String[] cmd = new String[8];
+        cmd[0] = "-f";
+        cmd[1] = "image2";
+        cmd[2] = "-framerate";
+        cmd[3] = "18";
+        cmd[4] = "-y";
+        cmd[5] = "-i";
+        cmd[6] = Environment.getExternalStorageDirectory() + "/Cread/LiveFilter/live_filter_pic%d.jpg";
+        cmd[7] = Environment.getExternalStorageDirectory() + mGifPath;
+        try {
+            fFmpeg.execute(cmd, new FFmpegExecuteResponseHandler() {
+                @Override
+                public void onSuccess(String message) {
+                    //Setting progress as 100%
+                    CustomDialog.setProgressDeterminateDialog(materialDialog, 100);
+                    //Dismiss material dialog
+                    materialDialog.dismiss();
+                    //Method called
+                    if (mCreateForSharing) {
+                        File file = new File(Environment.getExternalStorageDirectory() + "/Cread/output.mp4");
+                        Uri uri = FileProvider.getUriForFile(mContext.getApplicationContext(), mContext.getPackageName() + ".provider", file);
+
+                        Intent shareInstagramIntent = new Intent();
+                        shareInstagramIntent.setAction(Intent.ACTION_SEND);
+                        shareInstagramIntent.setType("video/*");
+                        shareInstagramIntent.setPackage(Constant.PACKAGE_NAME_INSTAGRAM);
+                        shareInstagramIntent.putExtra(Intent.EXTRA_STREAM, uri);
+
+                        shareInstagramIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                        mContext.startActivity(Intent.createChooser(shareInstagramIntent, "Share"));
+
+                    } else {
+                        ViewHelper.getToast(mContext, "Video saved to : " + mGifPath);
+                    }
+                    //To update gallery
+                    File file = new File(Environment.getExternalStorageDirectory() + mGifPath);
+
+                    MediaScannerConnection.scanFile(mContext.getApplicationContext()
+                            , new String[]{file.getAbsolutePath()}
+                            , null, new MediaScannerConnection.OnScanCompletedListener() {
+                                public void onScanCompleted(String path, Uri uri) {
+                                    //something that you want to do
+                                }
+                            });
+                }
+
+                @Override
+                public void onProgress(String message) {
+                    CustomDialog.setProgressDeterminateDialog(materialDialog, materialDialog.getCurrentProgress() + 1);
+                }
+
+                @Override
+                public void onFailure(String message) {
+                    //Hide progress dialog
+                    materialDialog.dismiss();
+                    //Show toast
+                    ViewHelper.getShortToast(mContext
+                            , mContext.getString(R.string.error_ffmpeg_video));
+                }
+
+                @Override
+                public void onStart() {
+
+                }
+
+                @Override
+                public void onFinish() {
+                }
+            });
+        } catch (FFmpegCommandAlreadyRunningException e) {
+            e.printStackTrace();
+            //Hide progress dialog
+            materialDialog.dismiss();
+            //Show toast
+            ViewHelper.getShortToast(mContext
+                    , mContext.getString(R.string.error_ffmpeg_video));
         }
     }
 
