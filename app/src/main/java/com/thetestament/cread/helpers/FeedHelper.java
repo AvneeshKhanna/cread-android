@@ -35,6 +35,7 @@ import com.thetestament.cread.listeners.listener;
 import com.thetestament.cread.listeners.listener.OnShareDialogItemClickedListener;
 import com.thetestament.cread.models.FeedModel;
 import com.thetestament.cread.models.ListItemsDialogModel;
+import com.thetestament.cread.utils.Constant;
 import com.thetestament.cread.utils.TimeUtils;
 
 import org.json.JSONException;
@@ -280,7 +281,6 @@ public class FeedHelper {
 
 
     public static FeedModel parseEntitySpecificJSON(JSONObject jsonObject, String entityID) throws JSONException {
-        //fixme this too
         FeedModel feedData = new FeedModel();
 
         JSONObject mainObject = jsonObject.getJSONObject("data");
@@ -305,6 +305,15 @@ public class FeedHelper {
         feedData.setContentImage(dataObj.getString("entityurl"));
         feedData.setFollowStatus(dataObj.getBoolean("followstatus"));
         feedData.setCollabCount(dataObj.getLong("collabcount"));
+
+        //If live filter key is present
+        if (dataObj.has("livefilter")) {
+            //set live filter
+            feedData.setLiveFilterName(dataObj.getString("livefilter"));
+        } else {
+            //set live filter to none
+            feedData.setLiveFilterName(dataObj.getString(Constant.LIVE_FILTER_NONE));
+        }
 
         if (dataObj.has("img_width") || dataObj.has("img_height")) {
             //if image width pr image height is null
