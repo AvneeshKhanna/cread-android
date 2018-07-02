@@ -170,7 +170,7 @@ public class GifHelper {
                 @Override
                 public void onSuccess() {
                     if (mShareOption.equals(Constant.SHARE_OPTION_INSTAGRAM)) {
-                        creatVideo(ffmpeg);
+                        createVideo(ffmpeg);
                     } else {
                         //Method called
                         createGif(ffmpeg);
@@ -284,7 +284,7 @@ public class GifHelper {
      *
      * @param fFmpeg FFmpeg instance.
      */
-    private void creatVideo(final FFmpeg fFmpeg) {
+    private void createVideo(final FFmpeg fFmpeg) {
         //Called from sharing
         if (mCreateForSharing) {
             mGifPath = "/Cread/output.mp4";
@@ -457,8 +457,9 @@ public class GifHelper {
             case Constant.LIVE_FILTER_SNOW:
             case Constant.LIVE_FILTER_BUBBLE:
             case Constant.LIVE_FILTER_CONFETTI:
-                return true;
             case Constant.LIVE_FILTER_RAIN:
+
+                return true;
             case Constant.LIVE_FILTER_NONE:
                 return false;
             default:
