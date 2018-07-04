@@ -604,8 +604,8 @@ public class NewUsersPostAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
         LinearLayout containerComment;
         @BindView(R.id.textCollabCount)
         TextView textCollabCount;
-        @BindView(R.id.lineSeparatorTop)
-        View lineSeparator;
+        /*@BindView(R.id.lineSeparatorTop)
+        View lineSeparator;*/
         @BindView(R.id.containerCollabCount)
         LinearLayout containerCollabCount;
         @BindView(R.id.textTitle)

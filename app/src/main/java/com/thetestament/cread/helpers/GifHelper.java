@@ -457,10 +457,9 @@ public class GifHelper {
             case Constant.LIVE_FILTER_SNOW:
             case Constant.LIVE_FILTER_BUBBLE:
             case Constant.LIVE_FILTER_CONFETTI:
-            case Constant.LIVE_FILTER_RAIN:
-
                 return true;
             case Constant.LIVE_FILTER_NONE:
+            case Constant.LIVE_FILTER_RAIN:
                 return false;
             default:
                 return false;
