@@ -28,6 +28,7 @@ import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.afollestad.materialdialogs.DialogAction;
@@ -227,6 +228,8 @@ public class PreviewActivity extends BaseActivity implements QueryTokenReceiver,
     FrameLayout frameLayout;
     @BindView(R.id.container_live_filter)
     FrameLayout containerLiveFilter;
+    @BindView(R.id.water_mark_cread)
+    RelativeLayout waterMarkCreadView;
     //endregion
 
     //region :Fields and constants
@@ -1077,7 +1080,8 @@ public class PreviewActivity extends BaseActivity implements QueryTokenReceiver,
                                             , dataObject.getString("captureurl")
                                             , mHelper.getFirstName()
                                             , CONTENT_TYPE_CAPTURE
-                                            , etCaption.getText().toString().trim());
+                                            , etCaption.getText().toString().trim()
+                                            , waterMarkCreadView);
                                 }
                             }
                         } catch (JSONException e) {
@@ -1205,7 +1209,8 @@ public class PreviewActivity extends BaseActivity implements QueryTokenReceiver,
                                             , dataObject.getString("shorturl")
                                             , mHelper.getFirstName()
                                             , CONTENT_TYPE_SHORT
-                                            , etCaption.getText().toString().trim());
+                                            , etCaption.getText().toString().trim()
+                                            , waterMarkCreadView);
                                 }
                             }
                         } catch (JSONException e) {
@@ -1443,7 +1448,8 @@ public class PreviewActivity extends BaseActivity implements QueryTokenReceiver,
                                             , dataObject.getString("captureurl")
                                             , mHelper.getFirstName()
                                             , CONTENT_TYPE_CAPTURE
-                                            , etCaption.getText().toString().trim());
+                                            , etCaption.getText().toString().trim()
+                                            , waterMarkCreadView);
                                 }
                             }
                         } catch (JSONException e) {
@@ -2301,7 +2307,7 @@ public class PreviewActivity extends BaseActivity implements QueryTokenReceiver,
                 //IF live filter is present
                 if (GifHelper.hasLiveFilter(mSelectedLiveFilter)) {
                     //Create GIF
-                    new GifHelper(mContext, bm, frameLayout, Constant.SHARE_OPTION_OTHER, false)
+                    new GifHelper(mContext, bm, frameLayout, Constant.SHARE_OPTION_OTHER, false, waterMarkCreadView)
                             .startHandlerTask(new Handler(), 0);
                 }
                 //No filter

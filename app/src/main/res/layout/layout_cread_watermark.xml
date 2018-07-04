@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/water_mark_cread"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:background="@color/transparent_15"
+    android:visibility="gone">
+
+    <android.support.v7.widget.AppCompatImageView
+        android:layout_width="75dp"
+        android:layout_height="25dp"
+        android:scaleType="centerInside"
+        android:src="@drawable/cread_logo_watermark_share" />
+</RelativeLayout>

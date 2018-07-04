@@ -7,6 +7,7 @@ import android.support.v7.widget.AppCompatImageView;
 import android.support.v7.widget.AppCompatTextView;
 import android.view.View;
 import android.widget.FrameLayout;
+import android.widget.RelativeLayout;
 
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.thetestament.cread.R;
@@ -29,7 +30,7 @@ public class DialogHelper {
     public static void showCollabInvitationDialog(final FragmentActivity context, final CompositeDisposable compositeDisposable
             , final View rootView, final String liveFilter, final Bitmap bitmap, final FrameLayout frameLayout
             , final String uuid, final String authKey, final String entityID, final String entityUrl
-            , final String creatorName, final String contentType, final String caption) {
+            , final String creatorName, final String contentType, final String caption, final RelativeLayout watermarkView) {
 
         final MaterialDialog dialog = new MaterialDialog.Builder(context)
                 .customView(R.layout.dialog_share_post, false)
@@ -55,7 +56,7 @@ public class DialogHelper {
                     FirebaseEventHelper.logCollabInviteEvent(context);
                     //Live filter is present
                     if (GifHelper.hasLiveFilter(liveFilter)) {
-                        new GifHelper(context, bitmap, frameLayout, SHARE_OPTION_WHATSAPP, true)
+                        new GifHelper(context, bitmap, frameLayout, SHARE_OPTION_WHATSAPP, true, watermarkView)
                                 .startHandlerTask(new Handler(), 0);
                     } else {
                         //generate deep link and open share dialog
@@ -88,7 +89,7 @@ public class DialogHelper {
                     FirebaseEventHelper.logCollabInviteEvent(context);
                     //Live filter is present
                     if (GifHelper.hasLiveFilter(liveFilter)) {
-                        new GifHelper(context, bitmap, frameLayout, SHARE_OPTION_FACEBOOK, true)
+                        new GifHelper(context, bitmap, frameLayout, SHARE_OPTION_FACEBOOK, true,watermarkView)
                                 .startHandlerTask(new Handler(), 0);
                     } else {
                         //generate deep link and open share dialog
@@ -121,7 +122,7 @@ public class DialogHelper {
                     FirebaseEventHelper.logCollabInviteEvent(context);
                     //Live filter is present
                     if (GifHelper.hasLiveFilter(liveFilter)) {
-                        new GifHelper(context, bitmap, frameLayout, SHARE_OPTION_INSTAGRAM, true)
+                        new GifHelper(context, bitmap, frameLayout, SHARE_OPTION_INSTAGRAM, true, watermarkView)
                                 .startHandlerTask(new Handler(), 0);
                     } else {
                         //generate deep link and open share dialog
@@ -153,7 +154,7 @@ public class DialogHelper {
                 FirebaseEventHelper.logCollabInviteEvent(context);
                 //Live filter is present
                 if (GifHelper.hasLiveFilter(liveFilter)) {
-                    new GifHelper(context, bitmap, frameLayout, SHARE_OPTION_OTHER, true)
+                    new GifHelper(context, bitmap, frameLayout, SHARE_OPTION_OTHER, true, watermarkView)
                             .startHandlerTask(new Handler(), 0);
                 } else {
                     //generate deep link and open share dialog

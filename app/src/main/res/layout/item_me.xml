@@ -111,6 +111,7 @@
             android:layout_height="wrap_content"
             android:layout_below="@+id/containerCreator">
 
+
             <com.facebook.drawee.view.SimpleDraweeView
                 android:id="@+id/imageContent"
                 android:layout_width="match_parent"
@@ -179,6 +180,8 @@
                 android:visibility="gone" />
 
 
+            <!--WatermarkView-->
+            <include layout="@layout/layout_cread_watermark" />
         </FrameLayout>
 
         <TextView

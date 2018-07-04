@@ -5,6 +5,7 @@ import android.graphics.Typeface;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.thetestament.cread.models.CommentsModel;
@@ -516,6 +517,6 @@ public class listener {
      * Interface definition for a callback to be invoked when user click on share button for gif sharing.
      */
     public interface OnGifShareListener {
-        void onGifShareClick(FrameLayout frameLayout, String shareOption);
+        void onGifShareClick(FrameLayout frameLayout, String shareOption, RelativeLayout waterMarkView);
     }
 }

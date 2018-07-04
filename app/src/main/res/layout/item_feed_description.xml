@@ -192,6 +192,8 @@
                     android:layout_height="match_parent"
                     android:visibility="gone" />
 
+                <!--WatermarkView-->
+                <include layout="@layout/layout_cread_watermark" />
 
             </FrameLayout>
 

@@ -34,7 +34,6 @@
                     android:layout_gravity="center"
                     android:background="@color/yellow_light">
 
-
                     <!--Preview imageView-->
                     <android.support.v7.widget.AppCompatImageView
                         android:id="@+id/imagePreview"
@@ -44,7 +43,7 @@
                         android:scaleType="fitXY"
                         tools:src="@tools:sample/avatars" />
 
-
+                    <include layout="@layout/layout_cread_watermark" />
                     <!--Bubble live filter-->
                     <com.github.glomadrian.grav.GravView
                         android:id="@+id/live_filter_bubble"
