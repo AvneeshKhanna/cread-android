@@ -634,7 +634,7 @@ public class FeedDescriptionAdapter extends RecyclerView.Adapter {
         itemViewHolder.logoInstagram.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (ShareHelper.isAppInstalled(mContext, Constant.SHARE_OPTION_INSTAGRAM)) {
+                if (ShareHelper.isAppInstalled(mContext, Constant.PACKAGE_NAME_INSTAGRAM)) {
                     if (GifHelper.hasLiveFilter(data.getLiveFilterName())) {
                         onGifShareListener.onGifShareClick(itemViewHolder.frameLayout, SHARE_OPTION_INSTAGRAM);
                     } else {
