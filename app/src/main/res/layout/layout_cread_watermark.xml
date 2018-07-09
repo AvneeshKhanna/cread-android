@@ -10,5 +10,5 @@
         android:layout_width="75dp"
         android:layout_height="25dp"
         android:scaleType="centerInside"
-        android:src="@drawable/cread_logo_watermark_share" />
+        android:src="@drawable/cread_logo_watermark_share_new" />
 </RelativeLayout>

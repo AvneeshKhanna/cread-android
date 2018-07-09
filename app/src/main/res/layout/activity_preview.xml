@@ -43,7 +43,6 @@
                         android:scaleType="fitXY"
                         tools:src="@tools:sample/avatars" />
 
-                    <include layout="@layout/layout_cread_watermark" />
                     <!--Bubble live filter-->
                     <com.github.glomadrian.grav.GravView
                         android:id="@+id/live_filter_bubble"
@@ -102,6 +101,12 @@
                             tools:text="~The testament" />
                     </FrameLayout>
 
+                    <!--WaterMark view-->
+                    <include
+                        layout="@layout/layout_cread_watermark"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="right|bottom" />
                 </FrameLayout>
 
             </android.support.v4.widget.NestedScrollView>
