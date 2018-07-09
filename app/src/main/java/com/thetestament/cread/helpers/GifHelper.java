@@ -10,7 +10,9 @@ import android.os.Handler;
 import android.os.HandlerThread;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.content.FileProvider;
+import android.view.View;
 import android.widget.FrameLayout;
+import android.widget.RelativeLayout;
 
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.github.hiteshsondhi88.libffmpeg.FFmpeg;
@@ -42,6 +44,7 @@ public class GifHelper {
     String mShareOption;
     MaterialDialog materialDialog;
     boolean mCreateForSharing;
+    RelativeLayout waterMarkView;
 
     /**
      * Flag to maintain path of live filter GIF.
@@ -63,13 +66,16 @@ public class GifHelper {
      * @param shareOption      Medium where GIF to be shared.
      * @param createForSharing false if called from 'Save on your phone' false otherwise.
      */
-    public GifHelper(FragmentActivity context, Bitmap bitmap, FrameLayout frameLayout, String shareOption, boolean createForSharing) {
+    public GifHelper(FragmentActivity context, Bitmap bitmap, FrameLayout frameLayout, String shareOption, boolean createForSharing, RelativeLayout waterMarkView) {
         this.mContext = context;
         this.mBitmap = bitmap;
         this.frameLayout = frameLayout;
         this.mShareOption = shareOption;
         this.mCreateForSharing = createForSharing;
+        this.waterMarkView = waterMarkView;
         materialDialog = CustomDialog.getDeterminateProgressDialog(mContext, mContext.getString(R.string.title_gif_dialog));
+        //Show watermarkView
+        this.waterMarkView.setVisibility(View.VISIBLE);
     }
 
     /**
@@ -115,6 +121,13 @@ public class GifHelper {
                             });
                             startHandlerTask(handler, counter + 1);
                         } else {
+                            mContext.runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    //Hide watermarkView
+                                    waterMarkView.setVisibility(View.GONE);
+                                }
+                            });
                             initFFmpeg();
                         }
                     }

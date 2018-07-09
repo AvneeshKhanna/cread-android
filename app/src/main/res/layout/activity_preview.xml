@@ -34,7 +34,6 @@
                     android:layout_gravity="center"
                     android:background="@color/yellow_light">
 
-
                     <!--Preview imageView-->
                     <android.support.v7.widget.AppCompatImageView
                         android:id="@+id/imagePreview"
@@ -43,7 +42,6 @@
                         android:adjustViewBounds="true"
                         android:scaleType="fitXY"
                         tools:src="@tools:sample/avatars" />
-
 
                     <!--Bubble live filter-->
                     <com.github.glomadrian.grav.GravView
@@ -103,6 +101,12 @@
                             tools:text="~The testament" />
                     </FrameLayout>
 
+                    <!--WaterMark view-->
+                    <include
+                        layout="@layout/layout_cread_watermark"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="right|bottom" />
                 </FrameLayout>
 
             </android.support.v4.widget.NestedScrollView>
