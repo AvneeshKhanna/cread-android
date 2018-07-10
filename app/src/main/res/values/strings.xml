@@ -132,7 +132,7 @@
     <string name="payment_failed_server_error">The transaction could not go through due to an error on the server. In case the amount has been deducted from your bank account, your refund will be processed in 5-7 days. Please check your registered mail for more details.</string>
     <string name="payment_success_message">Congratulations! Your order has been processed successfully</string>
 
-    // notifcations
+    // notifications
     <string name="gen_notif_channel_name">Cread</string>
     <string name="gen_notif_channel_desc">Make sound and pop up on screen</string>
 
@@ -196,6 +196,10 @@
     <string name="text_invite_collab_capture">Hey! I just posted an art on Cread! You could write something on it as well. Come and collaborate with me on Cread. :)</string>
     //invite collab on short text
     <string name="text_invite_collab_short">Hey! I just wrote something nice. Could you make it more beautiful with your amazing graphic artistry? Come and collaborate with me on Cread. :)</string>
+
+    <!--Play Store Link -->
+    <string name="app_playstore_link">https://play.google.com/store/apps/details?id=com.thetestament.cread</string>
+    <string name="app_playstore_link_short">http://bit.ly/cread_app</string>
 
     //Transition Shared
     <string name="shared_transition_profile_pic">profilePic</string>

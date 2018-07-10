@@ -401,11 +401,12 @@ public class GifHelper {
                     shareWhatsAppIntent.setAction(Intent.ACTION_SEND);
                     shareWhatsAppIntent.setPackage(Constant.PACKAGE_NAME_WHATSAPP);
                     shareWhatsAppIntent.putExtra(Intent.EXTRA_STREAM, uri);
+                    shareWhatsAppIntent.putExtra(Intent.EXTRA_TEXT, "See more: " + mContext.getResources().getString(R.string.app_playstore_link_short));
                     shareWhatsAppIntent.setType("video/*");
                     shareWhatsAppIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
                     mContext.startActivity(Intent.createChooser(shareWhatsAppIntent, "Share"));
                 } else {
-                    ViewHelper.getToast(context, "Problem in sharing because you might not have Whatsapp installed");
+                    ViewHelper.getToast(context, "Problem in sharing. You need to have Whatsapp installed");
                 }
                 break;
             case Constant.SHARE_OPTION_FACEBOOK:
@@ -417,11 +418,12 @@ public class GifHelper {
                     Intent shareFacebookIntent = new Intent(Intent.ACTION_SEND);
                     shareFacebookIntent.setPackage(Constant.PACKAGE_NAME_FACEBOOK);
                     shareFacebookIntent.putExtra(Intent.EXTRA_STREAM, uri);
+                    shareFacebookIntent.putExtra(Intent.EXTRA_TEXT, "See more: " + mContext.getResources().getString(R.string.app_playstore_link_short));
                     shareFacebookIntent.setType("image/gif");
                     shareFacebookIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
                     mContext.startActivity(Intent.createChooser(shareFacebookIntent, "Share"));
                 } else {
-                    ViewHelper.getToast(context, "Problem in sharing because you might not have Facebook installed");
+                    ViewHelper.getToast(context, "Problem in sharing. You need to have Facebook installed");
                 }
                 break;
             case Constant.SHARE_OPTION_INSTAGRAM:
@@ -434,11 +436,11 @@ public class GifHelper {
                     shareInstagramIntent.setType("image/*");
                     shareInstagramIntent.setPackage(Constant.PACKAGE_NAME_INSTAGRAM);
                     shareInstagramIntent.putExtra(Intent.EXTRA_STREAM, uri);
-
+                    shareInstagramIntent.putExtra(Intent.EXTRA_TEXT, "See more: " + mContext.getResources().getString(R.string.app_playstore_link_short));
                     shareInstagramIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
                     mContext.startActivity(Intent.createChooser(shareInstagramIntent, "Share"));
                 } else {
-                    ViewHelper.getToast(context, "Problem in sharing because you might not have Instagram installed");
+                    ViewHelper.getToast(context, "Problem in sharing. You need to have Instagram installed");
                 }
 
                 break;
@@ -449,6 +451,7 @@ public class GifHelper {
                 Intent intent = new Intent();
                 intent.setAction(Intent.ACTION_SEND);
                 intent.putExtra(Intent.EXTRA_STREAM, uri);
+                intent.putExtra(Intent.EXTRA_TEXT, "See more: " + mContext.getResources().getString(R.string.app_playstore_link_short));
                 intent.setType("video/*");
                 intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
                 mContext.startActivity(intent);
