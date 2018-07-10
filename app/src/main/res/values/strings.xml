@@ -199,7 +199,7 @@
 
     <!--Play Store Link -->
     <string name="app_playstore_link">https://play.google.com/store/apps/details?id=com.thetestament.cread</string>
-    <string name="app_playstore_link_short">http://bit.ly/cread_app</string>
+    <string name="app_playstore_link_short">https://cread.page.link/app</string>
 
     //Transition Shared
     <string name="shared_transition_profile_pic">profilePic</string>
