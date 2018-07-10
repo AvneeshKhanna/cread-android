@@ -1101,7 +1101,9 @@ public class ExploreFragment extends Fragment implements listener.OnCollaboratio
                                 getCategoryData();
                             } else if (categoryVisibility.equals(Constant.EXPLORE_CATEGORY_VIEW_VISIBILITY_INVISIBLE)) {
                                 //Hide category view
-                                recyclerViewCategory.setVisibility(View.GONE);
+                                if (recyclerViewCategory != null) {
+                                    recyclerViewCategory.setVisibility(View.GONE);
+                                }
                             } else {
                                 //do nothing
                             }

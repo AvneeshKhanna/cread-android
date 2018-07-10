@@ -20,6 +20,7 @@ import android.view.animation.AnimationUtils;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.facebook.drawee.view.SimpleDraweeView;
@@ -37,6 +38,7 @@ import com.thetestament.cread.helpers.GifHelper;
 import com.thetestament.cread.helpers.ImageHelper;
 import com.thetestament.cread.helpers.LiveFilterHelper;
 import com.thetestament.cread.helpers.NetworkHelper;
+import com.thetestament.cread.helpers.ShareHelper;
 import com.thetestament.cread.helpers.SharedPreferenceHelper;
 import com.thetestament.cread.helpers.ViewHelper;
 import com.thetestament.cread.listeners.listener;
@@ -47,6 +49,7 @@ import com.thetestament.cread.listeners.listener.OnUserActivityHatsOffListener;
 import com.thetestament.cread.listeners.listener.OnUserActivityLoadMoreListener;
 import com.thetestament.cread.models.FeedModel;
 import com.thetestament.cread.utils.AspectRatioUtils;
+import com.thetestament.cread.utils.Constant;
 import com.thetestament.cread.utils.Constant.ITEM_TYPES;
 
 import java.util.List;
@@ -398,10 +401,14 @@ public class MeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         itemViewHolder.logoWhatsapp.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (GifHelper.hasLiveFilter(data.getLiveFilterName())) {
-                    onGifShareListener.onGifShareClick(itemViewHolder.frameLayout, SHARE_OPTION_WHATSAPP);
+                if (ShareHelper.isAppInstalled(mContext, Constant.PACKAGE_NAME_WHATSAPP)) {
+                    if (GifHelper.hasLiveFilter(data.getLiveFilterName())) {
+                        onGifShareListener.onGifShareClick(itemViewHolder.frameLayout, SHARE_OPTION_WHATSAPP, itemViewHolder.waterMarkCreadView);
+                    } else {
+                        loadBitmapForSharing(data, SHARE_OPTION_WHATSAPP);
+                    }
                 } else {
-                    loadBitmapForSharing(data, SHARE_OPTION_WHATSAPP);
+                    ViewHelper.getToast(mContext, mContext.getString(R.string.error_no_whats_app));
                 }
             }
         });
@@ -409,23 +416,31 @@ public class MeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         itemViewHolder.logoFacebook.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                if (ShareHelper.isAppInstalled(mContext, Constant.PACKAGE_NAME_FACEBOOK)) {
+                    if (GifHelper.hasLiveFilter(data.getLiveFilterName())) {
+                        onGifShareListener.onGifShareClick(itemViewHolder.frameLayout, SHARE_OPTION_FACEBOOK, itemViewHolder.waterMarkCreadView);
 
-                if (GifHelper.hasLiveFilter(data.getLiveFilterName())) {
-                    onGifShareListener.onGifShareClick(itemViewHolder.frameLayout, SHARE_OPTION_FACEBOOK);
+                    } else {
+                        loadBitmapForSharing(data, SHARE_OPTION_FACEBOOK);
+                    }
                 } else {
-                    loadBitmapForSharing(data, SHARE_OPTION_FACEBOOK);
+                    ViewHelper.getToast(mContext,
+                            mContext.getString(R.string.error_no_facebook));
                 }
-
             }
         });
 
         itemViewHolder.logoInstagram.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (GifHelper.hasLiveFilter(data.getLiveFilterName())) {
-                    onGifShareListener.onGifShareClick(itemViewHolder.frameLayout, SHARE_OPTION_INSTAGRAM);
+                if (ShareHelper.isAppInstalled(mContext, Constant.PACKAGE_NAME_INSTAGRAM)) {
+                    if (GifHelper.hasLiveFilter(data.getLiveFilterName())) {
+                        onGifShareListener.onGifShareClick(itemViewHolder.frameLayout, SHARE_OPTION_INSTAGRAM, itemViewHolder.waterMarkCreadView);
+                    } else {
+                        loadBitmapForSharing(data, SHARE_OPTION_INSTAGRAM);
+                    }
                 } else {
-                    loadBitmapForSharing(data, SHARE_OPTION_INSTAGRAM);
+                    ViewHelper.getToast(mContext, mContext.getString(R.string.error_no_instagram));
                 }
 
             }
@@ -435,7 +450,7 @@ public class MeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             @Override
             public void onClick(View view) {
                 if (GifHelper.hasLiveFilter(data.getLiveFilterName())) {
-                    onGifShareListener.onGifShareClick(itemViewHolder.frameLayout, SHARE_OPTION_OTHER);
+                    onGifShareListener.onGifShareClick(itemViewHolder.frameLayout, SHARE_OPTION_OTHER, itemViewHolder.waterMarkCreadView);
                 } else {
                     loadBitmapForSharing(data, SHARE_OPTION_OTHER);
                 }
@@ -643,6 +658,8 @@ public class MeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         KonfettiView konfettiView;
         @BindView(R.id.containerImage)
         FrameLayout frameLayout;
+        @BindView(R.id.water_mark_cread)
+        RelativeLayout waterMarkCreadView;
 
         //Variable to maintain hats off status
         private boolean mIsHatsOff = false;

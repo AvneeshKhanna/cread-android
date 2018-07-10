@@ -18,6 +18,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
+import android.widget.RelativeLayout;
 
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.crashlytics.android.Crashlytics;
@@ -133,6 +134,7 @@ public class FeedDescriptionActivity extends BaseActivity implements listener.On
      * Parent view of live filter
      */
     FrameLayout mFrameLayout;
+    RelativeLayout mWaterMarkView;
     //endregion
 
     //region: Overridden methods
@@ -415,13 +417,14 @@ public class FeedDescriptionActivity extends BaseActivity implements listener.On
     private void initGifShareListener(FeedDescriptionAdapter feedAdapter) {
         feedAdapter.setOnGifShareListener(new listener.OnGifShareListener() {
             @Override
-            public void onGifShareClick(FrameLayout frameLayout, String shareOption) {
+            public void onGifShareClick(FrameLayout frameLayout, String shareOption, RelativeLayout waterMarkView) {
                 mFrameLayout = frameLayout;
                 mShareOption = shareOption;
+                mWaterMarkView = waterMarkView;
                 //Check for Write permission
                 if (Nammu.checkPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
                     //We have permission do whatever you want to do
-                    new GifHelper(mContext, mBitmap, frameLayout, shareOption, true)
+                    new GifHelper(mContext, mBitmap, frameLayout, shareOption, true, mWaterMarkView)
                             .startHandlerTask(new Handler(), 0);
                 } else {
                     //We do not own this permission
@@ -1184,7 +1187,7 @@ public class FeedDescriptionActivity extends BaseActivity implements listener.On
         @Override
         public void permissionGranted() {
             //We have permission do whatever you want to do
-            new GifHelper(mContext, mBitmap, mFrameLayout, mShareOption, true)
+            new GifHelper(mContext, mBitmap, mFrameLayout, mShareOption, true, mWaterMarkView)
                     .startHandlerTask(new Handler(), 0);
         }
 

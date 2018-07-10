@@ -42,6 +42,7 @@ import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.afollestad.materialdialogs.DialogAction;
@@ -259,6 +260,7 @@ public class MeFragment extends Fragment implements listener.OnCollaborationList
      * Parent view of live filter
      */
     FrameLayout mFrameLayout;
+    RelativeLayout mWaterMarkView;
 
     //endregion
 
@@ -1972,13 +1974,14 @@ public class MeFragment extends Fragment implements listener.OnCollaborationList
     private void initGifShareListener(MeAdapter meAdapter) {
         meAdapter.setOnGifShareListener(new listener.OnGifShareListener() {
             @Override
-            public void onGifShareClick(FrameLayout frameLayout, String shareOption) {
+            public void onGifShareClick(FrameLayout frameLayout, String shareOption, RelativeLayout watermarkView) {
                 mFrameLayout = frameLayout;
                 mShareOption = shareOption;
+                mWaterMarkView = watermarkView;
                 //Check for Write permission
                 if (Nammu.checkPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
                     //We have permission do whatever you want to do
-                    new GifHelper(getActivity(), mBitmap, frameLayout, shareOption, true)
+                    new GifHelper(getActivity(), mBitmap, frameLayout, shareOption, true, watermarkView)
                             .startHandlerTask(new Handler(), 0);
                 } else {
                     //We do not own this permission
@@ -2063,7 +2066,7 @@ public class MeFragment extends Fragment implements listener.OnCollaborationList
         @Override
         public void permissionGranted() {
             //We have permission do whatever you want to do
-            new GifHelper(getActivity(), mBitmap, mFrameLayout, mShareOption, true)
+            new GifHelper(getActivity(), mBitmap, mFrameLayout, mShareOption, true, mWaterMarkView)
                     .startHandlerTask(new Handler(), 0);
         }
 

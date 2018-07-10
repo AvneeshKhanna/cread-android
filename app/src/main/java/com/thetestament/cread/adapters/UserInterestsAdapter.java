@@ -9,11 +9,11 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.facebook.drawee.view.SimpleDraweeView;
 import com.thetestament.cread.R;
-import com.thetestament.cread.helpers.FeedHelper;
 import com.thetestament.cread.helpers.ImageHelper;
 import com.thetestament.cread.helpers.NetworkHelper;
 import com.thetestament.cread.helpers.ViewHelper;
@@ -26,6 +26,8 @@ import java.util.ArrayList;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+
+import static com.thetestament.cread.helpers.ViewHelper.convertToPx;
 
 /**
  * Created by prakharchandna on 02/05/18.
@@ -86,9 +88,9 @@ public class UserInterestsAdapter extends RecyclerView.Adapter {
             itemViewHolder.textInterestName.setShadowLayer(3, 3, 3
                     , ContextCompat.getColor(mContext, R.color.color_grey_600));
             // set grid margins
-            FeedHelper.setGridItemMargins(mContext, position, itemViewHolder.imageUserInterest);
+            setGridItemMargins(mContext, position, itemViewHolder.imageUserInterest);
             //Load interest picture
-            ImageHelper.loadProgressiveImage(Uri.parse(data.getInterestImageURL()),itemViewHolder.imageUserInterest);
+            ImageHelper.loadProgressiveImage(Uri.parse(data.getInterestImageURL()), itemViewHolder.imageUserInterest);
             // check user interests status
             checkUserInterestStatus(data, itemViewHolder);
             //Click functionality
@@ -177,18 +179,42 @@ public class UserInterestsAdapter extends RecyclerView.Adapter {
         }
     }
 
+    /**
+     * Method to set Margins for grid view items
+     *
+     * @param context  context
+     * @param position position of the item
+     * @param image    Image View
+     */
+    private void setGridItemMargins(FragmentActivity context, int position, ImageView image) {
+        SquareView.LayoutParams params = new
+                SquareView
+                        .LayoutParams(image
+                .getLayoutParams());
+
+        int px = convertToPx(context, 1);
+
+        if (position % 2 == 0) {
+            params.setMargins(0, px, px, px);
+        } else {
+            params.setMargins(px, px, 0, px);
+        }
+
+        image.setLayoutParams(params);
+    }
+
 
     static class ItemViewHolder extends RecyclerView.ViewHolder {
-        @BindView(R.id.imageUserInterest)
-        SimpleDraweeView imageUserInterest;
-        @BindView(R.id.textInterestName)
-        TextView textInterestName;
-        @BindView(R.id.containerUserInterestText)
-        FrameLayout containerUserInterestText;
         @BindView(R.id.imageContainer)
         SquareView imageContainer;
+        @BindView(R.id.imageUserInterest)
+        SimpleDraweeView imageUserInterest;
         @BindView(R.id.imageChecked)
         AppCompatImageView imageChecked;
+        @BindView(R.id.containerUserInterestText)
+        FrameLayout containerUserInterestText;
+        @BindView(R.id.textInterestName)
+        TextView textInterestName;
 
 
         public ItemViewHolder(View itemView) {

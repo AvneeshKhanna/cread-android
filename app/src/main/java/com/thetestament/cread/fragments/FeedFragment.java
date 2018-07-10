@@ -27,6 +27,7 @@ import android.view.animation.LayoutAnimationController;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.afollestad.materialdialogs.DialogAction;
@@ -158,6 +159,7 @@ public class FeedFragment extends Fragment implements listener.OnCollaborationLi
      * Parent view of live filter
      */
     FrameLayout mFrameLayout;
+    RelativeLayout mWatermarkView;
 
     //endregion
 
@@ -767,13 +769,14 @@ public class FeedFragment extends Fragment implements listener.OnCollaborationLi
     private void initGifShareListener(FeedAdapter feedAdapter) {
         feedAdapter.setOnGifShareListener(new listener.OnGifShareListener() {
             @Override
-            public void onGifShareClick(FrameLayout frameLayout, String shareOption) {
+            public void onGifShareClick(FrameLayout frameLayout, String shareOption, RelativeLayout waterMarkView) {
                 mFrameLayout = frameLayout;
                 mShareOption = shareOption;
+                mWatermarkView = waterMarkView;
                 //Check for Write permission
                 if (Nammu.checkPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
                     //We have permission do whatever you want to do
-                    new GifHelper(getActivity(), mBitmap, frameLayout, shareOption, true)
+                    new GifHelper(getActivity(), mBitmap, frameLayout, shareOption, true, waterMarkView)
                             .startHandlerTask(new Handler(), 0);
                 } else {
                     //We do not own this permission
@@ -888,7 +891,7 @@ public class FeedFragment extends Fragment implements listener.OnCollaborationLi
         @Override
         public void permissionGranted() {
             //We have permission do whatever you want to do
-            new GifHelper(getActivity(), mBitmap, mFrameLayout, mShareOption, true)
+            new GifHelper(getActivity(), mBitmap, mFrameLayout, mShareOption, true, mWatermarkView)
                     .startHandlerTask(new Handler(), 0);
         }
 
