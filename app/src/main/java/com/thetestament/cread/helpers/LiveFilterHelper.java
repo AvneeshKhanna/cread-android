@@ -7,10 +7,13 @@ import android.view.View;
 
 import com.github.glomadrian.grav.GravView;
 import com.github.matteobattilana.weather.PrecipType;
+import com.github.matteobattilana.weather.WeatherData;
 import com.github.matteobattilana.weather.WeatherView;
 import com.thetestament.cread.R;
 import com.thetestament.cread.utils.ConfettiViewUtils;
 import com.thetestament.cread.utils.Constant;
+
+import org.jetbrains.annotations.NotNull;
 
 import nl.dionsegijn.konfetti.KonfettiView;
 
@@ -83,7 +86,23 @@ public class LiveFilterHelper {
                 bubbleView.setVisibility(View.INVISIBLE);
                 break;
             case Constant.LIVE_FILTER_RAIN:
-                weatherView.setWeatherData(PrecipType.RAIN);
+                weatherView.setWeatherData(new WeatherData() {
+                    @NotNull
+                    @Override
+                    public PrecipType getPrecipType() {
+                        return PrecipType.RAIN;
+                    }
+
+                    @Override
+                    public float getEmissionRate() {
+                        return 100;
+                    }
+
+                    @Override
+                    public int getSpeed() {
+                        return 750;
+                    }
+                });
                 weatherView.setVisibility(View.VISIBLE);
                 //Toggle view visibility
                 konfettiView.setVisibility(View.GONE);

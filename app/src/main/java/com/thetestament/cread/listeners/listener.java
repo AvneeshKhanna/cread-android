@@ -517,6 +517,6 @@ public class listener {
      * Interface definition for a callback to be invoked when user click on share button for gif sharing.
      */
     public interface OnGifShareListener {
-        void onGifShareClick(FrameLayout frameLayout, String shareOption, RelativeLayout waterMarkView);
+        void onGifShareClick(FrameLayout frameLayout, String shareOption, RelativeLayout waterMarkView, String liveFilter);
     }
 }

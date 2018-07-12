@@ -183,7 +183,8 @@ dependencies {
 
     implementation 'com.github.glomadrian:Grav:1.1'
     implementation 'nl.dionsegijn:konfetti:1.1.2'
-    implementation 'com.github.thetestament:WeatherView:917f7296e2'
+    implementation 'com.github.aboutgaurav:WeatherView:2d5109853d'
+
 
     //For video/Gif creation
     implementation 'com.writingminds:FFmpegAndroid:0.3.2'

@@ -56,7 +56,7 @@ public class DialogHelper {
                     FirebaseEventHelper.logCollabInviteEvent(context);
                     //Live filter is present
                     if (GifHelper.hasLiveFilter(liveFilter)) {
-                        new GifHelper(context, bitmap, frameLayout, SHARE_OPTION_WHATSAPP, true, watermarkView)
+                        new GifHelper(context, bitmap, frameLayout, SHARE_OPTION_WHATSAPP, true, watermarkView, liveFilter)
                                 .startHandlerTask(new Handler(), 0);
                     } else {
                         //generate deep link and open share dialog
@@ -89,7 +89,7 @@ public class DialogHelper {
                     FirebaseEventHelper.logCollabInviteEvent(context);
                     //Live filter is present
                     if (GifHelper.hasLiveFilter(liveFilter)) {
-                        new GifHelper(context, bitmap, frameLayout, SHARE_OPTION_FACEBOOK, true,watermarkView)
+                        new GifHelper(context, bitmap, frameLayout, SHARE_OPTION_FACEBOOK, true, watermarkView, liveFilter)
                                 .startHandlerTask(new Handler(), 0);
                     } else {
                         //generate deep link and open share dialog
@@ -122,7 +122,7 @@ public class DialogHelper {
                     FirebaseEventHelper.logCollabInviteEvent(context);
                     //Live filter is present
                     if (GifHelper.hasLiveFilter(liveFilter)) {
-                        new GifHelper(context, bitmap, frameLayout, SHARE_OPTION_INSTAGRAM, true, watermarkView)
+                        new GifHelper(context, bitmap, frameLayout, SHARE_OPTION_INSTAGRAM, true, watermarkView, liveFilter)
                                 .startHandlerTask(new Handler(), 0);
                     } else {
                         //generate deep link and open share dialog
@@ -154,7 +154,7 @@ public class DialogHelper {
                 FirebaseEventHelper.logCollabInviteEvent(context);
                 //Live filter is present
                 if (GifHelper.hasLiveFilter(liveFilter)) {
-                    new GifHelper(context, bitmap, frameLayout, SHARE_OPTION_OTHER, true, watermarkView)
+                    new GifHelper(context, bitmap, frameLayout, SHARE_OPTION_OTHER, true, watermarkView, liveFilter)
                             .startHandlerTask(new Handler(), 0);
                 } else {
                     //generate deep link and open share dialog
