@@ -8,7 +8,7 @@ android {
         config {
             keyAlias 'cread2.0'
             keyPassword 'creadtt'
-            //storeFile file('C:/Users/avnee/Desktop/TheTestament/ProductDevelopment/App/Cread/APK/playstore-key.jks')
+            storeFile file('C:/Users/avnee/Desktop/The Testament/Product Development/App/Cread/APK/playstore-key.jks')
             storePassword 'creadtt'
         }
     }
@@ -87,7 +87,6 @@ dependencies {
     implementation "com.android.support:palette-v7:$rootProject.supportLibraryVersion"
     implementation "com.android.support:support-core-utils:$rootProject.supportLibraryVersion"
 
-
     //Firebase
     implementation "com.google.firebase:firebase-core:$rootProject.playServiceVersion"
     implementation "com.google.firebase:firebase-config:$rootProject.playServiceVersion"
@@ -145,7 +144,6 @@ dependencies {
     //Circular imageView
     implementation 'de.hdodenhof:circleimageview:2.2.0'
 
-
     //Tooltip
     implementation 'com.github.vihtarb:tooltip:0.1.9'
 
@@ -154,7 +152,6 @@ dependencies {
 
     //Image cropping
     implementation 'com.github.yalantis:ucrop:2.2.1-native'
-
 
     //Image compression library
     implementation 'id.zelory:compressor:2.1.0'
@@ -171,7 +168,6 @@ dependencies {
     //Linkedin profile mentions
     implementation 'com.linkedin.android.spyglass:spyglass:1.4.0'
 
-
     //For Socket IO
     compile('io.socket:socket.io-client:1.0.0') {
         // excluding org.json which is provided by Android
@@ -183,8 +179,7 @@ dependencies {
 
     implementation 'com.github.glomadrian:Grav:1.1'
     implementation 'nl.dionsegijn:konfetti:1.1.2'
-    implementation 'com.github.MatteoBattilana:WeatherView:2.0.3'
-
+    implementation 'com.github.thetestament:WeatherView:3.0.0'
     //For video/Gif creation
     implementation 'com.writingminds:FFmpegAndroid:0.3.2'
 }

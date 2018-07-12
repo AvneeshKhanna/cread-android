@@ -2307,7 +2307,7 @@ public class PreviewActivity extends BaseActivity implements QueryTokenReceiver,
                 //IF live filter is present
                 if (GifHelper.hasLiveFilter(mSelectedLiveFilter)) {
                     //Create GIF
-                    new GifHelper(mContext, bm, frameLayout, Constant.SHARE_OPTION_OTHER, false, waterMarkCreadView)
+                    new GifHelper(mContext, bm, frameLayout, Constant.SHARE_OPTION_OTHER, false, waterMarkCreadView, mSelectedLiveFilter)
                             .startHandlerTask(new Handler(), 0);
                 }
                 //No filter

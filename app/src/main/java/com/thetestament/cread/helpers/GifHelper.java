@@ -20,9 +20,14 @@ import com.github.hiteshsondhi88.libffmpeg.FFmpegExecuteResponseHandler;
 import com.github.hiteshsondhi88.libffmpeg.FFmpegLoadBinaryResponseHandler;
 import com.github.hiteshsondhi88.libffmpeg.exceptions.FFmpegCommandAlreadyRunningException;
 import com.github.hiteshsondhi88.libffmpeg.exceptions.FFmpegNotSupportedException;
+import com.github.matteobattilana.weather.PrecipType;
+import com.github.matteobattilana.weather.WeatherData;
+import com.github.matteobattilana.weather.WeatherView;
 import com.thetestament.cread.R;
 import com.thetestament.cread.dialog.CustomDialog;
 import com.thetestament.cread.utils.Constant;
+
+import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -46,10 +51,20 @@ public class GifHelper {
     boolean mCreateForSharing;
     RelativeLayout waterMarkView;
 
+
+    WeatherView weatherView;
+
     /**
      * Flag to maintain path of live filter GIF.
      */
     String mGifPath = null;
+    String gifName = "";
+
+
+    /**
+     * Flag  to maintain live filter.
+     */
+    String mLiveFilter;
     //endregion
 
     public interface Listener {
@@ -65,17 +80,48 @@ public class GifHelper {
      * @param frameLayout      FrameLayout reference.
      * @param shareOption      Medium where GIF to be shared.
      * @param createForSharing false if called from 'Save on your phone' false otherwise.
+     * @param waterMarkView    Parent view of watermark
+     * @param liveFilter       Live filter value {@link com.thetestament.cread.utils.Constant.LIVE_FILTER_NONE}
+     *                         {@link com.thetestament.cread.utils.Constant.LIVE_FILTER_SNOW}
+     *                         {@link com.thetestament.cread.utils.Constant.LIVE_FILTER_RAIN}
+     *                         {@link com.thetestament.cread.utils.Constant.LIVE_FILTER_BUBBLE}
+     *                         {@link com.thetestament.cread.utils.Constant.LIVE_FILTER_CONFETTI}
      */
-    public GifHelper(FragmentActivity context, Bitmap bitmap, FrameLayout frameLayout, String shareOption, boolean createForSharing, RelativeLayout waterMarkView) {
+    public GifHelper(FragmentActivity context, Bitmap bitmap, FrameLayout frameLayout, String shareOption, boolean createForSharing, RelativeLayout waterMarkView, String liveFilter) {
         this.mContext = context;
         this.mBitmap = bitmap;
         this.frameLayout = frameLayout;
         this.mShareOption = shareOption;
         this.mCreateForSharing = createForSharing;
         this.waterMarkView = waterMarkView;
+        this.mLiveFilter = liveFilter;
         materialDialog = CustomDialog.getDeterminateProgressDialog(mContext, mContext.getString(R.string.title_gif_dialog));
         //Show watermarkView
         this.waterMarkView.setVisibility(View.VISIBLE);
+
+        //IF live filter type is rain
+        if (mLiveFilter.equals(Constant.LIVE_FILTER_RAIN)) {
+            //Obtain weatherView
+            weatherView = (WeatherView) frameLayout.getChildAt(2);
+            //Slow down the rain speed for better GIF
+            weatherView.setWeatherData(new WeatherData() {
+                @NotNull
+                @Override
+                public PrecipType getPrecipType() {
+                    return PrecipType.RAIN;
+                }
+
+                @Override
+                public float getEmissionRate() {
+                    return 100;
+                }
+
+                @Override
+                public int getSpeed() {
+                    return 400;
+                }
+            });
+        }
     }
 
     /**
@@ -126,6 +172,26 @@ public class GifHelper {
                                 public void run() {
                                     //Hide watermarkView
                                     waterMarkView.setVisibility(View.GONE);
+                                    //Reset Rain speed to default value
+                                    if (mLiveFilter.equals(Constant.LIVE_FILTER_RAIN)) {
+                                        weatherView.setWeatherData(new WeatherData() {
+                                            @NotNull
+                                            @Override
+                                            public PrecipType getPrecipType() {
+                                                return PrecipType.RAIN;
+                                            }
+
+                                            @Override
+                                            public float getEmissionRate() {
+                                                return 100;
+                                            }
+
+                                            @Override
+                                            public int getSpeed() {
+                                                return 750;
+                                            }
+                                        });
+                                    }
                                 }
                             });
                             initFFmpeg();
@@ -215,12 +281,15 @@ public class GifHelper {
      * @param fFmpeg FFmpeg instance.
      */
     private void createGif(FFmpeg fFmpeg) {
+
         //Called from sharing
         if (mCreateForSharing) {
-            mGifPath = "/Cread/output.gif";
+            gifName = "output.gif";
+            mGifPath = "/Cread/" + gifName ;
         } else {
-            String i = new SimpleDateFormat("yyyyMMddhhmm").format(new Date());
-            mGifPath = "/Cread/output" + i + ".gif";
+            String i = new SimpleDateFormat("yyyyMMddhhmmss").format(new Date());
+            gifName = "output" + i + ".gif";
+            mGifPath = "/Cread/" + gifName;
         }
 
         String[] cmd = new String[8];
@@ -244,7 +313,7 @@ public class GifHelper {
                     if (mCreateForSharing) {
                         launchShareIntent(mContext);
                     } else {
-                        ViewHelper.getToast(mContext, "GIF saved to : " + mGifPath);
+                        ViewHelper.getToast(mContext, "GIF saved to gallery as : " + gifName);
                     }
                     //To update gallery
                     File file = new File(Environment.getExternalStorageDirectory() + mGifPath);
@@ -300,10 +369,12 @@ public class GifHelper {
     private void createVideo(final FFmpeg fFmpeg) {
         //Called from sharing
         if (mCreateForSharing) {
-            mGifPath = "/Cread/output.mp4";
+            gifName = "output.mp4";
+            mGifPath = "/Cread/" + gifName;
         } else {
-            String i = new SimpleDateFormat("yyyyMMddhhmm").format(new Date());
-            mGifPath = "/Cread/output" + i + ".mp4";
+            String i = new SimpleDateFormat("yyyyMMddhhmmss").format(new Date());
+            gifName = "output" + i + ".mp4";
+            mGifPath = "/Cread/" + gifName;
         }
 
         String[] cmd = new String[8];
@@ -338,7 +409,7 @@ public class GifHelper {
                         mContext.startActivity(Intent.createChooser(shareInstagramIntent, "Share"));
 
                     } else {
-                        ViewHelper.getToast(mContext, "Video saved to : " + mGifPath);
+                        ViewHelper.getToast(mContext, "Video saved to gallery as: " + gifName);
                     }
                     //To update gallery
                     File file = new File(Environment.getExternalStorageDirectory() + mGifPath);
@@ -473,9 +544,10 @@ public class GifHelper {
             case Constant.LIVE_FILTER_SNOW:
             case Constant.LIVE_FILTER_BUBBLE:
             case Constant.LIVE_FILTER_CONFETTI:
+            case Constant.LIVE_FILTER_RAIN:
                 return true;
             case Constant.LIVE_FILTER_NONE:
-            case Constant.LIVE_FILTER_RAIN:
+
                 return false;
             default:
                 return false;

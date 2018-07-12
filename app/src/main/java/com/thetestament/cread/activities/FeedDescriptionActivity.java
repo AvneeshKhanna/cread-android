@@ -135,6 +135,12 @@ public class FeedDescriptionActivity extends BaseActivity implements listener.On
      */
     FrameLayout mFrameLayout;
     RelativeLayout mWaterMarkView;
+
+    /**
+     * Flag to maintain live filter value.
+     */
+    @State
+    String mLiveFilter;
     //endregion
 
     //region: Overridden methods
@@ -417,14 +423,15 @@ public class FeedDescriptionActivity extends BaseActivity implements listener.On
     private void initGifShareListener(FeedDescriptionAdapter feedAdapter) {
         feedAdapter.setOnGifShareListener(new listener.OnGifShareListener() {
             @Override
-            public void onGifShareClick(FrameLayout frameLayout, String shareOption, RelativeLayout waterMarkView) {
+            public void onGifShareClick(FrameLayout frameLayout, String shareOption, RelativeLayout waterMarkView, String liveFilter) {
                 mFrameLayout = frameLayout;
                 mShareOption = shareOption;
                 mWaterMarkView = waterMarkView;
+                mLiveFilter = liveFilter;
                 //Check for Write permission
                 if (Nammu.checkPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
                     //We have permission do whatever you want to do
-                    new GifHelper(mContext, mBitmap, frameLayout, shareOption, true, mWaterMarkView)
+                    new GifHelper(mContext, mBitmap, frameLayout, shareOption, true, mWaterMarkView, mLiveFilter)
                             .startHandlerTask(new Handler(), 0);
                 } else {
                     //We do not own this permission
@@ -1187,7 +1194,7 @@ public class FeedDescriptionActivity extends BaseActivity implements listener.On
         @Override
         public void permissionGranted() {
             //We have permission do whatever you want to do
-            new GifHelper(mContext, mBitmap, mFrameLayout, mShareOption, true, mWaterMarkView)
+            new GifHelper(mContext, mBitmap, mFrameLayout, mShareOption, true, mWaterMarkView, mLiveFilter)
                     .startHandlerTask(new Handler(), 0);
         }
 
