@@ -2,6 +2,7 @@ package com.thetestament.cread.fragments;
 
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.PorterDuff;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
@@ -9,6 +10,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.FloatingActionButton;
+import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.widget.SwipeRefreshLayout;
@@ -123,6 +125,8 @@ public class ExploreFragment extends Fragment implements listener.OnCollaboratio
     FloatingActionButton fabToggle;
     @BindView(R.id.containerCategory)
     LinearLayout containerCategory;
+    @BindView(R.id.tab_layout)
+    TabLayout tabLayout;
     //endregion
 
     //region :Fields and constants
@@ -169,6 +173,13 @@ public class ExploreFragment extends Fragment implements listener.OnCollaboratio
      */
     @State
     String mSelectedCategoryID = "";
+
+    /**
+     * Flag to maintain selected tab status.
+     * Default is {@link com.thetestament.cread.utils.Constant.EXPLORE_SELECTED_TAB_POPULAR}
+     */
+    @State
+    String mSelectedTab = Constant.EXPLORE_SELECTED_TAB_POPULAR;
     //endregion
 
     //region :Overridden methods
@@ -444,6 +455,7 @@ public class ExploreFragment extends Fragment implements listener.OnCollaboratio
     private void initScreen() {
         //initializes grid view or list view from preferences
         initItemTypePreference();
+        initTabLayout();
         //init feat artists recycler view
         mFeatArtistsAdapter = new FeaturedArtistsAdapter(getActivity(), mFeatArtistsList);
         recyclerViewFeatArtists.setAdapter(mFeatArtistsAdapter);
@@ -478,6 +490,107 @@ public class ExploreFragment extends Fragment implements listener.OnCollaboratio
         getFeaturedArtistsData();
         loadExploreData();
         //initializeCategory();
+    }
+
+
+    /**
+     * Method to initialize tab layout.
+     */
+    private void initTabLayout() {
+        AppCompatTextView tabOne = (AppCompatTextView) LayoutInflater.from(getActivity())
+                .inflate(R.layout.custom_tab, null);
+        tabOne.setText(R.string.tab_popular);
+        tabOne.setTextColor(ContextCompat.getColor(getActivity(), R.color.black_defined));
+        tabOne.setCompoundDrawablesWithIntrinsicBounds(R.drawable.icon_popular, 0, 0, 0);
+        tabOne.getCompoundDrawables()[0].setColorFilter(ContextCompat.getColor(getActivity()
+                , R.color.black_defined), PorterDuff.Mode.SRC_IN);
+        tabLayout.getTabAt(0).setCustomView(tabOne);
+
+        AppCompatTextView tabTwo = (AppCompatTextView) LayoutInflater.from(getActivity())
+                .inflate(R.layout.custom_tab, null);
+        tabTwo.setText(R.string.tab_recent);
+        tabTwo.setCompoundDrawablesWithIntrinsicBounds(R.drawable.icon_recent, 0, 0, 0);
+        tabLayout.getTabAt(1).setCustomView(tabTwo);
+
+        AppCompatTextView tabThree = (AppCompatTextView) LayoutInflater.from(getActivity())
+                .inflate(R.layout.custom_tab, null);
+        tabThree.setText(R.string.tab_all_star);
+        tabThree.setCompoundDrawablesWithIntrinsicBounds(R.drawable.icon_all_star, 0, 0, 0);
+        tabLayout.getTabAt(2).setCustomView(tabThree);
+
+        tabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
+            @Override
+            public void onTabSelected(TabLayout.Tab tab) {
+                //Update text and icon color
+                AppCompatTextView textView = (AppCompatTextView) tab.getCustomView();
+                textView.setTextColor(ContextCompat.getColor(getActivity(), R.color.black_defined));
+                textView.getCompoundDrawables()[0].setColorFilter(ContextCompat.getColor(getActivity()
+                        , R.color.black_defined), PorterDuff.Mode.SRC_IN);
+                switch (tab.getPosition()) {
+                    case 0:
+                        //Update flag here
+                        mSelectedTab = Constant.EXPLORE_SELECTED_TAB_POPULAR;
+
+                        //Clear data list
+                        mExploreDataList.clear();
+                        //Notify for changes
+                        mAdapter.notifyDataSetChanged();
+                        mAdapter.setLoaded();
+                        //set last index key to nul
+                        mLastIndexKey = null;
+                        mCompositeDisposable.clear();
+                        //Load data here
+                        loadExploreData();
+                        break;
+                    case 1:
+                        //Update flag here
+                        mSelectedTab = Constant.EXPLORE_SELECTED_TAB_RECENT;
+
+                        //Clear data list
+                        mExploreDataList.clear();
+                        //Notify for changes
+                        mAdapter.notifyDataSetChanged();
+                        mAdapter.setLoaded();
+                        //set last index key to nul
+                        mLastIndexKey = null;
+                        mCompositeDisposable.clear();
+                        //Load data here
+                        loadExploreData();
+                        break;
+
+                    case 2:
+                        //Update flag here
+                        mSelectedTab = Constant.EXPLORE_SELECTED_TAB_ALL_STAR;
+
+                        //Clear data list
+                        mExploreDataList.clear();
+                        //Notify for changes
+                        mAdapter.notifyDataSetChanged();
+                        mAdapter.setLoaded();
+                        //set last index key to nul
+                        mLastIndexKey = null;
+                        mCompositeDisposable.clear();
+                        //Load data here
+                        loadExploreData();
+                        break;
+                    default:
+                        break;
+                }
+            }
+
+            @Override
+            public void onTabUnselected(TabLayout.Tab tab) {
+                AppCompatTextView textView = (AppCompatTextView) tab.getCustomView();
+                textView.setTextColor(ContextCompat.getColor(getActivity(), R.color.grey_custom));
+                textView.getCompoundDrawables()[0].setColorFilter(ContextCompat.getColor(getActivity()
+                        , R.color.grey_custom), PorterDuff.Mode.SRC_IN);
+            }
+
+            @Override
+            public void onTabReselected(TabLayout.Tab tab) {
+
+            }
+        });
     }
 
     /**
@@ -809,7 +922,8 @@ public class ExploreFragment extends Fragment implements listener.OnCollaboratio
                 , mHelper.getAuthToken()
                 , mLastIndexKey
                 , GET_RESPONSE_FROM_NETWORK_EXPLORE
-                , mSelectedCategoryID)
+                , mSelectedCategoryID
+                , mSelectedTab)
                 //Run on a background thread
                 .subscribeOn(Schedulers.io())
                 //Be notified on the main thread
@@ -880,7 +994,8 @@ public class ExploreFragment extends Fragment implements listener.OnCollaboratio
                 , mHelper.getAuthToken()
                 , mLastIndexKey
                 , GET_RESPONSE_FROM_NETWORK_EXPLORE
-                , mSelectedCategoryID)
+                , mSelectedCategoryID,
+                mSelectedTab)
                 //Run on a background thread
                 .subscribeOn(Schedulers.io())
                 //Be notified on the main thread

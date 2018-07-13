@@ -168,7 +168,7 @@ public class ExploreNetworkManager {
      * @return
      */
     public static Observable<JSONObject> getExploreFeedObservable(String serverURL, String uuid, String authKey
-            , String lastIndexKey, boolean getResponseFromNetwork, String categoryID) {
+            , String lastIndexKey, boolean getResponseFromNetwork, String categoryID, String selectedTab) {
 
         Map<String, String> header = new HashMap<>();
         header.put("uuid", uuid);
@@ -178,6 +178,7 @@ public class ExploreNetworkManager {
                 .addHeaders(header)
                 .addQueryParameter("lastindexkey", lastIndexKey)
                 .addQueryParameter("mintid", categoryID)
+                .addQueryParameter("sortby", selectedTab)
                 .addQueryParameter(Constant.PLATFORM_KEY, Constant.PLATFORM_VALUE);
 
         if (getResponseFromNetwork) {

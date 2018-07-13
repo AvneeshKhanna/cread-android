@@ -411,4 +411,11 @@ public class Constant {
     public static final String PACKAGE_NAME_FACEBOOK = "com.facebook.katana";
     public static final String PACKAGE_NAME_INSTAGRAM = "com.instagram.android";
     //endregion
+
+
+    //region : Tabs
+    public static final String EXPLORE_SELECTED_TAB_RECENT = "recent";
+    public static final String EXPLORE_SELECTED_TAB_POPULAR = "popular";
+    public static final String EXPLORE_SELECTED_TAB_ALL_STAR = "allstar";
+    //endregion
 }
