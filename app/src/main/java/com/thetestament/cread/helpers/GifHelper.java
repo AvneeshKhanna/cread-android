@@ -58,6 +58,7 @@ public class GifHelper {
      * Flag to maintain path of live filter GIF.
      */
     String mGifPath = null;
+    String gifName = "";
 
 
     /**
@@ -117,7 +118,7 @@ public class GifHelper {
 
                 @Override
                 public int getSpeed() {
-                    return 500;
+                    return 400;
                 }
             });
         }
@@ -280,12 +281,15 @@ public class GifHelper {
      * @param fFmpeg FFmpeg instance.
      */
     private void createGif(FFmpeg fFmpeg) {
+
         //Called from sharing
         if (mCreateForSharing) {
-            mGifPath = "/Cread/output.gif";
+            gifName = "output.gif";
+            mGifPath = "/Cread/" + gifName ;
         } else {
-            String i = new SimpleDateFormat("yyyyMMddhhmm").format(new Date());
-            mGifPath = "/Cread/output" + i + ".gif";
+            String i = new SimpleDateFormat("yyyyMMddhhmmss").format(new Date());
+            gifName = "output" + i + ".gif";
+            mGifPath = "/Cread/" + gifName;
         }
 
         String[] cmd = new String[8];
@@ -309,7 +313,7 @@ public class GifHelper {
                     if (mCreateForSharing) {
                         launchShareIntent(mContext);
                     } else {
-                        ViewHelper.getToast(mContext, "GIF saved to : " + mGifPath);
+                        ViewHelper.getToast(mContext, "GIF saved to gallery as : " + gifName);
                     }
                     //To update gallery
                     File file = new File(Environment.getExternalStorageDirectory() + mGifPath);
@@ -365,10 +369,12 @@ public class GifHelper {
     private void createVideo(final FFmpeg fFmpeg) {
         //Called from sharing
         if (mCreateForSharing) {
-            mGifPath = "/Cread/output.mp4";
+            gifName = "output.mp4";
+            mGifPath = "/Cread/" + gifName;
         } else {
-            String i = new SimpleDateFormat("yyyyMMddhhmm").format(new Date());
-            mGifPath = "/Cread/output" + i + ".mp4";
+            String i = new SimpleDateFormat("yyyyMMddhhmmss").format(new Date());
+            gifName = "output" + i + ".mp4";
+            mGifPath = "/Cread/" + gifName;
         }
 
         String[] cmd = new String[8];
@@ -403,7 +409,7 @@ public class GifHelper {
                         mContext.startActivity(Intent.createChooser(shareInstagramIntent, "Share"));
 
                     } else {
-                        ViewHelper.getToast(mContext, "Video saved to : " + mGifPath);
+                        ViewHelper.getToast(mContext, "Video saved to gallery as: " + gifName);
                     }
                     //To update gallery
                     File file = new File(Environment.getExternalStorageDirectory() + mGifPath);
