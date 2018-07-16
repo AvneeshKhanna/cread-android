@@ -92,7 +92,7 @@ public class RoyaltiesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
             final ItemViewHolder itemViewHolder = (ItemViewHolder) holder;
 
             // set art type
-            String artType = data.getType().equals("CAPTURE") ? "graphic art" : "writing";
+            String artType = data.getType().equals("CAPTURE") ? "artistic photo" : "writing";
 
             // set text
             itemViewHolder.textDesc.setText(data.getName()

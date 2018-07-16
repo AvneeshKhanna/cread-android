@@ -53,6 +53,6 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:layout_marginLeft="16dp"
-            android:text="Add a graphic art" />
+            android:text="Add an artistic photo" />
     </LinearLayout>
 </LinearLayout>

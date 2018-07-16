@@ -245,7 +245,7 @@
                     android:layout_marginRight="35dp"
                     android:layout_marginTop="15dp"
                     android:gravity="center"
-                    android:text="Start spreading your art by creating a short or capture."
+                    android:text="Start spreading your art by creating a artistic post."
                     android:textColor="@color/black_overlay"
                     android:textSize="16sp" />
 
