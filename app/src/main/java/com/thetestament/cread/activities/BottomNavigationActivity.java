@@ -706,7 +706,7 @@ public class BottomNavigationActivity extends BaseActivity {
      */
     private void getMerchantableDialog() {
         new MaterialDialog.Builder(this)
-                .title("Note")
+                .title("Important")
                 .content("The resolution of this image is not printable. Other users won't be able to order a print version of it. Do you wish to proceed?")
                 .positiveText("Proceed")
                 .negativeText("Cancel")
