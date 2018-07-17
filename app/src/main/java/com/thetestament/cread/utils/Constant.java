@@ -257,6 +257,7 @@ public class Constant {
     public static final String FIREBASE_EVENT_DEEP_LINK_USED = "deep_link_open";
     public static final String FIREBASE_EVENT_POST_SAVED = "post_saved";
     public static final String FIREBASE_EVENT_POST_UPLOADED = "post_uploaded";
+    public static final String FIREBASE_EVENT_EXPLORE_TAB_SELECTED = "explore_selected_tab";
     //endregion
 
 

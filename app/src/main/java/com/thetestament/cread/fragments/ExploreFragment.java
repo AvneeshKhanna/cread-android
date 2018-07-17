@@ -49,6 +49,7 @@ import com.thetestament.cread.adapters.ExploreCategoryAdapter;
 import com.thetestament.cread.adapters.FeaturedArtistsAdapter;
 import com.thetestament.cread.dialog.CustomDialog;
 import com.thetestament.cread.helpers.FeedHelper;
+import com.thetestament.cread.helpers.FirebaseEventHelper;
 import com.thetestament.cread.helpers.FollowHelper;
 import com.thetestament.cread.helpers.ImageHelper;
 import com.thetestament.cread.helpers.IntentHelper;
@@ -541,6 +542,8 @@ public class ExploreFragment extends Fragment implements listener.OnCollaboratio
                         mCompositeDisposable.clear();
                         //Load data here
                         loadExploreData();
+                        //Log firebase event
+                        FirebaseEventHelper.logExploreTabSelectionEvent(getActivity(), mSelectedTab);
                         break;
                     case 1:
                         //Update flag here
@@ -556,6 +559,8 @@ public class ExploreFragment extends Fragment implements listener.OnCollaboratio
                         mCompositeDisposable.clear();
                         //Load data here
                         loadExploreData();
+                        //Log firebase event
+                        FirebaseEventHelper.logExploreTabSelectionEvent(getActivity(), mSelectedTab);
                         break;
 
                     case 2:
@@ -572,6 +577,8 @@ public class ExploreFragment extends Fragment implements listener.OnCollaboratio
                         mCompositeDisposable.clear();
                         //Load data here
                         loadExploreData();
+                        //Log firebase event
+                        FirebaseEventHelper.logExploreTabSelectionEvent(getActivity(), mSelectedTab);
                         break;
                     default:
                         break;

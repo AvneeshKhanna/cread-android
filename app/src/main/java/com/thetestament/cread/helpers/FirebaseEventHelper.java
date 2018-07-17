@@ -6,6 +6,7 @@ import android.support.v4.app.FragmentActivity;
 import com.google.firebase.analytics.FirebaseAnalytics;
 
 import static com.thetestament.cread.utils.Constant.FIREBASE_EVENT_COLLAB_INVITE_CLICKED;
+import static com.thetestament.cread.utils.Constant.FIREBASE_EVENT_EXPLORE_TAB_SELECTED;
 import static com.thetestament.cread.utils.Constant.FIREBASE_EVENT_POST_SAVED;
 import static com.thetestament.cread.utils.Constant.FIREBASE_EVENT_POST_UPLOADED;
 
@@ -48,4 +49,17 @@ public class FirebaseEventHelper {
                 .logEvent(FIREBASE_EVENT_COLLAB_INVITE_CLICKED, bundle);
     }
 
+
+    /**
+     * Method to log explore tab selection firebase event {@link com.thetestament.cread.utils.Constant#FIREBASE_EVENT_EXPLORE_TAB_SELECTED}.
+     *
+     * @param context     Context to use.
+     * @param selectedTab Selected tab name.
+     */
+    public static void logExploreTabSelectionEvent(FragmentActivity context, String selectedTab) {
+        Bundle bundle = new Bundle();
+        bundle.putString("tab_selected", selectedTab);
+        FirebaseAnalytics.getInstance(context)
+                .logEvent(FIREBASE_EVENT_EXPLORE_TAB_SELECTED, bundle);
+    }
 }
