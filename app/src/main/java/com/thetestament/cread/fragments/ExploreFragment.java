@@ -514,7 +514,7 @@ public class ExploreFragment extends Fragment implements listener.OnCollaboratio
 
         AppCompatTextView tabThree = (AppCompatTextView) LayoutInflater.from(getActivity())
                 .inflate(R.layout.custom_tab, null);
-        tabThree.setText(R.string.tab_all_star);
+        tabThree.setText(R.string.tab_best);
         tabThree.setCompoundDrawablesWithIntrinsicBounds(R.drawable.icon_all_star, 0, 0, 0);
         tabLayout.getTabAt(2).setCustomView(tabThree);
 
@@ -560,7 +560,7 @@ public class ExploreFragment extends Fragment implements listener.OnCollaboratio
 
                     case 2:
                         //Update flag here
-                        mSelectedTab = Constant.EXPLORE_SELECTED_TAB_ALL_STAR;
+                        mSelectedTab = Constant.EXPLORE_SELECTED_TAB_BEST;
 
                         //Clear data list
                         mExploreDataList.clear();

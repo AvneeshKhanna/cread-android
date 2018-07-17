@@ -416,6 +416,6 @@ public class Constant {
     //region : Tabs
     public static final String EXPLORE_SELECTED_TAB_RECENT = "recent";
     public static final String EXPLORE_SELECTED_TAB_POPULAR = "popular";
-    public static final String EXPLORE_SELECTED_TAB_ALL_STAR = "allstar";
+    public static final String EXPLORE_SELECTED_TAB_BEST = "allstar";
     //endregion
 }
