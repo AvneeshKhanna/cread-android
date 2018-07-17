@@ -42,9 +42,63 @@ import static com.thetestament.cread.utils.Constant.SHORT_EXTRA_CAPTION_TEXT;
 public class ContentHelper {
 
     /**
+     * Method to show bottomSheet dialog with 'edit a post' and 'delete a post' option.
+     *
+     * @param context                 Context to use.
+     * @param index                   Position of item in the list.
+     * @param data                    FeedModel data.
+     * @param onContentDeleteListener DeleteListener reference.
+     */
+
+    public static void getMenuActionsBottomSheet(final FragmentActivity context, final int index,
+                                                 final FeedModel data
+            , final listener.OnContentDeleteListener onContentDeleteListener) {
+
+        final BottomSheetDialog bottomSheetDialog = new BottomSheetDialog(context);
+        //inflate this view
+        View sheetView = context.getLayoutInflater()
+                .inflate(R.layout.bottomsheet_dialog_content_actions
+                        , null);
+        bottomSheetDialog.setContentView(sheetView);
+        bottomSheetDialog.show();
+
+        // init views
+        LinearLayout buttonDelete = sheetView.findViewById(R.id.buttonDelete);
+        LinearLayout buttonEdit = sheetView.findViewById(R.id.buttonEdit);
+
+        buttonDelete.setVisibility(View.VISIBLE);
+        buttonEdit.setVisibility(View.VISIBLE);
+
+
+        //Delete button functionality
+        buttonDelete.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                showDeleteConfirmationDialog(context
+                        , index
+                        , data.getEntityID()
+                        , onContentDeleteListener);
+                //Dismiss bottom sheet
+                bottomSheetDialog.dismiss();
+            }
+        });
+
+        buttonEdit.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                //Method called
+                launchContentEditingScreen(data, context);
+                //Dismiss bottom sheet
+                bottomSheetDialog.dismiss();
+            }
+        });
+    }
+
+    /**
      * Method to launch required screen for content editing.
      *
-     * @param data FeedModel reference.
+     * @param data    FeedModel reference.
+     * @param context Context to use.
      */
     public static void launchContentEditingScreen(FeedModel data, FragmentActivity context) {
 
@@ -81,63 +135,6 @@ public class ContentHelper {
                 break;
             default:
         }
-    }
-
-
-    /**
-     * Method to show bottomSheet dialog with 'write a short' and 'Upload a capture' option.
-     */
-
-    public static void getMenuActionsBottomSheet(final FragmentActivity context, final int index
-            , final FeedModel data, final listener.OnContentDeleteListener onContentDeleteListener, boolean shouldShowCreatorOptions) {
-
-        final BottomSheetDialog bottomSheetDialog = new BottomSheetDialog(context);
-        //inflate this view
-        View sheetView = context.getLayoutInflater()
-                .inflate(R.layout.bottomsheet_dialog_content_actions
-                        , null);
-        bottomSheetDialog.setContentView(sheetView);
-        bottomSheetDialog.show();
-
-        if (shouldShowCreatorOptions) {
-            //init options
-            initContentCreatorOptions(bottomSheetDialog, sheetView, context, index, data, onContentDeleteListener);
-        }
-    }
-
-
-    private static void initContentCreatorOptions(final BottomSheetDialog bottomSheetDialog, View sheetView, final FragmentActivity context, final int index, final FeedModel data, final listener.OnContentDeleteListener onContentDeleteListener) {
-        // init views
-        LinearLayout buttonDelete = sheetView.findViewById(R.id.buttonDelete);
-        LinearLayout buttonEdit = sheetView.findViewById(R.id.buttonEdit);
-
-        buttonDelete.setVisibility(View.VISIBLE);
-        buttonEdit.setVisibility(View.VISIBLE);
-
-
-        //Delete button functionality
-        buttonDelete.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                showDeleteConfirmationDialog(context
-                        , index
-                        , data.getEntityID()
-                        , onContentDeleteListener);
-                //Dismiss bottom sheet
-                bottomSheetDialog.dismiss();
-            }
-        });
-
-        buttonEdit.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                //Method called
-                launchContentEditingScreen(data, context);
-                //Dismiss bottom sheet
-                bottomSheetDialog.dismiss();
-            }
-        });
-
     }
 
 }

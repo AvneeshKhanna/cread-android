@@ -936,7 +936,7 @@ public class FeedDescriptionAdapter extends RecyclerView.Adapter {
             itemViewHolder.buttonMenu.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    getMenuActionsBottomSheet(mContext, position, data, onContentDeleteListener, true);
+                    getMenuActionsBottomSheet(mContext, position, data, onContentDeleteListener);
                 }
             });
         } else {

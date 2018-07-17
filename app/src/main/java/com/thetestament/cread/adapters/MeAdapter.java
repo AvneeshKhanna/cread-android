@@ -214,7 +214,7 @@ public class MeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             ImageHelper.loadProgressiveImage(Uri.parse(data.getContentImage())
                     , itemViewHolder.imageMe);
             //item click functionality
-            itemViewOnClick(itemViewHolder.itemView, data, position, true);
+            itemViewOnClick(itemViewHolder.itemView, data, itemViewHolder.getAdapterPosition(), true);
             //check long form status
             checkLongFormStatus(itemViewHolder.containerLongShortPreview, data);
             //long form on click
@@ -418,7 +418,7 @@ public class MeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             public void onClick(View view) {
                 if (ShareHelper.isAppInstalled(mContext, Constant.PACKAGE_NAME_FACEBOOK)) {
                     if (GifHelper.hasLiveFilter(data.getLiveFilterName())) {
-                        onGifShareListener.onGifShareClick(itemViewHolder.frameLayout, SHARE_OPTION_FACEBOOK, itemViewHolder.waterMarkCreadView,data.getLiveFilterName());
+                        onGifShareListener.onGifShareClick(itemViewHolder.frameLayout, SHARE_OPTION_FACEBOOK, itemViewHolder.waterMarkCreadView, data.getLiveFilterName());
 
                     } else {
                         loadBitmapForSharing(data, SHARE_OPTION_FACEBOOK);
@@ -435,7 +435,7 @@ public class MeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             public void onClick(View view) {
                 if (ShareHelper.isAppInstalled(mContext, Constant.PACKAGE_NAME_INSTAGRAM)) {
                     if (GifHelper.hasLiveFilter(data.getLiveFilterName())) {
-                        onGifShareListener.onGifShareClick(itemViewHolder.frameLayout, SHARE_OPTION_INSTAGRAM, itemViewHolder.waterMarkCreadView,data.getLiveFilterName());
+                        onGifShareListener.onGifShareClick(itemViewHolder.frameLayout, SHARE_OPTION_INSTAGRAM, itemViewHolder.waterMarkCreadView, data.getLiveFilterName());
                     } else {
                         loadBitmapForSharing(data, SHARE_OPTION_INSTAGRAM);
                     }
@@ -530,13 +530,13 @@ public class MeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             itemViewHolder.buttonMenu.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    getMenuActionsBottomSheet(mContext, position, data, onContentDeleteListener, shouldShowCreatorOptions);
+                    getMenuActionsBottomSheet(mContext, position, data, onContentDeleteListener);
                 }
             });
         }
 
         //ItemView onClick functionality
-        itemViewOnClick(itemViewHolder.itemView, data, position, false);
+        itemViewOnClick(itemViewHolder.itemView, data, itemViewHolder.getAdapterPosition(), false);
         //Check whether user has given hats off to this campaign or not
         checkHatsOffStatus(data.getHatsOffStatus(), itemViewHolder);
         //HatsOff onClick functionality

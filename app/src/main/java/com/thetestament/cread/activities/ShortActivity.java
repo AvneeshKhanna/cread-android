@@ -469,8 +469,9 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
                 if (resultCode == RESULT_OK) {
                     //Finish this screen
                     if (data != null) {
-                        setResult(RESULT_OK, getIntent().putExtra(PREVIEW_EXTRA_CAPTION_TEXT
-                                , data.getStringExtra(PREVIEW_EXTRA_CAPTION_TEXT)));
+                        Intent intent = new Intent();
+                        intent.putExtra(Constant.EXTRA_DATA, data.getBundleExtra(Constant.EXTRA_DATA));
+                        setResult(RESULT_OK, intent);
                     }
                     finish();
                 }
@@ -962,7 +963,7 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
                 mIsMerchantable = bundle.getBoolean(EXTRA_MERCHANTABLE);
                 mCaptionText = bundle.getString(SHORT_EXTRA_CAPTION_TEXT);
                 mEntityID = bundle.getString(EXTRA_ENTITY_ID);
-                mLiveFilter= bundle.getString(Constant.EXTRA_LIVE_FILTER);
+                mLiveFilter = bundle.getString(Constant.EXTRA_LIVE_FILTER);
 
                 //Hide remove image button
                 btnRemoveImage.setVisibility(View.GONE);

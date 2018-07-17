@@ -39,6 +39,7 @@ import com.thetestament.cread.listeners.listener;
 import com.thetestament.cread.models.CommentsModel;
 import com.thetestament.cread.models.FeedModel;
 import com.thetestament.cread.utils.AspectRatioUtils;
+import com.thetestament.cread.utils.Constant;
 import com.thetestament.cread.utils.RxUtils;
 import com.yalantis.ucrop.UCrop;
 
@@ -78,6 +79,7 @@ import static com.thetestament.cread.utils.Constant.EXTRA_FEED_DESCRIPTION_DATA;
 import static com.thetestament.cread.utils.Constant.EXTRA_FROM_UPDATES_COMMENT_MENTION;
 import static com.thetestament.cread.utils.Constant.IMAGE_TYPE_USER_CAPTURE_PIC;
 import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_CAPTION_TEXT;
+import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_LIVE_FILTER;
 import static com.thetestament.cread.utils.Constant.REQUEST_CODE_COMMENTS_ACTIVITY;
 import static com.thetestament.cread.utils.Constant.REQUEST_CODE_EDIT_POST;
 import static com.thetestament.cread.utils.Constant.REQUEST_CODE_OPEN_GALLERY;
@@ -222,16 +224,20 @@ public class FeedDescriptionActivity extends BaseActivity implements listener.On
 
             case REQUEST_CODE_EDIT_POST:
                 if (resultCode == RESULT_OK) {
+                    Bundle bundle = data.getBundleExtra(Constant.EXTRA_DATA);
                     // get edited caption
-                    String editedCaption = data.getStringExtra(PREVIEW_EXTRA_CAPTION_TEXT);
+                    String editedCaption = bundle.getString(PREVIEW_EXTRA_CAPTION_TEXT);
+                    String filterName = bundle.getString(PREVIEW_EXTRA_LIVE_FILTER);
                     // update the caption
                     mFeedData.setCaption(editedCaption);
+                    mFeedData.setLiveFilterName(filterName);
                     mPostsList.set(0, mFeedData);
                     // editing is only allowed for 0 position
                     mAdapter.notifyItemChanged(0);
 
 
                     resultBundle.putString("caption", editedCaption);
+                    resultBundle.putString("filtername", filterName);
                     setResult(RESULT_OK, resultIntent);
                 }
                 break;
@@ -654,6 +660,7 @@ public class FeedDescriptionActivity extends BaseActivity implements listener.On
         resultBundle.putBoolean("deletestatus", false);
         resultBundle.putBoolean("downvotestatus", mFeedData.isDownvoteStatus());
         resultBundle.putString("caption", mFeedData.getCaption());
+        resultBundle.putString("filtername", mFeedData.getLiveFilterName());
         resultIntent.putExtra(EXTRA_DATA, resultBundle);
     }
 

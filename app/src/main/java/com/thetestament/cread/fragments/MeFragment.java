@@ -422,6 +422,7 @@ public class MeFragment extends Fragment implements listener.OnCollaborationList
                         mCollabList.get(bundle.getInt("position")).setHatsOffCount(bundle.getLong("hatsOffCount"));
                         mCollabList.get(bundle.getInt("position")).setFollowStatus(bundle.getBoolean("followstatus"));
                         mCollabList.get(bundle.getInt("position")).setDownvoteStatus(bundle.getBoolean("downvotestatus"));
+                        //mCollabList.get(bundle.getInt("position")).setLiveFilterName(bundle.getString("filtername"));
 
                         updateFollowForAll(mCollabList.get(bundle.getInt("position")), mCollabList);
 
@@ -431,7 +432,7 @@ public class MeFragment extends Fragment implements listener.OnCollaborationList
                         mUserActivityDataList.get(bundle.getInt("position")).setFollowStatus(bundle.getBoolean("followstatus"));
                         mUserActivityDataList.get(bundle.getInt("position")).setCaption(bundle.getString("caption"));
                         mUserActivityDataList.get(bundle.getInt("position")).setDownvoteStatus(bundle.getBoolean("downvotestatus"));
-
+                        mUserActivityDataList.get(bundle.getInt("position")).setLiveFilterName(bundle.getString("filtername"));
                         updateFollowForAll(mUserActivityDataList.get(bundle.getInt("position")), mUserActivityDataList);
 
                         if (bundle.getBoolean("deletestatus")) {

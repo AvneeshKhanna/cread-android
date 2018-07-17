@@ -160,6 +160,7 @@ import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_IMG_HEIGHT;
 import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_IMG_WIDTH;
 import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_IS_SHADOW_SELECTED;
 import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_ITALIC;
+import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_LIVE_FILTER;
 import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_LONG_TEXT;
 import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_MERCHANTABLE;
 import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_SHORT_ID;
@@ -1335,8 +1336,12 @@ public class PreviewActivity extends BaseActivity implements QueryTokenReceiver,
 
 
                                     //finish this activity and set result ok
-                                    setResult(RESULT_OK, getIntent().putExtra(PREVIEW_EXTRA_CAPTION_TEXT
-                                            , captionText));
+                                    Intent intent = new Intent();
+                                    Bundle bundle = new Bundle();
+                                    bundle.putString(PREVIEW_EXTRA_CAPTION_TEXT, captionText);
+                                    bundle.putString(PREVIEW_EXTRA_LIVE_FILTER, mSelectedLiveFilter);
+                                    intent.putExtra(Constant.EXTRA_DATA, bundle);
+                                    setResult(RESULT_OK, intent);
                                     finish();
                                 }
                             }
@@ -1479,7 +1484,7 @@ public class PreviewActivity extends BaseActivity implements QueryTokenReceiver,
      * @param authToken   AuthToken of user.
      * @param entityID    Entity ID of capture.
      */
-    private void uploadEditedCapture(String captionText, String uuid, String authToken, String entityID) {
+    private void uploadEditedCapture(final String captionText, String uuid, String authToken, String entityID) {
         //To show the progress dialog
 
         final MaterialDialog dialog = CustomDialog
@@ -1521,8 +1526,14 @@ public class PreviewActivity extends BaseActivity implements QueryTokenReceiver,
                                     GET_RESPONSE_FROM_NETWORK_ENTITY_SPECIFIC = true;
 
                                     //finish this activity and set result ok
-                                    setResult(RESULT_OK, getIntent().putExtra(PREVIEW_EXTRA_CAPTION_TEXT
-                                            , mCapInMentionFormat));
+                                    Intent intent = new Intent();
+                                    Bundle bundle = new Bundle();
+                                    bundle.putString(PREVIEW_EXTRA_CAPTION_TEXT, captionText);
+                                    bundle.putString(PREVIEW_EXTRA_LIVE_FILTER, mSelectedLiveFilter);
+                                    intent.putExtra(Constant.EXTRA_DATA, bundle);
+
+
+                                    setResult(RESULT_OK, intent);
                                     finish();
                                 }
                             }
