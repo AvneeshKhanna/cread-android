@@ -591,7 +591,7 @@ public class BottomNavigationActivity extends BaseActivity {
                 //Open preview screen
                 Bundle bundle = new Bundle();
                 bundle.putString(PREVIEW_EXTRA_MERCHANTABLE, "1");
-                bundle.putString(PREVIEW_EXTRA_LIVE_FILTER,Constant.LIVE_FILTER_NONE);
+                bundle.putString(PREVIEW_EXTRA_LIVE_FILTER, Constant.LIVE_FILTER_NONE);
                 bundle.putString(PREVIEW_EXTRA_CALLED_FROM, PREVIEW_EXTRA_CALLED_FROM_CAPTURE);
 
                 Intent intent = new Intent(mContext, PreviewActivity.class);
@@ -601,7 +601,7 @@ public class BottomNavigationActivity extends BaseActivity {
                 //Open preview screen
                 Bundle bundle = new Bundle();
                 bundle.putString(PREVIEW_EXTRA_MERCHANTABLE, "1");
-                bundle.putString(PREVIEW_EXTRA_LIVE_FILTER,Constant.LIVE_FILTER_NONE);
+                bundle.putString(PREVIEW_EXTRA_LIVE_FILTER, Constant.LIVE_FILTER_NONE);
                 bundle.putString(PREVIEW_EXTRA_CALLED_FROM, PREVIEW_EXTRA_CALLED_FROM_CAPTURE);
 
                 Intent intent = new Intent(mContext, PreviewActivity.class);
@@ -722,7 +722,7 @@ public class BottomNavigationActivity extends BaseActivity {
                         //Open preview screen
                         Bundle bundle = new Bundle();
                         bundle.putString(PREVIEW_EXTRA_MERCHANTABLE, "0");
-                        bundle.putString(PREVIEW_EXTRA_LIVE_FILTER,Constant.LIVE_FILTER_NONE);
+                        bundle.putString(PREVIEW_EXTRA_LIVE_FILTER, Constant.LIVE_FILTER_NONE);
                         bundle.putString(PREVIEW_EXTRA_CALLED_FROM, PREVIEW_EXTRA_CALLED_FROM_CAPTURE);
 
                         Intent intent = new Intent(mContext, PreviewActivity.class);
