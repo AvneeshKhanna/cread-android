@@ -22,6 +22,8 @@ import android.widget.RelativeLayout;
 
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.crashlytics.android.Crashlytics;
+import com.facebook.drawee.backends.pipeline.Fresco;
+import com.facebook.imagepipeline.core.ImagePipeline;
 import com.thetestament.cread.BuildConfig;
 import com.thetestament.cread.Manifest;
 import com.thetestament.cread.R;
@@ -228,10 +230,14 @@ public class FeedDescriptionActivity extends BaseActivity implements listener.On
                     // get edited caption
                     String editedCaption = bundle.getString(PREVIEW_EXTRA_CAPTION_TEXT);
                     String filterName = bundle.getString(PREVIEW_EXTRA_LIVE_FILTER);
+
+                    ImagePipeline imagePipeline = Fresco.getImagePipeline();
+                    imagePipeline.evictFromCache(Uri.parse(mFeedData.getContentImage()));
                     // update the caption
                     mFeedData.setCaption(editedCaption);
                     mFeedData.setLiveFilterName(filterName);
                     mPostsList.set(0, mFeedData);
+
                     // editing is only allowed for 0 position
                     mAdapter.notifyItemChanged(0);
 
