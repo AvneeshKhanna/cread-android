@@ -48,6 +48,8 @@ import android.widget.TextView;
 import com.afollestad.materialdialogs.DialogAction;
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.crashlytics.android.Crashlytics;
+import com.facebook.drawee.backends.pipeline.Fresco;
+import com.facebook.imagepipeline.core.ImagePipeline;
 import com.google.firebase.analytics.FirebaseAnalytics;
 import com.rx2androidnetworking.Rx2AndroidNetworking;
 import com.squareup.picasso.MemoryPolicy;
@@ -416,29 +418,33 @@ public class MeFragment extends Fragment implements listener.OnCollaborationList
             case REQUEST_CODE_FEED_DESCRIPTION_ACTIVITY:
                 if (resultCode == RESULT_OK) {
                     Bundle bundle = data.getBundleExtra(EXTRA_DATA);
+                    int position = bundle.getInt("position");
                     //Update data
                     if (tabLayout.getSelectedTabPosition() == 2) {
-                        mCollabList.get(bundle.getInt("position")).setHatsOffStatus(bundle.getBoolean("hatsOffStatus"));
-                        mCollabList.get(bundle.getInt("position")).setHatsOffCount(bundle.getLong("hatsOffCount"));
-                        mCollabList.get(bundle.getInt("position")).setFollowStatus(bundle.getBoolean("followstatus"));
-                        mCollabList.get(bundle.getInt("position")).setDownvoteStatus(bundle.getBoolean("downvotestatus"));
+                        mCollabList.get(position).setHatsOffStatus(bundle.getBoolean("hatsOffStatus"));
+                        mCollabList.get(position).setHatsOffCount(bundle.getLong("hatsOffCount"));
+                        mCollabList.get(position).setFollowStatus(bundle.getBoolean("followstatus"));
+                        mCollabList.get(position).setDownvoteStatus(bundle.getBoolean("downvotestatus"));
                         //mCollabList.get(bundle.getInt("position")).setLiveFilterName(bundle.getString("filtername"));
 
                         updateFollowForAll(mCollabList.get(bundle.getInt("position")), mCollabList);
 
                     } else {
-                        mUserActivityDataList.get(bundle.getInt("position")).setHatsOffStatus(bundle.getBoolean("hatsOffStatus"));
-                        mUserActivityDataList.get(bundle.getInt("position")).setHatsOffCount(bundle.getLong("hatsOffCount"));
-                        mUserActivityDataList.get(bundle.getInt("position")).setFollowStatus(bundle.getBoolean("followstatus"));
-                        mUserActivityDataList.get(bundle.getInt("position")).setCaption(bundle.getString("caption"));
-                        mUserActivityDataList.get(bundle.getInt("position")).setDownvoteStatus(bundle.getBoolean("downvotestatus"));
-                        mUserActivityDataList.get(bundle.getInt("position")).setLiveFilterName(bundle.getString("filtername"));
-                        updateFollowForAll(mUserActivityDataList.get(bundle.getInt("position")), mUserActivityDataList);
+                        mUserActivityDataList.get(position).setHatsOffStatus(bundle.getBoolean("hatsOffStatus"));
+                        mUserActivityDataList.get(position).setHatsOffCount(bundle.getLong("hatsOffCount"));
+                        mUserActivityDataList.get(position).setFollowStatus(bundle.getBoolean("followstatus"));
+                        mUserActivityDataList.get(position).setCaption(bundle.getString("caption"));
+                        mUserActivityDataList.get(position).setDownvoteStatus(bundle.getBoolean("downvotestatus"));
+                        mUserActivityDataList.get(position).setLiveFilterName(bundle.getString("filtername"));
+                        updateFollowForAll(mUserActivityDataList.get(position), mUserActivityDataList);
 
                         if (bundle.getBoolean("deletestatus")) {
                             mUserActivityDataList.remove(bundle.getInt("position"));
                             mAdapter.notifyItemRemoved(bundle.getInt("position") + 1);
                         }
+
+                        ImagePipeline imagePipeline = Fresco.getImagePipeline();
+                        imagePipeline.evictFromCache(Uri.parse(mUserActivityDataList.get(position).getContentImage()));
                     }
                     //Notify changes
                     mAdapter.notifyItemChanged(bundle.getInt("position"));
