@@ -250,8 +250,8 @@ public class UpdatesAdapter extends RecyclerView.Adapter {
 
             case NOTIFICATION_CATEGORY_CREAD_COLLABORATE:
                 message = updatesModel.getContentType().equals(CONTENT_TYPE_CAPTURE)
-                        ? updatesModel.getActorName() + " uploaded a graphic art to your writing"
-                        : updatesModel.getActorName() + " wrote on your graphic art";
+                        ? updatesModel.getActorName() + " uploaded a photo to your writing"
+                        : updatesModel.getActorName() + " wrote on your photo";
                 break;
 
             case NOTIFICATION_CATEGORY_PROFILE_MENTION_COMMENT:

@@ -410,7 +410,7 @@ public class CollaborationActivity extends BaseActivity {
                             , Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
                         //User already refused to give us this permission or removed it
                         ViewHelper.getToast(this
-                                , "Please grant storage permission from settings to create short");
+                                , "Please grant storage permission from settings to create post");
                     } else {
                         //First time asking for permission
                         Nammu.askForPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE, captureWritePermission);
@@ -628,7 +628,7 @@ public class CollaborationActivity extends BaseActivity {
         @Override
         public void permissionRefused() {
             ViewHelper.getToast(CollaborationActivity.this
-                    , "Please grant storage permission from settings to create short");
+                    , "Please grant storage permission from settings to create post");
         }
     };
 

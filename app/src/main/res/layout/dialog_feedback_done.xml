@@ -39,6 +39,6 @@
         android:paddingBottom="20dp"
         android:paddingLeft="20dp"
         android:paddingRight="20dp"
-        android:text="`We have marked this as important for you. Thanks for letting us know what's important. We'll get back to you with better features and updates`."
+        android:text="`We have marked this as important for you. Thanks for letting us know. We'll get back to you with better features and updates`."
         android:textSize="14sp" />
 </LinearLayout>

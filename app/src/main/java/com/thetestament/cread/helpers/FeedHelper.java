@@ -246,6 +246,7 @@ public class FeedHelper {
         //i.e. any word starting with a # and containing letter or numbers or _
         Pattern tagMatcher = Pattern.compile("\\#\\w+", Pattern.CASE_INSENSITIVE);
         // attach linkify to text view for click action of hash tags
+        // appended count for the case when hashtag feed is opened directly from hash tag of the day
         Linkify.addLinks(textView, tagMatcher, URI_HASH_TAG_ACTIVITY + String.valueOf(count) + ":");
         // to remove underlines from the hashtag links
         stripUnderlines(textView);

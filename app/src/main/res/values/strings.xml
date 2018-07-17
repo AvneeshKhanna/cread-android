@@ -21,7 +21,7 @@
 
     //Permission denied error message
     <string name="error_msg_permission_denied">The app won\'t function properly since the permission for storage was denied.</string>
-    <string name="error_msg_capture_permission_denied">Please grant storage permission from settings to upload your capture</string>
+    <string name="error_msg_capture_permission_denied">Please grant storage permission from settings to upload your photo</string>
     <string name="error_msg_share_permission_denied">Please grant storage permission from settings to share the post</string>
 
     //Other error message
@@ -67,6 +67,7 @@
     <string name="key_htod_value">keyHtodValue</string>
     <string name="key_htod_count">keyHtodCount</string>
     <string name="key_htod_new_posts_indicator_visibility">keyHtNewPostsIndicatorVisibility</string>
+    <string name="key_user_interests_prof_first_time">keyUserInterestProf</string>
     <string name="key_web_store_dot">keyWebStoreDot</string>
     <string name="key_product_tour">keyProductTour</string>
     <string name="key_live_filter">keyLiveFilter</string>
@@ -84,10 +85,10 @@
     <string name="text_no">No</string>
     <string name="text_color">Color</string>
     <string name="text_read_more">Read More</string>
-    <string name="title_dialog_collab_capture">Add your capture to this</string>
-    <string name="text_dialog_collab_capture">Select and add your capture to this post and make it even more interesting</string>
-    <string name="title_dialog_collab_short">Write your short on this post</string>
-    <string name="text_dialog_collab_short">Enhance the beauty of this capture by writing a short on it</string>
+    <string name="title_dialog_collab_capture">Add your photo to this</string>
+    <string name="text_dialog_collab_capture">Select and add an artistic photo to this post and make it even more interesting</string>
+    <string name="title_dialog_collab_short">Write something on this post</string>
+    <string name="text_dialog_collab_short">Enhance the beauty of this photo by writing something on it</string>
     <string name="title_dialog_me">Earn Royalties</string>
     <string name="title_dialog_chat">Strike Up A Conversation</string>
     <string name="text_dialog_chat_desc">Now you can follow other Cread users and chat with them without going anywhere else. When they follow you back, they will be able to chat with you</string>
@@ -99,6 +100,7 @@
     <string name="text_dialog_downvote_desc">Congratulations! You\'re one of the selected users who have earned the power to anonymously downvote posts. We trust that you can help us in building a clean platform with high standards by downvoting posts which you don\'t find suitable. This privilege is only for nice, active users and we\'re really glad to have you as one! :)</string>
     <string name="text_unfollow">Unfollow</string>
     <string name="text_title_dialog_featured_artist">Featured Artists</string>
+    <string name="text_title_dialog_featured_artist_me">Featured</string>
     <string name="text_desc_dialog_featured_artist">Get an opportunity to be listed amongst the top artists on Cread! All you have to do is post awesome stuff and you might get featured on the top of the feed for everyone to see. We hope to get you the best of the app everyday!</string>
     <string name="text_title_dialog_downvote_warning">Anonymous Downvote</string>
     <string name="text_desc_dialog_downvote_warning">Are you sure the post is not suitable? Downvoting would limit its reach for others. Don\'t worry, only we\'ll get to know about it</string>
@@ -106,7 +108,7 @@
     <string name="text_dialog_button_later">Not Now</string>
     <string name="text_dialog_button_invite">Invite</string>
     <string name="text_title_dialog_capture_collab_invitation">Know a friend who writes well?</string>
-    <string name="text_desc_dialog_capture_collab_invitation">Can you think of a writer/poet who can pen a masterpiece on your graphic art? Invite such a friend to collaborate with you on Cread!</string>
+    <string name="text_desc_dialog_capture_collab_invitation">Can you think of a writer/poet who can pen a masterpiece on your artistic photo? Invite such a friend to collaborate with you on Cread!</string>
     <string name="text_title_dialog_short_collab_invitation">Know a great graphic artist?</string>
     <string name="text_desc_dialog_short_collab_invitation">Can you think of a terrific photographer/graphic artist who could make your writing look beautiful? Invite such a friend to collaborate with you on Cread!</string>
     <string name="text_desc_dialog_invite_friends">Now invite your friends on Cread using your personalised referral link</string>
@@ -130,7 +132,7 @@
     <string name="payment_failed_server_error">The transaction could not go through due to an error on the server. In case the amount has been deducted from your bank account, your refund will be processed in 5-7 days. Please check your registered mail for more details.</string>
     <string name="payment_success_message">Congratulations! Your order has been processed successfully</string>
 
-    // notifcations
+    // notifications
     <string name="gen_notif_channel_name">Cread</string>
     <string name="gen_notif_channel_desc">Make sound and pop up on screen</string>
 
@@ -139,20 +141,20 @@
 
     // collab count text
     <string name="collab_short_count_text_single">person wrote on it</string>
-    <string name="collab_capture_count_text_single">person added a graphic art to it</string>
+    <string name="collab_capture_count_text_single">person added an artistic photo to it</string>
     <string name="collab_short_count_text_multiple">people wrote on it</string>
-    <string name="collab_capture_count_text_multiple">people added a graphic art to it</string>
+    <string name="collab_capture_count_text_multiple">people added an artistic photo to it</string>
     <string name="collab_general_count_text_single">person created an art using this</string>
     <string name="collab_general_count_text_multiple">people created art using this</string>
 
     // creator text
     <string name="creator_text_standalone_short">wrote this</string>
-    <string name="creator_text_standalone_capture">added a graphic art</string>
-    <string name="creator_text_collab_short_self">wrote on their graphic art</string>
+    <string name="creator_text_standalone_capture">added an artistic photo</string>
+    <string name="creator_text_collab_short_self">wrote on their artistic photo</string>
     <string name="creator_text_collab_short_part1">wrote on</string>
-    <string name="creator_text_collab_short_part2">graphic art</string>
-    <string name="creator_text_collab_capture_self">added a graphic art to their writing</string>
-    <string name="creator_text_collab_capture_part1">added a graphic art to</string>
+    <string name="creator_text_collab_short_part2">artistic photo</string>
+    <string name="creator_text_collab_capture_self">added an artistic photo to their writing</string>
+    <string name="creator_text_collab_capture_part1">added an artistic photo to</string>
     <string name="creator_text_collab_capture_part2">writing</string>
 
 
@@ -178,13 +180,13 @@
 
 
     <string-array name="collaborate_dialog_titles">
-        <item>Write on this graphic art</item>
-        <item>Add a graphic art to this writing</item>
+        <item>Write on this photo</item>
+        <item>Add a photo to this writing</item>
     </string-array>
 
     <string-array name="collaborate_dialog_texts">
         <item>"Picks the image from this art piece and allows you to write on it"</item>
-        <item>"Picks the writing from this art piece and allows you to add a graphic art to it</item>
+        <item>"Picks the writing from this art piece and allows you to add a photo to it</item>
     </string-array>
 
 
@@ -194,6 +196,10 @@
     <string name="text_invite_collab_capture">Hey! I just posted an art on Cread! You could write something on it as well. Come and collaborate with me on Cread. :)</string>
     //invite collab on short text
     <string name="text_invite_collab_short">Hey! I just wrote something nice. Could you make it more beautiful with your amazing graphic artistry? Come and collaborate with me on Cread. :)</string>
+
+    <!--Play Store Link -->
+    <string name="app_playstore_link">https://play.google.com/store/apps/details?id=com.thetestament.cread</string>
+    <string name="app_playstore_link_short">https://cread.page.link/app</string>
 
     //Transition Shared
     <string name="shared_transition_profile_pic">profilePic</string>
@@ -224,6 +230,7 @@
     <string name="title_text_recommended_artists_activity">Top artists on Cread</string>
     <string name="text_content_label_dialog">Add most relevant labels to your content to make it easier to stand out of the crowd. Others would be able to search and appreciate your art in a much faster way!</string>
     <string name="text_title_label_dialog">Label Your Post</string>
+    <string name="message_tooltip_user_interests">New! Now you can select your interests to see more relevant posts on the app</string>
 
 
     <string name="circle">

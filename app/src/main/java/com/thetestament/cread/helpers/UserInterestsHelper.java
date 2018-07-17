@@ -3,6 +3,7 @@ package com.thetestament.cread.helpers;
 import android.support.v4.app.FragmentActivity;
 
 import com.crashlytics.android.Crashlytics;
+import com.thetestament.cread.CreadApp;
 import com.thetestament.cread.R;
 import com.thetestament.cread.listeners.listener;
 
@@ -64,6 +65,9 @@ public class UserInterestsHelper {
                             else {
                                 JSONObject mainData = jsonObject.getJSONObject("data");
                                 if (mainData.getString("status").equals("done")) {
+
+                                    // get response from network
+                                    CreadApp.GET_RESPONSE_FROM_NETWORK_ME = true;
                                     //Set listener
                                     onUserInterestClickedListener.onInterestSuccess();
                                 }

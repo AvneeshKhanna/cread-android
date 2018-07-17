@@ -28,6 +28,8 @@ import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.InputType;
+import android.text.Spannable;
+import android.text.style.RelativeSizeSpan;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -81,6 +83,7 @@ import com.thetestament.cread.networkmanager.NotificationNetworkManager;
 import com.thetestament.cread.utils.AspectRatioUtils;
 import com.thetestament.cread.utils.Constant.GratitudeNumbers;
 import com.thetestament.cread.utils.Constant.ITEM_TYPES;
+import com.thetestament.cread.utils.TextUtils;
 import com.thetestament.cread.utils.UserStatsViewPager;
 import com.thetestament.cread.widgets.InOutInterpolator;
 import com.yalantis.ucrop.UCrop;
@@ -213,7 +216,7 @@ public class MeFragment extends Fragment implements listener.OnCollaborationList
     @State
     String mFirstName, mLastName, mProfilePicURL, mUserBio;
     @State
-    long mPostCount, mFollowerCount, mFollowingCount, mHatsoffCount, mCommentsCount, mCollaborationCount;
+    long mPostCount, mFollowerCount, mFollowingCount, mFeatureCount, mHatsoffCount, mCommentsCount, mCollaborationCount;
     @State
     String mEmail, mContactNumber, mWaterMarkStatus;
     @State
@@ -667,8 +670,22 @@ public class MeFragment extends Fragment implements listener.OnCollaborationList
      */
     @OnClick(R.id.imageFeatured)
     void featuredOnClick() {
-        ViewHelper.getToolTip(imageFeatured, mFirstName + " is currently a featured artist"
-                , getActivity());
+        String dialogDesc = mFirstName + " is a " + mFeatureCount + " times featured artist.";
+        String dialogTitle = getString(R.string.text_title_dialog_featured_artist_me);
+
+        CustomDialog.getGenericDialog(getActivity(),
+                getString(R.string.text_ok),
+                TextUtils.getSpannedString(dialogTitle,
+                        new RelativeSizeSpan(1f),
+                        0,
+                        0,
+                        Spannable.SPAN_EXCLUSIVE_EXCLUSIVE),
+                TextUtils.getSpannedString(dialogDesc,
+                        new RelativeSizeSpan(1.35f),
+                        dialogDesc.indexOf(String.valueOf(mFeatureCount)),
+                        dialogDesc.indexOf(String.valueOf(mFeatureCount)) + String.valueOf(mFeatureCount).length(),
+                        Spannable.SPAN_EXCLUSIVE_EXCLUSIVE),
+                R.drawable.img_intro_feat_artist);
     }
 
     /*
@@ -977,6 +994,7 @@ public class MeFragment extends Fragment implements listener.OnCollaborationList
                                 mProfilePicURL = mainData.getString("profilepicurl");
                                 mUserBio = mainData.getString("bio");
                                 mFollowStatus = mainData.getBoolean("followstatus");
+                                mFeatureCount = mainData.getLong("featurecount");
                                 mPostCount = mainData.getLong("postcount");
                                 mFollowerCount = mainData.getLong("followercount");
                                 mFollowingCount = mainData.getLong("followingcount");

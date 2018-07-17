@@ -1000,7 +1000,7 @@ public class PreviewActivity extends BaseActivity implements QueryTokenReceiver,
                 .build();
 
         final MaterialDialog dialog = CustomDialog
-                .getProgressDialog(mContext, "Uploading your capture");
+                .getProgressDialog(mContext, "Uploading your photo");
 
 
         Rx2AndroidNetworking.upload(BuildConfig.URL + "/capture-upload/collaborated")
@@ -1055,7 +1055,7 @@ public class PreviewActivity extends BaseActivity implements QueryTokenReceiver,
                             } else {
                                 JSONObject dataObject = jsonObject.getJSONObject("data");
                                 if (dataObject.getString("status").equals("done")) {
-                                    ViewHelper.getToast(mContext, "Capture uploaded successfully.");
+                                    ViewHelper.getToast(mContext, "Photo uploaded successfully.");
                                     setResult(RESULT_OK);
 
                                     // set feeds data to be loaded from network
@@ -1377,7 +1377,7 @@ public class PreviewActivity extends BaseActivity implements QueryTokenReceiver,
     private void uploadCapture(File file, String captionText, final String uuid, final String authToken, String waterMark, String merchantable) {
         //To show the progress dialog
         final MaterialDialog dialog = CustomDialog
-                .getProgressDialog(mContext, "Uploading your graphic art");
+                .getProgressDialog(mContext, "Uploading your photo");
 
         //Decode image file
         BitmapFactory.Options options = new BitmapFactory.Options();
@@ -1427,7 +1427,7 @@ public class PreviewActivity extends BaseActivity implements QueryTokenReceiver,
                             } else {
                                 JSONObject dataObject = response.getJSONObject("data");
                                 if (dataObject.getString("status").equals("done")) {
-                                    ViewHelper.getToast(mContext, "Graphic art uploaded successfully");
+                                    ViewHelper.getToast(mContext, "Photo has been uploaded successfully");
 
                                     // Set feeds data to be loaded from network instead of cached data
                                     GET_RESPONSE_FROM_NETWORK_MAIN = true;

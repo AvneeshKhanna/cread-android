@@ -665,9 +665,9 @@ public class BottomNavigationActivity extends BaseActivity {
         //Set filler image
         fillerImage.setImageDrawable(ContextCompat.getDrawable(this, R.drawable.img_capture_intro));
         //Set title text
-        textTitle.setText("Upload your best shot!");
+        textTitle.setText("Upload your best photo!");
         //Set description text
-        textDesc.setText("A photograph says a thousand words. Sharing your work here can inspire thousands of writers. All the best!");
+        textDesc.setText("A photograph says a thousand words. Sharing your photos here, they might inspire thousands of others!");
     }
 
     /**
@@ -696,9 +696,9 @@ public class BottomNavigationActivity extends BaseActivity {
         //Set filler image
         fillerImage.setImageDrawable(ContextCompat.getDrawable(this, R.drawable.img_short_intro));
         //Set title text
-        textTitle.setText("Write your masterpiece here");
+        textTitle.setText("Write something awesome");
         //Set description text
-        textDesc.setText("This is where you must share your words. We'll save it as an image to inspire people and prevent plagiarism.");
+        textDesc.setText("This is where you can share your words. You can upload it as a post or save it to your phone");
     }
 
     /**
@@ -706,7 +706,7 @@ public class BottomNavigationActivity extends BaseActivity {
      */
     private void getMerchantableDialog() {
         new MaterialDialog.Builder(this)
-                .title("Note")
+                .title("Important")
                 .content("The resolution of this image is not printable. Other users won't be able to order a print version of it. Do you wish to proceed?")
                 .positiveText("Proceed")
                 .negativeText("Cancel")

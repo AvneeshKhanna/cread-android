@@ -570,7 +570,7 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
         //If short text is empty
         if (TextUtils.getTrimmedLength(textShort.getText().toString()) == 0) {
             //Show toast message
-            ViewHelper.getToast(this, "Short can't be empty. Please Write something.");
+            ViewHelper.getToast(this, "Post cannot be empty. Please Write something.");
         } else {
             //Remove underline
             textShort.clearComposingText();
@@ -1582,7 +1582,7 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
                     , Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
 
                 ViewHelper.getToast(this
-                        , "Please grant storage permission from settings to create your short");
+                        , "Please grant storage permission from settings to create your writing");
             } else {
                 ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}
                         , REQUEST_CODE_WRITE_EXTERNAL_STORAGE);
