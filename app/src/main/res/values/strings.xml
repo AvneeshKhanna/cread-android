@@ -11,7 +11,7 @@
     <string name="ACCOUNT_KIT_CLIENT_TOKEN">6a45aeaefe691d6fc069a7ae3d49f0ea</string>
 
 
-    //Networking error messages
+    <!--Networking error messages-->
     <string name="error_msg_no_connection">Cannot connect to network</string>
     <string name="error_msg_server">"Some error occurred at server"</string>
     <string name="error_msg_invalid_token">Session expired. Please login again</string>
@@ -19,12 +19,12 @@
     <string name="error_chat_connection">Could not connect to internet</string>
     <string name="error_msg_no_data">Nothing to show</string>
 
-    //Permission denied error message
+    <!--Permission denied error message-->
     <string name="error_msg_permission_denied">The app won\'t function properly since the permission for storage was denied.</string>
     <string name="error_msg_capture_permission_denied">Please grant storage permission from settings to upload your photo</string>
     <string name="error_msg_share_permission_denied">Please grant storage permission from settings to share the post</string>
 
-    //Other error message
+    <!--Other error message-->
     <string name="error_field_empty">cannot be empty</string>
     <string name="error_msg_no_image">Image could not be loaded. Please try again</string>
     <string name="error_img_not_attached">Image from gallery was not attached</string>
@@ -32,7 +32,7 @@
     <string name="error_ffmpeg">Your phone doen\'t support GIF.</string>
     <string name="error_ffmpeg_video">Your phone doen\'t support Video creation.</string>
 
-    //Shared preferences key
+    <!--Shared preferences key-->
     <string name="cread_preferences">creadPrefs</string>
     <string name="uuid">uuid</string>
     <string name="auth_token">authToken</string>
@@ -74,7 +74,7 @@
     <string name="key_hats_off">keyHatsOff</string>
 
 
-    // dialog messages
+    <!--dialog messages-->
     <string name="processing_title">Processing</string>
     <string name="verif_title">Verifying</string>
     <string name="loading_title">Loading</string>
@@ -121,26 +121,26 @@
     <string name="title_dialog_fb_duplicate">Oops</string>
     <string name="text_dialog_fb_duplicate">Looks like this Facebook account is already attached to someone else on Cread. Please use another Facebook account</string>
 
-    //unicodes
+    <!--unicodes-->
     <string name="Rs">\u20B9</string>
     <string name="bullet">\u25CF</string>
 
-    // payment status
+    <!--payment status-->
     <string name="payment_failed_title">Transaction Failed</string>
     <string name="payment_success_title">Order Successful</string>
-    <string name="payment_failed_conn_term">The transaction could not go through as the connection was terminated. In case the amount has been deducted from your bank account, your refund will be processed in 5-7 days.</string>
-    <string name="payment_failed_invalid_token">The transaction could not go through as your session has expired. In case the amount has been deducted from your bank account, your refund will be processed in 5-7 days. Please check your registered mail for more details.</string>
-    <string name="payment_failed_server_error">The transaction could not go through due to an error on the server. In case the amount has been deducted from your bank account, your refund will be processed in 5-7 days. Please check your registered mail for more details.</string>
+    <string name="payment_failed_conn_term">The transaction could not go through as the connection was terminated. In case the amount has been deducted from your bank account, your refund will be processed in 5–7 days.</string>
+    <string name="payment_failed_invalid_token">The transaction could not go through as your session has expired. In case the amount has been deducted from your bank account, your refund will be processed in 5–7 days. Please check your registered mail for more details.</string>
+    <string name="payment_failed_server_error">The transaction could not go through due to an error on the server. In case the amount has been deducted from your bank account, your refund will be processed in 5–7 days. Please check your registered mail for more details.</string>
     <string name="payment_success_message">Congratulations! Your order has been processed successfully</string>
 
-    // notifications
+    <!--notifications-->
     <string name="gen_notif_channel_name">Cread</string>
     <string name="gen_notif_channel_desc">Make sound and pop up on screen</string>
 
 
-    // feeds text
+    <!--feeds text-->
 
-    // collab count text
+    <!--collab count text-->
     <string name="collab_short_count_text_single">person wrote on it</string>
     <string name="collab_capture_count_text_single">person added an artistic photo to it</string>
     <string name="collab_short_count_text_multiple">people wrote on it</string>
@@ -148,7 +148,7 @@
     <string name="collab_general_count_text_single">person created an art using this</string>
     <string name="collab_general_count_text_multiple">people created art using this</string>
 
-    // creator text
+    <!--creator text-->
     <string name="creator_text_standalone_short">wrote this</string>
     <string name="creator_text_standalone_capture">added an artistic photo</string>
     <string name="creator_text_collab_short_self">wrote on their artistic photo</string>
@@ -161,12 +161,12 @@
 
     <string name="text_rate_us">We want to bring the best opportunities for you! Please encourage us by giving a 5-star rating. It\'ll mean a lot!</string>
 
-    // tooltips
+    <!--tooltips-->
     <string name="tooltip_gratitude_hatsoff">has received these many  hats-off on their posts</string>
     <string name="tooltip_gratitude_comment">has received a total of 10 hats-off on their posts</string>
     <string name="tooltip_gratitude_collaboration">This is the number of posts inspired by all the posts</string>
 
-    // add caption text
+    <!--add caption text-->
     <string name="text_add_caption">Say something about this post with #tags</string>
 
     <string-array name="share_dialog_titles">
@@ -191,21 +191,21 @@
     </string-array>
 
 
-    // invite friends text
+    <!--invite friends text-->
     <string name="text_invite_friends">Hey! Check out this app where graphic artists collaborate with writers and make beautiful stuff! And if that\'s not enough, they get royalties for every artpiece that sells.\n\nGet your art on Cread now. It\'s fun! \n\n  %1$s</string>
-    //invite collab on capture text
+    <!--invite collab on capture text-->
     <string name="text_invite_collab_capture">Hey! I just posted an art on Cread! You could write something on it as well. Come and collaborate with me on Cread. :)</string>
-    //invite collab on short text
+    <!--invite collab on short text-->
     <string name="text_invite_collab_short">Hey! I just wrote something nice. Could you make it more beautiful with your amazing graphic artistry? Come and collaborate with me on Cread. :)</string>
 
     <!--Play Store Link -->
     <string name="app_playstore_link">https://play.google.com/store/apps/details?id=com.thetestament.cread</string>
     <string name="app_playstore_link_short">https://cread.page.link/app</string>
 
-    //Transition Shared
+    <!--Transition Shared-->
     <string name="shared_transition_profile_pic">profilePic</string>
 
-    //Info text
+    <!--Info text-->
     <string name="note_text_short_creation">Double tap outside text to add image tint</string>
     <string name="text_share_image">Do you love #art? Here\'s something great on @cread! Check it out and tell me what you think. :) \n\nApp:&#160; %1$s</string>
     <string name="text_share_image_created">Here\'s something great I created on @cread! Check it out and tell me what you think. :) \n\nApp:&#160; %1$s</string>
@@ -244,7 +244,7 @@ C68.5809,277.075,273.832,71.8233,527.023,71.8233 Z
     <integer name="circle_original_height">1062</integer>
 
 
-    <string name="title_gif_dialog">Creating GIF...</string>
+    <string name="title_gif_dialog">Creating GIF…</string>
     <string name="live_filter_enable">Live filter enabled</string>
     <string name="live_filter_disable">Live filter disabled</string>
 
@@ -258,5 +258,5 @@ C68.5809,277.075,273.832,71.8233,527.023,71.8233 Z
     <string name="tab_recent">Recent</string>
     <string name="tab_best">Best</string>
 
-    <string name="tooltip_hats_off_double_tap">Hey text is coming soon</string>
+    <string name="tooltip_hats_off_double_tap">Hey! You can also double tap on the image to give it a hats-off</string>
 </resources>
