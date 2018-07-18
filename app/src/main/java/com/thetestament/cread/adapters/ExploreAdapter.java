@@ -5,22 +5,17 @@ import android.app.ActivityOptions;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
-import android.support.v4.content.ContextCompat;
 import android.support.v4.view.ViewCompat;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
-import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
-import com.afollestad.materialdialogs.DialogAction;
-import com.afollestad.materialdialogs.MaterialDialog;
 import com.facebook.drawee.view.SimpleDraweeView;
 import com.github.glomadrian.grav.GravView;
 import com.github.matteobattilana.weather.WeatherView;
@@ -30,10 +25,8 @@ import com.thetestament.cread.activities.CollaborationDetailsActivity;
 import com.thetestament.cread.activities.FeedDescriptionActivity;
 import com.thetestament.cread.helpers.FeedHelper;
 import com.thetestament.cread.helpers.ImageHelper;
-import com.thetestament.cread.helpers.IntentHelper;
 import com.thetestament.cread.helpers.LiveFilterHelper;
 import com.thetestament.cread.helpers.NetworkHelper;
-import com.thetestament.cread.helpers.SharedPreferenceHelper;
 import com.thetestament.cread.helpers.ViewHelper;
 import com.thetestament.cread.listeners.listener.OnExploreCaptureClickListener;
 import com.thetestament.cread.listeners.listener.OnExploreFollowListener;
@@ -76,7 +69,6 @@ public class ExploreAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
     private Fragment mExploreFragment;
     private boolean mIsLoading;
     private String mUUID;
-    private SharedPreferenceHelper mHelper;
     private ITEM_TYPES mItemType;
     private CompositeDisposable mCompositeDisposable;
 
@@ -100,8 +92,6 @@ public class ExploreAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
         this.mExploreFragment = mExploreFragment;
         this.mItemType = mItemType;
         this.mCompositeDisposable = mCompositeDisposable;
-
-        mHelper = new SharedPreferenceHelper(mContext);
     }
 
     /**
@@ -127,7 +117,6 @@ public class ExploreAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
 
     @Override
     public int getItemViewType(int position) {
-
         if (mExploreList.get(position) == null) {
             return VIEW_TYPE_LOADING;
         } else if (mItemType == ITEM_TYPES.LIST) {
@@ -135,7 +124,6 @@ public class ExploreAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
         } else if (mItemType == ITEM_TYPES.GRID) {
             return VIEW_TYPE_ITEM_GRID;
         }
-
         return -1;
     }
 
@@ -175,9 +163,6 @@ public class ExploreAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
                     , true
                     , false
                     , null);
-
-            // no need for creator options in explore
-            final boolean shouldShowCreatorOptions = false;
 
             //Check follow status
             checkFollowStatus(data, itemViewHolder);
@@ -252,22 +237,6 @@ public class ExploreAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
 
 
     /**
-     * Method to open creator profile.
-     *
-     * @param view        View to be clicked.
-     * @param creatorUUID UUID of the creator.
-     */
-    private void openCreatorProfile(View view, final String creatorUUID) {
-        view.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                //Method called
-                IntentHelper.openProfileActivity(mContext, creatorUUID);
-            }
-        });
-    }
-
-    /**
      * Follow button functionality
      *
      * @param itemPosition index  of the item.
@@ -292,30 +261,6 @@ public class ExploreAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
                 } else {
                     ViewHelper.getToast(mContext, mContext.getString(R.string.error_msg_no_connection));
                 }
-            }
-        });
-    }
-
-    /**
-     * capture collabOnWritingClick functionality.
-     *
-     * @param view View to be clicked.
-     *             * @param shoid    short ID
-     */
-    private void captureOnClick(View view, final String shoid) {
-        view.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-
-                if (mHelper.isWriteIconTooltipFirstTime()) {
-
-                    // open dialog
-                    getCaptureOnClickDialog(shoid);
-                } else {
-                    onExploreCaptureClickListener.onClick(shoid);
-                }
-                //Log Firebase event
-                setAnalytics(FIREBASE_EVENT_CAPTURE_CLICKED);
             }
         });
     }
@@ -407,43 +352,6 @@ public class ExploreAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
             // show follow button
             itemViewHolder.buttonFollow.setVisibility(View.VISIBLE);
         }
-    }
-
-
-    /**
-     * Method to show intro dialog when user collaborated by clicking on capture
-     *
-     * @param shoid short ID on which user is collaborating
-     */
-    private void getCaptureOnClickDialog(final String shoid) {
-        MaterialDialog dialog = new MaterialDialog.Builder(mContext)
-                .customView(R.layout.dialog_generic, false)
-                .positiveText(mContext.getString(R.string.text_ok))
-                .onPositive(new MaterialDialog.SingleButtonCallback() {
-                    @Override
-                    public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
-                        //Open capture functionality
-
-                        onExploreCaptureClickListener.onClick(shoid);
-
-                        dialog.dismiss();
-                        //update status
-                        mHelper.updateWriteIconToolTipStatus(false);
-                    }
-                })
-                .show();
-        //Obtain views reference
-        ImageView fillerImage = dialog.getCustomView().findViewById(R.id.viewFiller);
-        TextView textTitle = dialog.getCustomView().findViewById(R.id.textTitle);
-        TextView textDesc = dialog.getCustomView().findViewById(R.id.textDesc);
-
-
-        //Set filler image
-        fillerImage.setImageDrawable(ContextCompat.getDrawable(mContext, R.drawable.img_collab_intro));
-        //Set title text
-        textTitle.setText(mContext.getString(R.string.title_dialog_collab_capture));
-        //Set description text
-        textDesc.setText(mContext.getString(R.string.text_dialog_collab_capture));
     }
 
 
