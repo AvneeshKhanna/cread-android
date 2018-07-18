@@ -1,5 +1,9 @@
 package com.thetestament.cread.adapters;
 
+import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
+import android.animation.AnimatorSet;
+import android.animation.ObjectAnimator;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Color;
@@ -17,7 +21,9 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.AccelerateInterpolator;
 import android.view.animation.AnimationUtils;
+import android.view.animation.DecelerateInterpolator;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -25,6 +31,7 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.facebook.drawee.view.SimpleDraweeView;
+import com.gaurav.gesto.OnGestureListener;
 import com.github.glomadrian.grav.GravView;
 import com.github.matteobattilana.weather.WeatherView;
 import com.google.firebase.analytics.FirebaseAnalytics;
@@ -93,6 +100,8 @@ import static com.thetestament.cread.utils.Constant.SHARE_OPTION_WHATSAPP;
  */
 public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
+    private static final DecelerateInterpolator DECCELERATE_INTERPOLATOR = new DecelerateInterpolator();
+    private static final AccelerateInterpolator ACCELERATE_INTERPOLATOR = new AccelerateInterpolator();
     private final int VIEW_TYPE_ITEM = 0;
     private final int VIEW_TYPE_LOADING = 1;
     private final int VIEW_TYPE_RECOMMENDED_ARTIST = 2;
@@ -287,6 +296,9 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             initCaption(mContext, data, itemViewHolder.textTitle);
             // init post timestamp
             updatePostTimestamp(itemViewHolder.textTimeStamp, data);
+
+            //Method called
+            setDoubleTap(itemViewHolder, itemViewHolder.hatsOffView, data);
         } else if (holder.getItemViewType() == VIEW_TYPE_LOADING) {
             LoadingViewHolder loadingViewHolder = (LoadingViewHolder) holder;
             loadingViewHolder.progressView.setVisibility(View.VISIBLE);
@@ -714,6 +726,94 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     }
 
 
+    /**
+     * Method to set double tap listener.
+     *
+     * @param itemViewHolder View to double tapped.
+     * @param hatsOffView    ImageView to be updated.
+     * @param data           FeedModel data.
+     */
+    private void setDoubleTap(final ItemViewHolder itemViewHolder, final AppCompatImageView hatsOffView, final FeedModel data) {
+        itemViewHolder.itemView.setOnTouchListener(new OnGestureListener(mContext) {
+            @Override
+            public void onDoubleClick() {
+                //region :Code to update hatsOff status
+                // check net status
+                if (NetworkHelper.getNetConnectionStatus(mContext)) {
+                    //User has already given the hats off
+                    if (itemViewHolder.mIsHatsOff) {
+                        //do nothing
+                    } else {
+                        //Animation for hats off
+                        if (itemViewHolder.mIsRotated) {
+                            itemViewHolder.imageHatsOff.startAnimation(AnimationUtils.loadAnimation(mContext, R.anim.rotate_animation_hats_off_0_degree));
+                        } else {
+                            itemViewHolder.imageHatsOff.startAnimation(AnimationUtils.loadAnimation(mContext, R.anim.rotate_animation_hats_off_30_degree));
+                        }
+                        //Toggle hatsOff tint
+                        itemViewHolder.imageHatsOff.setColorFilter(ContextCompat.getColor(mContext, R.color.colorPrimary));
+                        //Change hatsOffCount i.e increase by one
+                        data.setHatsOffCount(data.getHatsOffCount() + 1);
+                        //Change hatsOffCount i.e increase by one
+                        itemViewHolder.containerHatsOffCount.setVisibility(View.VISIBLE);
+                        itemViewHolder.textHatsOffCount.setText(String.valueOf(data.getHatsOffCount()));
+
+
+                        updateDotSeperatorVisibility(data, itemViewHolder.dotSeparator);
+
+                        //Toggle hatsOff status
+                        itemViewHolder.mIsHatsOff = !itemViewHolder.mIsHatsOff;
+                        //Update hats off here
+                        data.setHatsOffStatus(itemViewHolder.mIsHatsOff);
+                        //Listener
+                        onHatsOffListener.onHatsOffClick(data, itemViewHolder.getAdapterPosition());
+                    }
+
+                } else {
+                    ViewHelper.getToast(mContext, mContext.getString(R.string.error_msg_no_connection));
+                }
+                //endregion
+
+                //region :Animation code starts here
+                hatsOffView.setVisibility(View.VISIBLE);
+                hatsOffView.setScaleY(0.1f);
+                hatsOffView.setScaleX(0.1f);
+                AnimatorSet animatorSet = new AnimatorSet();
+
+                ObjectAnimator imgScaleUpYAnim = ObjectAnimator.ofFloat(hatsOffView, "scaleY", 0.1f, 1f);
+                imgScaleUpYAnim.setDuration(300);
+                imgScaleUpYAnim.setInterpolator(DECCELERATE_INTERPOLATOR);
+                ObjectAnimator imgScaleUpXAnim = ObjectAnimator.ofFloat(hatsOffView, "scaleX", 0.1f, 1f);
+                imgScaleUpXAnim.setDuration(300);
+                imgScaleUpXAnim.setInterpolator(DECCELERATE_INTERPOLATOR);
+
+                ObjectAnimator imgScaleDownYAnim = ObjectAnimator.ofFloat(hatsOffView, "scaleY", 1f, 0f);
+                imgScaleDownYAnim.setDuration(300);
+                imgScaleDownYAnim.setInterpolator(ACCELERATE_INTERPOLATOR);
+                ObjectAnimator imgScaleDownXAnim = ObjectAnimator.ofFloat(hatsOffView, "scaleX", 1f, 0f);
+                imgScaleDownXAnim.setDuration(300);
+                imgScaleDownXAnim.setInterpolator(ACCELERATE_INTERPOLATOR);
+
+                animatorSet.playTogether(imgScaleUpYAnim, imgScaleUpXAnim);
+                animatorSet.play(imgScaleDownYAnim).with(imgScaleDownXAnim).after(imgScaleUpYAnim);
+
+                animatorSet.addListener(new AnimatorListenerAdapter() {
+                    @Override
+                    public void onAnimationEnd(Animator animation) {
+                        hatsOffView.setVisibility(View.GONE);
+                    }
+                });
+                animatorSet.start();
+                //endregion animation code end here
+            }
+
+            @Override
+            public void onClick() {
+                //do nothing
+            }
+        });
+    }
+
     //ItemViewHolder class
     static class ItemViewHolder extends RecyclerView.ViewHolder {
         @BindView(R.id.imageCreator)
@@ -778,6 +878,8 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         KonfettiView konfettiView;
         @BindView(R.id.water_mark_cread)
         RelativeLayout waterMarkCreadView;
+        @BindView(R.id.hats_off_view)
+        AppCompatImageView hatsOffView;
 
 
         //Variable to maintain hats off status

@@ -477,6 +477,19 @@ public class FeedHelper {
     }
 
 
+    /**
+     * Method to perform required operation depending upon the type of content.
+     *
+     * @param context                Context to use . Usually activity.
+     * @param feedData               FeedModel data of item.
+     * @param textCollabCount        Collaboration count textView.
+     * @param containerCollabCount   Collaboration count view container.
+     * @param buttonCollaborate      Collaborate button.
+     * @param textCreatorName        Name of the post creator.
+     * @param showCountAsText
+     * @param shouldToggleVisibility
+     * @param view
+     */
     public static void performContentTypeSpecificOperations(final FragmentActivity context, final FeedModel feedData, TextView textCollabCount, View containerCollabCount, TextView buttonCollaborate, TextView textCreatorName, boolean showCountAsText, boolean shouldToggleVisibility, @Nullable View view) {
 
         boolean isCreatorCollaborator = feedData.getUUID().equals(feedData.getCollabWithUUID());

@@ -181,6 +181,15 @@
                 android:visibility="gone" />
 
 
+            <!--View to be animated on double tap-->
+            <android.support.v7.widget.AppCompatImageView
+                android:id="@+id/hats_off_view"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:layout_gravity="center"
+                android:alpha="0.7"
+                android:visibility="gone"
+                app:srcCompat="@drawable/ic_hats_off" />
         </FrameLayout>
 
         <View

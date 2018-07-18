@@ -1,22 +1,28 @@
 package com.thetestament.cread.adapters;
 
 
-import android.app.ActivityOptions;
+import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
+import android.animation.AnimatorSet;
+import android.animation.ObjectAnimator;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
-import android.support.v4.view.ViewCompat;
+import android.support.v7.widget.AppCompatImageView;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.AccelerateInterpolator;
+import android.view.animation.DecelerateInterpolator;
 import android.widget.FrameLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.facebook.drawee.view.SimpleDraweeView;
+import com.gaurav.gesto.OnGestureListener;
 import com.github.glomadrian.grav.GravView;
 import com.github.matteobattilana.weather.WeatherView;
 import com.google.firebase.analytics.FirebaseAnalytics;
@@ -24,6 +30,7 @@ import com.thetestament.cread.R;
 import com.thetestament.cread.activities.CollaborationDetailsActivity;
 import com.thetestament.cread.activities.FeedDescriptionActivity;
 import com.thetestament.cread.helpers.FeedHelper;
+import com.thetestament.cread.helpers.HatsOffHelper;
 import com.thetestament.cread.helpers.ImageHelper;
 import com.thetestament.cread.helpers.LiveFilterHelper;
 import com.thetestament.cread.helpers.NetworkHelper;
@@ -59,6 +66,9 @@ import static com.thetestament.cread.utils.Constant.REQUEST_CODE_FEED_DESCRIPTIO
  * Adapter class to provide a binding from data set to views that are displayed within a explore RecyclerView.
  */
 public class ExploreAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
+
+    private static final DecelerateInterpolator DECCELERATE_INTERPOLATOR = new DecelerateInterpolator();
+    private static final AccelerateInterpolator ACCELERATE_INTERPOLATOR = new AccelerateInterpolator();
 
     private final int VIEW_TYPE_ITEM_LIST = 0;
     private final int VIEW_TYPE_ITEM_GRID = 1;
@@ -179,8 +189,8 @@ public class ExploreAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
 
             //Follow button click functionality
             followOnClick(position, data, itemViewHolder.buttonFollow);
-            //ItemView collabOnWritingClick functionality
-            itemViewOnClick(itemViewHolder.itemView, data, position, false);
+            //Method called
+            setDoubleTap(itemViewHolder, itemViewHolder.hatsOffView, data);
             //Collaboration count click functionality
             collaborationCountOnClick(itemViewHolder.collabCount, data.getEntityID(), data.getContentType());
 
@@ -198,7 +208,8 @@ public class ExploreAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
             //Load explore feed image
             ImageHelper.loadProgressiveImage(Uri.parse(data.getContentImage()), itemViewHolder.imageExplore);
 
-            itemViewOnClick(itemViewHolder.itemView, data, position, true);
+            //Method called
+            setDoubleTap(itemViewHolder, itemViewHolder.hatsOffView, data);
 
             //check long form status
             checkLongFormStatus(itemViewHolder.containerLongShortPreview, data);
@@ -265,38 +276,6 @@ public class ExploreAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
         });
     }
 
-
-    /**
-     * ItemView click functionality.
-     */
-    private void itemViewOnClick(View view, final FeedModel feedModel, final int position, final boolean showSharedTransition) {
-        view.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                //Set transition name
-                ViewCompat.setTransitionName(view, feedModel.getEntityID());
-
-                Bundle bundle = new Bundle();
-                bundle.putParcelable(EXTRA_FEED_DESCRIPTION_DATA, feedModel);
-                bundle.putInt("position", position);
-
-                Intent intent = new Intent(mContext, FeedDescriptionActivity.class);
-                intent.putExtra(EXTRA_DATA, bundle);
-
-                //If API is greater than LOLLIPOP and content is of grid type
-                if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP && showSharedTransition) {
-                    ActivityOptions transitionActivityOptions = ActivityOptions
-                            .makeSceneTransitionAnimation(mContext, view, ViewCompat.getTransitionName(view));
-                    //start activity result
-                    mExploreFragment.startActivityForResult(intent
-                            , REQUEST_CODE_FEED_DESCRIPTION_ACTIVITY
-                            , transitionActivityOptions.toBundle());
-                } else {
-                    mExploreFragment.startActivityForResult(intent, REQUEST_CODE_FEED_DESCRIPTION_ACTIVITY);
-                }
-            }
-        });
-    }
 
     /**
      * Method to toggle follow.
@@ -378,6 +357,99 @@ public class ExploreAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
         });
     }
 
+    /**
+     * Method to set double tap listener.
+     *
+     * @param holder      View to double tapped.
+     * @param hatsOffView ImageView to be updated.
+     * @param data        FeedModel data.
+     */
+    private void setDoubleTap(final RecyclerView.ViewHolder holder, final AppCompatImageView hatsOffView, final FeedModel data) {
+        holder.itemView.setOnTouchListener(new OnGestureListener(mContext) {
+            @Override
+            public void onDoubleClick() {
+                //region :Code to update hatsOff status
+                //HatsOff given
+                if (data.getHatsOffStatus()) {
+                    //do nothing
+                }
+                //HatsOff not given
+                else {
+                    //if device is connected  to internet
+                    if (NetworkHelper.getNetConnectionStatus(mContext)) {
+                        //update hatsOff data
+                        data.setHatsOffCount(data.getHatsOffCount() + 1);
+                        data.setHatsOffStatus(true);
+                        HatsOffHelper helper = new HatsOffHelper(mContext);
+                        helper.setOnHatsOffSuccessListener(new HatsOffHelper.OnHatsOffSuccessListener() {
+                            @Override
+                            public void onSuccess() {
+                                //do nothing
+                            }
+                        });
+                        helper.updateHatsOffStatus(data.getEntityID(), true);
+                        helper.setOnHatsOffFailureListener(new HatsOffHelper.OnHatsOffFailureListener() {
+                            @Override
+                            public void onFailure(String errorMsg) {
+                                //update hatsOff data
+                                data.setHatsOffCount(data.getHatsOffCount() - 1);
+                                data.setHatsOffStatus(false);
+                            }
+                        });
+                    } else {
+                        ViewHelper.getShortToast(mContext, mContext.getString(R.string.error_msg_no_connection));
+                    }
+
+                }
+                //endregion
+
+                //region :Animation code starts here
+                hatsOffView.setVisibility(View.VISIBLE);
+                hatsOffView.setScaleY(0.1f);
+                hatsOffView.setScaleX(0.1f);
+                AnimatorSet animatorSet = new AnimatorSet();
+
+                ObjectAnimator imgScaleUpYAnim = ObjectAnimator.ofFloat(hatsOffView, "scaleY", 0.1f, 1f);
+                imgScaleUpYAnim.setDuration(300);
+                imgScaleUpYAnim.setInterpolator(DECCELERATE_INTERPOLATOR);
+                ObjectAnimator imgScaleUpXAnim = ObjectAnimator.ofFloat(hatsOffView, "scaleX", 0.1f, 1f);
+                imgScaleUpXAnim.setDuration(300);
+                imgScaleUpXAnim.setInterpolator(DECCELERATE_INTERPOLATOR);
+
+                ObjectAnimator imgScaleDownYAnim = ObjectAnimator.ofFloat(hatsOffView, "scaleY", 1f, 0f);
+                imgScaleDownYAnim.setDuration(300);
+                imgScaleDownYAnim.setInterpolator(ACCELERATE_INTERPOLATOR);
+                ObjectAnimator imgScaleDownXAnim = ObjectAnimator.ofFloat(hatsOffView, "scaleX", 1f, 0f);
+                imgScaleDownXAnim.setDuration(300);
+                imgScaleDownXAnim.setInterpolator(ACCELERATE_INTERPOLATOR);
+
+                animatorSet.playTogether(imgScaleUpYAnim, imgScaleUpXAnim);
+                animatorSet.play(imgScaleDownYAnim).with(imgScaleDownXAnim).after(imgScaleUpYAnim);
+
+                animatorSet.addListener(new AnimatorListenerAdapter() {
+                    @Override
+                    public void onAnimationEnd(Animator animation) {
+                        hatsOffView.setVisibility(View.GONE);
+                    }
+                });
+                animatorSet.start();
+                //endregion animation code end here
+            }
+
+            @Override
+            public void onClick() {
+                //ItemView onClick functionality
+                Bundle bundle = new Bundle();
+                bundle.putParcelable(EXTRA_FEED_DESCRIPTION_DATA, data);
+                bundle.putInt("position", holder.getAdapterPosition());
+
+                Intent intent = new Intent(mContext, FeedDescriptionActivity.class);
+                intent.putExtra(EXTRA_DATA, bundle);
+                mExploreFragment.startActivityForResult(intent, REQUEST_CODE_FEED_DESCRIPTION_ACTIVITY);
+            }
+        });
+    }
+
 
     //ListItemViewHolder class
     static class ListItemViewHolder extends RecyclerView.ViewHolder {
@@ -405,6 +477,8 @@ public class ExploreAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
         WeatherView whetherView;
         @BindView(R.id.konfetti_view)
         KonfettiView konfettiView;
+        @BindView(R.id.hats_off_view)
+        AppCompatImageView hatsOffView;
 
         public ListItemViewHolder(View itemView) {
             super(itemView);
@@ -426,6 +500,8 @@ public class ExploreAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
         WeatherView whetherView;
         @BindView(R.id.konfetti_view)
         KonfettiView konfettiView;
+        @BindView(R.id.hats_off_view)
+        AppCompatImageView hatsOffView;
 
         public GridItemViewHolder(View itemView) {
             super(itemView);
