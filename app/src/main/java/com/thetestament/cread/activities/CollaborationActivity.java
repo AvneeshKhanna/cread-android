@@ -37,6 +37,7 @@ import android.widget.TextView;
 import com.afollestad.materialdialogs.DialogAction;
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.crashlytics.android.Crashlytics;
+import com.gaurav.gesto.OnGestureListener;
 import com.rx2androidnetworking.Rx2AndroidNetworking;
 import com.squareup.picasso.Callback;
 import com.squareup.picasso.MemoryPolicy;
@@ -58,7 +59,6 @@ import com.thetestament.cread.helpers.SharedPreferenceHelper;
 import com.thetestament.cread.helpers.TemplateHelper;
 import com.thetestament.cread.helpers.ViewHelper;
 import com.thetestament.cread.listeners.OnDragTouchListener;
-import com.thetestament.cread.listeners.OnSwipeGestureListener;
 import com.thetestament.cread.listeners.listener;
 import com.thetestament.cread.models.ColorModel;
 import com.thetestament.cread.models.FontModel;
@@ -946,7 +946,7 @@ public class CollaborationActivity extends BaseActivity {
      */
     private void initSwipeListener() {
 
-        squareView.setOnTouchListener(new OnSwipeGestureListener(this) {
+        squareView.setOnTouchListener(new OnGestureListener(this) {
 
             @Override
             public void onDoubleClick() {
