@@ -52,6 +52,7 @@ import com.thetestament.cread.listeners.listener.OnShareLinkClickedListener;
 import com.thetestament.cread.listeners.listener.OnShareListener;
 import com.thetestament.cread.models.FeedModel;
 import com.thetestament.cread.utils.AspectRatioUtils;
+import com.thetestament.cread.utils.SoundUtil;
 
 import java.util.List;
 
@@ -609,7 +610,7 @@ public class NewUsersPostAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
                 if (NetworkHelper.getNetConnectionStatus(mContext)) {
                     //User has already given the hats off
                     if (itemViewHolder.mIsHatsOff) {
-                        //do nothing
+                        SoundUtil.playHatsOffSound(mContext);
                     } else {
                         //Animation for hats off
                         if (itemViewHolder.mIsRotated) {

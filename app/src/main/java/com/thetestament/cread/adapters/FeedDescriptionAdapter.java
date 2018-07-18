@@ -59,6 +59,7 @@ import com.thetestament.cread.models.CommentsModel;
 import com.thetestament.cread.models.FeedModel;
 import com.thetestament.cread.utils.AspectRatioUtils;
 import com.thetestament.cread.utils.Constant;
+import com.thetestament.cread.utils.SoundUtil;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -943,7 +944,7 @@ public class FeedDescriptionAdapter extends RecyclerView.Adapter {
                 if (NetworkHelper.getNetConnectionStatus(mContext)) {
                     //User has already given the hats off
                     if (itemViewHolder.mIsHatsOff) {
-                        //do nothing
+                        SoundUtil.playHatsOffSound(mContext);
                     } else {
                         //Animation for hats off
                         if (itemViewHolder.mIsRotated) {

@@ -57,6 +57,7 @@ import com.thetestament.cread.models.FeedModel;
 import com.thetestament.cread.utils.AspectRatioUtils;
 import com.thetestament.cread.utils.Constant;
 import com.thetestament.cread.utils.Constant.ITEM_TYPES;
+import com.thetestament.cread.utils.SoundUtil;
 
 import java.util.List;
 
@@ -601,7 +602,7 @@ public class MeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                 //region :Code to update hatsOff status
                 //HatsOff given
                 if (data.getHatsOffStatus()) {
-                    //do nothing
+                    SoundUtil.playHatsOffSound(mContext);
                 }
                 //HatsOff not given
                 else {
