@@ -71,6 +71,7 @@
     <string name="key_web_store_dot">keyWebStoreDot</string>
     <string name="key_product_tour">keyProductTour</string>
     <string name="key_live_filter">keyLiveFilter</string>
+    <string name="key_hats_off">keyHatsOff</string>
 
 
     // dialog messages
@@ -256,4 +257,7 @@ C68.5809,277.075,273.832,71.8233,527.023,71.8233 Z
     <string name="tab_popular">Popular</string>
     <string name="tab_recent">Recent</string>
     <string name="tab_all_star">All Star</string>
+
+
+    <string name="tooltip_hats_off_double_tap">Hey text is coming soon</string>
 </resources>

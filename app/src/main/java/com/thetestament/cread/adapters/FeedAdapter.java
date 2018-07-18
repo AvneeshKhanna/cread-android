@@ -50,6 +50,7 @@ import com.thetestament.cread.helpers.ImageHelper;
 import com.thetestament.cread.helpers.LiveFilterHelper;
 import com.thetestament.cread.helpers.NetworkHelper;
 import com.thetestament.cread.helpers.ShareHelper;
+import com.thetestament.cread.helpers.SharedPreferenceHelper;
 import com.thetestament.cread.helpers.SuggestionHelper;
 import com.thetestament.cread.helpers.ViewHelper;
 import com.thetestament.cread.listeners.listener;
@@ -509,6 +510,17 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         itemViewHolder.imageHatsOff.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                SharedPreferenceHelper sh = new SharedPreferenceHelper(mContext);
+                if (sh.isHatsOffFirstTime()) {
+                    //Show tooltip
+                    ViewHelper.getToolTip(itemViewHolder.imageHatsOff
+                            , mContext.getString(R.string.tooltip_hats_off_double_tap)
+                            , mContext);
+                    //Update sp value here
+                    sh.updateHatsOffStatusStatus(false);
+                }
+
+
                 // check net status
                 if (NetworkHelper.getNetConnectionStatus(mContext)) {
                     //User has already given the hats off

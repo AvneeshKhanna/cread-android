@@ -640,8 +640,6 @@ public class SharedPreferenceHelper {
     }
 
 
-
-
     public String getHTagOfTheDay() {
         return mSharedPreferences
                 .getString(mContext.getString(R.string.key_htod_value)
@@ -743,6 +741,29 @@ public class SharedPreferenceHelper {
     public void updateLiveFilterStatus(boolean status) {
         SharedPreferences.Editor editor = mSharedPreferences.edit();
         editor.putBoolean(mContext.getString(R.string.key_live_filter), status);
+        editor.apply();
+    }
+
+
+    /**
+     * Method to retrieve first time hatsOff status.
+     *
+     * @return True by default.
+     */
+    public boolean isHatsOffFirstTime() {
+        return mSharedPreferences
+                .getBoolean(mContext.getString(R.string.key_hats_off), true);
+    }
+
+
+    /**
+     * Method to update hats first time status.
+     *
+     * @param status boolean value i.e true or false
+     */
+    public void updateHatsOffStatusStatus(boolean status) {
+        SharedPreferences.Editor editor = mSharedPreferences.edit();
+        editor.putBoolean(mContext.getString(R.string.key_hats_off), status);
         editor.apply();
     }
 }

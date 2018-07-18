@@ -607,6 +607,15 @@ public class FeedDescriptionAdapter extends RecyclerView.Adapter {
         itemViewHolder.imageHatsOff.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                SharedPreferenceHelper sh = new SharedPreferenceHelper(mContext);
+                if (sh.isHatsOffFirstTime()) {
+                    //Show tooltip
+                    ViewHelper.getToolTip(itemViewHolder.imageHatsOff
+                            , mContext.getString(R.string.tooltip_hats_off_double_tap)
+                            , mContext);
+                    //Update sp value here
+                    sh.updateHatsOffStatusStatus(false);
+                }
                 // check net status
                 if (NetworkHelper.getNetConnectionStatus(mContext)) {
                     //User has already given the hats off
