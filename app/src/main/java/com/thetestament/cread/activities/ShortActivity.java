@@ -44,6 +44,7 @@ import android.widget.SeekBar;
 import android.widget.TextView;
 
 import com.crashlytics.android.Crashlytics;
+import com.gaurav.gesto.OnGestureListener;
 import com.google.firebase.analytics.FirebaseAnalytics;
 import com.rx2androidnetworking.Rx2AndroidNetworking;
 import com.squareup.picasso.Callback;
@@ -64,7 +65,6 @@ import com.thetestament.cread.helpers.SharedPreferenceHelper;
 import com.thetestament.cread.helpers.TemplateHelper;
 import com.thetestament.cread.helpers.ViewHelper;
 import com.thetestament.cread.listeners.OnDragTouchListener;
-import com.thetestament.cread.listeners.OnSwipeGestureListener;
 import com.thetestament.cread.listeners.listener;
 import com.thetestament.cread.models.ColorModel;
 import com.thetestament.cread.models.FontModel;
@@ -1382,7 +1382,7 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
      */
     private void initDoubleTapListener() {
 
-        imageShort.setOnTouchListener(new OnSwipeGestureListener(this) {
+        imageShort.setOnTouchListener(new OnGestureListener(this) {
 
             @Override
             public void onDoubleClick() {
