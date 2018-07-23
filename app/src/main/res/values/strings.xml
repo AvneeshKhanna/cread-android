@@ -165,6 +165,7 @@
     <string name="tooltip_gratitude_hatsoff">has received these many  hats-off on their posts</string>
     <string name="tooltip_gratitude_comment">has received a total of 10 hats-off on their posts</string>
     <string name="tooltip_gratitude_collaboration">This is the number of posts inspired by all the posts</string>
+    <string name="tooltip_hats_off_double_tap">Hey! You can also double tap on the image to give it a hats-off</string>
 
     <!--add caption text-->
     <string name="text_add_caption">Say something about this post with #tags</string>
@@ -258,5 +259,8 @@ C68.5809,277.075,273.832,71.8233,527.023,71.8233 Z
     <string name="tab_recent">Recent</string>
     <string name="tab_best">Best</string>
 
-    <string name="tooltip_hats_off_double_tap">Hey! You can also double tap on the image to give it a hats-off</string>
+
+
+
+    <string name="message_no_post">User hasn\'t uploaded anything yet</string>
 </resources>

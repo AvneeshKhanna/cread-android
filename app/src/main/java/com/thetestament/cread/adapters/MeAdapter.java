@@ -14,15 +14,13 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.AppCompatImageView;
+import android.support.v7.widget.AppCompatTextView;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.animation.AccelerateInterpolator;
 import android.view.animation.AnimationUtils;
-import android.view.animation.DecelerateInterpolator;
 import android.widget.FrameLayout;
-import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -38,10 +36,12 @@ import com.thetestament.cread.R;
 import com.thetestament.cread.activities.CollaborationDetailsActivity;
 import com.thetestament.cread.activities.CommentsActivity;
 import com.thetestament.cread.activities.FeedDescriptionActivity;
+import com.thetestament.cread.helpers.ContentHelper;
 import com.thetestament.cread.helpers.FeedHelper;
 import com.thetestament.cread.helpers.GifHelper;
 import com.thetestament.cread.helpers.HatsOffHelper;
 import com.thetestament.cread.helpers.ImageHelper;
+import com.thetestament.cread.helpers.IntentHelper;
 import com.thetestament.cread.helpers.LiveFilterHelper;
 import com.thetestament.cread.helpers.NetworkHelper;
 import com.thetestament.cread.helpers.ShareHelper;
@@ -56,7 +56,6 @@ import com.thetestament.cread.listeners.listener.OnUserActivityLoadMoreListener;
 import com.thetestament.cread.models.FeedModel;
 import com.thetestament.cread.utils.AspectRatioUtils;
 import com.thetestament.cread.utils.Constant;
-import com.thetestament.cread.utils.Constant.ITEM_TYPES;
 import com.thetestament.cread.utils.SoundUtil;
 
 import java.util.List;
@@ -66,7 +65,6 @@ import butterknife.ButterKnife;
 import io.reactivex.disposables.CompositeDisposable;
 import nl.dionsegijn.konfetti.KonfettiView;
 
-import static com.thetestament.cread.helpers.ContentHelper.getMenuActionsBottomSheet;
 import static com.thetestament.cread.helpers.FeedHelper.setGridItemMargins;
 import static com.thetestament.cread.helpers.FeedHelper.updatePostTimestamp;
 import static com.thetestament.cread.helpers.LongShortHelper.checkLongFormStatus;
@@ -89,25 +87,52 @@ import static com.thetestament.cread.utils.Constant.SHARE_OPTION_WHATSAPP;
  */
 public class MeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
-    private static final DecelerateInterpolator DECCELERATE_INTERPOLATOR = new DecelerateInterpolator();
-    private static final AccelerateInterpolator ACCELERATE_INTERPOLATOR = new AccelerateInterpolator();
+    //region :Item types
+    private final int VIEW_TYPE_ITEM_USER_POST = 0;
+    private final int VIEW_TYPE_ITEM_USER_REPOST = 1;
+    private final int VIEW_TYPE_ITEM_COLLAB_POST = 2;
+    private final int VIEW_TYPE_ITEM_GRID = 3;
+    private final int VIEW_TYPE_LOADING = 4;
+    //endregion
 
-
-    private final int VIEW_TYPE_ITEM_LIST = 0;
-    private final int VIEW_TYPE_ITEM_GRID = 1;
-    private final int VIEW_TYPE_ITEM_LIST_COLLAB = 2;
-    private final int VIEW_TYPE_LOADING = 3;
-
+    //region :Private field and constants
     private List<FeedModel> mUserContentList;
     private FragmentActivity mContext;
     private Fragment mMeFragment;
     private boolean mIsLoading;
     private String mUUID;
-    private SharedPreferenceHelper mHelper;
-    private ITEM_TYPES mItemType;
+    private String mItemType;
     private CompositeDisposable mCompositeDisposable;
-    private Bitmap bitmap;
+    //endregion
 
+    //region :Constructor
+
+    /**
+     * Required constructor.
+     *
+     * @param userContentList     List of feed data.
+     * @param context             Context to be use.
+     * @param UUID                UUID of user.
+     * @param meFragment          Fragment reference.
+     * @param itemType            Item type i.e {@link com.thetestament.cread.utils.Constant#ME_ITEM_TYPE_USER_POST_LIST}
+     *                            {@link com.thetestament.cread.utils.Constant#ME_ITEM_TYPE_USER_POST_LIST}
+     *                            {@link com.thetestament.cread.utils.Constant#ME_ITEM_TYPE_RE_POST_LIST}
+     *                            {@link com.thetestament.cread.utils.Constant#ME_ITEM_TYPE_RE_POST_GRID}
+     *                            {@link com.thetestament.cread.utils.Constant#ME_ITEM_TYPE_COLLAB_POST_LIST}
+     *                            {@link com.thetestament.cread.utils.Constant#ME_ITEM_TYPE_COLLAB_POST_GRID}
+     * @param compositeDisposable Composite disposable reference.
+     */
+    public MeAdapter(List<FeedModel> userContentList, FragmentActivity context, String UUID, Fragment meFragment, String itemType, CompositeDisposable compositeDisposable) {
+        this.mUserContentList = userContentList;
+        this.mContext = context;
+        this.mUUID = UUID;
+        this.mMeFragment = meFragment;
+        this.mItemType = itemType;
+        this.mCompositeDisposable = compositeDisposable;
+    }
+    //endregion
+
+    //region :Listeners
     private OnUserActivityLoadMoreListener onLoadMore;
     private OnUserActivityHatsOffListener onHatsOffListener;
     private OnContentDeleteListener onContentDeleteListener;
@@ -115,24 +140,8 @@ public class MeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     private listener.OnShareListener onShareListener;
     private listener.OnGifShareListener onGifShareListener;
     private OnShareLinkClickedListener onShareLinkClickedListener;
+    private listener.OnRepostDeleteListener onRepostDeleteListener;
 
-    /**
-     * Required constructor.
-     *
-     * @param mUserContentList List of feed data.
-     * @param mContext         Context to be use.
-     * @param mUUID            UUID of user.
-     */
-    public MeAdapter(List<FeedModel> mUserContentList, FragmentActivity mContext, String mUUID, Fragment mMeFragment, ITEM_TYPES mItemType, CompositeDisposable mCompositeDisposable) {
-        this.mUserContentList = mUserContentList;
-        this.mContext = mContext;
-        this.mUUID = mUUID;
-        this.mMeFragment = mMeFragment;
-        this.mItemType = mItemType;
-        this.mCompositeDisposable = mCompositeDisposable;
-
-        mHelper = new SharedPreferenceHelper(mContext);
-    }
 
     /**
      * Register a callback to be invoked when user scrolls for more data.
@@ -176,26 +185,43 @@ public class MeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         this.onShareLinkClickedListener = onShareLinkClickedListener;
     }
 
+    /**
+     * Register a callback to be invoked when user clicks on delete the reposted post..
+     */
+    public void setOnRepostDeleteListener(listener.OnRepostDeleteListener onRepostDeleteListener) {
+        this.onRepostDeleteListener = onRepostDeleteListener;
+    }
+    //endregion
+
+    //region :Overridden methods
     @Override
     public int getItemViewType(int position) {
         if (mUserContentList.get(position) == null) {
             return VIEW_TYPE_LOADING;
-        } else if (mItemType == ITEM_TYPES.LIST) {
-            return VIEW_TYPE_ITEM_LIST;
-        } else if (mItemType == ITEM_TYPES.GRID) {
+        } else if (mItemType.equals(Constant.ME_ITEM_TYPE_USER_POST_LIST)) {
+            return VIEW_TYPE_ITEM_USER_POST;
+        } else if (mItemType.equals(Constant.ME_ITEM_TYPE_RE_POST_LIST)) {
+            return VIEW_TYPE_ITEM_USER_REPOST;
+        } else if (mItemType.equals(Constant.ME_ITEM_TYPE_COLLAB_POST_LIST)) {
+            return VIEW_TYPE_ITEM_COLLAB_POST;
+        } else if (mItemType.equals(Constant.ME_ITEM_TYPE_USER_POST_GRID)
+                || mItemType.equals(Constant.ME_ITEM_TYPE_RE_POST_GRID)
+                || mItemType.equals(Constant.ME_ITEM_TYPE_COLLAB_POST_GRID)) {
             return VIEW_TYPE_ITEM_GRID;
-        } else if (mItemType == ITEM_TYPES.COLLABLIST) {
-            return VIEW_TYPE_ITEM_LIST_COLLAB;
         }
         return -1;
     }
 
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        if (viewType == VIEW_TYPE_ITEM_LIST || viewType == VIEW_TYPE_ITEM_LIST_COLLAB) {
+        if (viewType == VIEW_TYPE_ITEM_USER_POST || viewType == VIEW_TYPE_ITEM_COLLAB_POST) {
             return new ListItemViewHolder(LayoutInflater
                     .from(parent.getContext())
                     .inflate(R.layout.item_me, parent, false));
+        } else if (viewType == VIEW_TYPE_ITEM_USER_REPOST) {
+            return new RePostViewHolder(LayoutInflater
+                    .from(parent.getContext())
+                    .inflate(R.layout.item_repost, parent, false));
         } else if (viewType == VIEW_TYPE_ITEM_GRID) {
             return new GridItemViewHolder(LayoutInflater
                     .from(parent.getContext())
@@ -211,25 +237,19 @@ public class MeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     @Override
     public void onBindViewHolder(RecyclerView.ViewHolder holder, final int position) {
         final FeedModel data = mUserContentList.get(position);
-        if (holder.getItemViewType() == VIEW_TYPE_ITEM_LIST
-                || holder.getItemViewType() == VIEW_TYPE_ITEM_LIST_COLLAB) {
-            final ListItemViewHolder itemViewHolder = (ListItemViewHolder) holder;
+        if (holder.getItemViewType() == VIEW_TYPE_ITEM_USER_POST
+                || holder.getItemViewType() == VIEW_TYPE_ITEM_COLLAB_POST) {
+            ListItemViewHolder itemViewHolder = (ListItemViewHolder) holder;
             // initialize the views and click actions
             initializeListItem(itemViewHolder, data, itemViewHolder.getAdapterPosition());
 
+        } else if (holder.getItemViewType() == VIEW_TYPE_ITEM_USER_REPOST) {
+            RePostViewHolder itemViewHolder = (RePostViewHolder) holder;
+            // initialize the views and click actions
+            initializeRepostViewHolder(itemViewHolder, data, itemViewHolder.getAdapterPosition());
         } else if (holder.getItemViewType() == VIEW_TYPE_ITEM_GRID) {
-            final GridItemViewHolder itemViewHolder = (GridItemViewHolder) holder;
-            // Set margins
-            setGridItemMargins(mContext, position, itemViewHolder.imageMe);
-            //Load content image
-            ImageHelper.loadProgressiveImage(Uri.parse(data.getContentImage())
-                    , itemViewHolder.imageMe);
-            //check long form status
-            checkLongFormStatus(itemViewHolder.containerLongShortPreview, data);
-            //long form on click
-            initLongFormPreviewClick(itemViewHolder.containerLongShortPreview, data, mContext, mCompositeDisposable);
-            //Method called
-            setDoubleTap(itemViewHolder, itemViewHolder.hatsOffView, data);
+            GridItemViewHolder itemViewHolder = (GridItemViewHolder) holder;
+            initializeGridItem(itemViewHolder, data);
         } else if (holder.getItemViewType() == VIEW_TYPE_LOADING) {
             LoadingViewHolder loadingViewHolder = (LoadingViewHolder) holder;
             loadingViewHolder.progressView.setVisibility(View.VISIBLE);
@@ -243,6 +263,38 @@ public class MeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         return mUserContentList == null ? 0 : mUserContentList.size();
     }
 
+    @Override
+    public void onViewAttachedToWindow(RecyclerView.ViewHolder holder) {
+        super.onViewAttachedToWindow(holder);
+        if (holder.getItemViewType() == VIEW_TYPE_ITEM_USER_POST || holder.getItemViewType() == VIEW_TYPE_ITEM_COLLAB_POST) {
+            ListItemViewHolder itemViewHolder = (ListItemViewHolder) holder;
+            LiveFilterHelper.initLiveFilters(mUserContentList.get(holder.getAdapterPosition()).getLiveFilterName()
+                    , itemViewHolder.whetherView
+                    , itemViewHolder.konfettiView
+                    , itemViewHolder.liveFilterBubble
+                    , mContext);
+        } else if (holder.getItemViewType() == VIEW_TYPE_ITEM_USER_REPOST) {
+
+            RePostViewHolder itemViewHolder = (RePostViewHolder) holder;
+            LiveFilterHelper.initLiveFilters(mUserContentList.get(holder.getAdapterPosition()).getLiveFilterName()
+                    , itemViewHolder.whetherView
+                    , itemViewHolder.konfettiView
+                    , itemViewHolder.liveFilterBubble
+                    , mContext);
+        } else if (holder.getItemViewType() == VIEW_TYPE_ITEM_GRID) {
+            GridItemViewHolder itemViewHolder = (GridItemViewHolder) holder;
+            LiveFilterHelper.initLiveFilters(mUserContentList.get(holder.getAdapterPosition()).getLiveFilterName()
+                    , itemViewHolder.whetherView
+                    , itemViewHolder.konfettiView
+                    , itemViewHolder.liveFilterBubble
+                    , mContext);
+        }
+    }
+
+    //endregion
+
+    //region :Methods
+
     /**
      * Method is set loading status to false..
      */
@@ -251,21 +303,19 @@ public class MeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     }
 
 
-    /**
-     * Method to setVisibility on delete button and initialize delete button functionality.
-     *
-     * @param creatorID UUID of content creator.
-     */
-    private void initializeMenuButton(TextView menu, String creatorID) {
-        if (mUUID.equals(creatorID) && mItemType != ITEM_TYPES.COLLABLIST) {
-            //Show delete button
-            menu.setVisibility(View.VISIBLE);
-        } else {
-            //Hide delete button
-            menu.setVisibility(View.GONE);
-        }
+    private void initializeGridItem(GridItemViewHolder itemViewHolder, FeedModel data) {
+        // Set margins
+        setGridItemMargins(mContext, itemViewHolder.getAdapterPosition(), itemViewHolder.imageMe);
+        //Load content image
+        ImageHelper.loadProgressiveImage(Uri.parse(data.getContentImage())
+                , itemViewHolder.imageMe);
+        //check long form status
+        checkLongFormStatus(itemViewHolder.containerLongShortPreview, data);
+        //long form on click
+        initLongFormPreviewClick(itemViewHolder.containerLongShortPreview, data, mContext, mCompositeDisposable);
+        //Method called
+        setDoubleTap(itemViewHolder, itemViewHolder.hatsOffView, data);
     }
-
 
     /**
      * Method to check hatsOff status and perform operation accordingly.
@@ -294,6 +344,33 @@ public class MeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         }
     }
 
+    /**
+     * Method to check hatsOff status and perform operation accordingly.
+     *
+     * @param hatsOffStatus  True if user has given hatsOff, false otherwise.
+     * @param itemViewHolder ViewHolder object.
+     */
+    private void checkHatsOffStatus(boolean hatsOffStatus, RePostViewHolder itemViewHolder) {
+        if (hatsOffStatus) {
+            //Change color
+            itemViewHolder.imageHatsOff.setColorFilter(ContextCompat.getColor(mContext, R.color.colorPrimary));
+            //Set rotation to 30
+            itemViewHolder.imageHatsOff.setRotation(30);
+            //update flags
+            itemViewHolder.mIsHatsOff = true;
+            itemViewHolder.mIsRotated = true;
+
+        } else {
+            //Change color to transparent
+            itemViewHolder.imageHatsOff.setColorFilter(Color.TRANSPARENT);
+            //Set rotation to 0
+            itemViewHolder.imageHatsOff.setRotation(0);
+            //update flags
+            itemViewHolder.mIsHatsOff = false;
+            itemViewHolder.mIsRotated = false;
+        }
+    }
+
 
     /**
      * HatsOff onClick functionality.
@@ -302,6 +379,67 @@ public class MeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
      * @param data           Data for current item.
      */
     private void hatsOffOnClick(final ListItemViewHolder itemViewHolder, final FeedModel data, final int itemPosition) {
+        itemViewHolder.containerHatsOff.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                SharedPreferenceHelper sh = new SharedPreferenceHelper(mContext);
+                if (sh.isHatsOffFirstTime()) {
+                    //Show tooltip
+                    ViewHelper.getToolTip(itemViewHolder.imageHatsOff
+                            , mContext.getString(R.string.tooltip_hats_off_double_tap)
+                            , mContext);
+                    //Update sp value here
+                    sh.updateHatsOffStatusStatus(false);
+                }
+                // check net status
+                if (NetworkHelper.getNetConnectionStatus(mContext)) {
+                    //User has already given the hats off
+                    if (itemViewHolder.mIsHatsOff) {
+                        //Animation for hats off
+                        if (itemViewHolder.mIsRotated) {
+                            itemViewHolder.imageHatsOff.startAnimation(AnimationUtils.loadAnimation(mContext, R.anim.reverse_rotate_animation_hats_off_60_degree));
+                        } else {
+                            itemViewHolder.imageHatsOff.startAnimation(AnimationUtils.loadAnimation(mContext, R.anim.reverse_rotate_animation_hats_off_30_degree));
+                        }
+                        //Toggle hatsOff tint
+                        itemViewHolder.imageHatsOff.setColorFilter(Color.TRANSPARENT);
+                        //Update hats of count i.e decrease by one
+                        data.setHatsOffCount(data.getHatsOffCount() - 1);
+                    } else {
+                        //Animation for hats off
+                        if (itemViewHolder.mIsRotated) {
+                            itemViewHolder.imageHatsOff.startAnimation(AnimationUtils.loadAnimation(mContext, R.anim.rotate_animation_hats_off_0_degree));
+                        } else {
+                            itemViewHolder.imageHatsOff.startAnimation(AnimationUtils.loadAnimation(mContext, R.anim.rotate_animation_hats_off_30_degree));
+                        }
+                        //Toggle hatsOff tint
+                        itemViewHolder.imageHatsOff.setColorFilter(ContextCompat.getColor(mContext, R.color.colorPrimary));
+                        //Change hatsOffCount i.e increase by one
+                        data.setHatsOffCount(data.getHatsOffCount() + 1);
+                    }
+                    //Toggle hatsOff status
+                    itemViewHolder.mIsHatsOff = !itemViewHolder.mIsHatsOff;
+                    //itemViewHolder.mIsRotated = !itemViewHolder.mIsRotated;
+                    //Update hats off here
+                    data.setHatsOffStatus(itemViewHolder.mIsHatsOff);
+                    //Listener
+                    onHatsOffListener.onHatsOffClick(data, itemPosition);
+                } else {
+                    ViewHelper.getToast(mContext, mContext.getString(R.string.error_msg_no_connection));
+                }
+
+            }
+        });
+    }
+
+    /**
+     * HatsOff onClick functionality.
+     *
+     * @param itemViewHolder ViewHolder for items.
+     * @param data           Data for current item.
+     */
+    private void hatsOffOnClick(final RePostViewHolder itemViewHolder, final FeedModel data, final int itemPosition) {
         itemViewHolder.containerHatsOff.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -443,6 +581,75 @@ public class MeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     }
 
     /**
+     * Share onClick functionality.
+     *
+     * @param itemViewHolder
+     * @param data
+     */
+    private void shareOnClick(final RePostViewHolder itemViewHolder, final FeedModel data) {
+        itemViewHolder.logoWhatsapp.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (ShareHelper.isAppInstalled(mContext, Constant.PACKAGE_NAME_WHATSAPP)) {
+                    if (GifHelper.hasLiveFilter(data.getLiveFilterName())) {
+                        onGifShareListener.onGifShareClick(itemViewHolder.frameLayout, SHARE_OPTION_WHATSAPP, itemViewHolder.waterMarkCreadView, data.getLiveFilterName());
+                    } else {
+                        loadBitmapForSharing(data, SHARE_OPTION_WHATSAPP);
+                    }
+                } else {
+                    ViewHelper.getToast(mContext, mContext.getString(R.string.error_no_whats_app));
+                }
+            }
+        });
+
+        itemViewHolder.logoFacebook.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (ShareHelper.isAppInstalled(mContext, Constant.PACKAGE_NAME_FACEBOOK)) {
+                    if (GifHelper.hasLiveFilter(data.getLiveFilterName())) {
+                        onGifShareListener.onGifShareClick(itemViewHolder.frameLayout, SHARE_OPTION_FACEBOOK, itemViewHolder.waterMarkCreadView, data.getLiveFilterName());
+
+                    } else {
+                        loadBitmapForSharing(data, SHARE_OPTION_FACEBOOK);
+                    }
+                } else {
+                    ViewHelper.getToast(mContext,
+                            mContext.getString(R.string.error_no_facebook));
+                }
+            }
+        });
+
+        itemViewHolder.logoInstagram.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (ShareHelper.isAppInstalled(mContext, Constant.PACKAGE_NAME_INSTAGRAM)) {
+                    if (GifHelper.hasLiveFilter(data.getLiveFilterName())) {
+                        onGifShareListener.onGifShareClick(itemViewHolder.frameLayout, SHARE_OPTION_INSTAGRAM, itemViewHolder.waterMarkCreadView, data.getLiveFilterName());
+                    } else {
+                        loadBitmapForSharing(data, SHARE_OPTION_INSTAGRAM);
+                    }
+                } else {
+                    ViewHelper.getToast(mContext, mContext.getString(R.string.error_no_instagram));
+                }
+
+            }
+        });
+
+        itemViewHolder.logoMore.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (GifHelper.hasLiveFilter(data.getLiveFilterName())) {
+                    onGifShareListener.onGifShareClick(itemViewHolder.frameLayout, SHARE_OPTION_OTHER, itemViewHolder.waterMarkCreadView, data.getLiveFilterName());
+                } else {
+                    loadBitmapForSharing(data, SHARE_OPTION_OTHER);
+                }
+            }
+        });
+
+
+    }
+
+    /**
      * Method to load bitmap image to be shared
      */
     private void loadBitmapForSharing(final FeedModel data, final String shareOption) {
@@ -488,7 +695,6 @@ public class MeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         ImageHelper.loadProgressiveImage(Uri.parse(data.getContentImage())
                 , itemViewHolder.imageContent);
 
-
         // set text and click actions acc. to content type
         FeedHelper.performContentTypeSpecificOperations(mContext
                 , data
@@ -498,7 +704,7 @@ public class MeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                 , itemViewHolder.textCreatorName
                 , true
                 , true
-                , itemViewHolder.lineSepartor);
+                , itemViewHolder.collabCountDivider);
 
         // no need for creator options in explore
         final boolean shouldShowCreatorOptions = mUUID.equals(data.getUUID());
@@ -512,7 +718,7 @@ public class MeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             itemViewHolder.buttonMenu.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    getMenuActionsBottomSheet(mContext, position, data, onContentDeleteListener);
+                    ContentHelper.getMenuActionsBottomSheet(mContext, position, data, onContentDeleteListener);
                 }
             });
         }
@@ -530,13 +736,92 @@ public class MeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         //Collaboration count click functionality
         collaborationCountOnClick(itemViewHolder.collabCount, data.getEntityID(), data.getContentType());
         //check long form status
-        checkLongFormStatus(itemViewHolder.containerLongShortPreview, data);
+        checkLongFormStatus(itemViewHolder.collabCountDivider, data);
         //long form on click
-        initLongFormPreviewClick(itemViewHolder.containerLongShortPreview, data, mContext, mCompositeDisposable);
+        initLongFormPreviewClick(itemViewHolder.buttonLongWritingPreview, data, mContext, mCompositeDisposable);
         // init post timestamp
         updatePostTimestamp(itemViewHolder.textTimeStamp, data);
-
+        //Method called
+        FeedHelper.updateRepost(itemViewHolder.containerRepost, mContext, mCompositeDisposable, data.getEntityID());
     }
+
+    /**
+     * Initializes the views and click actions for RePostViewHolder.
+     *
+     * @param itemViewHolder ViewHolder.
+     * @param data           Feed data.
+     * @param position       item position in data list.
+     */
+    private void initializeRepostViewHolder(RePostViewHolder itemViewHolder, final FeedModel data, final int position) {
+        //Set reposter name , repost time and click functionality to open re-poster profile
+        itemViewHolder.textRepostedBy.setText(data.getReposterName());
+        FeedHelper.setRepostTime(itemViewHolder.textRepostedtime, data);
+        openProfileActivity(itemViewHolder.textRepostedBy, data.getReposterUUID());
+
+        //Load creator profile picture
+        ImageHelper.loadProgressiveImage(Uri.parse(data.getCreatorImage())
+                , itemViewHolder.imageCreator);
+        //Set content image width and height
+        AspectRatioUtils.setImageAspectRatio(data.getImgWidth()
+                , data.getImgHeight()
+                , itemViewHolder.imageContent
+                , true);
+        //Load content image
+        ImageHelper.loadProgressiveImage(Uri.parse(data.getContentImage())
+                , itemViewHolder.imageContent);
+
+
+        //fixme update code readability
+        //Set text and click actions acc. to content type
+        FeedHelper.performContentTypeSpecificOperations(mContext
+                , data
+                , itemViewHolder.collabCount
+                , itemViewHolder.collabCount
+                , itemViewHolder.buttonCollaborate
+                , itemViewHolder.textCreatorName
+                , true
+                , true
+                , itemViewHolder.collabCountDivider);
+
+        // no need for creator options in explore
+        final boolean shouldShowCreatorOptions = mUUID.equals(data.getReposterUUID());
+
+        // init content options menu
+        if (!shouldShowCreatorOptions) {
+            itemViewHolder.buttonMenu.setVisibility(View.GONE);
+        } else {
+            itemViewHolder.buttonMenu.setVisibility(View.VISIBLE);
+            //open bottom sheet on clicking of 3 dots
+            itemViewHolder.buttonMenu.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    ContentHelper.getRepostMenuBottomSheet(mContext, position, data, onRepostDeleteListener);
+                }
+            });
+        }
+
+        //Method called
+        setDoubleTap(itemViewHolder, itemViewHolder.hatsOffView, data);
+        //Check whether user has given hats off to this campaign or not
+        checkHatsOffStatus(data.getHatsOffStatus(), itemViewHolder);
+        //HatsOff onClick functionality
+        hatsOffOnClick(itemViewHolder, data, position);
+        //Comment click functionality
+        commentOnClick(itemViewHolder.containerComment, data.getEntityID());
+        //Share click functionality
+        shareOnClick(itemViewHolder, data);
+        //Collaboration count click functionality
+        collaborationCountOnClick(itemViewHolder.collabCount, data.getEntityID(), data.getContentType());
+        //check long form status
+        checkLongFormStatus(itemViewHolder.buttonLongWritingPreview, data);
+        //long form on click
+        initLongFormPreviewClick(itemViewHolder.buttonLongWritingPreview, data, mContext, mCompositeDisposable);
+        // init post timestamp
+        updatePostTimestamp(itemViewHolder.textTimeStamp, data);
+        //Method called
+        FeedHelper.updateRepost(itemViewHolder.containerRepost, mContext, mCompositeDisposable, data.getEntityID());
+    }
+
 
     /**
      * Collaboration count click functionality to launch collaborationDetailsActivity.
@@ -656,17 +941,17 @@ public class MeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
                 ObjectAnimator imgScaleUpYAnim = ObjectAnimator.ofFloat(hatsOffView, "scaleY", 0.1f, 1f);
                 imgScaleUpYAnim.setDuration(300);
-                imgScaleUpYAnim.setInterpolator(DECCELERATE_INTERPOLATOR);
+                imgScaleUpYAnim.setInterpolator(Constant.DECCELERATE_INTERPOLATOR);
                 ObjectAnimator imgScaleUpXAnim = ObjectAnimator.ofFloat(hatsOffView, "scaleX", 0.1f, 1f);
                 imgScaleUpXAnim.setDuration(300);
-                imgScaleUpXAnim.setInterpolator(DECCELERATE_INTERPOLATOR);
+                imgScaleUpXAnim.setInterpolator(Constant.DECCELERATE_INTERPOLATOR);
 
                 ObjectAnimator imgScaleDownYAnim = ObjectAnimator.ofFloat(hatsOffView, "scaleY", 1f, 0f);
                 imgScaleDownYAnim.setDuration(300);
-                imgScaleDownYAnim.setInterpolator(ACCELERATE_INTERPOLATOR);
+                imgScaleDownYAnim.setInterpolator(Constant.ACCELERATE_INTERPOLATOR);
                 ObjectAnimator imgScaleDownXAnim = ObjectAnimator.ofFloat(hatsOffView, "scaleX", 1f, 0f);
                 imgScaleDownXAnim.setDuration(300);
-                imgScaleDownXAnim.setInterpolator(ACCELERATE_INTERPOLATOR);
+                imgScaleDownXAnim.setInterpolator(Constant.ACCELERATE_INTERPOLATOR);
 
                 animatorSet.playTogether(imgScaleUpYAnim, imgScaleUpXAnim);
                 animatorSet.play(imgScaleDownYAnim).with(imgScaleDownXAnim).after(imgScaleUpYAnim);
@@ -695,32 +980,72 @@ public class MeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         });
     }
 
+    /**
+     * Method to open ProfileActivity screen.
+     *
+     * @param view View to be clicked.
+     * @param uuid UUID of user whose profile to  be loaded.
+     */
+    private void openProfileActivity(View view, final String uuid) {
+        view.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                IntentHelper.openProfileActivity(mContext, uuid);
+            }
+        });
+    }
+    //endregion
+
+    //region :ViewHolder
     //ItemViewHolder class
     static class ListItemViewHolder extends RecyclerView.ViewHolder {
+        //Creator views
         @BindView(R.id.imageCreator)
         SimpleDraweeView imageCreator;
         @BindView(R.id.textCreatorName)
-        TextView textCreatorName;
-        @BindView(R.id.imageContent)
-        SimpleDraweeView imageContent;
-        @BindView(R.id.imageHatsOff)
-        ImageView imageHatsOff;
-        @BindView(R.id.buttonCollaborate)
-        TextView buttonCollaborate;
-        @BindView(R.id.containerHatsOff)
-        LinearLayout containerHatsOff;
-        @BindView(R.id.containerComment)
-        LinearLayout containerComment;
-        @BindView(R.id.buttonMenu)
-        ImageView buttonMenu;
-        @BindView(R.id.collabCount)
-        TextView collabCount;
-        @BindView(R.id.lineSeparatorTop)
-        View lineSepartor;
-        @BindView(R.id.containerLongShortPreview)
-        FrameLayout containerLongShortPreview;
+        AppCompatTextView textCreatorName;
         @BindView(R.id.textTimestamp)
-        TextView textTimeStamp;
+        AppCompatTextView textTimeStamp;
+        @BindView(R.id.buttonCollaborate)
+        AppCompatTextView buttonCollaborate;
+        @BindView(R.id.buttonMenu)
+        AppCompatImageView buttonMenu;
+
+        //Main content views
+        @BindView(R.id.container_main_content)
+        FrameLayout frameLayout;
+        @BindView(R.id.content_image)
+        SimpleDraweeView imageContent;
+        @BindView(R.id.live_filter_bubble)
+        GravView liveFilterBubble;
+        @BindView(R.id.whether_view)
+        WeatherView whetherView;
+        @BindView(R.id.konfetti_view)
+        KonfettiView konfettiView;
+        @BindView(R.id.water_mark_cread)
+        RelativeLayout waterMarkCreadView;
+        @BindView(R.id.double_tap_hats_off_view)
+        AppCompatImageView hatsOffView;
+
+        //Long writing preview , collab count and collab count divider
+        @BindView(R.id.container_long_writing_preview)
+        FrameLayout buttonLongWritingPreview;
+        @BindView(R.id.collab_count)
+        AppCompatTextView collabCount;
+        @BindView(R.id.collab_count_divider)
+        View collabCountDivider;
+
+        //Social actions views
+        @BindView(R.id.container_hats_off)
+        LinearLayout containerHatsOff;
+        @BindView(R.id.image_hats_off)
+        AppCompatImageView imageHatsOff;
+        @BindView(R.id.container_comment)
+        LinearLayout containerComment;
+        @BindView(R.id.container_repost)
+        LinearLayout containerRepost;
+
+        //Share views
         @BindView(R.id.logoWhatsapp)
         AppCompatImageView logoWhatsapp;
         @BindView(R.id.logoFacebook)
@@ -729,18 +1054,7 @@ public class MeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         AppCompatImageView logoInstagram;
         @BindView(R.id.logoMore)
         AppCompatImageView logoMore;
-        @BindView(R.id.live_filter_bubble)
-        GravView liveFilterBubble;
-        @BindView(R.id.whether_view)
-        WeatherView whetherView;
-        @BindView(R.id.konfetti_view)
-        KonfettiView konfettiView;
-        @BindView(R.id.containerImage)
-        FrameLayout frameLayout;
-        @BindView(R.id.water_mark_cread)
-        RelativeLayout waterMarkCreadView;
-        @BindView(R.id.hats_off_view)
-        AppCompatImageView hatsOffView;
+
 
         //Variable to maintain hats off status
         private boolean mIsHatsOff = false;
@@ -748,6 +1062,82 @@ public class MeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         private boolean mIsRotated = false;
 
         public ListItemViewHolder(View itemView) {
+            super(itemView);
+            ButterKnife.bind(this, itemView);
+        }
+    }
+
+    //RePost ViewHolder
+    static class RePostViewHolder extends RecyclerView.ViewHolder {
+        //Repost views
+        @BindView(R.id.text_reposted_by)
+        AppCompatTextView textRepostedBy;
+        @BindView(R.id.text_reposted_time)
+        AppCompatTextView textRepostedtime;
+
+        //Creator views
+        @BindView(R.id.image_creator)
+        SimpleDraweeView imageCreator;
+        @BindView(R.id.text_creator_name)
+        AppCompatTextView textCreatorName;
+        @BindView(R.id.text_timestamp)
+        AppCompatTextView textTimeStamp;
+        @BindView(R.id.button_collaborate)
+        AppCompatTextView buttonCollaborate;
+        @BindView(R.id.button_menu)
+        AppCompatImageView buttonMenu;
+
+        //Main content views
+        @BindView(R.id.container_main_content)
+        FrameLayout frameLayout;
+        @BindView(R.id.content_image)
+        SimpleDraweeView imageContent;
+        @BindView(R.id.live_filter_bubble)
+        GravView liveFilterBubble;
+        @BindView(R.id.whether_view)
+        WeatherView whetherView;
+        @BindView(R.id.konfetti_view)
+        KonfettiView konfettiView;
+        @BindView(R.id.water_mark_cread)
+        RelativeLayout waterMarkCreadView;
+        @BindView(R.id.double_tap_hats_off_view)
+        AppCompatImageView hatsOffView;
+
+        //Long writing preview , collab count and collab count divider
+        @BindView(R.id.container_long_writing_preview)
+        FrameLayout buttonLongWritingPreview;
+        @BindView(R.id.collab_count)
+        AppCompatTextView collabCount;
+        @BindView(R.id.collab_count_divider)
+        View collabCountDivider;
+
+        //Social actions views
+        @BindView(R.id.container_hats_off)
+        LinearLayout containerHatsOff;
+        @BindView(R.id.image_hats_off)
+        AppCompatImageView imageHatsOff;
+        @BindView(R.id.container_comment)
+        LinearLayout containerComment;
+        @BindView(R.id.container_repost)
+        LinearLayout containerRepost;
+
+        //Share views
+        @BindView(R.id.logoWhatsapp)
+        AppCompatImageView logoWhatsapp;
+        @BindView(R.id.logoFacebook)
+        AppCompatImageView logoFacebook;
+        @BindView(R.id.logoInstagram)
+        AppCompatImageView logoInstagram;
+        @BindView(R.id.logoMore)
+        AppCompatImageView logoMore;
+
+
+        //Variable to maintain hats off status
+        private boolean mIsHatsOff = false;
+        //Variable to maintain  hats off view rotation status
+        private boolean mIsRotated = false;
+
+        public RePostViewHolder(View itemView) {
             super(itemView);
             ButterKnife.bind(this, itemView);
         }
@@ -785,26 +1175,6 @@ public class MeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             ButterKnife.bind(this, itemView);
         }
     }
-
-    @Override
-    public void onViewAttachedToWindow(RecyclerView.ViewHolder holder) {
-        super.onViewAttachedToWindow(holder);
-        if (holder.getItemViewType() == VIEW_TYPE_ITEM_LIST) {
-            final ListItemViewHolder itemViewHolder = (ListItemViewHolder) holder;
-            LiveFilterHelper.initLiveFilters(mUserContentList.get(holder.getAdapterPosition()).getLiveFilterName()
-                    , itemViewHolder.whetherView
-                    , itemViewHolder.konfettiView
-                    , itemViewHolder.liveFilterBubble
-                    , mContext);
-        } else if (holder.getItemViewType() == VIEW_TYPE_ITEM_GRID) {
-            final GridItemViewHolder itemViewHolder = (GridItemViewHolder) holder;
-            LiveFilterHelper.initLiveFilters(mUserContentList.get(holder.getAdapterPosition()).getLiveFilterName()
-                    , itemViewHolder.whetherView
-                    , itemViewHolder.konfettiView
-                    , itemViewHolder.liveFilterBubble
-                    , mContext);
-        }
-    }
-
+    //endregion
 
 }

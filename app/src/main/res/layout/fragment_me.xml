@@ -2,18 +2,18 @@
 <android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/rootView"
+    android:id="@+id/root_view"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
     <!--Appbar layout-->
     <android.support.design.widget.AppBarLayout
-        android:id="@+id/appBarLayout"
+        android:id="@+id/app_bar_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@android:color/transparent"
         android:fitsSystemWindows="true"
-        android:visibility="invisible">
+        android:visibility="visible">
 
         <!--Collapsing toolbar-->
         <android.support.design.widget.CollapsingToolbarLayout
@@ -92,7 +92,7 @@
 
                         </LinearLayout>
 
-
+                        <!--Bio textView-->
                         <TextView
                             android:id="@+id/textBio"
                             android:layout_width="match_parent"
@@ -102,6 +102,7 @@
                             android:textColor="@color/grey"
                             android:textSize="12sp" />
 
+                        <!--Message container-->
                         <LinearLayout
                             android:id="@+id/containerMessage"
                             android:layout_width="match_parent"
@@ -166,7 +167,7 @@
 
                     <!--TabLayout-->
                     <android.support.design.widget.TabLayout
-                        android:id="@+id/tabLayout"
+                        android:id="@+id/tab_layout"
                         android:layout_width="match_parent"
                         android:layout_height="48dp"
                         android:background="@color/white"
@@ -205,25 +206,26 @@
 
     <!--SwipeRefresh layout-->
     <android.support.v4.widget.SwipeRefreshLayout
-        android:id="@+id/swipeToRefreshLayout"
+        android:id="@+id/swipe_refresh_layout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
+        <!--Child container-->
         <FrameLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
             <android.support.v7.widget.RecyclerView
-                android:id="@+id/recyclerView"
+                android:id="@+id/recycler_view"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:layoutAnimation="@anim/layout_animation_from_bottom" />
 
             <!-- No data view-->
             <LinearLayout
-                android:id="@+id/viewNoData"
+                android:id="@+id/view_no_data"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_vertical"

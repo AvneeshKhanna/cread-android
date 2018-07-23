@@ -17,8 +17,6 @@
         android:animateLayoutChanges="true"
         android:orientation="vertical">
 
-        <!--<include layout="@layout/layout_content_creator" />-->
-
         <RelativeLayout
             android:id="@+id/containerCreator"
             android:layout_width="match_parent"
@@ -139,77 +137,8 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
 
-            <FrameLayout
-                android:id="@+id/container"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content">
-
-                <com.facebook.drawee.view.SimpleDraweeView
-                    android:id="@+id/contentImage"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:adjustViewBounds="true"
-                    app:actualImageScaleType="fitXY"
-                    app:failureImage="@drawable/image_placeholder"
-                    app:failureImageScaleType="centerCrop" />
-
-
-                <!--Bubble live filter-->
-                <com.github.glomadrian.grav.GravView
-                    android:id="@+id/live_filter_bubble"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:layout_centerInParent="true"
-                    android:visibility="invisible"
-                    app:animationGenerators="@array/BubbleAnimations"
-                    app:array_colors="@array/bubble"
-                    app:ball_from_size="10dp"
-                    app:ball_to_size="20dp"
-                    app:colorGenerator="com.github.glomadrian.grav.generator.paint.ArrayColorGenerator"
-                    app:gravGenerator="com.github.glomadrian.grav.generator.grav.BallGenerator"
-                    app:pointGenerator="com.github.glomadrian.grav.generator.point.RegularPointGenerator"
-                    app:regular_cell_size="300"
-                    app:regular_variance="200"
-                    app:shake_direction="vertical"
-                    app:shake_max_duration="20000"
-                    app:shake_min_duration="10000"
-                    app:shake_variance="500dp"
-                    app:side_to_side_direction="upToDown"
-                    app:side_to_side_max_duration="10000"
-                    app:side_to_side_min_duration="1000" />
-
-                <!--Snowfall and rain filter-->
-                <com.github.matteobattilana.weather.WeatherView
-                    android:id="@+id/whether_view"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:visibility="gone" />
-
-                <!--Konfetti view-->
-                <nl.dionsegijn.konfetti.KonfettiView
-                    android:id="@+id/konfetti_view"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:visibility="gone" />
-
-                <!--WatermarkView-->
-                <include
-                    layout="@layout/layout_cread_watermark"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="right|bottom" />
-
-                <!--View to be animated on double tap-->
-                <android.support.v7.widget.AppCompatImageView
-                    android:id="@+id/hats_off_view"
-                    android:layout_width="50dp"
-                    android:layout_height="50dp"
-                    android:layout_gravity="center"
-                    android:alpha="0.7"
-                    android:visibility="gone"
-                    app:srcCompat="@drawable/ic_hats_off" />
-
-            </FrameLayout>
+            <!--Main content container-->
+            <include layout="@layout/layout_main_content" />
 
             <FrameLayout
                 android:layout_width="wrap_content"
@@ -434,86 +363,8 @@
             android:background="@color/grey_dark" />
 
 
-        <RelativeLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:paddingLeft="16dp"
-            android:paddingRight="6dp">
-
-            <LinearLayout
-                android:id="@+id/containerActions"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignParentLeft="true"
-                android:layout_marginTop="8dp"
-                android:orientation="horizontal"
-                android:paddingBottom="8dp">
-
-                <LinearLayout
-                    android:id="@+id/containerHatsOff"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:gravity="center_horizontal"
-                    android:orientation="vertical"
-                    android:paddingRight="7dp">
-
-                    <ImageView
-                        android:id="@+id/imageHatsOff"
-                        android:layout_width="30dp"
-                        android:layout_height="30dp"
-                        app:srcCompat="@drawable/ic_hats_off" />
-
-                    <TextView
-                        android:id="@+id/textHatsOff"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="center"
-                        android:gravity="center"
-                        android:text="Hats off"
-                        android:textSize="10sp" />
-
-                </LinearLayout>
-
-                <LinearLayout
-                    android:id="@+id/containerComment"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:gravity="center_horizontal"
-                    android:orientation="vertical"
-                    android:paddingLeft="7dp">
-
-                    <ImageView
-                        android:id="@+id/imageComment"
-                        android:layout_width="30dp"
-                        android:layout_height="30dp"
-                        android:padding="4dp"
-                        app:srcCompat="@drawable/ic_comment" />
-
-                    <TextView
-                        android:id="@+id/textComment"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="center"
-                        android:gravity="center"
-                        android:text="Comment"
-                        android:textSize="10sp" />
-                </LinearLayout>
-
-
-            </LinearLayout>
-
-            <include
-                android:id="@+id/layoutShareOptions"
-                layout="@layout/layout_share_options"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignParentRight="true"
-                android:layout_centerInParent="true">
-
-            </include>
-
-
-        </RelativeLayout>
+        <!--Container social actions-->
+        <include layout="@layout/layout_social_actions" />
 
         <View
             android:id="@+id/lineSeparatorBottom"
@@ -525,12 +376,6 @@
             android:alpha="0.4"
             android:background="@color/grey_dark" />
 
-        <!--<android.support.v7.widget.RecyclerView
-            android:id="@+id/recyclerViewTopComments"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="@color/custom_white"
-            android:visibility="gone" />-->
 
         <LinearLayout
             android:id="@+id/viewTopComments"

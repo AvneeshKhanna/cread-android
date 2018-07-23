@@ -95,6 +95,46 @@ public class ContentHelper {
     }
 
     /**
+     * Method to show bottomSheet dialog with 'edit a post' and 'delete a post' option.
+     *
+     * @param context                 Context to use.
+     * @param index                   Position of item in the list.
+     * @param data                    FeedModel data.
+     * @param onReposttDeleteListener DeleteListener reference.
+     */
+
+    public static void getRepostMenuBottomSheet(final FragmentActivity context, final int index,
+                                                final FeedModel data
+            , final listener.OnRepostDeleteListener onReposttDeleteListener) {
+
+        final BottomSheetDialog bottomSheetDialog = new BottomSheetDialog(context);
+        //inflate this view
+        View sheetView = context.getLayoutInflater()
+                .inflate(R.layout.bottomsheet_dialog_content_actions
+                        , null);
+        bottomSheetDialog.setContentView(sheetView);
+        bottomSheetDialog.show();
+
+        // init views
+        LinearLayout buttonDelete = sheetView.findViewById(R.id.buttonDelete);
+        LinearLayout buttonEdit = sheetView.findViewById(R.id.buttonEdit);
+
+        buttonDelete.setVisibility(View.VISIBLE);
+        buttonEdit.setVisibility(View.GONE);
+
+
+        //Delete button functionality
+        buttonDelete.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                onReposttDeleteListener.onDelete(data.getRepostID(), index);
+                //Dismiss bottom sheet
+                bottomSheetDialog.dismiss();
+            }
+        });
+    }
+
+    /**
      * Method to launch required screen for content editing.
      *
      * @param data    FeedModel reference.

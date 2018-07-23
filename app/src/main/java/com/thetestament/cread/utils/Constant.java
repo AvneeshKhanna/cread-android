@@ -1,6 +1,9 @@
 package com.thetestament.cread.utils;
 
 
+import android.view.animation.AccelerateInterpolator;
+import android.view.animation.DecelerateInterpolator;
+
 public class Constant {
     public static final String MINIMUM_APP_VERSION_KEY = "minimum_app_version";
     public static final String EXPLORE_CATEGORY_VIEW_VISIBILITY = "explore_category_view_visibility";
@@ -418,5 +421,19 @@ public class Constant {
     public static final String EXPLORE_SELECTED_TAB_RECENT = "recent";
     public static final String EXPLORE_SELECTED_TAB_POPULAR = "popular";
     public static final String EXPLORE_SELECTED_TAB_BEST = "allstar";
+    //endregion
+
+    //region :Me item types
+    public static final String ME_ITEM_TYPE_USER_POST_LIST = "userPostList";
+    public static final String ME_ITEM_TYPE_USER_POST_GRID = "userPostGrid";
+    public static final String ME_ITEM_TYPE_RE_POST_LIST = "rePostList";
+    public static final String ME_ITEM_TYPE_RE_POST_GRID = "rePostGrid";
+    public static final String ME_ITEM_TYPE_COLLAB_POST_LIST = "collabPostList";
+    public static final String ME_ITEM_TYPE_COLLAB_POST_GRID = "collabPostGrid";
+    //endregion
+
+    //region :Interpolator
+    public static final DecelerateInterpolator DECCELERATE_INTERPOLATOR = new DecelerateInterpolator();
+    public static final AccelerateInterpolator ACCELERATE_INTERPOLATOR = new AccelerateInterpolator();
     //endregion
 }

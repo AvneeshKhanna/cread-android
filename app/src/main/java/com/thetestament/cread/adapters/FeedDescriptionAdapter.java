@@ -15,14 +15,11 @@ import android.support.v4.app.FragmentActivity;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.widget.TextViewCompat;
 import android.support.v7.widget.AppCompatImageView;
-import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.animation.AccelerateInterpolator;
 import android.view.animation.AnimationUtils;
-import android.view.animation.DecelerateInterpolator;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -103,8 +100,6 @@ import static com.thetestament.cread.utils.Constant.SHARE_OPTION_WHATSAPP;
 
 public class FeedDescriptionAdapter extends RecyclerView.Adapter {
 
-    private static final DecelerateInterpolator DECCELERATE_INTERPOLATOR = new DecelerateInterpolator();
-    private static final AccelerateInterpolator ACCELERATE_INTERPOLATOR = new AccelerateInterpolator();
     private final int VIEW_TYPE_ITEM = 0;
     private final int VIEW_TYPE_LOADING = 1;
     private final int VIEW_TYPE_HEADER = 2;
@@ -112,7 +107,7 @@ public class FeedDescriptionAdapter extends RecyclerView.Adapter {
     private List<CommentsModel> mCommentsList = new ArrayList<>();
     private FragmentActivity mContext;
     private boolean mIsLoading;
-    private Bitmap bitmap;
+
     /*
     Flag to check whether to scroll to comments section
     when opened from updates screen
@@ -208,6 +203,7 @@ public class FeedDescriptionAdapter extends RecyclerView.Adapter {
         this.onContentDeleteListener = onContentDeleteListener;
     }
 
+    //region Overridden methods
     @Override
     public int getItemViewType(int position) {
         if (mFeedList.get(position) == null) {
@@ -217,10 +213,6 @@ public class FeedDescriptionAdapter extends RecyclerView.Adapter {
         } else {
             return VIEW_TYPE_ITEM;
         }
-    }
-
-    private boolean isPositionHeader(int position) {
-        return position == 1;
     }
 
     @Override
@@ -254,11 +246,11 @@ public class FeedDescriptionAdapter extends RecyclerView.Adapter {
             //Set image width and height
             AspectRatioUtils.setImageAspectRatio(data.getImgWidth()
                     , data.getImgHeight()
-                    , itemViewHolder.image
+                    , itemViewHolder.imageContent
                     , true);
             //Load feed image
             ImageHelper.loadProgressiveImage(Uri.parse(data.getContentImage())
-                    , itemViewHolder.image);
+                    , itemViewHolder.imageContent);
 
             // set text and click actions acc. to content type
             FeedHelper.performContentTypeSpecificOperations(mContext
@@ -361,6 +353,8 @@ public class FeedDescriptionAdapter extends RecyclerView.Adapter {
             // init post timestamp
             updatePostTimestamp(itemViewHolder.textTimeStamp, data);
             setDoubleTap(itemViewHolder, itemViewHolder.hatsOffView, data);
+            //Method called
+            FeedHelper.updateRepost(itemViewHolder.containerRepost, mContext, mCompositeDisposable, data.getEntityID());
         } else if (holder.getItemViewType() == VIEW_TYPE_LOADING) {
             LoadingViewHolder loadingViewHolder = (LoadingViewHolder) holder;
             loadingViewHolder.progressView.setVisibility(View.VISIBLE);
@@ -414,6 +408,23 @@ public class FeedDescriptionAdapter extends RecyclerView.Adapter {
         return mFeedList == null ? 0 : mFeedList.size();
     }
 
+    @Override
+    public void onViewAttachedToWindow(RecyclerView.ViewHolder holder) {
+        super.onViewAttachedToWindow(holder);
+        if (holder.getItemViewType() == VIEW_TYPE_ITEM) {
+            final ItemViewHolder itemViewHolder = (ItemViewHolder) holder;
+            LiveFilterHelper.initLiveFilters(mFeedList.get(holder.getAdapterPosition()).getLiveFilterName()
+                    , itemViewHolder.whetherView
+                    , itemViewHolder.konfettiView
+                    , itemViewHolder.liveFilterBubble
+                    , mContext);
+        }
+    }
+    //endregion
+
+    private boolean isPositionHeader(int position) {
+        return position == 1;
+    }
 
     public void updateCommentsList(List<CommentsModel> mCommentsList) {
         this.mCommentsList = mCommentsList;
@@ -993,17 +1004,17 @@ public class FeedDescriptionAdapter extends RecyclerView.Adapter {
 
                 ObjectAnimator imgScaleUpYAnim = ObjectAnimator.ofFloat(hatsOffView, "scaleY", 0.1f, 1f);
                 imgScaleUpYAnim.setDuration(300);
-                imgScaleUpYAnim.setInterpolator(DECCELERATE_INTERPOLATOR);
+                imgScaleUpYAnim.setInterpolator(Constant.DECCELERATE_INTERPOLATOR);
                 ObjectAnimator imgScaleUpXAnim = ObjectAnimator.ofFloat(hatsOffView, "scaleX", 0.1f, 1f);
                 imgScaleUpXAnim.setDuration(300);
-                imgScaleUpXAnim.setInterpolator(DECCELERATE_INTERPOLATOR);
+                imgScaleUpXAnim.setInterpolator(Constant.DECCELERATE_INTERPOLATOR);
 
                 ObjectAnimator imgScaleDownYAnim = ObjectAnimator.ofFloat(hatsOffView, "scaleY", 1f, 0f);
                 imgScaleDownYAnim.setDuration(300);
-                imgScaleDownYAnim.setInterpolator(ACCELERATE_INTERPOLATOR);
+                imgScaleDownYAnim.setInterpolator(Constant.ACCELERATE_INTERPOLATOR);
                 ObjectAnimator imgScaleDownXAnim = ObjectAnimator.ofFloat(hatsOffView, "scaleX", 1f, 0f);
                 imgScaleDownXAnim.setDuration(300);
-                imgScaleDownXAnim.setInterpolator(ACCELERATE_INTERPOLATOR);
+                imgScaleDownXAnim.setInterpolator(Constant.ACCELERATE_INTERPOLATOR);
 
                 animatorSet.playTogether(imgScaleUpYAnim, imgScaleUpXAnim);
                 animatorSet.play(imgScaleDownYAnim).with(imgScaleDownXAnim).after(imgScaleUpYAnim);
@@ -1025,15 +1036,14 @@ public class FeedDescriptionAdapter extends RecyclerView.Adapter {
         });
     }
 
+
+    //region ViewHolder class
+    //ItemViewHolder class
     public static class ItemViewHolder extends RecyclerView.ViewHolder {
-        @BindView(R.id.rootView)
-        CardView rootView;
         @BindView(R.id.imageCreator)
         SimpleDraweeView imageCreator;
         @BindView(R.id.textCreatorName)
         TextView textCreatorName;
-        @BindView(R.id.contentImage)
-        SimpleDraweeView image;
         @BindView(R.id.containerCommentsCount)
         LinearLayout containerCommentsCount;
         @BindView(R.id.containerHatsoffCount)
@@ -1046,14 +1056,10 @@ public class FeedDescriptionAdapter extends RecyclerView.Adapter {
         TextView textCommentsCount;
         @BindView(R.id.textCollabCount)
         TextView textCollabCount;
-        @BindView(R.id.imageHatsOff)
-        ImageView imageHatsOff;
         @BindView(R.id.buttonHave)
         LinearLayout buttonHave;
         @BindView(R.id.lineSeparatorTop)
         View lineSeparatorTop;
-        @BindView(R.id.containerHatsOff)
-        LinearLayout containerHatsOff;
         @BindView(R.id.lineSeparatorBottom)
         View lineSeparatorBottom;
         @BindView(R.id.buttonCollaborate)
@@ -1072,14 +1078,41 @@ public class FeedDescriptionAdapter extends RecyclerView.Adapter {
         TextView dotSeperatorRight;
         @BindView(R.id.containerLongShortPreview)
         FrameLayout containerLongShortPreview;
-        @BindView(R.id.containerComment)
-        LinearLayout containerComment;
         @BindView(R.id.viewTopComments)
         public LinearLayout viewTopComments;
         @BindView(R.id.textShowComments)
         public TextView textShowComments;
         @BindView(R.id.textTimestamp)
         TextView textTimeStamp;
+
+
+        //Main content views
+        @BindView(R.id.container_main_content)
+        FrameLayout frameLayout;
+        @BindView(R.id.content_image)
+        SimpleDraweeView imageContent;
+        @BindView(R.id.live_filter_bubble)
+        GravView liveFilterBubble;
+        @BindView(R.id.whether_view)
+        WeatherView whetherView;
+        @BindView(R.id.konfetti_view)
+        KonfettiView konfettiView;
+        @BindView(R.id.water_mark_cread)
+        RelativeLayout waterMarkCreadView;
+        @BindView(R.id.double_tap_hats_off_view)
+        AppCompatImageView hatsOffView;
+
+        //Social actions views
+        @BindView(R.id.container_hats_off)
+        LinearLayout containerHatsOff;
+        @BindView(R.id.image_hats_off)
+        AppCompatImageView imageHatsOff;
+        @BindView(R.id.container_comment)
+        LinearLayout containerComment;
+        @BindView(R.id.container_repost)
+        LinearLayout containerRepost;
+
+        //Share views
         @BindView(R.id.logoWhatsapp)
         AppCompatImageView logoWhatsapp;
         @BindView(R.id.logoFacebook)
@@ -1088,18 +1121,7 @@ public class FeedDescriptionAdapter extends RecyclerView.Adapter {
         AppCompatImageView logoInstagram;
         @BindView(R.id.logoMore)
         AppCompatImageView logoMore;
-        @BindView(R.id.live_filter_bubble)
-        GravView liveFilterBubble;
-        @BindView(R.id.whether_view)
-        WeatherView whetherView;
-        @BindView(R.id.konfetti_view)
-        KonfettiView konfettiView;
-        @BindView(R.id.container)
-        FrameLayout frameLayout;
-        @BindView(R.id.water_mark_cread)
-        RelativeLayout waterMarkCreadView;
-        @BindView(R.id.hats_off_view)
-        AppCompatImageView hatsOffView;
+
 
         //Variable to maintain hats off status
         private boolean mIsHatsOff = false;
@@ -1123,6 +1145,7 @@ public class FeedDescriptionAdapter extends RecyclerView.Adapter {
         }
     }
 
+    //Header view
     static class HeaderViewHolder extends RecyclerView.ViewHolder {
         @BindView(R.id.textHeader)
         TextView textHeader;
@@ -1132,18 +1155,7 @@ public class FeedDescriptionAdapter extends RecyclerView.Adapter {
             ButterKnife.bind(this, itemView);
         }
     }
+    //endregion
 
-    @Override
-    public void onViewAttachedToWindow(RecyclerView.ViewHolder holder) {
-        super.onViewAttachedToWindow(holder);
-        if (holder.getItemViewType() == VIEW_TYPE_ITEM) {
-            final ItemViewHolder itemViewHolder = (ItemViewHolder) holder;
-            LiveFilterHelper.initLiveFilters(mFeedList.get(holder.getAdapterPosition()).getLiveFilterName()
-                    , itemViewHolder.whetherView
-                    , itemViewHolder.konfettiView
-                    , itemViewHolder.liveFilterBubble
-                    , mContext);
-        }
-    }
 
 }

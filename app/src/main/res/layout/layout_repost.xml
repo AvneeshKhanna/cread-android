@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/reposted_by_container"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@color/white"
+    android:gravity="center_vertical"
+    android:orientation="horizontal"
+    android:paddingBottom="8dp"
+    android:paddingLeft="8dp"
+    android:paddingTop="8dp">
+
+    <android.support.v7.widget.AppCompatImageView
+        android:id="@+id/icon_repost"
+        android:layout_width="12dp"
+        android:layout_height="12dp"
+        app:srcCompat="@drawable/icon_repost" />
+
+    <android.support.v7.widget.AppCompatTextView
+        android:id="@+id/text_reposted_by"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="5dp"
+        android:textSize="12sp"
+        tools:text="Gaurav reposted this" />
+
+    <android.support.v7.widget.AppCompatTextView
+        android:id="@+id/dot_indicator"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="5dp"
+        android:text="@string/bullet"
+        android:textSize="10sp" />
+
+    <android.support.v7.widget.AppCompatTextView
+        android:id="@+id/text_reposted_time"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="5dp"
+        android:textSize="12sp"
+        tools:text="@tools:sample/date/hhmmss" />
+
+</LinearLayout>

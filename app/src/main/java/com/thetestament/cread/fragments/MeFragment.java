@@ -37,7 +37,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.AnimationUtils;
-import android.view.animation.LayoutAnimationController;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -50,12 +49,12 @@ import com.afollestad.materialdialogs.MaterialDialog;
 import com.crashlytics.android.Crashlytics;
 import com.facebook.drawee.backends.pipeline.Fresco;
 import com.facebook.imagepipeline.core.ImagePipeline;
-import com.google.firebase.analytics.FirebaseAnalytics;
 import com.rx2androidnetworking.Rx2AndroidNetworking;
 import com.squareup.picasso.MemoryPolicy;
 import com.squareup.picasso.NetworkPolicy;
 import com.squareup.picasso.Picasso;
 import com.thetestament.cread.BuildConfig;
+import com.thetestament.cread.CreadApp;
 import com.thetestament.cread.Manifest;
 import com.thetestament.cread.R;
 import com.thetestament.cread.activities.BottomNavigationActivity;
@@ -69,6 +68,7 @@ import com.thetestament.cread.adapters.UserStatsPagerAdapter;
 import com.thetestament.cread.dialog.CustomDialog;
 import com.thetestament.cread.helpers.DeletePostHelper;
 import com.thetestament.cread.helpers.FeedHelper;
+import com.thetestament.cread.helpers.FirebaseEventHelper;
 import com.thetestament.cread.helpers.FollowHelper;
 import com.thetestament.cread.helpers.GifHelper;
 import com.thetestament.cread.helpers.HatsOffHelper;
@@ -81,8 +81,11 @@ import com.thetestament.cread.listeners.listener;
 import com.thetestament.cread.listeners.listener.OnServerRequestedListener;
 import com.thetestament.cread.listeners.listener.OnUserStatsClickedListener;
 import com.thetestament.cread.models.FeedModel;
+import com.thetestament.cread.networkmanager.MeNetworkManager;
 import com.thetestament.cread.networkmanager.NotificationNetworkManager;
+import com.thetestament.cread.networkmanager.RepostNetworkManager;
 import com.thetestament.cread.utils.AspectRatioUtils;
+import com.thetestament.cread.utils.Constant;
 import com.thetestament.cread.utils.Constant.GratitudeNumbers;
 import com.thetestament.cread.utils.Constant.ITEM_TYPES;
 import com.thetestament.cread.utils.TextUtils;
@@ -116,13 +119,11 @@ import pl.tajchert.nammu.PermissionCallback;
 
 import static android.app.Activity.RESULT_OK;
 import static com.thetestament.cread.CreadApp.GET_RESPONSE_FROM_NETWORK_ME;
-import static com.thetestament.cread.fragments.ExploreFragment.defaultItemType;
 import static com.thetestament.cread.helpers.DeepLinkHelper.getDeepLinkOnValidShareOption;
 import static com.thetestament.cread.helpers.FeedHelper.updateFollowForAll;
 import static com.thetestament.cread.helpers.ImageHelper.getImageUri;
 import static com.thetestament.cread.helpers.ImageHelper.processCroppedImage;
 import static com.thetestament.cread.helpers.NetworkHelper.getNetConnectionStatus;
-import static com.thetestament.cread.helpers.NetworkHelper.getObservableFromServer;
 import static com.thetestament.cread.helpers.NetworkHelper.getUserDataObservableFromServer;
 import static com.thetestament.cread.helpers.NetworkHelper.requestServer;
 import static com.thetestament.cread.utils.Constant.CONTENT_TYPE_CAPTURE;
@@ -149,7 +150,6 @@ import static com.thetestament.cread.utils.Constant.EXTRA_USER_INTERESTS_COUNT;
 import static com.thetestament.cread.utils.Constant.EXTRA_USER_LAST_NAME;
 import static com.thetestament.cread.utils.Constant.EXTRA_USER_WATER_MARK_STATUS;
 import static com.thetestament.cread.utils.Constant.EXTRA_USER_WEB_STORE_LINK;
-import static com.thetestament.cread.utils.Constant.FIREBASE_EVENT_FOLLOW_FROM_PROFILE;
 import static com.thetestament.cread.utils.Constant.GratitudeNumbers.COLLABORATIONS;
 import static com.thetestament.cread.utils.Constant.GratitudeNumbers.COMMENT;
 import static com.thetestament.cread.utils.Constant.GratitudeNumbers.FOLLOWERS;
@@ -157,7 +157,6 @@ import static com.thetestament.cread.utils.Constant.GratitudeNumbers.FOLLOWING;
 import static com.thetestament.cread.utils.Constant.GratitudeNumbers.HATSOFF;
 import static com.thetestament.cread.utils.Constant.GratitudeNumbers.POSTS;
 import static com.thetestament.cread.utils.Constant.IMAGE_TYPE_USER_CAPTURE_PIC;
-import static com.thetestament.cread.utils.Constant.ITEM_TYPES.COLLABLIST;
 import static com.thetestament.cread.utils.Constant.ITEM_TYPES.GRID;
 import static com.thetestament.cread.utils.Constant.ITEM_TYPES.LIST;
 import static com.thetestament.cread.utils.Constant.REQUEST_CODE_CHAT_DETAILS_FROM_USER_PROFILE;
@@ -174,16 +173,13 @@ import static com.thetestament.cread.utils.Constant.SHARE_OPTION_OTHER;
 public class MeFragment extends Fragment implements listener.OnCollaborationListener {
 
     //region :View binding with Butter knife
-    @BindView(R.id.rootView)
+    @BindView(R.id.root_view)
     CoordinatorLayout rootView;
-    @BindView(R.id.appBarLayout)
+    @BindView(R.id.app_bar_layout)
     AppBarLayout appBarLayout;
-    @BindView(R.id.tabLayout)
+    @BindView(R.id.tab_layout)
     TabLayout tabLayout;
-    @BindView(R.id.recyclerView)
-    RecyclerView recyclerView;
-    @BindView(R.id.swipeToRefreshLayout)
-    SwipeRefreshLayout swipeToRefreshLayout;
+
     @BindView(R.id.imageUser)
     CircleImageView imageUser;
     @BindView(R.id.textUserName)
@@ -198,65 +194,203 @@ public class MeFragment extends Fragment implements listener.OnCollaborationList
     UserStatsViewPager viewPagerUserStats;
     @BindView(R.id.indicator)
     CircleIndicator indicator;
-    @BindView(R.id.viewNoData)
+    @BindView(R.id.containerMessage)
+    LinearLayout containerMessage;
+    @BindView(R.id.buttonMessage)
+    AppCompatImageView buttonMessage;
+    @BindView(R.id.buttonProfileSettings)
+    ImageButton buttonProfileSettings;
+    @BindView(R.id.dotIndicator)
+    View dotIndicatorWebStoreLink;
+
+    @BindView(R.id.swipe_refresh_layout)
+    SwipeRefreshLayout swipeToRefreshLayout;
+    @BindView(R.id.recycler_view)
+    RecyclerView recyclerView;
+    @BindView(R.id.view_no_data)
     LinearLayout viewNoData;
     @BindView(R.id.progressView)
     View progressView;
     @BindView(R.id.fabChat)
     FloatingActionButton fabChat;
-    @BindView(R.id.buttonMessage)
-    AppCompatImageView buttonMessage;
-    @BindView(R.id.containerMessage)
-    LinearLayout containerMessage;
-    @BindView(R.id.buttonProfileSettings)
-    ImageButton buttonProfileSettings;
-    @BindView(R.id.dotIndicator)
-    View dotIndicatorWebStoreLink;
     //endregion
 
     //region :Fields and constant
+    /**
+     * Flag to maintain user first name.
+     */
     @State
-    String mFirstName, mLastName, mProfilePicURL, mUserBio;
+    String mFirstName;
+    /**
+     * Flag to maintain user last name.
+     */
     @State
-    long mPostCount, mFollowerCount, mFollowingCount, mFeatureCount, mHatsoffCount, mCommentsCount, mCollaborationCount;
+    String mLastName;
+    /**
+     * Flag to maintain user profile pic url.
+     */
     @State
-    String mEmail, mContactNumber, mWaterMarkStatus;
+    String mProfilePicURL;
+    /**
+     * Flag to maintain user biography.
+     */
     @State
-    boolean mFollowStatus, isProfileEditable, mIsFeatured, mCanDownvote;
+    String mUserBio;
+
+    /**
+     * Flag to maintain user post count.
+     */
+    @State
+    long mPostCount;
+    /**
+     * Flag to maintain user follower count.
+     */
+    @State
+    long mFollowerCount;
+    /**
+     * Flag to maintain count of user whom he is following.
+     */
+    @State
+    long mFollowingCount;
+    /**
+     * Flag to maintain total no of times user has been selected as featured artist.
+     */
+    @State
+    long mFeatureCount;
+    /**
+     * Flag to maintain total no hatsOff received on user posts.
+     */
+    @State
+    long mHatsoffCount;
+    /**
+     * Flag to maintain total no comments received on user posts.
+     */
+    @State
+    long mCommentsCount;
+    /**
+     * Flag to maintain total no of collaboration count.
+     */
+    @State
+    long mCollaborationCount;
+
+    /**
+     * Flag to maintain user email.
+     */
+    @State
+    String mEmail;
+    /**
+     * Flag to maintain user contact number.
+     */
+    @State
+    String mContactNumber;
+    /**
+     * Flag to maintain watermark status.
+     */
+    @State
+    String mWaterMarkStatus;
+
+    /**
+     * Flag to maintain whether user is following the user or not.
+     */
+    @State
+    boolean mFollowStatus;
+
+    /**
+     * Flag to maintain whether user can edit his/her profile or not.
+     */
+    @State
+    boolean isProfileEditable;
+    /**
+     * Flag to maintain whether is user selected as  artist or not.
+     */
+    @State
+    boolean mIsFeatured;
+    /**
+     * Flag to maintain user's down vote privileges.
+     */
+    @State
+    boolean mCanDownvote;
+
+    /**
+     * Flag to maintain UUID of user whose profile to be loaded.
+     */
     @State
     String mRequestedUUID;
+    /**
+     * Flag to maintain user interest count.
+     */
     @State
     long mInterestCount = 0;
-
-    @State
-    String mEntityID, mEntityType;
-    Bitmap mBitmap;
-
-    @State
-    String mShareOption = SHARE_OPTION_OTHER;
-
-    FeedModel mFeedData;
-
-    private List<FeedModel> mUserActivityDataList = new ArrayList<>();
-    private List<FeedModel> mCollabList = new ArrayList<>();
-    private MeAdapter mAdapter;
-    private Unbinder mUnbinder;
-    private CompositeDisposable mCompositeDisposable = new CompositeDisposable();
-    private SharedPreferenceHelper mHelper;
-    private String mLastIndexKey;
-    private String mCollabLastIndexKey;
-    private boolean mCollabRequestMoreData;
-    private boolean mRequestMoreData;
-    private int[] mLayouts;
-    private int spanCount = 2;
-    private ArrayList<String> mSelectedInterest = new ArrayList<>();
-    private ObjectAnimator mAnimator;
 
     /**
      * Flag to maintain user web store link.
      */
     @State
     String mWebStoreUrl;
+
+
+    /**
+     * List to store user posts data list.
+     */
+    List<FeedModel> mUserPostDataList = new ArrayList<>();
+    /**
+     * List to store collaboration data list.
+     */
+    List<FeedModel> mCollabList = new ArrayList<>();
+
+    /**
+     * List to store re-post data list.
+     */
+    List<FeedModel> mRepostDataList = new ArrayList<>();
+
+    /**
+     * Flag to store last index key of user posts data.
+     */
+    @State
+    String mUserPostsLastIndexKey;
+    /**
+     * Flag to maintain whether next set of user posts data is available or not.
+     */
+    @State
+    boolean mUserPostsRequestMoreData;
+    /**
+     * Flag to store last index key of collaboration posts data.
+     */
+    @State
+    String mCollabPostsLastIndexKey;
+    /**
+     * Flag to maintain whether next set of collaboration posts data is available or not.
+     */
+    @State
+    boolean mCollabPostsRequestMoreData;
+    /**
+     * Flag to store last index key of re-posted posts data.
+     */
+    @State
+    String mRePostsLastIndexKey;
+    /**
+     * Flag to maintain whether next set of re posts data is available or not.
+     */
+    @State
+    boolean mRePostsRequestMoreData;
+
+
+    MeAdapter mAdapter;
+    Unbinder mUnbinder;
+    CompositeDisposable mCompositeDisposable = new CompositeDisposable();
+    SharedPreferenceHelper mHelper;
+
+    private int[] mLayouts;
+
+    private ArrayList<String> mSelectedInterest = new ArrayList<>();
+    private ObjectAnimator mAnimator;
+
+
+    Constant.ITEM_TYPES defaultItemType;
+
+    @State
+    String mItemType;
+
 
     /**
      * Parent view of live filter
@@ -271,14 +405,22 @@ public class MeFragment extends Fragment implements listener.OnCollaborationList
     @State
     String mLiveFilter;
 
+
+    @State
+    String mEntityID, mEntityType;
+    Bitmap mBitmap;
+
+    @State
+    String mShareOption = SHARE_OPTION_OTHER;
+
+    FeedModel mFeedData;
     //endregion
 
     //region :Overridden methods
     @Nullable
     @Override
-
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        //Initialize preference helper
+        //Obtain preference helper
         mHelper = new SharedPreferenceHelper(getActivity());
         // Its own option menu
         setHasOptionsMenu(true);
@@ -286,7 +428,6 @@ public class MeFragment extends Fragment implements listener.OnCollaborationList
         return inflater.inflate(R.layout.fragment_me
                 , container
                 , false);
-
     }
 
     @Override
@@ -308,7 +449,9 @@ public class MeFragment extends Fragment implements listener.OnCollaborationList
     @Override
     public void onDestroyView() {
         super.onDestroyView();
+        //Unbind butterKnife view binding
         mUnbinder.unbind();
+        //Dispose CompositeDisposable
         mCompositeDisposable.dispose();
     }
 
@@ -430,21 +573,21 @@ public class MeFragment extends Fragment implements listener.OnCollaborationList
                         updateFollowForAll(mCollabList.get(bundle.getInt("position")), mCollabList);
 
                     } else {
-                        mUserActivityDataList.get(position).setHatsOffStatus(bundle.getBoolean("hatsOffStatus"));
-                        mUserActivityDataList.get(position).setHatsOffCount(bundle.getLong("hatsOffCount"));
-                        mUserActivityDataList.get(position).setFollowStatus(bundle.getBoolean("followstatus"));
-                        mUserActivityDataList.get(position).setCaption(bundle.getString("caption"));
-                        mUserActivityDataList.get(position).setDownvoteStatus(bundle.getBoolean("downvotestatus"));
-                        mUserActivityDataList.get(position).setLiveFilterName(bundle.getString("filtername"));
-                        updateFollowForAll(mUserActivityDataList.get(position), mUserActivityDataList);
+                        mUserPostDataList.get(position).setHatsOffStatus(bundle.getBoolean("hatsOffStatus"));
+                        mUserPostDataList.get(position).setHatsOffCount(bundle.getLong("hatsOffCount"));
+                        mUserPostDataList.get(position).setFollowStatus(bundle.getBoolean("followstatus"));
+                        mUserPostDataList.get(position).setCaption(bundle.getString("caption"));
+                        mUserPostDataList.get(position).setDownvoteStatus(bundle.getBoolean("downvotestatus"));
+                        mUserPostDataList.get(position).setLiveFilterName(bundle.getString("filtername"));
+                        updateFollowForAll(mUserPostDataList.get(position), mUserPostDataList);
 
                         if (bundle.getBoolean("deletestatus")) {
-                            mUserActivityDataList.remove(bundle.getInt("position"));
+                            mUserPostDataList.remove(bundle.getInt("position"));
                             mAdapter.notifyItemRemoved(bundle.getInt("position") + 1);
                         }
 
                         ImagePipeline imagePipeline = Fresco.getImagePipeline();
-                        imagePipeline.evictFromCache(Uri.parse(mUserActivityDataList.get(position).getContentImage()));
+                        imagePipeline.evictFromCache(Uri.parse(mUserPostDataList.get(position).getContentImage()));
                     }
                     //Notify changes
                     mAdapter.notifyItemChanged(bundle.getInt("position"));
@@ -466,10 +609,8 @@ public class MeFragment extends Fragment implements listener.OnCollaborationList
     public void onCreateOptionsMenu(final Menu menu, MenuInflater inflater) {
         if (mHelper.getUUID().equals(mRequestedUUID)) {
             inflater.inflate(R.menu.menu_fragment_me, menu);
-
             // get instance of update menu item
             MenuItem updatesMenuItem = menu.findItem(R.id.action_updates);
-
             // if it exists set its flag
             if (updatesMenuItem != null) {
                 //Change action flag for updates icon
@@ -616,9 +757,8 @@ public class MeFragment extends Fragment implements listener.OnCollaborationList
             updateFollowStatus();
 
             //Log firebase event
-            Bundle bundle = new Bundle();
-            bundle.putString("uuid", mHelper.getUUID());
-            FirebaseAnalytics.getInstance(getActivity()).logEvent(FIREBASE_EVENT_FOLLOW_FROM_PROFILE, bundle);
+            FirebaseEventHelper.logFollowFromProfileEvent(getActivity()
+                    , mHelper.getUUID());
         } else {
             ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_no_connection));
         }
@@ -718,18 +858,16 @@ public class MeFragment extends Fragment implements listener.OnCollaborationList
             mRequestedUUID = mHelper.getUUID();
             //Enable profile editing
             isProfileEditable = true;
-
         } else {
             mRequestedUUID = getArguments().getString("requesteduuid");
             //Disable profile editing
             isProfileEditable = false;
-
             //Change settings drawable
             buttonProfileSettings.setImageDrawable(ContextCompat.getDrawable(getActivity()
                     , R.drawable.ic_link_vector));
         }
 
-        //Condition to toggle visibility of follow button and cha list icon
+        //Condition to toggle visibility of follow button and chat list icon
         if (mHelper.getUUID().equals(mRequestedUUID)) {
             //Hide follow button
             buttonFollow.setVisibility(View.GONE);
@@ -754,9 +892,9 @@ public class MeFragment extends Fragment implements listener.OnCollaborationList
         }
 
         //initialize tab layout
+        initTabLayout(tabLayout);
         initUserStatsPager();
         initSwipeRefreshLayout();
-        initTabLayout(tabLayout);
     }
 
     /**
@@ -766,7 +904,7 @@ public class MeFragment extends Fragment implements listener.OnCollaborationList
      */
     private void initTabLayout(TabLayout tabLayout) {
         //SetUp tabs
-        setUpTabs(tabLayout);
+        setUpTabs(tabLayout, getActivity());
         //Listener for tab selection
         tabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
             @Override
@@ -776,37 +914,38 @@ public class MeFragment extends Fragment implements listener.OnCollaborationList
 
                 // hide no data view if it's visible
                 viewNoData.setVisibility(View.GONE);
-
+                if (defaultItemType == GRID) {
+                    recyclerView.setLayoutManager(new GridLayoutManager(getActivity(), 2));
+                } else {
+                    recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
+                }
+                //Method called
+                updateItemType(tab.getPosition(), defaultItemType);
                 switch (tab.getPosition()) {
                     case 0:
-                        // setting pref
-                        mHelper.setFeedItemType(GRID);
-                        // grid layout for all data
-                        GridLayoutManager gridLayoutManager = new GridLayoutManager(getActivity(), spanCount);
-                        recyclerView.setLayoutManager(gridLayoutManager);
-
-                        mAdapter = new MeAdapter(mUserActivityDataList, getActivity(), mHelper.getUUID(), MeFragment.this, ITEM_TYPES.GRID, mCompositeDisposable);
+                        mAdapter = new MeAdapter(mUserPostDataList, getActivity(), mHelper.getUUID(), MeFragment.this, mItemType, mCompositeDisposable);
                         recyclerView.setAdapter(mAdapter);
-                        initListeners(LIST);
+                        initListeners();
                         break;
                     case 1:
-                        // setting pref
-                        mHelper.setFeedItemType(LIST);
-                        // list layout for all data
-                        recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
-                        mAdapter = new MeAdapter(mUserActivityDataList, getActivity(), mHelper.getUUID(), MeFragment.this, LIST, mCompositeDisposable);
+                        mCompositeDisposable.clear();
+                        mRepostDataList.clear();
+                        mRePostsLastIndexKey = null;
+                        mRePostsRequestMoreData = false;
+                        mAdapter = new MeAdapter(mRepostDataList, getActivity(), mHelper.getUUID(), MeFragment.this, mItemType, mCompositeDisposable);
                         recyclerView.setAdapter(mAdapter);
-                        initListeners(LIST);
+                        initListeners();
+                        getUserRePostsData(false);
                         break;
                     case 2:
-                        // list layout for collab data
+                        mCompositeDisposable.clear();
                         mCollabList.clear();
-                        mCollabLastIndexKey = null;
-                        recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
-                        mAdapter = new MeAdapter(mCollabList, getActivity(), mHelper.getUUID(), MeFragment.this, ITEM_TYPES.COLLABLIST, mCompositeDisposable);
+                        mCollabPostsLastIndexKey = null;
+                        mCollabPostsRequestMoreData = false;
+                        mAdapter = new MeAdapter(mCollabList, getActivity(), mHelper.getUUID(), MeFragment.this, mItemType, mCompositeDisposable);
                         recyclerView.setAdapter(mAdapter);
-                        initListeners(COLLABLIST);
-                        getCollabData();
+                        initListeners();
+                        getCollabData(false);
                         break;
                 }
             }
@@ -819,9 +958,74 @@ public class MeFragment extends Fragment implements listener.OnCollaborationList
 
             @Override
             public void onTabReselected(TabLayout.Tab tab) {
-                //do nothing
+                if (defaultItemType == GRID) {
+                    //Set layout manger
+                    recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
+                    //Update flag
+                    defaultItemType = ITEM_TYPES.LIST;
+                    //update shared preference
+                    mHelper.setFeedItemType(LIST);
+                } else if (defaultItemType == LIST) {
+                    //Set layout manger
+                    recyclerView.setLayoutManager(new GridLayoutManager(getActivity(), 2));
+                    //Update flag
+                    defaultItemType = ITEM_TYPES.GRID;
+                    //update shared preference
+                    mHelper.setFeedItemType(GRID);
+                }
+                //Method called
+                updateItemType(tab.getPosition(), defaultItemType);
+                //Change GRID to LIST and vice versa
+                switch (tab.getPosition()) {
+                    //uploaded posts
+                    case 0:
+                        //Set adapter
+                        mAdapter = new MeAdapter(mUserPostDataList, getActivity(), mHelper.getUUID(), MeFragment.this, mItemType, mCompositeDisposable);
+                        recyclerView.setAdapter(mAdapter);
+                        initListeners();
+                        break;
+                    //re-posted posts
+                    case 1:
+                        //Set adapter
+                        mAdapter = new MeAdapter(mRepostDataList, getActivity(), mHelper.getUUID(), MeFragment.this, mItemType, mCompositeDisposable);
+                        recyclerView.setAdapter(mAdapter);
+                        initListeners();
+                        break;
+                    //Collaboration posts
+                    case 2:
+                        //Set adapter
+                        mAdapter = new MeAdapter(mCollabList, getActivity(), mHelper.getUUID(), MeFragment.this, mItemType, mCompositeDisposable);
+                        recyclerView.setAdapter(mAdapter);
+                        initListeners();
+                        break;
+                    default:
+                        break;
+                }
             }
         });
+    }
+
+    /**
+     * Method to add tab items to tabLayout.
+     *
+     * @param tabLayout TabLayout where item to be added.
+     * @param context   Context to use.
+     */
+    private void setUpTabs(TabLayout tabLayout, Context context) {
+        //Add tab items
+        tabLayout.addTab(tabLayout.newTab().setIcon(R.drawable.ic_me_all_tab));
+        tabLayout.addTab(tabLayout.newTab().setIcon(R.drawable.ic_repost));
+        tabLayout.addTab(tabLayout.newTab().setIcon(R.drawable.ic_collab));
+
+        //Select first tab
+        tabLayout.getTabAt(0).select();
+        //initialize tabs icon tint
+        tabLayout.getTabAt(0).getIcon().setColorFilter(ContextCompat.getColor(context
+                , R.color.colorPrimary), PorterDuff.Mode.SRC_IN);
+        tabLayout.getTabAt(1).getIcon().setColorFilter(ContextCompat.getColor(context
+                , R.color.grey_custom), PorterDuff.Mode.SRC_IN);
+        tabLayout.getTabAt(2).getIcon().setColorFilter(ContextCompat.getColor(context
+                , R.color.grey_custom), PorterDuff.Mode.SRC_IN);
     }
 
     /**
@@ -909,67 +1113,6 @@ public class MeFragment extends Fragment implements listener.OnCollaborationList
         });
     }
 
-    /**
-     * Method to add tab items to tabLayout.
-     *
-     * @param tabLayout TabLayout where item to be added
-     */
-    private void setUpTabs(TabLayout tabLayout) {
-        //Add tab items
-        tabLayout.addTab(tabLayout.newTab().setIcon(R.drawable.ic_me_all_tab));
-        tabLayout.addTab(tabLayout.newTab().setIcon(R.drawable.ic_list));
-        tabLayout.addTab(tabLayout.newTab().setIcon(R.drawable.ic_collab));
-        //initialize tabs icon tint
-
-        //initialize tabs icon tint
-        if (defaultItemType == GRID) {
-            tabLayout.getTabAt(0).select();
-
-            tabLayout.getTabAt(0).getIcon().setColorFilter(ContextCompat.getColor(getActivity(), R.color.colorPrimary), PorterDuff.Mode.SRC_IN);
-            tabLayout.getTabAt(1).getIcon().setColorFilter(ContextCompat.getColor(getActivity(), R.color.grey_custom), PorterDuff.Mode.SRC_IN);
-            tabLayout.getTabAt(2).getIcon().setColorFilter(ContextCompat.getColor(getActivity(), R.color.grey_custom), PorterDuff.Mode.SRC_IN);
-        } else if (defaultItemType == LIST) {
-            tabLayout.getTabAt(1).select();
-
-            tabLayout.getTabAt(1).getIcon().setColorFilter(ContextCompat.getColor(getActivity(), R.color.colorPrimary), PorterDuff.Mode.SRC_IN);
-            tabLayout.getTabAt(0).getIcon().setColorFilter(ContextCompat.getColor(getActivity(), R.color.grey_custom), PorterDuff.Mode.SRC_IN);
-            tabLayout.getTabAt(2).getIcon().setColorFilter(ContextCompat.getColor(getActivity(), R.color.grey_custom), PorterDuff.Mode.SRC_IN);
-        }
-    }
-
-    private void initItemTypePreference() {
-        defaultItemType = mHelper.getFeedItemType();
-
-        if (defaultItemType == GRID) {
-            //Set layout manger for recyclerView
-            GridLayoutManager gridLayoutManager = new GridLayoutManager(getActivity(), spanCount);
-            recyclerView.setLayoutManager(gridLayoutManager);
-        } else if (mHelper.getFeedItemType() == LIST) {
-            recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
-        }
-
-        //Set adapter
-        mAdapter = new MeAdapter(mUserActivityDataList, getActivity(), mHelper.getUUID(), MeFragment.this, defaultItemType, mCompositeDisposable);
-        recyclerView.setAdapter(mAdapter);
-    }
-
-    /**
-     * This method loads data from server if user device is connected to internet.
-     */
-    private void loadProfileData() {
-        // if user device is connected to net
-        if (getNetConnectionStatus(getActivity())) {
-            swipeToRefreshLayout.setRefreshing(true);
-            //Get user profile data from server
-            getUserProfileData();
-            //Get user timeline data from server
-            getUserTimeLineData();
-        } else {
-            swipeToRefreshLayout.setRefreshing(false);
-            //No connection Snack bar
-            ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_no_connection));
-        }
-    }
 
     /**
      * RxJava2 implementation for retrieving user profile data from server.
@@ -1297,11 +1440,10 @@ public class MeFragment extends Fragment implements listener.OnCollaborationList
     }
 
     /**
-     * Method to initialize swipe to refresh view and user timeline view .
+     * Method to initialize swipe to refresh view.
      */
     private void initSwipeRefreshLayout() {
-
-        // show list items or grid items from pref
+        //Method called
         initItemTypePreference();
 
         swipeToRefreshLayout.setRefreshing(true);
@@ -1311,45 +1453,92 @@ public class MeFragment extends Fragment implements listener.OnCollaborationList
         //Load profile data
         loadProfileData();
         //Initialize listeners for normal list
-        initListeners(LIST);
+        initListeners();
+    }
+
+
+    /**
+     * Method to set user posts view preference. i.e GRID or LIST.
+     */
+    private void initItemTypePreference() {
+        defaultItemType = mHelper.getFeedItemType();
+        if (defaultItemType == GRID) {
+            //Set layout manger for recyclerView
+            recyclerView.setLayoutManager(new GridLayoutManager(getActivity(), 2));
+        } else if (mHelper.getFeedItemType() == LIST) {
+            recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
+        }
+        //Method called
+        updateItemType(tabLayout.getSelectedTabPosition(), defaultItemType);
+        //Set adapter
+        mAdapter = new MeAdapter(mUserPostDataList, getActivity(), mHelper.getUUID(), MeFragment.this, mItemType, mCompositeDisposable);
+        recyclerView.setAdapter(mAdapter);
     }
 
     /**
-     * Initializes the swipe refresh listener based on the item type
-     *
-     * @param itemType itemType
+     * This method loads data from server if user device is connected to internet.
      */
-    private void initOnSwipeRefreshListener(final ITEM_TYPES itemType) {
+    private void loadProfileData() {
+        // if user device is connected to net
+        if (getNetConnectionStatus(getActivity())) {
+            swipeToRefreshLayout.setRefreshing(true);
+            //Get user profile data from server
+            getUserProfileData();
+            //Get user timeline data from server
+            getUserPostsData(false);
+        } else {
+            swipeToRefreshLayout.setRefreshing(false);
+            //No connection Snack bar
+            ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_no_connection));
+        }
+    }
 
+    /**
+     * Initializes the swipe refresh listener based on the selected tab position.
+     *
+     * @param selectedTabPosition Position of selected tab.
+     */
+    private void initOnSwipeRefreshListener(final int selectedTabPosition) {
         swipeToRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
-
-                switch (itemType) {
-                    case LIST:
+                switch (selectedTabPosition) {
+                    //User posts
+                    case 0:
                         //Clear data
-                        mUserActivityDataList.clear();
+                        mUserPostDataList.clear();
+                        //Notify for changes
+                        mAdapter.notifyDataSetChanged();
+                        mAdapter.setLoaded();
+                        //set last index key to null
+                        mUserPostsLastIndexKey = null;
+                        //Load data here
+                        getUserPostsData(false);
+                        break;
+                    // Re-posts
+                    case 1:
+                        //Clear data
+                        mRepostDataList.clear();
 
                         //Notify for changes
                         mAdapter.notifyDataSetChanged();
                         mAdapter.setLoaded();
                         //set last index key to null
-                        mLastIndexKey = null;
+                        mRePostsLastIndexKey = null;
                         //Load data here
-                        getUserTimeLineData();
+                        getUserRePostsData(false);
                         break;
-
-                    case COLLABLIST:
+                    //Collaboration posts
+                    case 2:
                         //Clear data
                         mCollabList.clear();
-
                         //Notify for changes
                         mAdapter.notifyDataSetChanged();
                         mAdapter.setLoaded();
                         //set last index key to null
-                        mCollabLastIndexKey = null;
+                        mCollabPostsLastIndexKey = null;
                         //Load data here
-                        getCollabData();
+                        getCollabData(false);
 
                 }
 
@@ -1360,17 +1549,19 @@ public class MeFragment extends Fragment implements listener.OnCollaborationList
     }
 
     /**
-     * RxJava2 implementation for retrieving user timeline data from server.
+     * RxJava2 implementation for retrieving user posts data from server.
+     *
+     * @param isLoadNextData True to load next set of data false otherwise.
      */
-    private void getUserTimeLineData() {
+    private void getUserPostsData(final boolean isLoadNextData) {
         final boolean[] tokenError = {false};
         final boolean[] connectionError = {false};
 
-        mCompositeDisposable.add(getObservableFromServer(BuildConfig.URL + "/user-profile/load-timeline"
+        mCompositeDisposable.add(MeNetworkManager.getUserPostsObservable(BuildConfig.URL + "/user-profile/load-timeline"
                 , mHelper.getUUID()
                 , mHelper.getAuthToken()
                 , mRequestedUUID
-                , mLastIndexKey
+                , mUserPostsLastIndexKey
                 , GET_RESPONSE_FROM_NETWORK_ME)
                 //Run on a background thread
                 .subscribeOn(Schedulers.io())
@@ -1379,27 +1570,38 @@ public class MeFragment extends Fragment implements listener.OnCollaborationList
                 .subscribeWith(new DisposableObserver<JSONObject>() {
                     @Override
                     public void onNext(JSONObject jsonObject) {
+                        //if load next set of user posts data
+                        if (isLoadNextData) {
+                            //Remove loading item
+                            mUserPostDataList.remove(mUserPostDataList.size() - 1);
+                            //Notify changes
+                            mAdapter.notifyItemRemoved(mUserPostDataList.size());
+                        }
                         try {
                             //Token status is invalid
                             if (jsonObject.getString("tokenstatus").equals("invalid")) {
                                 tokenError[0] = true;
                             } else {
-                                parsePostsData(jsonObject, false);
+                                //Method called
+                                parsePostsData(jsonObject, isLoadNextData);
                             }
                         } catch (JSONException e) {
                             e.printStackTrace();
-                            Crashlytics.logException(e);
-                            Crashlytics.setString("className", "MeFragment");
                             connectionError[0] = true;
                         }
                     }
 
                     @Override
                     public void onError(Throwable e) {
+                        //if load next set of user posts data
+                        if (isLoadNextData) {
+                            //Remove loading item
+                            mUserPostDataList.remove(mUserPostDataList.size() - 1);
+                            //Notify changes
+                            mAdapter.notifyItemRemoved(mUserPostDataList.size());
+                        }
                         swipeToRefreshLayout.setRefreshing(false);
                         e.printStackTrace();
-                        Crashlytics.logException(e);
-                        Crashlytics.setString("className", "MeFragment");
                         //Server error Snack bar
                         ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_server));
                     }
@@ -1407,8 +1609,6 @@ public class MeFragment extends Fragment implements listener.OnCollaborationList
                     @Override
                     public void onComplete() {
                         swipeToRefreshLayout.setRefreshing(false);
-                        // set to false
-                        GET_RESPONSE_FROM_NETWORK_ME = false;
                         // Token status invalid
                         if (tokenError[0]) {
                             ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_invalid_token));
@@ -1416,23 +1616,33 @@ public class MeFragment extends Fragment implements listener.OnCollaborationList
                         //Error occurred
                         else if (connectionError[0]) {
                             ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_internal));
-                        } else if (mUserActivityDataList.size() == 0) {
-                            //Show no data view
+                        }
+                        //No data
+                        else if (mUserPostDataList.size() == 0) {
                             if (isProfileEditable) {
+                                //Show no data view
                                 viewNoData.setVisibility(View.VISIBLE);
                             } else {
                                 //Hide no data view
                                 viewNoData.setVisibility(View.GONE);
                             }
-                            ViewHelper.getSnackBar(rootView, "User hasn't uploaded anything yet");
+                            ViewHelper.getSnackBar(rootView, getString(R.string.message_no_post));
                         } else {
-                            //Apply 'Slide Up' animation
-                            int resId = R.anim.layout_animation_from_bottom;
-                            LayoutAnimationController animation = AnimationUtils.loadLayoutAnimation(getActivity(), resId);
-                            recyclerView.setLayoutAnimation(animation);
-                            mAdapter.notifyDataSetChanged();
-                            //Hide no data view
-                            viewNoData.setVisibility(View.GONE);
+                            //if load next set of user posts data
+                            if (isLoadNextData) {
+                                //Notify changes
+                                mAdapter.setLoaded();
+                            } else {
+                                //set to false
+                                CreadApp.GET_RESPONSE_FROM_NETWORK_ME = false;
+                                //Apply 'Slide Up' animation
+                                recyclerView.setLayoutAnimation(AnimationUtils.loadLayoutAnimation(getActivity()
+                                        , R.anim.layout_animation_from_bottom));
+                                mAdapter.notifyDataSetChanged();
+                                //Hide no data view
+                                viewNoData.setVisibility(View.GONE);
+                            }
+
                         }
                     }
                 })
@@ -1440,57 +1650,161 @@ public class MeFragment extends Fragment implements listener.OnCollaborationList
     }
 
     /**
-     * Loads the collaboration data
+     * Method to parse Json object.
+     *
+     * @param jsonObject JsonObject to be parsed.
+     * @param isLoadMore Whether called from load more or not.
+     * @throws JSONException
      */
-    private void getCollabData() {
+    private void parsePostsData(JSONObject jsonObject, boolean isLoadMore) throws JSONException {
+        JSONObject mainData = jsonObject.getJSONObject("data");
+        mUserPostsRequestMoreData = mainData.getBoolean("requestmore");
+        mUserPostsLastIndexKey = mainData.getString("lastindexkey");
+        mCanDownvote = mainData.getBoolean("candownvote");
+        //User posts array list
+        JSONArray UserPostsArray = mainData.getJSONArray("items");
+        for (int i = 0; i < UserPostsArray.length(); i++) {
+            JSONObject dataObj = UserPostsArray.getJSONObject(i);
+            String type = dataObj.getString("type");
+
+            FeedModel data = new FeedModel();
+            data.setEntityID(dataObj.getString("entityid"));
+            data.setContentType(dataObj.getString("type"));
+            data.setUUID(dataObj.getString("uuid"));
+            data.setCreatorImage(dataObj.getString("profilepicurl"));
+            data.setCreatorName(dataObj.getString("creatorname"));
+            data.setHatsOffStatus(dataObj.getBoolean("hatsoffstatus"));
+            data.setMerchantable(dataObj.getBoolean("merchantable"));
+            data.setDownvoteStatus(dataObj.getBoolean("downvotestatus"));
+            data.setEligibleForDownvote(mCanDownvote);
+            data.setPostTimeStamp(dataObj.getString("regdate"));
+            data.setLongForm(dataObj.getBoolean("long_form"));
+            data.setHatsOffCount(dataObj.getLong("hatsoffcount"));
+            data.setCommentCount(dataObj.getLong("commentcount"));
+            data.setContentImage(dataObj.getString("entityurl"));
+            data.setFollowStatus(dataObj.getBoolean("followstatus"));
+            data.setCollabCount(dataObj.getLong("collabcount"));
+            data.setLiveFilterName(dataObj.getString("livefilter"));
+            //if image width or image height is null
+            if (dataObj.isNull("img_width") || dataObj.isNull("img_height")) {
+                data.setImgWidth(1);
+                data.setImgHeight(1);
+            } else {
+                data.setImgWidth(dataObj.getInt("img_width"));
+                data.setImgHeight(dataObj.getInt("img_height"));
+            }
+            if (dataObj.isNull("caption")) {
+                data.setCaption(null);
+            } else {
+                data.setCaption(dataObj.getString("caption"));
+            }
+
+            // if capture
+            if (type.equals(CONTENT_TYPE_CAPTURE)) {
+                //Retrieve "CAPTURE_ID" if type is capture
+                data.setCaptureID(dataObj.getString("captureid"));
+                //if key cpshort exists
+                // not available for collaboration
+                if (!dataObj.isNull("cpshort")) {
+                    JSONObject collabObject = dataObj.getJSONObject("cpshort");
+                    data.setAvailableForCollab(false);
+                    // set collaborator details
+                    data.setCollabWithUUID(collabObject.getString("uuid"));
+                    data.setCollabWithName(collabObject.getString("name"));
+                    data.setCollaboWithEntityID(collabObject.getString("entityid"));
+                } else {
+                    data.setAvailableForCollab(true);
+                }
+            }
+            //if short
+            else if (type.equals(CONTENT_TYPE_SHORT)) {
+                //Retrieve "SHORT_ID" if type is short
+                data.setShortID(dataObj.getString("shoid"));
+                //if key shcapture exists
+                // not available for collaboration
+                if (!dataObj.isNull("shcapture")) {
+                    JSONObject collabObject = dataObj.getJSONObject("shcapture");
+                    data.setAvailableForCollab(false);
+                    // set collaborator details
+                    data.setCollabWithUUID(collabObject.getString("uuid"));
+                    data.setCollabWithName(collabObject.getString("name"));
+                    data.setCollaboWithEntityID(collabObject.getString("entityid"));
+                } else {
+                    data.setAvailableForCollab(true);
+                }
+            }
+            mUserPostDataList.add(data);
+            //Called from load more
+            if (isLoadMore) {
+                //Notify item insertion
+                mAdapter.notifyItemInserted(mUserPostDataList.size() - 1);
+            }
+        }
+    }
+
+
+    /**
+     * RxJava2 implementation for retrieving collaboration posts data from server.
+     *
+     * @param isLoadNextData True to load next set of data false otherwise.
+     */
+    private void getCollabData(final boolean isLoadNextData) {
         final boolean[] tokenError = {false};
         final boolean[] connectionError = {false};
 
-        swipeToRefreshLayout.setRefreshing(true);
-
+        //if load first set of collaboration posts data
+        if (!isLoadNextData) {
+            swipeToRefreshLayout.setRefreshing(true);
+        }
         requestServer(mCompositeDisposable,
-                getObservableFromServer(BuildConfig.URL + "/user-profile/load-collab-timeline",
+                MeNetworkManager.getCollaborationPostsObservable(BuildConfig.URL + "/user-profile/load-collab-timeline",
                         mHelper.getUUID(),
                         mHelper.getAuthToken(),
                         mRequestedUUID,
-                        mCollabLastIndexKey,
+                        mCollabPostsLastIndexKey,
                         GET_RESPONSE_FROM_NETWORK_ME),
                 getActivity(),
                 new OnServerRequestedListener<JSONObject>() {
                     @Override
                     public void onDeviceOffline() {
-
                         ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_no_connection));
                         swipeToRefreshLayout.setRefreshing(false);
                     }
 
                     @Override
                     public void onNextCalled(JSONObject jsonObject) {
+                        //if load next set of collaboration posts data
+                        if (isLoadNextData) {
+                            //Remove loading item
+                            mCollabList.remove(mCollabList.size() - 1);
+                            //Notify changes
+                            mAdapter.notifyItemRemoved(mCollabList.size());
+                        }
                         try {
                             //Token status is invalid
                             if (jsonObject.getString("tokenstatus").equals("invalid")) {
                                 tokenError[0] = true;
                             } else {
-                                parseCollabData(jsonObject, false);
+                                parseCollabData(jsonObject, isLoadNextData);
                             }
 
                         } catch (JSONException e) {
                             e.printStackTrace();
-                            Crashlytics.logException(e);
-                            Crashlytics.setString("className", "MeFragment");
                             connectionError[0] = true;
                         }
                     }
 
                     @Override
                     public void onErrorCalled(Throwable e) {
-
+                        //if load next set of collaboration posts data
+                        if (isLoadNextData) {
+                            //Remove loading item
+                            mCollabList.remove(mCollabList.size() - 1);
+                            //Notify changes
+                            mAdapter.notifyItemRemoved(mCollabList.size());
+                        }
                         e.printStackTrace();
-                        Crashlytics.logException(e);
-                        Crashlytics.setString("className", "MeFragment");
-
                         swipeToRefreshLayout.setRefreshing(false);
-
                         //Server error Snack bar
                         ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_server));
 
@@ -1519,24 +1833,18 @@ public class MeFragment extends Fragment implements listener.OnCollaborationList
                             }
 
                         } else {
-                            // Token status invalid
-                            if (tokenError[0]) {
-                                ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_invalid_token));
-                            }
-                            //Error occurred
-                            else if (connectionError[0]) {
-                                ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_internal));
+                            //if load next set of collaboration posts data
+                            if (isLoadNextData) {
+                                //Notify changes
+                                mAdapter.setLoaded();
                             } else {
-
                                 //Apply 'Slide Up' animation
-                                int resId = R.anim.layout_animation_from_bottom;
-                                LayoutAnimationController animation = AnimationUtils.loadLayoutAnimation(getActivity(), resId);
-                                recyclerView.setLayoutAnimation(animation);
+                                recyclerView.setLayoutAnimation(AnimationUtils.loadLayoutAnimation(getActivity()
+                                        , R.anim.layout_animation_from_bottom));
                                 mAdapter.notifyDataSetChanged();
-
-                                //Hide no data view
-                                viewNoData.setVisibility(View.GONE);
                             }
+                            //Hide no data view
+                            viewNoData.setVisibility(View.GONE);
                         }
                     }
                 });
@@ -1544,98 +1852,21 @@ public class MeFragment extends Fragment implements listener.OnCollaborationList
     }
 
     /**
-     * Loads the next set of collab data
+     * Method to parse Json object.
+     *
+     * @param jsonObject JsonObject to be parsed.
+     * @param isLoadMore Whether called from load more or not.
+     * @throws JSONException
      */
-    private void getNextCollabData() {
-        final boolean[] tokenError = {false};
-        final boolean[] connectionError = {false};
-
-
-        requestServer(mCompositeDisposable,
-                getObservableFromServer(BuildConfig.URL + "/user-profile/load-collab-timeline",
-                        mHelper.getUUID(),
-                        mHelper.getAuthToken(),
-                        mRequestedUUID,
-                        mCollabLastIndexKey,
-                        GET_RESPONSE_FROM_NETWORK_ME),
-                getActivity(),
-                new OnServerRequestedListener<JSONObject>() {
-                    @Override
-                    public void onDeviceOffline() {
-                        ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_no_connection));
-                    }
-
-                    @Override
-                    public void onNextCalled(JSONObject jsonObject) {
-                        try {
-                            //Remove loading item
-                            mCollabList.remove(mCollabList.size() - 1);
-                            //Notify changes
-                            mAdapter.notifyItemRemoved(mCollabList.size());
-
-                            //Token status is invalid
-                            if (jsonObject.getString("tokenstatus").equals("invalid")) {
-                                tokenError[0] = true;
-                            } else {
-
-                                parseCollabData(jsonObject, true);
-                            }
-
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                            Crashlytics.logException(e);
-                            Crashlytics.setString("className", "MeFragment");
-                            connectionError[0] = true;
-                        }
-                    }
-
-                    @Override
-                    public void onErrorCalled(Throwable e) {
-
-                        //Remove loading item
-                        mCollabList.remove(mCollabList.size() - 1);
-                        //Notify changes
-                        mAdapter.notifyItemRemoved(mCollabList.size());
-                        Crashlytics.logException(e);
-                        Crashlytics.setString("className", "MeFragment");
-                        //Server error Snack bar
-                        ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_server));
-
-                    }
-
-                    @Override
-                    public void onCompleteCalled() {
-
-                        // Token status invalid
-                        if (tokenError[0]) {
-                            ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_invalid_token));
-                        }
-                        //Error occurred
-                        else if (connectionError[0]) {
-                            ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_internal));
-                        } else if (mCollabList.size() == 0) {
-                            //Show no data view
-                            viewNoData.setVisibility(View.VISIBLE);
-                        } else {
-                            //Notify changes
-                            mAdapter.setLoaded();
-                        }
-
-                    }
-                });
-    }
-
     private void parseCollabData(JSONObject jsonObject, boolean isLoadMore) throws JSONException {
-
         JSONObject mainData = jsonObject.getJSONObject("data");
-        mCollabRequestMoreData = mainData.getBoolean("requestmore");
-        mCollabLastIndexKey = mainData.getString("lastindexkey");
+        mCollabPostsRequestMoreData = mainData.getBoolean("requestmore");
+        mCollabPostsLastIndexKey = mainData.getString("lastindexkey");
         mCanDownvote = mainData.getBoolean("candownvote");
         //Collab array list
         JSONArray collabArray = mainData.getJSONArray("items");
         for (int i = 0; i < collabArray.length(); i++) {
             JSONObject dataObj = collabArray.getJSONObject(i);
-
             String type = dataObj.getString("type");
 
             FeedModel data = new FeedModel();
@@ -1670,38 +1901,32 @@ public class MeFragment extends Fragment implements listener.OnCollaborationList
                 data.setCaption(dataObj.getString("caption"));
             }
 
+            // if capture
             if (type.equals(CONTENT_TYPE_CAPTURE)) {
-
                 //Retrieve "CAPTURE_ID" if type is capture
                 data.setCaptureID(dataObj.getString("captureid"));
-                // if capture
                 // then if key cpshort exists
                 // not available for collaboration
                 if (!dataObj.isNull("cpshort")) {
                     JSONObject collabObject = dataObj.getJSONObject("cpshort");
-
                     data.setAvailableForCollab(false);
                     // set collaborator details
                     data.setCollabWithUUID(collabObject.getString("uuid"));
                     data.setCollabWithName(collabObject.getString("name"));
                     data.setCollaboWithEntityID(collabObject.getString("entityid"));
-
                 } else {
                     data.setAvailableForCollab(true);
                 }
-
-            } else if (type.equals(CONTENT_TYPE_SHORT)) {
-
+            }
+            // if short
+            else if (type.equals(CONTENT_TYPE_SHORT)) {
                 //Retrieve "SHORT_ID" if type is short
                 data.setShortID(dataObj.getString("shoid"));
-
-                // if short
-                // then if key shcapture exists
+                //if key shcapture exists
                 // not available for collaboration
                 if (!dataObj.isNull("shcapture")) {
 
                     JSONObject collabObject = dataObj.getJSONObject("shcapture");
-
                     data.setAvailableForCollab(false);
                     // set collaborator details
                     data.setCollabWithUUID(collabObject.getString("uuid"));
@@ -1713,7 +1938,6 @@ public class MeFragment extends Fragment implements listener.OnCollaborationList
             }
 
             mCollabList.add(data);
-
             if (isLoadMore) {
                 //Notify item changes
                 mAdapter.notifyItemInserted(mCollabList.size() - 1);
@@ -1721,78 +1945,25 @@ public class MeFragment extends Fragment implements listener.OnCollaborationList
         }
     }
 
-    private void initListeners(ITEM_TYPES itemType) {
-        initLoadMoreListener(itemType);
-        initHatsOffListener(mAdapter);
-        initializeDeleteListener(mAdapter);
-        initShareListener(mAdapter);
-        initGifShareListener(mAdapter);
-
-        // init swipe refresh listener for list
-        initOnSwipeRefreshListener(itemType);
-    }
-
     /**
-     * Initialize load more listener.
+     * RxJava2 implementation for retrieving user re-posts data from server.
      *
-     * @param itemType
+     * @param isLoadNextData True to load next set of data false otherwise.
      */
-    private void initLoadMoreListener(final ITEM_TYPES itemType) {
-
-        mAdapter.setUserActivityLoadMoreListener(new listener.OnUserActivityLoadMoreListener() {
-            @Override
-            public void onLoadMore() {
-
-                switch (itemType) {
-                    case LIST:
-                        if (mRequestMoreData) {
-
-                            new Handler().post(new Runnable() {
-                                                   @Override
-                                                   public void run() {
-                                                       mUserActivityDataList.add(null);
-                                                       mAdapter.notifyItemInserted(mUserActivityDataList.size() - 1);
-                                                   }
-                                               }
-                            );
-                            //Load new set of data
-                            getUserTimeLineNextData();
-                        }
-
-                        break;
-
-                    case COLLABLIST:
-                        if (mCollabRequestMoreData) {
-                            new Handler().post(new Runnable() {
-                                                   @Override
-                                                   public void run() {
-                                                       mCollabList.add(null);
-                                                       mAdapter.notifyItemInserted(mCollabList.size() - 1);
-                                                   }
-                                               }
-                            );
-                            //Load new set of data
-                            getNextCollabData();
-                        }
-                }
-
-
-            }
-        });
-    }
-
-    /**
-     * RxJava2 implementation for retrieving next set of user timeline data from server.
-     */
-    private void getUserTimeLineNextData() {
+    private void getUserRePostsData(final boolean isLoadNextData) {
         final boolean[] tokenError = {false};
         final boolean[] connectionError = {false};
 
-        mCompositeDisposable.add(getObservableFromServer(BuildConfig.URL + "/user-profile/load-timeline"
+        //if load first set of collaboration posts data
+        if (!isLoadNextData) {
+            swipeToRefreshLayout.setRefreshing(true);
+        }
+
+        mCompositeDisposable.add(MeNetworkManager.getUserRePostsObservable(BuildConfig.URL + "/user-profile/load-repost-timeline"
                 , mHelper.getUUID()
                 , mHelper.getAuthToken()
                 , mRequestedUUID
-                , mLastIndexKey
+                , mRePostsLastIndexKey
                 , GET_RESPONSE_FROM_NETWORK_ME)
                 //Run on a background thread
                 .subscribeOn(Schedulers.io())
@@ -1801,40 +1972,45 @@ public class MeFragment extends Fragment implements listener.OnCollaborationList
                 .subscribeWith(new DisposableObserver<JSONObject>() {
                     @Override
                     public void onNext(JSONObject jsonObject) {
-                        //Remove loading item
-                        mUserActivityDataList.remove(mUserActivityDataList.size() - 1);
-                        //Notify changes
-                        mAdapter.notifyItemRemoved(mUserActivityDataList.size());
+                        //if load next set of re posts data
+                        if (isLoadNextData) {
+                            //Remove loading item
+                            mRepostDataList.remove(mRepostDataList.size() - 1);
+                            //Notify changes
+                            mAdapter.notifyItemRemoved(mRepostDataList.size());
+                        }
                         try {
                             //Token status is invalid
                             if (jsonObject.getString("tokenstatus").equals("invalid")) {
                                 tokenError[0] = true;
                             } else {
-                                parsePostsData(jsonObject, true);
+                                //Method called
+                                parseRePostsData(jsonObject, isLoadNextData);
                             }
                         } catch (JSONException e) {
                             e.printStackTrace();
-                            Crashlytics.logException(e);
-                            Crashlytics.setString("className", "MeFragment");
                             connectionError[0] = true;
                         }
                     }
 
                     @Override
                     public void onError(Throwable e) {
-                        //Remove loading item
-                        mUserActivityDataList.remove(mUserActivityDataList.size() - 1);
-                        //Notify changes
-                        mAdapter.notifyItemRemoved(mUserActivityDataList.size());
+                        //if load next set of re posts data
+                        if (isLoadNextData) {
+                            //Remove loading item
+                            mRepostDataList.remove(mRepostDataList.size() - 1);
+                            //Notify changes
+                            mAdapter.notifyItemRemoved(mRepostDataList.size());
+                        }
+                        swipeToRefreshLayout.setRefreshing(false);
                         e.printStackTrace();
-                        Crashlytics.logException(e);
-                        Crashlytics.setString("className", "MeFragment");
                         //Server error Snack bar
                         ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_server));
                     }
 
                     @Override
                     public void onComplete() {
+                        swipeToRefreshLayout.setRefreshing(false);
                         // Token status invalid
                         if (tokenError[0]) {
                             ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_invalid_token));
@@ -1844,16 +2020,209 @@ public class MeFragment extends Fragment implements listener.OnCollaborationList
                             ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_internal));
                         }
                         //No data
-                        else if (mUserActivityDataList.size() == 0) {
-                            ViewHelper.getSnackBar(rootView, "Nothing to show");
+                        else if (mRepostDataList.size() == 0) {
+                            if (isProfileEditable) {
+                                //Show no data view
+                                viewNoData.setVisibility(View.VISIBLE);
+                            } else {
+                                //Hide no data view
+                                viewNoData.setVisibility(View.GONE);
+                            }
+                            ViewHelper.getSnackBar(rootView, getString(R.string.message_no_post));
                         } else {
-                            //Notify changes
-                            mAdapter.setLoaded();
+                            //if load next set of re posts data
+                            if (isLoadNextData) {
+                                //Notify changes
+                                mAdapter.setLoaded();
+                            } else {
+                                //set to false
+                                CreadApp.GET_RESPONSE_FROM_NETWORK_ME = false;
+                                //Apply 'Slide Up' animation
+                                recyclerView.setLayoutAnimation(AnimationUtils.loadLayoutAnimation(getActivity()
+                                        , R.anim.layout_animation_from_bottom));
+                                mAdapter.notifyDataSetChanged();
+                                //Hide no data view
+                                viewNoData.setVisibility(View.GONE);
+                            }
+
                         }
                     }
                 })
         );
     }
+
+    /**
+     * Method to parse Json object.
+     *
+     * @param jsonObject JsonObject to be parsed.
+     * @param isLoadMore Whether called from load more or not.
+     * @throws JSONException
+     */
+    private void parseRePostsData(JSONObject jsonObject, boolean isLoadMore) throws JSONException {
+        JSONObject mainData = jsonObject.getJSONObject("data");
+        mRePostsRequestMoreData = mainData.getBoolean("requestmore");
+        mRePostsLastIndexKey = mainData.getString("lastindexkey");
+        mCanDownvote = mainData.getBoolean("candownvote");
+        //User posts array list
+        JSONArray UserPostsArray = mainData.getJSONArray("items");
+        for (int i = 0; i < UserPostsArray.length(); i++) {
+            JSONObject dataObj = UserPostsArray.getJSONObject(i);
+            String type = dataObj.getString("type");
+
+            FeedModel data = new FeedModel();
+            data.setEntityID(dataObj.getString("entityid"));
+            data.setContentType(dataObj.getString("type"));
+            data.setUUID(dataObj.getString("uuid"));
+            data.setCreatorImage(dataObj.getString("profilepicurl"));
+            data.setCreatorName(dataObj.getString("creatorname"));
+            data.setHatsOffStatus(dataObj.getBoolean("hatsoffstatus"));
+            data.setMerchantable(dataObj.getBoolean("merchantable"));
+            data.setDownvoteStatus(dataObj.getBoolean("downvotestatus"));
+            data.setEligibleForDownvote(mCanDownvote);
+            data.setPostTimeStamp(dataObj.getString("regdate"));
+            data.setLongForm(dataObj.getBoolean("long_form"));
+            data.setHatsOffCount(dataObj.getLong("hatsoffcount"));
+            data.setCommentCount(dataObj.getLong("commentcount"));
+            data.setContentImage(dataObj.getString("entityurl"));
+            data.setFollowStatus(dataObj.getBoolean("followstatus"));
+            data.setCollabCount(dataObj.getLong("collabcount"));
+            data.setLiveFilterName(dataObj.getString("livefilter"));
+            data.setRepostDate(dataObj.getString("repostdate"));
+            data.setReposterUUID(dataObj.getString("reposteruuid"));
+            data.setReposterName(dataObj.getString("repostername"));
+            data.setRepostID(dataObj.getString("repostid"));
+
+            //if image width or image height is null
+            if (dataObj.isNull("img_width") || dataObj.isNull("img_height")) {
+                data.setImgWidth(1);
+                data.setImgHeight(1);
+            } else {
+                data.setImgWidth(dataObj.getInt("img_width"));
+                data.setImgHeight(dataObj.getInt("img_height"));
+            }
+            if (dataObj.isNull("caption")) {
+                data.setCaption(null);
+            } else {
+                data.setCaption(dataObj.getString("caption"));
+            }
+
+            // if capture
+            if (type.equals(CONTENT_TYPE_CAPTURE)) {
+                //Retrieve "CAPTURE_ID" if type is capture
+                data.setCaptureID(dataObj.getString("captureid"));
+                //if key cpshort exists
+                // not available for collaboration
+                if (!dataObj.isNull("cpshort")) {
+                    JSONObject collabObject = dataObj.getJSONObject("cpshort");
+                    data.setAvailableForCollab(false);
+                    // set collaborator details
+                    data.setCollabWithUUID(collabObject.getString("uuid"));
+                    data.setCollabWithName(collabObject.getString("name"));
+                    data.setCollaboWithEntityID(collabObject.getString("entityid"));
+                } else {
+                    data.setAvailableForCollab(true);
+                }
+            }
+            //if short
+            else if (type.equals(CONTENT_TYPE_SHORT)) {
+                //Retrieve "SHORT_ID" if type is short
+                data.setShortID(dataObj.getString("shoid"));
+                //if key shcapture exists
+                // not available for collaboration
+                if (!dataObj.isNull("shcapture")) {
+                    JSONObject collabObject = dataObj.getJSONObject("shcapture");
+                    data.setAvailableForCollab(false);
+                    // set collaborator details
+                    data.setCollabWithUUID(collabObject.getString("uuid"));
+                    data.setCollabWithName(collabObject.getString("name"));
+                    data.setCollaboWithEntityID(collabObject.getString("entityid"));
+                } else {
+                    data.setAvailableForCollab(true);
+                }
+            }
+            mRepostDataList.add(data);
+            //Called from load more
+            if (isLoadMore) {
+                //Notify item insertion
+                mAdapter.notifyItemInserted(mRepostDataList.size() - 1);
+            }
+        }
+    }
+
+
+    private void initListeners() {
+        initLoadMoreListener(tabLayout.getSelectedTabPosition());
+        initHatsOffListener(mAdapter);
+        initializeDeleteListener(mAdapter);
+        initShareListener(mAdapter);
+        initGifShareListener(mAdapter);
+        initRepostDeleteListener(mAdapter);
+
+        // init swipe refresh listener for list
+        initOnSwipeRefreshListener(tabLayout.getSelectedTabPosition());
+    }
+
+    /**
+     * Initialize load more listener.
+     *
+     * @param selectedTabPosition currently selected tab position
+     */
+    private void initLoadMoreListener(final int selectedTabPosition) {
+        mAdapter.setUserActivityLoadMoreListener(new listener.OnUserActivityLoadMoreListener() {
+            @Override
+            public void onLoadMore() {
+                switch (selectedTabPosition) {
+                    //User posts
+                    case 0:
+                        if (mUserPostsRequestMoreData) {
+
+                            new Handler().post(new Runnable() {
+                                                   @Override
+                                                   public void run() {
+                                                       mUserPostDataList.add(null);
+                                                       mAdapter.notifyItemInserted(mUserPostDataList.size() - 1);
+                                                   }
+                                               }
+                            );
+                            //Load new set of data
+                            getUserPostsData(true);
+                        }
+
+                        break;
+                    //Re-posts
+                    case 1:
+                        if (mRePostsRequestMoreData) {
+                            new Handler().post(new Runnable() {
+                                                   @Override
+                                                   public void run() {
+                                                       mRepostDataList.add(null);
+                                                       mAdapter.notifyItemInserted(mRepostDataList.size() - 1);
+                                                   }
+                                               }
+                            );
+                            //Load new set of data
+                            getUserRePostsData(true);
+                        }
+                        break;
+                    //Collaboration post
+                    case 2:
+                        if (mCollabPostsRequestMoreData) {
+                            new Handler().post(new Runnable() {
+                                                   @Override
+                                                   public void run() {
+                                                       mCollabList.add(null);
+                                                       mAdapter.notifyItemInserted(mCollabList.size() - 1);
+                                                   }
+                                               }
+                            );
+                            //Load new set of data
+                            getCollabData(true);
+                        }
+                }
+            }
+        });
+    }
+
 
     /**
      * Initialize hats off listener.
@@ -1873,7 +2242,7 @@ public class MeFragment extends Fragment implements listener.OnCollaborationList
                         //Do nothing
                     }
                 });
-                // On hatsOffSuccessListener
+                // On hatsOffFailureListener
                 hatsOffHelper.setOnHatsOffFailureListener(new HatsOffHelper.OnHatsOffFailureListener() {
                     @Override
                     public void onFailure(String errorMsg) {
@@ -1891,7 +2260,8 @@ public class MeFragment extends Fragment implements listener.OnCollaborationList
 
     /**
      * Initialize delete listener
-     * * @param adapter MeAdapter reference.
+     *
+     * @param meAdapter MeAdapter reference.
      */
     private void initializeDeleteListener(MeAdapter meAdapter) {
         meAdapter.setOnContentDeleteListener(new listener.OnContentDeleteListener() {
@@ -1902,6 +2272,38 @@ public class MeFragment extends Fragment implements listener.OnCollaborationList
             }
         });
     }
+
+
+    /**
+     * Initialize delete listener
+     *
+     * @param meAdapter MeAdapter reference.
+     */
+    private void initRepostDeleteListener(MeAdapter meAdapter) {
+        meAdapter.setOnRepostDeleteListener(new listener.OnRepostDeleteListener() {
+            @Override
+            public void onDelete(String repostID, final int position) {
+
+                RepostNetworkManager.deleteRepost(getActivity(), mCompositeDisposable, repostID, new RepostNetworkManager.OnRepostDeleteListener() {
+                    @Override
+                    public void onSuccess() {
+                        //Remove item from list and notify changes
+                        mRepostDataList.remove(position);
+                        mAdapter.notifyItemRemoved(position);
+                        mAdapter.notifyItemRangeChanged(position, mRepostDataList.size());
+                        ViewHelper.getSnackBar(rootView, "Post deleted");
+                        CreadApp.GET_RESPONSE_FROM_NETWORK_ME = true;
+                    }
+
+                    @Override
+                    public void onFailure(String errorMsg) {
+                        ViewHelper.getSnackBar(rootView, errorMsg);
+                    }
+                });
+            }
+        });
+    }
+
 
     /**
      * Method to delete content.
@@ -1920,11 +2322,10 @@ public class MeFragment extends Fragment implements listener.OnCollaborationList
                     @Override
                     public void onDeleteSuccess() {
                         dialog.dismiss();
-
                         //Remove item from list and notify changes
-                        mUserActivityDataList.remove(itemPosition);
+                        mUserPostDataList.remove(itemPosition);
                         mAdapter.notifyItemRemoved(itemPosition);
-                        mAdapter.notifyItemRangeChanged(itemPosition, mUserActivityDataList.size());
+                        mAdapter.notifyItemRangeChanged(itemPosition, mUserPostDataList.size());
 
                         ViewHelper.getSnackBar(rootView, "Item deleted");
                         //Update user post count
@@ -2311,109 +2712,26 @@ public class MeFragment extends Fragment implements listener.OnCollaborationList
 
 
     /**
-     * Method to parse Json.
+     * Method to update itemType.
      *
-     * @param jsonObject JsonObject to be parsed
-     * @param isLoadMore Whether called from load more or not.
-     * @throws JSONException
+     * @param selectedTabPosition Position of selected tab.
+     * @param itemTypes           View type i.e LIST or GRID
      */
-    private void parsePostsData(JSONObject jsonObject, boolean isLoadMore) throws JSONException {
-        JSONObject mainData = jsonObject.getJSONObject("data");
-        mRequestMoreData = mainData.getBoolean("requestmore");
-        mLastIndexKey = mainData.getString("lastindexkey");
-        mCanDownvote = mainData.getBoolean("candownvote");
-        //UserActivity array list
-        JSONArray UserActivityArray = mainData.getJSONArray("items");
-        for (int i = 0; i < UserActivityArray.length(); i++) {
-            JSONObject dataObj = UserActivityArray.getJSONObject(i);
-            String type = dataObj.getString("type");
-
-            FeedModel data = new FeedModel();
-            data.setEntityID(dataObj.getString("entityid"));
-            data.setContentType(dataObj.getString("type"));
-            data.setUUID(dataObj.getString("uuid"));
-            data.setCreatorImage(dataObj.getString("profilepicurl"));
-            data.setCreatorName(dataObj.getString("creatorname"));
-            data.setHatsOffStatus(dataObj.getBoolean("hatsoffstatus"));
-            data.setMerchantable(dataObj.getBoolean("merchantable"));
-            data.setDownvoteStatus(dataObj.getBoolean("downvotestatus"));
-            data.setEligibleForDownvote(mCanDownvote);
-            data.setPostTimeStamp(dataObj.getString("regdate"));
-            data.setLongForm(dataObj.getBoolean("long_form"));
-            data.setHatsOffCount(dataObj.getLong("hatsoffcount"));
-            data.setCommentCount(dataObj.getLong("commentcount"));
-            data.setContentImage(dataObj.getString("entityurl"));
-            data.setFollowStatus(dataObj.getBoolean("followstatus"));
-            data.setCollabCount(dataObj.getLong("collabcount"));
-            data.setLiveFilterName(dataObj.getString("livefilter"));
-            //if image width pr image height is null
-            if (dataObj.isNull("img_width") || dataObj.isNull("img_height")) {
-                data.setImgWidth(1);
-                data.setImgHeight(1);
-            } else {
-                data.setImgWidth(dataObj.getInt("img_width"));
-                data.setImgHeight(dataObj.getInt("img_height"));
-            }
-            if (dataObj.isNull("caption")) {
-                data.setCaption(null);
-            } else {
-                data.setCaption(dataObj.getString("caption"));
-            }
-
-            if (type.equals(CONTENT_TYPE_CAPTURE)) {
-
-                //Retrieve "CAPTURE_ID" if type is capture
-                data.setCaptureID(dataObj.getString("captureid"));
-                // if capture
-                // then if key cpshort exists
-                // not available for collaboration
-                if (!dataObj.isNull("cpshort")) {
-                    JSONObject collabObject = dataObj.getJSONObject("cpshort");
-
-                    data.setAvailableForCollab(false);
-                    // set collaborator details
-                    data.setCollabWithUUID(collabObject.getString("uuid"));
-                    data.setCollabWithName(collabObject.getString("name"));
-                    data.setCollaboWithEntityID(collabObject.getString("entityid"));
-
-                } else {
-                    data.setAvailableForCollab(true);
-                }
-
-            } else if (type.equals(CONTENT_TYPE_SHORT)) {
-
-                //Retrieve "SHORT_ID" if type is short
-                data.setShortID(dataObj.getString("shoid"));
-
-                // if short
-                // then if key shcapture exists
-                // not available for collaboration
-                if (!dataObj.isNull("shcapture")) {
-
-                    JSONObject collabObject = dataObj.getJSONObject("shcapture");
-
-                    data.setAvailableForCollab(false);
-                    // set collaborator details
-                    data.setCollabWithUUID(collabObject.getString("uuid"));
-                    data.setCollabWithName(collabObject.getString("name"));
-                    data.setCollaboWithEntityID(collabObject.getString("entityid"));
-                } else {
-                    data.setAvailableForCollab(true);
-                }
-            }
-
-
-            mUserActivityDataList.add(data);
-            //Called from load more
-            if (isLoadMore) {
-                //Notify item insertion
-                mAdapter.notifyItemInserted(mUserActivityDataList.size() - 1);
-            }
-
-
+    private void updateItemType(int selectedTabPosition, ITEM_TYPES itemTypes) {
+        if (selectedTabPosition == 0 && itemTypes == LIST) {
+            mItemType = Constant.ME_ITEM_TYPE_USER_POST_LIST;
+        } else if (selectedTabPosition == 0 && itemTypes == GRID) {
+            mItemType = Constant.ME_ITEM_TYPE_USER_POST_GRID;
+        } else if (selectedTabPosition == 1 && itemTypes == LIST) {
+            mItemType = Constant.ME_ITEM_TYPE_RE_POST_LIST;
+        } else if (selectedTabPosition == 1 && itemTypes == GRID) {
+            mItemType = Constant.ME_ITEM_TYPE_RE_POST_GRID;
+        } else if (selectedTabPosition == 2 && itemTypes == LIST) {
+            mItemType = Constant.ME_ITEM_TYPE_COLLAB_POST_LIST;
+        } else if (selectedTabPosition == 2 && itemTypes == GRID) {
+            mItemType = Constant.ME_ITEM_TYPE_COLLAB_POST_GRID;
         }
     }
-
     //endregion
 
 }

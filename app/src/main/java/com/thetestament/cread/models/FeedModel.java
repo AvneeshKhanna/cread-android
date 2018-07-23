@@ -20,6 +20,8 @@ public class FeedModel implements Parcelable {
     private int imgWidth, imgHeight;
     private String liveFilterName;
 
+    private String repostDate, reposterUUID, reposterName, repostID;
+    private String postType;
 
     //Required constructor
     public FeedModel() {
@@ -234,6 +236,46 @@ public class FeedModel implements Parcelable {
         this.liveFilterName = liveFilterName;
     }
 
+    public String getRepostDate() {
+        return repostDate;
+    }
+
+    public void setRepostDate(String repostDate) {
+        this.repostDate = repostDate;
+    }
+
+    public String getReposterUUID() {
+        return reposterUUID;
+    }
+
+    public void setReposterUUID(String reposterUUID) {
+        this.reposterUUID = reposterUUID;
+    }
+
+    public String getReposterName() {
+        return reposterName;
+    }
+
+    public void setReposterName(String reposterName) {
+        this.reposterName = reposterName;
+    }
+
+    public String getRepostID() {
+        return repostID;
+    }
+
+    public void setRepostID(String repostID) {
+        this.repostID = repostID;
+    }
+
+    public String getPostType() {
+        return postType;
+    }
+
+    public void setPostType(String postType) {
+        this.postType = postType;
+    }
+
     @Override
     public int describeContents() {
         return 0;
@@ -267,6 +309,11 @@ public class FeedModel implements Parcelable {
         parcel.writeInt(imgWidth);
         parcel.writeInt(imgHeight);
         parcel.writeString(liveFilterName);
+        parcel.writeString(repostDate);
+        parcel.writeString(reposterUUID);
+        parcel.writeString(reposterName);
+        parcel.writeString(repostID);
+        parcel.writeString(postType);
 
     }
 
@@ -310,6 +357,11 @@ public class FeedModel implements Parcelable {
         imgWidth = in.readInt();
         imgHeight = in.readInt();
         liveFilterName = in.readString();
+        repostDate = in.readString();
+        reposterUUID = in.readString();
+        reposterName = in.readString();
+        repostID = in.readString();
+        postType = in.readString();
     }
 
 }

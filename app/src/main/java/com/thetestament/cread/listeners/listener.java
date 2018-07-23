@@ -519,4 +519,17 @@ public class listener {
     public interface OnGifShareListener {
         void onGifShareClick(FrameLayout frameLayout, String shareOption, RelativeLayout waterMarkView, String liveFilter);
     }
+
+
+    /**
+     * Interface definition for a callback to be invoked when user clicks on delete button of repost content.
+     */
+    public interface OnRepostDeleteListener {
+        /**
+         * repostID re-post ID of post to be deleted.
+         *
+         * @param position Position of item in data list.
+         */
+        void onDelete(String repostID, int position);
+    }
 }

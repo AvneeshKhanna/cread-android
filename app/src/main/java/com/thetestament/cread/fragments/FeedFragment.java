@@ -1214,6 +1214,15 @@ public class FeedFragment extends Fragment implements listener.OnCollaborationLi
             feedData.setContentImage(dataObj.getString("entityurl"));
             feedData.setCollabCount(dataObj.getLong("collabcount"));
             feedData.setLiveFilterName(dataObj.getString("livefilter"));
+            feedData.setPostType(dataObj.getString("posttype"));
+
+            if (dataObj.getString("posttype").equals("repost")) {
+                feedData.setRepostDate(dataObj.getString("repostdate"));
+                feedData.setReposterUUID(dataObj.getString("reposteruuid"));
+                feedData.setReposterName(dataObj.getString("repostername"));
+                feedData.setRepostID(dataObj.getString("repostid"));
+            }
+
             //if image width pr image height is null
             if (dataObj.isNull("img_width") || dataObj.isNull("img_height")) {
                 feedData.setImgWidth(1);

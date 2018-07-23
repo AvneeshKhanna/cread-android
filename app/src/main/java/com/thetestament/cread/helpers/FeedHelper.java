@@ -8,6 +8,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.content.ContextCompat;
+import android.support.v7.widget.AppCompatTextView;
 import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.Spanned;
@@ -35,6 +36,7 @@ import com.thetestament.cread.listeners.listener;
 import com.thetestament.cread.listeners.listener.OnShareDialogItemClickedListener;
 import com.thetestament.cread.models.FeedModel;
 import com.thetestament.cread.models.ListItemsDialogModel;
+import com.thetestament.cread.networkmanager.RepostNetworkManager;
 import com.thetestament.cread.utils.Constant;
 import com.thetestament.cread.utils.TimeUtils;
 
@@ -48,6 +50,7 @@ import java.util.regex.Pattern;
 
 import io.reactivex.Observer;
 import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.schedulers.Schedulers;
 
@@ -480,7 +483,7 @@ public class FeedHelper {
     /**
      * Method to perform required operation depending upon the type of content.
      *
-     * @param context                Context to use . Usually activity.
+     * @param context                Context to use. Usually activity.
      * @param feedData               FeedModel data of item.
      * @param textCollabCount        Collaboration count textView.
      * @param containerCollabCount   Collaboration count view container.
@@ -491,7 +494,7 @@ public class FeedHelper {
      * @param view
      */
     public static void performContentTypeSpecificOperations(final FragmentActivity context, final FeedModel feedData, TextView textCollabCount, View containerCollabCount, TextView buttonCollaborate, TextView textCreatorName, boolean showCountAsText, boolean shouldToggleVisibility, @Nullable View view) {
-
+        //Check if creator is collaborator
         boolean isCreatorCollaborator = feedData.getUUID().equals(feedData.getCollabWithUUID());
 
         // initialize text
@@ -989,4 +992,59 @@ public class FeedHelper {
         viewTimeStamp.setText(timeStamp);
     }
 
+    /**
+     * Method to  initializes timestamp of the re-post.
+     *
+     * @param timeStampView view where timestamp is to be updated.
+     * @param data          FeedModel data.
+     */
+    public static void setRepostTime(AppCompatTextView timeStampView, FeedModel data) {
+        // get current date
+        Date date = new Date();
+        // convert it to ISO
+        String currentISO = TimeUtils.getISO8601StringForDate(date);
+        // get individual units
+        List<String> currentDateList = getCustomTime(currentISO);
+        // parsing server date
+        List<String> dateList = getCustomTime(data.getRepostDate());
+        String timeStamp = "";
+
+        // if date and month are same include 'today' in the timestamp
+        if (currentDateList.get(0).equals(dateList.get(0)) && currentDateList.get(1).equals(dateList.get(1))) {
+            timeStamp = "Today" + " at " + dateList.get(3);
+        } else {
+            timeStamp = dateList.get(1) + " " + dateList.get(0) + " at " + dateList.get(3);
+        }
+        // set timestamp
+        timeStampView.setText(timeStamp);
+    }
+
+    /**
+     * Method to update repost on server.
+     *
+     * @param view                View to be clicked.
+     * @param context             Context to use.
+     * @param compositeDisposable CompositeDisposable reference.
+     * @param entityID            Entity id of post to be re-posted.
+     */
+    public static void updateRepost(View view, final FragmentActivity context, final CompositeDisposable compositeDisposable, final String entityID) {
+        view.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                RepostNetworkManager.saveRepost(context, compositeDisposable, entityID
+                        , new RepostNetworkManager.OnRepostSaveListener() {
+                            @Override
+                            public void onSuccess() {
+                                ViewHelper.getShortToast(context, "Reposted successfully");
+                            }
+
+                            @Override
+                            public void onFailure(String errorMsg) {
+                                ViewHelper.getShortToast(context, errorMsg);
+                            }
+                        });
+            }
+        });
+
+    }
 }

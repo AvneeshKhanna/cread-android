@@ -198,11 +198,11 @@ public class NewUsersPostAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
             //Set image width and height
             AspectRatioUtils.setImageAspectRatio(data.getImgWidth()
                     , data.getImgHeight()
-                    , itemViewHolder.imageFeed
+                    , itemViewHolder.imageContent
                     , true);
             //Load feed image
             ImageHelper.loadProgressiveImage(Uri.parse(data.getContentImage())
-                    , itemViewHolder.imageFeed);
+                    , itemViewHolder.imageContent);
             // Set text and click actions acc. to content type
             FeedHelper.performContentTypeSpecificOperations(mContext
                     , data
@@ -262,6 +262,8 @@ public class NewUsersPostAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
             updatePostTimestamp(itemViewHolder.textTimeStamp, data);
             //Method called
             setDoubleTap(itemViewHolder, itemViewHolder.hatsOffView, data);
+            //Method called
+            FeedHelper.updateRepost(itemViewHolder.containerRepost, mContext, mCompositeDisposable, data.getEntityID());
         } else if (holder.getItemViewType() == VIEW_TYPE_LOADING) {
             LoadingViewHolder loadingViewHolder = (LoadingViewHolder) holder;
             loadingViewHolder.progressView.setVisibility(View.VISIBLE);
@@ -690,20 +692,10 @@ public class NewUsersPostAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
         TextView textCreatorName;
         @BindView(R.id.containerCreator)
         RelativeLayout containerCreator;
-        @BindView(R.id.imageFeed)
-        SimpleDraweeView imageFeed;
         @BindView(R.id.buttonCollaborate)
         TextView buttonCollaborate;
-        @BindView(R.id.imageHatsOff)
-        ImageView imageHatsOff;
-        @BindView(R.id.containerHatsOff)
-        LinearLayout containerHatsOff;
-        @BindView(R.id.containerComment)
-        LinearLayout containerComment;
         @BindView(R.id.textCollabCount)
         TextView textCollabCount;
-        /*@BindView(R.id.lineSeparatorTop)
-        View lineSeparator;*/
         @BindView(R.id.containerCollabCount)
         LinearLayout containerCollabCount;
         @BindView(R.id.textTitle)
@@ -728,6 +720,36 @@ public class NewUsersPostAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
         FrameLayout containerLongShortPreview;
         @BindView(R.id.textTimestamp)
         TextView textTimeStamp;
+
+        //Main content views
+        @BindView(R.id.container_main_content)
+        FrameLayout frameLayout;
+        @BindView(R.id.content_image)
+        SimpleDraweeView imageContent;
+        @BindView(R.id.live_filter_bubble)
+        GravView liveFilterBubble;
+        @BindView(R.id.whether_view)
+        WeatherView weatherView;
+        @BindView(R.id.konfetti_view)
+        KonfettiView konfettiView;
+        @BindView(R.id.water_mark_cread)
+        RelativeLayout waterMarkCreadView;
+        @BindView(R.id.double_tap_hats_off_view)
+        AppCompatImageView hatsOffView;
+
+
+
+        //Social actions views
+        @BindView(R.id.container_hats_off)
+        LinearLayout containerHatsOff;
+        @BindView(R.id.image_hats_off)
+        AppCompatImageView imageHatsOff;
+        @BindView(R.id.container_comment)
+        LinearLayout containerComment;
+        @BindView(R.id.container_repost)
+        LinearLayout containerRepost;
+
+        //Share views
         @BindView(R.id.logoWhatsapp)
         AppCompatImageView logoWhatsapp;
         @BindView(R.id.logoFacebook)
@@ -736,16 +758,6 @@ public class NewUsersPostAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
         AppCompatImageView logoInstagram;
         @BindView(R.id.logoMore)
         AppCompatImageView logoMore;
-        @BindView(R.id.layoutShareOptions)
-        LinearLayout layoutShareOptions;
-        @BindView(R.id.live_filter_bubble)
-        GravView liveFilterBubble;
-        @BindView(R.id.whether_view)
-        WeatherView whetherView;
-        @BindView(R.id.konfetti_view)
-        KonfettiView konfettiView;
-        @BindView(R.id.hats_off_view)
-        AppCompatImageView hatsOffView;
 
 
         //Variable to maintain hats off status
@@ -776,7 +788,7 @@ public class NewUsersPostAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
         if (holder.getItemViewType() == VIEW_TYPE_ITEM) {
             final ItemViewHolder itemViewHolder = (ItemViewHolder) holder;
             LiveFilterHelper.initLiveFilters(mFeedList.get(holder.getAdapterPosition()).getLiveFilterName()
-                    , itemViewHolder.whetherView
+                    , itemViewHolder.weatherView
                     , itemViewHolder.konfettiView
                     , itemViewHolder.liveFilterBubble
                     , mContext);

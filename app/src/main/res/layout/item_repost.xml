@@ -2,37 +2,52 @@
 <android.support.v7.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/cardView"
+    android:id="@+id/card_view"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     android:layout_marginBottom="8dp"
     android:layout_marginTop="8dp"
-    android:background="@color/white"
     app:cardPreventCornerOverlap="false"
     app:cardUseCompatPadding="true">
 
     <!--Child container-->
     <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:background="@color/white">
+
+        <!--Re-post container-->
+        <include layout="@layout/layout_repost" />
+
+        <!--Divider-->
+        <View
+            android:id="@+id/divider"
+            android:layout_width="match_parent"
+            android:layout_height="0.3dp"
+            android:layout_below="@+id/reposted_by_container"
+            android:alpha="0.2"
+            android:background="@color/grey_dark"
+            android:visibility="visible" />
 
         <!--Container creator-->
         <RelativeLayout
-            android:id="@+id/containerCreator"
+            android:id="@+id/container_creator"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_below="@+id/divider"
             android:layout_marginBottom="8dp"
             android:layout_marginTop="8dp">
 
             <LinearLayout
-                android:id="@+id/containerCreatorSpecific"
+                android:id="@+id/container_creator_specific"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_alignParentLeft="true"
-                android:layout_toLeftOf="@+id/contentActions">
+                android:layout_toLeftOf="@+id/content_actions"
+                android:orientation="horizontal">
 
                 <com.facebook.drawee.view.SimpleDraweeView
-                    android:id="@+id/imageCreator"
+                    android:id="@+id/image_creator"
                     android:layout_width="35dp"
                     android:layout_height="35dp"
                     android:layout_marginLeft="8dp"
@@ -46,7 +61,7 @@
                     android:orientation="vertical">
 
                     <android.support.v7.widget.AppCompatTextView
-                        android:id="@+id/textCreatorName"
+                        android:id="@+id/text_creator_name"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:paddingLeft="8dp"
@@ -56,7 +71,7 @@
                         tools:text="Cread is the best app" />
 
                     <android.support.v7.widget.AppCompatTextView
-                        android:id="@+id/textTimestamp"
+                        android:id="@+id/text_timestamp"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="5dp"
@@ -70,7 +85,7 @@
             </LinearLayout>
 
             <LinearLayout
-                android:id="@+id/contentActions"
+                android:id="@+id/content_actions"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_alignParentRight="true"
@@ -80,11 +95,13 @@
                 android:orientation="horizontal">
 
                 <android.support.v7.widget.AppCompatTextView
-                    android:id="@+id/buttonCollaborate"
+                    android:id="@+id/button_collaborate"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginRight="8dp"
                     android:background="@drawable/button_filled"
+                    android:clickable="true"
+                    android:foreground="?android:selectableItemBackground"
                     android:paddingBottom="5dp"
                     android:paddingLeft="10dp"
                     android:paddingRight="10dp"
@@ -95,7 +112,7 @@
                     android:visibility="visible" />
 
                 <android.support.v7.widget.AppCompatImageView
-                    android:id="@+id/buttonMenu"
+                    android:id="@+id/button_menu"
                     android:layout_width="18dp"
                     android:layout_height="18dp"
                     android:textAppearance="?android:textAppearanceLarge"

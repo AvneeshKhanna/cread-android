@@ -7,6 +7,7 @@ import com.google.firebase.analytics.FirebaseAnalytics;
 
 import static com.thetestament.cread.utils.Constant.FIREBASE_EVENT_COLLAB_INVITE_CLICKED;
 import static com.thetestament.cread.utils.Constant.FIREBASE_EVENT_EXPLORE_TAB_SELECTED;
+import static com.thetestament.cread.utils.Constant.FIREBASE_EVENT_FOLLOW_FROM_PROFILE;
 import static com.thetestament.cread.utils.Constant.FIREBASE_EVENT_POST_SAVED;
 import static com.thetestament.cread.utils.Constant.FIREBASE_EVENT_POST_UPLOADED;
 
@@ -61,5 +62,17 @@ public class FirebaseEventHelper {
         bundle.putString("tab_selected", selectedTab);
         FirebaseAnalytics.getInstance(context)
                 .logEvent(FIREBASE_EVENT_EXPLORE_TAB_SELECTED, bundle);
+    }
+
+    /**
+     * Method to log follow from profile firebase event {@link com.thetestament.cread.utils.Constant#FIREBASE_EVENT_FOLLOW_FROM_PROFILE}.
+     *
+     * @param context Context to use.
+     * @param uuid    uuid of user to clicked follow button.
+     */
+    public static void logFollowFromProfileEvent(FragmentActivity context, String uuid) {
+        Bundle bundle = new Bundle();
+        bundle.putString("uuid", uuid);
+        FirebaseAnalytics.getInstance(context).logEvent(FIREBASE_EVENT_FOLLOW_FROM_PROFILE, bundle);
     }
 }
