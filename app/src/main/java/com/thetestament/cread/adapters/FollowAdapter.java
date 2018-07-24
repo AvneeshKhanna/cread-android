@@ -2,6 +2,7 @@ package com.thetestament.cread.adapters;
 
 import android.net.Uri;
 import android.support.v4.app.FragmentActivity;
+import android.support.v7.widget.AppCompatImageView;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -85,6 +86,14 @@ public class FollowAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
                     , itemViewHolder.imageUser);
             //Click functionality
             itemViewOnClick(itemViewHolder.itemView, data.getUuid());
+            //If artist is top artist
+            if (data.isTopArtist()) {
+                //toggle visibility
+                itemViewHolder.viewTopArtist.setVisibility(View.VISIBLE);
+            } else {
+                //toggle visibility
+                itemViewHolder.viewTopArtist.setVisibility(View.GONE);
+            }
 
         } else if (holder.getItemViewType() == VIEW_TYPE_LOADING) {
             LoadingViewHolder loadingViewHolder = (LoadingViewHolder) holder;
@@ -145,6 +154,8 @@ public class FollowAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
         SimpleDraweeView imageUser;
         @BindView(R.id.textUserName)
         TextView textUserName;
+        @BindView(R.id.view_top_artist)
+        AppCompatImageView viewTopArtist;
 
         public ItemViewHolder(View itemView) {
             super(itemView);

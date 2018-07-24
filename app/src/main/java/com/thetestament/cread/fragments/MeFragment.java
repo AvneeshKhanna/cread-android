@@ -182,6 +182,8 @@ public class MeFragment extends Fragment implements listener.OnCollaborationList
 
     @BindView(R.id.imageUser)
     CircleImageView imageUser;
+    @BindView(R.id.view_top_artist)
+    AppCompatImageView viewTopArtist;
     @BindView(R.id.textUserName)
     TextView textUserName;
     @BindView(R.id.textBio)
@@ -310,6 +312,12 @@ public class MeFragment extends Fragment implements listener.OnCollaborationList
      */
     @State
     boolean mCanDownvote;
+
+    /**
+     * Flag to maintain top artist status.
+     */
+    @State
+    boolean mIsTopArtist;
 
     /**
      * Flag to maintain UUID of user whose profile to be loaded.
@@ -1156,6 +1164,7 @@ public class MeFragment extends Fragment implements listener.OnCollaborationList
                                 mWaterMarkStatus = mainData.getString("watermarkstatus");
                                 mIsFeatured = mainData.getBoolean("featured");
                                 mWebStoreUrl = mainData.getString("web_profile_link");
+                                mIsTopArtist = mainData.getBoolean("topartist");
 
                                 mInterestCount = mainData.getLong("interestcount");
 
@@ -1243,6 +1252,13 @@ public class MeFragment extends Fragment implements listener.OnCollaborationList
                                 imageFeatured.setVisibility(View.VISIBLE);
                             } else {
                                 imageFeatured.setVisibility(View.GONE);
+                            }
+
+                            //check featured status
+                            if (mIsTopArtist) {
+                                viewTopArtist.setVisibility(View.VISIBLE);
+                            } else {
+                                viewTopArtist.setVisibility(View.GONE);
                             }
 
                             //toggle follow and message button

@@ -11,7 +11,7 @@ public class CommentsModel {
     String profilePicUrl;
     String comment;
     String commentId;
-    boolean edited;
+    boolean edited, topArtist;
 
     public String getUuid() {
         return uuid;
@@ -67,5 +67,13 @@ public class CommentsModel {
 
     public void setEdited(boolean edited) {
         this.edited = edited;
+    }
+
+    public boolean isTopArtist() {
+        return topArtist;
+    }
+
+    public void setTopArtist(boolean topArtist) {
+        this.topArtist = topArtist;
     }
 }

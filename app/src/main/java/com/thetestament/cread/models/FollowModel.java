@@ -4,6 +4,7 @@ package com.thetestament.cread.models;
 public class FollowModel {
 
     private String uuid, firstName, lastName, profilePicUrl;
+    private boolean topArtist;
 
     public String getUuid() {
         return uuid;
@@ -37,4 +38,11 @@ public class FollowModel {
         this.profilePicUrl = profilePicUrl;
     }
 
+    public boolean isTopArtist() {
+        return topArtist;
+    }
+
+    public void setTopArtist(boolean topArtist) {
+        this.topArtist = topArtist;
+    }
 }

@@ -7,6 +7,7 @@ package com.thetestament.cread.models;
 public class HatsOffModel {
 
     private String uuid, firstName, LastName, profilePicUrl;
+    private boolean topArtist;
 
     public String getUuid() {
         return uuid;
@@ -38,5 +39,13 @@ public class HatsOffModel {
 
     public void setProfilePicUrl(String profilePicUrl) {
         this.profilePicUrl = profilePicUrl;
+    }
+
+    public boolean isTopArtist() {
+        return topArtist;
+    }
+
+    public void setTopArtist(boolean topArtist) {
+        this.topArtist = topArtist;
     }
 }

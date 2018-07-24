@@ -469,6 +469,7 @@ public class CommentsActivity extends BaseActivity implements QueryTokenReceiver
                                     commentsData.setComment(dataObj.getString("comment"));
                                     commentsData.setCommentId(dataObj.getString("commid"));
                                     commentsData.setEdited(dataObj.getBoolean("edited"));
+                                    commentsData.setTopArtist(dataObj.getBoolean("topartist"));
                                     mCommentsList.add(commentsData);
                                 }
                             }
@@ -590,6 +591,7 @@ public class CommentsActivity extends BaseActivity implements QueryTokenReceiver
                                     commentsData.setComment(dataObj.getString("comment"));
                                     commentsData.setCommentId(dataObj.getString("commid"));
                                     commentsData.setEdited(dataObj.getBoolean("edited"));
+                                    commentsData.setTopArtist(dataObj.getBoolean("topartist"));
 
                                     tempList.add(commentsData);
 
@@ -951,10 +953,10 @@ public class CommentsActivity extends BaseActivity implements QueryTokenReceiver
                     public ObservableSource<JSONObject> apply(final QueryToken queryToken) throws Exception {
 
 
-                                mSuggestionsList.clear();
-                                mSuggestionsLastIndexKey = null;
+                        mSuggestionsList.clear();
+                        mSuggestionsLastIndexKey = null;
 
-                                mQueryToken = queryToken;
+                        mQueryToken = queryToken;
 
 
                         return getSearchObservableServer(queryToken.getKeywords()

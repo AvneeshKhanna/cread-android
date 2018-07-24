@@ -6,40 +6,52 @@
     android:layout_height="wrap_content"
     android:padding="10dp">
 
+
+    <!--User image view-->
     <com.facebook.drawee.view.SimpleDraweeView
-        android:id="@+id/imageUser"
+        android:id="@+id/image_user"
         android:layout_width="40dp"
         android:layout_height="40dp"
         app:failureImage="@drawable/ic_account_circle_100"
         app:failureImageScaleType="centerCrop"
         app:roundAsCircle="true" />
 
+    <!--Top artist view-->
+    <android.support.v7.widget.AppCompatImageView
+        android:id="@+id/view_top_artist"
+        android:layout_width="16dp"
+        android:layout_height="16dp"
+        android:layout_alignBottom="@+id/image_user"
+        android:layout_alignRight="@+id/image_user"
+        android:src="@drawable/top_artist"
+        android:visibility="visible" />
 
+    <!--User name container-->
     <LinearLayout
-        android:id="@+id/userNameContainer"
+        android:id="@+id/user_name_container"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_alignBottom="@+id/imageUser"
-        android:layout_alignTop="@+id/imageUser"
+        android:layout_alignBottom="@+id/image_user"
+        android:layout_alignTop="@+id/image_user"
         android:layout_marginLeft="10dp"
         android:layout_marginRight="5dp"
-        android:layout_toRightOf="@+id/imageUser"
+        android:layout_toRightOf="@+id/image_user"
         android:gravity="center_vertical">
 
-        <TextView
-            android:id="@+id/textUserName"
+        <android.support.v7.widget.AppCompatTextView
+            android:id="@+id/text_user_name"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:textSize="16sp"
             tools:text="User Name" />
     </LinearLayout>
 
-
+    <!--Item divider-->
     <View
-        android:id="@+id/lineSeparator"
+        android:id="@+id/item_divider"
         android:layout_width="match_parent"
         android:layout_height="0.3dp"
-        android:layout_alignLeft="@+id/userNameContainer"
+        android:layout_alignLeft="@+id/user_name_container"
         android:layout_below="@+id/imageUser"
         android:layout_marginRight="5dp"
         android:layout_marginTop="8dp"

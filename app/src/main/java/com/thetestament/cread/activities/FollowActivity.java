@@ -201,6 +201,7 @@ public class FollowActivity extends BaseActivity {
                                     followData.setFirstName(dataObj.getString("firstname"));
                                     followData.setLastName(dataObj.getString("lastname"));
                                     followData.setProfilePicUrl(dataObj.getString("profilepicurl"));
+                                    followData.setTopArtist(dataObj.getBoolean("topartist"));
                                     mFollowList.add(followData);
                                 }
                             }
@@ -318,6 +319,7 @@ public class FollowActivity extends BaseActivity {
                                     followData.setFirstName(dataObj.getString("firstname"));
                                     followData.setLastName(dataObj.getString("lastname"));
                                     followData.setProfilePicUrl(dataObj.getString("profilepicurl"));
+                                    followData.setTopArtist(dataObj.getBoolean("topartist"));
                                     mFollowList.add(followData);
                                     //Notify changes
                                     mAdapter.notifyItemInserted(mFollowList.size() - 1);

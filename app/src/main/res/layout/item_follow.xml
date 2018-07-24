@@ -14,6 +14,16 @@
         app:failureImageScaleType="centerCrop"
         app:roundAsCircle="true" />
 
+    <!--Top artist view-->
+    <android.support.v7.widget.AppCompatImageView
+        android:id="@+id/view_top_artist"
+        android:layout_width="16dp"
+        android:layout_height="16dp"
+        android:layout_alignBottom="@+id/imageUser"
+        android:layout_alignRight="@+id/imageUser"
+        android:src="@drawable/top_artist"
+        android:visibility="visible" />
+
     <LinearLayout
         android:id="@+id/userNameContainer"
         android:layout_width="match_parent"

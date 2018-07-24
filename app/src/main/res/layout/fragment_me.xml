@@ -51,13 +51,28 @@
                         android:paddingRight="24dp"
                         android:paddingTop="24dp">
 
-                        <de.hdodenhof.circleimageview.CircleImageView
-                            android:id="@+id/imageUser"
-                            android:layout_width="88dp"
-                            android:layout_height="88dp"
-                            android:layout_gravity="center"
-                            android:transitionName="@string/shared_transition_profile_pic"
-                            tools:src="@drawable/ic_account_circle_100" />
+                        <FrameLayout
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center">
+
+                            <de.hdodenhof.circleimageview.CircleImageView
+                                android:id="@+id/imageUser"
+                                android:layout_width="88dp"
+                                android:layout_height="88dp"
+                                android:transitionName="@string/shared_transition_profile_pic"
+                                tools:src="@drawable/ic_account_circle_100" />
+
+                            <!--Top artist view-->
+                            <android.support.v7.widget.AppCompatImageView
+                                android:id="@+id/view_top_artist"
+                                android:layout_width="16dp"
+                                android:layout_height="16dp"
+                                android:layout_gravity="right|bottom"
+                                android:src="@drawable/top_artist"
+                                android:visibility="visible" />
+                        </FrameLayout>
+
 
                         <LinearLayout
                             android:layout_width="match_parent"

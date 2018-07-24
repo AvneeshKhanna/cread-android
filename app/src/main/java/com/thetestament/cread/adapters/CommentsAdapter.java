@@ -5,6 +5,7 @@ import android.support.annotation.NonNull;
 import android.support.design.widget.BottomSheetDialog;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.widget.TextViewCompat;
+import android.support.v7.widget.AppCompatImageView;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -153,6 +154,15 @@ public class CommentsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
             //Open creator profile
             openCreatorProfile(itemViewHolder.textUserName, data.getUuid(), mContext);
             openCreatorProfile(itemViewHolder.imageUser, data.getUuid(), mContext);
+
+            //If artist is top artist
+            if (data.isTopArtist()) {
+                //toggle visibility
+                itemViewHolder.viewTopArtist.setVisibility(View.VISIBLE);
+            } else {
+                //toggle visibility
+                itemViewHolder.viewTopArtist.setVisibility(View.GONE);
+            }
         } else if (holder instanceof HeaderViewHolder) {
             final HeaderViewHolder headerViewHolder = (HeaderViewHolder) holder;
 
@@ -311,6 +321,8 @@ public class CommentsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         TextView textEdited;
         @BindView(R.id.buttonMore)
         ImageView buttonMore;
+        @BindView(R.id.view_top_artist)
+        AppCompatImageView viewTopArtist;
 
         public ItemViewHolder(View itemView) {
             super(itemView);

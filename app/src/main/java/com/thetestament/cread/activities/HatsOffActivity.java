@@ -188,6 +188,7 @@ public class HatsOffActivity extends BaseActivity {
                                     hatsOffData.setFirstName(dataObj.getString("firstname"));
                                     hatsOffData.setLastName(dataObj.getString("lastname"));
                                     hatsOffData.setProfilePicUrl(dataObj.getString("profilepicurl"));
+                                    hatsOffData.setTopArtist(dataObj.getBoolean("topartist"));
                                     mHatsOffList.add(hatsOffData);
                                 }
                             }
@@ -303,6 +304,7 @@ public class HatsOffActivity extends BaseActivity {
                                     hatsOffData.setFirstName(dataObj.getString("firstname"));
                                     hatsOffData.setLastName(dataObj.getString("lastname"));
                                     hatsOffData.setProfilePicUrl(dataObj.getString("profilepicurl"));
+                                    hatsOffData.setTopArtist(dataObj.getBoolean("topartist"));
                                     mHatsOffList.add(hatsOffData);
                                     //Notify changes
                                     mAdapter.notifyItemInserted(mHatsOffList.size() - 1);
