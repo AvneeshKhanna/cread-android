@@ -227,7 +227,6 @@ public class CollaborationDetailsActivity extends BaseActivity {
                                     model.setProfilePic(dataObj.getString("profilepicurl"));
                                     model.setEntityUrl(dataObj.getString("entityurl"));
                                     model.setEntityID(dataObj.getString("entityid"));
-                                    //fixme live filter value
                                     //model.setLiveFilterName(dataObj.getString("livefiltername"));
 
                                     //if image width and image height is null
@@ -366,7 +365,6 @@ public class CollaborationDetailsActivity extends BaseActivity {
                                     model.setProfilePic(dataObj.getString("profilepicurl"));
                                     model.setEntityUrl(dataObj.getString("entityurl"));
                                     model.setEntityID(dataObj.getString("entityid"));
-                                    //fixme live filter value
                                     //model.setLiveFilterName(dataObj.getString("livefiltername"));
                                     //if image width and image height is null
                                     if (dataObj.isNull("img_width") || dataObj.isNull("img_height")) {

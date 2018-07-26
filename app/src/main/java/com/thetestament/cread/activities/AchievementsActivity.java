@@ -1,8 +1,10 @@
 package com.thetestament.cread.activities;
 
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
 import android.support.annotation.Nullable;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.v4.app.FragmentActivity;
@@ -14,6 +16,7 @@ import android.support.v7.widget.RecyclerView;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.LinearLayout;
 
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.facebook.drawee.view.SimpleDraweeView;
@@ -29,6 +32,9 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -216,7 +222,7 @@ public class AchievementsActivity extends BaseActivity {
                 .show();
 
         //Obtain dialog views
-        SimpleDraweeView badgeImage = dialog.getCustomView().findViewById(R.id.img_badge);
+        final SimpleDraweeView badgeImage = dialog.getCustomView().findViewById(R.id.img_badge);
         AppCompatTextView badgeTitle = dialog.getCustomView().findViewById(R.id.badge_title);
         AppCompatTextView desc = dialog.getCustomView().findViewById(R.id.text_congratulation);
         AppCompatTextView btnShare = dialog.getCustomView().findViewById(R.id.btn_share);
@@ -230,13 +236,12 @@ public class AchievementsActivity extends BaseActivity {
         btnShare.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                //todo sharing func.
+                createShareableImage((LinearLayout) badgeImage.getParent());
                 dialog.dismiss();
             }
         });
 
     }
-
 
 
     /**
@@ -256,6 +261,38 @@ public class AchievementsActivity extends BaseActivity {
             // This activity is part of this app's task, so simply
             // navigate up to the logical parent activity.
             NavUtils.navigateUpTo(this, upIntent);
+        }
+    }
+
+
+    /***
+     * Method to create shareable badge image.
+     *
+     * */
+    private void createShareableImage(LinearLayout layout) {
+        //Enable drawing cache
+        layout.setDrawingCacheEnabled(true);
+        Bitmap bm = layout.getDrawingCache();
+
+
+        try {
+            File file = new File(Environment.getExternalStorageDirectory().getPath() + "/Cread/Share/badge_pic.png");
+            file.getParentFile().mkdirs();
+
+            if (!file.exists()) {
+                try {
+                    file.createNewFile();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+            FileOutputStream out = new FileOutputStream(file);
+            bm.compress(Bitmap.CompressFormat.JPEG, 85, out);
+            out.close();
+
+        } catch (IOException e) {
+            e.printStackTrace();
+            ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_internal));
         }
     }
 

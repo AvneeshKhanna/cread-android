@@ -71,6 +71,7 @@ public class AchievementsAdapter extends RecyclerView.Adapter<AchievementsAdapte
         AchievementsModels data = mAchievementsDataList.get(position);
         //set badge title
         holder.badgeTitle.setText(data.getBadgeTitle());
+        //fixme load image for lock and unlocked
         //load badge image
         ImageHelper.loadProgressiveImage(Uri.parse(data.getBadgeImageUrl()), holder.badgeImage);
         //Method called

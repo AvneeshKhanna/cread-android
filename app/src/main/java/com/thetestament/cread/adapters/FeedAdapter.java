@@ -966,7 +966,6 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                 , itemViewHolder.imageContent);
 
 
-        //fixme update code readability
         //Set text and click actions acc. to content type
         FeedHelper.performContentTypeSpecificOperations(mContext
                 , data
