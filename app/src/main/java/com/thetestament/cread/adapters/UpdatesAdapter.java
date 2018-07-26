@@ -33,6 +33,7 @@ import static com.thetestament.cread.utils.Constant.NOTIFICATION_CATEGORY_CREAD_
 import static com.thetestament.cread.utils.Constant.NOTIFICATION_CATEGORY_CREAD_TOP_POST;
 import static com.thetestament.cread.utils.Constant.NOTIFICATION_CATEGORY_PROFILE_MENTION_COMMENT;
 import static com.thetestament.cread.utils.Constant.NOTIFICATION_CATEGORY_PROFILE_MENTION_POST;
+import static com.thetestament.cread.utils.Constant.NOTIFICATION_CATEGORY_REPOST;
 import static com.thetestament.cread.utils.TimeUtils.getCustomTime;
 
 
@@ -41,15 +42,15 @@ import static com.thetestament.cread.utils.TimeUtils.getCustomTime;
 
 public class UpdatesAdapter extends RecyclerView.Adapter {
 
-    private NotificationItemClick notificationItemClick;
-
     private List<UpdatesModel> mUpdatesDataList;
     private FragmentActivity mContext;
     private final int VIEW_TYPE_ITEM = 0;
     private final int VIEW_TYPE_LOADING = 1;
     private boolean mIsLoading;
-    private listener.onNotificationsLoadMore onNotificationsLoadMore;
 
+
+    private listener.onNotificationsLoadMore onNotificationsLoadMore;
+    private NotificationItemClick notificationItemClick;
 
     public void setNotificationsLoadMoreListener(listener.onNotificationsLoadMore onNotificationsLoadMore) {
         this.onNotificationsLoadMore = onNotificationsLoadMore;
@@ -92,11 +93,9 @@ public class UpdatesAdapter extends RecyclerView.Adapter {
 
     @Override
     public void onBindViewHolder(final RecyclerView.ViewHolder holder, int position) {
-
         final UpdatesModel updatesData = mUpdatesDataList.get(position);
 
         if (holder.getItemViewType() == VIEW_TYPE_ITEM) {
-
             final ItemViewHolder itemViewHolder = (ItemViewHolder) holder;
 
             // parsing server date
@@ -220,6 +219,10 @@ public class UpdatesAdapter extends RecyclerView.Adapter {
         switch (updatesModel.getCategory()) {
             case NOTIFICATION_CATEGORY_CREAD_FOLLOW:
                 message = updatesModel.getActorName() + " has started following you on Cread";
+                break;
+
+            case NOTIFICATION_CATEGORY_REPOST:
+                message = updatesModel.getActorName() + " has reposted your post";
                 break;
 
             case NOTIFICATION_CATEGORY_CREAD_BUY:

@@ -18,7 +18,7 @@
 
         <!--Container creator-->
         <RelativeLayout
-            android:id="@+id/containerCreator"
+            android:id="@+id/container_creator"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="8dp"

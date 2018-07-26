@@ -8,6 +8,7 @@ import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 
 import com.afollestad.materialdialogs.MaterialDialog;
+import com.thetestament.cread.models.AchievementsModels;
 import com.thetestament.cread.models.CommentsModel;
 import com.thetestament.cread.models.ExploreCategoryModel;
 import com.thetestament.cread.models.FBFriendsModel;
@@ -526,10 +527,17 @@ public class listener {
      */
     public interface OnRepostDeleteListener {
         /**
-         * repostID re-post ID of post to be deleted.
-         *
+         * @param repostID re-post ID of post to be deleted.
          * @param position Position of item in data list.
          */
         void onDelete(String repostID, int position);
+    }
+
+
+    /**
+     * Interface definition for a callback to be invoked when user clicks on badge item view.
+     */
+    public interface OnBadgeClickListener {
+        void onBadgeClick(AchievementsModels data);
     }
 }

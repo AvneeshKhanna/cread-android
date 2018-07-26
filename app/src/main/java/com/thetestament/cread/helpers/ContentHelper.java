@@ -2,11 +2,14 @@ package com.thetestament.cread.helpers;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.design.widget.BottomSheetDialog;
 import android.support.v4.app.FragmentActivity;
 import android.view.View;
 import android.widget.LinearLayout;
 
+import com.afollestad.materialdialogs.DialogAction;
+import com.afollestad.materialdialogs.MaterialDialog;
 import com.thetestament.cread.R;
 import com.thetestament.cread.activities.PreviewActivity;
 import com.thetestament.cread.activities.ShortActivity;
@@ -127,12 +130,44 @@ public class ContentHelper {
         buttonDelete.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                onReposttDeleteListener.onDelete(data.getRepostID(), index);
+                showDeleteRepostConfirmationDialog(context, index, data.getRepostID(), onReposttDeleteListener);
                 //Dismiss bottom sheet
                 bottomSheetDialog.dismiss();
             }
         });
     }
+
+
+    /**
+     * Method to show confirmation dialog before deletion.
+     *
+     * @param context                Context to use.
+     * @param index                  position of item in adapter.
+     * @param repostID               Repost id of content.
+     * @param onRepostDeleteListener OnRepostDeleteListener
+     */
+    private static void showDeleteRepostConfirmationDialog(FragmentActivity context, final int index, final String repostID, final listener.OnRepostDeleteListener onRepostDeleteListener) {
+        new MaterialDialog.Builder(context)
+                .content("Are you sure want to remove this repost?")
+                .positiveText("Remove")
+                .negativeText("Cancel")
+                .onPositive(new MaterialDialog.SingleButtonCallback() {
+                    @Override
+                    public void onClick(@NonNull MaterialDialog materialDialog, @NonNull DialogAction dialogAction) {
+                        onRepostDeleteListener.onDelete(repostID, index);
+                        materialDialog.dismiss();
+                    }
+                })
+                .onNegative(new MaterialDialog.SingleButtonCallback() {
+                    @Override
+                    public void onClick(@NonNull MaterialDialog materialDialog, @NonNull DialogAction dialogAction) {
+                        materialDialog.dismiss();
+                    }
+                })
+                .build()
+                .show();
+    }
+
 
     /**
      * Method to launch required screen for content editing.

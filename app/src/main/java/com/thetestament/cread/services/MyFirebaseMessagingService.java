@@ -24,6 +24,7 @@ import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Target;
 import com.thetestament.cread.BuildConfig;
 import com.thetestament.cread.R;
+import com.thetestament.cread.activities.AchievementsActivity;
 import com.thetestament.cread.activities.BottomNavigationActivity;
 import com.thetestament.cread.activities.ChatDetailsActivity;
 import com.thetestament.cread.activities.NewUsersPostActivity;
@@ -39,6 +40,7 @@ import java.util.Map;
 import java.util.UUID;
 
 import static android.support.v4.app.NotificationManagerCompat.IMPORTANCE_HIGH;
+import static com.thetestament.cread.CreadApp.GET_RESPONSE_FROM_NETWORK_ACHIEVEMENTS;
 import static com.thetestament.cread.CreadApp.GET_RESPONSE_FROM_NETWORK_CHAT_DETAILS;
 import static com.thetestament.cread.CreadApp.GET_RESPONSE_FROM_NETWORK_CHAT_LIST;
 import static com.thetestament.cread.CreadApp.GET_RESPONSE_FROM_NETWORK_CHAT_REQUEST;
@@ -71,6 +73,7 @@ import static com.thetestament.cread.utils.Constant.NOTIFICATION_BUNDLE_DATA_ENT
 import static com.thetestament.cread.utils.Constant.NOTIFICATION_BUNDLE_DATA_MESSAGE;
 import static com.thetestament.cread.utils.Constant.NOTIFICATION_BUNDLE_DATA_OTHER_COLLABORATOR;
 import static com.thetestament.cread.utils.Constant.NOTIFICATION_BUNDLE_DATA_PERSISTABLE;
+import static com.thetestament.cread.utils.Constant.NOTIFICATION_CATEGORY_BADGE;
 import static com.thetestament.cread.utils.Constant.NOTIFICATION_CATEGORY_CREAD_BUY;
 import static com.thetestament.cread.utils.Constant.NOTIFICATION_CATEGORY_CREAD_COLLABORATE;
 import static com.thetestament.cread.utils.Constant.NOTIFICATION_CATEGORY_CREAD_COMMENT;
@@ -90,8 +93,10 @@ import static com.thetestament.cread.utils.Constant.NOTIFICATION_CATEGORY_POST_A
 import static com.thetestament.cread.utils.Constant.NOTIFICATION_CATEGORY_PROFILE_MENTION_COMMENT;
 import static com.thetestament.cread.utils.Constant.NOTIFICATION_CATEGORY_PROFILE_MENTION_POST;
 import static com.thetestament.cread.utils.Constant.NOTIFICATION_CATEGORY_REFERRAL_SUCCESS;
+import static com.thetestament.cread.utils.Constant.NOTIFICATION_CATEGORY_REPOST;
 import static com.thetestament.cread.utils.Constant.NOTIFICATION_CHANNEL_GENERAL;
 import static com.thetestament.cread.utils.Constant.NOTIFICATION_EXTRA_ENTITY_ID_LIST;
+import static com.thetestament.cread.utils.Constant.NOTIFICATION_ID_BADGE;
 import static com.thetestament.cread.utils.Constant.NOTIFICATION_ID_CREAD_BUY;
 import static com.thetestament.cread.utils.Constant.NOTIFICATION_ID_CREAD_COLLABORATE;
 import static com.thetestament.cread.utils.Constant.NOTIFICATION_ID_CREAD_COMMENT;
@@ -109,6 +114,7 @@ import static com.thetestament.cread.utils.Constant.NOTIFICATION_ID_POST_AFTER_G
 import static com.thetestament.cread.utils.Constant.NOTIFICATION_ID_PROFILE_MENTION_COMMENT;
 import static com.thetestament.cread.utils.Constant.NOTIFICATION_ID_PROFILE_MENTION_POST;
 import static com.thetestament.cread.utils.Constant.NOTIFICATION_ID_REFERRAL_SUCCESS;
+import static com.thetestament.cread.utils.Constant.NOTIFICATION_ID_REPOST;
 import static com.thetestament.cread.utils.Constant.TAG_EXPLORE_FRAGMENT;
 
 
@@ -372,6 +378,27 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
                 intent = new Intent(this, NewUsersPostActivity.class);
                 intent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
                 intent.putExtras(firstPostBundle);
+                break;
+
+            case NOTIFICATION_CATEGORY_REPOST:
+                mId = NOTIFICATION_ID_REPOST;
+                entityID = data.get("entityid");
+                actorUserImage = data.get("actorimage");
+                resId = R.drawable.ic_cread_notification_general;
+                intent = new Intent(this, UpdatesActivity.class);
+                intent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
+
+                GET_RESPONSE_FROM_NETWORK_UPDATES = true;
+                //set notification indicator status
+                spHelper.setNotifIndicatorStatus(true);
+                break;
+            case NOTIFICATION_CATEGORY_BADGE:
+                mId = NOTIFICATION_ID_BADGE;
+                resId = R.drawable.ic_cread_notification_general;
+                intent = new Intent(this, AchievementsActivity.class);
+                intent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
+                intent.putExtra("requesteduuid", spHelper.getUUID());
+                GET_RESPONSE_FROM_NETWORK_ACHIEVEMENTS = true;
                 break;
             default:
                 isValidCategory = false;

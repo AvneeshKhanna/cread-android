@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 
 import com.thetestament.cread.BuildConfig;
+import com.thetestament.cread.activities.AchievementsActivity;
 import com.thetestament.cread.activities.BottomNavigationActivity;
 import com.thetestament.cread.activities.ChatDetailsActivity;
 import com.thetestament.cread.activities.ContentPreview;
@@ -192,6 +193,17 @@ public class IntentHelper {
     public static void openLongFormWritingActivity(Context context, ShortModel model) {
         Intent intent = new Intent(context, ViewLongShortActivity.class);
         intent.putExtra(EXTRA_SHORT_DATA, model);
+        context.startActivity(intent);
+    }
+
+    /**
+     * Method to open Achievements screen.
+     *
+     * @param context Context to use.
+     */
+    public static void openAchievementsActivity(Context context, String requestedUUID) {
+        Intent intent = new Intent(context, AchievementsActivity.class);
+        intent.putExtra("requesteduuid", requestedUUID);
         context.startActivity(intent);
     }
 }

@@ -68,6 +68,7 @@ import static com.thetestament.cread.utils.Constant.NOTIFICATION_CATEGORY_CREAD_
 import static com.thetestament.cread.utils.Constant.NOTIFICATION_CATEGORY_CREAD_TOP_POST;
 import static com.thetestament.cread.utils.Constant.NOTIFICATION_CATEGORY_PROFILE_MENTION_COMMENT;
 import static com.thetestament.cread.utils.Constant.NOTIFICATION_CATEGORY_PROFILE_MENTION_POST;
+import static com.thetestament.cread.utils.Constant.NOTIFICATION_CATEGORY_REPOST;
 
 
 /**
@@ -284,6 +285,12 @@ public class UpdatesFragment extends Fragment {
                     case NOTIFICATION_CATEGORY_CREAD_FB_FRIEND:
                         // open profile screen
                         openProfileScreen(updatesModel);
+                        break;
+
+                    case NOTIFICATION_CATEGORY_REPOST:
+                        // gets feed details and opens details screen
+                        getFeedDetails(updatesModel.getEntityID(), false);
+                        break;
                     default:
                         break;
                 }
@@ -578,6 +585,8 @@ public class UpdatesFragment extends Fragment {
             case NOTIFICATION_CATEGORY_PROFILE_MENTION_POST:
                 break;
             case NOTIFICATION_CATEGORY_CREAD_FB_FRIEND:
+                break;
+            case NOTIFICATION_CATEGORY_REPOST:
                 break;
             default:
                 isValid = false;

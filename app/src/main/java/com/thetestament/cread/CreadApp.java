@@ -49,6 +49,7 @@ public class CreadApp extends MultiDexApplication {
     public static boolean GET_RESPONSE_FROM_NETWORK_HASHTAG_SUGGETION = false;
     public static boolean GET_RESPONSE_FROM_NETWORK_EXPLORE_CATEGORY = false;
     public static boolean GET_RESPONSE_FROM_NETWORK_NEW_USERS_POST = false;
+    public static boolean GET_RESPONSE_FROM_NETWORK_ACHIEVEMENTS = false;
 
     // for picasso image loading
     public static boolean IMAGE_LOAD_FROM_NETWORK_ME = false;

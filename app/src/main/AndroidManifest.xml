@@ -399,9 +399,9 @@
         <activity
             android:name=".activities.PreviewActivity"
             android:label="Preview"
-            android:windowSoftInputMode="stateHidden"
             android:screenOrientation="portrait"
-            android:theme="@style/AppTheme">
+            android:theme="@style/AppTheme"
+            android:windowSoftInputMode="stateHidden">
 
             <!-- For back navigation -->
             <meta-data
@@ -520,6 +520,18 @@
         <activity
             android:name=".activities.NewUsersPostActivity"
             android:label="Posts"
+            android:launchMode="singleTop"
+            android:screenOrientation="portrait">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".activities.BottomNavigationActivity" />
+        </activity>
+
+
+        <!-- AchievementsActivity screen -->
+        <activity
+            android:name=".activities.AchievementsActivity"
+            android:label="Achievements"
             android:launchMode="singleTop"
             android:screenOrientation="portrait">
             <meta-data

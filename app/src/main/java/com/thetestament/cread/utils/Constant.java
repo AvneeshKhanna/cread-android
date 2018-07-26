@@ -194,6 +194,9 @@ public class Constant {
     public static final String NOTIFICATION_CATEGORY_REFERRAL_SUCCESS = "join-referral";
     public static final String NOTIFICATION_CATEGORY_POST_AFTER_GAP = "post-after-gap";
     public static final String NOTIFICATION_CATEGORY_FIRST_POST_USERS = "first-post-users";
+    public static final String NOTIFICATION_CATEGORY_REPOST = "repost";
+    public static final String NOTIFICATION_CATEGORY_BADGE = "badge";
+
     //endregion
 
     //Notification id cread
@@ -215,6 +218,8 @@ public class Constant {
     public static final int NOTIFICATION_ID_REFERRAL_SUCCESS = 1015;
     public static final int NOTIFICATION_ID_POST_AFTER_GAP = 1016;
     public static final int NOTIFICATION_ID_FIRST_POST_USERS = 1017;
+    public static final int NOTIFICATION_ID_REPOST = 1018;
+    public static final int NOTIFICATION_ID_BADGE = 1019;
 
 
     public static final String NOTIFICATION_CHANNEL_GENERAL = "generalNotificationChannel";
@@ -265,7 +270,7 @@ public class Constant {
 
 
     public enum GratitudeNumbers {
-        POSTS, FOLLOWERS, FOLLOWING,
+        POSTS, BADGES, FOLLOWERS, FOLLOWING,
         HATSOFF, COMMENT, COLLABORATIONS
     }
 

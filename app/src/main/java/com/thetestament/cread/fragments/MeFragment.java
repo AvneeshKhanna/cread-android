@@ -150,6 +150,7 @@ import static com.thetestament.cread.utils.Constant.EXTRA_USER_INTERESTS_COUNT;
 import static com.thetestament.cread.utils.Constant.EXTRA_USER_LAST_NAME;
 import static com.thetestament.cread.utils.Constant.EXTRA_USER_WATER_MARK_STATUS;
 import static com.thetestament.cread.utils.Constant.EXTRA_USER_WEB_STORE_LINK;
+import static com.thetestament.cread.utils.Constant.GratitudeNumbers.BADGES;
 import static com.thetestament.cread.utils.Constant.GratitudeNumbers.COLLABORATIONS;
 import static com.thetestament.cread.utils.Constant.GratitudeNumbers.COMMENT;
 import static com.thetestament.cread.utils.Constant.GratitudeNumbers.FOLLOWERS;
@@ -274,6 +275,12 @@ public class MeFragment extends Fragment implements listener.OnCollaborationList
      */
     @State
     long mCollaborationCount;
+
+    /**
+     * Flag to maintain total no of badge count.
+     */
+    @State
+    long mBadgeCount;
 
     /**
      * Flag to maintain user email.
@@ -851,6 +858,18 @@ public class MeFragment extends Fragment implements listener.OnCollaborationList
         ((BottomNavigationActivity) getActivity()).getAddContentBottomSheetDialog();
     }
 
+    /**
+     * Badge click functionality.
+     */
+    void badgeClickFunctionality() {
+        //If user can edit his/her profile
+        if (isProfileEditable) {
+            IntentHelper.openAchievementsActivity(getActivity(), mRequestedUUID);
+        } else {
+            IntentHelper.openAchievementsActivity(getActivity(), mRequestedUUID);
+        }
+    }
+
     //endregion
 
     //region :Private methods
@@ -1069,6 +1088,10 @@ public class MeFragment extends Fragment implements listener.OnCollaborationList
             public void onUserStatsClicked(GratitudeNumbers gratitudeNumbers, LinearLayout view) {
 
                 switch (gratitudeNumbers) {
+                    case BADGES:
+                        //Method called
+                        badgeClickFunctionality();
+                        break;
                     case FOLLOWERS:
                         onFollowersContainerClicked();
                         break;
@@ -1154,6 +1177,7 @@ public class MeFragment extends Fragment implements listener.OnCollaborationList
                                 mFollowStatus = mainData.getBoolean("followstatus");
                                 mFeatureCount = mainData.getLong("featurecount");
                                 mPostCount = mainData.getLong("postcount");
+                                mBadgeCount = mainData.getLong("badgecount");
                                 mFollowerCount = mainData.getLong("followercount");
                                 mFollowingCount = mainData.getLong("followingcount");
                                 mHatsoffCount = mainData.getLong("hatsoffscount");
@@ -1165,6 +1189,7 @@ public class MeFragment extends Fragment implements listener.OnCollaborationList
                                 mIsFeatured = mainData.getBoolean("featured");
                                 mWebStoreUrl = mainData.getString("web_profile_link");
                                 mIsTopArtist = mainData.getBoolean("topartist");
+
 
                                 mInterestCount = mainData.getLong("interestcount");
 
@@ -1222,6 +1247,7 @@ public class MeFragment extends Fragment implements listener.OnCollaborationList
                                                        //Set user activity stats
                                                        if (viewPagerUserStats != null) {
                                                            ((TextView) viewPagerUserStats.findViewWithTag(POSTS)).setText(String.valueOf(mPostCount));
+                                                           ((TextView) viewPagerUserStats.findViewWithTag(BADGES)).setText(String.valueOf(mBadgeCount));
                                                            ((TextView) viewPagerUserStats.findViewWithTag(FOLLOWERS)).setText(String.valueOf(mFollowerCount));
                                                            ((TextView) viewPagerUserStats.findViewWithTag(FOLLOWING)).setText(String.valueOf(mFollowingCount));
                                                            ((TextView) viewPagerUserStats.findViewWithTag(HATSOFF)).setText(String.valueOf(mHatsoffCount));

@@ -1,13 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/reposted_by_container"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:background="@color/white"
-    android:gravity="center_vertical"
-    android:orientation="horizontal"
     android:paddingBottom="8dp"
     android:paddingLeft="8dp"
     android:paddingTop="8dp">
@@ -16,13 +14,16 @@
         android:id="@+id/icon_repost"
         android:layout_width="12dp"
         android:layout_height="12dp"
+        android:layout_centerVertical="true"
         app:srcCompat="@drawable/icon_repost" />
 
     <android.support.v7.widget.AppCompatTextView
         android:id="@+id/text_reposted_by"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_centerVertical="true"
         android:layout_marginLeft="5dp"
+        android:layout_toRightOf="@+id/icon_repost"
         android:textSize="12sp"
         tools:text="Gaurav reposted this" />
 
@@ -30,7 +31,9 @@
         android:id="@+id/dot_indicator"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_centerVertical="true"
         android:layout_marginLeft="5dp"
+        android:layout_toRightOf="@+id/text_reposted_by"
         android:text="@string/bullet"
         android:textSize="10sp" />
 
@@ -38,8 +41,22 @@
         android:id="@+id/text_reposted_time"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_centerVertical="true"
         android:layout_marginLeft="5dp"
+        android:layout_toRightOf="@id/dot_indicator"
         android:textSize="12sp"
         tools:text="@tools:sample/date/hhmmss" />
 
-</LinearLayout>
+
+    <android.support.v7.widget.AppCompatImageView
+        android:id="@+id/button_menu"
+        android:layout_width="18dp"
+        android:layout_height="18dp"
+        android:layout_marginRight="8dp"
+        android:layout_centerVertical="true"
+        android:layout_alignParentRight="true"
+        android:textAppearance="?android:textAppearanceLarge"
+        android:visibility="visible"
+        app:srcCompat="@drawable/ic_content_options" />
+
+</RelativeLayout>

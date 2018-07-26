@@ -10,11 +10,9 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.thetestament.cread.R;
-import com.thetestament.cread.helpers.ViewHelper;
-import com.thetestament.cread.listeners.listener;
 import com.thetestament.cread.listeners.listener.OnUserStatsClickedListener;
-import com.thetestament.cread.utils.Constant;
 
+import static com.thetestament.cread.utils.Constant.GratitudeNumbers.BADGES;
 import static com.thetestament.cread.utils.Constant.GratitudeNumbers.COLLABORATIONS;
 import static com.thetestament.cread.utils.Constant.GratitudeNumbers.COMMENT;
 import static com.thetestament.cread.utils.Constant.GratitudeNumbers.FOLLOWERS;
@@ -94,6 +92,18 @@ public class UserStatsPagerAdapter extends PagerAdapter {
                 // set tag
                 TextView postsCount = view.findViewById(R.id.textPostsCount);
                 postsCount.setTag(POSTS);
+
+                // set click listener
+                final LinearLayout containerBadges = view.findViewById(R.id.containerBadges);
+                containerBadges.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        onUserStatsClickedListener.onUserStatsClicked(BADGES, containerBadges);
+                    }
+                });
+                // set tag
+                TextView postsBadges = view.findViewById(R.id.textBadgeCount);
+                postsBadges.setTag(BADGES);
 
                 // set click listener
                 final LinearLayout containerFollowers = view.findViewById(R.id.containerFollowers);

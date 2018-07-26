@@ -195,7 +195,7 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         } else {
             if (position == recommendedArtistIndex) {
                 return VIEW_TYPE_RECOMMENDED_ARTIST;
-            } else if (mFeedList.get(position).getPostType().equals("repost")) {
+            } else if (mFeedList.get(position).getPostType().equals("REPOST")) {
                 return VIEW_TYPE_ITEM_USER_REPOST;
             } else {
                 return VIEW_TYPE_ITEM;

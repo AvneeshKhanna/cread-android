@@ -51,11 +51,13 @@
                         android:paddingRight="24dp"
                         android:paddingTop="24dp">
 
+                        <!--Profile picture container-->
                         <FrameLayout
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_gravity="center">
 
+                            <!--User profile picture-->
                             <de.hdodenhof.circleimageview.CircleImageView
                                 android:id="@+id/imageUser"
                                 android:layout_width="88dp"
