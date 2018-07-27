@@ -1129,7 +1129,7 @@ public class FeedDescriptionActivity extends BaseActivity implements listener.On
     }
 
     /**
-     * Custom layout manager.
+     * Custom dialogParentView manager.
      */
     public class WrapContentLinearLayoutManager extends LinearLayoutManager {
 

@@ -5,7 +5,7 @@ import android.support.annotation.NonNull;
 import android.support.design.widget.BottomSheetDialog;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.widget.TextViewCompat;
-import android.support.v7.widget.AppCompatImageView;
+import android.support.v7.widget.AppCompatTextView;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -22,6 +22,7 @@ import com.thetestament.cread.helpers.FeedHelper;
 import com.thetestament.cread.helpers.ImageHelper;
 import com.thetestament.cread.helpers.IntentHelper;
 import com.thetestament.cread.helpers.ProfileMentionsHelper;
+import com.thetestament.cread.helpers.ViewHelper;
 import com.thetestament.cread.listeners.listener.OnCommentDeleteListener;
 import com.thetestament.cread.listeners.listener.OnCommentEditListener;
 import com.thetestament.cread.listeners.listener.OnLoadMoreClickedListener;
@@ -163,6 +164,7 @@ public class CommentsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                 //toggle visibility
                 itemViewHolder.viewTopArtist.setVisibility(View.GONE);
             }
+            topArtistOnClick(itemViewHolder.viewTopArtist);
         } else if (holder instanceof HeaderViewHolder) {
             final HeaderViewHolder headerViewHolder = (HeaderViewHolder) holder;
 
@@ -309,6 +311,23 @@ public class CommentsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                 .show();
     }
 
+    /**
+     * Top artist click functionality.
+     *
+     * @param view View to be clicked.
+     */
+    private void topArtistOnClick(View view) {
+        view.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                //Show tooltip
+                ViewHelper.getToolTip(view
+                        , mContext.getString(R.string.text_top_artist)
+                        , mContext);
+            }
+        });
+    }
+
     //ViewHolder class for item
     static class ItemViewHolder extends RecyclerView.ViewHolder {
         @BindView(R.id.imageUser)
@@ -322,7 +341,7 @@ public class CommentsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         @BindView(R.id.buttonMore)
         ImageView buttonMore;
         @BindView(R.id.view_top_artist)
-        AppCompatImageView viewTopArtist;
+        AppCompatTextView viewTopArtist;
 
         public ItemViewHolder(View itemView) {
             super(itemView);

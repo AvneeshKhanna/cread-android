@@ -133,7 +133,7 @@ public class RecommendedArtistsActivity extends BaseActivity {
         //SharedPreference reference
         mHelper = new SharedPreferenceHelper(mContext);
 
-        //Set layout manger for recyclerView
+        //Set dialogParentView manger for recyclerView
         recyclerView.setLayoutManager(new LinearLayoutManager(mContext));
         //Set adapter
         mAdapter = new RecommendedArtistsAdapter(mContext, mDataList);

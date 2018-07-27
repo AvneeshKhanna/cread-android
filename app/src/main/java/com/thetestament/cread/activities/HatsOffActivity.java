@@ -102,7 +102,7 @@ public class HatsOffActivity extends BaseActivity {
         //Retrieve data from intent
         mEntityID = getIntent().getStringExtra(EXTRA_ENTITY_ID);
 
-        //Set layout manger for recyclerView
+        //Set dialogParentView manger for recyclerView
         recyclerView.setLayoutManager(new LinearLayoutManager(HatsOffActivity.this));
         //Set adapter
         mAdapter = new HatsOffAdapter(mHatsOffList, HatsOffActivity.this);

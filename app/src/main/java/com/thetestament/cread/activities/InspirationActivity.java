@@ -99,10 +99,10 @@ public class InspirationActivity extends BaseActivity {
     //region :Private methods
 
     /**
-     * Method to initialize swipe refresh layout.
+     * Method to initialize swipe refresh dialogParentView.
      */
     private void initScreen() {
-        //Set layout manger for recyclerView
+        //Set dialogParentView manger for recyclerView
         recyclerView.setLayoutManager(new LinearLayoutManager(mContext));
         //Set adapter
         mAdapter = new InspirationAdapter(mInspirationDataList, mContext, Constant.INSPIRATION_ITEM_TYPE_DETAIL);

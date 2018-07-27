@@ -13,7 +13,7 @@
         android:layout_height="wrap_content"
         android:background="@android:color/transparent"
         android:fitsSystemWindows="true"
-        android:visibility="visible">
+        android:visibility="invisible">
 
         <!--Collapsing toolbar-->
         <android.support.design.widget.CollapsingToolbarLayout
@@ -66,12 +66,20 @@
                                 tools:src="@drawable/ic_account_circle_100" />
 
                             <!--Top artist view-->
-                            <android.support.v7.widget.AppCompatImageView
+                            <android.support.v7.widget.AppCompatTextView
                                 android:id="@+id/view_top_artist"
-                                android:layout_width="16dp"
-                                android:layout_height="16dp"
-                                android:layout_gravity="right|bottom"
-                                android:src="@drawable/top_artist"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_gravity="bottom|center_horizontal"
+                                android:background="@drawable/chips_bg_top_artist"
+                                android:gravity="center"
+                                android:paddingBottom="3dp"
+                                android:paddingLeft="24dp"
+                                android:paddingRight="24dp"
+                                android:paddingTop="3dp"
+                                android:text="Top"
+                                android:textColor="@color/white"
+                                android:textSize="12sp"
                                 android:visibility="visible" />
                         </FrameLayout>
 
@@ -298,6 +306,8 @@
         android:layout_height="wrap_content"
         android:layout_gravity="center"
         android:visibility="gone" />
+
+    <include layout="@layout/layout_achievement_bottom_sheet" />
 
     <!--Fab to launch chat list screen-->
     <android.support.design.widget.FloatingActionButton

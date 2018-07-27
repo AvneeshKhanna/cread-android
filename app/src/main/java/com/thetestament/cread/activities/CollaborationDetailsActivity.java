@@ -133,7 +133,7 @@ public class CollaborationDetailsActivity extends BaseActivity {
         mEntityID = bundle.getString(EXTRA_ENTITY_ID);
         mEntityType = bundle.getString(EXTRA_ENTITY_TYPE);
 
-        //Set layout manger for recyclerView
+        //Set dialogParentView manger for recyclerView
         LinearLayoutManager layoutManager = new LinearLayoutManager(mContext
                 , LinearLayoutManager.HORIZONTAL
                 , false);

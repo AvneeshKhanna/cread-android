@@ -5,15 +5,16 @@
     android:id="@+id/parent_view"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    android:background="@color/white"
     android:orientation="vertical">
 
     <!--Badge imageView-->
     <com.facebook.drawee.view.SimpleDraweeView
-        android:layout_marginTop="48dp"
         android:id="@+id/img_badge"
         android:layout_width="100dp"
         android:layout_height="100dp"
         android:layout_gravity="center_horizontal"
+        android:layout_marginTop="48dp"
         app:failureImage="@drawable/image_placeholder"
         app:failureImageScaleType="centerCrop"
         app:roundAsCircle="true" />
@@ -23,7 +24,7 @@
         android:id="@+id/badge_title"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="24dp"
+        android:layout_marginTop="16dp"
         android:gravity="center"
         android:textColor="@color/black"
         android:textSize="18sp"
@@ -34,7 +35,7 @@
         android:id="@+id/text_congratulation"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="24dp"
+        android:layout_marginTop="16dp"
         android:gravity="center"
         android:maxLines="2"
         android:paddingLeft="16dp"
@@ -47,7 +48,7 @@
         android:id="@+id/divider_top"
         android:layout_width="match_parent"
         android:layout_height="0.3dp"
-        android:layout_marginTop="48dp"
+        android:layout_marginTop="36dp"
         android:alpha="0.4"
         android:background="@color/grey_dark"
         android:visibility="visible" />

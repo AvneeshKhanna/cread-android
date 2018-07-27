@@ -331,7 +331,7 @@ public class ChatDetailsActivity extends BaseActivity {
         retrieveIntentData(newIntent);
         initTextWatcher(etWriteMessage);
 
-        //Set layout manger for recyclerView
+        //Set dialogParentView manger for recyclerView
         recyclerView.setLayoutManager(new LinearLayoutManager(mContext));
         //Set adapter
         mAdapter = new ChatDetailsAdapter(mChatDetailsList, mContext);

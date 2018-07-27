@@ -10,7 +10,6 @@ import android.view.ViewGroup;
 
 import com.facebook.drawee.view.SimpleDraweeView;
 import com.thetestament.cread.R;
-import com.thetestament.cread.activities.AchievementsActivity;
 import com.thetestament.cread.helpers.ImageHelper;
 import com.thetestament.cread.listeners.listener;
 import com.thetestament.cread.models.AchievementsModels;
@@ -19,14 +18,12 @@ import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import de.hdodenhof.circleimageview.CircleImageView;
 
 /**
  * Adapter class to provide a binding from data set to views that are displayed within a Achievements RecyclerView.
- * {@link AchievementsActivity#recyclerView}
  */
 
-public class AchievementsAdapter extends RecyclerView.Adapter<AchievementsAdapter.ItemVIewHolder> {
+public class OtherUserAchievementsAdapter extends RecyclerView.Adapter<OtherUserAchievementsAdapter.ItemVIewHolder> {
 
     //region :Field and constants
     List<AchievementsModels> mAchievementsDataList;
@@ -52,7 +49,7 @@ public class AchievementsAdapter extends RecyclerView.Adapter<AchievementsAdapte
      * @param achievementsDataList List of achievement data.
      * @param context              Context to use.
      */
-    public AchievementsAdapter(List<AchievementsModels> achievementsDataList, FragmentActivity context) {
+    public OtherUserAchievementsAdapter(List<AchievementsModels> achievementsDataList, FragmentActivity context) {
         this.mAchievementsDataList = achievementsDataList;
         this.mContext = context;
     }
@@ -62,7 +59,7 @@ public class AchievementsAdapter extends RecyclerView.Adapter<AchievementsAdapte
     @Override
     public ItemVIewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         return new ItemVIewHolder(LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.item_achievements
+                .inflate(R.layout.item_other_user_achievements
                         , parent,
                         false));
     }
@@ -72,17 +69,6 @@ public class AchievementsAdapter extends RecyclerView.Adapter<AchievementsAdapte
         AchievementsModels data = mAchievementsDataList.get(position);
         //set badge title
         holder.badgeTitle.setText(data.getBadgeTitle());
-
-        //if badge is unlocked
-        if (data.isBadgeUnlock()) {
-            //toggle view visibility
-            holder.badgeOverlay.setVisibility(View.GONE);
-            holder.textReveal.setVisibility(View.GONE);
-        } else {
-            //toggle view visibility
-            holder.badgeOverlay.setVisibility(View.VISIBLE);
-            holder.textReveal.setVisibility(View.VISIBLE);
-        }
         //load badge image
         ImageHelper.loadProgressiveImage(Uri.parse(data.getBadgeImageUrl()), holder.badgeImage);
         //Method called
@@ -109,7 +95,7 @@ public class AchievementsAdapter extends RecyclerView.Adapter<AchievementsAdapte
             @Override
             public void onClick(View view) {
                 //set click listener
-                onBadgeClickListener.onBadgeClick(data);
+                //onBadgeClickListener.onBadgeClick(data);
             }
         });
     }
@@ -119,10 +105,6 @@ public class AchievementsAdapter extends RecyclerView.Adapter<AchievementsAdapte
     static class ItemVIewHolder extends RecyclerView.ViewHolder {
         @BindView(R.id.badge_image)
         SimpleDraweeView badgeImage;
-        @BindView(R.id.badge_overlay)
-        CircleImageView badgeOverlay;
-        @BindView(R.id.text_reveal)
-        AppCompatTextView textReveal;
         @BindView(R.id.badge_title)
         AppCompatTextView badgeTitle;
 

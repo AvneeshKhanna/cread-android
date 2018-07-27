@@ -43,7 +43,7 @@ public class SplashActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         //For fullscreen display
         ViewHelper.initFullScreen(this);
-        //Set layout files
+        //Set dialogParentView files
         setContentView(R.layout.activity_splash);
         //initialize force update system
         //Method called

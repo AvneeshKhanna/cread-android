@@ -30,6 +30,7 @@ import com.squareup.picasso.Picasso;
 import com.thetestament.cread.BuildConfig;
 import com.thetestament.cread.R;
 import com.thetestament.cread.activities.CollaborationActivity;
+import com.thetestament.cread.utils.Constant;
 import com.yalantis.ucrop.UCrop;
 import com.yalantis.ucrop.UCropActivity;
 import com.yalantis.ucrop.model.AspectRatio;
@@ -73,6 +74,8 @@ public class ImageHelper {
             s = "/Cread/Capture/capture_pic.jpg";
         } else if (imageType.equals(IMAGE_TYPE_USER_SHORT_PIC)) {
             s = "/Cread/Short/short_pic.jpg";
+        } else if (imageType.equals(Constant.IMAGE_TYPE_USER_SHARE_BADGE)) {
+            s = "/Cread/Share/badge_pic.png";
         } else {
             s = "/Cread/Share/share_pic.png";
         }

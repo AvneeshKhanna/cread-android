@@ -280,7 +280,7 @@ public class CommentsActivity extends BaseActivity implements QueryTokenReceiver
     private void initView() {
         //Retrieve data from intent
         mEntityID = getIntent().getStringExtra(EXTRA_ENTITY_ID);
-        //Set layout manger for recyclerView
+        //Set dialogParentView manger for recyclerView
         mLayoutManager = new LinearLayoutManager(this);
         recyclerView.setLayoutManager(mLayoutManager);
         //Set adapter
@@ -508,7 +508,7 @@ public class CommentsActivity extends BaseActivity implements QueryTokenReceiver
                         }
                         //No data
                         else if (mCommentsList.size() == 0) {
-                            //SHow no data layout
+                            //SHow no data dialogParentView
                             viewNoData.setVisibility(View.VISIBLE);
                         } else {
 

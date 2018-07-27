@@ -1023,7 +1023,7 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
         }
         final LinearLayoutManager layoutManager = new LinearLayoutManager(mContext
                 , LinearLayoutManager.HORIZONTAL, false);
-        //Set layout manager
+        //Set dialogParentView manager
         recyclerView.setLayoutManager(layoutManager);
         //Set adapter
         fontAdapter = new FontAdapter(mFontDataList
@@ -1078,7 +1078,7 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
             data.setColorValue(colorValue);
             colorList.add(data);
         }
-        //Set layout manager
+        //Set dialogParentView manager
         final LinearLayoutManager layoutManager = new LinearLayoutManager(mContext
                 , LinearLayoutManager.HORIZONTAL
                 , false);
@@ -1122,7 +1122,7 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
             data.setTemplateName(templateName);
             templateList.add(data);
         }
-        //Set layout manager
+        //Set dialogParentView manager
         final LinearLayoutManager layoutManager = new LinearLayoutManager(mContext
                 , LinearLayoutManager.HORIZONTAL
                 , false);
@@ -1455,7 +1455,7 @@ public class ShortActivity extends BaseActivity implements OnEditTextBackListene
      * Method to setup inspiration view and its functionality.
      */
     private void initInspirationView() {
-        //Set layout manger for recyclerView
+        //Set dialogParentView manger for recyclerView
         final LinearLayoutManager layoutManager = new LinearLayoutManager(mContext
                 , LinearLayoutManager.HORIZONTAL, false);
         recyclerViewInspiration.setLayoutManager(layoutManager);

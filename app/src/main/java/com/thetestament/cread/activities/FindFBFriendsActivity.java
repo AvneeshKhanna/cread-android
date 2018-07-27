@@ -147,7 +147,7 @@ public class FindFBFriendsActivity extends BaseActivity {
      */
     private void initView() {
 
-        //Set layout manger for recyclerView
+        //Set dialogParentView manger for recyclerView
         recyclerView.setLayoutManager(new LinearLayoutManager(FindFBFriendsActivity.this));
         //Set adapter
         mAdapter = new FBFriendsAdapter(mDataList, FindFBFriendsActivity.this);

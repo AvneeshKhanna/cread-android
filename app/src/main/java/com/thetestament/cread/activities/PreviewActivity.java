@@ -1596,7 +1596,7 @@ public class PreviewActivity extends BaseActivity implements QueryTokenReceiver,
                 mFilterName = filterNAme;
             }
         });
-        //Set layout manager
+        //Set dialogParentView manager
         filterRecyclerView.setLayoutManager(new LinearLayoutManager(mContext
                 , LinearLayoutManager.HORIZONTAL
                 , false));
@@ -2118,7 +2118,7 @@ public class PreviewActivity extends BaseActivity implements QueryTokenReceiver,
                             }
                         }
 
-                        //Set layout manger
+                        //Set dialogParentView manger
                         final LinearLayoutManager layoutManager = new LinearLayoutManager(mContext
                                 , LinearLayoutManager.HORIZONTAL, false);
                         recyclerViewLabels.setLayoutManager(layoutManager);
@@ -2218,7 +2218,7 @@ public class PreviewActivity extends BaseActivity implements QueryTokenReceiver,
             data.setLiveFilterName(name);
             liveFilterList.add(data);
         }
-        //Set layout manager
+        //Set dialogParentView manager
         final LinearLayoutManager layoutManager = new LinearLayoutManager(mContext
                 , LinearLayoutManager.HORIZONTAL
                 , false);

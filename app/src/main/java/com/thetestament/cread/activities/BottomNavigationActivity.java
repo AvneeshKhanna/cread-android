@@ -826,7 +826,7 @@ public class BottomNavigationActivity extends BaseActivity {
      * @param menu BottomNavigation menu.
      */
     private void setupBadge(final Menu menu) {
-        //Action layout of chat icon
+        //Action dialogParentView of chat icon
         View actionView = menu.findItem(R.id.action_updates).getActionView();
         //Obtain reference of badgeView
         badgeView = actionView.findViewById(R.id.updatesDotBadge);

@@ -112,7 +112,7 @@ public class FollowActivity extends BaseActivity {
             mServerURL = "/follow/load-followers";
         }
 
-        //Set layout manger for recyclerView
+        //Set dialogParentView manger for recyclerView
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         //Set adapter
         mAdapter = new FollowAdapter(mFollowList, this);
@@ -122,7 +122,7 @@ public class FollowActivity extends BaseActivity {
     }
 
     /**
-     * Method to initialize swipe refresh layout.
+     * Method to initialize swipe refresh dialogParentView.
      */
     private void initScreen() {
         swipeRefreshLayout.setRefreshing(true);

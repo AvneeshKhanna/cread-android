@@ -172,7 +172,7 @@ public class MerchandisingProductsActivity extends BaseActivity {
         mShortUUID = getIntent().getStringExtra(EXTRA_SHORT_UUID);
         mCaptureUUID = getIntent().getStringExtra(EXTRA_CAPTURE_UUID);
 
-        //Set layout manger for recyclerView
+        //Set dialogParentView manger for recyclerView
         recyclerView.setLayoutManager(new LinearLayoutManager(MerchandisingProductsActivity.this));
         //Set adapter
         mAdapter = new ProductsAdapter(MerchandisingProductsActivity.this, mDataList, mHelper.getUUID(), mEntityURL);

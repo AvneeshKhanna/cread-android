@@ -319,7 +319,7 @@ public class CollaborationActivity extends BaseActivity {
         super.onCreate(savedInstanceState);
         //Set screen in fullscreen mode
         initFullScreen();
-        //Set layout
+        //Set dialogParentView
         setContentView(R.layout.activity_collaboration);
         ButterKnife.bind(this);
         //Obtain reference
@@ -709,7 +709,7 @@ public class CollaborationActivity extends BaseActivity {
 
         final LinearLayoutManager layoutManager = new LinearLayoutManager(mContext
                 , LinearLayoutManager.HORIZONTAL, false);
-        //Set layout manager
+        //Set dialogParentView manager
         recyclerView.setLayoutManager(layoutManager);
         //Set adapter
         fontAdapter = new FontAdapter(mFontDataList, mContext, mHelper.getSelectedFontPosition());
@@ -754,7 +754,7 @@ public class CollaborationActivity extends BaseActivity {
             data.setColorValue(colorValue);
             colorList.add(data);
         }
-        //Set layout manager
+        //Set dialogParentView manager
         final LinearLayoutManager layoutManager = new LinearLayoutManager(mContext
                 , LinearLayoutManager.HORIZONTAL
                 , false);
@@ -789,7 +789,7 @@ public class CollaborationActivity extends BaseActivity {
             data.setTemplateName(templateName);
             templateList.add(data);
         }
-        //Set layout manager
+        //Set dialogParentView manager
         final LinearLayoutManager layoutManager = new LinearLayoutManager(mContext
                 , LinearLayoutManager.HORIZONTAL
                 , false);

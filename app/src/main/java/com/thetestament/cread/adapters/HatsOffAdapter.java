@@ -3,7 +3,6 @@ package com.thetestament.cread.adapters;
 
 import android.net.Uri;
 import android.support.v4.app.FragmentActivity;
-import android.support.v7.widget.AppCompatImageView;
 import android.support.v7.widget.AppCompatTextView;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -14,6 +13,7 @@ import com.facebook.drawee.view.SimpleDraweeView;
 import com.thetestament.cread.R;
 import com.thetestament.cread.helpers.ImageHelper;
 import com.thetestament.cread.helpers.IntentHelper;
+import com.thetestament.cread.helpers.ViewHelper;
 import com.thetestament.cread.listeners.listener.OnHatsOffLoadMoreListener;
 import com.thetestament.cread.models.HatsOffModel;
 
@@ -87,6 +87,7 @@ public class HatsOffAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
                     , itemViewHolder.imageUser);
             //Click functionality
             itemViewOnClick(itemViewHolder.itemView, data.getUuid());
+            topArtistOnClick(itemViewHolder.viewTopArtist);
 
             //If artist is top artist
             if (data.isTopArtist()) {
@@ -141,6 +142,21 @@ public class HatsOffAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
         });
     }
 
+    /**
+     * Top artist click functionality.
+     */
+    private void topArtistOnClick(View view) {
+        view.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                //Show tooltip
+                ViewHelper.getToolTip(view
+                        , mContext.getString(R.string.text_top_artist)
+                        , mContext);
+            }
+        });
+    }
+
     //region :ViewHolders
     //ItemViewHolder class
     static class ItemViewHolder extends RecyclerView.ViewHolder {
@@ -149,7 +165,7 @@ public class HatsOffAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
         @BindView(R.id.text_user_name)
         AppCompatTextView textUserName;
         @BindView(R.id.view_top_artist)
-        AppCompatImageView viewTopArtist;
+        AppCompatTextView viewTopArtist;
 
         public ItemViewHolder(View itemView) {
             super(itemView);

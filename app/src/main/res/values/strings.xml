@@ -72,6 +72,7 @@
     <string name="key_product_tour">keyProductTour</string>
     <string name="key_live_filter">keyLiveFilter</string>
     <string name="key_hats_off">keyHatsOff</string>
+    <string name="key_badge_intro">keyBadgeIntro</string>
 
 
     <!--dialog messages-->
@@ -260,7 +261,6 @@ C68.5809,277.075,273.832,71.8233,527.023,71.8233 Z
     <string name="tab_best">Best</string>
 
 
-
-
     <string name="message_no_post">User hasn\'t uploaded anything yet</string>
+    <string name="text_top_artist">Top artist on Cread</string>
 </resources>

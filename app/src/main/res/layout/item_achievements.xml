@@ -4,20 +4,46 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:clickable="true"
-    android:gravity="center"
     android:foreground="?android:selectableItemBackground"
+    android:gravity="center"
     android:orientation="vertical"
     android:padding="16dp">
 
-    <!--Badge view-->
-    <com.facebook.drawee.view.SimpleDraweeView
-        android:id="@+id/badge_image"
-        android:layout_width="80dp"
-        android:layout_height="80dp"
-        android:scaleType="fitXY"
-        app:failureImage="@drawable/image_placeholder"
-        app:failureImageScaleType="centerCrop"
-        app:roundAsCircle="true" />
+    <!--Container badge image and text-->
+    <FrameLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center">
+        <!--Badge view-->
+        <com.facebook.drawee.view.SimpleDraweeView
+            android:id="@+id/badge_image"
+            android:layout_width="80dp"
+            android:layout_height="80dp"
+            android:layout_gravity="center"
+            android:scaleType="fitXY"
+            app:failureImage="@drawable/image_placeholder"
+            app:failureImageScaleType="centerCrop"
+            app:roundAsCircle="true" />
+
+        <de.hdodenhof.circleimageview.CircleImageView
+            android:id="@+id/badge_overlay"
+            android:layout_width="80dp"
+            android:layout_height="80dp"
+            android:layout_gravity="center"
+            android:src="@color/grey_dark" />
+
+        <!--Question mark text-->
+        <android.support.v7.widget.AppCompatTextView
+            android:id="@+id/text_reveal"
+            android:layout_width="80dp"
+            android:layout_height="80dp"
+            android:layout_gravity="center"
+            android:gravity="center"
+            android:text="\?"
+            android:textColor="@color/white"
+            android:textSize="40sp" />
+    </FrameLayout>
+
 
     <!--Badge title-->
     <android.support.v7.widget.AppCompatTextView

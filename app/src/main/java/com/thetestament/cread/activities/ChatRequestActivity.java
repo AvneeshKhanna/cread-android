@@ -162,7 +162,7 @@ public class ChatRequestActivity extends BaseActivity {
         mHelper = new SharedPreferenceHelper(this);
         //Obtain context
         mContext = this;
-        //Set layout manger for recyclerView
+        //Set dialogParentView manger for recyclerView
         recyclerView.setLayoutManager(new LinearLayoutManager(mContext));
         //Set adapter
         mAdapter = new ChatRequestAdapter(mChatList, mContext);

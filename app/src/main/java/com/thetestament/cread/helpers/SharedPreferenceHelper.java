@@ -766,4 +766,26 @@ public class SharedPreferenceHelper {
         editor.putBoolean(mContext.getString(R.string.key_hats_off), status);
         editor.apply();
     }
+
+    /**
+     * Method to retrieve first time badge intro status status.
+     *
+     * @return True by default.
+     */
+    public boolean isBadgeIntroFirstTime() {
+        return mSharedPreferences
+                .getBoolean(mContext.getString(R.string.key_badge_intro), true);
+    }
+
+
+    /**
+     * Method to update badge intro  first time status.
+     *
+     * @param status boolean value i.e true or false
+     */
+    public void updateBadgeIntroStatus(boolean status) {
+        SharedPreferences.Editor editor = mSharedPreferences.edit();
+        editor.putBoolean(mContext.getString(R.string.key_badge_intro), status);
+        editor.apply();
+    }
 }

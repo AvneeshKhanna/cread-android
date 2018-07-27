@@ -88,6 +88,7 @@ public class Constant {
     public static final String IMAGE_TYPE_USER_CAPTURE_PIC = "userCapturePic";
     public static final String IMAGE_TYPE_USER_SHORT_PIC = "userShortPic";
     public static final String IMAGE_TYPE_USER_SHARED_PIC = "sharedPic";
+    public static final String IMAGE_TYPE_USER_SHARE_BADGE = "sharedBadge";
     //endregion
 
     //region Photo watermark status

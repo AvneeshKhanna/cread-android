@@ -299,7 +299,7 @@ public class NewUsersPostActivity extends BaseActivity implements listener.OnCol
      */
     private void initScreen() {
         mEntityIDList = getIntent().getExtras().getString(Constant.NOTIFICATION_EXTRA_ENTITY_ID_LIST);
-        //Set layout manger for recyclerView
+        //Set dialogParentView manger for recyclerView
         recyclerView.setLayoutManager(new LinearLayoutManager(mContext));
         //Set adapter
         mAdapter = new NewUsersPostAdapter(mDataList, mContext, mHelper.getUUID(), mCompositeDisposable);

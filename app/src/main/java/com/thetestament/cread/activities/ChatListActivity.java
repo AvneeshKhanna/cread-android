@@ -237,7 +237,7 @@ public class ChatListActivity extends BaseActivity {
         mHelper.setPersonalChatIndicatorStatus(false);
         //Obtain context
         mContext = this;
-        //Set layout manger for recyclerView
+        //Set dialogParentView manger for recyclerView
         recyclerView.setLayoutManager(new LinearLayoutManager(mContext));
         //Set adapter
         mAdapter = new ChatListAdapter(mChatList, mContext);

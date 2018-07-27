@@ -15,27 +15,18 @@
         app:roundAsCircle="true"
         tools:src="@color/black_defined" />
 
-    <!--Top artist view-->
-    <android.support.v7.widget.AppCompatImageView
-        android:id="@+id/view_top_artist"
-        android:layout_width="16dp"
-        android:layout_height="16dp"
-        android:layout_alignBottom="@+id/imageUser"
-        android:layout_alignRight="@+id/imageUser"
-        android:src="@drawable/top_artist"
-        android:visibility="visible" />
     <TextView
         android:id="@+id/textUserName"
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignTop="@+id/imageUser"
         android:layout_marginLeft="5dp"
-        android:layout_toLeftOf="@+id/textEdited"
         android:layout_toRightOf="@+id/imageUser"
-        android:paddingRight="10dp"
+        android:paddingRight="8dp"
         android:textColor="@color/black_defined"
         android:textSize="14sp"
         tools:text="The Testament" />
+
 
     <TextView
         android:id="@+id/textEdited"
@@ -43,12 +34,29 @@
         android:layout_height="wrap_content"
         android:layout_alignBottom="@+id/textUserName"
         android:layout_alignTop="@+id/textUserName"
-        android:layout_marginRight="5dp"
-        android:layout_toLeftOf="@+id/containerButtonMore"
+        android:layout_toRightOf="@+id/textUserName"
         android:gravity="center"
         android:text="edited"
         android:textSize="11sp"
         android:visibility="invisible" />
+
+    <!--Top artist view-->
+    <android.support.v7.widget.AppCompatTextView
+        android:id="@+id/view_top_artist"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginRight="5dp"
+        android:layout_toLeftOf="@+id/containerButtonMore"
+        android:background="@drawable/chips_bg_top_artist"
+        android:gravity="center"
+        android:paddingBottom="3dp"
+        android:paddingLeft="16dp"
+        android:paddingRight="16dp"
+        android:paddingTop="3dp"
+        android:text="Top"
+        android:textColor="@color/white"
+        android:textSize="10sp"
+        android:visibility="visible" />
 
     <FrameLayout
         android:id="@+id/containerButtonMore"

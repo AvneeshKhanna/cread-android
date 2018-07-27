@@ -213,6 +213,7 @@
                 android:gravity="center_vertical"
                 android:orientation="horizontal"
                 android:paddingTop="10dp">
+
                 <!--Hint text for labels-->
                 <android.support.v7.widget.AppCompatTextView
                     android:id="@+id/textLabelHint"

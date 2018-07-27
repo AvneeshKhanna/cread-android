@@ -364,10 +364,10 @@ public class UpdateProfileDetailsActivity extends BaseActivity {
      * @param spinner Spinner object
      */
     private void setSpinnerAdapter(AppCompatSpinner spinner) {
-        // Create an ArrayAdapter using the string array and a default spinner layout for water mark spinner
+        // Create an ArrayAdapter using the string array and a default spinner dialogParentView for water mark spinner
         ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this,
                 R.array.water_mark_items, android.R.layout.simple_spinner_item);
-        // Specify the layout to use when the list of choices appears
+        // Specify the dialogParentView to use when the list of choices appears
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         // Apply the adapter to the spinner
         spinner.setAdapter(adapter);

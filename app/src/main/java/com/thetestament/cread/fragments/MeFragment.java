@@ -15,12 +15,14 @@ import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.AppBarLayout;
+import android.support.design.widget.BottomSheetBehavior;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.view.ViewCompat;
+import android.support.v4.widget.NestedScrollView;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.AppCompatImageView;
 import android.support.v7.widget.AppCompatTextView;
@@ -64,6 +66,7 @@ import com.thetestament.cread.activities.RoyaltiesActivity;
 import com.thetestament.cread.activities.UpdateProfileDetailsActivity;
 import com.thetestament.cread.activities.UpdateProfileImageActivity;
 import com.thetestament.cread.adapters.MeAdapter;
+import com.thetestament.cread.adapters.OtherUserAchievementsAdapter;
 import com.thetestament.cread.adapters.UserStatsPagerAdapter;
 import com.thetestament.cread.dialog.CustomDialog;
 import com.thetestament.cread.helpers.DeletePostHelper;
@@ -80,7 +83,9 @@ import com.thetestament.cread.helpers.ViewHelper;
 import com.thetestament.cread.listeners.listener;
 import com.thetestament.cread.listeners.listener.OnServerRequestedListener;
 import com.thetestament.cread.listeners.listener.OnUserStatsClickedListener;
+import com.thetestament.cread.models.AchievementsModels;
 import com.thetestament.cread.models.FeedModel;
+import com.thetestament.cread.networkmanager.AchivementNetworkManager;
 import com.thetestament.cread.networkmanager.MeNetworkManager;
 import com.thetestament.cread.networkmanager.NotificationNetworkManager;
 import com.thetestament.cread.networkmanager.RepostNetworkManager;
@@ -184,7 +189,7 @@ public class MeFragment extends Fragment implements listener.OnCollaborationList
     @BindView(R.id.imageUser)
     CircleImageView imageUser;
     @BindView(R.id.view_top_artist)
-    AppCompatImageView viewTopArtist;
+    AppCompatTextView viewTopArtist;
     @BindView(R.id.textUserName)
     TextView textUserName;
     @BindView(R.id.textBio)
@@ -216,6 +221,17 @@ public class MeFragment extends Fragment implements listener.OnCollaborationList
     View progressView;
     @BindView(R.id.fabChat)
     FloatingActionButton fabChat;
+
+    //Bottom sheet view achievement
+    @BindView(R.id.achievement_bottom_sheet_view)
+    NestedScrollView nsAchievements;
+    @BindView(R.id.recycler_view_achievements)
+    RecyclerView recyclerViewAchievements;
+
+    /**
+     * BottomSheet behaviour for live filters.
+     */
+    BottomSheetBehavior achievementsSheetBehavior;
     //endregion
 
     //region :Fields and constant
@@ -850,6 +866,17 @@ public class MeFragment extends Fragment implements listener.OnCollaborationList
                 R.drawable.img_intro_feat_artist);
     }
 
+    /**
+     * Top artist click functionality to show tooltip.
+     */
+    @OnClick(R.id.view_top_artist)
+    void topArtistOnClick() {
+        //Show tooltip
+        ViewHelper.getToolTip(viewTopArtist
+                , getString(R.string.text_top_artist)
+                , getActivity());
+    }
+
     /*
     * Create button click functionality.
     * */
@@ -858,15 +885,31 @@ public class MeFragment extends Fragment implements listener.OnCollaborationList
         ((BottomNavigationActivity) getActivity()).getAddContentBottomSheetDialog();
     }
 
+
+    /*
+    * Close  button click functionality.
+    * */
+    @OnClick(R.id.btn_close)
+    void onBtnClose() {
+        //Hide bottom sheet
+        achievementsSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
+    }
+
+
     /**
      * Badge click functionality.
      */
     void badgeClickFunctionality() {
         //If user can edit his/her profile
-        if (isProfileEditable) {
+        if (mRequestedUUID.equals(mHelper.getUUID())) {
             IntentHelper.openAchievementsActivity(getActivity(), mRequestedUUID);
         } else {
-            IntentHelper.openAchievementsActivity(getActivity(), mRequestedUUID);
+            if (achievementsSheetBehavior.getState() == BottomSheetBehavior.STATE_EXPANDED) {
+                //Hide bottom sheet
+                achievementsSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
+            } else if (achievementsSheetBehavior.getState() == BottomSheetBehavior.STATE_COLLAPSED) {
+                loadUserAchievementsData();
+            }
         }
     }
 
@@ -922,6 +965,10 @@ public class MeFragment extends Fragment implements listener.OnCollaborationList
         initTabLayout(tabLayout);
         initUserStatsPager();
         initSwipeRefreshLayout();
+
+        //Setup achievement bottom sheets
+        achievementsSheetBehavior = BottomSheetBehavior.from(nsAchievements);
+        achievementsSheetBehavior.setPeekHeight(0);
     }
 
     /**
@@ -1280,7 +1327,7 @@ public class MeFragment extends Fragment implements listener.OnCollaborationList
                                 imageFeatured.setVisibility(View.GONE);
                             }
 
-                            //check featured status
+                            //check top artist status
                             if (mIsTopArtist) {
                                 viewTopArtist.setVisibility(View.VISIBLE);
                             } else {
@@ -2774,6 +2821,62 @@ public class MeFragment extends Fragment implements listener.OnCollaborationList
             mItemType = Constant.ME_ITEM_TYPE_COLLAB_POST_GRID;
         }
     }
+
+    /**
+     * Load achievements data.
+     */
+    private void loadUserAchievementsData() {
+        final List<AchievementsModels> achievementDataList = new ArrayList<>();
+        //Show loading view
+        progressView.setVisibility(View.VISIBLE);
+        AchivementNetworkManager.getAchievementsData(getActivity(), mCompositeDisposable, mRequestedUUID, new AchivementNetworkManager.OnAchievementsLoadListener() {
+            @Override
+            public void onSuccess(JSONObject jsonObject) {
+                try {
+
+                    JSONObject mainData = jsonObject.getJSONObject("data");
+                    //Achievements list
+                    JSONArray achievementArray = mainData.getJSONArray("items");
+                    for (int i = 0; i < achievementArray.length(); i++) {
+                        AchievementsModels data = new AchievementsModels();
+
+                        JSONObject dataObj = achievementArray.getJSONObject(i);
+                        data.setBadgeTitle(dataObj.getString("title"));
+                        data.setBadgeImageUrl(dataObj.getString("imgurl"));
+                        data.setBadgeUnlock(dataObj.getBoolean("unlocked"));
+                        data.setUnlockDescription(dataObj.getString("description"));
+                        achievementDataList.add(data);
+                    }
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+
+                //Set layout manager
+                final LinearLayoutManager layoutManager = new LinearLayoutManager(getActivity()
+                        , LinearLayoutManager.HORIZONTAL
+                        , false);
+                recyclerViewAchievements.setLayoutManager(layoutManager);
+                //Set adapter
+                OtherUserAchievementsAdapter adapter = new OtherUserAchievementsAdapter(achievementDataList, getActivity());
+                recyclerViewAchievements.setHasFixedSize(true);
+                recyclerViewAchievements.setAdapter(adapter);
+
+                //Show bottom sheet
+                achievementsSheetBehavior.setState(BottomSheetBehavior.STATE_EXPANDED);
+                //Hide loading view
+                progressView.setVisibility(View.GONE);
+            }
+
+            @Override
+            public void onFailure(String errorMsg) {
+                //Show error msg snack bar.
+                ViewHelper.getSnackBar(rootView, errorMsg);
+                //Hide loading view
+                progressView.setVisibility(View.GONE);
+            }
+        });
+    }
+
     //endregion
 
 }
