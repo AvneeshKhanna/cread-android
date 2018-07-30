@@ -327,7 +327,7 @@ public class AchievementsActivity extends BaseActivity {
         AppCompatTextView desc = dialog.getCustomView().findViewById(R.id.text_desc);
         AppCompatTextView btnOk = dialog.getCustomView().findViewById(R.id.btn_ok);
         //Set title and desc
-        badgeTitle.setText(data.getBadgeTitle());
+        badgeTitle.setText("Locked");
         desc.setText(data.getUnlockDescription());
 
         //Ok button click functionality

@@ -70,18 +70,20 @@ public class AchievementsAdapter extends RecyclerView.Adapter<AchievementsAdapte
     @Override
     public void onBindViewHolder(ItemVIewHolder holder, int position) {
         AchievementsModels data = mAchievementsDataList.get(position);
-        //set badge title
-        holder.badgeTitle.setText(data.getBadgeTitle());
 
         //if badge is unlocked
         if (data.isBadgeUnlock()) {
             //toggle view visibility
             holder.badgeOverlay.setVisibility(View.GONE);
             holder.textReveal.setVisibility(View.GONE);
+            //set badge title
+            holder.badgeTitle.setText(data.getBadgeTitle());
         } else {
             //toggle view visibility
             holder.badgeOverlay.setVisibility(View.VISIBLE);
             holder.textReveal.setVisibility(View.VISIBLE);
+            //set badge title
+            holder.badgeTitle.setText("Locked");
         }
         //load badge image
         ImageHelper.loadProgressiveImage(Uri.parse(data.getBadgeImageUrl()), holder.badgeImage);
