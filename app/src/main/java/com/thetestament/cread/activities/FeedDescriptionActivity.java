@@ -766,6 +766,7 @@ public class FeedDescriptionActivity extends BaseActivity implements listener.On
                                     commentsData.setProfilePicUrl(dataObj.getString("profilepicurl"));
                                     commentsData.setComment(dataObj.getString("comment"));
                                     commentsData.setCommentId(dataObj.getString("commid"));
+                                    commentsData.setTopArtist(dataObj.getBoolean("topartist"));
                                     mCommentsList.add(commentsData);
                                 }
                             }

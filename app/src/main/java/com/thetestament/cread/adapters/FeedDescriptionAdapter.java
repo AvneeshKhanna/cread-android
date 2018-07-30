@@ -15,6 +15,7 @@ import android.support.v4.app.FragmentActivity;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.widget.TextViewCompat;
 import android.support.v7.widget.AppCompatImageView;
+import android.support.v7.widget.AppCompatTextView;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -440,6 +441,7 @@ public class FeedDescriptionAdapter extends RecyclerView.Adapter {
             SimpleDraweeView imageUser = commentView.findViewById(R.id.imageUser);
             TextView textUserName = commentView.findViewById(R.id.textUserName);
             TextView textComment = commentView.findViewById(R.id.textComment);
+            AppCompatTextView topArtistView = commentView.findViewById(R.id.view_top_artist);
 
             ImageHelper.loadProgressiveImage(Uri.parse(comment.getProfilePicUrl()), imageUser);
 
@@ -459,10 +461,34 @@ public class FeedDescriptionAdapter extends RecyclerView.Adapter {
             openCreatorProfile(textUserName, comment.getUuid(), mContext);
             openCreatorProfile(imageUser, comment.getUuid(), mContext);
 
-
+            //If artist is top artist
+            if (comment.isTopArtist()) {
+                //toggle visibility
+                topArtistView.setVisibility(View.VISIBLE);
+            } else {
+                //toggle visibility
+                topArtistView.setVisibility(View.GONE);
+            }
+            topArtistOnClick(topArtistView);
         }
     }
 
+    /**
+     * Top artist click functionality.
+     *
+     * @param view View to be clicked.
+     */
+    private void topArtistOnClick(View view) {
+        view.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                //Show tooltip
+                ViewHelper.getToolTip(view
+                        , mContext.getString(R.string.text_top_artist)
+                        , mContext);
+            }
+        });
+    }
 
     /**
      * Method is toggle the loading status
