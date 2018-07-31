@@ -202,7 +202,7 @@ public class AchievementsActivity extends BaseActivity {
             //code to show dialog
             CustomDialog.getGenericDialog(mContext
                     , "Ok"
-                    , "Introducing Badges"
+                    , "Badges"
                     , "Unlock some cool badges as you use Cread that signify your credibility in the Cread community."
                     , R.drawable.img_badges_intro_dialog);
             helper.updateBadgeIntroStatus(false);
