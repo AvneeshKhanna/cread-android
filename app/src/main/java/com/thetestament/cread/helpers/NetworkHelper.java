@@ -114,6 +114,7 @@ public class NetworkHelper {
         Rx2ANRequest.GetRequestBuilder requestBuilder = Rx2AndroidNetworking.get(serverURL)
                 .addHeaders(header)
                 .addQueryParameter("lastindexkey", lastIndexKey)
+                .addQueryParameter("repostsupport","yes")
                 .addQueryParameter(Constant.PLATFORM_KEY, Constant.PLATFORM_VALUE);
 
         if (getResponseFromNetwork) {

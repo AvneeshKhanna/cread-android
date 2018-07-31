@@ -1031,20 +1031,51 @@ public class FeedHelper {
         view.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                RepostNetworkManager.saveRepost(context, compositeDisposable, entityID
-                        , new RepostNetworkManager.OnRepostSaveListener() {
-                            @Override
-                            public void onSuccess() {
-                                ViewHelper.getShortToast(context, "Reposted successfully");
-                            }
-
-                            @Override
-                            public void onFailure(String errorMsg) {
-                                ViewHelper.getShortToast(context, errorMsg);
-                            }
-                        });
+                showRepostConformationDialog(context, compositeDisposable, entityID);
             }
         });
+
+    }
+
+
+    /**
+     * Method to show conformation dialog before reposting the post.
+     *
+     * @param context             Context to use.
+     * @param compositeDisposable CompositeDisposable reference.
+     * @param entityID            Entity id of post to be re-posted.
+     */
+    private static void showRepostConformationDialog(final FragmentActivity context, final CompositeDisposable compositeDisposable, final String entityID) {
+        new MaterialDialog.Builder(context)
+                .content("Like this post? Repost it to share it again with your followers on Cread")
+                .positiveText("Repost")
+                .negativeText("Cancel")
+                .onPositive(new MaterialDialog.SingleButtonCallback() {
+                    @Override
+                    public void onClick(@NonNull MaterialDialog materialDialog, @NonNull DialogAction dialogAction) {
+                        RepostNetworkManager.saveRepost(context, compositeDisposable, entityID
+                                , new RepostNetworkManager.OnRepostSaveListener() {
+                                    @Override
+                                    public void onSuccess() {
+                                        ViewHelper.getShortToast(context, "Reposted successfully");
+                                    }
+
+                                    @Override
+                                    public void onFailure(String errorMsg) {
+                                        ViewHelper.getShortToast(context, errorMsg);
+                                    }
+                                });
+                        materialDialog.dismiss();
+                    }
+                })
+                .onNegative(new MaterialDialog.SingleButtonCallback() {
+                    @Override
+                    public void onClick(@NonNull MaterialDialog materialDialog, @NonNull DialogAction dialogAction) {
+                        materialDialog.dismiss();
+                    }
+                })
+                .build()
+                .show();
 
     }
 }

@@ -25,6 +25,7 @@ import com.facebook.drawee.view.SimpleDraweeView;
 import com.thetestament.cread.Manifest;
 import com.thetestament.cread.R;
 import com.thetestament.cread.adapters.AchievementsAdapter;
+import com.thetestament.cread.dialog.CustomDialog;
 import com.thetestament.cread.helpers.ImageHelper;
 import com.thetestament.cread.helpers.SharedPreferenceHelper;
 import com.thetestament.cread.helpers.ViewHelper;
@@ -177,7 +178,8 @@ public class AchievementsActivity extends BaseActivity {
     private void initViews() {
         //retrieve data from intent
         mRequestedUUID = getIntent().getStringExtra("requesteduuid");
-
+        //Method called
+        showIntroDialog();
         recyclerView.setHasFixedSize(true);
         //set dialogParentView manager
         recyclerView.setLayoutManager(new GridLayoutManager(mContext, 3));
@@ -188,6 +190,23 @@ public class AchievementsActivity extends BaseActivity {
         initBadgeClickListener(adapter);
         //Load data here
         loadAchievementsData(adapter);
+    }
+
+    /**
+     * Method to show intro dialog if user is opening this screen for first time.
+     */
+    private void showIntroDialog() {
+        SharedPreferenceHelper helper = new SharedPreferenceHelper(mContext);
+
+        if (helper.isBadgeIntroFirstTime()) {
+            //code to show dialog
+            CustomDialog.getGenericDialog(mContext
+                    , "Ok"
+                    , "Introducing Badges"
+                    , "Unlock some cool badges as you use Cread that signify your credibility in the Cread community."
+                    , R.drawable.img_badges_intro_dialog);
+            helper.updateBadgeIntroStatus(false);
+        }
     }
 
     /**

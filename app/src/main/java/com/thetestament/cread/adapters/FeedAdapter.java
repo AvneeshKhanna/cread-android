@@ -370,7 +370,7 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             });
         } else if (holder.getItemViewType() == VIEW_TYPE_ITEM_USER_REPOST) {
             final RePostViewHolder viewHolder = (RePostViewHolder) holder;
-            initializeRepostViewHolder(viewHolder,data,holder.getAdapterPosition());
+            initializeRepostViewHolder(viewHolder, data, holder.getAdapterPosition());
         }
 
 
@@ -949,7 +949,7 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
      */
     private void initializeRepostViewHolder(RePostViewHolder itemViewHolder, final FeedModel data, final int position) {
         //Set reposter name , repost time and click functionality to open re-poster profile
-        itemViewHolder.textRepostedBy.setText(data.getReposterName() +" reposted this");
+        itemViewHolder.textRepostedBy.setText(data.getReposterName() + " reposted this");
         FeedHelper.setRepostTime(itemViewHolder.textRepostedtime, data);
         openProfileActivity(itemViewHolder.textRepostedBy, data.getReposterUUID());
 
@@ -1392,6 +1392,13 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             final ItemViewHolder itemViewHolder = (ItemViewHolder) holder;
             LiveFilterHelper.initLiveFilters(mFeedList.get(holder.getAdapterPosition()).getLiveFilterName()
                     , itemViewHolder.weatherView
+                    , itemViewHolder.konfettiView
+                    , itemViewHolder.liveFilterBubble
+                    , mContext);
+        } else if (holder.getItemViewType() == VIEW_TYPE_ITEM_USER_REPOST) {
+            final RePostViewHolder itemViewHolder = (RePostViewHolder) holder;
+            LiveFilterHelper.initLiveFilters(mFeedList.get(holder.getAdapterPosition()).getLiveFilterName()
+                    , itemViewHolder.whetherView
                     , itemViewHolder.konfettiView
                     , itemViewHolder.liveFilterBubble
                     , mContext);

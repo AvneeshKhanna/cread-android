@@ -1345,6 +1345,19 @@ public class MeFragment extends Fragment implements listener.OnCollaborationList
                                 // scroll to gratitude page
                                 startGratitudeScroll();
                             }
+
+                            // check if badge intro for first time
+                            if (mHelper.isBadgeIntroFirstTime()) {
+                                mAnimator = ObjectAnimator.ofFloat((TextView) viewPagerUserStats.findViewWithTag(BADGES)
+                                        , "translationX"
+                                        , 0, 13, 0)
+                                ;
+                                mAnimator.setInterpolator(new InOutInterpolator());
+                                mAnimator.setStartDelay(500);
+                                mAnimator.setDuration(3000);
+                                mAnimator.setRepeatCount(8);
+                                mAnimator.start();
+                            }
                         }
                     }
                 })
@@ -2168,7 +2181,8 @@ public class MeFragment extends Fragment implements listener.OnCollaborationList
             data.setMerchantable(dataObj.getBoolean("merchantable"));
             data.setDownvoteStatus(dataObj.getBoolean("downvotestatus"));
             data.setEligibleForDownvote(mCanDownvote);
-            data.setPostTimeStamp(dataObj.getString("regdate"));
+            //data.setPostTimeStamp(dataObj.getString("regdate"));
+            data.setPostTimeStamp(dataObj.getString("postdate"));
             data.setLongForm(dataObj.getBoolean("long_form"));
             data.setHatsOffCount(dataObj.getLong("hatsoffcount"));
             data.setCommentCount(dataObj.getLong("commentcount"));
@@ -2176,7 +2190,8 @@ public class MeFragment extends Fragment implements listener.OnCollaborationList
             data.setFollowStatus(dataObj.getBoolean("followstatus"));
             data.setCollabCount(dataObj.getLong("collabcount"));
             data.setLiveFilterName(dataObj.getString("livefilter"));
-            data.setRepostDate(dataObj.getString("repostdate"));
+            //data.setRepostDate(dataObj.getString("repostdate"));
+            data.setRepostDate(dataObj.getString("regdate"));
             data.setReposterUUID(dataObj.getString("reposteruuid"));
             data.setReposterName(dataObj.getString("repostername"));
             data.setRepostID(dataObj.getString("repostid"));
