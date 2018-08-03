@@ -1294,7 +1294,7 @@ public class MeFragment extends Fragment implements listener.OnCollaborationList
                                                        //Set user activity stats
                                                        if (viewPagerUserStats != null) {
                                                            ((TextView) viewPagerUserStats.findViewWithTag(POSTS)).setText(String.valueOf(mPostCount));
-                                                           ((TextView) viewPagerUserStats.findViewWithTag(BADGES)).setText(String.valueOf(mBadgeCount));
+                                                           ((TextView) viewPagerUserStats.findViewWithTag(BADGES)).setText(String.valueOf(mBadgeCount) + " badges");
                                                            ((TextView) viewPagerUserStats.findViewWithTag(FOLLOWERS)).setText(String.valueOf(mFollowerCount));
                                                            ((TextView) viewPagerUserStats.findViewWithTag(FOLLOWING)).setText(String.valueOf(mFollowingCount));
                                                            ((TextView) viewPagerUserStats.findViewWithTag(HATSOFF)).setText(String.valueOf(mHatsoffCount));

@@ -6,6 +6,33 @@
     android:layout_height="wrap_content"
     android:weightSum="4">
 
+    <!--Badge count container-->
+    <LinearLayout
+        android:id="@+id/containerBadges"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:gravity="center"
+        android:orientation="vertical">
+
+
+        <android.support.v7.widget.AppCompatImageView
+            android:id="@+id/btn_badges"
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:layout_gravity="center_horizontal"
+            android:background="@color/white"
+            android:src="@drawable/ic_badges" />
+
+        <TextView
+            android:id="@+id/textBadgeCount"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="7 badges"
+            android:textColor="@color/grey_dark"
+            android:textSize="12sp" />
+    </LinearLayout>
+
     <!--Post count container-->
     <LinearLayout
         android:id="@+id/containerPosts"
@@ -32,32 +59,6 @@
             android:textSize="12sp" />
     </LinearLayout>
 
-    <!--Badge count container-->
-    <LinearLayout
-        android:id="@+id/containerBadges"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_weight="1"
-        android:gravity="center"
-        android:orientation="vertical">
-
-        <TextView
-            android:id="@+id/textBadgeCount"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textColor="@color/grey_dark"
-            android:textSize="20sp"
-            tools:text="10" />
-
-        <TextView
-            android:id="@+id/textBadge"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="badges"
-            android:textColor="@color/grey_dark"
-            android:textSize="12sp" />
-    </LinearLayout>
-
     <!--Followers count-->
     <LinearLayout
         android:id="@+id/containerFollowers"
@@ -71,9 +72,9 @@
             android:id="@+id/textFollowersCount"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            tools:text="150"
             android:textColor="@color/grey_dark"
-            android:textSize="20sp" />
+            android:textSize="20sp"
+            tools:text="150" />
 
         <TextView
             android:id="@+id/textFollowers"
@@ -98,8 +99,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textColor="@color/grey_dark"
-            tools:text="150"
-            android:textSize="20sp" />
+            android:textSize="20sp"
+            tools:text="150" />
 
         <TextView
             android:id="@+id/textFollowing"
