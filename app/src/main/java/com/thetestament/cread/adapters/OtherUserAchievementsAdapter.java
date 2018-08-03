@@ -8,10 +8,10 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.afollestad.materialdialogs.MaterialDialog;
 import com.facebook.drawee.view.SimpleDraweeView;
 import com.thetestament.cread.R;
 import com.thetestament.cread.helpers.ImageHelper;
-import com.thetestament.cread.listeners.listener;
 import com.thetestament.cread.models.AchievementsModels;
 
 import java.util.List;
@@ -28,17 +28,6 @@ public class OtherUserAchievementsAdapter extends RecyclerView.Adapter<OtherUser
     //region :Field and constants
     List<AchievementsModels> mAchievementsDataList;
     FragmentActivity mContext;
-    //endregion
-
-    //region :Listeners
-    listener.OnBadgeClickListener onBadgeClickListener;
-
-    /**
-     * Register a callback to be invoked when user clicks on badge item.
-     */
-    public void setOnBadgeClickListener(listener.OnBadgeClickListener onBadgeClickListener) {
-        this.onBadgeClickListener = onBadgeClickListener;
-    }
     //endregion
 
     //region :Constructor
@@ -94,11 +83,49 @@ public class OtherUserAchievementsAdapter extends RecyclerView.Adapter<OtherUser
         view.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                //set click listener
-                //onBadgeClickListener.onBadgeClick(data);
+                showBadgeDetailsDialog(data);
             }
         });
     }
+
+
+    /**
+     * Method to show unlock badge details.
+     *
+     * @param data Achievement model data.
+     */
+    private void showBadgeDetailsDialog(AchievementsModels data) {
+        // show detail dialog
+        final MaterialDialog dialog = new MaterialDialog.Builder(mContext)
+                .customView(R.layout.dialog_unlocked_badge,
+                        false)
+                .show();
+
+        //Obtain dialog views
+        SimpleDraweeView badgeImage = dialog.getCustomView().findViewById(R.id.img_badge);
+        AppCompatTextView badgeTitle = dialog.getCustomView().findViewById(R.id.badge_title);
+        AppCompatTextView desc = dialog.getCustomView().findViewById(R.id.text_congratulation);
+        AppCompatTextView btnShare = dialog.getCustomView().findViewById(R.id.btn_share);
+        //Set share button text
+        btnShare.setText("Ok");
+
+        //Load badge image here
+        ImageHelper.loadProgressiveImage(Uri.parse(data.getBadgeImageUrl()), badgeImage);
+        //Set title and desc
+        badgeTitle.setText(data.getBadgeTitle());
+        desc.setText(data.getUnlockDescription());
+
+        //Button click functionality
+        btnShare.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                //Dismiss dialog
+                dialog.dismiss();
+            }
+        });
+
+    }
+
     //endregion
 
     //region :ViewHolders
