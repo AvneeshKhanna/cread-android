@@ -788,4 +788,27 @@ public class SharedPreferenceHelper {
         editor.putBoolean(mContext.getString(R.string.key_badge_intro), status);
         editor.apply();
     }
+
+
+    /**
+     * Method to retrieve previous selected meme layout position.
+     *
+     * @return Position of last selected meme.
+     */
+    public int getLastSelectedMemePosition() {
+        return mSharedPreferences.getInt(mContext.getString(R.string.key_last_selected_meme)
+                , 0);
+    }
+
+    /**
+     * Method to update position of last selected meme in shared preferences.
+     *
+     * @param position Position of last selected meme layout.
+     */
+    public void setLastSelectedMemePosition(int position) {
+        SharedPreferences.Editor editor = mSharedPreferences.edit();
+        editor.putInt(mContext.getString(R.string.key_last_selected_meme), position);
+        editor.apply();
+    }
+
 }

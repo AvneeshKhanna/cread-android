@@ -14,6 +14,7 @@ import com.thetestament.cread.activities.ContentPreview;
 import com.thetestament.cread.activities.FeedDescriptionActivity;
 import com.thetestament.cread.activities.FollowActivity;
 import com.thetestament.cread.activities.MainActivity;
+import com.thetestament.cread.activities.MemeActivity;
 import com.thetestament.cread.activities.ProfileActivity;
 import com.thetestament.cread.activities.ViewLongShortActivity;
 import com.thetestament.cread.activities.WebViewActivity;
@@ -205,5 +206,14 @@ public class IntentHelper {
         Intent intent = new Intent(context, AchievementsActivity.class);
         intent.putExtra("requesteduuid", requestedUUID);
         context.startActivity(intent);
+    }
+
+    /**
+     * Method to open MemeActivity screen.
+     *
+     * @param context Context to use.
+     */
+    public static void openMemeActivity(Context context) {
+        context.startActivity(new Intent(context, MemeActivity.class));
     }
 }

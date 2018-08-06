@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/root_view"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <!--Container-->
+    <RelativeLayout
+        android:id="@+id/container"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:background="@color/white">
+
+        <com.thetestament.cread.widgets.SquareView
+            android:id="@+id/container_child"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <!--Divider-->
+            <View
+                android:id="@+id/top_divider_et_top"
+                android:layout_width="match_parent"
+                android:layout_height="0.3dp"
+                android:alpha="0.5"
+                android:background="@color/grey_dark" />
+
+            <!--Edit text top-->
+            <android.support.v7.widget.AppCompatEditText
+                android:id="@+id/et_top"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/top_divider_et_top"
+                android:background="@null"
+                android:gravity="center"
+                android:hint="@string/hint_text_meme"
+                android:padding="8dp"
+                android:textSize="24sp" />
+
+            <!--Divider-->
+            <View
+                android:id="@+id/bottom_divider_et_top"
+                android:layout_width="match_parent"
+                android:layout_height="0.3dp"
+                android:layout_below="@+id/et_top"
+                android:alpha="0.5"
+                android:background="@color/grey_dark" />
+
+            <!--Image container-->
+            <LinearLayout
+                android:id="@+id/container_images"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_below="@+id/bottom_divider_et_top"
+                android:orientation="horizontal"
+                android:weightSum="10">
+
+                <!--ImageView-->
+                <android.support.v7.widget.AppCompatImageView
+                    android:id="@+id/img_meme"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_below="@+id/et_top"
+                    android:layout_weight="4.9"
+                    android:clickable="true"
+                    android:foreground="?android:selectableItemBackground"
+                    android:scaleType="centerInside"
+                    app:srcCompat="@drawable/ic_nav_menu_add" />
+
+                <!--Divider-->
+                <View
+                    android:id="@+id/img_divider"
+                    android:layout_width="0.3dp"
+                    android:layout_height="match_parent"
+                    android:alpha="0.5"
+                    android:background="@color/grey_dark" />
+
+                <!--ImageView-->
+                <android.support.v7.widget.AppCompatImageView
+                    android:id="@+id/img_meme_two"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_below="@+id/et_top"
+                    android:layout_weight="4.9"
+                    android:clickable="true"
+                    android:foreground="?android:selectableItemBackground"
+                    android:scaleType="centerInside"
+                    app:srcCompat="@drawable/ic_nav_menu_add" />
+            </LinearLayout>
+
+        </com.thetestament.cread.widgets.SquareView>
+
+        <!--Divider-->
+        <View
+            android:id="@+id/bottom_divider"
+            android:layout_width="match_parent"
+            android:layout_height="0.3dp"
+            android:layout_below="@+id/container_child"
+            android:alpha="0.5"
+            android:background="@color/grey_dark" />
+
+    </RelativeLayout>
+
+</android.support.design.widget.CoordinatorLayout>

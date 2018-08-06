@@ -47,6 +47,7 @@ import com.thetestament.cread.fragments.MeFragment;
 import com.thetestament.cread.helpers.BottomNavigationViewHelper;
 import com.thetestament.cread.helpers.CaptureHelper;
 import com.thetestament.cread.helpers.ImageHelper;
+import com.thetestament.cread.helpers.IntentHelper;
 import com.thetestament.cread.helpers.SharedPreferenceHelper;
 import com.thetestament.cread.helpers.ViewHelper;
 import com.thetestament.cread.listeners.listener.OnServerRequestedListener;
@@ -491,8 +492,19 @@ public class BottomNavigationActivity extends BaseActivity {
         bottomSheetDialog.setContentView(sheetView);
         bottomSheetDialog.show();
 
+        LinearLayout btnMeme = sheetView.findViewById(R.id.btn_meme);
         LinearLayout buttonWrite = sheetView.findViewById(R.id.buttonWrite);
         LinearLayout buttonCapture = sheetView.findViewById(R.id.buttonCapture);
+
+        //Meme click functionality
+        btnMeme.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                IntentHelper.openMemeActivity(mContext);
+                //Dismiss bottom sheet
+                bottomSheetDialog.dismiss();
+            }
+        });
 
         //Write button functionality
         buttonWrite.setOnClickListener(new View.OnClickListener() {
