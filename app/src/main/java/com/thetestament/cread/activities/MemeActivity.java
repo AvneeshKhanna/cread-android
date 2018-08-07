@@ -6,23 +6,16 @@ import android.support.annotation.Nullable;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
+import android.view.Menu;
+import android.view.MenuItem;
 
 import com.thetestament.cread.R;
-import com.thetestament.cread.adapters.MemeLayoutAdapter;
 import com.thetestament.cread.fragments.MemeFifthFragment;
 import com.thetestament.cread.fragments.MemeFirstFragment;
 import com.thetestament.cread.fragments.MemeFourthFragment;
 import com.thetestament.cread.fragments.MemeSecondFragment;
 import com.thetestament.cread.fragments.MemeThirdFragment;
 import com.thetestament.cread.helpers.SharedPreferenceHelper;
-import com.thetestament.cread.helpers.ViewHelper;
-import com.thetestament.cread.listeners.listener;
-import com.thetestament.cread.models.MemeLayoutModel;
-
-import java.util.ArrayList;
-import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -38,9 +31,6 @@ public class MemeActivity extends BaseActivity {
     //region :Views binding with butter knife
     @BindView(R.id.root_view)
     CoordinatorLayout rootView;
-    @BindView(R.id.recycler_view_meme_layout)
-    RecyclerView recyclerViewMemeLayout;
-
     //endregion
 
     //region :Fields and constants
@@ -86,6 +76,24 @@ public class MemeActivity extends BaseActivity {
         super.onActivityResult(requestCode, resultCode, data);
     }
 
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.meme, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.action_meme_layout:
+                //Method called
+                replaceFragment(mLastSelectedLayout);
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+
+    }
     //endregion
 
     //region :Private methods
@@ -102,69 +110,7 @@ public class MemeActivity extends BaseActivity {
         mLastSelectedLayout = mSpHelper.getLastSelectedMemePosition();
 
         //Method called
-        initMemeLayout();
-        replaceFragment(mLastSelectedLayout);
-    }
-
-
-    /**
-     * Method to initialize meme layout view
-     */
-    private void initMemeLayout() {
-        recyclerViewMemeLayout.setHasFixedSize(true);
-        LinearLayoutManager layoutManager = new LinearLayoutManager(mContext
-                , LinearLayoutManager.HORIZONTAL
-                , false);
-        recyclerViewMemeLayout.setLayoutManager(layoutManager);
-        //Set adapter
-        List<MemeLayoutModel> data = getMemeLayoutData();
-        MemeLayoutAdapter adapter = new MemeLayoutAdapter(data, mContext, mLastSelectedLayout);
-        recyclerViewMemeLayout.setAdapter(adapter);
-        //Smooth scroll to position
-        recyclerViewMemeLayout.smoothScrollToPosition(mLastSelectedLayout);
-        //Method called
-        initMemeLayoutSelectionListener(adapter, layoutManager, data);
-    }
-
-    /**
-     * Method to return list of meme layout data.
-     *
-     * @return List<MemeLayoutModel>.
-     */
-    private List<MemeLayoutModel> getMemeLayoutData() {
-        List<MemeLayoutModel> data = new ArrayList<>();
-        //fixme update data here
-        data.add(new MemeLayoutModel(R.drawable.img_welcome, "1"));
-        data.add(new MemeLayoutModel(R.drawable.image_placeholder, "2"));
-        data.add(new MemeLayoutModel(R.drawable.img_welcome, "3"));
-        data.add(new MemeLayoutModel(R.drawable.image_placeholder, "4"));
-        data.add(new MemeLayoutModel(R.drawable.img_welcome, "5"));
-        return data;
-    }
-
-    /**
-     * Method to initialize meme layout selection listener.
-     *
-     * @param adapter       MemeLayoutAdapter reference.
-     * @param layoutManager LinearLayoutManager reference.
-     * @param listData      Meme data list.
-     */
-    private void initMemeLayoutSelectionListener(MemeLayoutAdapter adapter, final LinearLayoutManager layoutManager, final List<MemeLayoutModel> listData) {
-        //Set listener
-        adapter.setListener(new listener.OnMemeLayoutClickListener() {
-            @Override
-            public void onMemeLayoutClick(MemeLayoutModel data, int itemPosition) {
-                //Method called
-                ViewHelper.scrollToNextItemPosition(layoutManager, recyclerViewMemeLayout
-                        , itemPosition
-                        , listData.size());
-                //Update flags
-                mLastSelectedLayout = itemPosition;
-                mSpHelper.setLastSelectedMemePosition(mLastSelectedLayout);
-                //Method called
-                replaceFragment(itemPosition);
-            }
-        });
+        replaceFragment();
     }
 
 
@@ -177,26 +123,72 @@ public class MemeActivity extends BaseActivity {
         Fragment fragment;
 
         switch (memeLayoutPosition) {
-            case 0:
-                fragment = new MemeFirstFragment();
-                break;
             case 1:
                 fragment = new MemeSecondFragment();
+                mLastSelectedLayout = 2;
+                mSpHelper.setLastSelectedMemePosition(mLastSelectedLayout);
                 break;
             case 2:
                 fragment = new MemeThirdFragment();
+                mLastSelectedLayout = 3;
+                mSpHelper.setLastSelectedMemePosition(mLastSelectedLayout);
                 break;
             case 3:
                 fragment = new MemeFourthFragment();
+                mLastSelectedLayout = 4;
+                mSpHelper.setLastSelectedMemePosition(mLastSelectedLayout);
                 break;
             case 4:
+                fragment = new MemeFifthFragment();
+                mLastSelectedLayout = 5;
+                mSpHelper.setLastSelectedMemePosition(mLastSelectedLayout);
+                break;
+            case 5:
+                fragment = new MemeFirstFragment();
+                mLastSelectedLayout = 1;
+                mSpHelper.setLastSelectedMemePosition(mLastSelectedLayout);
+                break;
+            default:
+                fragment = new MemeFirstFragment();
+                mLastSelectedLayout = 1;
+                mSpHelper.setLastSelectedMemePosition(mLastSelectedLayout);
+                break;
+        }
+
+        getSupportFragmentManager()
+                .beginTransaction()
+                .replace(R.id.meme_frame_layout, fragment)
+                .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE)
+                .commit();
+    }
+
+    /**
+     * Overridden method to replace current screen with new fragment.
+     */
+    public void replaceFragment() {
+        Fragment fragment;
+
+        switch (mLastSelectedLayout) {
+            case 1:
+                fragment = new MemeFirstFragment();
+                break;
+            case 2:
+                fragment = new MemeSecondFragment();
+                break;
+            case 3:
+                fragment = new MemeThirdFragment();
+                break;
+            case 4:
+                fragment = new MemeFourthFragment();
+
+                break;
+            case 5:
                 fragment = new MemeFifthFragment();
                 break;
             default:
                 fragment = new MemeFirstFragment();
                 break;
         }
-
 
         getSupportFragmentManager()
                 .beginTransaction()

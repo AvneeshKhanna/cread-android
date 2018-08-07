@@ -51,6 +51,7 @@ public class Constant {
     public static final int REQUEST_CODE_USER_PROFILE_FROM_SUGGESTED_ADAPTER = 1021;
     public static final int REQUEST_CODE_GOOGLE_SIGN_IN = 1022;
     public static final int REQUEST_CODE_USER_INTERESTS = 1023;
+    public static final int REQUEST_CODE_OPEN_GALLERY_FOR_MEME = 1024;
     //endregion
 
     //region :Tag value for fragments
@@ -89,6 +90,7 @@ public class Constant {
     public static final String IMAGE_TYPE_USER_SHORT_PIC = "userShortPic";
     public static final String IMAGE_TYPE_USER_SHARED_PIC = "sharedPic";
     public static final String IMAGE_TYPE_USER_SHARE_BADGE = "sharedBadge";
+    public static final String IMAGE_TYPE_USER_SHARE_MEME = "memePic";
     //endregion
 
     //region Photo watermark status

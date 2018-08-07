@@ -76,6 +76,8 @@ public class ImageHelper {
             s = "/Cread/Short/short_pic.jpg";
         } else if (imageType.equals(Constant.IMAGE_TYPE_USER_SHARE_BADGE)) {
             s = "/Cread/Share/badge_pic.png";
+        } else if (imageType.equals(Constant.IMAGE_TYPE_USER_SHARE_MEME)) {
+            s = "/Cread/Meme/meme_pic.jpg";
         } else {
             s = "/Cread/Share/share_pic.png";
         }
@@ -260,6 +262,30 @@ public class ImageHelper {
 
 
     /**
+     * Method to open image cropper screen with 1:1 aspect ration.
+     *
+     * @param sourceUri      Uri of image to be cropped.
+     * @param destinationUri Where image will be saved.
+     * @param context        Context of use usually activity or application.
+     */
+    public static void startImageCroppingWithSquare(Context context, Fragment fragment, Uri sourceUri, Uri destinationUri) {
+        //For more information please visit "https://github.com/Yalantis/uCrop"
+
+        UCrop.Options options = new UCrop.Options();
+        //Change toolbar color
+        options.setToolbarColor(ContextCompat.getColor(context, R.color.colorPrimary));
+        //Change status bar color
+        options.setStatusBarColor(ContextCompat.getColor(context, R.color.colorPrimaryDark));
+
+        //Launch  image cropping activity
+        UCrop.of(sourceUri, destinationUri)
+                .withAspectRatio(1, 1)
+                .withOptions(options)
+                .start(context, fragment);
+    }
+
+
+    /**
      * Method to convert bitmap into Uri.
      *
      * @param bmp     Bitmap to be converted.
@@ -321,6 +347,18 @@ public class ImageHelper {
         Intent intent = new Intent(Intent.ACTION_PICK);
         intent.setType("image/*");
         fragment.startActivityForResult(intent, REQUEST_CODE_OPEN_GALLERY_FOR_CAPTURE);
+    }
+
+    /**
+     * Open gallery so user can choose his/her image for meme.
+     *
+     * @param fragment Fragment reference.
+     */
+    public static void chooseImageFromGallery(Fragment fragment, int requestCode) {
+        //Launch gallery
+        Intent intent = new Intent(Intent.ACTION_PICK);
+        intent.setType("image/*");
+        fragment.startActivityForResult(intent, requestCode);
     }
 
     /**

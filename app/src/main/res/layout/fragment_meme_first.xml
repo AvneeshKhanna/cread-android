@@ -21,24 +21,25 @@
             android:alpha="0.5"
             android:background="@color/grey_dark" />
 
-        <!--Edit text top-->
-        <android.support.v7.widget.AppCompatEditText
-            android:id="@+id/et_top"
+        <!--TextView top-->
+        <android.support.v7.widget.AppCompatTextView
+            android:id="@+id/tv_top"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="50dp"
             android:layout_below="@+id/top_divider_et_top"
             android:background="@null"
             android:gravity="center"
-            android:hint="@string/hint_text_meme"
             android:padding="8dp"
-            android:textSize="24sp" />
+            android:text="@string/hint_text_meme"
+            app:autoSizeMaxTextSize="24sp"
+            app:autoSizeTextType="uniform" />
 
         <!--Divider-->
         <View
             android:id="@+id/bottom_divider_et_top"
             android:layout_width="match_parent"
             android:layout_height="0.3dp"
-            android:layout_below="@+id/et_top"
+            android:layout_below="@+id/tv_top"
             android:alpha="0.5"
             android:background="@color/grey_dark" />
 
@@ -62,26 +63,32 @@
             android:alpha="0.5"
             android:background="@color/grey_dark" />
 
-        <!--Edit text bottom-->
-        <android.support.v7.widget.AppCompatEditText
-            android:id="@+id/et_bottom"
+        <!--TextView bottom-->
+        <android.support.v7.widget.AppCompatTextView
+            android:id="@+id/tv_bottom"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="50dp"
             android:layout_below="@+id/top_divider_et_bottom"
             android:background="@null"
             android:gravity="center"
-            android:hint="@string/hint_text_meme"
             android:padding="8dp"
-            android:textSize="24sp" />
+            android:text="@string/hint_text_meme"
+            app:autoSizeMaxTextSize="24sp"
+            app:autoSizeTextType="uniform" />
 
         <!--Divider-->
         <View
             android:id="@+id/bottom_divider_et_bottom"
             android:layout_width="match_parent"
             android:layout_height="0.3dp"
-            android:layout_below="@+id/et_bottom"
+            android:layout_below="@+id/tv_bottom"
             android:alpha="0.5"
             android:background="@color/grey_dark" />
 
     </RelativeLayout>
+
+    <!--Bottom sheet view-->
+    <include layout="@layout/layout_meme_bottom_sheet" />
+
+
 </android.support.design.widget.CoordinatorLayout>

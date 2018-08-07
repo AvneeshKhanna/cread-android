@@ -1,12 +1,17 @@
 package com.thetestament.cread.fragments;
 
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.os.Bundle;
+import android.os.Environment;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.design.widget.BottomSheetBehavior;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.v4.app.Fragment;
+import android.support.v4.widget.NestedScrollView;
 import android.support.v7.widget.AppCompatEditText;
+import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -15,17 +20,24 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.RelativeLayout;
 
+import com.thetestament.cread.Manifest;
 import com.thetestament.cread.R;
 import com.thetestament.cread.helpers.SharedPreferenceHelper;
 import com.thetestament.cread.helpers.ViewHelper;
 import com.thetestament.cread.widgets.SquareImageView;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import butterknife.OnClick;
 import butterknife.Unbinder;
 import icepick.Icepick;
 import io.reactivex.disposables.CompositeDisposable;
 import pl.tajchert.nammu.Nammu;
+import pl.tajchert.nammu.PermissionCallback;
 
 /**
  * Created by gaurav on 06/08/18.
@@ -42,11 +54,19 @@ public class MemeThirdFragment extends Fragment {
     SquareImageView imgMeme;
     @BindView(R.id.et_bottom)
     AppCompatEditText etBottom;
+
+    @BindView(R.id.meme_bottom_sheet_view)
+    NestedScrollView bottomSheetView;
+    @BindView(R.id.recycler_view)
+    RecyclerView memeImageRecyclerView;
     //endregion
 
+    //region :Fields and constant
     SharedPreferenceHelper mHelper;
     Unbinder mUnbinder;
     CompositeDisposable mCompositeDisposable;
+    BottomSheetBehavior bottomSheetBehavior;
+    //endregion
 
 
     public MemeThirdFragment() {
@@ -71,6 +91,8 @@ public class MemeThirdFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
         //ButterKnife view binding
         mUnbinder = ButterKnife.bind(this, view);
+        //Method called
+        initViews();
     }
 
 
@@ -109,6 +131,8 @@ public class MemeThirdFragment extends Fragment {
 
     @Override
     public void onPrepareOptionsMenu(Menu menu) {
+        //Update menu icon
+        menu.findItem(R.id.action_meme_layout).setIcon(R.drawable.ic_meme_layout_3);
         super.onPrepareOptionsMenu(menu);
     }
 
@@ -122,7 +146,8 @@ public class MemeThirdFragment extends Fragment {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.action_next:
-                ViewHelper.getSnackBar(rootView, "Coming soon");
+                //fixme code for next screen
+                getWritePermissionForMemeGeneration();
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
@@ -130,4 +155,120 @@ public class MemeThirdFragment extends Fragment {
     }
     //endregion
 
+    //region :Click functionality
+
+    /**
+     * Image click functionality.
+     */
+    @OnClick(R.id.img_meme)
+    void imgOnClick() {
+        bottomSheetBehavior.setState(BottomSheetBehavior.STATE_EXPANDED);
+    }
+
+    /**
+     * Click functionality to hide bottom sheet.
+     */
+    @OnClick(R.id.btn_close)
+    void onCloseBtnClick() {
+        //Hide bottom sheet
+        bottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
+    }
+
+    //endregion
+
+    //region :Private methods
+
+    /**
+     * Initialize views for this screen.
+     */
+    private void initViews() {
+        //SharedPreference reference
+        mHelper = new SharedPreferenceHelper(getActivity());
+
+        //initialize bottom sheet here
+        bottomSheetBehavior = BottomSheetBehavior.from(bottomSheetView);
+        bottomSheetBehavior.setPeekHeight(0);
+    }
+
+
+    /**
+     * Method to check for write storage runtime permission and generate meme images.
+     */
+    private void getWritePermissionForMemeGeneration() {
+        //Check for Write permission
+        if (Nammu.checkPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+            //We have permission do whatever you want to do
+            generateMemeImage();
+        } else {
+            //We do not own this permission
+            if (Nammu.shouldShowRequestPermissionRationale(MemeThirdFragment.this
+                    , Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+                //User already refused to give us this permission or removed it
+                ViewHelper.getToast(getActivity()
+                        , getString(R.string.error_msg_share_permission_denied));
+            } else {
+                //First time asking for permission
+                Nammu.askForPermission(MemeThirdFragment.this
+                        , Manifest.permission.WRITE_EXTERNAL_STORAGE
+                        , writeForMemePermission);
+            }
+        }
+    }
+
+    /**
+     * Used to handle result of askForPermission for meme image generation.
+     */
+    PermissionCallback writeForMemePermission = new PermissionCallback() {
+        @Override
+        public void permissionGranted() {
+            //We have permission do whatever you want to do
+            generateMemeImage();
+        }
+
+        @Override
+        public void permissionRefused() {
+            //Show error message
+            ViewHelper.getToast(getActivity()
+                    , getString(R.string.error_msg_share_permission_denied));
+        }
+    };
+
+    /**
+     * Method to generate meme image and show its preview.
+     */
+    private void generateMemeImage() {
+        //Hide edit text cursor
+        etBottom.setCursorVisible(false);
+
+        //Enable drawing cache
+        container.setDrawingCacheEnabled(true);
+        //Obtain bitmap
+        Bitmap bm = container.getDrawingCache();
+
+        try {
+            File file = new File(Environment.getExternalStorageDirectory().getPath() + "/Cread/Meme/meme_pic.jpg");
+            file.getParentFile().mkdirs();
+
+            if (!file.exists()) {
+                try {
+                    file.createNewFile();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+
+            FileOutputStream out = new FileOutputStream(file);
+            bm.compress(Bitmap.CompressFormat.JPEG, 85, out);
+            out.close();
+            //fixme code to launch next screen
+        } catch (IOException e) {
+            e.printStackTrace();
+            ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_internal));
+        }
+
+        //Disable drawing cache
+        container.setDrawingCacheEnabled(false);
+    }
+
+    //endregion
 }

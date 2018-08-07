@@ -5,7 +5,6 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-
     <!--Container-->
     <RelativeLayout
         android:id="@+id/container"
@@ -78,5 +77,8 @@
             android:background="@color/grey_dark" />
 
     </RelativeLayout>
+
+    <!--Bottom sheet view-->
+    <include layout="@layout/layout_meme_bottom_sheet" />
 
 </android.support.design.widget.CoordinatorLayout>

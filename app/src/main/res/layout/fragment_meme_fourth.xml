@@ -102,4 +102,7 @@
 
     </RelativeLayout>
 
+    <!--Bottom sheet view-->
+    <include layout="@layout/layout_meme_bottom_sheet" />
+
 </android.support.design.widget.CoordinatorLayout>
