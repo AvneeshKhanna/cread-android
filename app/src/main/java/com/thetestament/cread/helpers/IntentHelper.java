@@ -38,6 +38,7 @@ import static com.thetestament.cread.utils.Constant.EXTRA_PROFILE_UUID;
 import static com.thetestament.cread.utils.Constant.EXTRA_SHORT_DATA;
 import static com.thetestament.cread.utils.Constant.EXTRA_WEB_VIEW_TITLE;
 import static com.thetestament.cread.utils.Constant.EXTRA_WEB_VIEW_URL;
+import static com.thetestament.cread.utils.Constant.REQUEST_CODE_PREVIEW_ACTIVITY;
 
 /**
  * A helper class to provide utility method for intent related operations.
@@ -223,7 +224,7 @@ public class IntentHelper {
      *
      * @param context Context to use.
      */
-    public static void openPreviewActivityFromMeme(Context context) {
+    public static void openPreviewActivityFromMeme(FragmentActivity context) {
         Intent intent = new Intent(context, PreviewActivity.class);
 
         Bundle bundle = new Bundle();
@@ -231,6 +232,7 @@ public class IntentHelper {
         bundle.putString(Constant.PREVIEW_EXTRA_LIVE_FILTER, Constant.LIVE_FILTER_NONE);
 
         intent.putExtra(Constant.PREVIEW_EXTRA_DATA, bundle);
-        context.startActivity(intent);
+        context.startActivityForResult(intent, REQUEST_CODE_PREVIEW_ACTIVITY);
     }
+
 }

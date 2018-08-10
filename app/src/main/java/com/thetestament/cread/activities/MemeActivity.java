@@ -21,6 +21,7 @@ import com.thetestament.cread.helpers.SharedPreferenceHelper;
 import com.thetestament.cread.helpers.ViewHelper;
 import com.thetestament.cread.listeners.listener;
 import com.thetestament.cread.models.MemeLayoutModel;
+import com.thetestament.cread.utils.Constant;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -29,6 +30,8 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import icepick.Icepick;
 import icepick.State;
+
+import static com.thetestament.cread.utils.Constant.REQUEST_CODE_PREVIEW_ACTIVITY;
 
 /**
  * Appcompat activity for Meme creation.
@@ -86,7 +89,22 @@ public class MemeActivity extends BaseActivity {
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
+        switch (requestCode) {
+            case REQUEST_CODE_PREVIEW_ACTIVITY:
+                if (resultCode == RESULT_OK) {
+                    //Finish this screen
+                    if (data != null) {
+                        Intent intent = new Intent();
+                        intent.putExtra(Constant.EXTRA_DATA, data.getBundleExtra(Constant.EXTRA_DATA));
+                        setResult(RESULT_OK, intent);
+                    }
+                    finish();
+                }
+                break;
+            default:
+                super.onActivityResult(requestCode, resultCode, data);
+        }
+
     }
 
     //endregion

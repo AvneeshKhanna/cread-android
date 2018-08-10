@@ -1,0 +1,201 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.v7.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginBottom="8dp"
+    android:layout_marginTop="8dp"
+    android:background="@color/white"
+    app:cardPreventCornerOverlap="false"
+    app:cardUseCompatPadding="true">
+
+    <!--Content container-->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:animateLayoutChanges="true"
+        android:orientation="vertical">
+
+        <!--Container creator-->
+        <RelativeLayout
+            android:id="@+id/container_creator"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="8dp"
+            android:layout_marginTop="8dp">
+
+            <LinearLayout
+                android:id="@+id/container_creator_specific"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_alignParentLeft="true">
+
+                <com.facebook.drawee.view.SimpleDraweeView
+                    android:id="@+id/img_creator"
+                    android:layout_width="35dp"
+                    android:layout_height="35dp"
+                    android:layout_marginLeft="8dp"
+                    app:failureImage="@drawable/ic_account_circle_100"
+                    app:failureImageScaleType="centerCrop"
+                    app:roundAsCircle="true" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+
+                    <android.support.v7.widget.AppCompatTextView
+                        android:id="@+id/text_creator_name"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:paddingLeft="8dp"
+                        android:paddingRight="8dp"
+                        android:textColor="@color/grey"
+                        android:textSize="14sp"
+                        tools:text="Cread is the best app" />
+
+                    <!--Time stamp-->
+                    <android.support.v7.widget.AppCompatTextView
+                        android:id="@+id/text_time_stamp"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="5dp"
+                        android:paddingLeft="8dp"
+                        android:text="08 March at 5:00"
+                        android:textColor="@color/grey_custom"
+                        android:textSize="12sp" />
+                </LinearLayout>
+
+
+            </LinearLayout>
+
+
+        </RelativeLayout>
+
+        <!--Main content container-->
+        <FrameLayout
+            android:id="@+id/container_main_content"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <!--Content image view-->
+            <com.facebook.drawee.view.SimpleDraweeView
+                android:id="@+id/content_image"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:adjustViewBounds="true"
+                app:actualImageScaleType="fitXY"
+                app:failureImage="@drawable/image_placeholder"
+                app:failureImageScaleType="centerCrop" />
+
+            <!--WatermarkView-->
+            <include
+                layout="@layout/layout_cread_watermark"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="right|bottom" />
+
+            <!--View to be animated on double tap-->
+            <android.support.v7.widget.AppCompatImageView
+                android:id="@+id/double_tap_hats_off_view"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:layout_gravity="center"
+                android:alpha="0.7"
+                android:visibility="gone"
+                app:srcCompat="@drawable/ic_hats_off" />
+        </FrameLayout>
+
+        <!--Social actions count container-->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:gravity="center_vertical"
+            android:paddingLeft="16dp"
+            android:paddingRight="16dp">
+
+            <!--Hats off count container-->
+            <LinearLayout
+                android:id="@+id/container_hats_off_count"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical"
+                android:paddingRight="8dp"
+                android:paddingTop="8dp">
+
+                <android.support.v7.widget.AppCompatImageView
+                    android:id="@+id/icon_hats_off"
+                    android:layout_width="18dp"
+                    android:layout_height="18dp"
+                    app:srcCompat="@drawable/ic_hats_off_circular_100" />
+
+                <android.support.v7.widget.AppCompatTextView
+                    android:id="@+id/text_hats_off_count"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="5dp"
+                    android:text="4"
+                    android:textSize="11sp" />
+
+            </LinearLayout>
+
+            <!--Separator view-->
+            <android.support.v7.widget.AppCompatTextView
+                android:id="@+id/dot_separator"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical"
+                android:paddingRight="8dp"
+                android:paddingTop="8dp"
+                android:text="@string/bullet"
+                android:textSize="10sp" />
+
+            <!--Comments count container-->
+            <LinearLayout
+                android:id="@+id/container_comments_count"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical"
+                android:paddingRight="10dp"
+                android:paddingTop="8dp">
+
+                <android.support.v7.widget.AppCompatImageView
+                    android:id="@+id/icon_comment"
+                    android:layout_width="18dp"
+                    android:layout_height="18dp"
+                    app:srcCompat="@drawable/ic_comment_circular_100" />
+
+                <android.support.v7.widget.AppCompatTextView
+                    android:id="@+id/text_comments_count"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="5dp"
+                    android:text="4"
+                    android:textSize="11sp" />
+
+            </LinearLayout>
+
+        </LinearLayout>
+
+        <!--Text caption-->
+        <android.support.v7.widget.AppCompatTextView
+            android:id="@+id/text_caption"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:ellipsize="end"
+            android:maxLines="3"
+            android:paddingBottom="5dp"
+            android:paddingLeft="16dp"
+            android:paddingRight="16dp"
+            android:paddingTop="5dp"
+            android:textColor="@color/grey_dark"
+            android:textSize="14sp"
+            tools:text="This is my masterpiece. I hope you like it. If you don't, I don't give a shit about it. Did you get it. Yeah! That's better" />
+
+        <!--Container social actions-->
+        <include layout="@layout/layout_social_actions" />
+    </LinearLayout>
+
+</android.support.v7.widget.CardView>

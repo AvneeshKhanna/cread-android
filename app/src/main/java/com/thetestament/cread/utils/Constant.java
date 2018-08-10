@@ -69,6 +69,7 @@ public class Constant {
     //region :Content Types
     public static final String CONTENT_TYPE_SHORT = "SHORT";
     public static final String CONTENT_TYPE_CAPTURE = "CAPTURE";
+    public static final String CONTENT_TYPE_MEME = "MEME";
     //endregion
 
     //region :Text gravity types
@@ -334,6 +335,7 @@ public class Constant {
     public static final String PREVIEW_EXTRA_CALLED_FROM_EDIT_CAPTURE = "editCapture";
     public static final String PREVIEW_EXTRA_CALLED_FROM_EDIT_SHORT = "editShort";
     public static final String PREVIEW_EXTRA_CALLED_FROM_MEME_FRAGMENT = "memeFragment";
+    public static final String PREVIEW_EXTRA_CALLED_FROM_EDIT_MEME = "editMeme";
 
     //endregion
 

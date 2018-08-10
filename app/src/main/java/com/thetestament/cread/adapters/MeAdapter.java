@@ -16,6 +16,8 @@ import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.AppCompatImageView;
 import android.support.v7.widget.AppCompatTextView;
 import android.support.v7.widget.RecyclerView;
+import android.text.Spannable;
+import android.text.style.ForegroundColorSpan;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -57,6 +59,7 @@ import com.thetestament.cread.models.FeedModel;
 import com.thetestament.cread.utils.AspectRatioUtils;
 import com.thetestament.cread.utils.Constant;
 import com.thetestament.cread.utils.SoundUtil;
+import com.thetestament.cread.utils.TextUtils;
 
 import java.util.List;
 
@@ -90,9 +93,11 @@ public class MeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     //region :Item types
     private final int VIEW_TYPE_ITEM_USER_POST = 0;
     private final int VIEW_TYPE_ITEM_USER_REPOST = 1;
-    private final int VIEW_TYPE_ITEM_COLLAB_POST = 2;
-    private final int VIEW_TYPE_ITEM_GRID = 3;
-    private final int VIEW_TYPE_LOADING = 4;
+    private final int VIEW_TYPE_ITEM_MEME = 2;
+    private final int VIEW_TYPE_ITEM_COLLAB_POST = 3;
+    private final int VIEW_TYPE_ITEM_GRID = 4;
+    private final int VIEW_TYPE_LOADING = 5;
+    private final int VIEW_TYPE_ITEM_USER_REPOST_MEME = 6;
     //endregion
 
     //region :Private field and constants
@@ -114,12 +119,12 @@ public class MeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
      * @param context             Context to be use.
      * @param UUID                UUID of user.
      * @param meFragment          Fragment reference.
-     * @param itemType            Item type i.e {@link com.thetestament.cread.utils.Constant#ME_ITEM_TYPE_USER_POST_LIST}
-     *                            {@link com.thetestament.cread.utils.Constant#ME_ITEM_TYPE_USER_POST_LIST}
-     *                            {@link com.thetestament.cread.utils.Constant#ME_ITEM_TYPE_RE_POST_LIST}
-     *                            {@link com.thetestament.cread.utils.Constant#ME_ITEM_TYPE_RE_POST_GRID}
-     *                            {@link com.thetestament.cread.utils.Constant#ME_ITEM_TYPE_COLLAB_POST_LIST}
-     *                            {@link com.thetestament.cread.utils.Constant#ME_ITEM_TYPE_COLLAB_POST_GRID}
+     * @param itemType            Item type i.e {@link Constant#ME_ITEM_TYPE_USER_POST_LIST}
+     *                            {@link Constant#ME_ITEM_TYPE_USER_POST_LIST}
+     *                            {@link Constant#ME_ITEM_TYPE_RE_POST_LIST}
+     *                            {@link Constant#ME_ITEM_TYPE_RE_POST_GRID}
+     *                            {@link Constant#ME_ITEM_TYPE_COLLAB_POST_LIST}
+     *                            {@link Constant#ME_ITEM_TYPE_COLLAB_POST_GRID}
      * @param compositeDisposable Composite disposable reference.
      */
     public MeAdapter(List<FeedModel> userContentList, FragmentActivity context, String UUID, Fragment meFragment, String itemType, CompositeDisposable compositeDisposable) {
@@ -199,9 +204,19 @@ public class MeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         if (mUserContentList.get(position) == null) {
             return VIEW_TYPE_LOADING;
         } else if (mItemType.equals(Constant.ME_ITEM_TYPE_USER_POST_LIST)) {
-            return VIEW_TYPE_ITEM_USER_POST;
+            //Content type is meme
+            if (mUserContentList.get(position).getContentType().equals(Constant.CONTENT_TYPE_MEME)) {
+                return VIEW_TYPE_ITEM_MEME;
+            } else {
+                return VIEW_TYPE_ITEM_USER_POST;
+            }
         } else if (mItemType.equals(Constant.ME_ITEM_TYPE_RE_POST_LIST)) {
-            return VIEW_TYPE_ITEM_USER_REPOST;
+            //Content type is meme
+            if (mUserContentList.get(position).getContentType().equals(Constant.CONTENT_TYPE_MEME)) {
+                return VIEW_TYPE_ITEM_USER_REPOST_MEME;
+            } else {
+                return VIEW_TYPE_ITEM_USER_REPOST;
+            }
         } else if (mItemType.equals(Constant.ME_ITEM_TYPE_COLLAB_POST_LIST)) {
             return VIEW_TYPE_ITEM_COLLAB_POST;
         } else if (mItemType.equals(Constant.ME_ITEM_TYPE_USER_POST_GRID)
@@ -222,6 +237,14 @@ public class MeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             return new RePostViewHolder(LayoutInflater
                     .from(parent.getContext())
                     .inflate(R.layout.item_repost, parent, false));
+        } else if (viewType == VIEW_TYPE_ITEM_USER_REPOST_MEME) {
+            return new RePostMemeViewHolder(LayoutInflater
+                    .from(parent.getContext())
+                    .inflate(R.layout.item_meme_repost, parent, false));
+        } else if (viewType == VIEW_TYPE_ITEM_MEME) {
+            return new MemePostViewHolder(LayoutInflater
+                    .from(parent.getContext())
+                    .inflate(R.layout.item_me_meme, parent, false));
         } else if (viewType == VIEW_TYPE_ITEM_GRID) {
             return new GridItemViewHolder(LayoutInflater
                     .from(parent.getContext())
@@ -247,6 +270,14 @@ public class MeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             RePostViewHolder itemViewHolder = (RePostViewHolder) holder;
             // initialize the views and click actions
             initializeRepostViewHolder(itemViewHolder, data, itemViewHolder.getAdapterPosition());
+        } else if (holder.getItemViewType() == VIEW_TYPE_ITEM_MEME) {
+            MemePostViewHolder itemViewHolder = (MemePostViewHolder) holder;
+            // initialize the views and click actions
+            initializeMemeItem(itemViewHolder, data, itemViewHolder.getAdapterPosition());
+        } else if (holder.getItemViewType() == VIEW_TYPE_ITEM_USER_REPOST_MEME) {
+            RePostMemeViewHolder itemViewHolder = (RePostMemeViewHolder) holder;
+            // initialize the views and click actions
+            initializeRepostMemeViewHolder(itemViewHolder, data, itemViewHolder.getAdapterPosition());
         } else if (holder.getItemViewType() == VIEW_TYPE_ITEM_GRID) {
             GridItemViewHolder itemViewHolder = (GridItemViewHolder) holder;
             initializeGridItem(itemViewHolder, data);
@@ -371,6 +402,60 @@ public class MeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         }
     }
 
+    /**
+     * Method to check hatsOff status and perform operation accordingly.
+     *
+     * @param hatsOffStatus  True if user has given hatsOff, false otherwise.
+     * @param itemViewHolder ViewHolder object.
+     */
+    private void checkHatsOffStatus(boolean hatsOffStatus, MemePostViewHolder itemViewHolder) {
+        if (hatsOffStatus) {
+            //Change color
+            itemViewHolder.imageHatsOff.setColorFilter(ContextCompat.getColor(mContext, R.color.colorPrimary));
+            //Set rotation to 30
+            itemViewHolder.imageHatsOff.setRotation(30);
+            //update flags
+            itemViewHolder.mIsHatsOff = true;
+            itemViewHolder.mIsRotated = true;
+
+        } else {
+            //Change color to transparent
+            itemViewHolder.imageHatsOff.setColorFilter(Color.TRANSPARENT);
+            //Set rotation to 0
+            itemViewHolder.imageHatsOff.setRotation(0);
+            //update flags
+            itemViewHolder.mIsHatsOff = false;
+            itemViewHolder.mIsRotated = false;
+        }
+    }
+
+    /**
+     * Method to check hatsOff status and perform operation accordingly.
+     *
+     * @param hatsOffStatus  True if user has given hatsOff, false otherwise.
+     * @param itemViewHolder ViewHolder object.
+     */
+    private void checkHatsOffStatus(boolean hatsOffStatus, RePostMemeViewHolder itemViewHolder) {
+        if (hatsOffStatus) {
+            //Change color
+            itemViewHolder.imageHatsOff.setColorFilter(ContextCompat.getColor(mContext, R.color.colorPrimary));
+            //Set rotation to 30
+            itemViewHolder.imageHatsOff.setRotation(30);
+            //update flags
+            itemViewHolder.mIsHatsOff = true;
+            itemViewHolder.mIsRotated = true;
+
+        } else {
+            //Change color to transparent
+            itemViewHolder.imageHatsOff.setColorFilter(Color.TRANSPARENT);
+            //Set rotation to 0
+            itemViewHolder.imageHatsOff.setRotation(0);
+            //update flags
+            itemViewHolder.mIsHatsOff = false;
+            itemViewHolder.mIsRotated = false;
+        }
+    }
+
 
     /**
      * HatsOff onClick functionality.
@@ -440,6 +525,128 @@ public class MeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
      * @param data           Data for current item.
      */
     private void hatsOffOnClick(final RePostViewHolder itemViewHolder, final FeedModel data, final int itemPosition) {
+        itemViewHolder.containerHatsOff.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                SharedPreferenceHelper sh = new SharedPreferenceHelper(mContext);
+                if (sh.isHatsOffFirstTime()) {
+                    //Show tooltip
+                    ViewHelper.getToolTip(itemViewHolder.imageHatsOff
+                            , mContext.getString(R.string.tooltip_hats_off_double_tap)
+                            , mContext);
+                    //Update sp value here
+                    sh.updateHatsOffStatusStatus(false);
+                }
+                // check net status
+                if (NetworkHelper.getNetConnectionStatus(mContext)) {
+                    //User has already given the hats off
+                    if (itemViewHolder.mIsHatsOff) {
+                        //Animation for hats off
+                        if (itemViewHolder.mIsRotated) {
+                            itemViewHolder.imageHatsOff.startAnimation(AnimationUtils.loadAnimation(mContext, R.anim.reverse_rotate_animation_hats_off_60_degree));
+                        } else {
+                            itemViewHolder.imageHatsOff.startAnimation(AnimationUtils.loadAnimation(mContext, R.anim.reverse_rotate_animation_hats_off_30_degree));
+                        }
+                        //Toggle hatsOff tint
+                        itemViewHolder.imageHatsOff.setColorFilter(Color.TRANSPARENT);
+                        //Update hats of count i.e decrease by one
+                        data.setHatsOffCount(data.getHatsOffCount() - 1);
+                    } else {
+                        //Animation for hats off
+                        if (itemViewHolder.mIsRotated) {
+                            itemViewHolder.imageHatsOff.startAnimation(AnimationUtils.loadAnimation(mContext, R.anim.rotate_animation_hats_off_0_degree));
+                        } else {
+                            itemViewHolder.imageHatsOff.startAnimation(AnimationUtils.loadAnimation(mContext, R.anim.rotate_animation_hats_off_30_degree));
+                        }
+                        //Toggle hatsOff tint
+                        itemViewHolder.imageHatsOff.setColorFilter(ContextCompat.getColor(mContext, R.color.colorPrimary));
+                        //Change hatsOffCount i.e increase by one
+                        data.setHatsOffCount(data.getHatsOffCount() + 1);
+                    }
+                    //Toggle hatsOff status
+                    itemViewHolder.mIsHatsOff = !itemViewHolder.mIsHatsOff;
+                    //itemViewHolder.mIsRotated = !itemViewHolder.mIsRotated;
+                    //Update hats off here
+                    data.setHatsOffStatus(itemViewHolder.mIsHatsOff);
+                    //Listener
+                    onHatsOffListener.onHatsOffClick(data, itemPosition);
+                } else {
+                    ViewHelper.getToast(mContext, mContext.getString(R.string.error_msg_no_connection));
+                }
+
+            }
+        });
+    }
+
+    /**
+     * HatsOff onClick functionality.
+     *
+     * @param itemViewHolder ViewHolder for items.
+     * @param data           Data for current item.
+     */
+    private void hatsOffOnClick(final MemePostViewHolder itemViewHolder, final FeedModel data, final int itemPosition) {
+        itemViewHolder.containerHatsOff.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                SharedPreferenceHelper sh = new SharedPreferenceHelper(mContext);
+                if (sh.isHatsOffFirstTime()) {
+                    //Show tooltip
+                    ViewHelper.getToolTip(itemViewHolder.imageHatsOff
+                            , mContext.getString(R.string.tooltip_hats_off_double_tap)
+                            , mContext);
+                    //Update sp value here
+                    sh.updateHatsOffStatusStatus(false);
+                }
+                // check net status
+                if (NetworkHelper.getNetConnectionStatus(mContext)) {
+                    //User has already given the hats off
+                    if (itemViewHolder.mIsHatsOff) {
+                        //Animation for hats off
+                        if (itemViewHolder.mIsRotated) {
+                            itemViewHolder.imageHatsOff.startAnimation(AnimationUtils.loadAnimation(mContext, R.anim.reverse_rotate_animation_hats_off_60_degree));
+                        } else {
+                            itemViewHolder.imageHatsOff.startAnimation(AnimationUtils.loadAnimation(mContext, R.anim.reverse_rotate_animation_hats_off_30_degree));
+                        }
+                        //Toggle hatsOff tint
+                        itemViewHolder.imageHatsOff.setColorFilter(Color.TRANSPARENT);
+                        //Update hats of count i.e decrease by one
+                        data.setHatsOffCount(data.getHatsOffCount() - 1);
+                    } else {
+                        //Animation for hats off
+                        if (itemViewHolder.mIsRotated) {
+                            itemViewHolder.imageHatsOff.startAnimation(AnimationUtils.loadAnimation(mContext, R.anim.rotate_animation_hats_off_0_degree));
+                        } else {
+                            itemViewHolder.imageHatsOff.startAnimation(AnimationUtils.loadAnimation(mContext, R.anim.rotate_animation_hats_off_30_degree));
+                        }
+                        //Toggle hatsOff tint
+                        itemViewHolder.imageHatsOff.setColorFilter(ContextCompat.getColor(mContext, R.color.colorPrimary));
+                        //Change hatsOffCount i.e increase by one
+                        data.setHatsOffCount(data.getHatsOffCount() + 1);
+                    }
+                    //Toggle hatsOff status
+                    itemViewHolder.mIsHatsOff = !itemViewHolder.mIsHatsOff;
+                    //itemViewHolder.mIsRotated = !itemViewHolder.mIsRotated;
+                    //Update hats off here
+                    data.setHatsOffStatus(itemViewHolder.mIsHatsOff);
+                    //Listener
+                    onHatsOffListener.onHatsOffClick(data, itemPosition);
+                } else {
+                    ViewHelper.getToast(mContext, mContext.getString(R.string.error_msg_no_connection));
+                }
+
+            }
+        });
+    }
+
+    /**
+     * HatsOff onClick functionality.
+     *
+     * @param itemViewHolder ViewHolder for items.
+     * @param data           Data for current item.
+     */
+    private void hatsOffOnClick(final RePostMemeViewHolder itemViewHolder, final FeedModel data, final int itemPosition) {
         itemViewHolder.containerHatsOff.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -650,6 +857,144 @@ public class MeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     }
 
     /**
+     * Share onClick functionality.
+     *
+     * @param itemViewHolder
+     * @param data
+     */
+    private void shareOnClick(final MemePostViewHolder itemViewHolder, final FeedModel data) {
+        itemViewHolder.logoWhatsapp.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (ShareHelper.isAppInstalled(mContext, Constant.PACKAGE_NAME_WHATSAPP)) {
+                    if (GifHelper.hasLiveFilter(data.getLiveFilterName())) {
+                        onGifShareListener.onGifShareClick(itemViewHolder.frameLayout, SHARE_OPTION_WHATSAPP, itemViewHolder.waterMarkCread, data.getLiveFilterName());
+                    } else {
+                        loadBitmapForSharing(data, SHARE_OPTION_WHATSAPP);
+                    }
+                } else {
+                    ViewHelper.getToast(mContext, mContext.getString(R.string.error_no_whats_app));
+                }
+            }
+        });
+
+        itemViewHolder.logoFacebook.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (ShareHelper.isAppInstalled(mContext, Constant.PACKAGE_NAME_FACEBOOK)) {
+                    if (GifHelper.hasLiveFilter(data.getLiveFilterName())) {
+                        onGifShareListener.onGifShareClick(itemViewHolder.frameLayout, SHARE_OPTION_FACEBOOK, itemViewHolder.waterMarkCread, data.getLiveFilterName());
+
+                    } else {
+                        loadBitmapForSharing(data, SHARE_OPTION_FACEBOOK);
+                    }
+                } else {
+                    ViewHelper.getToast(mContext,
+                            mContext.getString(R.string.error_no_facebook));
+                }
+            }
+        });
+
+        itemViewHolder.logoInstagram.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (ShareHelper.isAppInstalled(mContext, Constant.PACKAGE_NAME_INSTAGRAM)) {
+                    if (GifHelper.hasLiveFilter(data.getLiveFilterName())) {
+                        onGifShareListener.onGifShareClick(itemViewHolder.frameLayout, SHARE_OPTION_INSTAGRAM, itemViewHolder.waterMarkCread, data.getLiveFilterName());
+                    } else {
+                        loadBitmapForSharing(data, SHARE_OPTION_INSTAGRAM);
+                    }
+                } else {
+                    ViewHelper.getToast(mContext, mContext.getString(R.string.error_no_instagram));
+                }
+
+            }
+        });
+
+        itemViewHolder.logoMore.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (GifHelper.hasLiveFilter(data.getLiveFilterName())) {
+                    onGifShareListener.onGifShareClick(itemViewHolder.frameLayout, SHARE_OPTION_OTHER, itemViewHolder.waterMarkCread, data.getLiveFilterName());
+                } else {
+                    loadBitmapForSharing(data, SHARE_OPTION_OTHER);
+                }
+            }
+        });
+
+
+    }
+
+    /**
+     * Share onClick functionality.
+     *
+     * @param itemViewHolder
+     * @param data
+     */
+    private void shareOnClick(final RePostMemeViewHolder itemViewHolder, final FeedModel data) {
+        itemViewHolder.logoWhatsapp.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (ShareHelper.isAppInstalled(mContext, Constant.PACKAGE_NAME_WHATSAPP)) {
+                    if (GifHelper.hasLiveFilter(data.getLiveFilterName())) {
+                        onGifShareListener.onGifShareClick(itemViewHolder.frameLayout, SHARE_OPTION_WHATSAPP, itemViewHolder.waterMarkCread, data.getLiveFilterName());
+                    } else {
+                        loadBitmapForSharing(data, SHARE_OPTION_WHATSAPP);
+                    }
+                } else {
+                    ViewHelper.getToast(mContext, mContext.getString(R.string.error_no_whats_app));
+                }
+            }
+        });
+
+        itemViewHolder.logoFacebook.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (ShareHelper.isAppInstalled(mContext, Constant.PACKAGE_NAME_FACEBOOK)) {
+                    if (GifHelper.hasLiveFilter(data.getLiveFilterName())) {
+                        onGifShareListener.onGifShareClick(itemViewHolder.frameLayout, SHARE_OPTION_FACEBOOK, itemViewHolder.waterMarkCread, data.getLiveFilterName());
+
+                    } else {
+                        loadBitmapForSharing(data, SHARE_OPTION_FACEBOOK);
+                    }
+                } else {
+                    ViewHelper.getToast(mContext,
+                            mContext.getString(R.string.error_no_facebook));
+                }
+            }
+        });
+
+        itemViewHolder.logoInstagram.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (ShareHelper.isAppInstalled(mContext, Constant.PACKAGE_NAME_INSTAGRAM)) {
+                    if (GifHelper.hasLiveFilter(data.getLiveFilterName())) {
+                        onGifShareListener.onGifShareClick(itemViewHolder.frameLayout, SHARE_OPTION_INSTAGRAM, itemViewHolder.waterMarkCread, data.getLiveFilterName());
+                    } else {
+                        loadBitmapForSharing(data, SHARE_OPTION_INSTAGRAM);
+                    }
+                } else {
+                    ViewHelper.getToast(mContext, mContext.getString(R.string.error_no_instagram));
+                }
+
+            }
+        });
+
+        itemViewHolder.logoMore.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (GifHelper.hasLiveFilter(data.getLiveFilterName())) {
+                    onGifShareListener.onGifShareClick(itemViewHolder.frameLayout, SHARE_OPTION_OTHER, itemViewHolder.waterMarkCread, data.getLiveFilterName());
+                } else {
+                    loadBitmapForSharing(data, SHARE_OPTION_OTHER);
+                }
+            }
+        });
+
+
+    }
+
+    /**
      * Method to load bitmap image to be shared
      */
     private void loadBitmapForSharing(final FeedModel data, final String shareOption) {
@@ -746,6 +1091,64 @@ public class MeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     }
 
     /**
+     * Initializes the views and click actions
+     *
+     * @param itemViewHolder view holder
+     * @param data           Feed data
+     * @param position       position of the item
+     */
+    private void initializeMemeItem(MemePostViewHolder itemViewHolder, final FeedModel data, final int position) {
+        //Load creator profile picture
+        ImageHelper.loadProgressiveImage(Uri.parse(data.getCreatorImage())
+                , itemViewHolder.imgCreator);
+        //Set user creator name and its click functionality
+        itemViewHolder.textCreatorName.setText(TextUtils.getSpannedString(data.getCreatorName() + " added meme"
+                , new ForegroundColorSpan(Color.BLACK)
+                , 0
+                , data.getCreatorName().length()
+                , Spannable.SPAN_EXCLUSIVE_EXCLUSIVE));
+
+        openProfileActivity(itemViewHolder.textCreatorName, data.getUUID());
+        //init post timestamp
+        updatePostTimestamp(itemViewHolder.textTimeStamp, data);
+        //Set image width and height
+        AspectRatioUtils.setImageAspectRatio(data.getImgWidth()
+                , data.getImgHeight()
+                , itemViewHolder.imgContent
+                , true);
+        //Load content image
+        ImageHelper.loadProgressiveImage(Uri.parse(data.getContentImage())
+                , itemViewHolder.imgContent);
+
+        // init content options menu
+        if (!mUUID.equals(data.getUUID())) {
+            itemViewHolder.btnMenu.setVisibility(View.INVISIBLE);
+        } else {
+            itemViewHolder.btnMenu.setVisibility(View.VISIBLE);
+            //open bottom sheet on clicking of 3 dots
+            itemViewHolder.btnMenu.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    ContentHelper.getMenuActionsBottomSheet(mContext, position, data, onContentDeleteListener);
+                }
+            });
+        }
+
+        //Method called
+        setDoubleTap(itemViewHolder, itemViewHolder.hatsOffView, data);
+        //Check whether user has given hats off to this campaign or not
+        checkHatsOffStatus(data.getHatsOffStatus(), itemViewHolder);
+        //HatsOff onClick functionality
+        hatsOffOnClick(itemViewHolder, data, position);
+        //Comment click functionality
+        commentOnClick(itemViewHolder.containerComment, data.getEntityID());
+        //Method called
+        FeedHelper.updateRepost(itemViewHolder.containerRepost, mContext, mCompositeDisposable, data.getEntityID());
+        //Share click functionality
+        shareOnClick(itemViewHolder, data);
+    }
+
+    /**
      * Initializes the views and click actions for RePostViewHolder.
      *
      * @param itemViewHolder ViewHolder.
@@ -754,7 +1157,7 @@ public class MeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
      */
     private void initializeRepostViewHolder(RePostViewHolder itemViewHolder, final FeedModel data, final int position) {
         //Set reposter name , repost time and click functionality to open re-poster profile
-        itemViewHolder.textRepostedBy.setText(data.getReposterName() +" reposted this");
+        itemViewHolder.textRepostedBy.setText(data.getReposterName() + " reposted this");
         FeedHelper.setRepostTime(itemViewHolder.textRepostedtime, data);
         openProfileActivity(itemViewHolder.textRepostedBy, data.getReposterUUID());
 
@@ -817,6 +1220,77 @@ public class MeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         initLongFormPreviewClick(itemViewHolder.buttonLongWritingPreview, data, mContext, mCompositeDisposable);
         // init post timestamp
         updatePostTimestamp(itemViewHolder.textTimeStamp, data);
+        //Method called
+        FeedHelper.updateRepost(itemViewHolder.containerRepost, mContext, mCompositeDisposable, data.getEntityID());
+    }
+
+    /**
+     * Initializes the views and click actions for RePostViewHolder.
+     *
+     * @param itemViewHolder ViewHolder.
+     * @param data           Feed data.
+     * @param position       item position in data list.
+     */
+    private void initializeRepostMemeViewHolder(RePostMemeViewHolder itemViewHolder, final FeedModel data, final int position) {
+        //Load creator profile picture
+        ImageHelper.loadProgressiveImage(Uri.parse(data.getCreatorImage())
+                , itemViewHolder.imageCreator);
+        //Set user creator name and its click functionality
+        itemViewHolder.textCreatorName.setText(TextUtils.getSpannedString(data.getCreatorName() + " added meme"
+                , new ForegroundColorSpan(Color.BLACK)
+                , 0
+                , data.getCreatorName().length()
+                , Spannable.SPAN_EXCLUSIVE_EXCLUSIVE));
+
+        openProfileActivity(itemViewHolder.textCreatorName, data.getUUID());
+
+        //Set reposter name , repost time and click functionality to open re-poster profile
+        itemViewHolder.textRepostedBy.setText(data.getReposterName() + " reposted this");
+        FeedHelper.setRepostTime(itemViewHolder.textRepostedTime, data);
+        openProfileActivity(itemViewHolder.textRepostedBy, data.getReposterUUID());
+
+        //Load creator profile picture
+        ImageHelper.loadProgressiveImage(Uri.parse(data.getCreatorImage())
+                , itemViewHolder.imageCreator);
+        //Set content image width and height
+        AspectRatioUtils.setImageAspectRatio(data.getImgWidth()
+                , data.getImgHeight()
+                , itemViewHolder.contentImage
+                , true);
+        //Load content image
+        ImageHelper.loadProgressiveImage(Uri.parse(data.getContentImage())
+                , itemViewHolder.contentImage);
+
+
+        // no need for creator options in explore
+        final boolean shouldShowCreatorOptions = mUUID.equals(data.getReposterUUID());
+
+        // init content options menu
+        if (!shouldShowCreatorOptions) {
+            itemViewHolder.buttonMenu.setVisibility(View.GONE);
+        } else {
+            itemViewHolder.buttonMenu.setVisibility(View.VISIBLE);
+            //open bottom sheet on clicking of 3 dots
+            itemViewHolder.buttonMenu.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    ContentHelper.getRepostMenuBottomSheet(mContext, position, data, onRepostDeleteListener);
+                }
+            });
+        }
+
+        //Method called
+        setDoubleTap(itemViewHolder, itemViewHolder.doubleTapHatsOffView, data);
+        //Check whether user has given hats off to this campaign or not
+        checkHatsOffStatus(data.getHatsOffStatus(), itemViewHolder);
+        //HatsOff onClick functionality
+        hatsOffOnClick(itemViewHolder, data, position);
+        //Comment click functionality
+        commentOnClick(itemViewHolder.containerComment, data.getEntityID());
+        //Share click functionality
+        shareOnClick(itemViewHolder, data);
+        // init post timestamp
+        updatePostTimestamp(itemViewHolder.textTimestamp, data);
         //Method called
         FeedHelper.updateRepost(itemViewHolder.containerRepost, mContext, mCompositeDisposable, data.getEntityID());
     }
@@ -1137,6 +1611,118 @@ public class MeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         private boolean mIsRotated = false;
 
         public RePostViewHolder(View itemView) {
+            super(itemView);
+            ButterKnife.bind(this, itemView);
+        }
+    }
+
+    //RepostMemeViewHolder class
+    static class RePostMemeViewHolder extends RecyclerView.ViewHolder {
+        //Reposted views
+        @BindView(R.id.text_reposted_by)
+        AppCompatTextView textRepostedBy;
+        @BindView(R.id.text_reposted_time)
+        AppCompatTextView textRepostedTime;
+        @BindView(R.id.button_menu)
+        AppCompatImageView buttonMenu;
+
+        //Creator views
+        @BindView(R.id.image_creator)
+        SimpleDraweeView imageCreator;
+        @BindView(R.id.text_creator_name)
+        AppCompatTextView textCreatorName;
+        @BindView(R.id.text_timestamp)
+        AppCompatTextView textTimestamp;
+
+        //Main content view
+        @BindView(R.id.container_main_content)
+        FrameLayout frameLayout;
+        @BindView(R.id.content_image)
+        SimpleDraweeView contentImage;
+        @BindView(R.id.water_mark_cread)
+        RelativeLayout waterMarkCread;
+        @BindView(R.id.double_tap_hats_off_view)
+        AppCompatImageView doubleTapHatsOffView;
+
+        //Social action views
+        @BindView(R.id.image_hats_off)
+        AppCompatImageView imageHatsOff;
+        @BindView(R.id.container_hats_off)
+        LinearLayout containerHatsOff;
+        @BindView(R.id.container_comment)
+        LinearLayout containerComment;
+        @BindView(R.id.container_repost)
+        LinearLayout containerRepost;
+
+        //Share views
+        @BindView(R.id.logoWhatsapp)
+        AppCompatImageView logoWhatsapp;
+        @BindView(R.id.logoFacebook)
+        AppCompatImageView logoFacebook;
+        @BindView(R.id.logoInstagram)
+        AppCompatImageView logoInstagram;
+        @BindView(R.id.logoMore)
+        AppCompatImageView logoMore;
+
+        //Variable to maintain hats off status
+        private boolean mIsHatsOff = false;
+        //Variable to maintain  hats off view rotation status
+        private boolean mIsRotated = false;
+
+        public RePostMemeViewHolder(View itemView) {
+            super(itemView);
+            ButterKnife.bind(this, itemView);
+        }
+    }
+
+    //MemePostViewHolder
+    static class MemePostViewHolder extends RecyclerView.ViewHolder {
+        //Creator views
+        @BindView(R.id.img_creator)
+        SimpleDraweeView imgCreator;
+        @BindView(R.id.text_creator_name)
+        AppCompatTextView textCreatorName;
+        @BindView(R.id.text_time_stamp)
+        AppCompatTextView textTimeStamp;
+        @BindView(R.id.btn_menu)
+        AppCompatImageView btnMenu;
+
+        //Main content views
+        @BindView(R.id.container_main_content)
+        FrameLayout frameLayout;
+        @BindView(R.id.content_image)
+        SimpleDraweeView imgContent;
+        @BindView(R.id.double_tap_hats_off_view)
+        AppCompatImageView hatsOffView;
+        @BindView(R.id.water_mark_cread)
+        RelativeLayout waterMarkCread;
+
+        //Social actions views
+        @BindView(R.id.image_hats_off)
+        AppCompatImageView imageHatsOff;
+        @BindView(R.id.container_hats_off)
+        LinearLayout containerHatsOff;
+        @BindView(R.id.container_comment)
+        LinearLayout containerComment;
+        @BindView(R.id.container_repost)
+        LinearLayout containerRepost;
+
+        //Share views
+        @BindView(R.id.logoWhatsapp)
+        AppCompatImageView logoWhatsapp;
+        @BindView(R.id.logoFacebook)
+        AppCompatImageView logoFacebook;
+        @BindView(R.id.logoInstagram)
+        AppCompatImageView logoInstagram;
+        @BindView(R.id.logoMore)
+        AppCompatImageView logoMore;
+
+        //Variable to maintain hats off status
+        private boolean mIsHatsOff = false;
+        //Variable to maintain  hats off view rotation status
+        private boolean mIsRotated = false;
+
+        public MemePostViewHolder(View itemView) {
             super(itemView);
             ButterKnife.bind(this, itemView);
         }

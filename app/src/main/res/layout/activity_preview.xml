@@ -2,7 +2,7 @@
 <android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/rootView"
+    android:id="@+id/root_view"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/grey_light">
@@ -13,13 +13,12 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-
         <!--Preview image container-->
         <FrameLayout
-            android:id="@+id/mainContainer"
+            android:id="@+id/main_container"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_above="@+id/containerPreviewBottom">
+            android:layout_above="@+id/container_preview_bottom">
 
             <android.support.v4.widget.NestedScrollView
                 android:layout_width="match_parent"
@@ -28,7 +27,7 @@
                 android:scrollbars="vertical">
 
                 <FrameLayout
-                    android:id="@+id/containerImagePreview"
+                    android:id="@+id/container_image_preview"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
@@ -36,7 +35,7 @@
 
                     <!--Preview imageView-->
                     <android.support.v7.widget.AppCompatImageView
-                        android:id="@+id/imagePreview"
+                        android:id="@+id/img_preview"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:adjustViewBounds="true"
@@ -45,7 +44,7 @@
 
                     <!--Bubble live filter-->
                     <com.github.glomadrian.grav.GravView
-                        android:id="@+id/live_filter_bubble"
+                        android:id="@+id/bubble_view"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
                         android:layout_centerInParent="true"
@@ -69,12 +68,12 @@
 
                     <!--Snowfall and rain filter-->
                     <com.github.matteobattilana.weather.WeatherView
-                        android:id="@+id/whether_view"
+                        android:id="@+id/weather_view"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
                         android:visibility="gone" />
 
-                    <!--Konfetti view-->
+                    <!--Konfetti live filter-->
                     <nl.dionsegijn.konfetti.KonfettiView
                         android:id="@+id/konfetti_view"
                         android:layout_width="match_parent"
@@ -89,8 +88,8 @@
                         android:layout_marginBottom="5dp"
                         android:background="@color/black_overlay">
 
-                        <TextView
-                            android:id="@+id/textWaterMark"
+                        <android.support.v7.widget.AppCompatTextView
+                            android:id="@+id/text_water_mark"
                             android:layout_width="match_parent"
                             android:layout_height="match_parent"
                             android:paddingLeft="3dp"
@@ -111,9 +110,9 @@
 
             </android.support.v4.widget.NestedScrollView>
 
-            <!--LongStory preview container-->
+            <!--Btn for long writing preview -->
             <FrameLayout
-                android:id="@+id/containerLongShortPreview"
+                android:id="@+id/btn_long_writing_preview"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="right"
@@ -129,9 +128,9 @@
 
             </FrameLayout>
 
-            <!--Sound view container-->
+            <!--Sound button for long writing-->
             <FrameLayout
-                android:id="@+id/containerLongShortSound"
+                android:id="@+id/btn_long_writing_sound"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="bottom|right"
@@ -148,10 +147,9 @@
 
             </FrameLayout>
 
-
             <!--RecyclerView profile mention-->
             <android.support.v7.widget.RecyclerView
-                android:id="@+id/recyclerViewMentions"
+                android:id="@+id/recycler_view_mentions"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:background="@color/white"
@@ -159,18 +157,18 @@
 
         </FrameLayout>
 
-        <!--Separator line-->
+        <!--Preview image and caption divider-->
         <View
-            android:id="@+id/Separator"
+            android:id="@+id/divider"
             android:layout_width="match_parent"
             android:layout_height="0.3dp"
-            android:layout_below="@+id/mainContainer"
+            android:layout_below="@+id/main_container"
             android:alpha="0.4"
             android:background="@color/grey_dark" />
 
         <!--Caption and labels container-->
         <LinearLayout
-            android:id="@+id/containerPreviewBottom"
+            android:id="@+id/container_preview_bottom"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_alignParentBottom="true"
@@ -178,9 +176,10 @@
 
             <!--Caption editText with profile tagging-->
             <com.linkedin.android.spyglass.ui.MentionsEditText
-                android:id="@+id/etCaption"
+                android:id="@+id/et_caption"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_alignParentBottom="true"
                 android:layout_gravity="center"
                 android:background="@null"
                 android:hint="@string/text_add_caption"
@@ -205,7 +204,6 @@
 
             <!--Container label hint-->
             <LinearLayout
-                android:visibility="gone"
                 android:id="@+id/containerLabelHint"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -213,11 +211,12 @@
                 android:background="@color/grey_light"
                 android:gravity="center_vertical"
                 android:orientation="horizontal"
-                android:paddingTop="10dp">
+                android:paddingTop="10dp"
+                android:visibility="visible">
 
                 <!--Hint text for labels-->
                 <android.support.v7.widget.AppCompatTextView
-                    android:id="@+id/textLabelHint"
+                    android:id="@+id/text_label_hint"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:paddingBottom="5dp"
@@ -227,7 +226,7 @@
                     android:textSize="12sp" />
 
                 <android.support.v7.widget.AppCompatTextView
-                    android:id="@+id/textLabelHelp"
+                    android:id="@+id/text_label_help"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:clickable="true"
@@ -240,7 +239,7 @@
 
             <!--Labels recyclerView-->
             <android.support.v7.widget.RecyclerView
-                android:id="@+id/recyclerViewLabels"
+                android:id="@+id/recycler_view_labels"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:background="@color/grey_light"
@@ -260,7 +259,7 @@
 
     <!--Live filter button container-->
     <FrameLayout
-        android:id="@+id/container_live_filter"
+        android:id="@+id/btn_live_filter"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentRight="true"

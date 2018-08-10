@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.v7.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginBottom="8dp"
+    android:layout_marginTop="8dp"
+    android:background="@color/white"
+    app:cardPreventCornerOverlap="false"
+    app:cardUseCompatPadding="true">
+
+    <!--Child container-->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <!--Content creator-->
+        <RelativeLayout
+            android:id="@+id/container_creator"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="5dp"
+            android:layout_marginTop="8dp">
+
+            <LinearLayout
+                android:id="@+id/container_creator_specific"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_alignParentLeft="true">
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="8dp"
+                    android:orientation="vertical">
+
+                    <com.facebook.drawee.view.SimpleDraweeView
+                        android:id="@+id/img_creator"
+                        android:layout_width="35dp"
+                        android:layout_height="35dp"
+                        app:failureImage="@drawable/ic_account_circle_100"
+                        app:failureImageScaleType="centerCrop"
+                        app:roundAsCircle="true" />
+
+                    <android.support.v7.widget.AppCompatTextView
+                        android:id="@+id/btn_follow"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_below="@+id/containerCreatorSpecific"
+                        android:layout_marginTop="5dp"
+                        android:text="Follow"
+                        android:textColor="@color/com_facebook_blue"
+                        android:textSize="12sp"
+                        android:visibility="gone" />
+
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+
+                    <android.support.v7.widget.AppCompatTextView
+                        android:id="@+id/creator_name"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:paddingLeft="8dp"
+                        android:paddingRight="8dp"
+                        android:textColor="@color/grey"
+                        android:textSize="14sp"
+                        tools:text="Cread is the best app" />
+
+                    <android.support.v7.widget.AppCompatTextView
+                        android:id="@+id/text_timestamp"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="5dp"
+                        android:paddingLeft="8dp"
+                        android:text="08 March at 5:00"
+                        android:textColor="@color/grey_custom"
+                        android:textSize="12sp" />
+
+
+                </LinearLayout>
+
+
+            </LinearLayout>
+
+
+        </RelativeLayout>
+
+        <FrameLayout
+            android:id="@+id/container_image"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <com.facebook.drawee.view.SimpleDraweeView
+                android:id="@+id/img_explore"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:adjustViewBounds="true"
+                app:actualImageScaleType="fitXY"
+                app:failureImage="@drawable/image_placeholder"
+                app:failureImageScaleType="centerCrop" />
+
+
+            <!--View to be animated on double tap-->
+            <android.support.v7.widget.AppCompatImageView
+                android:id="@+id/hats_off_view"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:layout_gravity="center"
+                android:alpha="0.7"
+                android:visibility="gone"
+                app:srcCompat="@drawable/ic_hats_off" />
+        </FrameLayout>
+
+    </LinearLayout>
+
+</android.support.v7.widget.CardView>

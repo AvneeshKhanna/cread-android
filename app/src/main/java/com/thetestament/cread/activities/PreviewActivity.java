@@ -17,6 +17,7 @@ import android.support.v4.app.FragmentActivity;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.widget.NestedScrollView;
 import android.support.v7.widget.AppCompatImageView;
+import android.support.v7.widget.AppCompatTextView;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -29,7 +30,6 @@ import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
-import android.widget.TextView;
 
 import com.afollestad.materialdialogs.DialogAction;
 import com.afollestad.materialdialogs.MaterialDialog;
@@ -147,6 +147,7 @@ import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_CALLED_FROM;
 import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_CALLED_FROM_CAPTURE;
 import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_CALLED_FROM_COLLABORATION;
 import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_CALLED_FROM_EDIT_CAPTURE;
+import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_CALLED_FROM_EDIT_MEME;
 import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_CALLED_FROM_EDIT_SHORT;
 import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_CALLED_FROM_MEME_FRAGMENT;
 import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_CALLED_FROM_SHORT;
@@ -195,44 +196,57 @@ public class PreviewActivity extends BaseActivity implements QueryTokenReceiver,
     }
 
     //region :Butter knife view binding
-    @BindView(R.id.rootView)
+    @BindView(R.id.root_view)
     CoordinatorLayout rootView;
-    @BindView(R.id.imagePreview)
-    AppCompatImageView imagePreview;
-    @BindView(R.id.etCaption)
-    MentionsEditText etCaption;
-    @BindView(R.id.textWaterMark)
-    TextView textWaterMark;
-    @BindView(R.id.filterBottomSheetView)
-    NestedScrollView filterBottomSheetView;
-    @BindView(R.id.filterRecyclerView)
-    RecyclerView filterRecyclerView;
-    @BindView(R.id.recyclerViewMentions)
+    //Main content views
+    @BindView(R.id.container_image_preview)
+    FrameLayout frameLayout;
+    @BindView(R.id.img_preview)
+    AppCompatImageView imgPreview;
+    @BindView(R.id.bubble_view)
+    GravView bubbleView;
+    @BindView(R.id.weather_view)
+    WeatherView weatherView;
+    @BindView(R.id.konfetti_view)
+    KonfettiView konfettiView;
+    @BindView(R.id.text_water_mark)
+    AppCompatTextView textWaterMark;
+    @BindView(R.id.water_mark_cread)
+    RelativeLayout waterMarkCreadView;
+
+    //Btn views
+    @BindView(R.id.btn_long_writing_preview)
+    FrameLayout btnLongWritingPreview;
+    @BindView(R.id.btn_long_writing_sound)
+    FrameLayout btnLongWritingSound;
+    @BindView(R.id.btn_live_filter)
+    FrameLayout btnLiveFilter;
+
+    //Profile mention view
+    @BindView(R.id.recycler_view_mentions)
     RecyclerView recyclerViewMentions;
-    @BindView(R.id.containerLongShortPreview)
-    FrameLayout containerLongFormPreview;
-    @BindView(R.id.containerLongShortSound)
-    FrameLayout containerLongFormSound;
+
+    //Caption view
+    @BindView(R.id.et_caption)
+    MentionsEditText etCaption;
+
+    //Labels views
     @BindView(R.id.recyclerViewLabels)
     RecyclerView recyclerViewLabels;
     @BindView(R.id.containerLabelHint)
     LinearLayout containerLabelHint;
-    @BindView(R.id.live_filter_bubble)
-    GravView liveFilterBubble;
-    @BindView(R.id.whether_view)
-    WeatherView whetherView;
-    @BindView(R.id.konfetti_view)
-    KonfettiView konfettiView;
+
+    //BottomSheet views and recyclerViews
+    @BindView(R.id.filterBottomSheetView)
+    NestedScrollView filterBottomSheetView;
+    @BindView(R.id.filterRecyclerView)
+    RecyclerView filterRecyclerView;
     @BindView(R.id.live_filter_bottom_sheet_view)
     NestedScrollView liveFilterBottomSheetView;
     @BindView(R.id.recycler_view_live_filter)
     RecyclerView liveFilterRecyclerView;
-    @BindView(R.id.containerImagePreview)
-    FrameLayout frameLayout;
-    @BindView(R.id.container_live_filter)
-    FrameLayout containerLiveFilter;
-    @BindView(R.id.water_mark_cread)
-    RelativeLayout waterMarkCreadView;
+
+
     //endregion
 
     //region :Fields and constants
@@ -286,28 +300,7 @@ public class PreviewActivity extends BaseActivity implements QueryTokenReceiver,
     @State
     String mImageUrl;
 
-    @State
-    String mCapInMentionFormat;
-
     Bitmap bmp = null;
-
-    @State
-    boolean mRequestMoreSuggestionsData = false;
-    @State
-    String mSuggestionsLastIndexKey;
-
-    SharedPreferenceHelper mHelper;
-    CompositeDisposable mCompositeDisposable = new CompositeDisposable();
-
-    QueryToken mQueryToken;
-    PublishSubject<QueryToken> subject = PublishSubject.create();
-    List<PersonMentionModel> mSuggestionsList = new ArrayList<>();
-    PersonMentionAdapter mMentionsAdapter;
-
-
-    FragmentActivity mContext = PreviewActivity.this;
-    MediaPlayer mediaPlayer;
-    FilterAdapter adapter;
 
     /**
      * List to store selected labels.
@@ -327,6 +320,28 @@ public class PreviewActivity extends BaseActivity implements QueryTokenReceiver,
     String mSelectedLiveFilter = Constant.LIVE_FILTER_NONE;
 
     Bitmap bm;
+
+
+    @State
+    String mCapInMentionFormat;
+
+
+    @State
+    boolean mRequestMoreSuggestionsData = false;
+    @State
+    String mSuggestionsLastIndexKey;
+
+    QueryToken mQueryToken;
+    PublishSubject<QueryToken> subject = PublishSubject.create();
+    List<PersonMentionModel> mSuggestionsList = new ArrayList<>();
+    PersonMentionAdapter mMentionsAdapter;
+
+    FragmentActivity mContext = PreviewActivity.this;
+    MediaPlayer mediaPlayer;
+    FilterAdapter adapter;
+
+    SharedPreferenceHelper mHelper;
+    CompositeDisposable mCompositeDisposable = new CompositeDisposable();
 
 
     //endregion
@@ -389,8 +404,10 @@ public class PreviewActivity extends BaseActivity implements QueryTokenReceiver,
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu_preview, menu);
+        //If this screen is called for capture editing , meme editing and meme preview
         if (mCalledFrom.equals(PREVIEW_EXTRA_CALLED_FROM_EDIT_CAPTURE)
-                || mCalledFrom.equals(PREVIEW_EXTRA_CALLED_FROM_MEME_FRAGMENT)) {
+                || mCalledFrom.equals(PREVIEW_EXTRA_CALLED_FROM_MEME_FRAGMENT)
+                || mCalledFrom.equals(PREVIEW_EXTRA_CALLED_FROM_EDIT_MEME)) {
             //Hide filter menu option
             menu.findItem(R.id.action_filter).setVisible(false);
         }
@@ -481,7 +498,7 @@ public class PreviewActivity extends BaseActivity implements QueryTokenReceiver,
     //region :Click functionality
 
     /**
-     * Root view click functionality hide filter bottom sheet if its expanded
+     * Root view click functionality hide filter bottom sheet if its expanded.
      */
     @OnClick({R.id.rootView})
     void rootOnClick() {
@@ -503,7 +520,7 @@ public class PreviewActivity extends BaseActivity implements QueryTokenReceiver,
     /**
      * Long short preview click action
      */
-    @OnClick(R.id.containerLongShortPreview)
+    @OnClick(R.id.btn_long_writing_preview)
     void longShortPreviewClick() {
         //initialize short model
         ShortModel shortModel = new ShortModel();
@@ -533,7 +550,7 @@ public class PreviewActivity extends BaseActivity implements QueryTokenReceiver,
 
     }
 
-    @OnClick(R.id.containerLongShortSound)
+    @OnClick(R.id.btn_long_writing_sound)
     void longShortSoundClick() {
 
         mediaPlayer = new MediaPlayer();
@@ -605,7 +622,7 @@ public class PreviewActivity extends BaseActivity implements QueryTokenReceiver,
                         //show sound preview tooltip
                         if (mHelper.isLongFormSoundFirstTime()) {
                             //Show tooltip on sound preview icon
-                            ViewHelper.getToolTip(containerLongFormPreview
+                            ViewHelper.getToolTip(btnLongWritingPreview
                                     , "Tap to preview your writing with background music"
                                     , mContext);
                         }
@@ -635,7 +652,7 @@ public class PreviewActivity extends BaseActivity implements QueryTokenReceiver,
     /**
      * Click functionality to show preview in fullscreen.
      */
-    @OnClick(R.id.imagePreview)
+    @OnClick(R.id.img_preview)
     void imageOnClick() {
         IntentHelper.openContentPreviewActivity(mContext
                 , mImagePreviewWidth
@@ -648,7 +665,7 @@ public class PreviewActivity extends BaseActivity implements QueryTokenReceiver,
     /**
      * Click functionality to show info dialog for label.
      */
-    @OnClick(R.id.textLabelHelp)
+    @OnClick(R.id.text_label_help)
     void labelHelpOnClick() {
         //Show dialog
         CustomDialog.getGenericDialog(mContext
@@ -661,7 +678,7 @@ public class PreviewActivity extends BaseActivity implements QueryTokenReceiver,
     /**
      * Click functionality to toggle live filter bottom sheet.
      */
-    @OnClick({R.id.container_live_filter, R.id.image_live_filter, R.id.button_close})
+    @OnClick({R.id.btn_live_filter, R.id.image_live_filter, R.id.button_close})
     void toggleLiveFilterOnClick() {
         //Method called
         toggleLiveFilterBottomSheet();
@@ -699,7 +716,7 @@ public class PreviewActivity extends BaseActivity implements QueryTokenReceiver,
             //Load labels data
             loadLabelsData(null, Constant.LABEL_TYPE_GRAPHIC);
             //Load capture pic
-            loadPreviewImage(getImageUri(IMAGE_TYPE_USER_CAPTURE_PIC), imagePreview);
+            loadPreviewImage(getImageUri(IMAGE_TYPE_USER_CAPTURE_PIC), imgPreview);
             //initialize filter screen
             initFilterView();
             checkWatermarkStatus(mHelper);
@@ -711,12 +728,12 @@ public class PreviewActivity extends BaseActivity implements QueryTokenReceiver,
             mImageUrl = Uri.parse(mBundle.getString(PREVIEW_EXTRA_CONTENT_IMAGE)).toString();
             AspectRatioUtils.setImageAspectRatio(mBundle.getInt(EXTRA_IMAGE_WIDTH)
                     , mBundle.getInt(EXTRA_IMAGE_HEIGHT)
-                    , imagePreview
+                    , imgPreview
                     , true);
             //Load label data
             loadLabelsData(mBundle.getString(PREVIEW_EXTRA_ENTITY_ID), Constant.LABEL_TYPE_GRAPHIC);
             //Load capture pic
-            loadPreviewImage(Uri.parse(mBundle.getString(PREVIEW_EXTRA_CONTENT_IMAGE)), imagePreview);
+            loadPreviewImage(Uri.parse(mBundle.getString(PREVIEW_EXTRA_CONTENT_IMAGE)), imgPreview);
             //Hide bottom sheets
             filterSheetBehavior = BottomSheetBehavior.from(filterBottomSheetView);
             filterSheetBehavior.setPeekHeight(0);
@@ -732,7 +749,7 @@ public class PreviewActivity extends BaseActivity implements QueryTokenReceiver,
             //Load label data
             loadLabelsData(mBundle.getString(PREVIEW_EXTRA_ENTITY_ID), Constant.LABEL_TYPE_WRITING);
             //Load short pic
-            loadPreviewImage(getImageUri(IMAGE_TYPE_USER_SHORT_PIC), imagePreview);
+            loadPreviewImage(getImageUri(IMAGE_TYPE_USER_SHORT_PIC), imgPreview);
             //Set caption text
             etCaption.setText(mBundle.getString(PREVIEW_EXTRA_CAPTION_TEXT));
             setProfileMentionsForEditing(mContext, mBundle.getString(PREVIEW_EXTRA_CAPTION_TEXT), etCaption);
@@ -746,19 +763,19 @@ public class PreviewActivity extends BaseActivity implements QueryTokenReceiver,
             //Load label data
             loadLabelsData(null, Constant.LABEL_TYPE_ALL);
             //Load short pic
-            loadPreviewImage(getImageUri(IMAGE_TYPE_USER_SHORT_PIC), imagePreview);
+            loadPreviewImage(getImageUri(IMAGE_TYPE_USER_SHORT_PIC), imgPreview);
             //set bg sound for long form
             mBgSound = mBundle.getString(PREVIEW_EXTRA_BG_SOUND);
         } else if (mCalledFrom.equals(PREVIEW_EXTRA_CALLED_FROM_MEME_FRAGMENT)) {
             //Apply aspect ration to imageView
             applyAspectRatio(IMAGE_TYPE_USER_MEME);
             //Load capture pic
-            loadPreviewImage(getImageUri(IMAGE_TYPE_USER_MEME), imagePreview);
+            loadPreviewImage(getImageUri(IMAGE_TYPE_USER_MEME), imgPreview);
             //Hide bottom sheets
             filterSheetBehavior = BottomSheetBehavior.from(filterBottomSheetView);
             filterSheetBehavior.setPeekHeight(0);
             //Hide live filter container
-            containerLiveFilter.setVisibility(View.GONE);
+            btnLiveFilter.setVisibility(View.GONE);
         } else {
             //initialize filter screen
             initFilterView();
@@ -774,7 +791,7 @@ public class PreviewActivity extends BaseActivity implements QueryTokenReceiver,
             }
 
             //Load short pic
-            loadPreviewImage(getImageUri(IMAGE_TYPE_USER_SHORT_PIC), imagePreview);
+            loadPreviewImage(getImageUri(IMAGE_TYPE_USER_SHORT_PIC), imgPreview);
             //set bg sound for long form
             mBgSound = mBundle.getString(PREVIEW_EXTRA_BG_SOUND);
         }
@@ -949,17 +966,16 @@ public class PreviewActivity extends BaseActivity implements QueryTokenReceiver,
         }
         // capture
         else if (mCalledFrom.equals(PREVIEW_EXTRA_CALLED_FROM_CAPTURE)) {
-            uploadCapture(new File(getImageUri(IMAGE_TYPE_USER_CAPTURE_PIC).getPath())
+            /*uploadCapture(new File(getImageUri(IMAGE_TYPE_USER_CAPTURE_PIC).getPath())
                     , mCapInMentionFormat
                     , mHelper.getUUID()
                     , mHelper.getAuthToken()
                     , mWaterMarkText
-                    , mBundle.getString(PREVIEW_EXTRA_MERCHANTABLE));
-/*
+                    , mBundle.getString(PREVIEW_EXTRA_MERCHANTABLE));*/
             uploadMeme(new File(ImageHelper.getImageUri(IMAGE_TYPE_USER_MEME).getPath())
                     , mCapInMentionFormat
                     , mHelper.getUUID()
-                    , mHelper.getAuthToken());*/
+                    , mHelper.getAuthToken());
         }
         // edit short
         else if (mCalledFrom.equals(PREVIEW_EXTRA_CALLED_FROM_EDIT_SHORT)) {
@@ -1406,7 +1422,7 @@ public class PreviewActivity extends BaseActivity implements QueryTokenReceiver,
             CaptureHelper.generateSignatureOnCapture(mWaterMarkText
                     , textWaterMark.getWidth()
                     , textWaterMark.getHeight()
-                    , imagePreview.getWidth());
+                    , imgPreview.getWidth());
         }
 
         //Configure OkHttpClient for time out
@@ -1672,7 +1688,7 @@ public class PreviewActivity extends BaseActivity implements QueryTokenReceiver,
             @Override
             public void onFilterSelected(Bitmap bitmap, String filterNAme) {
                 //Set bitmap
-                imagePreview.setImageBitmap(bitmap);
+                imgPreview.setImageBitmap(bitmap);
                 //Update flag
                 mFilterName = filterNAme;
             }
@@ -2105,14 +2121,14 @@ public class PreviewActivity extends BaseActivity implements QueryTokenReceiver,
         // if short is long show preview option
         if (!TextUtils.isEmpty(mBundle.getString(PREVIEW_EXTRA_LONG_TEXT))
                 && !mBundle.getString(PREVIEW_EXTRA_LONG_TEXT).equals("null")) {
-            containerLongFormPreview.setVisibility(View.VISIBLE);
+            btnLongWritingPreview.setVisibility(View.VISIBLE);
 
             // show sound view only in the case of short and edit short
             if (mCalledFrom.equals(PREVIEW_EXTRA_CALLED_FROM_EDIT_SHORT)
                     || mCalledFrom.equals(PREVIEW_EXTRA_CALLED_FROM_SHORT)) {
-                containerLongFormSound.setVisibility(View.VISIBLE);
+                btnLongWritingSound.setVisibility(View.VISIBLE);
             } else {
-                containerLongFormSound.setVisibility(View.GONE);
+                btnLongWritingSound.setVisibility(View.GONE);
             }
 
             //show preview tooltip
@@ -2122,7 +2138,7 @@ public class PreviewActivity extends BaseActivity implements QueryTokenReceiver,
                     @Override
                     public void run() {
                         //Show tooltip on preview icon
-                        ViewHelper.getToolTip(containerLongFormPreview
+                        ViewHelper.getToolTip(btnLongWritingPreview
                                 , "Tap to see the full writing"
                                 , mContext);
                     }
@@ -2150,7 +2166,7 @@ public class PreviewActivity extends BaseActivity implements QueryTokenReceiver,
                                 .subHeadingTvSize(16)
                                 .subHeadingTvText("Select a melodious background music that goes with your writing. It will play while others read your work.")
                                 .maskColor(Color.parseColor("#dc000000"))
-                                .target(containerLongFormSound)
+                                .target(btnLongWritingSound)
                                 .usageId("LONG_FORM_SOUND")
                                 .lineAnimDuration(400)
                                 .lineAndArcColor(Color.parseColor("#eb273f"))
@@ -2275,7 +2291,7 @@ public class PreviewActivity extends BaseActivity implements QueryTokenReceiver,
         mImageUrl = getImageUri(imageUrl).toString();
         AspectRatioUtils.setImageAspectRatio(mImagePreviewWidth
                 , mImagePreviewHeight
-                , imagePreview
+                , imgPreview
                 , true);
     }
 
@@ -2330,38 +2346,38 @@ public class PreviewActivity extends BaseActivity implements QueryTokenReceiver,
                 switch (liveFilterName) {
                     case Constant.LIVE_FILTER_SNOW:
                         //Toggle visibility
-                        liveFilterBubble.setVisibility(View.INVISIBLE);
+                        bubbleView.setVisibility(View.INVISIBLE);
                         konfettiView.setVisibility(View.GONE);
 
-                        whetherView.setWeatherData(PrecipType.SNOW);
-                        whetherView.setVisibility(View.VISIBLE);
+                        weatherView.setWeatherData(PrecipType.SNOW);
+                        weatherView.setVisibility(View.VISIBLE);
                         //update flag
                         mSelectedLiveFilter = Constant.LIVE_FILTER_SNOW;
                         break;
                     case Constant.LIVE_FILTER_RAIN:
                         //Toggle visibility
-                        liveFilterBubble.setVisibility(View.INVISIBLE);
+                        bubbleView.setVisibility(View.INVISIBLE);
                         konfettiView.setVisibility(View.GONE);
 
-                        whetherView.setWeatherData(PrecipType.RAIN);
-                        whetherView.setVisibility(View.VISIBLE);
+                        weatherView.setWeatherData(PrecipType.RAIN);
+                        weatherView.setVisibility(View.VISIBLE);
                         //update flag
                         mSelectedLiveFilter = Constant.LIVE_FILTER_RAIN;
                         break;
                     case Constant.LIVE_FILTER_BUBBLE:
                         //Toggle visibility
                         konfettiView.setVisibility(View.GONE);
-                        whetherView.setVisibility(View.GONE);
+                        weatherView.setVisibility(View.GONE);
 
-                        liveFilterBubble.setVisibility(View.VISIBLE);
+                        bubbleView.setVisibility(View.VISIBLE);
                         //update flag
                         mSelectedLiveFilter = Constant.LIVE_FILTER_BUBBLE;
                         break;
 
                     case Constant.LIVE_FILTER_CONFETTI:
                         //Toggle visibility
-                        whetherView.setVisibility(View.GONE);
-                        liveFilterBubble.setVisibility(View.INVISIBLE);
+                        weatherView.setVisibility(View.GONE);
+                        bubbleView.setVisibility(View.INVISIBLE);
 
                         //Show Confetti
                         konfettiView.setVisibility(View.VISIBLE);
@@ -2372,8 +2388,8 @@ public class PreviewActivity extends BaseActivity implements QueryTokenReceiver,
                         break;
                     case Constant.LIVE_FILTER_NONE:
                         //Toggle visibility
-                        whetherView.setVisibility(View.GONE);
-                        liveFilterBubble.setVisibility(View.INVISIBLE);
+                        weatherView.setVisibility(View.GONE);
+                        bubbleView.setVisibility(View.INVISIBLE);
                         konfettiView.setVisibility(View.GONE);
 
                         //update flag
@@ -2463,7 +2479,7 @@ public class PreviewActivity extends BaseActivity implements QueryTokenReceiver,
             new Handler().postDelayed(new Runnable() {
                 @Override
                 public void run() {
-                    ViewHelper.getToolTip(containerLiveFilter
+                    ViewHelper.getToolTip(btnLiveFilter
                             , "New! Apply live filters to give your post a cool animation!"
                             , mContext);
                 }
@@ -2478,9 +2494,9 @@ public class PreviewActivity extends BaseActivity implements QueryTokenReceiver,
         mSelectedLiveFilter = mBundle.getString(Constant.PREVIEW_EXTRA_LIVE_FILTER);
         //Method called
         LiveFilterHelper.initLiveFilters(mSelectedLiveFilter
-                , whetherView
+                , weatherView
                 , konfettiView
-                , liveFilterBubble
+                , bubbleView
                 , mContext);
     }
     //endregion

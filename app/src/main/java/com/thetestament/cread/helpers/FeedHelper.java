@@ -82,6 +82,229 @@ public class FeedHelper {
         this.onCollaborationListener = onCollaborationListener;
     }
 
+
+    /**
+     * Method to perform required operation depending upon the type of content.
+     *
+     * @param context                Context to use. Usually activity.
+     * @param feedData               FeedModel data of item.
+     * @param textCollabCount        Collaboration count textView.
+     * @param containerCollabCount   Collaboration count view container.
+     * @param buttonCollaborate      Collaborate button.
+     * @param textCreatorName        Name of the post creator.
+     * @param showCountAsText
+     * @param shouldToggleVisibility
+     * @param view
+     */
+    public static void performContentTypeSpecificOperations(final FragmentActivity context, final FeedModel feedData, TextView textCollabCount, View containerCollabCount
+            , TextView buttonCollaborate, TextView textCreatorName, boolean showCountAsText, boolean shouldToggleVisibility, @Nullable View view) {
+        //Check if creator is collaborator
+        boolean isCreatorCollaborator = feedData.getUUID().equals(feedData.getCollabWithUUID());
+
+        //Obtain creator name here
+        String text = getPostCreatorName(context, feedData.getContentType()
+                , feedData.isAvailableForCollab(), feedData.getCreatorName()
+                , feedData.getCollabWithName(), isCreatorCollaborator);
+
+        // set collaboration count text
+
+        if (feedData.getCollabCount() != 0) {
+
+            if (showCountAsText) {
+                // showing count as text
+                textCollabCount.setText(getCollabCountText(context, feedData.getCollabCount(), feedData.getContentType(), feedData.isAvailableForCollab()));
+            } else {   // showing count as number
+                textCollabCount.setText(String.valueOf(feedData.getCollabCount()));
+            }
+
+            // check if some view's visibility has to be toggled
+            // true for me and main feed
+            // the view concerned is the line separator
+            if (shouldToggleVisibility) {
+                view.setVisibility(View.VISIBLE);
+            }
+
+            containerCollabCount.setVisibility(View.VISIBLE);
+        } else {
+            containerCollabCount.setVisibility(View.GONE);
+
+            // check if some view's visibility has to be toggled
+            // true for me and main feed
+            // the view concerned is the line separator
+            if (shouldToggleVisibility) {
+                view.setVisibility(View.GONE);
+            }
+        }
+
+        //Check for content type
+        switch (feedData.getContentType()) {
+            case CONTENT_TYPE_CAPTURE:
+
+                if (feedData.isAvailableForCollab()) {
+                    // for stand alone capture
+                    buttonCollaborate.setVisibility(View.VISIBLE);
+                    //write click functionality on capture
+                    // writeOnClick(buttonCollaborate, feedData.getCaptureID(), feedData.getContentImage(), feedData.isMerchantable());
+                    buttonCollaborate.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View view) {
+                            // onCollaborationListener.collaborationOnGraphic();
+
+                            if (new SharedPreferenceHelper(context).isCaptureIconTooltipFirstTime()) {
+
+                                getShortOnClickDialog(context, feedData.getCaptureID()
+                                        , feedData.getContentImage(), feedData.isMerchantable()
+                                        , feedData.getImgWidth(), feedData.getImgHeight());
+                            } else {
+                                Bundle bundle = new Bundle();
+                                bundle.putString(EXTRA_CAPTURE_ID, feedData.getCaptureID());
+                                bundle.putString(EXTRA_CAPTURE_URL, feedData.getContentImage());
+                                bundle.putBoolean(EXTRA_MERCHANTABLE, feedData.isMerchantable());
+                                bundle.putInt(EXTRA_IMAGE_WIDTH, feedData.getImgWidth());
+                                bundle.putInt(EXTRA_IMAGE_HEIGHT, feedData.getImgHeight());
+                                bundle.putString(SHORT_EXTRA_CALLED_FROM, SHORT_EXTRA_CALLED_FROM_COLLABORATION_SHORT);
+                                Intent intent = new Intent(context, ShortActivity.class);
+                                intent.putExtra(EXTRA_DATA, bundle);
+                                context.startActivity(intent);
+                            }
+                            //Log Firebase event
+                            // setAnalytics(FIREBASE_EVENT_WRITE_CLICKED);
+                        }
+                    });
+                    // get text indexes
+                    int creatorStartPos = text.indexOf(feedData.getCreatorName());
+                    int creatorEndPos = creatorStartPos + feedData.getCreatorName().length();
+                    int collabWithStartPos = -1;
+                    int collabWithEndPos = -1;
+
+                    // get clickable text;
+                    initializeSpannableString(context, textCreatorName, false, text, creatorStartPos, creatorEndPos, collabWithStartPos, collabWithEndPos, feedData.getUUID(), feedData.getCollabWithUUID(), isCreatorCollaborator);
+                } else {
+
+                    // showing collaborate button
+                    buttonCollaborate.setVisibility(View.VISIBLE);
+
+                    collabOnCollab(buttonCollaborate, context, feedData.getEntityID(), feedData.isMerchantable(), feedData.getContentType(), feedData.getCollaboWithEntityID());
+
+                    // get text indexes
+                    int creatorStartPos = text.indexOf(feedData.getCreatorName());
+                    int creatorEndPos = creatorStartPos + feedData.getCreatorName().length();
+                    int collabWithStartPos = text.indexOf(feedData.getCollabWithName());
+                    int collabWithEndPos = collabWithStartPos + feedData.getCollabWithName().length() + 2; // +2 for 's
+
+                    // get clickable text
+                    initializeSpannableString(context, textCreatorName, true, text, creatorStartPos, creatorEndPos, collabWithStartPos, collabWithEndPos, feedData.getUUID(), feedData.getCollabWithUUID(), isCreatorCollaborator);
+                }
+
+                break;
+
+            case CONTENT_TYPE_SHORT:
+
+                // check if available for collaboration
+                if (feedData.isAvailableForCollab()) {
+
+                    // for stand alone short
+
+                    buttonCollaborate.setVisibility(View.VISIBLE);
+                    // set text
+                    //buttonCollaborate.setText("Capture");
+
+                    // capture click functionality on short
+                    //captureOnClick(buttonCollaborate);
+                    buttonCollaborate.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View view) {
+
+                            if (new SharedPreferenceHelper(context).isWriteIconTooltipFirstTime()) {
+                                // open dialog
+                                getCaptureOnClickDialog(context, feedData.getEntityID(), feedData.getContentType());
+                            } else {
+                                onCollaborationListener.collaborationOnWriting(feedData.getEntityID(), feedData.getContentType());
+                            }
+                            //Log Firebase event
+                            // setAnalytics(FIREBASE_EVENT_CAPTURE_CLICKED);
+
+                        }
+                    });
+
+                    //String text = mFeedData.getCreatorName() + " wrote a short ";
+
+                    // get text indexes
+                    int creatorStartPos = text.indexOf(feedData.getCreatorName());
+                    int creatorEndPos = creatorStartPos + feedData.getCreatorName().length();
+                    int collabWithStartPos = -1; // since no collabwith
+                    int collabWithEndPos = -1; // since no collabwith
+
+                    initializeSpannableString(context, textCreatorName, false, text, creatorStartPos, creatorEndPos, collabWithStartPos, collabWithEndPos, feedData.getUUID(), feedData.getCollabWithUUID(), isCreatorCollaborator);
+
+
+                } else {
+                    // showing collaborate button
+                    buttonCollaborate.setVisibility(View.VISIBLE);
+
+
+                    collabOnCollab(buttonCollaborate, context, feedData.getEntityID(), feedData.isMerchantable(), feedData.getContentType(), feedData.getCollaboWithEntityID());
+
+                    //String text = mFeedData.getCreatorName() + " wrote a short on " + mFeedData.getCollabWithName() + "'s capture";
+
+                    // get text indexes
+                    int creatorStartPos = text.indexOf(feedData.getCreatorName());
+                    int creatorEndPos = creatorStartPos + feedData.getCreatorName().length();
+                    int collabWithStartPos = text.indexOf(feedData.getCollabWithName());
+                    int collabWithEndPos = collabWithStartPos + feedData.getCollabWithName().length() + 2; // +2 to incorporate 's
+
+                    // get clickable text
+                    initializeSpannableString(context, textCreatorName, true, text, creatorStartPos, creatorEndPos, collabWithStartPos, collabWithEndPos, feedData.getUUID(), feedData.getCollabWithUUID(), isCreatorCollaborator);
+
+                }
+
+                break;
+            default:
+        }
+
+    }
+
+    /**
+     * Method to set the creator name depending on content type and collaboration status.
+     *
+     * @param context               Context to use.
+     * @param contentType           {@link com.thetestament.cread.utils.Constant#CONTENT_TYPE_CAPTURE}
+     *                              {@link com.thetestament.cread.utils.Constant#CONTENT_TYPE_SHORT}
+     * @param isAvailableForCollab  True if content is solo false otherwise.
+     * @param creatorName           Creator name.
+     * @param collaboratorName      Collaborator name.
+     * @param isCreatorCollaborator True if collaboration is done by creator false otherwise.
+     * @return
+     */
+    public static String getPostCreatorName(FragmentActivity context, String contentType, boolean isAvailableForCollab
+            , String creatorName, String collaboratorName, boolean isCreatorCollaborator) {
+        switch (contentType) {
+            case CONTENT_TYPE_CAPTURE:
+                //Creator is collaborator
+                if (isCreatorCollaborator) {
+                    return creatorName + " " + context.getString(R.string.creator_text_collab_capture_self);
+                } else {
+                    return isAvailableForCollab ? creatorName + " " + context.getString(R.string.creator_text_standalone_capture)
+                            : (creatorName + " " + context.getString(R.string.creator_text_collab_capture_part1) + " "
+                            + collaboratorName + "'s " + context.getString(R.string.creator_text_collab_capture_part2));
+                }
+
+            case CONTENT_TYPE_SHORT:
+                //Creator is collaborator
+                if (isCreatorCollaborator) {
+                    return creatorName + " " + context.getString(R.string.creator_text_collab_short_self);
+                } else {
+                    return isAvailableForCollab ? creatorName + " " + context.getString(R.string.creator_text_standalone_short)
+                            : (creatorName + " " + context.getString(R.string.creator_text_collab_short_part1) + " "
+                            + collaboratorName + "'s " + context.getString(R.string.creator_text_collab_short_part2));
+                }
+            default:
+                return null;
+        }
+
+    }
+
+
     /**
      * Method to create text with 2 clicks for opening user profiles
      *
@@ -137,49 +360,6 @@ public class FeedHelper {
         textView.setHighlightColor(Color.TRANSPARENT);
     }
 
-    /**
-     * Method to set the creator text name depending on content type and collaboration status
-     *
-     * @param context
-     * @param contentType
-     * @param isAvailableforCollab
-     * @param creatorName
-     * @param collaboratorName
-     * @return
-     */
-    public static String getCreatorText(FragmentActivity context, String contentType, boolean isAvailableforCollab, String creatorName, String collaboratorName, boolean isCreatorCollaborator) {
-        String text = null;
-
-        switch (contentType) {
-            case CONTENT_TYPE_CAPTURE:
-
-                if (isCreatorCollaborator) {
-                    text = creatorName + " " + context.getString(R.string.creator_text_collab_capture_self);
-                } else {
-                    text = isAvailableforCollab ? creatorName + " " + context.getString(R.string.creator_text_standalone_capture)
-                            : (creatorName + " " + context.getString(R.string.creator_text_collab_capture_part1) + " "
-                            + collaboratorName + "'s " + context.getString(R.string.creator_text_collab_capture_part2));
-                }
-
-                break;
-
-            case CONTENT_TYPE_SHORT:
-
-                if (isCreatorCollaborator) {
-                    text = creatorName + " " + context.getString(R.string.creator_text_collab_short_self);
-                } else {
-
-                    text = isAvailableforCollab ? creatorName + " " + context.getString(R.string.creator_text_standalone_short)
-                            : (creatorName + " " + context.getString(R.string.creator_text_collab_short_part1) + " "
-                            + collaboratorName + "'s " + context.getString(R.string.creator_text_collab_short_part2));
-
-                }
-
-                break;
-        }
-
-        return text;
-    }
 
     /**
      * Method to get the collaboration count text according to type and count
@@ -477,190 +657,6 @@ public class FeedHelper {
 
             }
         });
-    }
-
-
-    /**
-     * Method to perform required operation depending upon the type of content.
-     *
-     * @param context                Context to use. Usually activity.
-     * @param feedData               FeedModel data of item.
-     * @param textCollabCount        Collaboration count textView.
-     * @param containerCollabCount   Collaboration count view container.
-     * @param buttonCollaborate      Collaborate button.
-     * @param textCreatorName        Name of the post creator.
-     * @param showCountAsText
-     * @param shouldToggleVisibility
-     * @param view
-     */
-    public static void performContentTypeSpecificOperations(final FragmentActivity context, final FeedModel feedData, TextView textCollabCount, View containerCollabCount, TextView buttonCollaborate, TextView textCreatorName, boolean showCountAsText, boolean shouldToggleVisibility, @Nullable View view) {
-        //Check if creator is collaborator
-        boolean isCreatorCollaborator = feedData.getUUID().equals(feedData.getCollabWithUUID());
-
-        // initialize text
-        String text = getCreatorText(context
-                , feedData.getContentType()
-                , feedData.isAvailableForCollab()
-                , feedData.getCreatorName()
-                , feedData.getCollabWithName()
-                , isCreatorCollaborator);
-
-        // set collaboration count text
-
-        if (feedData.getCollabCount() != 0) {
-
-            if (showCountAsText) {
-                // showing count as text
-                textCollabCount.setText(getCollabCountText(context, feedData.getCollabCount(), feedData.getContentType(), feedData.isAvailableForCollab()));
-            } else {   // showing count as number
-                textCollabCount.setText(String.valueOf(feedData.getCollabCount()));
-            }
-
-            // check if some view's visibility has to be toggled
-            // true for me and main feed
-            // the view concerned is the line separator
-            if (shouldToggleVisibility) {
-                view.setVisibility(View.VISIBLE);
-            }
-
-            containerCollabCount.setVisibility(View.VISIBLE);
-        } else {
-            containerCollabCount.setVisibility(View.GONE);
-
-            // check if some view's visibility has to be toggled
-            // true for me and main feed
-            // the view concerned is the line separator
-            if (shouldToggleVisibility) {
-                view.setVisibility(View.GONE);
-            }
-        }
-
-        //Check for content type
-        switch (feedData.getContentType()) {
-            case CONTENT_TYPE_CAPTURE:
-
-                if (feedData.isAvailableForCollab()) {
-                    // for stand alone capture
-                    buttonCollaborate.setVisibility(View.VISIBLE);
-                    //write click functionality on capture
-                    // writeOnClick(buttonCollaborate, feedData.getCaptureID(), feedData.getContentImage(), feedData.isMerchantable());
-                    buttonCollaborate.setOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View view) {
-                            // onCollaborationListener.collaborationOnGraphic();
-
-                            if (new SharedPreferenceHelper(context).isCaptureIconTooltipFirstTime()) {
-
-                                getShortOnClickDialog(context, feedData.getCaptureID()
-                                        , feedData.getContentImage(), feedData.isMerchantable()
-                                        , feedData.getImgWidth(), feedData.getImgHeight());
-                            } else {
-                                Bundle bundle = new Bundle();
-                                bundle.putString(EXTRA_CAPTURE_ID, feedData.getCaptureID());
-                                bundle.putString(EXTRA_CAPTURE_URL, feedData.getContentImage());
-                                bundle.putBoolean(EXTRA_MERCHANTABLE, feedData.isMerchantable());
-                                bundle.putInt(EXTRA_IMAGE_WIDTH, feedData.getImgWidth());
-                                bundle.putInt(EXTRA_IMAGE_HEIGHT, feedData.getImgHeight());
-                                bundle.putString(SHORT_EXTRA_CALLED_FROM, SHORT_EXTRA_CALLED_FROM_COLLABORATION_SHORT);
-                                Intent intent = new Intent(context, ShortActivity.class);
-                                intent.putExtra(EXTRA_DATA, bundle);
-                                context.startActivity(intent);
-                            }
-                            //Log Firebase event
-                            // setAnalytics(FIREBASE_EVENT_WRITE_CLICKED);
-                        }
-                    });
-                    // get text indexes
-                    int creatorStartPos = text.indexOf(feedData.getCreatorName());
-                    int creatorEndPos = creatorStartPos + feedData.getCreatorName().length();
-                    int collabWithStartPos = -1;
-                    int collabWithEndPos = -1;
-
-                    // get clickable text;
-                    initializeSpannableString(context, textCreatorName, false, text, creatorStartPos, creatorEndPos, collabWithStartPos, collabWithEndPos, feedData.getUUID(), feedData.getCollabWithUUID(), isCreatorCollaborator);
-                } else {
-
-                    // showing collaborate button
-                    buttonCollaborate.setVisibility(View.VISIBLE);
-
-                    collabOnCollab(buttonCollaborate, context, feedData.getEntityID(), feedData.isMerchantable(), feedData.getContentType(), feedData.getCollaboWithEntityID());
-
-                    // get text indexes
-                    int creatorStartPos = text.indexOf(feedData.getCreatorName());
-                    int creatorEndPos = creatorStartPos + feedData.getCreatorName().length();
-                    int collabWithStartPos = text.indexOf(feedData.getCollabWithName());
-                    int collabWithEndPos = collabWithStartPos + feedData.getCollabWithName().length() + 2; // +2 for 's
-
-                    // get clickable text
-                    initializeSpannableString(context, textCreatorName, true, text, creatorStartPos, creatorEndPos, collabWithStartPos, collabWithEndPos, feedData.getUUID(), feedData.getCollabWithUUID(), isCreatorCollaborator);
-                }
-
-                break;
-
-            case CONTENT_TYPE_SHORT:
-
-                // check if available for collaboration
-                if (feedData.isAvailableForCollab()) {
-
-                    // for stand alone short
-
-                    buttonCollaborate.setVisibility(View.VISIBLE);
-                    // set text
-                    //buttonCollaborate.setText("Capture");
-
-                    // capture click functionality on short
-                    //captureOnClick(buttonCollaborate);
-                    buttonCollaborate.setOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View view) {
-
-                            if (new SharedPreferenceHelper(context).isWriteIconTooltipFirstTime()) {
-                                // open dialog
-                                getCaptureOnClickDialog(context, feedData.getEntityID(), feedData.getContentType());
-                            } else {
-                                onCollaborationListener.collaborationOnWriting(feedData.getEntityID(), feedData.getContentType());
-                            }
-                            //Log Firebase event
-                            // setAnalytics(FIREBASE_EVENT_CAPTURE_CLICKED);
-
-                        }
-                    });
-
-                    //String text = mFeedData.getCreatorName() + " wrote a short ";
-
-                    // get text indexes
-                    int creatorStartPos = text.indexOf(feedData.getCreatorName());
-                    int creatorEndPos = creatorStartPos + feedData.getCreatorName().length();
-                    int collabWithStartPos = -1; // since no collabwith
-                    int collabWithEndPos = -1; // since no collabwith
-
-                    initializeSpannableString(context, textCreatorName, false, text, creatorStartPos, creatorEndPos, collabWithStartPos, collabWithEndPos, feedData.getUUID(), feedData.getCollabWithUUID(), isCreatorCollaborator);
-
-
-                } else {
-                    // showing collaborate button
-                    buttonCollaborate.setVisibility(View.VISIBLE);
-
-
-                    collabOnCollab(buttonCollaborate, context, feedData.getEntityID(), feedData.isMerchantable(), feedData.getContentType(), feedData.getCollaboWithEntityID());
-
-                    //String text = mFeedData.getCreatorName() + " wrote a short on " + mFeedData.getCollabWithName() + "'s capture";
-
-                    // get text indexes
-                    int creatorStartPos = text.indexOf(feedData.getCreatorName());
-                    int creatorEndPos = creatorStartPos + feedData.getCreatorName().length();
-                    int collabWithStartPos = text.indexOf(feedData.getCollabWithName());
-                    int collabWithEndPos = collabWithStartPos + feedData.getCollabWithName().length() + 2; // +2 to incorporate 's
-
-                    // get clickable text
-                    initializeSpannableString(context, textCreatorName, true, text, creatorStartPos, creatorEndPos, collabWithStartPos, collabWithEndPos, feedData.getUUID(), feedData.getCollabWithUUID(), isCreatorCollaborator);
-
-                }
-
-                break;
-            default:
-        }
-
     }
 
 
