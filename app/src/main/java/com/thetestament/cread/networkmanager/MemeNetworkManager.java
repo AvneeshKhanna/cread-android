@@ -8,14 +8,11 @@ import com.thetestament.cread.BuildConfig;
 import com.thetestament.cread.R;
 import com.thetestament.cread.helpers.NetworkHelper;
 import com.thetestament.cread.helpers.SharedPreferenceHelper;
-import com.thetestament.cread.models.MemeImageModel;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import io.reactivex.Observable;
@@ -59,11 +56,9 @@ public class MemeNetworkManager {
             , final OnMemeImageLoadListener loadListener) {
         //Obtain SharedPreferenceHelper reference
         SharedPreferenceHelper spHelper = new SharedPreferenceHelper(context);
-        //Labels data list
-        final List<MemeImageModel> dataLIst = new ArrayList<>();
-        //fixme update url , keys  extra
+
         if (NetworkHelper.getNetConnectionStatus(context)) {
-            compositeDisposable.add(getMemeImageObservable(BuildConfig.URL + "/meme/load"
+            compositeDisposable.add(getMemeImageObservable(BuildConfig.URL + "/meme-manager/load-photos-for-meme"
                     , spHelper.getUUID()
                     , spHelper.getAuthToken()
                     , lastIndexKey
@@ -75,7 +70,6 @@ public class MemeNetworkManager {
                     .subscribeWith(new DisposableObserver<JSONObject>() {
                         @Override
                         public void onNext(JSONObject jsonObject) {
-
                             try {
                                 //Token status is invalid
                                 if (jsonObject.getString("tokenstatus").equals("invalid")) {

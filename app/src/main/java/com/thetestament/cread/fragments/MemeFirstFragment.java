@@ -2,6 +2,7 @@ package com.thetestament.cread.fragments;
 
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
@@ -15,19 +16,26 @@ import android.support.v4.widget.NestedScrollView;
 import android.support.v7.widget.AppCompatTextView;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.text.InputType;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.RelativeLayout;
 
+import com.afollestad.materialdialogs.MaterialDialog;
+import com.squareup.picasso.MemoryPolicy;
 import com.squareup.picasso.Picasso;
+import com.squareup.picasso.Target;
 import com.thetestament.cread.Manifest;
 import com.thetestament.cread.R;
+import com.thetestament.cread.activities.MemeActivity;
 import com.thetestament.cread.adapters.MemeImageAdapter;
 import com.thetestament.cread.helpers.ImageHelper;
+import com.thetestament.cread.helpers.IntentHelper;
 import com.thetestament.cread.helpers.SharedPreferenceHelper;
 import com.thetestament.cread.helpers.ViewHelper;
 import com.thetestament.cread.listeners.listener;
@@ -59,7 +67,7 @@ import pl.tajchert.nammu.PermissionCallback;
 
 import static android.app.Activity.RESULT_OK;
 import static com.thetestament.cread.helpers.ImageHelper.getImageUri;
-import static com.thetestament.cread.helpers.ImageHelper.startImageCroppingWithSquare;
+import static com.thetestament.cread.utils.Constant.IMAGE_TYPE_USER_MEME_ONE;
 import static com.thetestament.cread.utils.Constant.REQUEST_CODE_OPEN_GALLERY_FOR_MEME;
 
 /**
@@ -89,7 +97,7 @@ public class MemeFirstFragment extends Fragment {
     //region :Fields and constant
     SharedPreferenceHelper mHelper;
     Unbinder mUnbinder;
-    CompositeDisposable mCompositeDisposable;
+    CompositeDisposable mCompositeDisposable = new CompositeDisposable();
     BottomSheetBehavior bottomSheetBehavior;
 
     List<MemeImageModel> mDataList = new ArrayList<>();
@@ -106,6 +114,11 @@ public class MemeFirstFragment extends Fragment {
      */
     @State
     boolean mRequestMoreData;
+
+    /**
+     * To maintain bitmap of meme image selection
+     */
+    Bitmap mBitmap;
     //endregion
 
     //region :Required constructor
@@ -138,6 +151,7 @@ public class MemeFirstFragment extends Fragment {
     public void onDestroyView() {
         super.onDestroyView();
         mUnbinder.unbind();
+        mCompositeDisposable.dispose();
     }
 
     @Override
@@ -160,17 +174,16 @@ public class MemeFirstFragment extends Fragment {
         Nammu.onRequestPermissionsResult(requestCode, permissions, grantResults);
     }
 
-
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         switch (requestCode) {
             case REQUEST_CODE_OPEN_GALLERY_FOR_MEME:
                 if (resultCode == RESULT_OK) {
                     // To crop the selected image
-                    startImageCroppingWithSquare(getActivity()
+                    ImageHelper.startImageCroppingWithSquare(getActivity()
                             , MemeFirstFragment.this
                             , data.getData()
-                            , getImageUri(Constant.IMAGE_TYPE_USER_SHARE_MEME));
+                            , getImageUri(Constant.IMAGE_TYPE_USER_MEME_ONE));
                 } else {
                     ViewHelper.getSnackBar(rootView
                             , getString(R.string.error_img_not_attached));
@@ -179,25 +192,15 @@ public class MemeFirstFragment extends Fragment {
             //For more information please visit "https://github.com/Yalantis/uCrop"
             case UCrop.REQUEST_CROP:
                 if (resultCode == RESULT_OK) {
-                    //Get image width and height
-                    float width = data.getIntExtra(UCrop.EXTRA_OUTPUT_IMAGE_WIDTH, 1800);
-                    float height = data.getIntExtra(UCrop.EXTRA_OUTPUT_IMAGE_HEIGHT, 1800);
-
                     //Get cropped image Uri
                     Uri mCroppedImgUri = UCrop.getOutput(data);
 
+                    imgMeme.setScaleType(ImageView.ScaleType.CENTER_CROP);
                     Picasso.with(getActivity())
                             .load(mCroppedImgUri)
+                            .error(R.drawable.image_placeholder)
+                            .memoryPolicy(MemoryPolicy.NO_CACHE)
                             .into(imgMeme);
-
-                    /*//Check for image manipulation
-                    if (AspectRatioUtils.getSquareImageManipulation(width, height)) {
-                        //Create square image with blurred background
-                        performSquareImageManipulation(mCroppedImgUri);
-                    } else {
-                        //Method called
-                        processCroppedImage(mCroppedImgUri);
-                    }*/
                 } else if (resultCode == UCrop.RESULT_ERROR) {
                     ViewHelper.getSnackBar(rootView, getString(R.string.error_img_not_cropped));
                 }
@@ -209,8 +212,6 @@ public class MemeFirstFragment extends Fragment {
 
     @Override
     public void onPrepareOptionsMenu(Menu menu) {
-        //Update menu icon
-        menu.findItem(R.id.action_meme_layout).setIcon(R.drawable.ic_meme_layout_1);
         super.onPrepareOptionsMenu(menu);
     }
 
@@ -224,13 +225,14 @@ public class MemeFirstFragment extends Fragment {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.action_next:
-                //fixme code for next screen
                 getWritePermissionForMemeGeneration();
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
         }
     }
+
+
     //endregion
 
     //region :Click functionality
@@ -240,7 +242,22 @@ public class MemeFirstFragment extends Fragment {
      */
     @OnClick(R.id.img_meme)
     void imgOnClick() {
-        bottomSheetBehavior.setState(BottomSheetBehavior.STATE_EXPANDED);
+        //Method called
+        toggleBottomSheet();
+    }
+
+    /**
+     * RootView click functionality to hide bottomSheetView.
+     */
+    @OnClick(R.id.root_view)
+    void rootViewOnClick() {
+        //bottomSheet expanded
+        if (bottomSheetBehavior.getState() == BottomSheetBehavior.STATE_EXPANDED) {
+            //Hide bottomSheetView
+            bottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
+            //Show view
+            ((MemeActivity) getActivity()).toggleRecyclerViewVisibility(View.VISIBLE);
+        }
     }
 
     /**
@@ -248,8 +265,24 @@ public class MemeFirstFragment extends Fragment {
      */
     @OnClick(R.id.btn_close)
     void onCloseBtnClick() {
-        //Hide bottom sheet
-        bottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
+        //Method called
+        toggleBottomSheet();
+    }
+
+    /**
+     * Click functionality for top textView.
+     */
+    @OnClick(R.id.tv_top)
+    void onTvTopClick() {
+        showMemeInputDialog(tvTop);
+    }
+
+    /**
+     * Click functionality for bottom textView.
+     */
+    @OnClick(R.id.tv_bottom)
+    void onTvBottomClick() {
+        showMemeInputDialog(tvBottom);
     }
 
     //endregion
@@ -265,7 +298,6 @@ public class MemeFirstFragment extends Fragment {
         //Method called
         initMemeBottomSheetView();
     }
-
 
     /**
      * Initialize Meme bottom sheet view.
@@ -288,10 +320,11 @@ public class MemeFirstFragment extends Fragment {
         mAdapter = new MemeImageAdapter(mDataList, getActivity());
         memeImageRecyclerView.setAdapter(mAdapter);
 
+        //Method called
+        loadMemeImageData(false);
         //Listener
         initMemeLoadMoreListener();
         initMemeClickListener();
-
     }
 
     /**
@@ -312,7 +345,7 @@ public class MemeFirstFragment extends Fragment {
                                        }
                     );
                     //Load new set of data
-                    //fixme load data here
+                    loadMemeImageData(true);
                 }
             }
         });
@@ -326,10 +359,14 @@ public class MemeFirstFragment extends Fragment {
             @Override
             public void onImageSelected(MemeImageModel data, int itemPosition, int viewType) {
                 if (viewType == MemeImageAdapter.VIEW_TYPE_HEADER) {
+                    //Hide bottomSheet
+                    bottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
+                    //Show view
+                    ((MemeActivity) getActivity()).toggleRecyclerViewVisibility(View.VISIBLE);
                     //code to launch gallery
                     getWritePermissionForGallery();
                 } else {
-                    //code to use image library
+                    loadMemeBitmapForCropping(data);
                 }
             }
         });
@@ -448,7 +485,8 @@ public class MemeFirstFragment extends Fragment {
             FileOutputStream out = new FileOutputStream(file);
             bm.compress(Bitmap.CompressFormat.JPEG, 85, out);
             out.close();
-            //fixme code to launch next screen
+            //Code for preview screen
+            IntentHelper.openPreviewActivityFromMeme(getActivity());
         } catch (IOException e) {
             e.printStackTrace();
             ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_internal));
@@ -461,27 +499,52 @@ public class MemeFirstFragment extends Fragment {
 
     /**
      * Method to load meme image data from server
+     *
+     * @param isLoadMore True if user is loading for next set of data false otherwise.
      */
-    private void loadMemeImageData() {
+    private void loadMemeImageData(final boolean isLoadMore) {
         MemeNetworkManager.getMemeImageData(getActivity()
                 , mCompositeDisposable
                 , mLastIndexKey
                 , new MemeNetworkManager.OnMemeImageLoadListener() {
                     @Override
                     public void onSuccess(JSONObject jsonObject) {
-                        //fix here
+                        //called from load more
+                        if (isLoadMore) {
+                            //Remove loading item
+                            mDataList.remove(mDataList.size() - 1);
+                            mAdapter.notifyItemRemoved(mDataList.size());
+                        }
+
                         try {
                             JSONObject mainData = jsonObject.getJSONObject("data");
+                            mRequestMoreData = mainData.getBoolean("requestmore");
+                            mLastIndexKey = mainData.getString("lastindexkey");
                             //List
                             JSONArray jsonArray = mainData.getJSONArray("items");
                             for (int i = 0; i < jsonArray.length(); i++) {
-                                JSONObject dataObj = jsonArray.getJSONObject(i);
                                 MemeImageModel model = new MemeImageModel();
                                 //Set property
-                                model.setEntityID(dataObj.getString("entityid"));
-                                model.setEntityUrl(dataObj.getString("entityurl"));
-                                model.setEntityUrl("item");
+                                model.setImageUrl(jsonArray.getString(i));
+                                model.setType("item");
                                 mDataList.add(model);
+
+                                //Called from load more
+                                if (isLoadMore) {
+                                    //Notify item insertion
+                                    mAdapter.notifyItemInserted(mDataList.size() - 1);
+                                }
+                            }
+
+                            //called from load more
+                            if (isLoadMore) {
+                                //Notify changes
+                                mAdapter.setLoaded();
+                            } else {
+                                //Notify item insertion
+                                //Notify changes
+                                mAdapter.setLoaded();
+                                mAdapter.notifyDataSetChanged();
                             }
                         } catch (JSONException e) {
                             e.printStackTrace();
@@ -493,10 +556,166 @@ public class MemeFirstFragment extends Fragment {
                     public void onFailure(String errorMsg) {
                         //Show snack bar
                         ViewHelper.getSnackBar(rootView, errorMsg);
+                        //called from load more
+                        if (isLoadMore) {
+                            //Remove loading item
+                            mDataList.remove(mDataList.size() - 1);
+                            mAdapter.notifyItemRemoved(mDataList.size());
+                        }
                     }
                 });
     }
 
 
-    //endregion
+    /**
+     * Method to toggle bottomSheet view.
+     */
+    private void toggleBottomSheet() {
+        //If bottomSheet hidden
+        if (bottomSheetBehavior.getState() == BottomSheetBehavior.STATE_COLLAPSED) {
+            //Show bottomSheetView
+            bottomSheetBehavior.setState(BottomSheetBehavior.STATE_EXPANDED);
+            //Hide view
+            ((MemeActivity) getActivity()).toggleRecyclerViewVisibility(View.GONE);
+        }
+        //bottomSheet expanded
+        else if (bottomSheetBehavior.getState() == BottomSheetBehavior.STATE_EXPANDED) {
+            //Hide bottomSheetView
+            bottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
+            //Show view
+            ((MemeActivity) getActivity()).toggleRecyclerViewVisibility(View.VISIBLE);
+        }
+    }
+
+    /**
+     * Method to load bitmap image to be shared
+     */
+    private void loadMemeBitmapForCropping(final MemeImageModel data) {
+        Picasso.with(getActivity()).load(data.getImageUrl()).into(new Target() {
+            @Override
+            public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
+                mBitmap = bitmap;
+                //Method called
+                getWritePermissionForImageSelection();
+            }
+
+            @Override
+            public void onBitmapFailed(Drawable errorDrawable) {
+                ViewHelper.getToast(getActivity(), getActivity().getString(R.string.error_msg_no_image));
+            }
+
+            @Override
+            public void onPrepareLoad(Drawable placeHolderDrawable) {
+            }
+        });
+
+    }
+
+
+    /**
+     * Method to check storage runtime permission for meme image selection.
+     */
+    private void getWritePermissionForImageSelection() {
+        //Check for Write permission
+        if (Nammu.checkPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+            //We have permission do whatever you want to do
+            saveBmpFileToDevice(mBitmap);
+        } else {
+            //We do not own this permission
+            if (Nammu.shouldShowRequestPermissionRationale(MemeFirstFragment.this
+                    , Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+                //User already refused to give us this permission or removed it
+                ViewHelper.getToast(getActivity()
+                        , getString(R.string.error_msg_share_permission_denied));
+            } else {
+                //First time asking for permission
+                Nammu.askForPermission(MemeFirstFragment.this
+                        , Manifest.permission.WRITE_EXTERNAL_STORAGE
+                        , writeForImageSelectionPermission);
+            }
+        }
+    }
+
+
+    /**
+     * Used to handle result of askForPermission for storage.
+     */
+    PermissionCallback writeForImageSelectionPermission = new PermissionCallback() {
+        @Override
+        public void permissionGranted() {
+            //We have permission do whatever you want to do
+            saveBmpFileToDevice(mBitmap);
+        }
+
+        @Override
+        public void permissionRefused() {
+            //Show error message
+            ViewHelper.getToast(getActivity()
+                    , getString(R.string.error_msg_share_permission_denied));
+        }
+    };
+
+
+    /**
+     * Method to save bitmap to device storage.
+     *
+     * @param bitmap Bitmap to be saved.
+     */
+    private void saveBmpFileToDevice(Bitmap bitmap) {
+        try {
+            File file = new File(Environment.getExternalStorageDirectory().getPath() + "/Cread/Meme/meme_pic_one.jpg");
+            file.getParentFile().mkdirs();
+
+            if (!file.exists()) {
+                try {
+                    file.createNewFile();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+
+            FileOutputStream out = new FileOutputStream(file);
+            bitmap.compress(Bitmap.CompressFormat.JPEG, 85, out);
+            out.close();
+            //Code to launch image cropper
+            ImageHelper.startImageCroppingWithSquare(getActivity()
+                    , MemeFirstFragment.this
+                    , ImageHelper.getImageUri(IMAGE_TYPE_USER_MEME_ONE)
+                    , ImageHelper.getImageUri(IMAGE_TYPE_USER_MEME_ONE));
+        } catch (IOException e) {
+            e.printStackTrace();
+            ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_internal));
+        }
+
+    }
+
+
+    /**
+     * Method to show input dialog where user enters text for meme.
+     */
+    private void showMemeInputDialog(final AppCompatTextView textView) {
+        new MaterialDialog.Builder(getActivity())
+                .title("Enter here your text")
+                .autoDismiss(false)
+                /*.inputRange(1, 80, ContextCompat.getColor(getActivity(), R.color.red))*/
+                .inputType(InputType.TYPE_TEXT_FLAG_MULTI_LINE | InputType.TYPE_TEXT_FLAG_CAP_SENTENCES)
+                .input(null, textView.getText(), false, new MaterialDialog.InputCallback() {
+                    @Override
+                    public void onInput(@NonNull MaterialDialog dialog, CharSequence input) {
+                        String s = String.valueOf(input).trim();
+                        if (s.length() < 1) {
+                            ViewHelper.getToast(getActivity(), "This field can't be empty");
+                        } else {
+                            //Set text here
+                            textView.setText(s);
+                            //Dismiss
+                            dialog.dismiss();
+                        }
+                    }
+                })
+                .build()
+                .show();
+    }
+
+//endregion
 }

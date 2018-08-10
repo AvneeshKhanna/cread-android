@@ -90,7 +90,9 @@ public class Constant {
     public static final String IMAGE_TYPE_USER_SHORT_PIC = "userShortPic";
     public static final String IMAGE_TYPE_USER_SHARED_PIC = "sharedPic";
     public static final String IMAGE_TYPE_USER_SHARE_BADGE = "sharedBadge";
-    public static final String IMAGE_TYPE_USER_SHARE_MEME = "memePic";
+    public static final String IMAGE_TYPE_USER_MEME = "memePic";
+    public static final String IMAGE_TYPE_USER_MEME_ONE = "memePicOne";
+    public static final String IMAGE_TYPE_USER_MEME_TWO = "memePicTwo";
     //endregion
 
     //region Photo watermark status
@@ -331,6 +333,7 @@ public class Constant {
     public static final String PREVIEW_EXTRA_CALLED_FROM_CAPTURE = "capture";
     public static final String PREVIEW_EXTRA_CALLED_FROM_EDIT_CAPTURE = "editCapture";
     public static final String PREVIEW_EXTRA_CALLED_FROM_EDIT_SHORT = "editShort";
+    public static final String PREVIEW_EXTRA_CALLED_FROM_MEME_FRAGMENT = "memeFragment";
 
     //endregion
 

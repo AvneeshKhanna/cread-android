@@ -205,6 +205,7 @@
 
             <!--Container label hint-->
             <LinearLayout
+                android:visibility="gone"
                 android:id="@+id/containerLabelHint"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -257,7 +258,7 @@
     <!--Live filter bottom sheet-->
     <include layout="@layout/layout_live_filter_bottom_sheet" />
 
-    <!--Live filter container-->
+    <!--Live filter button container-->
     <FrameLayout
         android:id="@+id/container_live_filter"
         android:layout_width="wrap_content"

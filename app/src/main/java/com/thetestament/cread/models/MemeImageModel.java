@@ -1,28 +1,19 @@
 package com.thetestament.cread.models;
 
 /**
- * Model class for font.
+ * Model class MemeImage.
  */
 
 public class MemeImageModel {
-    private String entityID;
-    private String entityUrl;
+    private String imageUrl;
     private String type;
 
-    public String getEntityID() {
-        return entityID;
+    public String getImageUrl() {
+        return imageUrl;
     }
 
-    public void setEntityID(String entityID) {
-        this.entityID = entityID;
-    }
-
-    public String getEntityUrl() {
-        return entityUrl;
-    }
-
-    public void setEntityUrl(String entityUrl) {
-        this.entityUrl = entityUrl;
+    public void setImageUrl(String imageUrl) {
+        this.imageUrl = imageUrl;
     }
 
     public String getType() {

@@ -7,6 +7,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.squareup.picasso.Picasso;
 import com.thetestament.cread.R;
 import com.thetestament.cread.models.MemeImageModel;
 
@@ -23,7 +24,7 @@ public class MemeImageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
     //region :Item types
     public static final int VIEW_TYPE_ITEM = 0;
     public static final int VIEW_TYPE_HEADER = 1;
-    public static final int VIEW_TYPE_LOADING = 1;
+    public static final int VIEW_TYPE_LOADING = 2;
     //endregion
 
     //region :Fields and constants
@@ -105,6 +106,10 @@ public class MemeImageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
         final MemeImageModel data = mDataList.get(position);
         if (holder.getItemViewType() == VIEW_TYPE_ITEM) {
             ItemViewHolder itemViewHolder = (ItemViewHolder) holder;
+            Picasso.with(mContext)
+                    .load(data.getImageUrl())
+                    .error(R.drawable.image_placeholder)
+                    .into(itemViewHolder.imgMeme);
             //Method called
             itemClickFunctionality(itemViewHolder.itemView, data, holder.getAdapterPosition(), VIEW_TYPE_ITEM);
         } else if (holder.getItemViewType() == VIEW_TYPE_HEADER) {

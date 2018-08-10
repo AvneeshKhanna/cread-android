@@ -137,6 +137,7 @@ import static com.thetestament.cread.utils.Constant.CONTENT_TYPE_SHORT;
 import static com.thetestament.cread.utils.Constant.EXTRA_IMAGE_HEIGHT;
 import static com.thetestament.cread.utils.Constant.EXTRA_IMAGE_WIDTH;
 import static com.thetestament.cread.utils.Constant.IMAGE_TYPE_USER_CAPTURE_PIC;
+import static com.thetestament.cread.utils.Constant.IMAGE_TYPE_USER_MEME;
 import static com.thetestament.cread.utils.Constant.IMAGE_TYPE_USER_SHORT_PIC;
 import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_AUTH_KEY;
 import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_BG_COLOR;
@@ -147,6 +148,7 @@ import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_CALLED_FROM_CA
 import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_CALLED_FROM_COLLABORATION;
 import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_CALLED_FROM_EDIT_CAPTURE;
 import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_CALLED_FROM_EDIT_SHORT;
+import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_CALLED_FROM_MEME_FRAGMENT;
 import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_CALLED_FROM_SHORT;
 import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_CAPTION_TEXT;
 import static com.thetestament.cread.utils.Constant.PREVIEW_EXTRA_CAPTURE_ID;
@@ -387,7 +389,8 @@ public class PreviewActivity extends BaseActivity implements QueryTokenReceiver,
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu_preview, menu);
-        if (mCalledFrom.equals(PREVIEW_EXTRA_CALLED_FROM_EDIT_CAPTURE)) {
+        if (mCalledFrom.equals(PREVIEW_EXTRA_CALLED_FROM_EDIT_CAPTURE)
+                || mCalledFrom.equals(PREVIEW_EXTRA_CALLED_FROM_MEME_FRAGMENT)) {
             //Hide filter menu option
             menu.findItem(R.id.action_filter).setVisible(false);
         }
@@ -668,32 +671,20 @@ public class PreviewActivity extends BaseActivity implements QueryTokenReceiver,
     //region :Private methods
 
     /**
-     * Method to initialize screen data.
+     * Method to initialize views for this screen.
      */
     private void initScreen() {
         //Retrieve data from intent
         mBundle = getIntent().getBundleExtra(PREVIEW_EXTRA_DATA);
-        //Set variable
+        //Set flag here
         mCalledFrom = mBundle.getString(PREVIEW_EXTRA_CALLED_FROM);
         //Check content type
         checkContentType();
         //check long short status
         checkLongShortStatus();
 
-        mMentionsAdapter = new PersonMentionAdapter(mSuggestionsList, mContext);
-        recyclerViewMentions.setAdapter(mMentionsAdapter);
-        recyclerViewMentions.setLayoutManager(new LinearLayoutManager(mContext));
-
-
-        etCaption.setTokenizer(new WordTokenizer(tokenizerConfig));
-        etCaption.setQueryTokenReceiver(this);
-        etCaption.setSuggestionsVisibilityManager(this);
-
-        initSuggestionsView();
-
-        initLoadMoreSuggestionsListener(mMentionsAdapter);
-        initSuggestionsClickListener(mMentionsAdapter);
         //Method called
+        initSuggestionsView();
         checkLiveFilterStatus();
     }
 
@@ -701,6 +692,7 @@ public class PreviewActivity extends BaseActivity implements QueryTokenReceiver,
      * Method to check the content type and perform operations accordingly.
      */
     private void checkContentType() {
+        //For capture uploading
         if (mCalledFrom.equals(PREVIEW_EXTRA_CALLED_FROM_CAPTURE)) {
             //Apply aspect ration to imageView
             applyAspectRatio(IMAGE_TYPE_USER_CAPTURE_PIC);
@@ -725,7 +717,7 @@ public class PreviewActivity extends BaseActivity implements QueryTokenReceiver,
             loadLabelsData(mBundle.getString(PREVIEW_EXTRA_ENTITY_ID), Constant.LABEL_TYPE_GRAPHIC);
             //Load capture pic
             loadPreviewImage(Uri.parse(mBundle.getString(PREVIEW_EXTRA_CONTENT_IMAGE)), imagePreview);
-            //Setup bottom sheets
+            //Hide bottom sheets
             filterSheetBehavior = BottomSheetBehavior.from(filterBottomSheetView);
             filterSheetBehavior.setPeekHeight(0);
             //Set caption text
@@ -757,6 +749,16 @@ public class PreviewActivity extends BaseActivity implements QueryTokenReceiver,
             loadPreviewImage(getImageUri(IMAGE_TYPE_USER_SHORT_PIC), imagePreview);
             //set bg sound for long form
             mBgSound = mBundle.getString(PREVIEW_EXTRA_BG_SOUND);
+        } else if (mCalledFrom.equals(PREVIEW_EXTRA_CALLED_FROM_MEME_FRAGMENT)) {
+            //Apply aspect ration to imageView
+            applyAspectRatio(IMAGE_TYPE_USER_MEME);
+            //Load capture pic
+            loadPreviewImage(getImageUri(IMAGE_TYPE_USER_MEME), imagePreview);
+            //Hide bottom sheets
+            filterSheetBehavior = BottomSheetBehavior.from(filterBottomSheetView);
+            filterSheetBehavior.setPeekHeight(0);
+            //Hide live filter container
+            containerLiveFilter.setVisibility(View.GONE);
         } else {
             //initialize filter screen
             initFilterView();
@@ -953,6 +955,11 @@ public class PreviewActivity extends BaseActivity implements QueryTokenReceiver,
                     , mHelper.getAuthToken()
                     , mWaterMarkText
                     , mBundle.getString(PREVIEW_EXTRA_MERCHANTABLE));
+/*
+            uploadMeme(new File(ImageHelper.getImageUri(IMAGE_TYPE_USER_MEME).getPath())
+                    , mCapInMentionFormat
+                    , mHelper.getUUID()
+                    , mHelper.getAuthToken());*/
         }
         // edit short
         else if (mCalledFrom.equals(PREVIEW_EXTRA_CALLED_FROM_EDIT_SHORT)) {
@@ -983,6 +990,8 @@ public class PreviewActivity extends BaseActivity implements QueryTokenReceiver,
                     , mBundle.getString(PREVIEW_EXTRA_IS_SHADOW_SELECTED)
                     , mBundle.getString(PREVIEW_EXTRA_LONG_TEXT)
             );
+        } else if (mCalledFrom.equals(PREVIEW_EXTRA_CALLED_FROM_MEME_FRAGMENT)) {
+            //fixme code for meme upload
         } else {
             //do nothing
         }
@@ -1556,6 +1565,78 @@ public class PreviewActivity extends BaseActivity implements QueryTokenReceiver,
     }
 
     /**
+     * Method to upload capture/graphic art on server.
+     *
+     * @param file        File to be saved i.e image file .
+     * @param captionText Caption text
+     * @param uuid        UUID of the user.
+     * @param authToken   AuthToken of user.
+     */
+    private void uploadMeme(File file, String captionText, final String uuid, final String authToken) {
+        //To show the progress dialog
+        final MaterialDialog dialog = CustomDialog
+                .getProgressDialog(mContext, "Uploading your meme");
+
+        //Decode image file
+        BitmapFactory.Options options = new BitmapFactory.Options();
+        options.inJustDecodeBounds = true;
+        BitmapFactory.decodeFile(ImageHelper.getImageUri(IMAGE_TYPE_USER_MEME).getPath(), options);
+        int imageHeight = options.outHeight;
+        int imageWidth = options.outWidth;
+
+
+        //Configure OkHttpClient for time out
+        OkHttpClient okHttpClient = new OkHttpClient().newBuilder()
+                .connectTimeout(20, TimeUnit.MINUTES)
+                .readTimeout(20, TimeUnit.MINUTES)
+                .writeTimeout(20, TimeUnit.MINUTES)
+                .build();
+
+        AndroidNetworking.upload(BuildConfig.URL + "/upload-meme/add")
+                .addMultipartFile("meme-photo", file)
+                .addMultipartParameter("uuid", uuid)
+                .addMultipartParameter("authkey", authToken)
+                .addMultipartParameter("caption", captionText)
+                .addMultipartParameter("img_width", String.valueOf(imageWidth))
+                .addMultipartParameter("img_height", String.valueOf(imageHeight))
+                .setOkHttpClient(okHttpClient)
+                .build()
+                .getAsJSONObject(new JSONObjectRequestListener() {
+                    @Override
+                    public void onResponse(JSONObject response) {
+                        dialog.dismiss();
+                        try {
+                            //if token status is not invalid
+                            if (response.getString("tokenstatus").equals("invalid")) {
+                                ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_invalid_token));
+                            } else {
+                                JSONObject dataObject = response.getJSONObject("data");
+                                if (dataObject.getString("status").equals("done")) {
+                                    ViewHelper.getToast(mContext, "Meme has been uploaded successfully");
+
+                                    // Set feeds data to be loaded from network instead of cached data
+                                    GET_RESPONSE_FROM_NETWORK_MAIN = true;
+                                    GET_RESPONSE_FROM_NETWORK_EXPLORE = true;
+                                    GET_RESPONSE_FROM_NETWORK_ME = true;
+                                }
+                            }
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                            ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_internal));
+                        }
+                    }
+
+                    @Override
+                    public void onError(ANError anError) {
+                        dialog.dismiss();
+                        ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_server));
+                    }
+                });
+
+    }
+
+
+    /**
      * Method to toggle visibility of filter bottomSheet.
      */
     private void toggleFilterBottomSheet() {
@@ -1758,6 +1839,9 @@ public class PreviewActivity extends BaseActivity implements QueryTokenReceiver,
         if (mCalledFrom.equals(PREVIEW_EXTRA_CALLED_FROM_CAPTURE)) {
             imageUri = ImageHelper.getImageUri(IMAGE_TYPE_USER_CAPTURE_PIC);
             s = "/Cread/Capture/capture_pic.jpg";
+        } else if (mCalledFrom.equals(PREVIEW_EXTRA_CALLED_FROM_MEME_FRAGMENT)) {
+            imageUri = ImageHelper.getImageUri(Constant.IMAGE_TYPE_USER_MEME);
+            s = "/Cread/Meme/meme_pic.jpg";
         } else {
             imageUri = ImageHelper.getImageUri(IMAGE_TYPE_USER_SHORT_PIC);
             s = "/Cread/Short/short_pic.jpg";
@@ -1835,6 +1919,17 @@ public class PreviewActivity extends BaseActivity implements QueryTokenReceiver,
 
 
     private void initSuggestionsView() {
+        mMentionsAdapter = new PersonMentionAdapter(mSuggestionsList, mContext);
+        recyclerViewMentions.setAdapter(mMentionsAdapter);
+        recyclerViewMentions.setLayoutManager(new LinearLayoutManager(mContext));
+
+
+        etCaption.setTokenizer(new WordTokenizer(tokenizerConfig));
+        etCaption.setQueryTokenReceiver(this);
+        etCaption.setSuggestionsVisibilityManager(this);
+
+        initLoadMoreSuggestionsListener(mMentionsAdapter);
+        initSuggestionsClickListener(mMentionsAdapter);
 
         subject = PublishSubject.create();
 
@@ -2329,6 +2424,10 @@ public class PreviewActivity extends BaseActivity implements QueryTokenReceiver,
                             ViewHelper.getToast(mContext
                                     , "Image saved to: " + "Cread/Capture/capture_pic.jpg");
                             break;
+                        case PREVIEW_EXTRA_CALLED_FROM_MEME_FRAGMENT:
+                            ViewHelper.getToast(mContext
+                                    , "Image saved to: " + "Cread/Meme/meme_pic.jpg");
+                            break;
                         case PREVIEW_EXTRA_CALLED_FROM_EDIT_SHORT:
                         case PREVIEW_EXTRA_CALLED_FROM_COLLABORATION:
                         default:
@@ -2336,7 +2435,6 @@ public class PreviewActivity extends BaseActivity implements QueryTokenReceiver,
                                     , "Image saved to: " + "Cread/Short/short_pic.jpg");
                             break;
                     }
-
                 }
             }
         });
@@ -2351,7 +2449,6 @@ public class PreviewActivity extends BaseActivity implements QueryTokenReceiver,
                 dialog.dismiss();
                 //Method called
                 updateOnClick();
-
             }
         });
 

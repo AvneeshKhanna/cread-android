@@ -16,6 +16,7 @@ import com.thetestament.cread.models.FeedModel;
 import com.thetestament.cread.models.InspirationModel;
 import com.thetestament.cread.models.LabelsModel;
 import com.thetestament.cread.models.MemeImageModel;
+import com.thetestament.cread.models.MemeLayoutModel;
 import com.thetestament.cread.models.PersonMentionModel;
 import com.thetestament.cread.models.ShortModel;
 import com.thetestament.cread.models.SuggestedArtistsModel;
@@ -554,5 +555,12 @@ public class listener {
      */
     public interface OnMemeImageLoadMoreListener {
         void onLoadMore();
+    }
+
+    /**
+     * Interface definition for a callback to be invoked when user selects meme from list of memes.
+     */
+    public interface OnMemeLayoutClickListener {
+        void onMemeLayoutClick(MemeLayoutModel data, int itemPosition);
     }
 }

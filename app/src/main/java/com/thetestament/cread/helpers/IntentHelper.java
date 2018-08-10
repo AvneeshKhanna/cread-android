@@ -15,6 +15,7 @@ import com.thetestament.cread.activities.FeedDescriptionActivity;
 import com.thetestament.cread.activities.FollowActivity;
 import com.thetestament.cread.activities.MainActivity;
 import com.thetestament.cread.activities.MemeActivity;
+import com.thetestament.cread.activities.PreviewActivity;
 import com.thetestament.cread.activities.ProfileActivity;
 import com.thetestament.cread.activities.ViewLongShortActivity;
 import com.thetestament.cread.activities.WebViewActivity;
@@ -215,5 +216,21 @@ public class IntentHelper {
      */
     public static void openMemeActivity(Context context) {
         context.startActivity(new Intent(context, MemeActivity.class));
+    }
+
+    /**
+     * Method to open Preview activity  screen for meme.
+     *
+     * @param context Context to use.
+     */
+    public static void openPreviewActivityFromMeme(Context context) {
+        Intent intent = new Intent(context, PreviewActivity.class);
+
+        Bundle bundle = new Bundle();
+        bundle.putString(Constant.PREVIEW_EXTRA_CALLED_FROM, Constant.PREVIEW_EXTRA_CALLED_FROM_MEME_FRAGMENT);
+        bundle.putString(Constant.PREVIEW_EXTRA_LIVE_FILTER, Constant.LIVE_FILTER_NONE);
+
+        intent.putExtra(Constant.PREVIEW_EXTRA_DATA, bundle);
+        context.startActivity(intent);
     }
 }
