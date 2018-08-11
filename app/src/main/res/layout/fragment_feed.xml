@@ -2,13 +2,13 @@
 <android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/rootView"
+    android:id="@+id/root_view"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
     <!--For recommended artists-->
     <android.support.design.widget.AppBarLayout
-        android:id="@+id/appBarLayout"
+        android:id="@+id/app_bar_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@android:color/transparent"
@@ -16,21 +16,22 @@
         android:visibility="gone">
 
         <android.support.design.widget.CollapsingToolbarLayout
-            android:id="@+id/collapsingToolbar"
+            android:id="@+id/collapsing_toolbar"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:fitsSystemWindows="true"
             app:contentScrim="@color/colorPrimary"
             app:layout_scrollFlags="scroll|exitUntilCollapsed">
 
+            <!--Layout suggested artists-->
             <include
-                android:id="@+id/layoutSuggestedArtists"
+                android:id="@+id/layout_suggested_artists"
                 layout="@layout/layout_recommended_artists"
                 android:visibility="visible" />
 
 
             <include
-                android:id="@+id/layoutHashTagOfTheDay"
+                android:id="@+id/layout_hash_tag_of_the_day"
                 layout="@layout/layout_hash_tag_of_the_day"
                 android:visibility="visible" />
 
@@ -42,13 +43,13 @@
 
     <!--Swipe to refresh layout which contains main recyclerView-->
     <android.support.v4.widget.SwipeRefreshLayout
-        android:id="@+id/swipeToRefreshLayout"
+        android:id="@+id/swipe_refresh_layout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
         <android.support.v7.widget.RecyclerView
-            android:id="@+id/recyclerView"
+            android:id="@+id/recycler_view_feed"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layoutAnimation="@anim/layout_animation_from_bottom"
@@ -67,13 +68,13 @@
         android:visibility="visible"
         app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
-        <ImageView
+        <android.support.v7.widget.AppCompatImageView
             android:layout_width="160dp"
             android:layout_height="120dp"
             android:layout_gravity="center"
             android:src="@drawable/connect_people" />
 
-        <TextView
+        <android.support.v7.widget.AppCompatTextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
@@ -83,7 +84,7 @@
             android:textColor="@color/black_overlay"
             android:textSize="20sp" />
 
-        <TextView
+        <android.support.v7.widget.AppCompatTextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
@@ -95,8 +96,8 @@
             android:textColor="@color/grey_dark"
             android:textSize="14sp" />
 
-        <TextView
-            android:id="@+id/findfbFriendsButton"
+        <android.support.v7.widget.AppCompatTextView
+            android:id="@+id/btn_fb_friends"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
@@ -113,8 +114,8 @@
             android:textColor="@color/white"
             android:textSize="14sp" />
 
-        <TextView
-            android:id="@+id/explorePeopleButton"
+        <android.support.v7.widget.AppCompatTextView
+            android:id="@+id/btn_explore"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
