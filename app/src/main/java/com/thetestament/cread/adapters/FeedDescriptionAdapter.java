@@ -17,6 +17,8 @@ import android.support.v4.widget.TextViewCompat;
 import android.support.v7.widget.AppCompatImageView;
 import android.support.v7.widget.AppCompatTextView;
 import android.support.v7.widget.RecyclerView;
+import android.text.Spannable;
+import android.text.style.ForegroundColorSpan;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -46,6 +48,7 @@ import com.thetestament.cread.helpers.DownvoteHelper;
 import com.thetestament.cread.helpers.FeedHelper;
 import com.thetestament.cread.helpers.GifHelper;
 import com.thetestament.cread.helpers.ImageHelper;
+import com.thetestament.cread.helpers.IntentHelper;
 import com.thetestament.cread.helpers.LiveFilterHelper;
 import com.thetestament.cread.helpers.NetworkHelper;
 import com.thetestament.cread.helpers.ProfileMentionsHelper;
@@ -58,6 +61,7 @@ import com.thetestament.cread.models.FeedModel;
 import com.thetestament.cread.utils.AspectRatioUtils;
 import com.thetestament.cread.utils.Constant;
 import com.thetestament.cread.utils.SoundUtil;
+import com.thetestament.cread.utils.TextUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -102,8 +106,10 @@ import static com.thetestament.cread.utils.Constant.SHARE_OPTION_WHATSAPP;
 public class FeedDescriptionAdapter extends RecyclerView.Adapter {
 
     private final int VIEW_TYPE_ITEM = 0;
-    private final int VIEW_TYPE_LOADING = 1;
-    private final int VIEW_TYPE_HEADER = 2;
+    private final int VIEW_TYPE_MEME = 1;
+    private final int VIEW_TYPE_LOADING = 2;
+    private final int VIEW_TYPE_HEADER = 3;
+
     private List<FeedModel> mFeedList;
     private List<CommentsModel> mCommentsList = new ArrayList<>();
     private FragmentActivity mContext;
@@ -212,7 +218,12 @@ public class FeedDescriptionAdapter extends RecyclerView.Adapter {
         } else if (isPositionHeader(position)) {
             return VIEW_TYPE_HEADER;
         } else {
-            return VIEW_TYPE_ITEM;
+            if (mFeedList.get(position).getContentType().equals(Constant.CONTENT_TYPE_MEME)) {
+                return VIEW_TYPE_MEME;
+            } else {
+                return VIEW_TYPE_ITEM;
+            }
+
         }
     }
 
@@ -222,6 +233,10 @@ public class FeedDescriptionAdapter extends RecyclerView.Adapter {
             return new ItemViewHolder(LayoutInflater
                     .from(parent.getContext())
                     .inflate(R.layout.item_feed_description, parent, false));
+        } else if (viewType == VIEW_TYPE_MEME) {
+            return new MemeViewHolder(LayoutInflater
+                    .from(parent.getContext())
+                    .inflate(R.layout.item_meme_feed_description, parent, false));
         } else if (viewType == VIEW_TYPE_LOADING) {
             return new LoadingViewHolder(LayoutInflater
                     .from(parent.getContext())
@@ -356,6 +371,118 @@ public class FeedDescriptionAdapter extends RecyclerView.Adapter {
             setDoubleTap(itemViewHolder, itemViewHolder.hatsOffView, data);
             //Method called
             FeedHelper.updateRepost(itemViewHolder.containerRepost, mContext, mCompositeDisposable, data.getEntityID());
+        } else if (holder.getItemViewType() == VIEW_TYPE_MEME) {
+            MemeViewHolder itemViewHolder = (MemeViewHolder) holder;
+
+            //Load creator profile picture
+            ImageHelper.loadProgressiveImage(Uri.parse(data.getCreatorImage())
+                    , itemViewHolder.imgCreator);
+            //Set user creator name and its click functionality
+            itemViewHolder.textCreatorName.setText(TextUtils.getSpannedString(data.getCreatorName() + " added meme"
+                    , new ForegroundColorSpan(Color.BLACK)
+                    , 0
+                    , data.getCreatorName().length()
+                    , Spannable.SPAN_EXCLUSIVE_EXCLUSIVE));
+
+            openProfileActivity(itemViewHolder.textCreatorName, data.getUUID());
+
+            //Set image width and height
+            AspectRatioUtils.setImageAspectRatio(data.getImgWidth()
+                    , data.getImgHeight()
+                    , itemViewHolder.contentImage
+                    , true);
+            //Load feed image
+            ImageHelper.loadProgressiveImage(Uri.parse(data.getContentImage())
+                    , itemViewHolder.contentImage);
+
+
+            //update downvote and dot seperator visibility
+            updateDownvoteAndSeperatorVisibility(data, itemViewHolder.dotSeperatorRight, itemViewHolder.imageDownvote);
+            //check downvote status
+            DownvoteHelper downvoteHelper = new DownvoteHelper();
+            downvoteHelper.updateDownvoteUI(itemViewHolder.imageDownvote, data.isDownvoteStatus(), mContext);
+            //Check whether user has given hats off to this campaign or not
+            checkHatsOffStatus(data.getHatsOffStatus(), itemViewHolder);
+
+            //Comment click functionality
+            commentOnClick(itemViewHolder.containerComment, data.getEntityID());
+            //Share click functionality
+            shareOnClick(itemViewHolder, data);
+            //HatsOff onClick functionality
+            hatsOffOnClick(itemViewHolder, data, position);
+            //Collaboration count click functionality
+            collaborationContainerOnClick(itemViewHolder.containerCollabCount, data.getEntityID(), data.getContentType());
+            // caption on click
+            onTitleClicked(itemViewHolder.textTitle);
+            // on hatsoff count click
+            hatsOffCountOnClick(itemViewHolder, data);
+            //Comment count click functionality
+            commentOnClick(itemViewHolder.containerCommentsCount, data.getEntityID());
+            // show all comments click functionality
+            commentOnClick(itemViewHolder.textShowComments, data.getEntityID());
+            // downvote click
+            downvoteOnClick(itemViewHolder.imageDownvote, data, position, itemViewHolder);
+
+            // initialize hatsoff and comment count
+            //Check for hats of count
+            if (data.getHatsOffCount() > 0) {
+                // set visible
+                itemViewHolder.containerHatsoffCount.setVisibility(View.VISIBLE);
+                //Set hatsOff count
+                itemViewHolder.textHatsOffCount.setText(String.valueOf(data.getHatsOffCount()));
+            } else {
+                //Hide hatsOff count textView
+                itemViewHolder.containerHatsoffCount.setVisibility(View.GONE);
+            }
+
+            // update dot visibility
+            updateDotSeperatorVisibility(data, itemViewHolder.dotSeperator);
+
+            //Check for comment count
+            if (data.getCommentCount() > 0) {
+                // set visible
+                itemViewHolder.containerCommentsCount.setVisibility(View.VISIBLE);
+                //Set comment count
+                itemViewHolder.textCommentsCount.setText(String.valueOf(data.getCommentCount()));
+            } else {
+                itemViewHolder.containerCommentsCount.setVisibility(View.GONE);
+            }
+            // toggle top comments view visibility
+            if (position == 0 && data.getCommentCount() > 0) {
+                itemViewHolder.viewTopComments.setVisibility(View.VISIBLE);
+                itemViewHolder.textShowComments.setVisibility(View.VISIBLE);
+
+                //update comments view
+                updateCommentsView(mCommentsList, itemViewHolder);
+            } else {
+                itemViewHolder.viewTopComments.setVisibility(View.GONE);
+                itemViewHolder.textShowComments.setVisibility(View.GONE);
+            }
+            // initialize caption
+            initCaption(mContext, data, itemViewHolder.textTitle);
+            // check follow status
+            //checkFollowStatus(data, itemViewHolder);
+            // follow click
+            //followOnClick(position, data, itemViewHolder.buttonFollow);
+            // check whether to show menu options
+            //showMenuOptions(data, itemViewHolder, position);
+
+            /*if (position == 0) {
+                showTooltip(itemViewHolder);
+            }*/
+
+            // show downvote intro dialog
+            if (data.isEligibleForDownvote() && mHelper.isDownvoteDialogFirstTime()) {
+                // show dialog
+                getDownvoteDialog(itemViewHolder);
+            }
+
+            // init post timestamp
+            updatePostTimestamp(itemViewHolder.textTimeStamp, data);
+            setDoubleTap(itemViewHolder, itemViewHolder.doubleTapHatsOffView, data);
+            //Method called
+            FeedHelper.updateRepost(itemViewHolder.containerRepost, mContext, mCompositeDisposable, data.getEntityID());
+
         } else if (holder.getItemViewType() == VIEW_TYPE_LOADING) {
             LoadingViewHolder loadingViewHolder = (LoadingViewHolder) holder;
             loadingViewHolder.progressView.setVisibility(View.VISIBLE);
@@ -473,6 +600,48 @@ public class FeedDescriptionAdapter extends RecyclerView.Adapter {
         }
     }
 
+    public void updateCommentsView(List<CommentsModel> comments, MemeViewHolder itemViewHolder) {
+        itemViewHolder.viewTopComments.removeAllViews();
+
+        for (CommentsModel comment : comments) {
+            View commentView = LayoutInflater.from(mContext).inflate(R.layout.item_comment, itemViewHolder.viewTopComments, false);
+            itemViewHolder.viewTopComments.addView(commentView);
+
+            SimpleDraweeView imageUser = commentView.findViewById(R.id.imageUser);
+            TextView textUserName = commentView.findViewById(R.id.textUserName);
+            TextView textComment = commentView.findViewById(R.id.textComment);
+            AppCompatTextView topArtistView = commentView.findViewById(R.id.view_top_artist);
+
+            ImageHelper.loadProgressiveImage(Uri.parse(comment.getProfilePicUrl()), imageUser);
+
+            textUserName.setText(comment.getFirstName() + " " + comment.getLastName());
+            textComment.setText(comment.getComment());
+
+            // set profile mentions
+            ProfileMentionsHelper.setProfileMentionsForViewing(comment.getComment(), mContext, textComment);
+
+            // set hash tags on comment
+            FeedHelper feedHelper = new FeedHelper();
+            feedHelper.setHashTags(textComment, mContext, R.color.blue_dark, -1);
+
+            // Expand and collapse comments.
+            toggleComment(textComment);
+            //Open creator profile
+            openCreatorProfile(textUserName, comment.getUuid(), mContext);
+            openCreatorProfile(imageUser, comment.getUuid(), mContext);
+
+            //If artist is top artist
+            if (comment.isTopArtist()) {
+                //toggle visibility
+                topArtistView.setVisibility(View.VISIBLE);
+            } else {
+                //toggle visibility
+                topArtistView.setVisibility(View.GONE);
+            }
+            topArtistOnClick(topArtistView);
+        }
+    }
+
     /**
      * Top artist click functionality.
      *
@@ -502,6 +671,29 @@ public class FeedDescriptionAdapter extends RecyclerView.Adapter {
      * Method to check hatsOff status and perform operation accordingly.
      */
     private void checkHatsOffStatus(boolean hatsOffStatus, ItemViewHolder itemViewHolder) {
+        if (hatsOffStatus) {
+            //Change color
+            itemViewHolder.imageHatsOff.setColorFilter(ContextCompat.getColor(mContext, R.color.colorPrimary));
+            //Set rotation to 30
+            itemViewHolder.imageHatsOff.setRotation(30);
+            //update flags
+            itemViewHolder.mIsHatsOff = true;
+            itemViewHolder.mIsRotated = true;
+        } else {
+            //Change color to transparent
+            itemViewHolder.imageHatsOff.setColorFilter(Color.TRANSPARENT);
+            //Set rotation to 0
+            itemViewHolder.imageHatsOff.setRotation(0);
+            //update flags
+            itemViewHolder.mIsHatsOff = false;
+            itemViewHolder.mIsRotated = false;
+        }
+    }
+
+    /**
+     * Method to check hatsOff status and perform operation accordingly.
+     */
+    private void checkHatsOffStatus(boolean hatsOffStatus, MemeViewHolder itemViewHolder) {
         if (hatsOffStatus) {
             //Change color
             itemViewHolder.imageHatsOff.setColorFilter(ContextCompat.getColor(mContext, R.color.colorPrimary));
@@ -607,6 +799,75 @@ public class FeedDescriptionAdapter extends RecyclerView.Adapter {
 
     }
 
+    /**
+     * Share onClick functionality.
+     *
+     * @param itemViewHolder
+     * @param data
+     */
+    private void shareOnClick(final MemeViewHolder itemViewHolder, final FeedModel data) {
+        itemViewHolder.logoWhatsapp.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (ShareHelper.isAppInstalled(mContext, Constant.PACKAGE_NAME_WHATSAPP)) {
+                    if (GifHelper.hasLiveFilter(data.getLiveFilterName())) {
+                        onGifShareListener.onGifShareClick(itemViewHolder.frameLayout, SHARE_OPTION_WHATSAPP, itemViewHolder.waterMarkCread, data.getLiveFilterName());
+                    } else {
+                        loadBitmapForSharing(data, SHARE_OPTION_WHATSAPP);
+                    }
+                } else {
+                    ViewHelper.getToast(mContext, mContext.getString(R.string.error_no_whats_app));
+                }
+            }
+        });
+
+        itemViewHolder.logoFacebook.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (ShareHelper.isAppInstalled(mContext, Constant.PACKAGE_NAME_FACEBOOK)) {
+                    if (GifHelper.hasLiveFilter(data.getLiveFilterName())) {
+                        onGifShareListener.onGifShareClick(itemViewHolder.frameLayout, SHARE_OPTION_FACEBOOK, itemViewHolder.waterMarkCread, data.getLiveFilterName());
+
+                    } else {
+                        loadBitmapForSharing(data, SHARE_OPTION_FACEBOOK);
+                    }
+                } else {
+                    ViewHelper.getToast(mContext,
+                            mContext.getString(R.string.error_no_facebook));
+                }
+            }
+        });
+
+        itemViewHolder.logoInstagram.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (ShareHelper.isAppInstalled(mContext, Constant.PACKAGE_NAME_INSTAGRAM)) {
+                    if (GifHelper.hasLiveFilter(data.getLiveFilterName())) {
+                        onGifShareListener.onGifShareClick(itemViewHolder.frameLayout, SHARE_OPTION_INSTAGRAM, itemViewHolder.waterMarkCread, data.getLiveFilterName());
+                    } else {
+                        loadBitmapForSharing(data, SHARE_OPTION_INSTAGRAM);
+                    }
+                } else {
+                    ViewHelper.getToast(mContext, mContext.getString(R.string.error_no_instagram));
+                }
+
+            }
+        });
+
+        itemViewHolder.logoMore.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (GifHelper.hasLiveFilter(data.getLiveFilterName())) {
+                    onGifShareListener.onGifShareClick(itemViewHolder.frameLayout, SHARE_OPTION_OTHER, itemViewHolder.waterMarkCread, data.getLiveFilterName());
+                } else {
+                    loadBitmapForSharing(data, SHARE_OPTION_OTHER);
+                }
+            }
+        });
+
+
+    }
+
 
     /**
      * Method to load bitmap image to be shared
@@ -691,6 +952,80 @@ public class FeedDescriptionAdapter extends RecyclerView.Adapter {
                         //Change hatsOffCount i.e increase by one
                         itemViewHolder.containerHatsOffCount.setVisibility(View.VISIBLE);
                         itemViewHolder.textHatsoffCount.setText(String.valueOf(data.getHatsOffCount()));
+                    }
+
+                    updateDotSeperatorVisibility(data, itemViewHolder.dotSeperator);
+
+                    //Toggle hatsOff status
+                    itemViewHolder.mIsHatsOff = !itemViewHolder.mIsHatsOff;
+                    //Update hats off here
+                    data.setHatsOffStatus(itemViewHolder.mIsHatsOff);
+                    //Listener
+                    onHatsOffListener.onHatsOffClick(data, itemPosition);
+                } else {
+                    ViewHelper.getToast(mContext, mContext.getString(R.string.error_msg_no_connection));
+                }
+            }
+        });
+    }
+
+    /**
+     * HatsOff onClick functionality.
+     *
+     * @param itemViewHolder ViewHolder for items.
+     * @param data           Data for current item.
+     */
+    private void hatsOffOnClick(final MemeViewHolder itemViewHolder, final FeedModel data, final int itemPosition) {
+        itemViewHolder.imageHatsOff.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                SharedPreferenceHelper sh = new SharedPreferenceHelper(mContext);
+                if (sh.isHatsOffFirstTime()) {
+                    //Show tooltip
+                    ViewHelper.getToolTip(itemViewHolder.imageHatsOff
+                            , mContext.getString(R.string.tooltip_hats_off_double_tap)
+                            , mContext);
+                    //Update sp value here
+                    sh.updateHatsOffStatusStatus(false);
+                }
+                // check net status
+                if (NetworkHelper.getNetConnectionStatus(mContext)) {
+                    //User has already given the hats off
+                    if (itemViewHolder.mIsHatsOff) {
+                        //Animation for hats off
+                        if (itemViewHolder.mIsRotated) {
+                            itemViewHolder.imageHatsOff.startAnimation(AnimationUtils.loadAnimation(mContext, R.anim.reverse_rotate_animation_hats_off_60_degree));
+                        } else {
+                            itemViewHolder.imageHatsOff.startAnimation(AnimationUtils.loadAnimation(mContext, R.anim.reverse_rotate_animation_hats_off_30_degree));
+                        }
+                        //Toggle hatsOff tint
+                        itemViewHolder.imageHatsOff.setColorFilter(Color.TRANSPARENT);
+                        //Update hats of count i.e decrease by one
+                        data.setHatsOffCount(data.getHatsOffCount() - 1);
+                        //If hats off count is zero
+                        if (data.getHatsOffCount() < 1) {
+                            itemViewHolder.containerHatsoffCount.setVisibility(View.GONE);
+                        }
+                        //hats off count is more than zero
+                        else {
+                            //Change hatsOffCount i.e decrease by one
+                            itemViewHolder.containerHatsoffCount.setVisibility(View.VISIBLE);
+                            itemViewHolder.textHatsOffCount.setText(String.valueOf(data.getHatsOffCount()));
+                        }
+                    } else {
+                        //Animation for hats off
+                        if (itemViewHolder.mIsRotated) {
+                            itemViewHolder.imageHatsOff.startAnimation(AnimationUtils.loadAnimation(mContext, R.anim.rotate_animation_hats_off_0_degree));
+                        } else {
+                            itemViewHolder.imageHatsOff.startAnimation(AnimationUtils.loadAnimation(mContext, R.anim.rotate_animation_hats_off_30_degree));
+                        }
+                        //Toggle hatsOff tint
+                        itemViewHolder.imageHatsOff.setColorFilter(ContextCompat.getColor(mContext, R.color.colorPrimary));
+                        //Change hatsOffCount i.e increase by one
+                        data.setHatsOffCount(data.getHatsOffCount() + 1);
+                        //Change hatsOffCount i.e increase by one
+                        itemViewHolder.containerHatsoffCount.setVisibility(View.VISIBLE);
+                        itemViewHolder.textHatsOffCount.setText(String.valueOf(data.getHatsOffCount()));
                     }
 
                     updateDotSeperatorVisibility(data, itemViewHolder.dotSeperator);
@@ -803,7 +1138,29 @@ public class FeedDescriptionAdapter extends RecyclerView.Adapter {
         });
     }
 
+    void hatsOffCountOnClick(MemeViewHolder itemViewHolder, final FeedModel data) {
+
+        itemViewHolder.containerHatsoffCount.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(mContext, HatsOffActivity.class);
+                intent.putExtra(EXTRA_ENTITY_ID, data.getEntityID());
+                mContext.startActivity(intent);
+            }
+        });
+    }
+
     private void downvoteOnClick(ImageView imageView, final FeedModel data, final int position, final ItemViewHolder itemViewHolder) {
+        imageView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                onDownvoteClickedListener.onDownvoteClicked(data, position, itemViewHolder.imageDownvote);
+            }
+        });
+    }
+
+    private void downvoteOnClick(ImageView imageView, final FeedModel data, final int position, final MemeViewHolder itemViewHolder) {
         imageView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -911,6 +1268,45 @@ public class FeedDescriptionAdapter extends RecyclerView.Adapter {
         mHelper.updateHaveButtonToolTipStatus(false);
     }
 
+
+    /**
+     * Method to show the downvote introduction dialog.
+     */
+    private void getDownvoteDialog(final MemeViewHolder itemViewHolder) {
+        MaterialDialog dialog = new MaterialDialog.Builder(mContext)
+                .customView(R.layout.dialog_generic, false)
+                .positiveText("Show me")
+                .onPositive(new SingleButtonCallback() {
+                    @Override
+                    public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
+                        //Dismiss dialog
+                        dialog.dismiss();
+                        //Update status
+                        mHelper.updateDownvoteDialogStatus(false);
+                        //show tooltip
+                        ViewHelper.getToolTip(itemViewHolder.imageDownvote, "Click to downvote", mContext);
+
+
+                    }
+                })
+                .show();
+        // update key
+        mHelper.updateDownvoteDialogStatus(false);
+
+        //Obtain views reference
+        ImageView fillerImage = dialog.getCustomView().findViewById(R.id.viewFiller);
+        TextView textTitle = dialog.getCustomView().findViewById(R.id.textTitle);
+        TextView textDesc = dialog.getCustomView().findViewById(R.id.textDesc);
+
+
+        //Set filler image
+        fillerImage.setImageDrawable(ContextCompat.getDrawable(mContext, R.drawable.img_intro_dialog_downvote));
+        //Set title text
+        textTitle.setText(mContext.getString(R.string.title_dialog_downvote));
+        //Set description text
+        textDesc.setText(mContext.getString(R.string.text_dialog_downvote_desc));
+
+    }
 
     /**
      * Method to show the downvote introduction dialog.
@@ -1062,6 +1458,108 @@ public class FeedDescriptionAdapter extends RecyclerView.Adapter {
         });
     }
 
+    /**
+     * Method to set double tap listener.
+     *
+     * @param itemViewHolder View to double tapped.
+     * @param hatsOffView    ImageView to be updated.
+     * @param data           FeedModel data.
+     */
+    private void setDoubleTap(final MemeViewHolder itemViewHolder, final AppCompatImageView hatsOffView, final FeedModel data) {
+        itemViewHolder.itemView.setOnTouchListener(new OnGestureListener(mContext) {
+            @Override
+            public void onDoubleClick() {
+                //region :Code to update hatsOff status
+                // check net status
+                if (NetworkHelper.getNetConnectionStatus(mContext)) {
+                    //User has already given the hats off
+                    if (itemViewHolder.mIsHatsOff) {
+                        SoundUtil.playHatsOffSound(mContext);
+                    } else {
+                        //Animation for hats off
+                        if (itemViewHolder.mIsRotated) {
+                            itemViewHolder.imageHatsOff.startAnimation(AnimationUtils.loadAnimation(mContext, R.anim.rotate_animation_hats_off_0_degree));
+                        } else {
+                            itemViewHolder.imageHatsOff.startAnimation(AnimationUtils.loadAnimation(mContext, R.anim.rotate_animation_hats_off_30_degree));
+                        }
+                        //Toggle hatsOff tint
+                        itemViewHolder.imageHatsOff.setColorFilter(ContextCompat.getColor(mContext, R.color.colorPrimary));
+                        //Change hatsOffCount i.e increase by one
+                        data.setHatsOffCount(data.getHatsOffCount() + 1);
+                        //Change hatsOffCount i.e increase by one
+                        itemViewHolder.containerHatsoffCount.setVisibility(View.VISIBLE);
+                        itemViewHolder.textHatsOffCount.setText(String.valueOf(data.getHatsOffCount()));
+
+
+                        updateDotSeperatorVisibility(data, itemViewHolder.dotSeperator);
+
+                        //Toggle hatsOff status
+                        itemViewHolder.mIsHatsOff = !itemViewHolder.mIsHatsOff;
+                        //Update hats off here
+                        data.setHatsOffStatus(itemViewHolder.mIsHatsOff);
+                        //Listener
+                        onHatsOffListener.onHatsOffClick(data, itemViewHolder.getAdapterPosition());
+                    }
+
+                } else {
+                    ViewHelper.getToast(mContext, mContext.getString(R.string.error_msg_no_connection));
+                }
+                //endregion
+
+                //region :Animation code starts here
+                hatsOffView.setVisibility(View.VISIBLE);
+                hatsOffView.setScaleY(0.1f);
+                hatsOffView.setScaleX(0.1f);
+                AnimatorSet animatorSet = new AnimatorSet();
+
+                ObjectAnimator imgScaleUpYAnim = ObjectAnimator.ofFloat(hatsOffView, "scaleY", 0.1f, 1f);
+                imgScaleUpYAnim.setDuration(300);
+                imgScaleUpYAnim.setInterpolator(Constant.DECCELERATE_INTERPOLATOR);
+                ObjectAnimator imgScaleUpXAnim = ObjectAnimator.ofFloat(hatsOffView, "scaleX", 0.1f, 1f);
+                imgScaleUpXAnim.setDuration(300);
+                imgScaleUpXAnim.setInterpolator(Constant.DECCELERATE_INTERPOLATOR);
+
+                ObjectAnimator imgScaleDownYAnim = ObjectAnimator.ofFloat(hatsOffView, "scaleY", 1f, 0f);
+                imgScaleDownYAnim.setDuration(300);
+                imgScaleDownYAnim.setInterpolator(Constant.ACCELERATE_INTERPOLATOR);
+                ObjectAnimator imgScaleDownXAnim = ObjectAnimator.ofFloat(hatsOffView, "scaleX", 1f, 0f);
+                imgScaleDownXAnim.setDuration(300);
+                imgScaleDownXAnim.setInterpolator(Constant.ACCELERATE_INTERPOLATOR);
+
+                animatorSet.playTogether(imgScaleUpYAnim, imgScaleUpXAnim);
+                animatorSet.play(imgScaleDownYAnim).with(imgScaleDownXAnim).after(imgScaleUpYAnim);
+
+                animatorSet.addListener(new AnimatorListenerAdapter() {
+                    @Override
+                    public void onAnimationEnd(Animator animation) {
+                        hatsOffView.setVisibility(View.GONE);
+                    }
+                });
+                animatorSet.start();
+                //endregion animation code end here
+            }
+
+            @Override
+            public void onClick() {
+                //do nothing
+            }
+        });
+    }
+
+    /**
+     * Method to open ProfileActivity screen.
+     *
+     * @param view View to be clicked.
+     * @param uuid UUID of user whose profile to  be loaded.
+     */
+    private void openProfileActivity(View view, final String uuid) {
+        view.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                IntentHelper.openProfileActivity(mContext, uuid);
+            }
+        });
+    }
 
     //region ViewHolder class
     //ItemViewHolder class
@@ -1155,6 +1653,106 @@ public class FeedDescriptionAdapter extends RecyclerView.Adapter {
         private boolean mIsRotated = false;
 
         public ItemViewHolder(View itemView) {
+            super(itemView);
+            ButterKnife.bind(this, itemView);
+        }
+    }
+
+    public static class MemeViewHolder extends RecyclerView.ViewHolder {
+
+
+        @BindView(R.id.img_creator)
+        SimpleDraweeView imgCreator;
+        @BindView(R.id.text_creator_name)
+        AppCompatTextView textCreatorName;
+        @BindView(R.id.text_time_stamp)
+        AppCompatTextView textTimeStamp;
+        @BindView(R.id.container_creator_specific)
+        LinearLayout containerCreatorSpecific;
+        @BindView(R.id.container_creator)
+        RelativeLayout containerCreator;
+        @BindView(R.id.content_image)
+        SimpleDraweeView contentImage;
+        @BindView(R.id.water_mark_cread)
+        RelativeLayout waterMarkCread;
+        @BindView(R.id.double_tap_hats_off_view)
+        AppCompatImageView doubleTapHatsOffView;
+        @BindView(R.id.container_main_content)
+        FrameLayout frameLayout;
+        @BindView(R.id.iconHatsoff)
+        AppCompatImageView iconHatsoff;
+        @BindView(R.id.textHatsOffCount)
+        TextView textHatsOffCount;
+        @BindView(R.id.containerHatsoffCount)
+        LinearLayout containerHatsoffCount;
+        @BindView(R.id.dotSeperator)
+        TextView dotSeperator;
+        @BindView(R.id.iconComment)
+        AppCompatImageView iconComment;
+        @BindView(R.id.textCommentsCount)
+        TextView textCommentsCount;
+        @BindView(R.id.containerCommentsCount)
+        LinearLayout containerCommentsCount;
+        @BindView(R.id.imageDownvote)
+        ImageView imageDownvote;
+        @BindView(R.id.dotSeperatorRight)
+        TextView dotSeperatorRight;
+        @BindView(R.id.iconCollabCount)
+        AppCompatImageView iconCollabCount;
+        @BindView(R.id.textCollabCount)
+        TextView textCollabCount;
+        @BindView(R.id.containerCollabCount)
+        LinearLayout containerCollabCount;
+        @BindView(R.id.textTitle)
+        TextView textTitle;
+        @BindView(R.id.lineSeparatorTop)
+        View lineSeparatorTop;
+        @BindView(R.id.image_hats_off)
+        AppCompatImageView imageHatsOff;
+        @BindView(R.id.text_hats_off)
+        AppCompatTextView textHatsOff;
+        @BindView(R.id.container_hats_off)
+        LinearLayout containerHatsOff;
+        @BindView(R.id.image_comment)
+        AppCompatImageView imageComment;
+        @BindView(R.id.text_comment)
+        AppCompatTextView textComment;
+        @BindView(R.id.container_comment)
+        LinearLayout containerComment;
+        @BindView(R.id.image_repost)
+        AppCompatImageView imageRepost;
+        @BindView(R.id.text_repost)
+        AppCompatTextView textRepost;
+        @BindView(R.id.container_repost)
+        LinearLayout containerRepost;
+        @BindView(R.id.container_actions)
+        LinearLayout containerActions;
+        @BindView(R.id.logoWhatsapp)
+        AppCompatImageView logoWhatsapp;
+        @BindView(R.id.logoFacebook)
+        AppCompatImageView logoFacebook;
+        @BindView(R.id.logoInstagram)
+        AppCompatImageView logoInstagram;
+        @BindView(R.id.logoMore)
+        AppCompatImageView logoMore;
+        @BindView(R.id.containerShareOptions)
+        LinearLayout containerShareOptions;
+        @BindView(R.id.container_social_action)
+        RelativeLayout containerSocialAction;
+        @BindView(R.id.lineSeparatorBottom)
+        View lineSeparatorBottom;
+        @BindView(R.id.viewTopComments)
+        public LinearLayout viewTopComments;
+        @BindView(R.id.textShowComments)
+        public TextView textShowComments;
+
+
+        //Variable to maintain hats off status
+        private boolean mIsHatsOff = false;
+        //Variable to maintain  hats off view rotation status
+        private boolean mIsRotated = false;
+
+        public MemeViewHolder(View itemView) {
             super(itemView);
             ButterKnife.bind(this, itemView);
         }

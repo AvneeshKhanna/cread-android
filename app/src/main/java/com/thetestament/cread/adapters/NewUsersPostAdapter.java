@@ -14,13 +14,14 @@ import android.support.v4.app.FragmentActivity;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.widget.TextViewCompat;
 import android.support.v7.widget.AppCompatImageView;
+import android.support.v7.widget.AppCompatTextView;
 import android.support.v7.widget.RecyclerView;
+import android.text.Spannable;
+import android.text.style.ForegroundColorSpan;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.animation.AccelerateInterpolator;
 import android.view.animation.AnimationUtils;
-import android.view.animation.DecelerateInterpolator;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -42,6 +43,7 @@ import com.thetestament.cread.activities.MerchandisingProductsActivity;
 import com.thetestament.cread.helpers.DownvoteHelper;
 import com.thetestament.cread.helpers.FeedHelper;
 import com.thetestament.cread.helpers.ImageHelper;
+import com.thetestament.cread.helpers.IntentHelper;
 import com.thetestament.cread.helpers.LiveFilterHelper;
 import com.thetestament.cread.helpers.NetworkHelper;
 import com.thetestament.cread.helpers.ViewHelper;
@@ -52,7 +54,9 @@ import com.thetestament.cread.listeners.listener.OnShareLinkClickedListener;
 import com.thetestament.cread.listeners.listener.OnShareListener;
 import com.thetestament.cread.models.FeedModel;
 import com.thetestament.cread.utils.AspectRatioUtils;
+import com.thetestament.cread.utils.Constant;
 import com.thetestament.cread.utils.SoundUtil;
+import com.thetestament.cread.utils.TextUtils;
 
 import java.util.List;
 
@@ -90,25 +94,22 @@ import static com.thetestament.cread.utils.Constant.SHARE_OPTION_WHATSAPP;
  */
 public class NewUsersPostAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
-    private static final DecelerateInterpolator DECCELERATE_INTERPOLATOR = new DecelerateInterpolator();
-    private static final AccelerateInterpolator ACCELERATE_INTERPOLATOR = new AccelerateInterpolator();
+    //region :ViewTypes
     private final int VIEW_TYPE_ITEM = 0;
-    private final int VIEW_TYPE_LOADING = 1;
+    private final int VIEW_TYPE_MEME = 1;
+    private final int VIEW_TYPE_LOADING = 2;
+    //endregion
 
-
+    //region :Field and constant
     private List<FeedModel> mFeedList;
     private FragmentActivity mContext;
 
     private boolean mIsLoading;
     private String mUUID;
     private CompositeDisposable mCompositeDisposable;
+    //endregion
 
-
-    private OnFeedLoadMoreListener onFeedLoadMoreListener;
-    private OnHatsOffListener onHatsOffListener;
-    private OnShareListener onShareListener;
-    private OnShareLinkClickedListener onShareLinkClickedListener;
-    private OnDownvoteClickedListener onDownvoteClickedListener;
+    //region :Constructor
 
     /**
      * Required constructor.
@@ -124,6 +125,14 @@ public class NewUsersPostAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
         this.mUUID = UUID;
         this.mCompositeDisposable = compositeDisposable;
     }
+    //endregion
+
+    //region :Listener
+    private OnFeedLoadMoreListener onFeedLoadMoreListener;
+    private OnHatsOffListener onHatsOffListener;
+    private OnShareListener onShareListener;
+    private OnShareLinkClickedListener onShareLinkClickedListener;
+    private OnDownvoteClickedListener onDownvoteClickedListener;
 
     /**
      * Register a callback to be invoked when user scrolls for more data.
@@ -161,12 +170,19 @@ public class NewUsersPostAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
         this.onDownvoteClickedListener = onDownvoteClickedListener;
     }
 
+    //endregion
+
+    //region :Overridden methods
     @Override
     public int getItemViewType(int position) {
         if (mFeedList.get(position) == null) {
             return VIEW_TYPE_LOADING;
         } else {
-            return VIEW_TYPE_ITEM;
+            if (mFeedList.get(position).getContentType().equals(Constant.CONTENT_TYPE_MEME)) {
+                return VIEW_TYPE_MEME;
+            } else {
+                return VIEW_TYPE_ITEM;
+            }
         }
     }
 
@@ -176,6 +192,10 @@ public class NewUsersPostAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
             return new ItemViewHolder(LayoutInflater
                     .from(parent.getContext())
                     .inflate(R.layout.item_feed, parent, false));
+        } else if (viewType == VIEW_TYPE_MEME) {
+            return new MemeViewHolder(LayoutInflater
+                    .from(parent.getContext())
+                    .inflate(R.layout.item_meme, parent, false));
         } else if (viewType == VIEW_TYPE_LOADING) {
             return new LoadingViewHolder(LayoutInflater
                     .from(parent.getContext())
@@ -264,6 +284,9 @@ public class NewUsersPostAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
             setDoubleTap(itemViewHolder, itemViewHolder.hatsOffView, data);
             //Method called
             FeedHelper.updateRepost(itemViewHolder.containerRepost, mContext, mCompositeDisposable, data.getEntityID());
+        } else if (holder.getItemViewType() == VIEW_TYPE_MEME) {
+            final MemeViewHolder viewHolder = (MemeViewHolder) holder;
+            initializeMemeViewHolder(viewHolder, data, holder.getAdapterPosition());
         } else if (holder.getItemViewType() == VIEW_TYPE_LOADING) {
             LoadingViewHolder loadingViewHolder = (LoadingViewHolder) holder;
             loadingViewHolder.progressView.setVisibility(View.VISIBLE);
@@ -286,6 +309,20 @@ public class NewUsersPostAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
     public int getItemCount() {
         return mFeedList == null ? 0 : mFeedList.size();
     }
+
+    @Override
+    public void onViewAttachedToWindow(RecyclerView.ViewHolder holder) {
+        super.onViewAttachedToWindow(holder);
+        if (holder.getItemViewType() == VIEW_TYPE_ITEM) {
+            final ItemViewHolder itemViewHolder = (ItemViewHolder) holder;
+            LiveFilterHelper.initLiveFilters(mFeedList.get(holder.getAdapterPosition()).getLiveFilterName()
+                    , itemViewHolder.weatherView
+                    , itemViewHolder.konfettiView
+                    , itemViewHolder.liveFilterBubble
+                    , mContext);
+        }
+    }
+    //endregion
 
     /**
      * Method is toggle the loading status
@@ -317,6 +354,30 @@ public class NewUsersPostAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
             itemViewHolder.mIsRotated = false;
         }
     }
+
+    /**
+     * Method to check hatsOff status and perform operation accordingly.
+     */
+    private void checkHatsOffStatus(boolean hatsOffStatus, MemeViewHolder itemViewHolder) {
+        if (hatsOffStatus) {
+            //Change color
+            itemViewHolder.imageHatsOff.setColorFilter(ContextCompat.getColor(mContext, R.color.colorPrimary));
+            //Set rotation to 30
+            itemViewHolder.imageHatsOff.setRotation(30);
+            //update flags
+            itemViewHolder.mIsHatsOff = true;
+            itemViewHolder.mIsRotated = true;
+        } else {
+            //Change color to transparent
+            itemViewHolder.imageHatsOff.setColorFilter(Color.TRANSPARENT);
+            //Set rotation to 0
+            itemViewHolder.imageHatsOff.setRotation(0);
+            //update flags
+            itemViewHolder.mIsHatsOff = false;
+            itemViewHolder.mIsRotated = false;
+        }
+    }
+
 
     /**
      * Compose onClick functionality.
@@ -379,12 +440,121 @@ public class NewUsersPostAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
     }
 
     /**
+     * Share onClick functionality.
+     *
+     * @param itemViewHolder
+     * @param data
+     */
+    private void shareOnClick(final MemeViewHolder itemViewHolder, final FeedModel data) {
+
+        itemViewHolder.logoWhatsapp.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                loadBitmapForSharing(data, SHARE_OPTION_WHATSAPP);
+            }
+        });
+
+        itemViewHolder.logoFacebook.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                loadBitmapForSharing(data, SHARE_OPTION_FACEBOOK);
+            }
+        });
+
+        itemViewHolder.logoInstagram.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                loadBitmapForSharing(data, SHARE_OPTION_INSTAGRAM);
+            }
+        });
+
+        itemViewHolder.logoMore.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                loadBitmapForSharing(data, SHARE_OPTION_OTHER);
+            }
+        });
+
+
+    }
+
+
+    /**
      * HatsOff onClick functionality.
      *
      * @param itemViewHolder ViewHolder for items.
      * @param data           Data for current item.
      */
     private void hatsOffOnClick(final ItemViewHolder itemViewHolder, final FeedModel data, final int itemPosition) {
+        itemViewHolder.imageHatsOff.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // check net status
+                if (NetworkHelper.getNetConnectionStatus(mContext)) {
+                    //User has already given the hats off
+                    if (itemViewHolder.mIsHatsOff) {
+                        //Animation for hats off
+                        if (itemViewHolder.mIsRotated) {
+                            itemViewHolder.imageHatsOff.startAnimation(AnimationUtils.loadAnimation(mContext, R.anim.reverse_rotate_animation_hats_off_60_degree));
+                        } else {
+                            itemViewHolder.imageHatsOff.startAnimation(AnimationUtils.loadAnimation(mContext, R.anim.reverse_rotate_animation_hats_off_30_degree));
+                        }
+                        //Toggle hatsOff tint
+                        itemViewHolder.imageHatsOff.setColorFilter(Color.TRANSPARENT);
+                        //Update hats of count i.e decrease by one
+                        data.setHatsOffCount(data.getHatsOffCount() - 1);
+                        //If hats off count is zero
+                        if (data.getHatsOffCount() < 1) {
+                            itemViewHolder.containerHatsOffCount.setVisibility(View.GONE);
+                        }
+                        //hats off count is more than zero
+                        else {
+                            //Change hatsOffCount i.e decrease by one
+                            itemViewHolder.containerHatsOffCount.setVisibility(View.VISIBLE);
+                            itemViewHolder.textHatsOffCount.setText(String.valueOf(data.getHatsOffCount()));
+                        }
+                    } else {
+                        //Animation for hats off
+                        if (itemViewHolder.mIsRotated) {
+                            itemViewHolder.imageHatsOff.startAnimation(AnimationUtils.loadAnimation(mContext, R.anim.rotate_animation_hats_off_0_degree));
+                        } else {
+                            itemViewHolder.imageHatsOff.startAnimation(AnimationUtils.loadAnimation(mContext, R.anim.rotate_animation_hats_off_30_degree));
+                        }
+                        //Toggle hatsOff tint
+                        itemViewHolder.imageHatsOff.setColorFilter(ContextCompat.getColor(mContext, R.color.colorPrimary));
+                        //Change hatsOffCount i.e increase by one
+                        data.setHatsOffCount(data.getHatsOffCount() + 1);
+                        //Change hatsOffCount i.e increase by one
+                        itemViewHolder.containerHatsOffCount.setVisibility(View.VISIBLE);
+                        itemViewHolder.textHatsOffCount.setText(String.valueOf(data.getHatsOffCount()));
+                    }
+
+                    updateDotSeperatorVisibility(data, itemViewHolder.dotSeparator);
+
+                    //Toggle hatsOff status
+                    itemViewHolder.mIsHatsOff = !itemViewHolder.mIsHatsOff;
+                    //Update hats off here
+                    data.setHatsOffStatus(itemViewHolder.mIsHatsOff);
+                    //Listener
+                    onHatsOffListener.onHatsOffClick(data, itemPosition);
+                } else {
+                    ViewHelper.getToast(mContext, mContext.getString(R.string.error_msg_no_connection));
+                }
+            }
+        });
+    }
+
+    /**
+     * HatsOff onClick functionality.
+     *
+     * @param itemViewHolder ViewHolder for items.
+     * @param data           Data for current item.
+     */
+    private void hatsOffOnClick(final MemeViewHolder itemViewHolder, final FeedModel data, final int itemPosition) {
         itemViewHolder.imageHatsOff.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -547,6 +717,21 @@ public class NewUsersPostAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
         });
     }
 
+    /**
+     * HatsOffCount click functionality to open "HatsOffActivity" screen.
+     */
+    void hatsOffCountOnClick(MemeViewHolder itemViewHolder, final FeedModel data) {
+
+        itemViewHolder.containerHatsOffCount.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(mContext, HatsOffActivity.class);
+                intent.putExtra(EXTRA_ENTITY_ID, data.getEntityID());
+                mContext.startActivity(intent);
+            }
+        });
+    }
+
 
     /**
      * Method to load bitmap image to be shared
@@ -652,17 +837,104 @@ public class NewUsersPostAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
 
                 ObjectAnimator imgScaleUpYAnim = ObjectAnimator.ofFloat(hatsOffView, "scaleY", 0.1f, 1f);
                 imgScaleUpYAnim.setDuration(300);
-                imgScaleUpYAnim.setInterpolator(DECCELERATE_INTERPOLATOR);
+                imgScaleUpYAnim.setInterpolator(Constant.DECCELERATE_INTERPOLATOR);
                 ObjectAnimator imgScaleUpXAnim = ObjectAnimator.ofFloat(hatsOffView, "scaleX", 0.1f, 1f);
                 imgScaleUpXAnim.setDuration(300);
-                imgScaleUpXAnim.setInterpolator(DECCELERATE_INTERPOLATOR);
+                imgScaleUpXAnim.setInterpolator(Constant.DECCELERATE_INTERPOLATOR);
 
                 ObjectAnimator imgScaleDownYAnim = ObjectAnimator.ofFloat(hatsOffView, "scaleY", 1f, 0f);
                 imgScaleDownYAnim.setDuration(300);
-                imgScaleDownYAnim.setInterpolator(ACCELERATE_INTERPOLATOR);
+                imgScaleDownYAnim.setInterpolator(Constant.ACCELERATE_INTERPOLATOR);
                 ObjectAnimator imgScaleDownXAnim = ObjectAnimator.ofFloat(hatsOffView, "scaleX", 1f, 0f);
                 imgScaleDownXAnim.setDuration(300);
-                imgScaleDownXAnim.setInterpolator(ACCELERATE_INTERPOLATOR);
+                imgScaleDownXAnim.setInterpolator(Constant.ACCELERATE_INTERPOLATOR);
+
+                animatorSet.playTogether(imgScaleUpYAnim, imgScaleUpXAnim);
+                animatorSet.play(imgScaleDownYAnim).with(imgScaleDownXAnim).after(imgScaleUpYAnim);
+
+                animatorSet.addListener(new AnimatorListenerAdapter() {
+                    @Override
+                    public void onAnimationEnd(Animator animation) {
+                        hatsOffView.setVisibility(View.GONE);
+                    }
+                });
+                animatorSet.start();
+                //endregion animation code end here
+            }
+
+            @Override
+            public void onClick() {
+                //do nothing
+            }
+        });
+    }
+    /**
+     * Method to set double tap listener.
+     *
+     * @param itemViewHolder View to double tapped.
+     * @param hatsOffView    ImageView to be updated.
+     * @param data           FeedModel data.
+     */
+    private void setDoubleTap(final MemeViewHolder itemViewHolder, final AppCompatImageView hatsOffView, final FeedModel data) {
+        itemViewHolder.itemView.setOnTouchListener(new OnGestureListener(mContext) {
+            @Override
+            public void onDoubleClick() {
+                //region :Code to update hatsOff status
+                // check net status
+                if (NetworkHelper.getNetConnectionStatus(mContext)) {
+                    //User has already given the hats off
+                    if (itemViewHolder.mIsHatsOff) {
+                        SoundUtil.playHatsOffSound(mContext);
+                    } else {
+                        //Animation for hats off
+                        if (itemViewHolder.mIsRotated) {
+                            itemViewHolder.imageHatsOff.startAnimation(AnimationUtils.loadAnimation(mContext, R.anim.rotate_animation_hats_off_0_degree));
+                        } else {
+                            itemViewHolder.imageHatsOff.startAnimation(AnimationUtils.loadAnimation(mContext, R.anim.rotate_animation_hats_off_30_degree));
+                        }
+                        //Toggle hatsOff tint
+                        itemViewHolder.imageHatsOff.setColorFilter(ContextCompat.getColor(mContext, R.color.colorPrimary));
+                        //Change hatsOffCount i.e increase by one
+                        data.setHatsOffCount(data.getHatsOffCount() + 1);
+                        //Change hatsOffCount i.e increase by one
+                        itemViewHolder.containerHatsOffCount.setVisibility(View.VISIBLE);
+                        itemViewHolder.textHatsOffCount.setText(String.valueOf(data.getHatsOffCount()));
+
+
+                        updateDotSeperatorVisibility(data, itemViewHolder.dotSeparator);
+
+                        //Toggle hatsOff status
+                        itemViewHolder.mIsHatsOff = !itemViewHolder.mIsHatsOff;
+                        //Update hats off here
+                        data.setHatsOffStatus(itemViewHolder.mIsHatsOff);
+                        //Listener
+                        onHatsOffListener.onHatsOffClick(data, itemViewHolder.getAdapterPosition());
+                    }
+
+                } else {
+                    ViewHelper.getToast(mContext, mContext.getString(R.string.error_msg_no_connection));
+                }
+                //endregion
+
+                //region :Animation code starts here
+                hatsOffView.setVisibility(View.VISIBLE);
+                hatsOffView.setScaleY(0.1f);
+                hatsOffView.setScaleX(0.1f);
+                AnimatorSet animatorSet = new AnimatorSet();
+
+                ObjectAnimator imgScaleUpYAnim = ObjectAnimator.ofFloat(hatsOffView, "scaleY", 0.1f, 1f);
+                imgScaleUpYAnim.setDuration(300);
+                imgScaleUpYAnim.setInterpolator(Constant.DECCELERATE_INTERPOLATOR);
+                ObjectAnimator imgScaleUpXAnim = ObjectAnimator.ofFloat(hatsOffView, "scaleX", 0.1f, 1f);
+                imgScaleUpXAnim.setDuration(300);
+                imgScaleUpXAnim.setInterpolator(Constant.DECCELERATE_INTERPOLATOR);
+
+                ObjectAnimator imgScaleDownYAnim = ObjectAnimator.ofFloat(hatsOffView, "scaleY", 1f, 0f);
+                imgScaleDownYAnim.setDuration(300);
+                imgScaleDownYAnim.setInterpolator(Constant.ACCELERATE_INTERPOLATOR);
+                ObjectAnimator imgScaleDownXAnim = ObjectAnimator.ofFloat(hatsOffView, "scaleX", 1f, 0f);
+                imgScaleDownXAnim.setDuration(300);
+                imgScaleDownXAnim.setInterpolator(Constant.ACCELERATE_INTERPOLATOR);
 
                 animatorSet.playTogether(imgScaleUpYAnim, imgScaleUpXAnim);
                 animatorSet.play(imgScaleDownYAnim).with(imgScaleDownXAnim).after(imgScaleUpYAnim);
@@ -684,6 +956,93 @@ public class NewUsersPostAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
         });
     }
 
+    /**
+     * Initializes the views and click actions
+     *
+     * @param itemViewHolder view holder
+     * @param data           Feed data
+     * @param position       position of the item
+     */
+    private void initializeMemeViewHolder(MemeViewHolder itemViewHolder, final FeedModel data, final int position) {
+        //Load creator profile picture
+        ImageHelper.loadProgressiveImage(Uri.parse(data.getCreatorImage())
+                , itemViewHolder.imgCreator);
+        //Set user creator name and its click functionality
+        itemViewHolder.textCreatorName.setText(TextUtils.getSpannedString(data.getCreatorName() + " added meme"
+                , new ForegroundColorSpan(Color.BLACK)
+                , 0
+                , data.getCreatorName().length()
+                , Spannable.SPAN_EXCLUSIVE_EXCLUSIVE));
+
+        openProfileActivity(itemViewHolder.textCreatorName, data.getUUID());
+        //init post timestamp
+        updatePostTimestamp(itemViewHolder.textTimeStamp, data);
+
+        //Set image width and height
+        AspectRatioUtils.setImageAspectRatio(data.getImgWidth()
+                , data.getImgHeight()
+                , itemViewHolder.contentImage
+                , true);
+        //Load content image
+        ImageHelper.loadProgressiveImage(Uri.parse(data.getContentImage())
+                , itemViewHolder.contentImage);
+
+
+        //Check whether user has given hats off to this campaign or not
+        checkHatsOffStatus(data.getHatsOffStatus(), itemViewHolder);
+
+        //Comment click functionality
+        commentOnClick(itemViewHolder.containerComment, data.getEntityID());
+
+        //HatsOff onClick functionality
+        hatsOffOnClick(itemViewHolder, data, position);
+
+        //Share click functionality
+        shareOnClick(itemViewHolder, data);
+
+        // caption on click
+        onTitleClicked(itemViewHolder.textCaption);
+
+        // on HatsOff count click
+        hatsOffCountOnClick(itemViewHolder, data);
+
+        //Comment click functionality
+        commentOnClick(itemViewHolder.containerComment, data.getEntityID());
+
+        //Initialize HatsOff and comment count
+        initSocialActionsCount(mContext,
+                data,
+                itemViewHolder.containerHatsOffCount,
+                itemViewHolder.textHatsOffCount,
+                itemViewHolder.containerCommentsCount,
+                itemViewHolder.textCommentsCount,
+                itemViewHolder.dotSeparator);
+
+        // initialize caption
+        initCaption(mContext, data, itemViewHolder.textCaption);
+        //Method called
+        setDoubleTap(itemViewHolder, itemViewHolder.hatsOffView, data);
+        //Method called
+        FeedHelper.updateRepost(itemViewHolder.containerRepost, mContext, mCompositeDisposable, data.getEntityID());
+
+    }
+
+    /**
+     * Method to open ProfileActivity screen.
+     *
+     * @param view View to be clicked.
+     * @param uuid UUID of user whose profile to  be loaded.
+     */
+    private void openProfileActivity(View view, final String uuid) {
+        view.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                IntentHelper.openProfileActivity(mContext, uuid);
+            }
+        });
+    }
+
+    //region :ViewHolders
     //ItemViewHolder class
     static class ItemViewHolder extends RecyclerView.ViewHolder {
         @BindView(R.id.imageCreator)
@@ -738,7 +1097,6 @@ public class NewUsersPostAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
         AppCompatImageView hatsOffView;
 
 
-
         //Social actions views
         @BindView(R.id.container_hats_off)
         LinearLayout containerHatsOff;
@@ -771,6 +1129,77 @@ public class NewUsersPostAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
         }
     }
 
+    //MemeViewHolder class
+    static class MemeViewHolder extends RecyclerView.ViewHolder {
+        //Creator views
+        @BindView(R.id.img_creator)
+        SimpleDraweeView imgCreator;
+        @BindView(R.id.text_creator_name)
+        AppCompatTextView textCreatorName;
+        @BindView(R.id.text_time_stamp)
+        AppCompatTextView textTimeStamp;
+
+        //Main content views
+        @BindView(R.id.container_main_content)
+        FrameLayout frameLayout;
+        @BindView(R.id.content_image)
+        SimpleDraweeView contentImage;
+        @BindView(R.id.water_mark_cread)
+        RelativeLayout waterMarkCread;
+        @BindView(R.id.double_tap_hats_off_view)
+        AppCompatImageView hatsOffView;
+
+        //Social action count views
+        @BindView(R.id.icon_hats_off)
+        AppCompatImageView iconHatsOff;
+        @BindView(R.id.text_hats_off_count)
+        AppCompatTextView textHatsOffCount;
+        @BindView(R.id.container_hats_off_count)
+        LinearLayout containerHatsOffCount;
+        @BindView(R.id.dot_separator)
+        AppCompatTextView dotSeparator;
+        @BindView(R.id.icon_comment)
+        AppCompatImageView iconComment;
+        @BindView(R.id.text_comments_count)
+        AppCompatTextView textCommentsCount;
+        @BindView(R.id.container_comments_count)
+        LinearLayout containerCommentsCount;
+
+        //Caption text
+        @BindView(R.id.text_caption)
+        AppCompatTextView textCaption;
+
+        //Social actions views
+        @BindView(R.id.image_hats_off)
+        AppCompatImageView imageHatsOff;
+        @BindView(R.id.container_hats_off)
+        LinearLayout containerHatsOff;
+        @BindView(R.id.container_comment)
+        LinearLayout containerComment;
+        @BindView(R.id.container_repost)
+        LinearLayout containerRepost;
+
+        //Share views
+        @BindView(R.id.logoWhatsapp)
+        AppCompatImageView logoWhatsapp;
+        @BindView(R.id.logoFacebook)
+        AppCompatImageView logoFacebook;
+        @BindView(R.id.logoInstagram)
+        AppCompatImageView logoInstagram;
+        @BindView(R.id.logoMore)
+        AppCompatImageView logoMore;
+
+        //Variable to maintain hats off status
+        private boolean mIsHatsOff = false;
+        //Variable to maintain  hats off view rotation status
+        private boolean mIsRotated = false;
+
+        public MemeViewHolder(View itemView) {
+            super(itemView);
+            ButterKnife.bind(this, itemView);
+        }
+    }
+
     //LoadingViewHolder class
     static class LoadingViewHolder extends RecyclerView.ViewHolder {
         @BindView(R.id.viewProgress)
@@ -781,19 +1210,6 @@ public class NewUsersPostAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
             ButterKnife.bind(this, itemView);
         }
     }
-
-    @Override
-    public void onViewAttachedToWindow(RecyclerView.ViewHolder holder) {
-        super.onViewAttachedToWindow(holder);
-        if (holder.getItemViewType() == VIEW_TYPE_ITEM) {
-            final ItemViewHolder itemViewHolder = (ItemViewHolder) holder;
-            LiveFilterHelper.initLiveFilters(mFeedList.get(holder.getAdapterPosition()).getLiveFilterName()
-                    , itemViewHolder.weatherView
-                    , itemViewHolder.konfettiView
-                    , itemViewHolder.liveFilterBubble
-                    , mContext);
-        }
-    }
-
+    //endregion
 
 }
