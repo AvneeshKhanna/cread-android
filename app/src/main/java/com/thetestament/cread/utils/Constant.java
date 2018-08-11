@@ -400,10 +400,6 @@ public class Constant {
     public static final String CONTENT_PREVIEW_EXTRA_LIVE_FILTER_NAME = "contentPreviewLiveFilterName";
     //endregion
 
-    //region Content type for labels
-    public static final String LABEL_TYPE_WRITING = "WRITING";
-    public static final String LABEL_TYPE_GRAPHIC = "GRAPHIC";
-    public static final String LABEL_TYPE_ALL = "ALL";
 
     public static final String USER_INTERESTS_CALLED_FROM_LOGIN = "userInterestsCalledFromLogin";
     public static final String USER_INTERESTS_CALLED_FROM_PROFILE = "userInterestsCalledFromProfile";

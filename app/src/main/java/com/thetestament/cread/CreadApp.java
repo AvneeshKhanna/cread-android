@@ -46,7 +46,6 @@ public class CreadApp extends MultiDexApplication {
     public static boolean GET_RESPONSE_FROM_NETWORK_RECOMMENDED_ARTISTS = false;
     public static boolean GET_RESPONSE_FROM_NETWORK_MORE_POSTS = false;
     public static boolean GET_RESPONSE_FROM_NETWORK_HASHTAG_OF_THE_DAY = false;
-    public static boolean GET_RESPONSE_FROM_NETWORK_HASHTAG_SUGGETION = false;
     public static boolean GET_RESPONSE_FROM_NETWORK_EXPLORE_CATEGORY = false;
     public static boolean GET_RESPONSE_FROM_NETWORK_NEW_USERS_POST = false;
     public static boolean GET_RESPONSE_FROM_NETWORK_ACHIEVEMENTS = false;

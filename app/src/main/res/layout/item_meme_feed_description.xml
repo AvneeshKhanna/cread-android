@@ -162,7 +162,8 @@
                     android:layout_height="wrap_content"
                     android:gravity="center_vertical"
                     android:paddingLeft="7dp"
-                    android:paddingTop="8dp">
+                    android:paddingTop="8dp"
+                    android:visibility="gone">
 
                     <android.support.v7.widget.AppCompatImageView
                         android:id="@+id/iconCollabCount"
@@ -179,7 +180,8 @@
                         android:paddingLeft="5dp"
                         android:paddingRight="2dp"
                         android:text="4"
-                        android:textSize="11sp" />
+                        android:textSize="11sp"
+                        android:visibility="gone" />
 
                 </LinearLayout>
 

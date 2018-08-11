@@ -166,7 +166,7 @@
             android:alpha="0.4"
             android:background="@color/grey_dark" />
 
-        <!--Caption and labels container-->
+        <!--Caption container-->
         <LinearLayout
             android:id="@+id/container_preview_bottom"
             android:layout_width="match_parent"
@@ -202,52 +202,6 @@
                 android:background="@color/grey_dark"
                 android:visibility="visible" />
 
-            <!--Container label hint-->
-            <LinearLayout
-                android:id="@+id/containerLabelHint"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_vertical"
-                android:background="@color/grey_light"
-                android:gravity="center_vertical"
-                android:orientation="horizontal"
-                android:paddingTop="10dp"
-                android:visibility="visible">
-
-                <!--Hint text for labels-->
-                <android.support.v7.widget.AppCompatTextView
-                    android:id="@+id/text_label_hint"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:paddingBottom="5dp"
-                    android:paddingLeft="8dp"
-                    android:paddingRight="8dp"
-                    android:text="Choose labels which might help you"
-                    android:textSize="12sp" />
-
-                <android.support.v7.widget.AppCompatTextView
-                    android:id="@+id/text_label_help"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:clickable="true"
-                    android:paddingBottom="5dp"
-                    android:text="(Why?)"
-                    android:textColor="@color/blue"
-                    android:textSize="12sp" />
-
-            </LinearLayout>
-
-            <!--Labels recyclerView-->
-            <android.support.v7.widget.RecyclerView
-                android:id="@+id/recycler_view_labels"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:background="@color/grey_light"
-                android:orientation="horizontal"
-                android:visibility="visible"
-                app:layoutManager="android.support.v7.widget.LinearLayoutManager"
-                tools:itemCount="6"
-                tools:listitem="@layout/item_labels" />
         </LinearLayout>
 
     </RelativeLayout>
@@ -255,7 +209,7 @@
     <!--Filter option bottom sheet-->
     <include layout="@layout/layout_filter_bottom_sheet" />
     <!--Live filter bottom sheet-->
-    <include layout="@layout/layout_live_filter_bottom_sheet" />
+     <include layout="@layout/layout_live_filter_bottom_sheet" />
 
     <!--Live filter button container-->
     <FrameLayout

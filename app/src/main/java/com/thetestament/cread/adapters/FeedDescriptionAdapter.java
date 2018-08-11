@@ -1659,8 +1659,6 @@ public class FeedDescriptionAdapter extends RecyclerView.Adapter {
     }
 
     public static class MemeViewHolder extends RecyclerView.ViewHolder {
-
-
         @BindView(R.id.img_creator)
         SimpleDraweeView imgCreator;
         @BindView(R.id.text_creator_name)
@@ -1735,8 +1733,8 @@ public class FeedDescriptionAdapter extends RecyclerView.Adapter {
         AppCompatImageView logoInstagram;
         @BindView(R.id.logoMore)
         AppCompatImageView logoMore;
-        @BindView(R.id.containerShareOptions)
-        LinearLayout containerShareOptions;
+        /*@BindView(R.id.containerShareOptions)
+        LinearLayout containerShareOptions;*/
         @BindView(R.id.container_social_action)
         RelativeLayout containerSocialAction;
         @BindView(R.id.lineSeparatorBottom)
