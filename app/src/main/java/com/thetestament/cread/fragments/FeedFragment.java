@@ -43,7 +43,7 @@ import com.thetestament.cread.activities.RecommendedArtistsActivity;
 import com.thetestament.cread.activities.SearchActivity;
 import com.thetestament.cread.adapters.FeedAdapter;
 import com.thetestament.cread.adapters.SuggestedArtistsAdapter;
-import com.thetestament.cread.helpers.DownvoteHelper;
+import com.thetestament.cread.helpers.DownVoteHelper;
 import com.thetestament.cread.helpers.FeedHelper;
 import com.thetestament.cread.helpers.GifHelper;
 import com.thetestament.cread.helpers.HashTagOfTheDayHelper;
@@ -782,15 +782,15 @@ public class FeedFragment extends Fragment implements listener.OnCollaborationLi
      * @param feedAdapter FeedAdapter reference
      */
     private void initDownVoteListener(FeedAdapter feedAdapter) {
-        feedAdapter.setOnDownVoteClickedListener(new listener.OnDownvoteClickedListener() {
+        feedAdapter.setOnDownVoteClickedListener(new listener.OnDownVoteClickedListener() {
             @Override
-            public void onDownvoteClicked(FeedModel data, int position, ImageView imageDownVote) {
+            public void onDownVoteClicked(FeedModel data, int position, ImageView imageDownVote) {
 
-                DownvoteHelper downvoteHelper = new DownvoteHelper();
+                DownVoteHelper downVoteHelper = new DownVoteHelper();
 
                 // if already downVoted
                 if (data.isDownvoteStatus()) {
-                    downvoteHelper.initDownvoteProcess(getActivity()
+                    downVoteHelper.initDownvoteProcess(getActivity()
                             , data
                             , mCompositeDisposable
                             , imageDownVote
@@ -799,7 +799,7 @@ public class FeedFragment extends Fragment implements listener.OnCollaborationLi
                 } else
 
                 {   // Show warning dialog
-                    downvoteHelper.initDownvoteWarningDialog(getActivity()
+                    downVoteHelper.initDownvoteWarningDialog(getActivity()
                             , data
                             , mCompositeDisposable
                             , imageDownVote

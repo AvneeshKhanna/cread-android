@@ -40,7 +40,7 @@ import com.thetestament.cread.activities.CollaborationDetailsActivity;
 import com.thetestament.cread.activities.CommentsActivity;
 import com.thetestament.cread.activities.HatsOffActivity;
 import com.thetestament.cread.activities.MerchandisingProductsActivity;
-import com.thetestament.cread.helpers.DownvoteHelper;
+import com.thetestament.cread.helpers.DownVoteHelper;
 import com.thetestament.cread.helpers.FeedHelper;
 import com.thetestament.cread.helpers.ImageHelper;
 import com.thetestament.cread.helpers.IntentHelper;
@@ -119,7 +119,7 @@ public class FeedDescriptionAdapter extends RecyclerView.Adapter {
     private listener.OnHatsOffListener onHatsOffListener;
     private listener.OnShareListener onShareListener;
     private listener.OnGifShareListener onGifShareListener;
-    private listener.OnDownvoteClickedListener onDownvoteClickedListener;
+    private listener.OnDownVoteClickedListener onDownVoteClickedListener;
     private listener.OnExploreFollowListener onExploreFollowListener;
     private listener.OnContentDeleteListener onContentDeleteListener;
 
@@ -175,8 +175,8 @@ public class FeedDescriptionAdapter extends RecyclerView.Adapter {
     /**
      * Register a callback to be invoked when user clicks on downvote button.
      */
-    public void setOnDownvoteClickedListener(listener.OnDownvoteClickedListener onDownvoteClickedListener) {
-        this.onDownvoteClickedListener = onDownvoteClickedListener;
+    public void setOnDownVoteClickedListener(listener.OnDownVoteClickedListener onDownVoteClickedListener) {
+        this.onDownVoteClickedListener = onDownVoteClickedListener;
     }
 
     /**
@@ -265,8 +265,8 @@ public class FeedDescriptionAdapter extends RecyclerView.Adapter {
             //update downvote and dot seperator visibility
             updateDownvoteAndSeperatorVisibility(data, itemViewHolder.dotSeperatorRight, itemViewHolder.imageDownvote);
             //check downvote status
-            DownvoteHelper downvoteHelper = new DownvoteHelper();
-            downvoteHelper.updateDownvoteUI(itemViewHolder.imageDownvote, data.isDownvoteStatus(), mContext);
+            DownVoteHelper downVoteHelper = new DownVoteHelper();
+            downVoteHelper.updateDownvoteUI(itemViewHolder.imageDownvote, data.isDownvoteStatus(), mContext);
             //Check whether user has given hats off to this campaign or not
             checkHatsOffStatus(data.getHatsOffStatus(), itemViewHolder);
 
@@ -384,8 +384,8 @@ public class FeedDescriptionAdapter extends RecyclerView.Adapter {
             //update downvote and dot seperator visibility
             updateDownvoteAndSeperatorVisibility(data, itemViewHolder.dotSeperatorRight, itemViewHolder.imageDownvote);
             //check downvote status
-            DownvoteHelper downvoteHelper = new DownvoteHelper();
-            downvoteHelper.updateDownvoteUI(itemViewHolder.imageDownvote, data.isDownvoteStatus(), mContext);
+            DownVoteHelper downVoteHelper = new DownVoteHelper();
+            downVoteHelper.updateDownvoteUI(itemViewHolder.imageDownvote, data.isDownvoteStatus(), mContext);
             //Check whether user has given hats off to this campaign or not
             checkHatsOffStatus(data.getHatsOffStatus(), itemViewHolder);
 
@@ -979,7 +979,7 @@ public class FeedDescriptionAdapter extends RecyclerView.Adapter {
             @Override
             public void onClick(View view) {
 
-                onDownvoteClickedListener.onDownvoteClicked(data, position, itemViewHolder.imageDownvote);
+                onDownVoteClickedListener.onDownVoteClicked(data, position, itemViewHolder.imageDownvote);
             }
         });
     }
@@ -989,7 +989,7 @@ public class FeedDescriptionAdapter extends RecyclerView.Adapter {
             @Override
             public void onClick(View view) {
 
-                onDownvoteClickedListener.onDownvoteClicked(data, position, itemViewHolder.imageDownvote);
+                onDownVoteClickedListener.onDownVoteClicked(data, position, itemViewHolder.imageDownvote);
             }
         });
     }

@@ -29,7 +29,7 @@ import com.thetestament.cread.Manifest;
 import com.thetestament.cread.R;
 import com.thetestament.cread.adapters.FeedDescriptionAdapter;
 import com.thetestament.cread.dialog.CustomDialog;
-import com.thetestament.cread.helpers.DownvoteHelper;
+import com.thetestament.cread.helpers.DownVoteHelper;
 import com.thetestament.cread.helpers.FeedHelper;
 import com.thetestament.cread.helpers.FollowHelper;
 import com.thetestament.cread.helpers.GifHelper;
@@ -463,40 +463,40 @@ public class FeedDescriptionActivity extends BaseActivity implements listener.On
 
 
     private void initDownVoteListener(FeedDescriptionAdapter feedAdapter) {
-        feedAdapter.setOnDownvoteClickedListener(new listener.OnDownvoteClickedListener() {
+        feedAdapter.setOnDownVoteClickedListener(new listener.OnDownVoteClickedListener() {
             @Override
-            public void onDownvoteClicked(FeedModel data, int position, ImageView imageDownvote) {
+            public void onDownVoteClicked(FeedModel data, int position, ImageView imageDownVote) {
 
-                DownvoteHelper downvoteHelper = new DownvoteHelper();
+                DownVoteHelper downVoteHelper = new DownVoteHelper();
 
                 if (position == 0) {
                     // if already downvoted
                     if (data.isDownvoteStatus()) {
-                        downvoteHelper.initDownvoteProcess(mContext
+                        downVoteHelper.initDownvoteProcess(mContext
                                 , data
                                 , mCompositeDisposable
-                                , imageDownvote
+                                , imageDownVote
                                 , resultBundle
                                 , resultIntent);
                     } else
 
                     {   // show warning dialog
-                        downvoteHelper.initDownvoteWarningDialog(mContext, data, mCompositeDisposable, imageDownvote, resultBundle, resultIntent);
+                        downVoteHelper.initDownvoteWarningDialog(mContext, data, mCompositeDisposable, imageDownVote, resultBundle, resultIntent);
 
                     }
                 } else {
                     // if already downvoted
                     if (data.isDownvoteStatus()) {
-                        downvoteHelper.initDownvoteProcess(mContext
+                        downVoteHelper.initDownvoteProcess(mContext
                                 , data
                                 , mCompositeDisposable
-                                , imageDownvote
+                                , imageDownVote
                                 , new Bundle()
                                 , new Intent());
                     } else
 
                     {   // show warning dialog
-                        downvoteHelper.initDownvoteWarningDialog(mContext, data, mCompositeDisposable, imageDownvote, new Bundle(), new Intent());
+                        downVoteHelper.initDownvoteWarningDialog(mContext, data, mCompositeDisposable, imageDownVote, new Bundle(), new Intent());
 
                     }
                 }

@@ -40,14 +40,14 @@ import com.thetestament.cread.activities.CollaborationDetailsActivity;
 import com.thetestament.cread.activities.CommentsActivity;
 import com.thetestament.cread.activities.HatsOffActivity;
 import com.thetestament.cread.activities.MerchandisingProductsActivity;
-import com.thetestament.cread.helpers.DownvoteHelper;
+import com.thetestament.cread.helpers.DownVoteHelper;
 import com.thetestament.cread.helpers.FeedHelper;
 import com.thetestament.cread.helpers.ImageHelper;
 import com.thetestament.cread.helpers.IntentHelper;
 import com.thetestament.cread.helpers.LiveFilterHelper;
 import com.thetestament.cread.helpers.NetworkHelper;
 import com.thetestament.cread.helpers.ViewHelper;
-import com.thetestament.cread.listeners.listener.OnDownvoteClickedListener;
+import com.thetestament.cread.listeners.listener.OnDownVoteClickedListener;
 import com.thetestament.cread.listeners.listener.OnFeedLoadMoreListener;
 import com.thetestament.cread.listeners.listener.OnHatsOffListener;
 import com.thetestament.cread.listeners.listener.OnShareListener;
@@ -130,7 +130,7 @@ public class NewUsersPostAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
     private OnFeedLoadMoreListener onFeedLoadMoreListener;
     private OnHatsOffListener onHatsOffListener;
     private OnShareListener onShareListener;
-    private OnDownvoteClickedListener onDownvoteClickedListener;
+    private OnDownVoteClickedListener onDownVoteClickedListener;
 
     /**
      * Register a callback to be invoked when user scrolls for more data.
@@ -158,8 +158,8 @@ public class NewUsersPostAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
     /**
      * Register a callback to be invoked when user clicks on down vote button.
      */
-    public void setOnDownvoteClickedListener(OnDownvoteClickedListener onDownvoteClickedListener) {
-        this.onDownvoteClickedListener = onDownvoteClickedListener;
+    public void setOnDownVoteClickedListener(OnDownVoteClickedListener onDownVoteClickedListener) {
+        this.onDownVoteClickedListener = onDownVoteClickedListener;
     }
 
     //endregion
@@ -231,8 +231,8 @@ public class NewUsersPostAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
                     , itemViewHolder.imageDownvote);
 
             //check down vote status
-            DownvoteHelper downvoteHelper = new DownvoteHelper();
-            downvoteHelper.updateDownvoteUI(itemViewHolder.imageDownvote, data.isDownvoteStatus(), mContext);
+            DownVoteHelper downVoteHelper = new DownVoteHelper();
+            downVoteHelper.updateDownvoteUI(itemViewHolder.imageDownvote, data.isDownvoteStatus(), mContext);
             //Check whether user has given hats off to this campaign or not
             checkHatsOffStatus(data.getHatsOffStatus(), itemViewHolder);
 
@@ -634,7 +634,7 @@ public class NewUsersPostAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
             @Override
             public void onClick(View view) {
 
-                onDownvoteClickedListener.onDownvoteClicked(data, position, itemViewHolder.imageDownvote);
+                onDownVoteClickedListener.onDownVoteClicked(data, position, itemViewHolder.imageDownvote);
             }
         });
     }

@@ -402,8 +402,8 @@ public class listener {
         void onFeatArtistClicked(int itemType, String uuid);
     }
 
-    public interface OnDownvoteClickedListener {
-        void onDownvoteClicked(FeedModel data, int position, ImageView imageDownvote);
+    public interface OnDownVoteClickedListener {
+        void onDownVoteClicked(FeedModel data, int position, ImageView imageDownVote);
     }
 
     /**
