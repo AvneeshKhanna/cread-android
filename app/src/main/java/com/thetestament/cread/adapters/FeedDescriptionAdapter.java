@@ -5,9 +5,7 @@ import android.animation.AnimatorListenerAdapter;
 import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
 import android.content.Intent;
-import android.graphics.Bitmap;
 import android.graphics.Color;
-import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -37,8 +35,6 @@ import com.gaurav.gesto.OnGestureListener;
 import com.github.glomadrian.grav.GravView;
 import com.github.matteobattilana.weather.WeatherView;
 import com.google.firebase.analytics.FirebaseAnalytics;
-import com.squareup.picasso.Picasso;
-import com.squareup.picasso.Target;
 import com.thetestament.cread.R;
 import com.thetestament.cread.activities.CollaborationDetailsActivity;
 import com.thetestament.cread.activities.CommentsActivity;
@@ -46,7 +42,6 @@ import com.thetestament.cread.activities.HatsOffActivity;
 import com.thetestament.cread.activities.MerchandisingProductsActivity;
 import com.thetestament.cread.helpers.DownvoteHelper;
 import com.thetestament.cread.helpers.FeedHelper;
-import com.thetestament.cread.helpers.GifHelper;
 import com.thetestament.cread.helpers.ImageHelper;
 import com.thetestament.cread.helpers.IntentHelper;
 import com.thetestament.cread.helpers.LiveFilterHelper;
@@ -94,10 +89,6 @@ import static com.thetestament.cread.utils.Constant.FIREBASE_EVENT_HAVE_CLICKED;
 import static com.thetestament.cread.utils.Constant.FIREBASE_EVENT_SHARED_FROM_FEED_DESCRIPTION;
 import static com.thetestament.cread.utils.Constant.FIREBASE_EVENT_WRITE_CLICKED;
 import static com.thetestament.cread.utils.Constant.REQUEST_CODE_COMMENTS_ACTIVITY;
-import static com.thetestament.cread.utils.Constant.SHARE_OPTION_FACEBOOK;
-import static com.thetestament.cread.utils.Constant.SHARE_OPTION_INSTAGRAM;
-import static com.thetestament.cread.utils.Constant.SHARE_OPTION_OTHER;
-import static com.thetestament.cread.utils.Constant.SHARE_OPTION_WHATSAPP;
 
 /**
  * Created by prakharchandna on 05/04/18.
@@ -290,7 +281,9 @@ public class FeedDescriptionAdapter extends RecyclerView.Adapter {
             //Comment click functionality
             commentOnClick(itemViewHolder.containerComment, data.getEntityID());
             //Share click functionality
-            shareOnClick(itemViewHolder, data);
+            ShareHelper.shareOnClick(mContext, data, onGifShareListener, onShareListener, itemViewHolder.logoWhatsapp
+                    , itemViewHolder.logoFacebook, itemViewHolder.logoInstagram, itemViewHolder.logoMore
+                    , itemViewHolder.frameLayout, itemViewHolder.waterMarkCreadView);
             //HatsOff onClick functionality
             hatsOffOnClick(itemViewHolder, data, position);
             //Collaboration count click functionality
@@ -407,7 +400,10 @@ public class FeedDescriptionAdapter extends RecyclerView.Adapter {
             //Comment click functionality
             commentOnClick(itemViewHolder.containerComment, data.getEntityID());
             //Share click functionality
-            shareOnClick(itemViewHolder, data);
+            ShareHelper.shareOnClick(mContext, data, onGifShareListener, onShareListener, itemViewHolder.logoWhatsapp
+                    , itemViewHolder.logoFacebook, itemViewHolder.logoInstagram, itemViewHolder.logoMore
+                    , itemViewHolder.frameLayout, itemViewHolder.waterMarkCread);
+
             //HatsOff onClick functionality
             hatsOffOnClick(itemViewHolder, data, position);
             //Collaboration count click functionality
@@ -730,170 +726,8 @@ public class FeedDescriptionAdapter extends RecyclerView.Adapter {
         });
     }
 
-    /**
-     * Share onClick functionality.
-     *
-     * @param itemViewHolder
-     * @param data
-     */
-    private void shareOnClick(final ItemViewHolder itemViewHolder, final FeedModel data) {
-        itemViewHolder.logoWhatsapp.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if (ShareHelper.isAppInstalled(mContext, Constant.PACKAGE_NAME_WHATSAPP)) {
-                    if (GifHelper.hasLiveFilter(data.getLiveFilterName())) {
-                        onGifShareListener.onGifShareClick(itemViewHolder.frameLayout, SHARE_OPTION_WHATSAPP, itemViewHolder.waterMarkCreadView, data.getLiveFilterName());
-                    } else {
-                        loadBitmapForSharing(data, SHARE_OPTION_WHATSAPP);
-                    }
-                } else {
-                    ViewHelper.getToast(mContext, mContext.getString(R.string.error_no_whats_app));
-                }
-            }
-        });
-
-        itemViewHolder.logoFacebook.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if (ShareHelper.isAppInstalled(mContext, Constant.PACKAGE_NAME_FACEBOOK)) {
-                    if (GifHelper.hasLiveFilter(data.getLiveFilterName())) {
-                        onGifShareListener.onGifShareClick(itemViewHolder.frameLayout, SHARE_OPTION_FACEBOOK, itemViewHolder.waterMarkCreadView, data.getLiveFilterName());
-
-                    } else {
-                        loadBitmapForSharing(data, SHARE_OPTION_FACEBOOK);
-                    }
-                } else {
-                    ViewHelper.getToast(mContext,
-                            mContext.getString(R.string.error_no_facebook));
-                }
-            }
-        });
-
-        itemViewHolder.logoInstagram.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if (ShareHelper.isAppInstalled(mContext, Constant.PACKAGE_NAME_INSTAGRAM)) {
-                    if (GifHelper.hasLiveFilter(data.getLiveFilterName())) {
-                        onGifShareListener.onGifShareClick(itemViewHolder.frameLayout, SHARE_OPTION_INSTAGRAM, itemViewHolder.waterMarkCreadView, data.getLiveFilterName());
-                    } else {
-                        loadBitmapForSharing(data, SHARE_OPTION_INSTAGRAM);
-                    }
-                } else {
-                    ViewHelper.getToast(mContext, mContext.getString(R.string.error_no_instagram));
-                }
-
-            }
-        });
-
-        itemViewHolder.logoMore.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if (GifHelper.hasLiveFilter(data.getLiveFilterName())) {
-                    onGifShareListener.onGifShareClick(itemViewHolder.frameLayout, SHARE_OPTION_OTHER, itemViewHolder.waterMarkCreadView, data.getLiveFilterName());
-                } else {
-                    loadBitmapForSharing(data, SHARE_OPTION_OTHER);
-                }
-            }
-        });
 
 
-    }
-
-    /**
-     * Share onClick functionality.
-     *
-     * @param itemViewHolder
-     * @param data
-     */
-    private void shareOnClick(final MemeViewHolder itemViewHolder, final FeedModel data) {
-        itemViewHolder.logoWhatsapp.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if (ShareHelper.isAppInstalled(mContext, Constant.PACKAGE_NAME_WHATSAPP)) {
-                    if (GifHelper.hasLiveFilter(data.getLiveFilterName())) {
-                        onGifShareListener.onGifShareClick(itemViewHolder.frameLayout, SHARE_OPTION_WHATSAPP, itemViewHolder.waterMarkCread, data.getLiveFilterName());
-                    } else {
-                        loadBitmapForSharing(data, SHARE_OPTION_WHATSAPP);
-                    }
-                } else {
-                    ViewHelper.getToast(mContext, mContext.getString(R.string.error_no_whats_app));
-                }
-            }
-        });
-
-        itemViewHolder.logoFacebook.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if (ShareHelper.isAppInstalled(mContext, Constant.PACKAGE_NAME_FACEBOOK)) {
-                    if (GifHelper.hasLiveFilter(data.getLiveFilterName())) {
-                        onGifShareListener.onGifShareClick(itemViewHolder.frameLayout, SHARE_OPTION_FACEBOOK, itemViewHolder.waterMarkCread, data.getLiveFilterName());
-
-                    } else {
-                        loadBitmapForSharing(data, SHARE_OPTION_FACEBOOK);
-                    }
-                } else {
-                    ViewHelper.getToast(mContext,
-                            mContext.getString(R.string.error_no_facebook));
-                }
-            }
-        });
-
-        itemViewHolder.logoInstagram.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if (ShareHelper.isAppInstalled(mContext, Constant.PACKAGE_NAME_INSTAGRAM)) {
-                    if (GifHelper.hasLiveFilter(data.getLiveFilterName())) {
-                        onGifShareListener.onGifShareClick(itemViewHolder.frameLayout, SHARE_OPTION_INSTAGRAM, itemViewHolder.waterMarkCread, data.getLiveFilterName());
-                    } else {
-                        loadBitmapForSharing(data, SHARE_OPTION_INSTAGRAM);
-                    }
-                } else {
-                    ViewHelper.getToast(mContext, mContext.getString(R.string.error_no_instagram));
-                }
-
-            }
-        });
-
-        itemViewHolder.logoMore.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if (GifHelper.hasLiveFilter(data.getLiveFilterName())) {
-                    onGifShareListener.onGifShareClick(itemViewHolder.frameLayout, SHARE_OPTION_OTHER, itemViewHolder.waterMarkCread, data.getLiveFilterName());
-                } else {
-                    loadBitmapForSharing(data, SHARE_OPTION_OTHER);
-                }
-            }
-        });
-
-
-    }
-
-
-    /**
-     * Method to load bitmap image to be shared
-     */
-    private void loadBitmapForSharing(final FeedModel data, final String shareOption) {
-        Picasso.with(mContext).load(data.getContentImage()).into(new Target() {
-            @Override
-            public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
-                //Set Listener
-                onShareListener.onShareClick(bitmap, data, shareOption);
-                //Log firebase event
-                setAnalytics(FIREBASE_EVENT_SHARED_FROM_FEED_DESCRIPTION, data.getEntityID());
-            }
-
-            @Override
-            public void onBitmapFailed(Drawable errorDrawable) {
-                ViewHelper.getToast(mContext, mContext.getString(R.string.error_msg_no_image));
-            }
-
-            @Override
-            public void onPrepareLoad(Drawable placeHolderDrawable) {
-
-            }
-        });
-
-    }
 
     /**
      * HatsOff onClick functionality.
