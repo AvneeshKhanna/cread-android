@@ -98,8 +98,8 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     //region :ViewTypes
     private final int VIEW_TYPE_ITEM = 0;
     private final int VIEW_TYPE_MEME = 1;
-    private final int VIEW_TYPE_ITEM_USER_REPOST = 2;
-    private final int VIEW_TYPE_ITEM_USER_REPOST_MEME = 3;
+    private final int VIEW_TYPE_REPOST = 2;
+    private final int VIEW_TYPE_MEME_REPOST = 3;
     private final int VIEW_TYPE_LOADING = 4;
     private final int VIEW_TYPE_RECOMMENDED_ARTIST = 5;
     //endregion
@@ -203,9 +203,9 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                 return VIEW_TYPE_RECOMMENDED_ARTIST;
             } else if (mFeedList.get(position).getPostType().equals("REPOST")) {
                 if (mFeedList.get(position).getContentType().equals(Constant.CONTENT_TYPE_MEME)) {
-                    return VIEW_TYPE_ITEM_USER_REPOST_MEME;
+                    return VIEW_TYPE_MEME_REPOST;
                 } else {
-                    return VIEW_TYPE_ITEM_USER_REPOST;
+                    return VIEW_TYPE_REPOST;
                 }
             } else {
                 if (mFeedList.get(position).getContentType().equals(Constant.CONTENT_TYPE_MEME)) {
@@ -228,12 +228,12 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             return new MemeViewHolder(LayoutInflater
                     .from(parent.getContext())
                     .inflate(R.layout.item_meme, parent, false));
-        } else if (viewType == VIEW_TYPE_ITEM_USER_REPOST) {
+        } else if (viewType == VIEW_TYPE_REPOST) {
             return new RePostViewHolder(LayoutInflater
                     .from(parent.getContext())
                     .inflate(R.layout.item_repost, parent, false));
-        } else if (viewType == VIEW_TYPE_ITEM_USER_REPOST_MEME) {
-            return new RePostMemeViewHolder(LayoutInflater
+        } else if (viewType == VIEW_TYPE_MEME_REPOST) {
+            return new MemeRePostViewHolder(LayoutInflater
                     .from(parent.getContext())
                     .inflate(R.layout.item_meme_repost, parent, false));
         } else if (viewType == VIEW_TYPE_LOADING) {
@@ -393,14 +393,14 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                             , REQUEST_CODE_RECOMMENDED_ARTISTS_FROM_FEED_ADAPTER);
                 }
             });
-        } else if (holder.getItemViewType() == VIEW_TYPE_ITEM_USER_REPOST) {
+        } else if (holder.getItemViewType() == VIEW_TYPE_REPOST) {
             final RePostViewHolder viewHolder = (RePostViewHolder) holder;
             initializeRepostViewHolder(viewHolder, data, holder.getAdapterPosition());
         } else if (holder.getItemViewType() == VIEW_TYPE_MEME) {
             final MemeViewHolder viewHolder = (MemeViewHolder) holder;
             initializeMemeViewHolder(viewHolder, data, holder.getAdapterPosition());
-        } else if (holder.getItemViewType() == VIEW_TYPE_ITEM_USER_REPOST_MEME) {
-            final RePostMemeViewHolder viewHolder = (RePostMemeViewHolder) holder;
+        } else if (holder.getItemViewType() == VIEW_TYPE_MEME_REPOST) {
+            final MemeRePostViewHolder viewHolder = (MemeRePostViewHolder) holder;
             initializeRepostMemeViewHolder(viewHolder, data, holder.getAdapterPosition());
         }
 
@@ -423,7 +423,7 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                     , itemViewHolder.konfettiView
                     , itemViewHolder.liveFilterBubble
                     , mContext);
-        } else if (holder.getItemViewType() == VIEW_TYPE_ITEM_USER_REPOST) {
+        } else if (holder.getItemViewType() == VIEW_TYPE_REPOST) {
             final RePostViewHolder itemViewHolder = (RePostViewHolder) holder;
             LiveFilterHelper.initLiveFilters(mFeedList.get(holder.getAdapterPosition()).getLiveFilterName()
                     , itemViewHolder.whetherView
@@ -530,7 +530,7 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     /**
      * Method to check hatsOff status and perform operation accordingly.
      */
-    private void checkHatsOffStatus(boolean hatsOffStatus, RePostMemeViewHolder itemViewHolder) {
+    private void checkHatsOffStatus(boolean hatsOffStatus, MemeRePostViewHolder itemViewHolder) {
         if (hatsOffStatus) {
             //Change color
             itemViewHolder.imageHatsOff.setColorFilter(ContextCompat.getColor(mContext, R.color.colorPrimary));
@@ -803,7 +803,7 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
      * @param itemViewHolder ViewHolder for items.
      * @param data           Data for current item.
      */
-    private void hatsOffOnClick(final RePostMemeViewHolder itemViewHolder, final FeedModel data, final int itemPosition) {
+    private void hatsOffOnClick(final MemeRePostViewHolder itemViewHolder, final FeedModel data, final int itemPosition) {
         itemViewHolder.imageHatsOff.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -1192,7 +1192,7 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
      * @param data           Feed data.
      * @param position       item position in data list.
      */
-    private void initializeRepostMemeViewHolder(RePostMemeViewHolder itemViewHolder, final FeedModel data, final int position) {
+    private void initializeRepostMemeViewHolder(MemeRePostViewHolder itemViewHolder, final FeedModel data, final int position) {
         //Load creator profile picture
         ImageHelper.loadProgressiveImage(Uri.parse(data.getCreatorImage())
                 , itemViewHolder.imageCreator);
@@ -1515,7 +1515,7 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
      * @param hatsOffView    ImageView to be updated.
      * @param data           FeedModel data.
      */
-    private void setDoubleTap(final RePostMemeViewHolder itemViewHolder, final AppCompatImageView hatsOffView, final FeedModel data) {
+    private void setDoubleTap(final MemeRePostViewHolder itemViewHolder, final AppCompatImageView hatsOffView, final FeedModel data) {
         itemViewHolder.itemView.setOnTouchListener(new OnGestureListener(mContext) {
             @Override
             public void onDoubleClick() {
@@ -1847,7 +1847,7 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     }
 
     //RepostMemeViewHolder class
-    static class RePostMemeViewHolder extends RecyclerView.ViewHolder {
+    static class MemeRePostViewHolder extends RecyclerView.ViewHolder {
         //Reposted views
         @BindView(R.id.text_reposted_by)
         AppCompatTextView textRepostedBy;
@@ -1899,7 +1899,7 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         //Variable to maintain  hats off view rotation status
         private boolean mIsRotated = false;
 
-        public RePostMemeViewHolder(View itemView) {
+        public MemeRePostViewHolder(View itemView) {
             super(itemView);
             ButterKnife.bind(this, itemView);
         }
