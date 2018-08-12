@@ -40,7 +40,6 @@ import com.thetestament.cread.activities.CollaborationDetailsActivity;
 import com.thetestament.cread.activities.CommentsActivity;
 import com.thetestament.cread.activities.HatsOffActivity;
 import com.thetestament.cread.activities.MerchandisingProductsActivity;
-import com.thetestament.cread.helpers.DownVoteHelper;
 import com.thetestament.cread.helpers.FeedHelper;
 import com.thetestament.cread.helpers.ImageHelper;
 import com.thetestament.cread.helpers.IntentHelper;
@@ -67,7 +66,6 @@ import nl.dionsegijn.konfetti.KonfettiView;
 import static com.thetestament.cread.helpers.FeedHelper.initCaption;
 import static com.thetestament.cread.helpers.FeedHelper.initSocialActionsCount;
 import static com.thetestament.cread.helpers.FeedHelper.updateDotSeperatorVisibility;
-import static com.thetestament.cread.helpers.FeedHelper.updateDownvoteAndSeperatorVisibility;
 import static com.thetestament.cread.helpers.FeedHelper.updatePostTimestamp;
 import static com.thetestament.cread.helpers.LongShortHelper.checkLongFormStatus;
 import static com.thetestament.cread.helpers.LongShortHelper.initLongFormPreviewClick;
@@ -205,7 +203,7 @@ public class NewUsersPostAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
             final ItemViewHolder itemViewHolder = (ItemViewHolder) holder;
             //Load creator profile picture
             ImageHelper.loadProgressiveImage(Uri.parse(data.getCreatorImage())
-                    , itemViewHolder.imageCreator);
+                    , itemViewHolder.imgCreator);
 
             //Set image width and height
             AspectRatioUtils.setImageAspectRatio(data.getImgWidth()
@@ -220,19 +218,16 @@ public class NewUsersPostAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
                     , data
                     , itemViewHolder.textCollabCount
                     , itemViewHolder.containerCollabCount
-                    , itemViewHolder.buttonCollaborate
+                    , itemViewHolder.btnCollaborate
                     , itemViewHolder.textCreatorName
                     , false
                     , false
                     , null);
 
             //Update down vote and dot separator visibility
-            updateDownvoteAndSeperatorVisibility(data, itemViewHolder.dotSeparatorRight
-                    , itemViewHolder.imageDownvote);
+            FeedHelper.toggleDownvoteAndSeparatorVisibility(mContext, data, itemViewHolder.dotSeparatorRight
+                    , itemViewHolder.imageDownVote);
 
-            //check down vote status
-            DownVoteHelper downVoteHelper = new DownVoteHelper();
-            downVoteHelper.updateDownvoteUI(itemViewHolder.imageDownvote, data.isDownvoteStatus(), mContext);
             //Check whether user has given hats off to this campaign or not
             checkHatsOffStatus(data.getHatsOffStatus(), itemViewHolder);
 
@@ -247,17 +242,17 @@ public class NewUsersPostAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
             //have button click
             onHaveViewClicked(data, itemViewHolder);
             // caption on click
-            onTitleClicked(itemViewHolder.textTitle);
+            onTitleClicked(itemViewHolder.textCaption);
             // on HatsOff count click
             hatsOffCountOnClick(itemViewHolder, data);
             //Comment count click functionality
             commentOnClick(itemViewHolder.containerCommentCount, data.getEntityID());
             // downVote click
-            downVoteOnClick(itemViewHolder.imageDownvote, data, position, itemViewHolder);
+            downVoteOnClick(itemViewHolder.imageDownVote, data, position, itemViewHolder);
             //check long form status
-            checkLongFormStatus(itemViewHolder.containerLongShortPreview, data);
+            checkLongFormStatus(itemViewHolder.btnLongWritingPreview, data);
             //long form on click
-            initLongFormPreviewClick(itemViewHolder.containerLongShortPreview, data, mContext, mCompositeDisposable);
+            initLongFormPreviewClick(itemViewHolder.btnLongWritingPreview, data, mContext, mCompositeDisposable);
 
             //Initialize HatsOff and comment count
             initSocialActionsCount(mContext,
@@ -269,9 +264,9 @@ public class NewUsersPostAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
                     itemViewHolder.dotSeparator);
 
             // initialize caption
-            initCaption(mContext, data, itemViewHolder.textTitle);
+            initCaption(mContext, data, itemViewHolder.textCaption);
             // init post timestamp
-            updatePostTimestamp(itemViewHolder.textTimeStamp, data);
+            updatePostTimestamp(itemViewHolder.postTimeStamp, data);
             //Method called
             setDoubleTap(itemViewHolder, itemViewHolder.hatsOffView, data);
             //Method called
@@ -634,7 +629,7 @@ public class NewUsersPostAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
             @Override
             public void onClick(View view) {
 
-                onDownVoteClickedListener.onDownVoteClicked(data, position, itemViewHolder.imageDownvote);
+                onDownVoteClickedListener.onDownVoteClicked(data, position, itemViewHolder.imageDownVote);
             }
         });
     }
@@ -666,7 +661,7 @@ public class NewUsersPostAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
      */
     private void onHaveViewClicked(final FeedModel data, final ItemViewHolder itemViewHolder) {
 
-        itemViewHolder.buttonHave.setOnClickListener(new View.OnClickListener() {
+        itemViewHolder.btnBuy.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
 
@@ -860,6 +855,7 @@ public class NewUsersPostAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
             }
         });
     }
+
     /**
      * Method to set double tap listener.
      *
@@ -1037,40 +1033,39 @@ public class NewUsersPostAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
     //region :ViewHolders
     //ItemViewHolder class
     static class ItemViewHolder extends RecyclerView.ViewHolder {
-        @BindView(R.id.imageCreator)
-        SimpleDraweeView imageCreator;
-        @BindView(R.id.textCreatorName)
+        //Creator views
+        @BindView(R.id.img_creator)
+        SimpleDraweeView imgCreator;
+        @BindView(R.id.txt_creator_name)
         TextView textCreatorName;
-        @BindView(R.id.containerCreator)
-        RelativeLayout containerCreator;
-        @BindView(R.id.buttonCollaborate)
-        TextView buttonCollaborate;
-        @BindView(R.id.textCollabCount)
-        TextView textCollabCount;
-        @BindView(R.id.containerCollabCount)
-        LinearLayout containerCollabCount;
-        @BindView(R.id.textTitle)
-        TextView textTitle;
-        @BindView(R.id.buttonHave)
-        LinearLayout buttonHave;
-        @BindView(R.id.containerHatsoffCount)
+        @BindView(R.id.btn_collaborate)
+        AppCompatTextView btnCollaborate;
+        @BindView(R.id.post_time_stamp)
+        AppCompatTextView postTimeStamp;
+
+
+        //Social action count indicator
+        @BindView(R.id.container_hats_off_count)
         LinearLayout containerHatsOffCount;
-        @BindView(R.id.containerCommentsCount)
-        LinearLayout containerCommentCount;
-        @BindView(R.id.textHatsOffCount)
+        @BindView(R.id.text_hats_off_count)
         TextView textHatsOffCount;
-        @BindView(R.id.textCommentsCount)
-        TextView textCommentsCount;
-        @BindView(R.id.dotSeperator)
+        @BindView(R.id.count_divider)
         TextView dotSeparator;
-        @BindView(R.id.dotSeperatorRight)
-        TextView dotSeparatorRight;
-        @BindView(R.id.imageDownvote)
-        ImageView imageDownvote;
-        @BindView(R.id.containerLongShortPreview)
-        FrameLayout containerLongShortPreview;
-        @BindView(R.id.textTimestamp)
-        TextView textTimeStamp;
+        @BindView(R.id.container_comments_count)
+        LinearLayout containerCommentCount;
+        @BindView(R.id.text_comments_count)
+        TextView textCommentsCount;
+
+        //Collaboration and downvote views
+        @BindView(R.id.img_downvote)
+        AppCompatImageView imageDownVote;
+        @BindView(R.id.dot_Separator_downvote)
+        AppCompatTextView dotSeparatorRight;
+        @BindView(R.id.container_collab_count)
+        LinearLayout containerCollabCount;
+        @BindView(R.id.text_collab_count)
+        TextView textCollabCount;
+
 
         //Main content views
         @BindView(R.id.container_main_content)
@@ -1087,7 +1082,14 @@ public class NewUsersPostAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
         RelativeLayout waterMarkCreadView;
         @BindView(R.id.double_tap_hats_off_view)
         AppCompatImageView hatsOffView;
+        @BindView(R.id.btn_buy)
+        LinearLayout btnBuy;
+        @BindView(R.id.btn_long_writing_preview)
+        FrameLayout btnLongWritingPreview;
 
+
+        @BindView(R.id.text_caption)
+        AppCompatTextView textCaption;
 
         //Social actions views
         @BindView(R.id.container_hats_off)
@@ -1108,7 +1110,6 @@ public class NewUsersPostAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
         AppCompatImageView logoInstagram;
         @BindView(R.id.logoMore)
         AppCompatImageView logoMore;
-
 
         //Variable to maintain hats off status
         private boolean mIsHatsOff = false;

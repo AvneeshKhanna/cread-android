@@ -29,12 +29,12 @@ import static com.thetestament.cread.helpers.NetworkHelper.requestServer;
 import static com.thetestament.cread.helpers.NetworkHelper.updateDownvoteStatusObservable;
 
 /**
- * Created by prakharchandna on 05/03/18.
+ * Helper class to provide utility methods related to downvote operation.
  */
 
-public class DownvoteHelper {
+public class DownVoteHelper {
 
-    public void updateDownvoteStatus(final FragmentActivity context,
+    public void updateDownVoteStatus(final FragmentActivity context,
                                      CompositeDisposable compositeDisposable,
                                      boolean downvote,
                                      String entityid,
@@ -108,15 +108,18 @@ public class DownvoteHelper {
     }
 
 
-    public void updateDownvoteUI(ImageView icon, boolean isDownvoted, FragmentActivity context) {
-        if (isDownvoted) {
-
+    /**
+     * Method to toggle downvote icon color depending upon the downvote status.
+     *
+     * @param icon        Downvote imageView.
+     * @param isDownVoted Downvote status
+     * @param context     Context to use.
+     */
+    public void updateDownvoteUI(ImageView icon, boolean isDownVoted, FragmentActivity context) {
+        if (isDownVoted) {
             icon.setColorFilter(ContextCompat.getColor(context, R.color.blue));
-
         } else {
-
             icon.setColorFilter(Color.TRANSPARENT);
-
         }
     }
 
@@ -125,7 +128,7 @@ public class DownvoteHelper {
         data.setDownvoteStatus(!data.isDownvoteStatus());
         updateDownvoteUI(iconDownvote, data.isDownvoteStatus(), context);
 
-        updateDownvoteStatus(context, compositeDisposable, data.isDownvoteStatus(), data.getEntityID(), new listener.OnDownvoteRequestedListener() {
+        updateDownVoteStatus(context, compositeDisposable, data.isDownvoteStatus(), data.getEntityID(), new listener.OnDownvoteRequestedListener() {
             @Override
             public void onDownvoteSuccess() {
 

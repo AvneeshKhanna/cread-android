@@ -8,6 +8,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.content.ContextCompat;
+import android.support.v7.widget.AppCompatImageView;
 import android.support.v7.widget.AppCompatTextView;
 import android.text.Spannable;
 import android.text.SpannableString;
@@ -919,29 +920,30 @@ public class FeedHelper {
 
 
     /**
-     * Updates the visibility of the dot separator
-     * based on the values of collab count
+     * Method to update the visibility of the dot separator and downvote view.
+     *
+     * @param context       Context to use
+     * @param data          FeedModel data.
+     * @param separatorView
+     * @param imageDownvote
      */
-    public static void updateDownvoteAndSeperatorVisibility(FeedModel data, TextView dotSeperator, ImageView imageDownvote) {
-        long collabCount = data.getCollabCount();
-        boolean canDownvote = data.isEligibleForDownvote();
-
-        // if count is zero remove the dot
-        if ((collabCount == 0 && !canDownvote)
-                || (collabCount != 0 && !canDownvote)
-                || (collabCount == 0 && canDownvote)) {
-            dotSeperator.setVisibility(View.GONE);
-        }
-        // non-zero so show the dot
-        else if (collabCount != 0 && canDownvote) {
-            dotSeperator.setVisibility(View.VISIBLE);
-        }
-
-        // toggle downvote visibility
-        if (canDownvote) {
+    public static void toggleDownvoteAndSeparatorVisibility(FragmentActivity context, FeedModel data, AppCompatTextView separatorView, AppCompatImageView imageDownvote) {
+        // Toggle downvote icon and separator visibility
+        if (data.isEligibleForDownvote()) {
             imageDownvote.setVisibility(View.VISIBLE);
+            //Count is not zero
+            if (data.getCollabCount() != 0) {
+                separatorView.setVisibility(View.VISIBLE);
+            } else {
+                separatorView.setVisibility(View.GONE);
+            }
+            //check down vote status
+            DownVoteHelper downVoteHelper = new DownVoteHelper();
+            downVoteHelper.updateDownvoteUI(imageDownvote, data.isDownvoteStatus(), context);
         } else {
+            //Hide views
             imageDownvote.setVisibility(View.GONE);
+            separatorView.setVisibility(View.GONE);
         }
     }
 

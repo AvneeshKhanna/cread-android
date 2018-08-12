@@ -35,18 +35,16 @@ import com.github.matteobattilana.weather.WeatherView;
 import com.google.firebase.analytics.FirebaseAnalytics;
 import com.thetestament.cread.R;
 import com.thetestament.cread.activities.CollaborationDetailsActivity;
-import com.thetestament.cread.activities.CommentsActivity;
 import com.thetestament.cread.activities.HatsOffActivity;
 import com.thetestament.cread.activities.MerchandisingProductsActivity;
 import com.thetestament.cread.activities.RecommendedArtistsActivity;
-import com.thetestament.cread.helpers.DownVoteHelper;
 import com.thetestament.cread.helpers.FeedHelper;
 import com.thetestament.cread.helpers.ImageHelper;
-import com.thetestament.cread.helpers.IntentHelper;
 import com.thetestament.cread.helpers.LiveFilterHelper;
 import com.thetestament.cread.helpers.NetworkHelper;
 import com.thetestament.cread.helpers.ShareHelper;
 import com.thetestament.cread.helpers.SharedPreferenceHelper;
+import com.thetestament.cread.helpers.SocialActionHelper;
 import com.thetestament.cread.helpers.SuggestionHelper;
 import com.thetestament.cread.helpers.ViewHelper;
 import com.thetestament.cread.listeners.listener;
@@ -71,7 +69,6 @@ import nl.dionsegijn.konfetti.KonfettiView;
 import static com.thetestament.cread.helpers.FeedHelper.initCaption;
 import static com.thetestament.cread.helpers.FeedHelper.initSocialActionsCount;
 import static com.thetestament.cread.helpers.FeedHelper.updateDotSeperatorVisibility;
-import static com.thetestament.cread.helpers.FeedHelper.updateDownvoteAndSeperatorVisibility;
 import static com.thetestament.cread.helpers.FeedHelper.updatePostTimestamp;
 import static com.thetestament.cread.helpers.LongShortHelper.checkLongFormStatus;
 import static com.thetestament.cread.helpers.LongShortHelper.initLongFormPreviewClick;
@@ -104,11 +101,33 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     //endregion
 
     //region :Field and constant
+    /**
+     * List to maintain feed data list.
+     */
     private List<FeedModel> mFeedList;
+
+    /**
+     * Flag to maintain context of hosting activity.
+     */
     private FragmentActivity mContext;
+    /**
+     * Maintain fragment reference.
+     */
     private Fragment mFeedFragment;
+
+    /**
+     * Flag to maintain whether next set of data is loading or not.
+     */
     private boolean mIsLoading;
+
+    /**
+     * Flag to maintain user UUID.
+     */
     private String mUUID;
+
+    /**
+     * Flag to maintain compositeDisposable reference.
+     */
     private CompositeDisposable mCompositeDisposable;
 
 
@@ -246,145 +265,10 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
         if (holder.getItemViewType() == VIEW_TYPE_ITEM) {
             final ItemViewHolder itemViewHolder = (ItemViewHolder) holder;
-            //Load creator profile picture
-            ImageHelper.loadProgressiveImage(Uri.parse(data.getCreatorImage())
-                    , itemViewHolder.imageCreator);
-
-            //Set image width and height
-            AspectRatioUtils.setImageAspectRatio(data.getImgWidth()
-                    , data.getImgHeight()
-                    , itemViewHolder.imageContent
-                    , true);
-
-
-            //Load feed image
-            ImageHelper.loadProgressiveImage(Uri.parse(data.getContentImage())
-                    , itemViewHolder.imageContent);
-            // Set text and click actions acc. to content type
-            FeedHelper.performContentTypeSpecificOperations(mContext
-                    , data
-                    , itemViewHolder.textCollabCount
-                    , itemViewHolder.containerCollabCount
-                    , itemViewHolder.buttonCollaborate
-                    , itemViewHolder.textCreatorName
-                    , false
-                    , false
-                    , null);
-
-            //Update down vote and dot separator visibility
-            updateDownvoteAndSeperatorVisibility(data, itemViewHolder.dotSeparatorRight
-                    , itemViewHolder.imageDownVote);
-
-            //check down vote status
-            DownVoteHelper downVoteHelper = new DownVoteHelper();
-            downVoteHelper.updateDownvoteUI(itemViewHolder.imageDownVote, data.isDownvoteStatus(), mContext);
-            //Check whether user has given hats off to this campaign or not
-            checkHatsOffStatus(data.getHatsOffStatus(), itemViewHolder);
-
-            //Comment click functionality
-            commentOnClick(itemViewHolder.containerComment, data.getEntityID());
-            //Share click functionality
-            ShareHelper.shareOnClick(mContext, data, onGifShareListener, onShareListener, itemViewHolder.logoWhatsapp
-                    , itemViewHolder.logoFacebook, itemViewHolder.logoInstagram, itemViewHolder.logoMore
-                    , itemViewHolder.frameLayout, itemViewHolder.waterMarkCreadView);
-            //HatsOff onClick functionality
-            hatsOffOnClick(itemViewHolder, data, position);
-            //Collaboration count click functionality
-            collaborationContainerOnClick(itemViewHolder.containerCollabCount, data.getEntityID(), data.getContentType());
-            //have button click
-            onHaveViewClicked(data, itemViewHolder);
-            // caption on click
-            onTitleClicked(itemViewHolder.textTitle);
-            // on HatsOff count click
-            hatsOffCountOnClick(itemViewHolder, data);
-            //Comment count click functionality
-            commentOnClick(itemViewHolder.containerCommentCount, data.getEntityID());
-            // downVote click
-            downVoteOnClick(itemViewHolder.imageDownVote, data, position, itemViewHolder);
-            //check long form status
-            checkLongFormStatus(itemViewHolder.containerLongShortPreview, data);
-            //long form on click
-            initLongFormPreviewClick(itemViewHolder.containerLongShortPreview, data, mContext, mCompositeDisposable);
-
-            //Initialize HatsOff and comment count
-            initSocialActionsCount(mContext,
-                    data,
-                    itemViewHolder.containerHatsOffCount,
-                    itemViewHolder.textHatsOffCount,
-                    itemViewHolder.containerCommentCount,
-                    itemViewHolder.textCommentsCount,
-                    itemViewHolder.dotSeparator);
-
-            // initialize caption
-            initCaption(mContext, data, itemViewHolder.textTitle);
-            // init post timestamp
-            updatePostTimestamp(itemViewHolder.textTimeStamp, data);
-
-            //Method called
-            setDoubleTap(itemViewHolder, itemViewHolder.hatsOffView, data);
-            //Method called
-            FeedHelper.updateRepost(itemViewHolder.containerRepost, mContext, mCompositeDisposable, data.getEntityID());
-        } else if (holder.getItemViewType() == VIEW_TYPE_LOADING) {
-            LoadingViewHolder loadingViewHolder = (LoadingViewHolder) holder;
-            loadingViewHolder.progressView.setVisibility(View.VISIBLE);
+            initItemView(itemViewHolder, data);
         } else if (holder.getItemViewType() == VIEW_TYPE_RECOMMENDED_ARTIST) {
             final RecommendedArtistViewHolder viewHolder = (RecommendedArtistViewHolder) holder;
-
-            final RecyclerView.LayoutParams params = (RecyclerView.LayoutParams) viewHolder.itemView.getLayoutParams();
-            //Show progressView
-            viewHolder.progressView.setVisibility(View.VISIBLE);
-
-            SuggestionHelper helper = new SuggestionHelper();
-            helper.getSuggestedArtist(mContext, mCompositeDisposable, new listener.OnSuggestedArtistLoadListener() {
-                @Override
-                public void onSuccess(List<SuggestedArtistsModel> dataList) {
-                    //Hide itemView
-                    params.height = LinearLayout.LayoutParams.WRAP_CONTENT;
-                    params.width = LinearLayout.LayoutParams.MATCH_PARENT;
-                    viewHolder.itemView.setLayoutParams(params);
-                    //Hide progressView
-                    viewHolder.progressView.setVisibility(View.GONE);
-                    //Set Layout manager
-                    viewHolder.recyclerView.setLayoutManager(new LinearLayoutManager(mContext
-                            , LinearLayoutManager.HORIZONTAL
-                            , false));
-                    //Set adapter
-                    viewHolder.recyclerView.setAdapter(new SuggestedArtistsAdapter(dataList
-                            , mContext
-                            , mFeedFragment
-                            , false));
-                    if (dataList.size() == 0) {
-                        //Hide itemView
-                        params.height = 0;
-                        params.width = 0;
-                        viewHolder.itemView.setLayoutParams(params);
-                        //Hide view
-                        viewHolder.itemView.setVisibility(View.GONE);
-                    }
-                }
-
-                @Override
-                public void onFailure(String errorMsg) {
-                    //Hide itemView
-                    params.height = 0;
-                    params.width = 0;
-                    viewHolder.itemView.setLayoutParams(params);
-                    //Hide progressView
-                    viewHolder.progressView.setVisibility(View.GONE);
-                    //Show error toast
-                    ViewHelper.getShortToast(mContext, errorMsg);
-                }
-            });
-            //Click functionality
-            viewHolder.textShowMoreArtists.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    //Open RecommendedArtists Screen
-                    Intent intent = new Intent(mContext, RecommendedArtistsActivity.class);
-                    mFeedFragment.startActivityForResult(intent
-                            , REQUEST_CODE_RECOMMENDED_ARTISTS_FROM_FEED_ADAPTER);
-                }
-            });
+            initRecommendedArtist(viewHolder);
         } else if (holder.getItemViewType() == VIEW_TYPE_REPOST) {
             final RePostViewHolder viewHolder = (RePostViewHolder) holder;
             initializeRepostViewHolder(viewHolder, data, holder.getAdapterPosition());
@@ -394,8 +278,10 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         } else if (holder.getItemViewType() == VIEW_TYPE_MEME_REPOST) {
             final MemeRePostViewHolder viewHolder = (MemeRePostViewHolder) holder;
             initializeRepostMemeViewHolder(viewHolder, data, holder.getAdapterPosition());
+        } else if (holder.getItemViewType() == VIEW_TYPE_LOADING) {
+            LoadingViewHolder loadingViewHolder = (LoadingViewHolder) holder;
+            loadingViewHolder.progressView.setVisibility(View.VISIBLE);
         }
-
         //Method called
         initLoadMoreListener(position);
     }
@@ -437,6 +323,8 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
     /**
      * Method to initialize load more listener.
+     *
+     * @param position Position of item in the list.
      */
     private void initLoadMoreListener(int position) {
         //If last item is visible to user and new set of data is to yet to be loaded
@@ -451,7 +339,356 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     }
 
     /**
+     * Method to initialize itemView.
+     *
+     * @param itemViewHolder ItemViewHolder reference.
+     * @param data           FeedModel data.
+     */
+    private void initItemView(ItemViewHolder itemViewHolder, FeedModel data) {
+        //Load creator profile picture
+        ImageHelper.loadProgressiveImage(Uri.parse(data.getCreatorImage())
+                , itemViewHolder.imgCreator);
+
+        //fixme improve code readability
+        // Set text and click actions acc. to content type
+        FeedHelper.performContentTypeSpecificOperations(mContext
+                , data
+                , itemViewHolder.textCollabCount
+                , itemViewHolder.containerCollabCount
+                , itemViewHolder.btnCollaborate
+                , itemViewHolder.textCreatorName
+                , false
+                , false
+                , null);
+
+        // init post timestamp
+        updatePostTimestamp(itemViewHolder.postTimeStamp, data);
+
+        //Set image width and height
+        AspectRatioUtils.setImageAspectRatio(data.getImgWidth()
+                , data.getImgHeight()
+                , itemViewHolder.imageContent
+                , true);
+
+        //Load feed image
+        ImageHelper.loadProgressiveImage(Uri.parse(data.getContentImage())
+                , itemViewHolder.imageContent);
+
+        //Update down vote and dot separator visibility
+        FeedHelper.toggleDownvoteAndSeparatorVisibility(mContext, data, itemViewHolder.dotSeparatorRight
+                , itemViewHolder.imageDownVote);
+
+        //Check whether user has given hats off  or not
+        checkHatsOffStatus(data.getHatsOffStatus(), itemViewHolder);
+
+        //Comment click functionality
+        SocialActionHelper.navigateToComment(itemViewHolder.containerComment, mContext, data.getEntityID());
+        //Share click functionality
+        ShareHelper.shareOnClick(mContext, data, onGifShareListener, onShareListener, itemViewHolder.logoWhatsapp
+                , itemViewHolder.logoFacebook, itemViewHolder.logoInstagram, itemViewHolder.logoMore
+                , itemViewHolder.frameLayout, itemViewHolder.waterMarkCreadView);
+
+        //HatsOff onClick functionality
+        hatsOffOnClick(itemViewHolder, data, itemViewHolder.getAdapterPosition());
+        //Collaboration count click functionality
+        collaborationContainerOnClick(itemViewHolder.containerCollabCount, data.getEntityID(), data.getContentType());
+        //have button click
+        onHaveViewClicked(data, itemViewHolder);
+        // caption on click
+        onTitleClicked(itemViewHolder.textCaption);
+        // on HatsOff count click
+        hatsOffCountOnClick(itemViewHolder, data);
+        //Comment click functionality
+        SocialActionHelper.navigateToComment(itemViewHolder.containerComment, mContext, data.getEntityID());
+        // downVote click
+        downVoteOnClick(itemViewHolder.imageDownVote, data, itemViewHolder.getAdapterPosition(), itemViewHolder);
+        //check long form status
+        checkLongFormStatus(itemViewHolder.btnLongWritingPreview, data);
+        //long form on click
+        initLongFormPreviewClick(itemViewHolder.btnLongWritingPreview, data, mContext, mCompositeDisposable);
+
+        //Initialize HatsOff and comment count
+        initSocialActionsCount(mContext,
+                data,
+                itemViewHolder.containerHatsOffCount,
+                itemViewHolder.textHatsOffCount,
+                itemViewHolder.containerCommentCount,
+                itemViewHolder.textCommentsCount,
+                itemViewHolder.dotSeparator);
+
+        // initialize caption
+        initCaption(mContext, data, itemViewHolder.textCaption);
+        //Method called
+        setDoubleTap(itemViewHolder, itemViewHolder.hatsOffView, data);
+        //Method called
+        FeedHelper.updateRepost(itemViewHolder.containerRepost, mContext
+                , mCompositeDisposable, data.getEntityID());
+    }
+
+    /**
+     * Initializes the views and click actions for RePostViewHolder.
+     *
+     * @param itemViewHolder ViewHolder.
+     * @param data           Feed data.
+     * @param position       item position in data list.
+     */
+    private void initializeRepostViewHolder(RePostViewHolder itemViewHolder, final FeedModel data, final int position) {
+        //Set reposter name , repost time and click functionality to open re-poster profile
+        itemViewHolder.textRepostedBy.setText(data.getReposterName() + " reposted this");
+        FeedHelper.setRepostTime(itemViewHolder.textRepostedtime, data);
+        //Open profile screen
+        SocialActionHelper.navigateToProfile(itemViewHolder.textRepostedBy, mContext, data.getReposterUUID());
+
+        //Load creator profile picture
+        ImageHelper.loadProgressiveImage(Uri.parse(data.getCreatorImage())
+                , itemViewHolder.imageCreator);
+        //Set content image width and height
+        AspectRatioUtils.setImageAspectRatio(data.getImgWidth()
+                , data.getImgHeight()
+                , itemViewHolder.imageContent
+                , true);
+        //Load content image
+        ImageHelper.loadProgressiveImage(Uri.parse(data.getContentImage())
+                , itemViewHolder.imageContent);
+
+
+        //Set text and click actions acc. to content type
+        FeedHelper.performContentTypeSpecificOperations(mContext
+                , data
+                , itemViewHolder.collabCount
+                , itemViewHolder.collabCount
+                , itemViewHolder.buttonCollaborate
+                , itemViewHolder.textCreatorName
+                , true
+                , true
+                , itemViewHolder.collabCountDivider);
+
+
+        itemViewHolder.buttonMenu.setVisibility(View.GONE);
+
+        //Method called
+        setDoubleTap(itemViewHolder, itemViewHolder.hatsOffView, data);
+        //Check whether user has given hats off to this campaign or not
+        checkHatsOffStatus(data.getHatsOffStatus(), itemViewHolder);
+        //HatsOff onClick functionality
+        hatsOffOnClick(itemViewHolder, data, position);
+        //Comment click functionality
+        SocialActionHelper.navigateToComment(itemViewHolder.containerComment, mContext, data.getEntityID());
+        //Share click functionality
+        ShareHelper.shareOnClick(mContext, data, onGifShareListener, onShareListener, itemViewHolder.logoWhatsapp
+                , itemViewHolder.logoFacebook, itemViewHolder.logoInstagram, itemViewHolder.logoMore
+                , itemViewHolder.frameLayout, itemViewHolder.waterMarkCreadView);
+        //Collaboration count click functionality
+        collaborationContainerOnClick(itemViewHolder.collabCount, data.getEntityID(), data.getContentType());
+        //check long form status
+        checkLongFormStatus(itemViewHolder.buttonLongWritingPreview, data);
+        //long form on click
+        initLongFormPreviewClick(itemViewHolder.buttonLongWritingPreview, data, mContext, mCompositeDisposable);
+        // init post timestamp
+        updatePostTimestamp(itemViewHolder.textTimeStamp, data);
+        //Method called
+        FeedHelper.updateRepost(itemViewHolder.containerRepost, mContext, mCompositeDisposable, data.getEntityID());
+    }
+
+    private void initRecommendedArtist(final RecommendedArtistViewHolder viewHolder) {
+
+        final RecyclerView.LayoutParams params = (RecyclerView.LayoutParams) viewHolder.itemView.getLayoutParams();
+        //Show progressView
+        viewHolder.progressView.setVisibility(View.VISIBLE);
+
+        SuggestionHelper helper = new SuggestionHelper();
+        helper.getSuggestedArtist(mContext, mCompositeDisposable, new listener.OnSuggestedArtistLoadListener() {
+            @Override
+            public void onSuccess(List<SuggestedArtistsModel> dataList) {
+                //Hide itemView
+                params.height = LinearLayout.LayoutParams.WRAP_CONTENT;
+                params.width = LinearLayout.LayoutParams.MATCH_PARENT;
+                viewHolder.itemView.setLayoutParams(params);
+                //Hide progressView
+                viewHolder.progressView.setVisibility(View.GONE);
+                //Set Layout manager
+                viewHolder.recyclerView.setLayoutManager(new LinearLayoutManager(mContext
+                        , LinearLayoutManager.HORIZONTAL
+                        , false));
+                //Set adapter
+                viewHolder.recyclerView.setAdapter(new SuggestedArtistsAdapter(dataList
+                        , mContext
+                        , mFeedFragment
+                        , false));
+                if (dataList.size() == 0) {
+                    //Hide itemView
+                    params.height = 0;
+                    params.width = 0;
+                    viewHolder.itemView.setLayoutParams(params);
+                    //Hide view
+                    viewHolder.itemView.setVisibility(View.GONE);
+                }
+            }
+
+            @Override
+            public void onFailure(String errorMsg) {
+                //Hide itemView
+                params.height = 0;
+                params.width = 0;
+                viewHolder.itemView.setLayoutParams(params);
+                //Hide progressView
+                viewHolder.progressView.setVisibility(View.GONE);
+                //Show error toast
+                ViewHelper.getShortToast(mContext, errorMsg);
+            }
+        });
+        //Click functionality
+        viewHolder.textShowMoreArtists.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                //Open RecommendedArtists Screen
+                Intent intent = new Intent(mContext, RecommendedArtistsActivity.class);
+                mFeedFragment.startActivityForResult(intent
+                        , REQUEST_CODE_RECOMMENDED_ARTISTS_FROM_FEED_ADAPTER);
+            }
+        });
+    }
+
+    /**
+     * Initializes the views and click actions
+     *
+     * @param itemViewHolder view holder
+     * @param data           Feed data
+     * @param position       position of the item
+     */
+    private void initializeMemeViewHolder(MemeViewHolder itemViewHolder, final FeedModel data, final int position) {
+        //Load creator profile picture
+        ImageHelper.loadProgressiveImage(Uri.parse(data.getCreatorImage())
+                , itemViewHolder.imgCreator);
+        //Set user creator name and its click functionality
+        itemViewHolder.textCreatorName.setText(TextUtils.getSpannedString(data.getCreatorName() + " added meme"
+                , new ForegroundColorSpan(Color.BLACK)
+                , 0
+                , data.getCreatorName().length()
+                , Spannable.SPAN_EXCLUSIVE_EXCLUSIVE));
+
+        //Open profile screen
+        SocialActionHelper.navigateToProfile(itemViewHolder.textCreatorName, mContext, data.getReposterUUID());
+        //init post timestamp
+        updatePostTimestamp(itemViewHolder.textTimeStamp, data);
+
+        //Set image width and height
+        AspectRatioUtils.setImageAspectRatio(data.getImgWidth()
+                , data.getImgHeight()
+                , itemViewHolder.contentImage
+                , true);
+        //Load content image
+        ImageHelper.loadProgressiveImage(Uri.parse(data.getContentImage())
+                , itemViewHolder.contentImage);
+
+
+        //Check whether user has given hats off to this campaign or not
+        checkHatsOffStatus(data.getHatsOffStatus(), itemViewHolder);
+
+        //Comment click functionality
+        SocialActionHelper.navigateToComment(itemViewHolder.containerComment, mContext, data.getEntityID());
+
+        //HatsOff onClick functionality
+        hatsOffOnClick(itemViewHolder, data, position);
+
+        //Share click functionality
+        ShareHelper.shareOnClick(mContext, data, onGifShareListener, onShareListener, itemViewHolder.logoWhatsapp
+                , itemViewHolder.logoFacebook, itemViewHolder.logoInstagram, itemViewHolder.logoMore
+                , itemViewHolder.frameLayout, itemViewHolder.waterMarkCread);
+        // caption on click
+        onTitleClicked(itemViewHolder.textCaption);
+
+        // on HatsOff count click
+        hatsOffCountOnClick(itemViewHolder, data);
+
+        //Comment click functionality
+        SocialActionHelper.navigateToComment(itemViewHolder.containerComment, mContext, data.getEntityID());
+
+        //Initialize HatsOff and comment count
+        initSocialActionsCount(mContext,
+                data,
+                itemViewHolder.containerHatsOffCount,
+                itemViewHolder.textHatsOffCount,
+                itemViewHolder.containerCommentsCount,
+                itemViewHolder.textCommentsCount,
+                itemViewHolder.dotSeparator);
+
+        // initialize caption
+        initCaption(mContext, data, itemViewHolder.textCaption);
+        //Method called
+        setDoubleTap(itemViewHolder, itemViewHolder.hatsOffView, data);
+        //Method called
+        FeedHelper.updateRepost(itemViewHolder.containerRepost, mContext, mCompositeDisposable, data.getEntityID());
+
+    }
+
+
+    /**
+     * Initializes the views and click actions for RePostViewHolder.
+     *
+     * @param itemViewHolder ViewHolder.
+     * @param data           Feed data.
+     * @param position       item position in data list.
+     */
+    private void initializeRepostMemeViewHolder(MemeRePostViewHolder itemViewHolder, final FeedModel data, final int position) {
+        //Load creator profile picture
+        ImageHelper.loadProgressiveImage(Uri.parse(data.getCreatorImage())
+                , itemViewHolder.imageCreator);
+        //Set user creator name and its click functionality
+        itemViewHolder.textCreatorName.setText(TextUtils.getSpannedString(data.getCreatorName() + " added meme"
+                , new ForegroundColorSpan(Color.BLACK)
+                , 0
+                , data.getCreatorName().length()
+                , Spannable.SPAN_EXCLUSIVE_EXCLUSIVE));
+
+        //Open profile screen
+        SocialActionHelper.navigateToProfile(itemViewHolder.textCreatorName, mContext, data.getReposterUUID());
+        //init post timestamp
+        updatePostTimestamp(itemViewHolder.textTimestamp, data);
+
+
+        //Set reposter name , repost time and click functionality to open re-poster profile
+        itemViewHolder.textRepostedBy.setText(data.getReposterName() + " reposted this");
+        FeedHelper.setRepostTime(itemViewHolder.textRepostedTime, data);
+        //Open profile screen
+        SocialActionHelper.navigateToProfile(itemViewHolder.textRepostedBy, mContext, data.getReposterUUID());
+
+        //Set content image width and height
+        AspectRatioUtils.setImageAspectRatio(data.getImgWidth()
+                , data.getImgHeight()
+                , itemViewHolder.contentImage
+                , true);
+        //Load content image
+        ImageHelper.loadProgressiveImage(Uri.parse(data.getContentImage())
+                , itemViewHolder.contentImage);
+
+
+        itemViewHolder.buttonMenu.setVisibility(View.GONE);
+
+        //Method called
+        setDoubleTap(itemViewHolder, itemViewHolder.doubleTapHatsOffView, data);
+        //Check whether user has given hats off to this campaign or not
+        checkHatsOffStatus(data.getHatsOffStatus(), itemViewHolder);
+        //HatsOff onClick functionality
+        hatsOffOnClick(itemViewHolder, data, position);
+        //Comment click functionality
+        SocialActionHelper.navigateToComment(itemViewHolder.containerComment, mContext, data.getEntityID());
+
+        //Share click functionality
+        ShareHelper.shareOnClick(mContext, data, onGifShareListener, onShareListener, itemViewHolder.logoWhatsapp
+                , itemViewHolder.logoFacebook, itemViewHolder.logoInstagram, itemViewHolder.logoMore
+                , itemViewHolder.frameLayout, itemViewHolder.waterMarkCread);
+
+        //Method called
+        FeedHelper.updateRepost(itemViewHolder.containerRepost, mContext, mCompositeDisposable, data.getEntityID());
+    }
+
+
+    /**
      * Method to check hatsOff status and perform operation accordingly.
+     *
+     * @param hatsOffStatus  True if hatsOff given false otherwise.
+     * @param itemViewHolder ItemViewHolder reference.
      */
     private void checkHatsOffStatus(boolean hatsOffStatus, ItemViewHolder itemViewHolder) {
         if (hatsOffStatus) {
@@ -540,23 +777,6 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             itemViewHolder.mIsHatsOff = false;
             itemViewHolder.mIsRotated = false;
         }
-    }
-
-    /**
-     * Compose onClick functionality.
-     *
-     * @param view     View to be clicked.
-     * @param entityID Entity ID
-     */
-    private void commentOnClick(View view, final String entityID) {
-        view.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent intent = new Intent(mContext, CommentsActivity.class);
-                intent.putExtra(EXTRA_ENTITY_ID, entityID);
-                mContext.startActivity(intent);
-            }
-        });
     }
 
 
@@ -949,7 +1169,7 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
      */
     private void onHaveViewClicked(final FeedModel data, final ItemViewHolder itemViewHolder) {
 
-        itemViewHolder.buttonHave.setOnClickListener(new View.OnClickListener() {
+        itemViewHolder.btnBuy.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
 
@@ -1036,203 +1256,6 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
      */
     public void updateRecommendedArtistIndex(int index) {
         recommendedArtistIndex = index;
-    }
-
-
-    /**
-     * Initializes the views and click actions for RePostViewHolder.
-     *
-     * @param itemViewHolder ViewHolder.
-     * @param data           Feed data.
-     * @param position       item position in data list.
-     */
-    private void initializeRepostViewHolder(RePostViewHolder itemViewHolder, final FeedModel data, final int position) {
-        //Set reposter name , repost time and click functionality to open re-poster profile
-        itemViewHolder.textRepostedBy.setText(data.getReposterName() + " reposted this");
-        FeedHelper.setRepostTime(itemViewHolder.textRepostedtime, data);
-        openProfileActivity(itemViewHolder.textRepostedBy, data.getReposterUUID());
-
-        //Load creator profile picture
-        ImageHelper.loadProgressiveImage(Uri.parse(data.getCreatorImage())
-                , itemViewHolder.imageCreator);
-        //Set content image width and height
-        AspectRatioUtils.setImageAspectRatio(data.getImgWidth()
-                , data.getImgHeight()
-                , itemViewHolder.imageContent
-                , true);
-        //Load content image
-        ImageHelper.loadProgressiveImage(Uri.parse(data.getContentImage())
-                , itemViewHolder.imageContent);
-
-
-        //Set text and click actions acc. to content type
-        FeedHelper.performContentTypeSpecificOperations(mContext
-                , data
-                , itemViewHolder.collabCount
-                , itemViewHolder.collabCount
-                , itemViewHolder.buttonCollaborate
-                , itemViewHolder.textCreatorName
-                , true
-                , true
-                , itemViewHolder.collabCountDivider);
-
-
-        itemViewHolder.buttonMenu.setVisibility(View.GONE);
-
-        //Method called
-        setDoubleTap(itemViewHolder, itemViewHolder.hatsOffView, data);
-        //Check whether user has given hats off to this campaign or not
-        checkHatsOffStatus(data.getHatsOffStatus(), itemViewHolder);
-        //HatsOff onClick functionality
-        hatsOffOnClick(itemViewHolder, data, position);
-        //Comment click functionality
-        commentOnClick(itemViewHolder.containerComment, data.getEntityID());
-        //Share click functionality
-        ShareHelper.shareOnClick(mContext, data, onGifShareListener, onShareListener, itemViewHolder.logoWhatsapp
-                , itemViewHolder.logoFacebook, itemViewHolder.logoInstagram, itemViewHolder.logoMore
-                , itemViewHolder.frameLayout, itemViewHolder.waterMarkCreadView);
-        //Collaboration count click functionality
-        collaborationContainerOnClick(itemViewHolder.collabCount, data.getEntityID(), data.getContentType());
-        //check long form status
-        checkLongFormStatus(itemViewHolder.buttonLongWritingPreview, data);
-        //long form on click
-        initLongFormPreviewClick(itemViewHolder.buttonLongWritingPreview, data, mContext, mCompositeDisposable);
-        // init post timestamp
-        updatePostTimestamp(itemViewHolder.textTimeStamp, data);
-        //Method called
-        FeedHelper.updateRepost(itemViewHolder.containerRepost, mContext, mCompositeDisposable, data.getEntityID());
-    }
-
-
-    /**
-     * Initializes the views and click actions
-     *
-     * @param itemViewHolder view holder
-     * @param data           Feed data
-     * @param position       position of the item
-     */
-    private void initializeMemeViewHolder(MemeViewHolder itemViewHolder, final FeedModel data, final int position) {
-        //Load creator profile picture
-        ImageHelper.loadProgressiveImage(Uri.parse(data.getCreatorImage())
-                , itemViewHolder.imgCreator);
-        //Set user creator name and its click functionality
-        itemViewHolder.textCreatorName.setText(TextUtils.getSpannedString(data.getCreatorName() + " added meme"
-                , new ForegroundColorSpan(Color.BLACK)
-                , 0
-                , data.getCreatorName().length()
-                , Spannable.SPAN_EXCLUSIVE_EXCLUSIVE));
-
-        openProfileActivity(itemViewHolder.textCreatorName, data.getUUID());
-        //init post timestamp
-        updatePostTimestamp(itemViewHolder.textTimeStamp, data);
-
-        //Set image width and height
-        AspectRatioUtils.setImageAspectRatio(data.getImgWidth()
-                , data.getImgHeight()
-                , itemViewHolder.contentImage
-                , true);
-        //Load content image
-        ImageHelper.loadProgressiveImage(Uri.parse(data.getContentImage())
-                , itemViewHolder.contentImage);
-
-
-        //Check whether user has given hats off to this campaign or not
-        checkHatsOffStatus(data.getHatsOffStatus(), itemViewHolder);
-
-        //Comment click functionality
-        commentOnClick(itemViewHolder.containerComment, data.getEntityID());
-
-        //HatsOff onClick functionality
-        hatsOffOnClick(itemViewHolder, data, position);
-
-        //Share click functionality
-        ShareHelper.shareOnClick(mContext, data, onGifShareListener, onShareListener, itemViewHolder.logoWhatsapp
-                , itemViewHolder.logoFacebook, itemViewHolder.logoInstagram, itemViewHolder.logoMore
-                , itemViewHolder.frameLayout, itemViewHolder.waterMarkCread);
-        // caption on click
-        onTitleClicked(itemViewHolder.textCaption);
-
-        // on HatsOff count click
-        hatsOffCountOnClick(itemViewHolder, data);
-
-        //Comment click functionality
-        commentOnClick(itemViewHolder.containerComment, data.getEntityID());
-
-        //Initialize HatsOff and comment count
-        initSocialActionsCount(mContext,
-                data,
-                itemViewHolder.containerHatsOffCount,
-                itemViewHolder.textHatsOffCount,
-                itemViewHolder.containerCommentsCount,
-                itemViewHolder.textCommentsCount,
-                itemViewHolder.dotSeparator);
-
-        // initialize caption
-        initCaption(mContext, data, itemViewHolder.textCaption);
-        //Method called
-        setDoubleTap(itemViewHolder, itemViewHolder.hatsOffView, data);
-        //Method called
-        FeedHelper.updateRepost(itemViewHolder.containerRepost, mContext, mCompositeDisposable, data.getEntityID());
-
-    }
-
-
-    /**
-     * Initializes the views and click actions for RePostViewHolder.
-     *
-     * @param itemViewHolder ViewHolder.
-     * @param data           Feed data.
-     * @param position       item position in data list.
-     */
-    private void initializeRepostMemeViewHolder(MemeRePostViewHolder itemViewHolder, final FeedModel data, final int position) {
-        //Load creator profile picture
-        ImageHelper.loadProgressiveImage(Uri.parse(data.getCreatorImage())
-                , itemViewHolder.imageCreator);
-        //Set user creator name and its click functionality
-        itemViewHolder.textCreatorName.setText(TextUtils.getSpannedString(data.getCreatorName() + " added meme"
-                , new ForegroundColorSpan(Color.BLACK)
-                , 0
-                , data.getCreatorName().length()
-                , Spannable.SPAN_EXCLUSIVE_EXCLUSIVE));
-
-        openProfileActivity(itemViewHolder.textCreatorName, data.getUUID());
-        //init post timestamp
-        updatePostTimestamp(itemViewHolder.textTimestamp, data);
-
-
-        //Set reposter name , repost time and click functionality to open re-poster profile
-        itemViewHolder.textRepostedBy.setText(data.getReposterName() + " reposted this");
-        FeedHelper.setRepostTime(itemViewHolder.textRepostedTime, data);
-        openProfileActivity(itemViewHolder.textRepostedBy, data.getReposterUUID());
-
-        //Set content image width and height
-        AspectRatioUtils.setImageAspectRatio(data.getImgWidth()
-                , data.getImgHeight()
-                , itemViewHolder.contentImage
-                , true);
-        //Load content image
-        ImageHelper.loadProgressiveImage(Uri.parse(data.getContentImage())
-                , itemViewHolder.contentImage);
-
-
-        itemViewHolder.buttonMenu.setVisibility(View.GONE);
-
-        //Method called
-        setDoubleTap(itemViewHolder, itemViewHolder.doubleTapHatsOffView, data);
-        //Check whether user has given hats off to this campaign or not
-        checkHatsOffStatus(data.getHatsOffStatus(), itemViewHolder);
-        //HatsOff onClick functionality
-        hatsOffOnClick(itemViewHolder, data, position);
-        //Comment click functionality
-        commentOnClick(itemViewHolder.containerComment, data.getEntityID());
-
-        //Share click functionality
-        ShareHelper.shareOnClick(mContext, data, onGifShareListener, onShareListener, itemViewHolder.logoWhatsapp
-                , itemViewHolder.logoFacebook, itemViewHolder.logoInstagram, itemViewHolder.logoMore
-                , itemViewHolder.frameLayout, itemViewHolder.waterMarkCread);
-
-        //Method called
-        FeedHelper.updateRepost(itemViewHolder.containerRepost, mContext, mCompositeDisposable, data.getEntityID());
     }
 
 
@@ -1588,60 +1611,45 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         });
     }
 
-    /**
-     * Method to open ProfileActivity screen.
-     *
-     * @param view View to be clicked.
-     * @param uuid UUID of user whose profile to  be loaded.
-     */
-    private void openProfileActivity(View view, final String uuid) {
-        view.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                IntentHelper.openProfileActivity(mContext, uuid);
-            }
-        });
-    }
 
     //endregion
 
     //region :ViewHolders
     //ItemViewHolder class
     static class ItemViewHolder extends RecyclerView.ViewHolder {
-        @BindView(R.id.imageCreator)
-        SimpleDraweeView imageCreator;
-        @BindView(R.id.textCreatorName)
+        //Creator views
+        @BindView(R.id.img_creator)
+        SimpleDraweeView imgCreator;
+        @BindView(R.id.txt_creator_name)
         TextView textCreatorName;
-        @BindView(R.id.containerCreator)
-        RelativeLayout containerCreator;
-        @BindView(R.id.buttonCollaborate)
-        TextView buttonCollaborate;
-        @BindView(R.id.textCollabCount)
-        TextView textCollabCount;
-        @BindView(R.id.containerCollabCount)
-        LinearLayout containerCollabCount;
-        @BindView(R.id.textTitle)
-        TextView textTitle;
-        @BindView(R.id.buttonHave)
-        LinearLayout buttonHave;
-        @BindView(R.id.containerHatsoffCount)
+        @BindView(R.id.btn_collaborate)
+        AppCompatTextView btnCollaborate;
+        @BindView(R.id.post_time_stamp)
+        AppCompatTextView postTimeStamp;
+
+
+        //Social action count indicator
+        @BindView(R.id.container_hats_off_count)
         LinearLayout containerHatsOffCount;
-        @BindView(R.id.containerCommentsCount)
-        LinearLayout containerCommentCount;
-        @BindView(R.id.textHatsOffCount)
+        @BindView(R.id.text_hats_off_count)
         TextView textHatsOffCount;
-        @BindView(R.id.textCommentsCount)
-        TextView textCommentsCount;
-        @BindView(R.id.dotSeperator)
+        @BindView(R.id.count_divider)
         TextView dotSeparator;
-        @BindView(R.id.dotSeperatorRight)
-        TextView dotSeparatorRight;
-        @BindView(R.id.imageDownvote)
-        ImageView imageDownVote;
-        @BindView(R.id.containerLongShortPreview)
-        FrameLayout containerLongShortPreview;
-        @BindView(R.id.textTimestamp)
-        TextView textTimeStamp;
+        @BindView(R.id.container_comments_count)
+        LinearLayout containerCommentCount;
+        @BindView(R.id.text_comments_count)
+        TextView textCommentsCount;
+
+        //Collaboration and downvote views
+        @BindView(R.id.img_downvote)
+        AppCompatImageView imageDownVote;
+        @BindView(R.id.dot_Separator_downvote)
+        AppCompatTextView dotSeparatorRight;
+        @BindView(R.id.container_collab_count)
+        LinearLayout containerCollabCount;
+        @BindView(R.id.text_collab_count)
+        TextView textCollabCount;
+
 
         //Main content views
         @BindView(R.id.container_main_content)
@@ -1658,6 +1666,14 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         RelativeLayout waterMarkCreadView;
         @BindView(R.id.double_tap_hats_off_view)
         AppCompatImageView hatsOffView;
+        @BindView(R.id.btn_buy)
+        LinearLayout btnBuy;
+        @BindView(R.id.btn_long_writing_preview)
+        FrameLayout btnLongWritingPreview;
+
+
+        @BindView(R.id.text_caption)
+        AppCompatTextView textCaption;
 
         //Social actions views
         @BindView(R.id.container_hats_off)

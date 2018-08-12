@@ -283,7 +283,7 @@
                 android:layout_alignParentRight="true"
                 android:gravity="center_vertical">
 
-                <ImageView
+                <android.support.v7.widget.AppCompatImageView
                     android:id="@+id/imageDownvote"
                     android:layout_width="24dp"
                     android:layout_height="24dp"
@@ -294,7 +294,7 @@
                     app:srcCompat="@drawable/ic_downvote" />
 
 
-                <TextView
+                <android.support.v7.widget.AppCompatTextView
                     android:id="@+id/dotSeperatorRight"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"

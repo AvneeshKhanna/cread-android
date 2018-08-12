@@ -40,7 +40,6 @@ import com.thetestament.cread.activities.CollaborationDetailsActivity;
 import com.thetestament.cread.activities.CommentsActivity;
 import com.thetestament.cread.activities.HatsOffActivity;
 import com.thetestament.cread.activities.MerchandisingProductsActivity;
-import com.thetestament.cread.helpers.DownVoteHelper;
 import com.thetestament.cread.helpers.FeedHelper;
 import com.thetestament.cread.helpers.ImageHelper;
 import com.thetestament.cread.helpers.IntentHelper;
@@ -71,7 +70,6 @@ import static com.thetestament.cread.adapters.CommentsAdapter.toggleComment;
 import static com.thetestament.cread.helpers.ContentHelper.getMenuActionsBottomSheet;
 import static com.thetestament.cread.helpers.FeedHelper.initCaption;
 import static com.thetestament.cread.helpers.FeedHelper.updateDotSeperatorVisibility;
-import static com.thetestament.cread.helpers.FeedHelper.updateDownvoteAndSeperatorVisibility;
 import static com.thetestament.cread.helpers.FeedHelper.updatePostTimestamp;
 import static com.thetestament.cread.helpers.LongShortHelper.checkLongFormStatus;
 import static com.thetestament.cread.helpers.LongShortHelper.initLongFormPreviewClick;
@@ -263,10 +261,8 @@ public class FeedDescriptionAdapter extends RecyclerView.Adapter {
                     , null);
 
             //update downvote and dot seperator visibility
-            updateDownvoteAndSeperatorVisibility(data, itemViewHolder.dotSeperatorRight, itemViewHolder.imageDownvote);
-            //check downvote status
-            DownVoteHelper downVoteHelper = new DownVoteHelper();
-            downVoteHelper.updateDownvoteUI(itemViewHolder.imageDownvote, data.isDownvoteStatus(), mContext);
+            FeedHelper.toggleDownvoteAndSeparatorVisibility(mContext, data, itemViewHolder.dotSeperatorRight, itemViewHolder.imageDownvote);
+
             //Check whether user has given hats off to this campaign or not
             checkHatsOffStatus(data.getHatsOffStatus(), itemViewHolder);
 
@@ -382,10 +378,7 @@ public class FeedDescriptionAdapter extends RecyclerView.Adapter {
 
 
             //update downvote and dot seperator visibility
-            updateDownvoteAndSeperatorVisibility(data, itemViewHolder.dotSeperatorRight, itemViewHolder.imageDownvote);
-            //check downvote status
-            DownVoteHelper downVoteHelper = new DownVoteHelper();
-            downVoteHelper.updateDownvoteUI(itemViewHolder.imageDownvote, data.isDownvoteStatus(), mContext);
+            FeedHelper.toggleDownvoteAndSeparatorVisibility(mContext, data, itemViewHolder.dotSeperatorRight, itemViewHolder.imageDownvote);
             //Check whether user has given hats off to this campaign or not
             checkHatsOffStatus(data.getHatsOffStatus(), itemViewHolder);
 
@@ -1421,9 +1414,9 @@ public class FeedDescriptionAdapter extends RecyclerView.Adapter {
         @BindView(R.id.buttonMenu)
         ImageView buttonMenu;
         @BindView(R.id.imageDownvote)
-        ImageView imageDownvote;
+        AppCompatImageView imageDownvote;
         @BindView(R.id.dotSeperatorRight)
-        TextView dotSeperatorRight;
+        AppCompatTextView dotSeperatorRight;
         @BindView(R.id.containerLongShortPreview)
         FrameLayout containerLongShortPreview;
         @BindView(R.id.viewTopComments)
@@ -1516,9 +1509,9 @@ public class FeedDescriptionAdapter extends RecyclerView.Adapter {
         @BindView(R.id.containerCommentsCount)
         LinearLayout containerCommentsCount;
         @BindView(R.id.imageDownvote)
-        ImageView imageDownvote;
+        AppCompatImageView imageDownvote;
         @BindView(R.id.dotSeperatorRight)
-        TextView dotSeperatorRight;
+        AppCompatTextView dotSeperatorRight;
         @BindView(R.id.iconCollabCount)
         AppCompatImageView iconCollabCount;
         @BindView(R.id.textCollabCount)
