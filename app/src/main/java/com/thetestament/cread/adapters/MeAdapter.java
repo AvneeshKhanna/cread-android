@@ -46,7 +46,6 @@ import com.thetestament.cread.helpers.ViewHelper;
 import com.thetestament.cread.listeners.listener;
 import com.thetestament.cread.listeners.listener.OnContentDeleteListener;
 import com.thetestament.cread.listeners.listener.OnContentEditListener;
-import com.thetestament.cread.listeners.listener.OnShareLinkClickedListener;
 import com.thetestament.cread.listeners.listener.OnUserActivityHatsOffListener;
 import com.thetestament.cread.listeners.listener.OnUserActivityLoadMoreListener;
 import com.thetestament.cread.models.FeedModel;
@@ -131,7 +130,6 @@ public class MeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     private OnContentEditListener onContentEditListener;
     private listener.OnShareListener onShareListener;
     private listener.OnGifShareListener onGifShareListener;
-    private OnShareLinkClickedListener onShareLinkClickedListener;
     private listener.OnRepostDeleteListener onRepostDeleteListener;
 
 
@@ -170,12 +168,6 @@ public class MeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         this.onGifShareListener = onGifShareListener;
     }
 
-    /**
-     * Register a callback to be invoked when user clicks on share link button.
-     */
-    public void setOnShareLinkClickedListener(OnShareLinkClickedListener onShareLinkClickedListener) {
-        this.onShareLinkClickedListener = onShareLinkClickedListener;
-    }
 
     /**
      * Register a callback to be invoked when user clicks on delete the reposted post..

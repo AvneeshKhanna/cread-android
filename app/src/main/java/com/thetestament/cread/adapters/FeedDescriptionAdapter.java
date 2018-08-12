@@ -119,7 +119,6 @@ public class FeedDescriptionAdapter extends RecyclerView.Adapter {
     private listener.OnHatsOffListener onHatsOffListener;
     private listener.OnShareListener onShareListener;
     private listener.OnGifShareListener onGifShareListener;
-    private listener.OnShareLinkClickedListener onShareLinkClickedListener;
     private listener.OnDownvoteClickedListener onDownvoteClickedListener;
     private listener.OnExploreFollowListener onExploreFollowListener;
     private listener.OnContentDeleteListener onContentDeleteListener;
@@ -172,13 +171,6 @@ public class FeedDescriptionAdapter extends RecyclerView.Adapter {
         this.onGifShareListener = onGifShareListener;
     }
 
-
-    /**
-     * Register a callback to be invoked when user clicks on share link button.
-     */
-    public void setOnShareLinkClickedListener(listener.OnShareLinkClickedListener onShareLinkClickedListener) {
-        this.onShareLinkClickedListener = onShareLinkClickedListener;
-    }
 
     /**
      * Register a callback to be invoked when user clicks on downvote button.
@@ -725,8 +717,6 @@ public class FeedDescriptionAdapter extends RecyclerView.Adapter {
             }
         });
     }
-
-
 
 
     /**

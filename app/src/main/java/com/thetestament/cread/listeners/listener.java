@@ -313,9 +313,6 @@ public class listener {
         void onShareDialogItemClicked(int index);
     }
 
-    public interface OnShareLinkClickedListener {
-        void onShareLinkClicked(String entityID, String entityURL, String creatorName);
-    }
 
     /**
      * Interface definition for a callback to be invoked when user scroll for more data.
@@ -479,7 +476,6 @@ public class listener {
 
         void onInterestFailure(String errorMsg);
     }
-
 
 
     /**

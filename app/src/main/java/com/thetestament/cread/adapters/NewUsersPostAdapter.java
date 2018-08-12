@@ -50,7 +50,6 @@ import com.thetestament.cread.helpers.ViewHelper;
 import com.thetestament.cread.listeners.listener.OnDownvoteClickedListener;
 import com.thetestament.cread.listeners.listener.OnFeedLoadMoreListener;
 import com.thetestament.cread.listeners.listener.OnHatsOffListener;
-import com.thetestament.cread.listeners.listener.OnShareLinkClickedListener;
 import com.thetestament.cread.listeners.listener.OnShareListener;
 import com.thetestament.cread.models.FeedModel;
 import com.thetestament.cread.utils.AspectRatioUtils;
@@ -131,7 +130,6 @@ public class NewUsersPostAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
     private OnFeedLoadMoreListener onFeedLoadMoreListener;
     private OnHatsOffListener onHatsOffListener;
     private OnShareListener onShareListener;
-    private OnShareLinkClickedListener onShareLinkClickedListener;
     private OnDownvoteClickedListener onDownvoteClickedListener;
 
     /**
@@ -156,12 +154,6 @@ public class NewUsersPostAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
         this.onShareListener = onShareListener;
     }
 
-    /**
-     * Register a callback to be invoked when user clicks on share link button.
-     */
-    public void setOnShareLinkClickedListener(OnShareLinkClickedListener onShareLinkClickedListener) {
-        this.onShareLinkClickedListener = onShareLinkClickedListener;
-    }
 
     /**
      * Register a callback to be invoked when user clicks on down vote button.
