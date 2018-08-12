@@ -1690,14 +1690,6 @@ public class PreviewActivity extends BaseActivity implements QueryTokenReceiver,
         final MaterialDialog dialog = CustomDialog
                 .getProgressDialog(mContext, "Uploading your photo");
 
-        //Decode image file
-        BitmapFactory.Options options = new BitmapFactory.Options();
-        options.inJustDecodeBounds = true;
-        BitmapFactory.decodeFile(ImageHelper.getImageUri(IMAGE_TYPE_USER_CAPTURE_PIC).getPath(), options);
-        int imageHeight = options.outHeight;
-        int imageWidth = options.outWidth;
-
-
         //if watermark is not empty
         if (!TextUtils.isEmpty(waterMark)) {
             CaptureHelper.generateSignatureOnCapture(mWaterMarkText
@@ -1721,8 +1713,8 @@ public class PreviewActivity extends BaseActivity implements QueryTokenReceiver,
                 .addMultipartParameter("merchantable", merchantable)
                 .addMultipartParameter("caption", captionText)
                 .addMultipartParameter("filtername", mFilterName)
-                .addMultipartParameter("img_width", String.valueOf(imageWidth))
-                .addMultipartParameter("img_height", String.valueOf(imageHeight))
+                .addMultipartParameter("img_width", String.valueOf(mImagePreviewHeight))
+                .addMultipartParameter("img_height", String.valueOf(mImagePreviewHeight))
                 .addMultipartParameter("livefilter", mSelectedLiveFilter)
                 .setOkHttpClient(okHttpClient)
                 .build()
@@ -1907,13 +1899,6 @@ public class PreviewActivity extends BaseActivity implements QueryTokenReceiver,
         final MaterialDialog dialog = CustomDialog
                 .getProgressDialog(mContext, "Uploading your meme");
 
-        //Decode image file
-        BitmapFactory.Options options = new BitmapFactory.Options();
-        options.inJustDecodeBounds = true;
-        BitmapFactory.decodeFile(ImageHelper.getImageUri(IMAGE_TYPE_USER_MEME).getPath(), options);
-        int imageHeight = options.outHeight;
-        int imageWidth = options.outWidth;
-
 
         //Configure OkHttpClient for time out
         OkHttpClient okHttpClient = new OkHttpClient().newBuilder()
@@ -1927,8 +1912,8 @@ public class PreviewActivity extends BaseActivity implements QueryTokenReceiver,
                 .addMultipartParameter("uuid", uuid)
                 .addMultipartParameter("authkey", authToken)
                 .addMultipartParameter("caption", captionText)
-                .addMultipartParameter("img_width", String.valueOf(imageWidth))
-                .addMultipartParameter("img_height", String.valueOf(imageHeight))
+                .addMultipartParameter("img_width", String.valueOf(mImagePreviewWidth))
+                .addMultipartParameter("img_height", String.valueOf(mImagePreviewHeight))
                 .setOkHttpClient(okHttpClient)
                 .build()
                 .getAsJSONObject(new JSONObjectRequestListener() {
@@ -1943,7 +1928,7 @@ public class PreviewActivity extends BaseActivity implements QueryTokenReceiver,
                                 JSONObject dataObject = response.getJSONObject("data");
                                 if (dataObject.getString("status").equals("done")) {
                                     ViewHelper.getToast(mContext, "Meme has been uploaded successfully");
-
+                                    setResult(RESULT_OK);
                                     // Set feeds data to be loaded from network instead of cached data
                                     GET_RESPONSE_FROM_NETWORK_MAIN = true;
                                     GET_RESPONSE_FROM_NETWORK_EXPLORE = true;
@@ -2203,8 +2188,7 @@ public class PreviewActivity extends BaseActivity implements QueryTokenReceiver,
                 .readTimeout(20, TimeUnit.MINUTES)
                 .writeTimeout(20, TimeUnit.MINUTES)
                 .build();
-        //fixme update url and keys
-        AndroidNetworking.post(BuildConfig.URL + "/meme-manage/edit-caption")
+        AndroidNetworking.post(BuildConfig.URL + "/upload-meme/edit")
                 .addBodyParameter("uuid", uuid)
                 .addBodyParameter("authkey", authToken)
                 .addBodyParameter("caption", captionText)
