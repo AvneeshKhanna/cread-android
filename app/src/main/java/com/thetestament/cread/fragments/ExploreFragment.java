@@ -13,6 +13,7 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.view.ViewCompat;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.AppCompatTextView;
 import android.support.v7.widget.GridLayoutManager;
@@ -26,11 +27,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.AnimationUtils;
 import android.view.animation.LayoutAnimationController;
-import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import com.afollestad.materialdialogs.DialogAction;
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.crashlytics.android.Crashlytics;
 import com.facebook.drawee.view.SimpleDraweeView;
@@ -112,28 +111,32 @@ import static com.thetestament.cread.utils.Constant.REQUEST_CODE_OPEN_GALLERY_FO
 public class ExploreFragment extends Fragment implements listener.OnCollaborationListener {
 
     //region :View binding with butter knife
-    @BindView(R.id.rootView)
+    @BindView(R.id.root_view)
     CoordinatorLayout rootView;
-    @BindView(R.id.swipeToRefreshLayout)
-    SwipeRefreshLayout swipeRefreshLayout;
-    @BindView(R.id.recyclerView)
-    RecyclerView recyclerView;
-    @BindView(R.id.recyclerViewFeatArtists)
+    @BindView(R.id.recycler_view_feat_artists)
     RecyclerView recyclerViewFeatArtists;
-    @BindView(R.id.recyclerViewCategory)
-    RecyclerView recyclerViewCategory;
-    @BindView(R.id.fabToggle)
-    FloatingActionButton fabToggle;
     @BindView(R.id.containerCategory)
     LinearLayout containerCategory;
+    @BindView(R.id.recyclerViewCategory)
+    RecyclerView recyclerViewCategory;
+    @BindView(R.id.swipe_refresh_layout)
+    SwipeRefreshLayout swipeRefreshLayout;
+    @BindView(R.id.recycler_view_explore)
+    RecyclerView recyclerViewExplore;
+    @BindView(R.id.tab_layout_main)
+    TabLayout mainTab;
     @BindView(R.id.tab_layout)
     TabLayout tabLayout;
+    @BindView(R.id.fabToggle)
+    FloatingActionButton fabToggle;
+
     //endregion
 
     //region :Fields and constants
     CompositeDisposable mCompositeDisposable = new CompositeDisposable();
 
     List<FeedModel> mExploreDataList = new ArrayList<>();
+    List<FeedModel> mMemeDataList = new ArrayList<>();
     List<FeaturedArtistsModel> mFeatArtistsList = new ArrayList<>();
     List<ExploreCategoryModel> mCategoryList = new ArrayList<>();
     List<ExploreCategoryModel> mtempCategoryList = new ArrayList<>();
@@ -146,7 +149,7 @@ public class ExploreFragment extends Fragment implements listener.OnCollaboratio
     private Unbinder mUnbinder;
     private String mLastIndexKey;
     private boolean mRequestMoreData;
-    private int spanCount = 2;
+
     public static Constant.ITEM_TYPES defaultItemType;
 
 
@@ -163,6 +166,7 @@ public class ExploreFragment extends Fragment implements listener.OnCollaboratio
      */
     @State
     boolean mCanDownVote;
+
     /**
      * Flag to store selected Category.
      */
@@ -177,10 +181,21 @@ public class ExploreFragment extends Fragment implements listener.OnCollaboratio
 
     /**
      * Flag to maintain selected tab status.
-     * Default is {@link com.thetestament.cread.utils.Constant.EXPLORE_SELECTED_TAB_POPULAR}
+     * Default is {@link com.thetestament.cread.utils.Constant#EXPLORE_SELECTED_TAB_POPULAR}
      */
     @State
     String mSelectedTab = Constant.EXPLORE_SELECTED_TAB_POPULAR;
+
+    /**
+     * Flag to maintain meme request more data.
+     */
+    @State
+    String mMemeRequestMore;
+    /**
+     * Flag to maintain index key for next set of data.
+     */
+    @State
+    String mMemeLastIndexKey;
     //endregion
 
     //region :Overridden methods
@@ -192,8 +207,9 @@ public class ExploreFragment extends Fragment implements listener.OnCollaboratio
         // Its own option menu
         setHasOptionsMenu(true);
         //inflate this view
-        return inflater
-                .inflate(R.layout.fragment_explore, container, false);
+        return inflater.inflate(R.layout.fragment_explore
+                , container
+                , false);
     }
 
     @Override
@@ -205,7 +221,13 @@ public class ExploreFragment extends Fragment implements listener.OnCollaboratio
         initScreen();
         //Explore screen open for first time
         if (mHelper.isExploreIntroFirstTime()) {
-            getExploreIntroDialog();
+            CustomDialog.getGenericDialog(getActivity()
+                    , getString(R.string.text_ok)
+                    , "Discover Cread"
+                    , "Find the best of Cread from all around the app. Explore the good stuff everyone is posting by navigating to this section"
+                    , R.drawable.img_explore_intro);
+            //update status
+            mHelper.updateExploreIntroStatus(false);
         }
     }
 
@@ -378,23 +400,23 @@ public class ExploreFragment extends Fragment implements listener.OnCollaboratio
             mHelper.setFeedItemType(Constant.ITEM_TYPES.LIST);
             defaultItemType = LIST;
             //set layout manager
-            recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
+            recyclerViewExplore.setLayoutManager(new LinearLayoutManager(getActivity()));
             mAdapter = new ExploreAdapter(mExploreDataList, getActivity()
                     , mHelper.getUUID(), ExploreFragment.this
                     , Constant.ITEM_TYPES.LIST, mCompositeDisposable);
-            recyclerView.setAdapter(mAdapter);
+            recyclerViewExplore.setAdapter(mAdapter);
             initListeners();
         } else if (defaultItemType == LIST) {
             // Update preferences and flags
             mHelper.setFeedItemType(Constant.ITEM_TYPES.GRID);
             defaultItemType = GRID;
             // setting layout manager
-            GridLayoutManager gridLayoutManager = new GridLayoutManager(getActivity(), spanCount);
-            recyclerView.setLayoutManager(gridLayoutManager);
+            GridLayoutManager gridLayoutManager = new GridLayoutManager(getActivity(), 2);
+            recyclerViewExplore.setLayoutManager(gridLayoutManager);
 
             mAdapter = new ExploreAdapter(mExploreDataList, getActivity()
                     , mHelper.getUUID(), ExploreFragment.this, GRID, mCompositeDisposable);
-            recyclerView.setAdapter(mAdapter);
+            recyclerViewExplore.setAdapter(mAdapter);
             initListeners();
         } else {
         }
@@ -446,6 +468,7 @@ public class ExploreFragment extends Fragment implements listener.OnCollaboratio
 
         }
     }
+
     //endregion
 
     //region :Private method
@@ -491,6 +514,7 @@ public class ExploreFragment extends Fragment implements listener.OnCollaboratio
         getFeaturedArtistsData();
         loadExploreData();
         //initializeCategory();
+        getMemeData();
     }
 
 
@@ -608,14 +632,14 @@ public class ExploreFragment extends Fragment implements listener.OnCollaboratio
 
         if (defaultItemType == GRID) {
             //Set layout manger for recyclerView
-            GridLayoutManager gridLayoutManager = new GridLayoutManager(getActivity(), spanCount);
-            recyclerView.setLayoutManager(gridLayoutManager);
+            GridLayoutManager gridLayoutManager = new GridLayoutManager(getActivity(), 2);
+            recyclerViewExplore.setLayoutManager(gridLayoutManager);
         } else if (defaultItemType == LIST) {
-            recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
+            recyclerViewExplore.setLayoutManager(new LinearLayoutManager(getActivity()));
         }
         //Set adapter
         mAdapter = new ExploreAdapter(mExploreDataList, getActivity(), mHelper.getUUID(), ExploreFragment.this, defaultItemType, mCompositeDisposable);
-        recyclerView.setAdapter(mAdapter);
+        recyclerViewExplore.setAdapter(mAdapter);
     }
 
 
@@ -626,7 +650,7 @@ public class ExploreFragment extends Fragment implements listener.OnCollaboratio
         initLoadMoreListener();
         initCaptureListener();
         initFollowListener();
-        getFabCustomBehaviour(recyclerView, fabToggle);
+        getFabCustomBehaviour(recyclerViewExplore, fabToggle);
         initCategory();
     }
 
@@ -982,7 +1006,7 @@ public class ExploreFragment extends Fragment implements listener.OnCollaboratio
                             //Apply 'Slide Up' animation
                             int resId = R.anim.layout_animation_from_bottom;
                             LayoutAnimationController animation = AnimationUtils.loadLayoutAnimation(getActivity(), resId);
-                            recyclerView.setLayoutAnimation(animation);
+                            recyclerViewExplore.setLayoutAnimation(animation);
                             mAdapter.notifyDataSetChanged();
                         }
                     }
@@ -1150,35 +1174,6 @@ public class ExploreFragment extends Fragment implements listener.OnCollaboratio
                     , getString(R.string.error_msg_capture_permission_denied));
         }
     };
-
-    /**
-     * Method to show intro dialog when user land on this screen for the first time.
-     */
-    private void getExploreIntroDialog() {
-        MaterialDialog dialog = new MaterialDialog.Builder(getActivity())
-                .customView(R.layout.dialog_generic, false)
-                .positiveText(getString(R.string.text_ok))
-                .onPositive(new MaterialDialog.SingleButtonCallback() {
-                    @Override
-                    public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
-                        dialog.dismiss();
-                        //update status
-                        mHelper.updateExploreIntroStatus(false);
-                    }
-                })
-                .show();
-        //Obtain views reference
-        ImageView fillerImage = dialog.getCustomView().findViewById(R.id.viewFiller);
-        TextView textTitle = dialog.getCustomView().findViewById(R.id.textTitle);
-        TextView textDesc = dialog.getCustomView().findViewById(R.id.textDesc);
-
-        //Set filler image
-        fillerImage.setImageDrawable(ContextCompat.getDrawable(getActivity(), R.drawable.img_explore_intro));
-        //Set title text
-        textTitle.setText("Discover Cread");
-        //Set description text
-        textDesc.setText("Find the best of Cread from all around the app. Explore the good stuff everyone is posting by navigating to this section");
-    }
 
 
     /**
@@ -1463,5 +1458,106 @@ public class ExploreFragment extends Fragment implements listener.OnCollaboratio
 
         }
     }
+
+
+    /**
+     * RxJava2 implementation for retrieving meme data.
+     */
+    private void getMemeData() {
+        final boolean[] tokenError = {false};
+        final boolean[] connectionError = {false};
+
+        mCompositeDisposable.add(ExploreNetworkManager.getMemeObservable(BuildConfig.URL + "/explore-feed/load-memes"
+                , mHelper.getUUID()
+                , mHelper.getAuthToken()
+                , mLastIndexKey
+                , GET_RESPONSE_FROM_NETWORK_EXPLORE)
+                //Run on a background thread
+                .subscribeOn(Schedulers.io())
+                //Be notified on the main thread
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribeWith(new DisposableObserver<JSONObject>() {
+                    @Override
+                    public void onNext(JSONObject jsonObject) {
+                        try {
+                            //Token status is invalid
+                            if (jsonObject.getString("tokenstatus").equals("invalid")) {
+                                tokenError[0] = true;
+                            } else {
+                                parsePostsData(jsonObject, false);
+
+                            }
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                            Crashlytics.logException(e);
+                            Crashlytics.setString("className", "ExploreFragment");
+                            connectionError[0] = true;
+                        }
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        swipeRefreshLayout.setRefreshing(false);
+                        Crashlytics.logException(e);
+                        Crashlytics.setString("className", "ExploreFragment");
+                        //Server error Snack bar
+                        ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_server));
+                    }
+
+                    @Override
+                    public void onComplete() {
+                        //Dismiss progress indicator
+                        swipeRefreshLayout.setRefreshing(false);
+                        // set to false
+                        GET_RESPONSE_FROM_NETWORK_EXPLORE = false;
+                        // Token status invalid
+                        if (tokenError[0]) {
+                            ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_invalid_token));
+                        } else if (mExploreDataList.size() == 0) {
+                            ViewHelper.getSnackBar(rootView, "Nothing to show right now");
+                        }
+                        //Error occurred
+                        else if (connectionError[0]) {
+                            ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_internal));
+                        } else {
+                            //Apply 'Slide Up' animation
+                            int resId = R.anim.layout_animation_from_bottom;
+                            LayoutAnimationController animation = AnimationUtils.loadLayoutAnimation(getActivity(), resId);
+                            recyclerViewExplore.setLayoutAnimation(animation);
+                            mAdapter.notifyDataSetChanged();
+                        }
+                    }
+                })
+        );
+    }
+
+
+    /**
+     * Method to toggle tab text color and background.
+     *
+     * @param context       Context to use.
+     * @param selectedTab   Selected tab view
+     * @param unSelectedTab Unselected tab view.
+     */
+    private void toggleTabLayoutAppearance(Context context, AppCompatTextView selectedTab, AppCompatTextView unSelectedTab) {
+
+        //Change background
+        ViewCompat.setBackground(selectedTab
+                , ContextCompat.getDrawable(context
+                        , R.drawable.chips_bg_filled_blue));
+        //Change text color
+        selectedTab.setTextColor(ContextCompat.getColor(context
+                , R.color.white));
+
+
+        //Change background
+        ViewCompat.setBackground(unSelectedTab
+                , ContextCompat.getDrawable(context
+                        , R.drawable.chips_bg_outline_blue));
+        //Change text color
+        unSelectedTab.setTextColor(ContextCompat.getColor(context
+                , R.color.grey_dark));
+    }
+
     //endregion
 }

@@ -216,4 +216,33 @@ public class ExploreNetworkManager {
                 .getJSONObjectObservable();
     }
 
+    /**
+     * Method to return meme observable data.
+     *
+     * @param serverURL              URL of the server.
+     * @param uuid                   UUID of the user.
+     * @param authKey                AuthKey of user.
+     * @param lastIndexKey           Last index key
+     * @param getResponseFromNetwork boolean which indicate whether to load from network or cache.
+     * @return Observable<JSONObject>
+     */
+    public static Observable<JSONObject> getMemeObservable(String serverURL, String uuid, String authKey
+            , String lastIndexKey, boolean getResponseFromNetwork) {
+
+        Map<String, String> header = new HashMap<>();
+        header.put("uuid", uuid);
+        header.put("authkey", authKey);
+
+        Rx2ANRequest.GetRequestBuilder requestBuilder = Rx2AndroidNetworking.get(serverURL)
+                .addHeaders(header)
+                .addQueryParameter("lastindexkey", lastIndexKey)
+                .addQueryParameter(Constant.PLATFORM_KEY, Constant.PLATFORM_VALUE);
+
+        if (getResponseFromNetwork) {
+            requestBuilder.getResponseOnlyFromNetwork();
+        }
+
+        return requestBuilder.build().getJSONObjectObservable();
+    }
+
 }

@@ -2,14 +2,14 @@
 <android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/rootView"
+    android:id="@+id/root_view"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
 
     <!--Appbar container-->
     <android.support.design.widget.AppBarLayout
-        android:id="@+id/appBarLayout"
+        android:id="@+id/app_bar_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@android:color/transparent"
@@ -17,7 +17,7 @@
         android:visibility="visible">
 
         <android.support.design.widget.CollapsingToolbarLayout
-            android:id="@+id/collapsingToolbar"
+            android:id="@+id/collapsing_toolbar"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:fitsSystemWindows="true"
@@ -32,10 +32,9 @@
                 android:background="@color/grey_light"
                 android:orientation="vertical">
 
-
                 <!--Feature artist recyclerView-->
                 <android.support.v7.widget.RecyclerView
-                    android:id="@+id/recyclerViewFeatArtists"
+                    android:id="@+id/recycler_view_feat_artists"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:background="@color/white"
@@ -45,6 +44,29 @@
                     tools:itemCount="4"
                     tools:listitem="@layout/item_featured_artists" />
 
+                <!--TabLayout Main-->
+                <android.support.design.widget.TabLayout
+                    android:id="@+id/tab_layout_main"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:background="@color/white"
+                    app:tabGravity="fill"
+                    app:tabIndicatorColor="@color/colorPrimary"
+                    app:tabMode="fixed"
+                    app:tabTextAppearance="@android:style/TextAppearance.Widget.TabWidget">
+
+                    <android.support.design.widget.TabItem
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Art" />
+
+                    <android.support.design.widget.TabItem
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Humor" />
+
+                </android.support.design.widget.TabLayout>
 
                 <!--Category container-->
                 <LinearLayout
@@ -54,7 +76,7 @@
                     android:background="@color/grey_light"
                     android:orientation="horizontal"
                     android:paddingBottom="5dp"
-                    android:visibility="gone">
+                    android:visibility="visible">
 
                     <!--Main category-->
                     <android.support.v7.widget.AppCompatTextView
@@ -93,7 +115,6 @@
                 <!--TabLayout-->
                 <android.support.design.widget.TabLayout
                     android:id="@+id/tab_layout"
-                    android:layout_marginTop="8dp"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:background="@color/white"
@@ -124,27 +145,19 @@
 
     <!--Swipe refresh layout-->
     <android.support.v4.widget.SwipeRefreshLayout
-        android:id="@+id/swipeToRefreshLayout"
+        android:id="@+id/swipe_refresh_layout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
         <android.support.v7.widget.RecyclerView
-            android:id="@+id/recyclerView"
+            android:id="@+id/recycler_view_explore"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layoutAnimation="@anim/layout_animation_from_bottom" />
 
     </android.support.v4.widget.SwipeRefreshLayout>
 
-    <!--No data view-->
-    <TextView
-        android:id="@+id/noData"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:text="No posts related to this #tag yet"
-        android:visibility="gone" />
 
     <!--Fab to list and grid view-->
     <android.support.design.widget.FloatingActionButton
