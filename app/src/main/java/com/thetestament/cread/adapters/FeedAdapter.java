@@ -568,7 +568,7 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                 , Spannable.SPAN_EXCLUSIVE_EXCLUSIVE));
 
         //Open profile screen
-        SocialActionHelper.navigateToProfile(itemViewHolder.textCreatorName, mContext, data.getReposterUUID());
+        SocialActionHelper.navigateToProfile(itemViewHolder.textCreatorName, mContext, data.getUUID());
         //init post timestamp
         updatePostTimestamp(itemViewHolder.textTimeStamp, data);
 
@@ -642,7 +642,7 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                 , Spannable.SPAN_EXCLUSIVE_EXCLUSIVE));
 
         //Open profile screen
-        SocialActionHelper.navigateToProfile(itemViewHolder.textCreatorName, mContext, data.getReposterUUID());
+        SocialActionHelper.navigateToProfile(itemViewHolder.textCreatorName, mContext, data.getUUID());
         //init post timestamp
         updatePostTimestamp(itemViewHolder.textTimestamp, data);
 

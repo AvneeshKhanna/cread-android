@@ -1,6 +1,5 @@
 package com.thetestament.cread.fragments;
 
-import android.content.Context;
 import android.content.Intent;
 import android.graphics.PorterDuff;
 import android.net.Uri;
@@ -13,7 +12,6 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
-import android.support.v4.view.ViewCompat;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.AppCompatTextView;
 import android.support.v7.widget.GridLayoutManager;
@@ -126,10 +124,7 @@ public class ExploreFragment extends Fragment implements listener.OnCollaboratio
      * List to maintain arts data.
      */
     List<FeedModel> mExploreDataList = new ArrayList<>();
-    /**
-     * List to main meme data
-     */
-    List<FeedModel> mMemeDataList = new ArrayList<>();
+
     /**
      * List to maintain feature artist data.
      */
@@ -142,8 +137,17 @@ public class ExploreFragment extends Fragment implements listener.OnCollaboratio
 
     SharedPreferenceHelper mHelper;
     private Unbinder mUnbinder;
-    private String mLastIndexKey;
-    private boolean mRequestMoreData;
+
+    /**
+     * Flag to maintain request more data.
+     */
+    @State
+    String mLastIndexKey;
+    /**
+     * Flag to maintain index key for next set of data.
+     */
+    @State
+    boolean mRequestMoreData;
 
     public static Constant.ITEM_TYPES defaultItemType;
 
@@ -183,16 +187,6 @@ public class ExploreFragment extends Fragment implements listener.OnCollaboratio
     @State
     String mTabType = Constant.EXPLORE_TAB_TYPE_ART;
 
-    /**
-     * Flag to maintain meme request more data.
-     */
-    @State
-    String mMemeRequestMore;
-    /**
-     * Flag to maintain index key for next set of data.
-     */
-    @State
-    String mMemeLastIndexKey;
     //endregion
 
     //region :Overridden methods
@@ -398,6 +392,7 @@ public class ExploreFragment extends Fragment implements listener.OnCollaboratio
             defaultItemType = LIST;
             //set layout manager
             recyclerViewExplore.setLayoutManager(new LinearLayoutManager(getActivity()));
+            //Set adapter
             mAdapter = new ExploreAdapter(mExploreDataList, getActivity()
                     , mHelper.getUUID(), ExploreFragment.this
                     , Constant.ITEM_TYPES.LIST, mCompositeDisposable);
@@ -410,7 +405,7 @@ public class ExploreFragment extends Fragment implements listener.OnCollaboratio
             // setting layout manager
             GridLayoutManager gridLayoutManager = new GridLayoutManager(getActivity(), 2);
             recyclerViewExplore.setLayoutManager(gridLayoutManager);
-
+            //Set adapter
             mAdapter = new ExploreAdapter(mExploreDataList, getActivity()
                     , mHelper.getUUID(), ExploreFragment.this, GRID, mCompositeDisposable);
             recyclerViewExplore.setAdapter(mAdapter);
@@ -465,13 +460,22 @@ public class ExploreFragment extends Fragment implements listener.OnCollaboratio
                 mLastIndexKey = null;
                 //Load data here
                 getFeaturedArtistsData();
-                loadExploreData();
+
+                if (mTabType.equals(Constant.EXPLORE_TAB_TYPE_ART)) {
+                    loadExploreData();
+                } else {
+                    getMemeData();
+                }
             }
         });
 
         //Load data here
         getFeaturedArtistsData();
-        loadExploreData();
+        if (mTabType.equals(Constant.EXPLORE_TAB_TYPE_ART)) {
+            loadExploreData();
+        } else {
+            getMemeData();
+        }
     }
 
 
@@ -503,21 +507,23 @@ public class ExploreFragment extends Fragment implements listener.OnCollaboratio
             public void onTabSelected(TabLayout.Tab tab) {
                 switch (tab.getPosition()) {
                     case 0:
+                        tabLayout.setVisibility(View.VISIBLE);
                         //Update flag here
                         mTabType = Constant.EXPLORE_TAB_TYPE_ART;
-
                         //Clear data list
                         mExploreDataList.clear();
                         //Notify for changes
                         mAdapter.notifyDataSetChanged();
                         mAdapter.setLoaded();
-                        //set last index key to nul
+                        //reset flags
+                        mRequestMoreData = false;
                         mLastIndexKey = null;
                         mCompositeDisposable.clear();
                         //Load data here
                         loadExploreData();
                         break;
                     case 1:
+                        tabLayout.setVisibility(View.GONE);
                         //Update flag here
                         mTabType = Constant.EXPLORE_TAB_TYPE_HUMOR;
                         //Clear data list
@@ -525,8 +531,9 @@ public class ExploreFragment extends Fragment implements listener.OnCollaboratio
                         //Notify for changes
                         mAdapter.notifyDataSetChanged();
                         mAdapter.setLoaded();
-                        //set last index key to nul
-                        mMemeLastIndexKey = null;
+                        //reset flags
+                        mRequestMoreData = false;
+                        mLastIndexKey = null;
                         mCompositeDisposable.clear();
                         //Load data here
                         getMemeData();
@@ -705,9 +712,11 @@ public class ExploreFragment extends Fragment implements listener.OnCollaboratio
                                            }
                                        }
                     );
-
-                    //Load new set of data
-                    loadMoreData();
+                    if (mTabType.equals(Constant.EXPLORE_TAB_TYPE_ART)) {
+                        loadMoreData();
+                    } else {
+                        loadMemeMoreData();
+                    }
                 }
             }
         });
@@ -756,7 +765,6 @@ public class ExploreFragment extends Fragment implements listener.OnCollaboratio
                         mAdapter.notifyItemChanged(itemPosition);
 
                         ViewHelper.getSnackBar(rootView, errorMsg);
-
                     }
                 });
     }
@@ -1074,12 +1082,9 @@ public class ExploreFragment extends Fragment implements listener.OnCollaboratio
                                 tokenError[0] = true;
                             } else {
                                 parsePostsData(jsonObject, false);
-
                             }
                         } catch (JSONException e) {
                             e.printStackTrace();
-                            Crashlytics.logException(e);
-                            Crashlytics.setString("className", "ExploreFragment");
                             connectionError[0] = true;
                         }
                     }
@@ -1087,8 +1092,6 @@ public class ExploreFragment extends Fragment implements listener.OnCollaboratio
                     @Override
                     public void onError(Throwable e) {
                         swipeRefreshLayout.setRefreshing(false);
-                        Crashlytics.logException(e);
-                        Crashlytics.setString("className", "ExploreFragment");
                         //Server error Snack bar
                         ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_server));
                     }
@@ -1152,8 +1155,6 @@ public class ExploreFragment extends Fragment implements listener.OnCollaboratio
                             }
                         } catch (JSONException e) {
                             e.printStackTrace();
-                            Crashlytics.logException(e);
-                            Crashlytics.setString("className", "ExploreFragment");
                             connectionError[0] = true;
                         }
                     }
@@ -1163,8 +1164,6 @@ public class ExploreFragment extends Fragment implements listener.OnCollaboratio
                         //Remove loading item
                         mExploreDataList.remove(mExploreDataList.size() - 1);
                         mAdapter.notifyItemRemoved(mExploreDataList.size());
-                        Crashlytics.logException(e);
-                        Crashlytics.setString("className", "ExploreFragment");
                         //Server error Snack bar
                         ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_server));
                     }
@@ -1181,77 +1180,6 @@ public class ExploreFragment extends Fragment implements listener.OnCollaboratio
                         } else {
                             //Notify changes
                             mAdapter.setLoaded();
-                        }
-                    }
-                })
-        );
-    }
-
-    /**
-     * RxJava2 implementation for retrieving meme data.
-     */
-    private void getMemeData() {
-        final boolean[] tokenError = {false};
-        final boolean[] connectionError = {false};
-
-        mCompositeDisposable.add(ExploreNetworkManager.getMemeObservable(BuildConfig.URL + "/explore-feed/load-memes"
-                , mHelper.getUUID()
-                , mHelper.getAuthToken()
-                , mLastIndexKey
-                , GET_RESPONSE_FROM_NETWORK_EXPLORE)
-                //Run on a background thread
-                .subscribeOn(Schedulers.io())
-                //Be notified on the main thread
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribeWith(new DisposableObserver<JSONObject>() {
-                    @Override
-                    public void onNext(JSONObject jsonObject) {
-                        try {
-                            //Token status is invalid
-                            if (jsonObject.getString("tokenstatus").equals("invalid")) {
-                                tokenError[0] = true;
-                            } else {
-                                parsePostsData(jsonObject, false);
-
-                            }
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                            Crashlytics.logException(e);
-                            Crashlytics.setString("className", "ExploreFragment");
-                            connectionError[0] = true;
-                        }
-                    }
-
-                    @Override
-                    public void onError(Throwable e) {
-                        swipeRefreshLayout.setRefreshing(false);
-                        Crashlytics.logException(e);
-                        Crashlytics.setString("className", "ExploreFragment");
-                        //Server error Snack bar
-                        ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_server));
-                    }
-
-                    @Override
-                    public void onComplete() {
-                        //Dismiss progress indicator
-                        swipeRefreshLayout.setRefreshing(false);
-                        // set to false
-                        GET_RESPONSE_FROM_NETWORK_EXPLORE = false;
-                        // Token status invalid
-                        if (tokenError[0]) {
-                            ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_invalid_token));
-                        } else if (mExploreDataList.size() == 0) {
-                            ViewHelper.getSnackBar(rootView, "Nothing to show right now");
-                        }
-                        //Error occurred
-                        else if (connectionError[0]) {
-                            ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_internal));
-                        } else {
-                            //Apply 'Slide Up' animation
-                            int resId = R.anim.layout_animation_from_bottom;
-                            LayoutAnimationController animation = AnimationUtils.loadLayoutAnimation(getActivity(), resId);
-                            recyclerViewExplore.setLayoutAnimation(animation);
-                            mAdapter.notifyDataSetChanged();
                         }
                     }
                 })
@@ -1366,31 +1294,138 @@ public class ExploreFragment extends Fragment implements listener.OnCollaboratio
 
 
     /**
-     * Method to toggle tab text color and background.
-     *
-     * @param context       Context to use.
-     * @param selectedTab   Selected tab view
-     * @param unSelectedTab Unselected tab view.
+     * RxJava2 implementation for retrieving meme data.
      */
-    private void toggleTabLayoutAppearance(Context context, AppCompatTextView selectedTab, AppCompatTextView unSelectedTab) {
+    private void getMemeData() {
+        swipeRefreshLayout.setRefreshing(true);
+        final boolean[] tokenError = {false};
+        final boolean[] connectionError = {false};
 
-        //Change background
-        ViewCompat.setBackground(selectedTab
-                , ContextCompat.getDrawable(context
-                        , R.drawable.chips_bg_filled_blue));
-        //Change text color
-        selectedTab.setTextColor(ContextCompat.getColor(context
-                , R.color.white));
+        mCompositeDisposable.add(ExploreNetworkManager.getMemeObservable(BuildConfig.URL + "/explore-feed/load-memes"
+                , mHelper.getUUID()
+                , mHelper.getAuthToken()
+                , mLastIndexKey
+                , GET_RESPONSE_FROM_NETWORK_EXPLORE)
+                //Run on a background thread
+                .subscribeOn(Schedulers.io())
+                //Be notified on the main thread
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribeWith(new DisposableObserver<JSONObject>() {
+                    @Override
+                    public void onNext(JSONObject jsonObject) {
+                        try {
+                            //Token status is invalid
+                            if (jsonObject.getString("tokenstatus").equals("invalid")) {
+                                tokenError[0] = true;
+                            } else {
+                                parsePostsData(jsonObject, false);
 
+                            }
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                            Crashlytics.logException(e);
+                            Crashlytics.setString("className", "ExploreFragment");
+                            connectionError[0] = true;
+                        }
+                    }
 
-        //Change background
-        ViewCompat.setBackground(unSelectedTab
-                , ContextCompat.getDrawable(context
-                        , R.drawable.chips_bg_outline_blue));
-        //Change text color
-        unSelectedTab.setTextColor(ContextCompat.getColor(context
-                , R.color.grey_dark));
+                    @Override
+                    public void onError(Throwable e) {
+                        swipeRefreshLayout.setRefreshing(false);
+                        Crashlytics.logException(e);
+                        Crashlytics.setString("className", "ExploreFragment");
+                        //Server error Snack bar
+                        ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_server));
+                    }
+
+                    @Override
+                    public void onComplete() {
+                        //Dismiss progress indicator
+                        swipeRefreshLayout.setRefreshing(false);
+                        // set to false
+                        GET_RESPONSE_FROM_NETWORK_EXPLORE = false;
+                        // Token status invalid
+                        if (tokenError[0]) {
+                            ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_invalid_token));
+                        } else if (mExploreDataList.size() == 0) {
+                            ViewHelper.getSnackBar(rootView, "Nothing to show right now");
+                        }
+                        //Error occurred
+                        else if (connectionError[0]) {
+                            ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_internal));
+                        } else {
+                            //Apply 'Slide Up' animation
+                            int resId = R.anim.layout_animation_from_bottom;
+                            LayoutAnimationController animation = AnimationUtils.loadLayoutAnimation(getActivity(), resId);
+                            recyclerViewExplore.setLayoutAnimation(animation);
+                            mAdapter.notifyDataSetChanged();
+                        }
+                    }
+                })
+        );
     }
+
+    /**
+     * Method to retrieve to next set of data from server.
+     */
+    private void loadMemeMoreData() {
+        final boolean[] tokenError = {false};
+        final boolean[] connectionError = {false};
+        mCompositeDisposable.add(ExploreNetworkManager.getMemeObservable(BuildConfig.URL + "/explore-feed/load-memes"
+                , mHelper.getUUID()
+                , mHelper.getAuthToken()
+                , mLastIndexKey
+                , GET_RESPONSE_FROM_NETWORK_EXPLORE)
+                //Run on a background thread
+                .subscribeOn(Schedulers.io())
+                //Be notified on the main thread
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribeWith(new DisposableObserver<JSONObject>() {
+                    @Override
+                    public void onNext(JSONObject jsonObject) {
+                        //Remove loading item
+                        mExploreDataList.remove(mExploreDataList.size() - 1);
+                        mAdapter.notifyItemRemoved(mExploreDataList.size());
+                        try {
+                            //Token status is invalid
+                            if (jsonObject.getString("tokenstatus").equals("invalid")) {
+                                tokenError[0] = true;
+                            } else {
+                                parsePostsData(jsonObject, true);
+                            }
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                            connectionError[0] = true;
+                        }
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        //Remove loading item
+                        mExploreDataList.remove(mExploreDataList.size() - 1);
+                        mAdapter.notifyItemRemoved(mExploreDataList.size());
+                        //Server error Snack bar
+                        ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_server));
+                    }
+
+                    @Override
+                    public void onComplete() {
+                        // Token status invalid
+                        if (tokenError[0]) {
+                            ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_invalid_token));
+                        }
+                        //Error occurred
+                        else if (connectionError[0]) {
+                            ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_internal));
+                        } else {
+                            //Notify changes
+                            mAdapter.setLoaded();
+                        }
+                    }
+                })
+        );
+    }
+
 
     //endregion
 }
