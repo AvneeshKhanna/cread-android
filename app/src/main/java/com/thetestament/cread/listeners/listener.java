@@ -10,7 +10,6 @@ import android.widget.RelativeLayout;
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.thetestament.cread.models.AchievementsModels;
 import com.thetestament.cread.models.CommentsModel;
-import com.thetestament.cread.models.ExploreCategoryModel;
 import com.thetestament.cread.models.FBFriendsModel;
 import com.thetestament.cread.models.FeedModel;
 import com.thetestament.cread.models.InspirationModel;
@@ -477,13 +476,6 @@ public class listener {
         void onInterestFailure(String errorMsg);
     }
 
-
-    /**
-     * Interface definition for a callback to be invoked when user selects explore category from list.
-     */
-    public interface OnCategorySelectListener {
-        void onCategorySelected(ExploreCategoryModel model, int itemPosition);
-    }
 
     /**
      * Interface definition for a callback to be invoked when user uploads feedback.

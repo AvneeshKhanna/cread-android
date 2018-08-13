@@ -3,6 +3,7 @@ package com.thetestament.cread.helpers;
 import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Color;
+import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.content.ContextCompat;
@@ -28,7 +29,7 @@ import nl.dionsegijn.konfetti.models.Size;
  */
 
 public class ViewHelper {
-    
+
     /**
      * Method to show snack bar.
      *
@@ -151,4 +152,32 @@ public class ViewHelper {
                 .setPosition(0f, (float) AspectRatioUtils.getDeviceScreenWidth(), -50f, -50f)
                 .streamFor(40, 20000L);
     }
+
+
+    /**
+     * Method to hide and show the FAB depending upon scrolling behaviour of user.
+     *
+     * @param recyclerView View to be scrolled.
+     * @param fab          FAB which visibility to be toggled.
+     */
+    public static void getFabCustomBehaviour(RecyclerView recyclerView, final FloatingActionButton fab) {
+        recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+                super.onScrolled(recyclerView, dx, dy);
+                //if this view is not null
+                if (fab != null) {
+                    //Scroll Down
+                    if (dy > 0 && fab.getVisibility() == View.VISIBLE) {
+                        fab.hide();
+                    }
+                    //Scroll Up
+                    else if (dy < 0 && fab.getVisibility() != View.VISIBLE) {
+                        fab.show();
+                    }
+                }
+            }
+        });
+    }
+
 }

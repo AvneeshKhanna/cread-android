@@ -6,9 +6,7 @@ import android.view.animation.DecelerateInterpolator;
 
 public class Constant {
     public static final String MINIMUM_APP_VERSION_KEY = "minimum_app_version";
-    public static final String EXPLORE_CATEGORY_VIEW_VISIBILITY = "explore_category_view_visibility";
-    public static final String EXPLORE_CATEGORY_VIEW_VISIBILITY_VISIBLE = "visible";
-    public static final String EXPLORE_CATEGORY_VIEW_VISIBILITY_INVISIBLE = "invisible";
+
 
     //region :Platform key and value constant
     public static final String PLATFORM_KEY = "platform";
@@ -256,7 +254,6 @@ public class Constant {
     public static final String FIREBASE_EVENT_FEED_CLICKED = "feed_clicked";
     public static final String FIREBASE_EVENT_EXPLORE_CLICKED = "explore_clicked";
     public static final String FIREBASE_EVENT_HELP_CLICKED = "help_question_clicked";
-    public static final String FIREBASE_EVENT_EXPLORE_CATEGORY_CLICKED = "explore_category_clicked";
     public static final String FIREBASE_EVENT_INSPIRATION_CLICKED = "inspire_clicked";
     public static final String FIREBASE_EVENT_NOTIFICATION_CLICKED = "notification_clicked";
     public static final String FIREBASE_EVENT_FIND_FRIENDS = "find_friends";
@@ -405,11 +402,6 @@ public class Constant {
     public static final String USER_INTERESTS_CALLED_FROM_PROFILE = "userInterestsCalledFromProfile";
     //endregion
 
-    //region
-    public static final String EXPLORE_CATEGORY_DEFAULT = "DEFAULT";
-    public static final String EXPLORE_CATEGORY_ART = "ART";
-    public static final String EXPLORE_CATEGORY_FEEL = "FEEL";
-    //endregion
 
     //region :Live filter name
     public static final String LIVE_FILTER_NONE = "none";
@@ -430,6 +422,8 @@ public class Constant {
     public static final String EXPLORE_SELECTED_TAB_RECENT = "recent";
     public static final String EXPLORE_SELECTED_TAB_POPULAR = "popular";
     public static final String EXPLORE_SELECTED_TAB_BEST = "allstar";
+    public static final String EXPLORE_TAB_TYPE_ART = "art";
+    public static final String EXPLORE_TAB_TYPE_HUMOR = "humor";
     //endregion
 
     //region :Me item types
