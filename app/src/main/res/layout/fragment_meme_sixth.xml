@@ -5,6 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
+    <!--Child container-->
     <RelativeLayout
         android:id="@+id/container"
         android:layout_width="match_parent"
@@ -13,12 +14,12 @@
 
         <!--Divider-->
         <View
-            android:id="@+id/bottom_divider_et_top"
+            android:id="@+id/top_divider_et_top"
             android:layout_width="match_parent"
             android:layout_height="0.3dp"
-            android:layout_below="@+id/et_top"
             android:alpha="0.5"
             android:background="@color/grey_dark" />
+
 
         <!--ImageView-->
         <com.thetestament.cread.widgets.SquareImageView
@@ -26,8 +27,8 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_below="@+id/bottom_divider_et_top"
-            android:background="@color/grey_dark"
             android:clickable="true"
+            android:background="@color/grey_dark"
             android:foreground="?android:selectableItemBackground"
             android:scaleType="centerInside"
             app:srcCompat="@drawable/ic_nav_menu_add" />
@@ -41,32 +42,7 @@
             android:alpha="0.5"
             android:background="@color/grey_dark" />
 
-        <!--TextView bottom-->
-        <android.support.v7.widget.AppCompatTextView
-            android:id="@+id/tv_bottom"
-            android:layout_width="match_parent"
-            android:layout_height="50dp"
-            android:layout_below="@+id/top_divider_et_bottom"
-            android:background="@null"
-            android:gravity="center"
-            android:paddingLeft="8dp"
-            android:paddingRight="8dp"
-            android:text="@string/hint_text_meme"
-            app:autoSizeMaxTextSize="24sp"
-            app:autoSizeTextType="uniform" />
-
-        <!--Divider-->
-        <View
-            android:id="@+id/bottom_divider_et_bottom"
-            android:layout_width="match_parent"
-            android:layout_height="0.3dp"
-            android:layout_below="@+id/tv_bottom"
-            android:alpha="0.5"
-            android:background="@color/grey_dark" />
-
     </RelativeLayout>
 
-    <!--Bottom sheet view-->
-    <include layout="@layout/layout_meme_bottom_sheet" />
 
 </android.support.design.widget.CoordinatorLayout>

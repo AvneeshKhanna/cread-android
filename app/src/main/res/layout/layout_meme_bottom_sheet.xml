@@ -5,7 +5,7 @@
     android:id="@+id/meme_bottom_sheet_view"
     android:layout_width="match_parent"
     android:layout_height="126dp"
-    android:background="@color/custom_white"
+    android:background="@color/white"
     app:layout_behavior="@string/bottom_sheet_behavior">
 
     <!--Child container-->

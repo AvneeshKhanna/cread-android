@@ -16,6 +16,7 @@ import com.thetestament.cread.fragments.MemeFifthFragment;
 import com.thetestament.cread.fragments.MemeFirstFragment;
 import com.thetestament.cread.fragments.MemeFourthFragment;
 import com.thetestament.cread.fragments.MemeSecondFragment;
+import com.thetestament.cread.fragments.MemeSixthFragment;
 import com.thetestament.cread.fragments.MemeThirdFragment;
 import com.thetestament.cread.helpers.SharedPreferenceHelper;
 import com.thetestament.cread.helpers.ViewHelper;
@@ -154,12 +155,12 @@ public class MemeActivity extends BaseActivity {
      */
     private List<MemeLayoutModel> getMemeLayoutData() {
         List<MemeLayoutModel> data = new ArrayList<>();
-        //fixme update data here
-        data.add(new MemeLayoutModel(R.drawable.img_welcome, "1"));
-        data.add(new MemeLayoutModel(R.drawable.image_placeholder, "2"));
-        data.add(new MemeLayoutModel(R.drawable.img_welcome, "3"));
-        data.add(new MemeLayoutModel(R.drawable.image_placeholder, "4"));
-        data.add(new MemeLayoutModel(R.drawable.img_welcome, "5"));
+        data.add(new MemeLayoutModel(R.drawable.img_meme_1, "1"));
+        data.add(new MemeLayoutModel(R.drawable.img_meme_2, "2"));
+        data.add(new MemeLayoutModel(R.drawable.img_meme_3, "3"));
+        data.add(new MemeLayoutModel(R.drawable.img_meme_4, "4"));
+        data.add(new MemeLayoutModel(R.drawable.img_meme_5, "5"));
+        data.add(new MemeLayoutModel(R.drawable.img_meme_6, "6"));
         return data;
     }
 
@@ -212,6 +213,9 @@ public class MemeActivity extends BaseActivity {
                 break;
             case 4:
                 fragment = new MemeFifthFragment();
+                break;
+            case 5:
+                fragment = new MemeSixthFragment();
                 break;
             default:
                 fragment = new MemeFirstFragment();

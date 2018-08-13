@@ -15,7 +15,7 @@
         android:layout_width="80dp"
         android:layout_height="80dp"
         android:layout_gravity="center_horizontal"
-        android:scaleType="center"
+        android:scaleType="fitXY"
         tools:src="@drawable/img_welcome" />
 
     <!--Selection indicator-->

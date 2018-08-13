@@ -17,7 +17,6 @@ import android.support.v7.widget.AppCompatImageView;
 import android.support.v7.widget.AppCompatTextView;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.text.InputType;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -27,7 +26,6 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 
-import com.afollestad.materialdialogs.MaterialDialog;
 import com.squareup.picasso.MemoryPolicy;
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Target;
@@ -43,6 +41,7 @@ import com.thetestament.cread.listeners.listener;
 import com.thetestament.cread.models.MemeImageModel;
 import com.thetestament.cread.networkmanager.MemeNetworkManager;
 import com.thetestament.cread.utils.Constant;
+import com.thetestament.cread.utils.MemeUtil;
 import com.yalantis.ucrop.UCrop;
 
 import org.json.JSONArray;
@@ -272,7 +271,8 @@ public class MemeFifthFragment extends Fragment {
      */
     @OnClick(R.id.tv_right)
     void onTvTopClick() {
-        showMemeInputDialog(tvRight);
+        MemeUtil.showMemeInputDialog(getActivity(),tvRight);
+
     }
     //endregion
 
@@ -681,32 +681,6 @@ public class MemeFifthFragment extends Fragment {
     }
 
 
-    /**
-     * Method to show input dialog where user enters text for meme.
-     */
-    private void showMemeInputDialog(final AppCompatTextView textView) {
-        new MaterialDialog.Builder(getActivity())
-                .title("Enter here your text")
-                .autoDismiss(false)
-                /*.inputRange(1, 80, ContextCompat.getColor(getActivity(), R.color.red))*/
-                .inputType(InputType.TYPE_TEXT_FLAG_MULTI_LINE | InputType.TYPE_TEXT_FLAG_CAP_SENTENCES)
-                .input(null, textView.getText(), false, new MaterialDialog.InputCallback() {
-                    @Override
-                    public void onInput(@NonNull MaterialDialog dialog, CharSequence input) {
-                        String s = String.valueOf(input).trim();
-                        if (s.length() < 1) {
-                            ViewHelper.getToast(getActivity(), "This field can't be empty");
-                        } else {
-                            //Set text here
-                            textView.setText(s);
-                            //Dismiss
-                            dialog.dismiss();
-                        }
-                    }
-                })
-                .build()
-                .show();
-    }
 
     //endregion
 

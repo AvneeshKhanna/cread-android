@@ -51,6 +51,7 @@
             android:layout_height="match_parent"
             android:layout_below="@+id/bottom_divider_et_top"
             android:clickable="true"
+            android:background="@color/grey_dark"
             android:foreground="?android:selectableItemBackground"
             android:scaleType="centerInside"
             app:srcCompat="@drawable/ic_nav_menu_add" />
