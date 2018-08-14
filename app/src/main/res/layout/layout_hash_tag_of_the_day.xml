@@ -17,7 +17,7 @@
         android:orientation="vertical">
 
         <android.support.v7.widget.AppCompatImageView
-            android:id="@+id/buttonInfo"
+            android:id="@+id/btn_info"
             android:layout_width="20dp"
             android:layout_height="20dp"
             android:layout_alignParentRight="true"
@@ -26,30 +26,30 @@
             app:srcCompat="@drawable/ic_info_outline_vector" />
 
         <android.support.v7.widget.AppCompatTextView
-            android:id="@+id/textHashTagOfTheDay"
+            android:id="@+id/txt_hash_tag_of_the_day"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_centerInParent="true"
             android:gravity="center"
             android:paddingBottom="8dp"
-            android:paddingTop="8dp"
-            android:paddingRight="8dp"
             android:paddingLeft="8dp"
+            android:paddingRight="8dp"
+            android:paddingTop="8dp"
             android:text="#flower"
             android:textSize="18sp"
             android:textStyle="bold"
             app:fontFamily="@font/comfortaa" />
 
         <android.support.v7.widget.AppCompatTextView
-            android:id="@+id/badgeNewPosts"
+            android:id="@+id/badge_new_posts"
             android:layout_width="6dp"
             android:layout_height="6dp"
-            android:layout_toRightOf="@id/textHashTagOfTheDay"
             android:layout_centerInParent="true"
             android:layout_marginTop="8dp"
+            android:layout_toRightOf="@id/txt_hash_tag_of_the_day"
+            android:background="@drawable/dot_shape"
             android:visibility="visible"
-            app:backgroundTint="@color/blue"
-            android:background="@drawable/dot_shape" />
+            app:backgroundTint="@color/blue" />
 
 
     </RelativeLayout>

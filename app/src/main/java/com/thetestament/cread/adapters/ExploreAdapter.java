@@ -6,18 +6,21 @@ import android.animation.AnimatorListenerAdapter;
 import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
 import android.content.Intent;
+import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v7.widget.AppCompatImageView;
+import android.support.v7.widget.AppCompatTextView;
 import android.support.v7.widget.RecyclerView;
+import android.text.Spannable;
+import android.text.style.ForegroundColorSpan;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.animation.AccelerateInterpolator;
-import android.view.animation.DecelerateInterpolator;
 import android.widget.FrameLayout;
+import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
@@ -32,6 +35,7 @@ import com.thetestament.cread.activities.FeedDescriptionActivity;
 import com.thetestament.cread.helpers.FeedHelper;
 import com.thetestament.cread.helpers.HatsOffHelper;
 import com.thetestament.cread.helpers.ImageHelper;
+import com.thetestament.cread.helpers.IntentHelper;
 import com.thetestament.cread.helpers.LiveFilterHelper;
 import com.thetestament.cread.helpers.NetworkHelper;
 import com.thetestament.cread.helpers.ViewHelper;
@@ -40,8 +44,10 @@ import com.thetestament.cread.listeners.listener.OnExploreFollowListener;
 import com.thetestament.cread.listeners.listener.OnExploreLoadMoreListener;
 import com.thetestament.cread.models.FeedModel;
 import com.thetestament.cread.utils.AspectRatioUtils;
+import com.thetestament.cread.utils.Constant;
 import com.thetestament.cread.utils.Constant.ITEM_TYPES;
 import com.thetestament.cread.utils.SoundUtil;
+import com.thetestament.cread.utils.TextUtils;
 
 import java.util.List;
 
@@ -54,6 +60,7 @@ import static com.thetestament.cread.helpers.FeedHelper.setGridItemMargins;
 import static com.thetestament.cread.helpers.FeedHelper.updatePostTimestamp;
 import static com.thetestament.cread.helpers.LongShortHelper.checkLongFormStatus;
 import static com.thetestament.cread.helpers.LongShortHelper.initLongFormPreviewClick;
+import static com.thetestament.cread.utils.Constant.CONTENT_TYPE_MEME;
 import static com.thetestament.cread.utils.Constant.EXTRA_DATA;
 import static com.thetestament.cread.utils.Constant.EXTRA_ENTITY_ID;
 import static com.thetestament.cread.utils.Constant.EXTRA_ENTITY_TYPE;
@@ -68,13 +75,15 @@ import static com.thetestament.cread.utils.Constant.REQUEST_CODE_FEED_DESCRIPTIO
  */
 public class ExploreAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
-    private static final DecelerateInterpolator DECCELERATE_INTERPOLATOR = new DecelerateInterpolator();
-    private static final AccelerateInterpolator ACCELERATE_INTERPOLATOR = new AccelerateInterpolator();
 
+    //region :View types
     private final int VIEW_TYPE_ITEM_LIST = 0;
-    private final int VIEW_TYPE_ITEM_GRID = 1;
-    private final int VIEW_TYPE_LOADING = 2;
+    private final int VIEW_TYPE_MEME = 1;
+    private final int VIEW_TYPE_ITEM_GRID = 2;
+    private final int VIEW_TYPE_LOADING = 3;
+    //endregion
 
+    //region :Fields and constants
     private List<FeedModel> mExploreList;
     private FragmentActivity mContext;
     private Fragment mExploreFragment;
@@ -82,28 +91,12 @@ public class ExploreAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
     private String mUUID;
     private ITEM_TYPES mItemType;
     private CompositeDisposable mCompositeDisposable;
+    //endregion
 
-
+    //region :Listeners
     private OnExploreLoadMoreListener onExploreLoadMoreListener;
     private OnExploreFollowListener onExploreFollowListener;
     private OnExploreCaptureClickListener onExploreCaptureClickListener;
-
-
-    /**
-     * Required constructor.
-     *
-     * @param mExploreList List of explore data.
-     * @param mContext     Context to be use.
-     * @param mUUID        UUID of user.
-     */
-    public ExploreAdapter(List<FeedModel> mExploreList, FragmentActivity mContext, String mUUID, Fragment mExploreFragment, ITEM_TYPES mItemType, CompositeDisposable mCompositeDisposable) {
-        this.mExploreList = mExploreList;
-        this.mContext = mContext;
-        this.mUUID = mUUID;
-        this.mExploreFragment = mExploreFragment;
-        this.mItemType = mItemType;
-        this.mCompositeDisposable = mCompositeDisposable;
-    }
 
     /**
      * Register a callback to be invoked when user scrolls for more data.
@@ -126,12 +119,41 @@ public class ExploreAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
         this.onExploreCaptureClickListener = onExploreCaptureClickListener;
     }
 
+    //endregion
+
+    //region :Constructor
+
+    /**
+     * Required constructor.
+     *
+     * @param exploreList         List of explore data.
+     * @param context             Context to be use.
+     * @param UUID                UUID of user.
+     * @param exploreFragment     Explore fragment reference.
+     * @param itemType            Item type whether its LIST or GRID
+     * @param compositeDisposable CompositeDisposable reference.
+     */
+    public ExploreAdapter(List<FeedModel> exploreList, FragmentActivity context, String UUID, Fragment exploreFragment, ITEM_TYPES itemType, CompositeDisposable compositeDisposable) {
+        this.mExploreList = exploreList;
+        this.mContext = context;
+        this.mUUID = UUID;
+        this.mExploreFragment = exploreFragment;
+        this.mItemType = itemType;
+        this.mCompositeDisposable = compositeDisposable;
+    }
+    //endregion
+
+    //region :Overridden methods
     @Override
     public int getItemViewType(int position) {
         if (mExploreList.get(position) == null) {
             return VIEW_TYPE_LOADING;
         } else if (mItemType == ITEM_TYPES.LIST) {
-            return VIEW_TYPE_ITEM_LIST;
+            if (mExploreList.get(position).getContentType().equals(CONTENT_TYPE_MEME)) {
+                return VIEW_TYPE_MEME;
+            } else {
+                return VIEW_TYPE_ITEM_LIST;
+            }
         } else if (mItemType == ITEM_TYPES.GRID) {
             return VIEW_TYPE_ITEM_GRID;
         }
@@ -148,6 +170,10 @@ public class ExploreAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
             return new GridItemViewHolder(LayoutInflater
                     .from(parent.getContext())
                     .inflate(R.layout.item_grid, parent, false));
+        } else if (viewType == VIEW_TYPE_MEME) {
+            return new MemeViewHolder(LayoutInflater
+                    .from(parent.getContext())
+                    .inflate(R.layout.item_meme_explore, parent, false));
         } else if (viewType == VIEW_TYPE_LOADING) {
             return new LoadingViewHolder(LayoutInflater
                     .from(parent.getContext())
@@ -161,68 +187,55 @@ public class ExploreAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
         final FeedModel data = mExploreList.get(position);
         if (holder.getItemViewType() == VIEW_TYPE_ITEM_LIST) {
             final ListItemViewHolder itemViewHolder = (ListItemViewHolder) holder;
-            //Load creator profile picture
-            ImageHelper.loadProgressiveImage(Uri.parse(data.getCreatorImage())
-                    , itemViewHolder.imageCreator);
-            //Set text and click actions according to content type
-            FeedHelper.performContentTypeSpecificOperations(mContext
-                    , data
-                    , itemViewHolder.collabCount
-                    , itemViewHolder.collabCount
-                    , itemViewHolder.buttonCollaborate
-                    , itemViewHolder.textCreatorName
-                    , true
-                    , false
-                    , null);
-
-            //Check follow status
-            checkFollowStatus(data, itemViewHolder);
-
-            //Set image width and height
-            AspectRatioUtils.setImageAspectRatio(data.getImgWidth()
-                    , data.getImgHeight()
-                    , itemViewHolder.imageExplore
-                    , true);
-            //Load explore feed image
-            ImageHelper.loadProgressiveImage(Uri.parse(data.getContentImage())
-                    , itemViewHolder.imageExplore);
-
-
-            //Follow button click functionality
-            followOnClick(position, data, itemViewHolder.buttonFollow);
-            //Method called
-            setDoubleTap(itemViewHolder, itemViewHolder.hatsOffView, data);
-            //Collaboration count click functionality
-            collaborationCountOnClick(itemViewHolder.collabCount, data.getEntityID(), data.getContentType());
-
-            //check long form status
-            checkLongFormStatus(itemViewHolder.containerLongShortPreview, data);
-            //long form on click
-            initLongFormPreviewClick(itemViewHolder.containerLongShortPreview, data, mContext, mCompositeDisposable);
-            // init post timestamp
-            updatePostTimestamp(itemViewHolder.textTimeStamp, data);
-
+            initListItem(itemViewHolder, data);
         } else if (holder.getItemViewType() == VIEW_TYPE_ITEM_GRID) {
             final GridItemViewHolder itemViewHolder = (GridItemViewHolder) holder;
-            // set margins
-            setGridItemMargins(mContext, position, itemViewHolder.imageExplore);
-            //Load explore feed image
-            ImageHelper.loadProgressiveImage(Uri.parse(data.getContentImage()), itemViewHolder.imageExplore);
-
-            //Method called
-            setDoubleTap(itemViewHolder, itemViewHolder.hatsOffView, data);
-
-            //check long form status
-            checkLongFormStatus(itemViewHolder.containerLongShortPreview, data);
-            //long form on click
-            initLongFormPreviewClick(itemViewHolder.containerLongShortPreview, data, mContext, mCompositeDisposable);
-
+            initGridItem(itemViewHolder, data);
+        }
+        if (holder.getItemViewType() == VIEW_TYPE_MEME) {
+            final MemeViewHolder itemViewHolder = (MemeViewHolder) holder;
+            initMemeItem(itemViewHolder, data);
         } else if (holder.getItemViewType() == VIEW_TYPE_LOADING) {
             LoadingViewHolder loadingViewHolder = (LoadingViewHolder) holder;
             loadingViewHolder.progressView.setVisibility(View.VISIBLE);
         }
+        //Method called
+        initLoadMoreListener(position);
 
+    }
 
+    @Override
+    public int getItemCount() {
+        return mExploreList == null ? 0 : mExploreList.size();
+    }
+
+    @Override
+    public void onViewAttachedToWindow(RecyclerView.ViewHolder holder) {
+        super.onViewAttachedToWindow(holder);
+        if (holder.getItemViewType() == VIEW_TYPE_ITEM_LIST) {
+            final ListItemViewHolder itemViewHolder = (ListItemViewHolder) holder;
+            LiveFilterHelper.initLiveFilters(mExploreList.get(holder.getAdapterPosition()).getLiveFilterName()
+                    , itemViewHolder.whetherView
+                    , itemViewHolder.konfettiView
+                    , itemViewHolder.liveFilterBubble
+                    , mContext);
+        } else if (holder.getItemViewType() == VIEW_TYPE_ITEM_GRID) {
+            final GridItemViewHolder itemViewHolder = (GridItemViewHolder) holder;
+            LiveFilterHelper.initLiveFilters(mExploreList.get(holder.getAdapterPosition()).getLiveFilterName()
+                    , itemViewHolder.whetherView
+                    , itemViewHolder.konfettiView
+                    , itemViewHolder.liveFilterBubble
+                    , mContext);
+        }
+    }
+    //endregion
+
+    //region :Private methods
+
+    /**
+     * Method to initialize load more listener.
+     */
+    private void initLoadMoreListener(int position) {
         //If last item is visible to user and new set of data is to yet to be loaded
         if (position == mExploreList.size() - 1 && !mIsLoading) {
             if (onExploreLoadMoreListener != null) {
@@ -232,13 +245,8 @@ public class ExploreAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
             //toggle
             mIsLoading = true;
         }
-
     }
 
-    @Override
-    public int getItemCount() {
-        return mExploreList == null ? 0 : mExploreList.size();
-    }
 
     /**
      * Method is toggle the loading status
@@ -247,6 +255,120 @@ public class ExploreAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
         mIsLoading = false;
     }
 
+    /**
+     * Method to initialize list item.
+     *
+     * @param itemViewHolder ListItemViewHolder
+     * @param data           Data for the item
+     */
+    private void initListItem(ListItemViewHolder itemViewHolder, FeedModel data) {
+        //Load creator profile picture
+        ImageHelper.loadProgressiveImage(Uri.parse(data.getCreatorImage())
+                , itemViewHolder.imageCreator);
+
+        //Set text and click actions according to content type
+        FeedHelper.performContentTypeSpecificOperations(mContext
+                , data
+                , itemViewHolder.collabCount
+                , itemViewHolder.collabCount
+                , itemViewHolder.buttonCollaborate
+                , itemViewHolder.textCreatorName
+                , true
+                , false
+                , null);
+
+        //Check follow status
+        checkFollowStatus(data, itemViewHolder.buttonFollow);
+
+        //Set image width and height
+        AspectRatioUtils.setImageAspectRatio(data.getImgWidth()
+                , data.getImgHeight()
+                , itemViewHolder.imageExplore
+                , true);
+        //Load explore feed image
+        ImageHelper.loadProgressiveImage(Uri.parse(data.getContentImage())
+                , itemViewHolder.imageExplore);
+
+
+        //Follow button click functionality
+        followOnClick(itemViewHolder.getAdapterPosition(), data, itemViewHolder.buttonFollow);
+        //Method called
+        setDoubleTap(itemViewHolder, itemViewHolder.hatsOffView, data);
+        //Collaboration count click functionality
+        collaborationCountOnClick(itemViewHolder.collabCount, data.getEntityID(), data.getContentType());
+
+        //check long form status
+        checkLongFormStatus(itemViewHolder.containerLongShortPreview, data);
+        //long form on click
+        initLongFormPreviewClick(itemViewHolder.containerLongShortPreview, data, mContext, mCompositeDisposable);
+        // init post timestamp
+        updatePostTimestamp(itemViewHolder.textTimeStamp, data);
+
+    }
+
+
+    /**
+     * Method to initialize Meme item.
+     *
+     * @param itemViewHolder MemeViewHolder
+     * @param data           Data for the item
+     */
+    private void initMemeItem(MemeViewHolder itemViewHolder, FeedModel data) {
+        //Load creator profile picture
+        ImageHelper.loadProgressiveImage(Uri.parse(data.getCreatorImage())
+                , itemViewHolder.imgCreator);
+        //Set user creator name and its click functionality
+        itemViewHolder.creatorName.setText(TextUtils.getSpannedString(data.getCreatorName() + " added meme"
+                , new ForegroundColorSpan(Color.BLACK)
+                , 0
+                , data.getCreatorName().length()
+                , Spannable.SPAN_EXCLUSIVE_EXCLUSIVE));
+
+        openProfileActivity(itemViewHolder.creatorName, data.getUUID());
+
+        //Check follow status
+        checkFollowStatus(data, itemViewHolder.btnFollow);
+
+        //Set image width and height
+        AspectRatioUtils.setImageAspectRatio(data.getImgWidth()
+                , data.getImgHeight()
+                , itemViewHolder.imgExplore
+                , true);
+        //Load explore feed image
+        ImageHelper.loadProgressiveImage(Uri.parse(data.getContentImage())
+                , itemViewHolder.imgExplore);
+
+
+        //Follow button click functionality
+        followOnClick(itemViewHolder.getAdapterPosition(), data, itemViewHolder.btnFollow);
+        //Method called
+        setDoubleTap(itemViewHolder, itemViewHolder.hatsOffView, data);
+
+        // init post timestamp
+        updatePostTimestamp(itemViewHolder.textTimestamp, data);
+    }
+
+    /**
+     * Method to initialize grid item.
+     *
+     * @param itemViewHolder GridItemViewHolder
+     * @param data           Data for the item
+     */
+    private void initGridItem(GridItemViewHolder itemViewHolder, FeedModel data) {
+        // set margins
+        setGridItemMargins(mContext, itemViewHolder.getAdapterPosition(), itemViewHolder.imageExplore);
+        //Load explore feed image
+        ImageHelper.loadProgressiveImage(Uri.parse(data.getContentImage()), itemViewHolder.imageExplore);
+
+        //Method called
+        setDoubleTap(itemViewHolder, itemViewHolder.hatsOffView, data);
+
+        //check long form status
+        checkLongFormStatus(itemViewHolder.containerLongShortPreview, data);
+        //long form on click
+        initLongFormPreviewClick(itemViewHolder.containerLongShortPreview, data, mContext, mCompositeDisposable);
+
+    }
 
     /**
      * Follow button functionality
@@ -322,15 +444,15 @@ public class ExploreAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
     /**
      * Method to check follow status..
      *
-     * @param data data
-     *             * @param itemViewHolder item view holder
+     * @param data           data
+     * @param itemViewHolder item view holder
      */
-    private void checkFollowStatus(FeedModel data, ExploreAdapter.ListItemViewHolder itemViewHolder) {
+    private void checkFollowStatus(FeedModel data, View btnFollow) {
         if (data.getFollowStatus() || mUUID.equals(data.getUUID())) {
-            itemViewHolder.buttonFollow.setVisibility(View.GONE);
+            btnFollow.setVisibility(View.GONE);
         } else {
             // show follow button
-            itemViewHolder.buttonFollow.setVisibility(View.VISIBLE);
+            btnFollow.setVisibility(View.VISIBLE);
         }
     }
 
@@ -412,17 +534,17 @@ public class ExploreAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
 
                 ObjectAnimator imgScaleUpYAnim = ObjectAnimator.ofFloat(hatsOffView, "scaleY", 0.1f, 1f);
                 imgScaleUpYAnim.setDuration(300);
-                imgScaleUpYAnim.setInterpolator(DECCELERATE_INTERPOLATOR);
+                imgScaleUpYAnim.setInterpolator(Constant.DECCELERATE_INTERPOLATOR);
                 ObjectAnimator imgScaleUpXAnim = ObjectAnimator.ofFloat(hatsOffView, "scaleX", 0.1f, 1f);
                 imgScaleUpXAnim.setDuration(300);
-                imgScaleUpXAnim.setInterpolator(DECCELERATE_INTERPOLATOR);
+                imgScaleUpXAnim.setInterpolator(Constant.DECCELERATE_INTERPOLATOR);
 
                 ObjectAnimator imgScaleDownYAnim = ObjectAnimator.ofFloat(hatsOffView, "scaleY", 1f, 0f);
                 imgScaleDownYAnim.setDuration(300);
-                imgScaleDownYAnim.setInterpolator(ACCELERATE_INTERPOLATOR);
+                imgScaleDownYAnim.setInterpolator(Constant.ACCELERATE_INTERPOLATOR);
                 ObjectAnimator imgScaleDownXAnim = ObjectAnimator.ofFloat(hatsOffView, "scaleX", 1f, 0f);
                 imgScaleDownXAnim.setDuration(300);
-                imgScaleDownXAnim.setInterpolator(ACCELERATE_INTERPOLATOR);
+                imgScaleDownXAnim.setInterpolator(Constant.ACCELERATE_INTERPOLATOR);
 
                 animatorSet.playTogether(imgScaleUpYAnim, imgScaleUpXAnim);
                 animatorSet.play(imgScaleDownYAnim).with(imgScaleDownXAnim).after(imgScaleUpYAnim);
@@ -451,7 +573,23 @@ public class ExploreAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
         });
     }
 
+    /**
+     * Method to open ProfileActivity screen.
+     *
+     * @param view View to be clicked.
+     * @param uuid UUID of user whose profile to  be loaded.
+     */
+    private void openProfileActivity(View view, final String uuid) {
+        view.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                IntentHelper.openProfileActivity(mContext, uuid);
+            }
+        });
+    }
+    //endregion
 
+    //region :ViewHolder class
     //ListItemViewHolder class
     static class ListItemViewHolder extends RecyclerView.ViewHolder {
         @BindView(R.id.imageCreator)
@@ -510,6 +648,33 @@ public class ExploreAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
         }
     }
 
+    //MemePostViewHolder
+    static class MemeViewHolder extends RecyclerView.ViewHolder {
+        @BindView(R.id.img_creator)
+        SimpleDraweeView imgCreator;
+        @BindView(R.id.btn_follow)
+        AppCompatTextView btnFollow;
+        @BindView(R.id.creator_name)
+        TextView creatorName;
+        @BindView(R.id.text_timestamp)
+        TextView textTimestamp;
+        @BindView(R.id.container_creator_specific)
+        LinearLayout containerCreatorSpecific;
+        @BindView(R.id.container_creator)
+        RelativeLayout containerCreator;
+        @BindView(R.id.img_explore)
+        SimpleDraweeView imgExplore;
+        @BindView(R.id.hats_off_view)
+        AppCompatImageView hatsOffView;
+        @BindView(R.id.container_image)
+        FrameLayout containerImage;
+
+        public MemeViewHolder(View itemView) {
+            super(itemView);
+            ButterKnife.bind(this, itemView);
+        }
+    }
+
     //LoadingViewHolder class
     static class LoadingViewHolder extends RecyclerView.ViewHolder {
         @BindView(R.id.viewProgress)
@@ -520,26 +685,7 @@ public class ExploreAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
             ButterKnife.bind(this, itemView);
         }
     }
+    //endregion
 
-
-    @Override
-    public void onViewAttachedToWindow(RecyclerView.ViewHolder holder) {
-        super.onViewAttachedToWindow(holder);
-        if (holder.getItemViewType() == VIEW_TYPE_ITEM_LIST) {
-            final ListItemViewHolder itemViewHolder = (ListItemViewHolder) holder;
-            LiveFilterHelper.initLiveFilters(mExploreList.get(holder.getAdapterPosition()).getLiveFilterName()
-                    , itemViewHolder.whetherView
-                    , itemViewHolder.konfettiView
-                    , itemViewHolder.liveFilterBubble
-                    , mContext);
-        } else if (holder.getItemViewType() == VIEW_TYPE_ITEM_GRID) {
-            final GridItemViewHolder itemViewHolder = (GridItemViewHolder) holder;
-            LiveFilterHelper.initLiveFilters(mExploreList.get(holder.getAdapterPosition()).getLiveFilterName()
-                    , itemViewHolder.whetherView
-                    , itemViewHolder.konfettiView
-                    , itemViewHolder.liveFilterBubble
-                    , mContext);
-        }
-    }
 
 }

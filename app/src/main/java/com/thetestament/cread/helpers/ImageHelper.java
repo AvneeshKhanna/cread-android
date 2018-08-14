@@ -26,6 +26,7 @@ import com.facebook.drawee.interfaces.DraweeController;
 import com.facebook.drawee.view.SimpleDraweeView;
 import com.facebook.imagepipeline.request.ImageRequest;
 import com.facebook.imagepipeline.request.ImageRequestBuilder;
+import com.squareup.picasso.MemoryPolicy;
 import com.squareup.picasso.Picasso;
 import com.thetestament.cread.BuildConfig;
 import com.thetestament.cread.R;
@@ -76,6 +77,12 @@ public class ImageHelper {
             s = "/Cread/Short/short_pic.jpg";
         } else if (imageType.equals(Constant.IMAGE_TYPE_USER_SHARE_BADGE)) {
             s = "/Cread/Share/badge_pic.png";
+        } else if (imageType.equals(Constant.IMAGE_TYPE_USER_MEME)) {
+            s = "/Cread/Meme/meme_pic.jpg";
+        } else if (imageType.equals(Constant.IMAGE_TYPE_USER_MEME_ONE)) {
+            s = "/Cread/Meme/meme_pic_one.jpg";
+        } else if (imageType.equals(Constant.IMAGE_TYPE_USER_MEME_TWO)) {
+            s = "/Cread/Meme/meme_pic_two.jpg";
         } else {
             s = "/Cread/Share/share_pic.png";
         }
@@ -260,6 +267,53 @@ public class ImageHelper {
 
 
     /**
+     * Method to open image cropper screen with 1:1 aspect ration.
+     *
+     * @param sourceUri      Uri of image to be cropped.
+     * @param destinationUri Where image will be saved.
+     * @param context        Context of use usually activity or application.
+     */
+    public static void startImageCroppingWithSquare(Context context, Fragment fragment, Uri sourceUri, Uri destinationUri) {
+        //For more information please visit "https://github.com/Yalantis/uCrop"
+
+        UCrop.Options options = new UCrop.Options();
+        //Change toolbar color
+        options.setToolbarColor(ContextCompat.getColor(context, R.color.colorPrimary));
+        //Change status bar color
+        options.setStatusBarColor(ContextCompat.getColor(context, R.color.colorPrimaryDark));
+
+        //Launch  image cropping activity
+        UCrop.of(sourceUri, destinationUri)
+                .withAspectRatio(1, 1)
+                .withOptions(options)
+                .start(context, fragment);
+    }
+
+    /**
+     * Method to open image cropper screen with 1:1 aspect ration.
+     *
+     * @param sourceUri      Uri of image to be cropped.
+     * @param destinationUri Where image will be saved.
+     * @param context        Context of use usually activity or application.
+     */
+    public static void startImageCroppingWith918(Context context, Fragment fragment, Uri sourceUri, Uri destinationUri) {
+        //For more information please visit "https://github.com/Yalantis/uCrop"
+
+        UCrop.Options options = new UCrop.Options();
+        //Change toolbar color
+        options.setToolbarColor(ContextCompat.getColor(context, R.color.colorPrimary));
+        //Change status bar color
+        options.setStatusBarColor(ContextCompat.getColor(context, R.color.colorPrimaryDark));
+
+        //Launch  image cropping activity
+        UCrop.of(sourceUri, destinationUri)
+                .withAspectRatio(9, 18)
+                .withOptions(options)
+                .start(context, fragment);
+    }
+
+
+    /**
      * Method to convert bitmap into Uri.
      *
      * @param bmp     Bitmap to be converted.
@@ -321,6 +375,18 @@ public class ImageHelper {
         Intent intent = new Intent(Intent.ACTION_PICK);
         intent.setType("image/*");
         fragment.startActivityForResult(intent, REQUEST_CODE_OPEN_GALLERY_FOR_CAPTURE);
+    }
+
+    /**
+     * Open gallery so user can choose his/her image for meme.
+     *
+     * @param fragment Fragment reference.
+     */
+    public static void chooseImageFromGallery(Fragment fragment, int requestCode) {
+        //Launch gallery
+        Intent intent = new Intent(Intent.ACTION_PICK);
+        intent.setType("image/*");
+        fragment.startActivityForResult(intent, requestCode);
     }
 
     /**
@@ -483,7 +549,6 @@ public class ImageHelper {
                 .into(imageView);
     }
 
-
     public static String getAWSS3ProfilePicUrl(String uuid) {
         return "https://s3-ap-northeast-1.amazonaws.com/" + BuildConfig.S3BUCKET + "/Users/" + uuid + "/Profile/display-pic-small.jpg";
     }
@@ -506,6 +571,43 @@ public class ImageHelper {
                 .setTapToRetryEnabled(true)
                 .build();
         simpleDraweeView.setController(controller);
+    }
 
+    /**
+     * @param filepath  Path of the file to be checked whether it exists or not.
+     * @param context   Context to use.
+     * @param imagePath Uri of the image to be loaded.
+     * @param imageView ImageView where image to be loaded.
+     */
+    public static void loadImageIfExist(String filepath, Context context, Uri imagePath, ImageView imageView) {
+
+        File file = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + filepath);
+
+        //If image exits
+        if (!file.exists()) {
+            //do nothing
+        } else {
+            //Load image
+            Picasso.with(context)
+                    .load(imagePath)
+                    .error(R.drawable.image_placeholder)
+                    .memoryPolicy(MemoryPolicy.NO_CACHE)
+                    .into(imageView);
+        }
+    }
+
+    /**
+     * Method to load preview image without cache.
+     *
+     * @param context  Context to use.
+     * @param imageUri Uri of image to be loaded.
+     * @param image    ImageView where image to be loaded.
+     */
+    public static void loadImage(Context context, Uri imageUri, ImageView image) {
+        Picasso.with(context)
+                .load(imageUri)
+                .error(R.drawable.image_placeholder)
+                .memoryPolicy(MemoryPolicy.NO_CACHE)
+                .into(image);
     }
 }

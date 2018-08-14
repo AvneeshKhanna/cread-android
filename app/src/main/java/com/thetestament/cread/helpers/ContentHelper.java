@@ -19,6 +19,7 @@ import com.thetestament.cread.utils.Constant;
 
 import static com.thetestament.cread.helpers.DeletePostHelper.showDeleteConfirmationDialog;
 import static com.thetestament.cread.utils.Constant.CONTENT_TYPE_CAPTURE;
+import static com.thetestament.cread.utils.Constant.CONTENT_TYPE_MEME;
 import static com.thetestament.cread.utils.Constant.CONTENT_TYPE_SHORT;
 import static com.thetestament.cread.utils.Constant.EXTRA_DATA;
 import static com.thetestament.cread.utils.Constant.EXTRA_ENTITY_ID;
@@ -207,6 +208,23 @@ public class ContentHelper {
                 intentShort.putExtra(EXTRA_DATA, bundleShort);
 
                 context.startActivityForResult(intentShort, REQUEST_CODE_EDIT_POST);
+                break;
+
+            case CONTENT_TYPE_MEME:
+
+                Intent intentMeme = new Intent(context, PreviewActivity.class);
+
+                Bundle bundleMeme = new Bundle();
+                bundleMeme.putString(Constant.PREVIEW_EXTRA_CALLED_FROM, Constant.PREVIEW_EXTRA_CALLED_FROM_EDIT_MEME);
+                bundleMeme.putString(Constant.PREVIEW_EXTRA_LIVE_FILTER, Constant.LIVE_FILTER_NONE);
+                bundleMeme.putString(PREVIEW_EXTRA_ENTITY_ID, data.getEntityID());
+                bundleMeme.putString(PREVIEW_EXTRA_CAPTION_TEXT, data.getCaption());
+                bundleMeme.putString(PREVIEW_EXTRA_CONTENT_IMAGE, data.getContentImage());
+                bundleMeme.putInt(EXTRA_IMAGE_WIDTH, data.getImgWidth());
+                bundleMeme.putInt(EXTRA_IMAGE_HEIGHT, data.getImgHeight());
+
+                intentMeme.putExtra(PREVIEW_EXTRA_DATA, bundleMeme);
+                context.startActivityForResult(intentMeme, REQUEST_CODE_EDIT_POST);
                 break;
             default:
         }

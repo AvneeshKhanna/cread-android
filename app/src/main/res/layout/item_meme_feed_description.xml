@@ -1,0 +1,252 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.v7.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/rootView"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginBottom="8dp"
+    android:layout_marginTop="8dp"
+    android:background="@color/white"
+    app:cardPreventCornerOverlap="false"
+    app:cardUseCompatPadding="true">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:animateLayoutChanges="true"
+        android:orientation="vertical">
+
+        <!--Meme creator-->
+        <include layout="@layout/layout_meme_creator" />
+
+        <!--Main content container-->
+        <FrameLayout
+            android:id="@+id/container_main_content"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <!--Content image view-->
+            <com.facebook.drawee.view.SimpleDraweeView
+                android:id="@+id/content_image"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:adjustViewBounds="true"
+                app:actualImageScaleType="fitXY"
+                app:failureImage="@drawable/image_placeholder"
+                app:failureImageScaleType="centerCrop" />
+
+            <!--WatermarkView-->
+            <include
+                layout="@layout/layout_cread_watermark"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="right|bottom" />
+
+            <!--View to be animated on double tap-->
+            <android.support.v7.widget.AppCompatImageView
+                android:id="@+id/double_tap_hats_off_view"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:layout_gravity="center"
+                android:alpha="0.7"
+                android:visibility="gone"
+                app:srcCompat="@drawable/ic_hats_off" />
+        </FrameLayout>
+
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingLeft="16dp"
+            android:paddingRight="16dp">
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentLeft="true"
+                android:gravity="center_vertical">
+
+                <LinearLayout
+                    android:id="@+id/containerHatsoffCount"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_vertical"
+                    android:paddingRight="7dp"
+                    android:paddingTop="8dp">
+
+                    <android.support.v7.widget.AppCompatImageView
+                        android:id="@+id/iconHatsoff"
+                        android:layout_width="18dp"
+                        android:layout_height="18dp"
+                        app:srcCompat="@drawable/ic_hats_off_circular_100" />
+
+                    <TextView
+                        android:id="@+id/textHatsOffCount"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="5dp"
+                        android:text="4"
+                        android:textSize="11sp" />
+
+                </LinearLayout>
+
+
+                <TextView
+                    android:id="@+id/dotSeperator"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_vertical"
+                    android:paddingRight="7dp"
+                    android:paddingTop="8dp"
+                    android:text="@string/bullet"
+                    android:textSize="10sp" />
+
+                <LinearLayout
+                    android:id="@+id/containerCommentsCount"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_vertical"
+                    android:paddingRight="10dp"
+                    android:paddingTop="8dp">
+
+                    <android.support.v7.widget.AppCompatImageView
+                        android:id="@+id/iconComment"
+                        android:layout_width="18dp"
+                        android:layout_height="18dp"
+                        app:srcCompat="@drawable/ic_comment_circular_100" />
+
+                    <TextView
+                        android:id="@+id/textCommentsCount"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="5dp"
+                        android:text="4"
+                        android:textSize="11sp" />
+
+                </LinearLayout>
+
+            </LinearLayout>
+
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentRight="true"
+                android:gravity="center_vertical">
+
+                <android.support.v7.widget.AppCompatImageView
+                    android:id="@+id/imageDownvote"
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:paddingRight="7dp"
+                    android:paddingTop="8dp"
+                    android:tint="@color/grey_custom"
+                    android:visibility="gone"
+                    app:srcCompat="@drawable/ic_downvote" />
+
+
+                <android.support.v7.widget.AppCompatTextView
+                    android:id="@+id/dotSeperatorRight"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_vertical"
+                    android:paddingTop="8dp"
+                    android:text="@string/bullet"
+                    android:textSize="10sp"
+                    android:visibility="gone" />
+
+
+                <LinearLayout
+                    android:id="@+id/containerCollabCount"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_vertical"
+                    android:paddingLeft="7dp"
+                    android:paddingTop="8dp"
+                    android:visibility="gone">
+
+                    <android.support.v7.widget.AppCompatImageView
+                        android:id="@+id/iconCollabCount"
+                        android:layout_width="18dp"
+                        android:layout_height="18dp"
+                        app:srcCompat="@drawable/ic_collab" />
+
+
+                    <TextView
+                        android:id="@+id/textCollabCount"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentRight="true"
+                        android:paddingLeft="5dp"
+                        android:paddingRight="2dp"
+                        android:text="4"
+                        android:textSize="11sp"
+                        android:visibility="gone" />
+
+                </LinearLayout>
+
+
+            </LinearLayout>
+
+        </RelativeLayout>
+
+        <TextView
+            android:id="@+id/textTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:ellipsize="end"
+            android:maxLines="3"
+            android:paddingBottom="5dp"
+            android:paddingLeft="16dp"
+            android:paddingRight="16dp"
+            android:paddingTop="5dp"
+            android:text="This is my masterpiece. I hope you like it. If you don't, I don't give a shit about it. Did you get it. Yeah! That's better"
+            android:textColor="@color/grey_dark"
+            android:textSize="14sp" />
+
+
+        <!--<View
+            android:id="@+id/lineSeparatorTop"
+            android:layout_width="match_parent"
+            android:layout_height="0.3dp"
+            android:layout_marginLeft="16dp"
+            android:layout_marginRight="16dp"
+            android:layout_marginTop="5dp"
+            android:alpha="0.4"
+            android:background="@color/grey_dark" />-->
+
+        <!--Container social actions-->
+        <include layout="@layout/layout_social_actions" />
+
+        <View
+            android:id="@+id/lineSeparatorBottom"
+            android:layout_width="match_parent"
+            android:layout_height="0.3dp"
+            android:layout_marginLeft="16dp"
+            android:layout_marginRight="16dp"
+            android:layout_marginTop="5dp"
+            android:alpha="0.4"
+            android:background="@color/grey_dark" />
+
+
+        <LinearLayout
+            android:id="@+id/viewTopComments"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@color/custom_white"
+            android:orientation="vertical"
+            android:visibility="gone" />
+
+        <TextView
+            android:id="@+id/textShowComments"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:background="@color/custom_white"
+            android:gravity="center"
+            android:paddingBottom="15dp"
+            android:paddingTop="10dp"
+            android:text="Show all comments"
+            android:visibility="gone" />
+    </LinearLayout>
+</android.support.v7.widget.CardView>

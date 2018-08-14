@@ -592,15 +592,15 @@ public class NewUsersPostActivity extends BaseActivity implements listener.OnCol
      * @param adapter NewUsersPostAdapter reference
      */
     private void initDownVoteListener(NewUsersPostAdapter adapter) {
-        adapter.setOnDownvoteClickedListener(new listener.OnDownvoteClickedListener() {
+        adapter.setOnDownVoteClickedListener(new listener.OnDownVoteClickedListener() {
             @Override
-            public void onDownvoteClicked(FeedModel data, int position, ImageView imageDownVote) {
+            public void onDownVoteClicked(FeedModel data, int position, ImageView imageDownVote) {
 
-                DownvoteHelper downvoteHelper = new DownvoteHelper();
+                DownvoteHelper downVoteHelper = new DownvoteHelper();
 
                 // if already downVoted
                 if (data.isDownvoteStatus()) {
-                    downvoteHelper.initDownvoteProcess(mContext
+                    downVoteHelper.initDownvoteProcess(mContext
                             , data
                             , mCompositeDisposable
                             , imageDownVote
@@ -609,7 +609,7 @@ public class NewUsersPostActivity extends BaseActivity implements listener.OnCol
                 } else
 
                 {   // Show warning dialog
-                    downvoteHelper.initDownvoteWarningDialog(mContext
+                    downVoteHelper.initDownvoteWarningDialog(mContext
                             , data
                             , mCompositeDisposable
                             , imageDownVote

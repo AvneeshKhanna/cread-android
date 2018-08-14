@@ -47,6 +47,7 @@ import com.thetestament.cread.fragments.MeFragment;
 import com.thetestament.cread.helpers.BottomNavigationViewHelper;
 import com.thetestament.cread.helpers.CaptureHelper;
 import com.thetestament.cread.helpers.ImageHelper;
+import com.thetestament.cread.helpers.IntentHelper;
 import com.thetestament.cread.helpers.SharedPreferenceHelper;
 import com.thetestament.cread.helpers.ViewHelper;
 import com.thetestament.cread.listeners.listener.OnServerRequestedListener;
@@ -491,8 +492,25 @@ public class BottomNavigationActivity extends BaseActivity {
         bottomSheetDialog.setContentView(sheetView);
         bottomSheetDialog.show();
 
+        LinearLayout btnMeme = sheetView.findViewById(R.id.btn_meme);
         LinearLayout buttonWrite = sheetView.findViewById(R.id.buttonWrite);
         LinearLayout buttonCapture = sheetView.findViewById(R.id.buttonCapture);
+
+        //Meme click functionality
+        btnMeme.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                if (mHelper.isMemeFirstTime()) {
+                    getMemeDialog();
+                } else {
+                    IntentHelper.openMemeActivity(mContext);
+                }
+                //Dismiss bottom sheet
+                bottomSheetDialog.dismiss();
+
+            }
+        });
 
         //Write button functionality
         buttonWrite.setOnClickListener(new View.OnClickListener() {
@@ -698,7 +716,38 @@ public class BottomNavigationActivity extends BaseActivity {
         //Set title text
         textTitle.setText("Write something awesome");
         //Set description text
-        textDesc.setText("This is where you can share your words. You can upload it as a post or save it to your phone");
+        textDesc.setText("This is where you can share your words. You can upload it as a post or save it to your phone!");
+    }
+
+    /**
+     * Method to show intro dialog when user land on this screen for the first time.
+     */
+    private void getMemeDialog() {
+        MaterialDialog dialog = new MaterialDialog.Builder(this)
+                .customView(R.layout.dialog_generic, false)
+                .positiveText(getString(R.string.text_ok))
+                .onPositive(new MaterialDialog.SingleButtonCallback() {
+                    @Override
+                    public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
+                        //Open ShortActivity
+                        IntentHelper.openMemeActivity(mContext);
+                        dialog.dismiss();
+                        //update status
+                        mHelper.updateMemeIntroStatus(false);
+                    }
+                })
+                .show();
+        //Obtain views reference
+        ImageView fillerImage = dialog.getCustomView().findViewById(R.id.viewFiller);
+        TextView textTitle = dialog.getCustomView().findViewById(R.id.textTitle);
+        TextView textDesc = dialog.getCustomView().findViewById(R.id.textDesc);
+        //fixme
+        //Set filler image
+        fillerImage.setImageDrawable(ContextCompat.getDrawable(this, R.drawable.img_meme_intro));
+        //Set title text
+        textTitle.setText("Create Awesome Memes");
+        //Set description text
+        textDesc.setText("Create and share memes on anything you like. Upload them as a post or save them to your phone!");
     }
 
     /**

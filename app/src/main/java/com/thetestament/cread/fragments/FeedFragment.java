@@ -23,7 +23,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.AnimationUtils;
-import android.view.animation.LayoutAnimationController;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -48,14 +47,14 @@ import com.thetestament.cread.helpers.DownvoteHelper;
 import com.thetestament.cread.helpers.FeedHelper;
 import com.thetestament.cread.helpers.GifHelper;
 import com.thetestament.cread.helpers.HashTagOfTheDayHelper;
-import com.thetestament.cread.helpers.HatsOffHelper;
 import com.thetestament.cread.helpers.ImageHelper;
 import com.thetestament.cread.helpers.SharedPreferenceHelper;
-import com.thetestament.cread.helpers.SuggestionHelper;
 import com.thetestament.cread.helpers.ViewHelper;
 import com.thetestament.cread.listeners.listener;
 import com.thetestament.cread.models.FeedModel;
 import com.thetestament.cread.models.SuggestedArtistsModel;
+import com.thetestament.cread.networkmanager.FeedNetworkManager;
+import com.thetestament.cread.networkmanager.HatsOffNetworkManger;
 import com.thetestament.cread.utils.AspectRatioUtils;
 import com.thetestament.cread.utils.Constant;
 import com.yalantis.ucrop.UCrop;
@@ -89,7 +88,6 @@ import static com.thetestament.cread.helpers.ImageHelper.getImageUri;
 import static com.thetestament.cread.helpers.ImageHelper.processCroppedImage;
 import static com.thetestament.cread.helpers.NetworkHelper.getEntitySpecificObservable;
 import static com.thetestament.cread.helpers.NetworkHelper.getNetConnectionStatus;
-import static com.thetestament.cread.helpers.NetworkHelper.getObservableFromServer;
 import static com.thetestament.cread.helpers.NetworkHelper.requestServer;
 import static com.thetestament.cread.utils.Constant.CONTENT_TYPE_CAPTURE;
 import static com.thetestament.cread.utils.Constant.CONTENT_TYPE_SHORT;
@@ -107,43 +105,88 @@ import static com.thetestament.cread.utils.Constant.REQUEST_CODE_USER_PROFILE_FR
 import static com.thetestament.cread.utils.Constant.REQUEST_CODE_USER_PROFILE_FROM_SUGGESTED_ADAPTER;
 import static com.thetestament.cread.utils.Constant.SHARE_OPTION_OTHER;
 
+/**
+ * Fragment class to show posts of followed users.
+ */
 public class FeedFragment extends Fragment implements listener.OnCollaborationListener {
 
     //region :Views binding with butter knife
-    @BindView(R.id.rootView)
+    @BindView(R.id.root_view)
     CoordinatorLayout rootView;
-    @BindView(R.id.appBarLayout)
+    @BindView(R.id.app_bar_layout)
     AppBarLayout appBarLayout;
     @BindView(R.id.recyclerViewRecommendedArtists)
     RecyclerView recyclerViewRecommendedArtists;
-    @BindView(R.id.swipeToRefreshLayout)
+    @BindView(R.id.layout_hash_tag_of_the_day)
+    View viewHashTagOfTheDay;
+    @BindView(R.id.txt_hash_tag_of_the_day)
+    AppCompatTextView textHashTagOfTheDay;
+    @BindView(R.id.badge_new_posts)
+    AppCompatTextView newPostIndicator;
+    @BindView(R.id.layout_suggested_artists)
+    View viewSuggestedArtists;
+    @BindView(R.id.swipe_refresh_layout)
     SwipeRefreshLayout swipeRefreshLayout;
-    @BindView(R.id.recyclerView)
-    RecyclerView recyclerView;
+    @BindView(R.id.recycler_view_feed)
+    RecyclerView recyclerViewFeed;
     @BindView(R.id.view_no_posts)
     LinearLayout viewNoPosts;
-    @BindView(R.id.textHashTagOfTheDay)
-    AppCompatTextView textHashTagOfTheDay;
-    @BindView(R.id.layoutHashTagOfTheDay)
-    View viewHashTagOfTheDay;
-    @BindView(R.id.layoutSuggestedArtists)
-    View viewSuggestedArtists;
+
 
     //endregion
 
     //region :Fields and constants
+
+    /**
+     * Flag to maintain last index key for next set for data.
+     */
+    @State
+    String mLastIndexKey;
+
+    /**
+     * Flag to maintain whether next set of data is available or not.
+     */
+    @State
+    boolean mRequestMoreData;
+
+    /**
+     * Flag to maintain whether user has power of down vote or not.
+     */
+    @State
+    boolean mCanDownVote;
+
+    /**
+     * CompositeDisposable for rx java.
+     */
     CompositeDisposable mCompositeDisposable = new CompositeDisposable();
+
+    /**
+     * List to store feed data.
+     */
     List<FeedModel> mFeedDataList = new ArrayList<>();
+
+    /**
+     * FeedAdapter global reference.
+     */
     FeedAdapter mAdapter;
+
+    /**
+     * Global reference of SharedPreferenceHelper.
+     */
     SharedPreferenceHelper mHelper;
 
-    private Unbinder mUnbinder;
-    private String mLastIndexKey;
-    private boolean mRequestMoreData;
-    TextView newPostIndicator;
+    /**
+     * Unbinder reference for butter knife.
+     */
+    Unbinder mUnbinder;
 
+    /**
+     * Flag to maintain Hash tag of the day text.
+     */
     @State
-    boolean mCanDownvote;
+    String textHashTagOFTheDay = "";
+
+
     @State
     String mEntityID, mEntityType;
     Bitmap mBitmap;
@@ -152,8 +195,6 @@ public class FeedFragment extends Fragment implements listener.OnCollaborationLi
     @State
     String mShareOption = SHARE_OPTION_OTHER;
 
-    @State
-    String textHashTagOFTheDay = "";
 
     /**
      * Parent view of live filter
@@ -173,42 +214,24 @@ public class FeedFragment extends Fragment implements listener.OnCollaborationLi
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        //SharedPreference reference
-        mHelper = new SharedPreferenceHelper(getContext());
         // Its own option menu
         setHasOptionsMenu(true);
-        View view = inflater
-                .inflate(R.layout.fragment_feed
-                        , container
-                        , false);
-        mUnbinder = ButterKnife.bind(this, view);
-
-        newPostIndicator = viewHashTagOfTheDay.findViewById(R.id.badgeNewPosts);
-        return view;
+        return inflater.inflate(R.layout.fragment_feed
+                , container
+                , false);
     }
 
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-
-        initScreen();
-        //This screen opened for first time
-        if (mHelper.isWelcomeFirstTime()) {
-            //Show welcome dialog
-            // and then check deep link status
-            showWelcomeMessage();
-        } else {
-            // not the first time
-            // so check for deep link directly
-            initDeepLink();
-        }
+        mUnbinder = ButterKnife.bind(this, view);
+        //Method called
+        initViews();
     }
-
 
     @Override
     public void onResume() {
         super.onResume();
-        //
         if (!mHelper.getHTagNewPostsIndicatorVisibility()) {
             newPostIndicator.setVisibility(View.GONE);
         } else {
@@ -372,19 +395,18 @@ public class FeedFragment extends Fragment implements listener.OnCollaborationLi
     /**
      * Click functionality to open FindFBFriend activity.
      */
-    @OnClick(R.id.findfbFriendsButton)
+    @OnClick(R.id.btn_fb_friends)
     public void onFindFBFriendsClicked() {
         //Open FindFBFriendsActivity screen
-        startActivity(new Intent(getActivity()
-                , FindFBFriendsActivity.class));
+        startActivity(new Intent(getActivity(), FindFBFriendsActivity.class));
         //Log firebase event
         setAnalytics(FIREBASE_EVENT_FIND_FRIENDS);
     }
 
     /**
-     * Click functionality to open explore fragment
+     * Click functionality to open explore fragment.
      */
-    @OnClick(R.id.explorePeopleButton)
+    @OnClick(R.id.btn_explore)
     public void onExploreFriendsClicked() {
         ((BottomNavigationActivity) getActivity()).activateBottomNavigationItem(R.id.action_explore);
         ((BottomNavigationActivity) getActivity()).replaceFragment(new ExploreFragment(), Constant.TAG_EXPLORE_FRAGMENT, false);
@@ -405,7 +427,7 @@ public class FeedFragment extends Fragment implements listener.OnCollaborationLi
     /**
      * Click functionality to show HashTagOgTheDay infoDialog
      */
-    @OnClick(R.id.buttonInfo)
+    @OnClick(R.id.btn_info)
     void infoButtonOnClick() {
         //Show dialog here
         getHashTagOfTheDayInfoDialog(textHashTagOFTheDay);
@@ -416,15 +438,33 @@ public class FeedFragment extends Fragment implements listener.OnCollaborationLi
     //region :Private methods
 
     /**
+     * Method to initialize views for this screen.
+     */
+    private void initViews() {
+        //Obtain SharedPreference reference
+        mHelper = new SharedPreferenceHelper(getActivity());
+        //Method called
+        initSwipeRefreshLayout();
+
+        //This screen opened for first time
+        if (mHelper.isWelcomeFirstTime()) {
+            //Show welcome dialog and then check deep link status
+            showWelcomeMessage();
+        } else {
+            // not the first time so check for deep link directly
+            initDeepLink();
+        }
+    }
+
+    /**
      * Method to initialize swipe to refresh view.
      */
-    private void initScreen() {
+    private void initSwipeRefreshLayout() {
         //Set layout manger for recyclerView
-        recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
+        recyclerViewFeed.setLayoutManager(new LinearLayoutManager(getActivity()));
         //Set adapter
         mAdapter = new FeedAdapter(mFeedDataList, getActivity(), mHelper.getUUID(), FeedFragment.this, mCompositeDisposable);
-        recyclerView.setAdapter(mAdapter);
-
+        recyclerViewFeed.setAdapter(mAdapter);
 
         swipeRefreshLayout.setRefreshing(true);
         swipeRefreshLayout.setColorSchemeColors(ContextCompat.getColor(getActivity()
@@ -459,32 +499,6 @@ public class FeedFragment extends Fragment implements listener.OnCollaborationLi
         loadFeedData();
     }
 
-    /**
-     * Initialize load more listener to retrieve next set of data from server if its available.
-     *
-     * @param adapter FeedAdapter reference.
-     */
-    private void initLoadMoreListener(FeedAdapter adapter) {
-
-        adapter.setOnFeedLoadMoreListener(new listener.OnFeedLoadMoreListener() {
-            @Override
-            public void onLoadMore() {
-                if (mRequestMoreData) {
-
-                    new Handler().post(new Runnable() {
-                                           @Override
-                                           public void run() {
-                                               mFeedDataList.add(null);
-                                               mAdapter.notifyItemInserted(mFeedDataList.size() - 1);
-                                           }
-                                       }
-                    );
-                    //Load new set of data
-                    loadMoreData();
-                }
-            }
-        });
-    }
 
     /**
      * This method loads data from server if user device is connected to internet.
@@ -496,7 +510,7 @@ public class FeedFragment extends Fragment implements listener.OnCollaborationLi
             //Get data from server
             //Hide no posts view
             viewNoPosts.setVisibility(View.GONE);
-            getFeedData();
+            getFeedData(false);
         } else {
             swipeRefreshLayout.setRefreshing(false);
             //No connection Snack bar
@@ -506,12 +520,14 @@ public class FeedFragment extends Fragment implements listener.OnCollaborationLi
 
     /**
      * RxJava2 implementation for retrieving feed data.
+     *
+     * @param isLoadMore True if called to load next set of data false otherwise.x
      */
-    private void getFeedData() {
+    private void getFeedData(final boolean isLoadMore) {
         final boolean[] tokenError = {false};
         final boolean[] connectionError = {false};
 
-        mCompositeDisposable.add(getObservableFromServer(BuildConfig.URL + "/feed/load"
+        mCompositeDisposable.add(FeedNetworkManager.getFeedObservable(BuildConfig.URL + "/feed/load"
                 , mHelper.getUUID()
                 , mHelper.getAuthToken()
                 , mLastIndexKey
@@ -528,12 +544,10 @@ public class FeedFragment extends Fragment implements listener.OnCollaborationLi
                             if (jsonObject.getString("tokenstatus").equals("invalid")) {
                                 tokenError[0] = true;
                             } else {
-                                parsePostsData(jsonObject, false);
+                                parsePostsData(jsonObject, isLoadMore);
                             }
                         } catch (JSONException e) {
                             e.printStackTrace();
-                            Crashlytics.logException(e);
-                            Crashlytics.setString("className", "FeedFragment");
                             connectionError[0] = true;
                         }
                     }
@@ -541,8 +555,6 @@ public class FeedFragment extends Fragment implements listener.OnCollaborationLi
                     @Override
                     public void onError(Throwable e) {
                         swipeRefreshLayout.setRefreshing(false);
-                        Crashlytics.logException(e);
-                        Crashlytics.setString("className", "FeedFragment");
                         //Server error Snack bar
                         ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_server));
                     }
@@ -563,9 +575,8 @@ public class FeedFragment extends Fragment implements listener.OnCollaborationLi
                         } else if (mFeedDataList.size() == 0) {
                             //Show no post view
                             viewNoPosts.setVisibility(View.VISIBLE);
-
-                            SuggestionHelper helper = new SuggestionHelper();
-                            helper.getSuggestedArtist(getActivity(), mCompositeDisposable, new listener.OnSuggestedArtistLoadListener() {
+                            //Load Suggested artist data here
+                            FeedNetworkManager.getSuggestedArtistData(getActivity(), mCompositeDisposable, new FeedNetworkManager.OnSuggestedArtistLoadListener() {
                                 @Override
                                 public void onSuccess(List<SuggestedArtistsModel> dataList) {
                                     //Toggle view visibility
@@ -602,9 +613,8 @@ public class FeedFragment extends Fragment implements listener.OnCollaborationLi
                             addHashTagOfTheDayItem();
 
                             //Apply 'Slide Up' animation
-                            int resId = R.anim.layout_animation_from_bottom;
-                            LayoutAnimationController animation = AnimationUtils.loadLayoutAnimation(getActivity(), resId);
-                            recyclerView.setLayoutAnimation(animation);
+                            recyclerViewFeed.setLayoutAnimation(AnimationUtils.loadLayoutAnimation(getActivity()
+                                    , R.anim.layout_animation_from_bottom));
                             mAdapter.notifyDataSetChanged();
                         }
                     }
@@ -612,13 +622,14 @@ public class FeedFragment extends Fragment implements listener.OnCollaborationLi
         );
     }
 
+
     /**
      * Method to retrieve to next set of data from server.
      */
     private void loadMoreData() {
         final boolean[] tokenError = {false};
         final boolean[] connectionError = {false};
-        mCompositeDisposable.add(getObservableFromServer(BuildConfig.URL + "/feed/load"
+        mCompositeDisposable.add(FeedNetworkManager.getFeedObservable(BuildConfig.URL + "/feed/load"
                 , mHelper.getUUID()
                 , mHelper.getAuthToken()
                 , mLastIndexKey
@@ -643,8 +654,6 @@ public class FeedFragment extends Fragment implements listener.OnCollaborationLi
                             }
                         } catch (JSONException e) {
                             e.printStackTrace();
-                            Crashlytics.logException(e);
-                            Crashlytics.setString("className", "FeedFragment");
                             connectionError[0] = true;
                         }
                     }
@@ -655,8 +664,6 @@ public class FeedFragment extends Fragment implements listener.OnCollaborationLi
                         mFeedDataList.remove(mFeedDataList.size() - 1);
                         //Notify changes
                         mAdapter.notifyItemRemoved(mFeedDataList.size());
-                        Crashlytics.logException(e);
-                        Crashlytics.setString("className", "FeedFragment");
                         //Server error Snack bar
                         ViewHelper.getSnackBar(rootView, getString(R.string.error_msg_server));
                     }
@@ -679,38 +686,6 @@ public class FeedFragment extends Fragment implements listener.OnCollaborationLi
         );
     }
 
-    /**
-     * Initialize hats off listener.
-     *
-     * @param adapter FeedAdapter reference.
-     */
-    private void initHatsOffListener(FeedAdapter adapter) {
-        adapter.setHatsOffListener(new listener.OnHatsOffListener() {
-            @Override
-            public void onHatsOffClick(final FeedModel feedData, final int itemPosition) {
-
-                HatsOffHelper hatsOffHelper = new HatsOffHelper(getActivity());
-                hatsOffHelper.updateHatsOffStatus(feedData.getEntityID(), feedData.getHatsOffStatus());
-                // On hatsOffSuccessListener
-                hatsOffHelper.setOnHatsOffSuccessListener(new HatsOffHelper.OnHatsOffSuccessListener() {
-                    @Override
-                    public void onSuccess() {
-                    }
-                });
-                // On hatsOffSuccessListener
-                hatsOffHelper.setOnHatsOffFailureListener(new HatsOffHelper.OnHatsOffFailureListener() {
-                    @Override
-                    public void onFailure(String errorMsg) {
-                        //set status to true if its false and vice versa
-                        feedData.setHatsOffStatus(!feedData.getHatsOffStatus());
-                        //notify changes
-                        mAdapter.notifyItemChanged(itemPosition);
-                        ViewHelper.getSnackBar(rootView, errorMsg);
-                    }
-                });
-            }
-        });
-    }
 
     /**
      * Used to handle result of askForPermission for capture.
@@ -807,15 +782,15 @@ public class FeedFragment extends Fragment implements listener.OnCollaborationLi
      * @param feedAdapter FeedAdapter reference
      */
     private void initDownVoteListener(FeedAdapter feedAdapter) {
-        feedAdapter.setOnDownVoteClickedListener(new listener.OnDownvoteClickedListener() {
+        feedAdapter.setOnDownVoteClickedListener(new listener.OnDownVoteClickedListener() {
             @Override
-            public void onDownvoteClicked(FeedModel data, int position, ImageView imageDownVote) {
+            public void onDownVoteClicked(FeedModel data, int position, ImageView imageDownVote) {
 
-                DownvoteHelper downvoteHelper = new DownvoteHelper();
+                DownvoteHelper downVoteHelper = new DownvoteHelper();
 
                 // if already downVoted
                 if (data.isDownvoteStatus()) {
-                    downvoteHelper.initDownvoteProcess(getActivity()
+                    downVoteHelper.initDownvoteProcess(getActivity()
                             , data
                             , mCompositeDisposable
                             , imageDownVote
@@ -824,7 +799,7 @@ public class FeedFragment extends Fragment implements listener.OnCollaborationLi
                 } else
 
                 {   // Show warning dialog
-                    downvoteHelper.initDownvoteWarningDialog(getActivity()
+                    downVoteHelper.initDownvoteWarningDialog(getActivity()
                             , data
                             , mCompositeDisposable
                             , imageDownVote
@@ -858,7 +833,6 @@ public class FeedFragment extends Fragment implements listener.OnCollaborationLi
                 FirebaseAnalytics
                         .getInstance(getContext())
                         .logEvent(FIREBASE_EVENT_DEEP_LINK_USED, bundle);
-
 
                 getFeedDetails(entityID);
             }
@@ -909,38 +883,6 @@ public class FeedFragment extends Fragment implements listener.OnCollaborationLi
                     , getString(R.string.error_msg_share_permission_denied));
         }
     };
-
-
-    /**
-     * Method to show welcome Message when user land on this screen for the first time.
-     */
-    private void showWelcomeMessage() {
-        MaterialDialog dialog = new MaterialDialog.Builder(getActivity())
-                .customView(R.layout.dialog_generic, false)
-                .positiveText(getString(R.string.text_ok))
-                .onPositive(new MaterialDialog.SingleButtonCallback() {
-                    @Override
-                    public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
-                        dialog.dismiss();
-                        //update status
-                        mHelper.updateWelcomeDialogStatus(false);
-
-                        initDeepLink();
-                    }
-                })
-                .show();
-
-        ImageView fillerImage = dialog.getCustomView().findViewById(R.id.viewFiller);
-        TextView textTitle = dialog.getCustomView().findViewById(R.id.textTitle);
-        TextView textDesc = dialog.getCustomView().findViewById(R.id.textDesc);
-
-        //Set filler image
-        fillerImage.setImageDrawable(ContextCompat.getDrawable(getActivity(), R.drawable.img_welcome));
-        //Set title text
-        textTitle.setText("Welcome to Cread");
-        //Set description text
-        textDesc.setText("Cread is a Social platform where artists can collaborate and showcase their work to earn recognition, goodwill and revenues.");
-    }
 
 
     /**
@@ -1138,44 +1080,6 @@ public class FeedFragment extends Fragment implements listener.OnCollaborationLi
                 });
     }
 
-    /**
-     * Method to show HashTagOfTheDay info dialog.
-     */
-    private void getHashTagOfTheDayInfoDialog(String hashTagText) {
-        MaterialDialog dialog = new MaterialDialog.Builder(getActivity())
-                .customView(R.layout.dialog_generic, false)
-                .positiveText(R.string.text_create)
-                .negativeText(R.string.text_ok)
-                .onPositive(new MaterialDialog.SingleButtonCallback() {
-                    @Override
-                    public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
-                        //Dismiss dialog
-                        dialog.dismiss();
-                        //Open add content bottomSheet
-                        ((BottomNavigationActivity) getActivity()).getAddContentBottomSheetDialog();
-                    }
-                })
-                .onNegative(new MaterialDialog.SingleButtonCallback() {
-                    @Override
-                    public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
-                        //Dismiss dialog
-                        dialog.dismiss();
-                    }
-                })
-
-                .show();
-        //Obtain views reference
-        ImageView fillerImage = dialog.getCustomView().findViewById(R.id.viewFiller);
-        TextView textTitle = dialog.getCustomView().findViewById(R.id.textTitle);
-        TextView textDesc = dialog.getCustomView().findViewById(R.id.textDesc);
-        //Set filler image
-        fillerImage.setImageDrawable(ContextCompat.getDrawable(getActivity(), R.drawable.img_hash_tag_dialog));
-        //Set title text
-        textTitle.setText("Hashtag for Today");
-        //Set description text
-        textDesc.setText("Create an artwork with " + hashTagText + " in your caption and your post will get featured under this hashtag for today");
-    }
-
 
     /**
      * Method to parse Json.
@@ -1188,7 +1092,7 @@ public class FeedFragment extends Fragment implements listener.OnCollaborationLi
         JSONObject mainData = jsonObject.getJSONObject("data");
         mRequestMoreData = mainData.getBoolean("requestmore");
         mLastIndexKey = mainData.getString("lastindexkey");
-        mCanDownvote = mainData.getBoolean("candownvote");
+        mCanDownVote = mainData.getBoolean("candownvote");
         //FeedArray list
         JSONArray feedArray = mainData.getJSONArray("feed");
         int feedArrayLength = feedArray.length();
@@ -1206,7 +1110,7 @@ public class FeedFragment extends Fragment implements listener.OnCollaborationLi
             feedData.setHatsOffStatus(dataObj.getBoolean("hatsoffstatus"));
             feedData.setMerchantable(dataObj.getBoolean("merchantable"));
             feedData.setDownvoteStatus(dataObj.getBoolean("downvotestatus"));
-            feedData.setEligibleForDownvote(mCanDownvote);
+            feedData.setEligibleForDownvote(mCanDownVote);
             feedData.setPostTimeStamp(dataObj.getString("regdate"));
             feedData.setLongForm(dataObj.getBoolean("long_form"));
             feedData.setHatsOffCount(dataObj.getLong("hatsoffcount"));
@@ -1289,5 +1193,133 @@ public class FeedFragment extends Fragment implements listener.OnCollaborationLi
 
 
     }
-//endregion
+
+
+    /**
+     * Initialize load more listener to retrieve next set of data from server if its available.
+     *
+     * @param adapter FeedAdapter reference.
+     */
+    private void initLoadMoreListener(FeedAdapter adapter) {
+
+        adapter.setOnFeedLoadMoreListener(new listener.OnFeedLoadMoreListener() {
+            @Override
+            public void onLoadMore() {
+                if (mRequestMoreData) {
+                    new Handler().post(new Runnable() {
+                                           @Override
+                                           public void run() {
+                                               mFeedDataList.add(null);
+                                               mAdapter.notifyItemInserted(mFeedDataList.size() - 1);
+                                           }
+                                       }
+                    );
+                    //Load new set of data
+                    loadMoreData();
+                }
+            }
+        });
+    }
+
+    /**
+     * Initialize hats off listener.
+     *
+     * @param adapter FeedAdapter reference.
+     */
+    private void initHatsOffListener(FeedAdapter adapter) {
+        adapter.setHatsOffListener(new listener.OnHatsOffListener() {
+            @Override
+            public void onHatsOffClick(final FeedModel feedData, final int itemPosition) {
+
+                HatsOffNetworkManger.updateHatsOffStatus(getActivity(), feedData.getEntityID(), feedData.getHatsOffStatus()
+                        , new HatsOffNetworkManger.OnHatsOffResponseListener() {
+                            @Override
+                            public void onSuccess() {
+                            }
+
+                            @Override
+                            public void onFailure(String errorMsg) {
+                                //set status to true if its false and vice versa
+                                feedData.setHatsOffStatus(!feedData.getHatsOffStatus());
+                                //notify changes
+                                mAdapter.notifyItemChanged(itemPosition);
+                                ViewHelper.getSnackBar(rootView, errorMsg);
+                            }
+                        });
+            }
+        });
+    }
+
+
+    /**
+     * Method to show welcome Message when user land on this screen for the first time.
+     */
+    private void showWelcomeMessage() {
+        MaterialDialog dialog = new MaterialDialog.Builder(getActivity())
+                .customView(R.layout.dialog_generic, false)
+                .positiveText(getString(R.string.text_ok))
+                .onPositive(new MaterialDialog.SingleButtonCallback() {
+                    @Override
+                    public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
+                        dialog.dismiss();
+                        //update status
+                        mHelper.updateWelcomeDialogStatus(false);
+                        //Method called
+                        initDeepLink();
+                    }
+                })
+                .show();
+
+        ImageView fillerImage = dialog.getCustomView().findViewById(R.id.viewFiller);
+        TextView textTitle = dialog.getCustomView().findViewById(R.id.textTitle);
+        TextView textDesc = dialog.getCustomView().findViewById(R.id.textDesc);
+
+        //Set filler image
+        fillerImage.setImageDrawable(ContextCompat.getDrawable(getActivity(), R.drawable.img_welcome));
+        //Set title text
+        textTitle.setText("Welcome to Cread");
+        //Set description text
+        textDesc.setText("Cread is a Social platform where artists can collaborate and showcase their work to earn recognition, goodwill and revenues.");
+    }
+
+
+    /**
+     * Method to show HashTagOfTheDay info dialog.
+     */
+    private void getHashTagOfTheDayInfoDialog(String hashTagText) {
+        MaterialDialog dialog = new MaterialDialog.Builder(getActivity())
+                .customView(R.layout.dialog_generic, false)
+                .positiveText(R.string.text_create)
+                .negativeText(R.string.text_ok)
+                .onPositive(new MaterialDialog.SingleButtonCallback() {
+                    @Override
+                    public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
+                        //Dismiss dialog
+                        dialog.dismiss();
+                        //Open add content bottomSheet
+                        ((BottomNavigationActivity) getActivity()).getAddContentBottomSheetDialog();
+                    }
+                })
+                .onNegative(new MaterialDialog.SingleButtonCallback() {
+                    @Override
+                    public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
+                        //Dismiss dialog
+                        dialog.dismiss();
+                    }
+                })
+
+                .show();
+        //Obtain views reference
+        ImageView fillerImage = dialog.getCustomView().findViewById(R.id.viewFiller);
+        TextView textTitle = dialog.getCustomView().findViewById(R.id.textTitle);
+        TextView textDesc = dialog.getCustomView().findViewById(R.id.textDesc);
+        //Set filler image
+        fillerImage.setImageDrawable(ContextCompat.getDrawable(getActivity(), R.drawable.img_hash_tag_dialog));
+        //Set title text
+        textTitle.setText("Hashtag for Today");
+        //Set description text
+        textDesc.setText("Create an artwork with " + hashTagText + " in your caption and your post will get featured under this hashtag for today");
+    }
+
+    //endregion
 }

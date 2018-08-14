@@ -10,11 +10,11 @@ import android.widget.RelativeLayout;
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.thetestament.cread.models.AchievementsModels;
 import com.thetestament.cread.models.CommentsModel;
-import com.thetestament.cread.models.ExploreCategoryModel;
 import com.thetestament.cread.models.FBFriendsModel;
 import com.thetestament.cread.models.FeedModel;
 import com.thetestament.cread.models.InspirationModel;
-import com.thetestament.cread.models.LabelsModel;
+import com.thetestament.cread.models.MemeImageModel;
+import com.thetestament.cread.models.MemeLayoutModel;
 import com.thetestament.cread.models.PersonMentionModel;
 import com.thetestament.cread.models.ShortModel;
 import com.thetestament.cread.models.SuggestedArtistsModel;
@@ -312,9 +312,6 @@ public class listener {
         void onShareDialogItemClicked(int index);
     }
 
-    public interface OnShareLinkClickedListener {
-        void onShareLinkClicked(String entityID, String entityURL, String creatorName);
-    }
 
     /**
      * Interface definition for a callback to be invoked when user scroll for more data.
@@ -404,8 +401,8 @@ public class listener {
         void onFeatArtistClicked(int itemType, String uuid);
     }
 
-    public interface OnDownvoteClickedListener {
-        void onDownvoteClicked(FeedModel data, int position, ImageView imageDownvote);
+    public interface OnDownVoteClickedListener {
+        void onDownVoteClicked(FeedModel data, int position, ImageView imageDownVote);
     }
 
     /**
@@ -479,19 +476,6 @@ public class listener {
         void onInterestFailure(String errorMsg);
     }
 
-    /**
-     * Interface definition for a callback to be invoked when user selects label from list.
-     */
-    public interface OnLabelsSelectListener {
-        void onLabelSelected(LabelsModel model, int itemPosition);
-    }
-
-    /**
-     * Interface definition for a callback to be invoked when user selects explore category from list.
-     */
-    public interface OnCategorySelectListener {
-        void onCategorySelected(ExploreCategoryModel model, int itemPosition);
-    }
 
     /**
      * Interface definition for a callback to be invoked when user uploads feedback.
@@ -539,5 +523,26 @@ public class listener {
      */
     public interface OnBadgeClickListener {
         void onBadgeClick(AchievementsModels data);
+    }
+
+    /**
+     * Interface definition for a callback to be invoked when user selects meme image.
+     */
+    public interface OnMemeClickListener {
+        void onImageSelected(MemeImageModel data, int itemPosition, int viewType);
+    }
+
+    /**
+     * Interface definition for a callback to be invoked when user scroll for more data.
+     */
+    public interface OnMemeImageLoadMoreListener {
+        void onLoadMore();
+    }
+
+    /**
+     * Interface definition for a callback to be invoked when user selects meme from list of memes.
+     */
+    public interface OnMemeLayoutClickListener {
+        void onMemeLayoutClick(MemeLayoutModel data, int itemPosition);
     }
 }

@@ -6,9 +6,7 @@ import android.view.animation.DecelerateInterpolator;
 
 public class Constant {
     public static final String MINIMUM_APP_VERSION_KEY = "minimum_app_version";
-    public static final String EXPLORE_CATEGORY_VIEW_VISIBILITY = "explore_category_view_visibility";
-    public static final String EXPLORE_CATEGORY_VIEW_VISIBILITY_VISIBLE = "visible";
-    public static final String EXPLORE_CATEGORY_VIEW_VISIBILITY_INVISIBLE = "invisible";
+
 
     //region :Platform key and value constant
     public static final String PLATFORM_KEY = "platform";
@@ -51,6 +49,7 @@ public class Constant {
     public static final int REQUEST_CODE_USER_PROFILE_FROM_SUGGESTED_ADAPTER = 1021;
     public static final int REQUEST_CODE_GOOGLE_SIGN_IN = 1022;
     public static final int REQUEST_CODE_USER_INTERESTS = 1023;
+    public static final int REQUEST_CODE_OPEN_GALLERY_FOR_MEME = 1024;
     //endregion
 
     //region :Tag value for fragments
@@ -68,6 +67,7 @@ public class Constant {
     //region :Content Types
     public static final String CONTENT_TYPE_SHORT = "SHORT";
     public static final String CONTENT_TYPE_CAPTURE = "CAPTURE";
+    public static final String CONTENT_TYPE_MEME = "MEME";
     //endregion
 
     //region :Text gravity types
@@ -89,6 +89,9 @@ public class Constant {
     public static final String IMAGE_TYPE_USER_SHORT_PIC = "userShortPic";
     public static final String IMAGE_TYPE_USER_SHARED_PIC = "sharedPic";
     public static final String IMAGE_TYPE_USER_SHARE_BADGE = "sharedBadge";
+    public static final String IMAGE_TYPE_USER_MEME = "memePic";
+    public static final String IMAGE_TYPE_USER_MEME_ONE = "memePicOne";
+    public static final String IMAGE_TYPE_USER_MEME_TWO = "memePicTwo";
     //endregion
 
     //region Photo watermark status
@@ -251,7 +254,6 @@ public class Constant {
     public static final String FIREBASE_EVENT_FEED_CLICKED = "feed_clicked";
     public static final String FIREBASE_EVENT_EXPLORE_CLICKED = "explore_clicked";
     public static final String FIREBASE_EVENT_HELP_CLICKED = "help_question_clicked";
-    public static final String FIREBASE_EVENT_EXPLORE_CATEGORY_CLICKED = "explore_category_clicked";
     public static final String FIREBASE_EVENT_INSPIRATION_CLICKED = "inspire_clicked";
     public static final String FIREBASE_EVENT_NOTIFICATION_CLICKED = "notification_clicked";
     public static final String FIREBASE_EVENT_FIND_FRIENDS = "find_friends";
@@ -329,6 +331,8 @@ public class Constant {
     public static final String PREVIEW_EXTRA_CALLED_FROM_CAPTURE = "capture";
     public static final String PREVIEW_EXTRA_CALLED_FROM_EDIT_CAPTURE = "editCapture";
     public static final String PREVIEW_EXTRA_CALLED_FROM_EDIT_SHORT = "editShort";
+    public static final String PREVIEW_EXTRA_CALLED_FROM_MEME_FRAGMENT = "memeFragment";
+    public static final String PREVIEW_EXTRA_CALLED_FROM_EDIT_MEME = "editMeme";
 
     //endregion
 
@@ -393,20 +397,11 @@ public class Constant {
     public static final String CONTENT_PREVIEW_EXTRA_LIVE_FILTER_NAME = "contentPreviewLiveFilterName";
     //endregion
 
-    //region Content type for labels
-    public static final String LABEL_TYPE_WRITING = "WRITING";
-    public static final String LABEL_TYPE_GRAPHIC = "GRAPHIC";
-    public static final String LABEL_TYPE_ALL = "ALL";
 
     public static final String USER_INTERESTS_CALLED_FROM_LOGIN = "userInterestsCalledFromLogin";
     public static final String USER_INTERESTS_CALLED_FROM_PROFILE = "userInterestsCalledFromProfile";
     //endregion
 
-    //region
-    public static final String EXPLORE_CATEGORY_DEFAULT = "DEFAULT";
-    public static final String EXPLORE_CATEGORY_ART = "ART";
-    public static final String EXPLORE_CATEGORY_FEEL = "FEEL";
-    //endregion
 
     //region :Live filter name
     public static final String LIVE_FILTER_NONE = "none";
@@ -427,6 +422,8 @@ public class Constant {
     public static final String EXPLORE_SELECTED_TAB_RECENT = "recent";
     public static final String EXPLORE_SELECTED_TAB_POPULAR = "popular";
     public static final String EXPLORE_SELECTED_TAB_BEST = "allstar";
+    public static final String EXPLORE_TAB_TYPE_ART = "art";
+    public static final String EXPLORE_TAB_TYPE_HUMOR = "humor";
     //endregion
 
     //region :Me item types

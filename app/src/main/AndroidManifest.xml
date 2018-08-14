@@ -538,6 +538,18 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".activities.BottomNavigationActivity" />
         </activity>
+
+        <!-- AchievementsActivity screen -->
+        <activity
+            android:name=".activities.MemeActivity"
+            android:label="Meme"
+            android:launchMode="singleTop"
+            android:screenOrientation="portrait"
+            android:windowSoftInputMode="stateHidden|adjustPan">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".activities.BottomNavigationActivity" />
+        </activity>
     </application>
 
 </manifest>

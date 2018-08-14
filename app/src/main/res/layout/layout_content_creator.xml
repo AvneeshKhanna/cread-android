@@ -2,22 +2,23 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/containerCreator"
+    android:id="@+id/container_creator"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_marginBottom="8dp"
     android:layout_marginTop="8dp">
 
     <LinearLayout
-        android:id="@+id/containerCreatorSpecific"
+        android:id="@+id/container_creator_specific"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentLeft="true"
-        android:layout_toLeftOf="@+id/buttonCollaborate"
+        android:layout_toLeftOf="@+id/btn_collaborate"
         android:orientation="horizontal">
 
+        <!--Creator image-->
         <com.facebook.drawee.view.SimpleDraweeView
-            android:id="@+id/imageCreator"
+            android:id="@+id/img_creator"
             android:layout_width="35dp"
             android:layout_height="35dp"
             android:layout_marginLeft="8dp"
@@ -30,8 +31,8 @@
             android:layout_height="wrap_content"
             android:orientation="vertical">
 
-            <TextView
-                android:id="@+id/textCreatorName"
+            <android.support.v7.widget.AppCompatTextView
+                android:id="@+id/txt_creator_name"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:paddingLeft="8dp"
@@ -40,15 +41,15 @@
                 android:textSize="14sp"
                 tools:text="Cread is the best app" />
 
-            <TextView
-                android:id="@+id/textTimestamp"
+            <android.support.v7.widget.AppCompatTextView
+                android:id="@+id/post_time_stamp"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="5dp"
                 android:paddingLeft="8dp"
-                android:text="08 March at 5:00"
                 android:textColor="@color/grey_custom"
-                android:textSize="12sp" />
+                android:textSize="12sp"
+                tools:text="08 March at 5:00" />
 
 
         </LinearLayout>
@@ -57,8 +58,9 @@
     </LinearLayout>
 
 
-    <TextView
-        android:id="@+id/buttonCollaborate"
+    <!--Collaborate button-->
+    <android.support.v7.widget.AppCompatTextView
+        android:id="@+id/btn_collaborate"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentRight="true"
@@ -72,13 +74,7 @@
         android:text="Collaborate"
         android:textColor="@color/white"
         android:textSize="12sp"
-        android:visibility="gone" />
-    <!--<ImageView
-        android:id="@+id/imageWorkType"
-        android:layout_width="18dp"
-        android:layout_height="18dp"
-        android:layout_centerVertical="true"
-        android:layout_toRightOf="@+id/textCreatorName"
-        android:src="@drawable/ic_camera_alt_24" />-->
+        android:visibility="visible" />
+
 
 </RelativeLayout>

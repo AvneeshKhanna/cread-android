@@ -14,6 +14,8 @@ import com.thetestament.cread.activities.ContentPreview;
 import com.thetestament.cread.activities.FeedDescriptionActivity;
 import com.thetestament.cread.activities.FollowActivity;
 import com.thetestament.cread.activities.MainActivity;
+import com.thetestament.cread.activities.MemeActivity;
+import com.thetestament.cread.activities.PreviewActivity;
 import com.thetestament.cread.activities.ProfileActivity;
 import com.thetestament.cread.activities.ViewLongShortActivity;
 import com.thetestament.cread.activities.WebViewActivity;
@@ -36,6 +38,7 @@ import static com.thetestament.cread.utils.Constant.EXTRA_PROFILE_UUID;
 import static com.thetestament.cread.utils.Constant.EXTRA_SHORT_DATA;
 import static com.thetestament.cread.utils.Constant.EXTRA_WEB_VIEW_TITLE;
 import static com.thetestament.cread.utils.Constant.EXTRA_WEB_VIEW_URL;
+import static com.thetestament.cread.utils.Constant.REQUEST_CODE_PREVIEW_ACTIVITY;
 
 /**
  * A helper class to provide utility method for intent related operations.
@@ -206,4 +209,30 @@ public class IntentHelper {
         intent.putExtra("requesteduuid", requestedUUID);
         context.startActivity(intent);
     }
+
+    /**
+     * Method to open MemeActivity screen.
+     *
+     * @param context Context to use.
+     */
+    public static void openMemeActivity(Context context) {
+        context.startActivity(new Intent(context, MemeActivity.class));
+    }
+
+    /**
+     * Method to open Preview activity  screen for meme.
+     *
+     * @param context Context to use.
+     */
+    public static void openPreviewActivityFromMeme(FragmentActivity context) {
+        Intent intent = new Intent(context, PreviewActivity.class);
+
+        Bundle bundle = new Bundle();
+        bundle.putString(Constant.PREVIEW_EXTRA_CALLED_FROM, Constant.PREVIEW_EXTRA_CALLED_FROM_MEME_FRAGMENT);
+        bundle.putString(Constant.PREVIEW_EXTRA_LIVE_FILTER, Constant.LIVE_FILTER_NONE);
+
+        intent.putExtra(Constant.PREVIEW_EXTRA_DATA, bundle);
+        context.startActivityForResult(intent, REQUEST_CODE_PREVIEW_ACTIVITY);
+    }
+
 }

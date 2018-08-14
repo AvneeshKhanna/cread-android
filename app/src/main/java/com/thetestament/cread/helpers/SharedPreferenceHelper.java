@@ -197,6 +197,29 @@ public class SharedPreferenceHelper {
                 .getBoolean(mContext.getString(R.string.key_short_intro), true);
     }
 
+
+    /**
+     * Method to update meme intro dialog status.
+     *
+     * @param status boolean value i.e true or false
+     */
+    public void updateMemeIntroStatus(boolean status) {
+        SharedPreferences.Editor editor = mSharedPreferences.edit();
+        editor.putBoolean(mContext.getString(R.string.key_meme_intro), status);
+        editor.apply();
+    }
+
+    /**
+     * Method to retrieve meme intro dialog first time run status.
+     *
+     * @return True by default
+     */
+    public boolean isMemeFirstTime() {
+        return mSharedPreferences
+                .getBoolean(mContext.getString(R.string.key_meme_intro), true);
+    }
+
+
     /**
      * Method to retrieve buy intro dialog first time run status.
      *
@@ -788,4 +811,27 @@ public class SharedPreferenceHelper {
         editor.putBoolean(mContext.getString(R.string.key_badge_intro), status);
         editor.apply();
     }
+
+
+    /**
+     * Method to retrieve previous selected meme layout position.
+     *
+     * @return Position of last selected meme.
+     */
+    public int getLastSelectedMemePosition() {
+        return mSharedPreferences.getInt(mContext.getString(R.string.key_last_selected_meme)
+                , 0);
+    }
+
+    /**
+     * Method to update position of last selected meme in shared preferences.
+     *
+     * @param position Position of last selected meme layout.
+     */
+    public void setLastSelectedMemePosition(int position) {
+        SharedPreferences.Editor editor = mSharedPreferences.edit();
+        editor.putInt(mContext.getString(R.string.key_last_selected_meme), position);
+        editor.apply();
+    }
+
 }

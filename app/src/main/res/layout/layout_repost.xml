@@ -56,7 +56,7 @@
         android:layout_centerVertical="true"
         android:layout_alignParentRight="true"
         android:textAppearance="?android:textAppearanceLarge"
-        android:visibility="visible"
+        android:visibility="invisible"
         app:srcCompat="@drawable/ic_content_options" />
 
 </RelativeLayout>
