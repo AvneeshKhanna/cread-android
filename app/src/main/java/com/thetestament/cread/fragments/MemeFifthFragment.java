@@ -17,6 +17,7 @@ import android.support.v7.widget.AppCompatImageView;
 import android.support.v7.widget.AppCompatTextView;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -224,7 +225,7 @@ public class MemeFifthFragment extends Fragment {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.action_next:
-                getWritePermissionForMemeGeneration();
+                validateMemeCreation();
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
@@ -271,8 +272,7 @@ public class MemeFifthFragment extends Fragment {
      */
     @OnClick(R.id.tv_right)
     void onTvTopClick() {
-        MemeUtil.showMemeInputDialog(getActivity(),tvRight);
-
+        MemeUtil.showMemeInputDialog(getActivity(), tvRight);
     }
     //endregion
 
@@ -685,7 +685,22 @@ public class MemeFifthFragment extends Fragment {
     }
 
 
+    /**
+     * Method to validate meme creation and then generate meme.
+     */
+    private void validateMemeCreation() {
+        //if text equal to hint text
+        if (tvRight.getText().toString().equals(getString(R.string.hint_text_meme))) {
+            ViewHelper.getToast(getContext(), "Text field can't be empty");
+        }
+        //If empty
+        else if (TextUtils.isEmpty(tvRight.getText().toString().trim())) {
+            ViewHelper.getToast(getContext(), "Text field can't be empty");
+        } else {
+            getWritePermissionForMemeGeneration();
+        }
 
+    }
     //endregion
 
 }

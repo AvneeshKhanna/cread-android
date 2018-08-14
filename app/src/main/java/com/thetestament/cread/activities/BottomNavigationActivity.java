@@ -743,11 +743,11 @@ public class BottomNavigationActivity extends BaseActivity {
         TextView textDesc = dialog.getCustomView().findViewById(R.id.textDesc);
         //fixme
         //Set filler image
-        fillerImage.setImageDrawable(ContextCompat.getDrawable(this, R.drawable.img_short_intro));
+        fillerImage.setImageDrawable(ContextCompat.getDrawable(this, R.drawable.img_meme_intro));
         //Set title text
-        textTitle.setText("Create awesome memes");
+        textTitle.setText("Create Awesome Memes");
         //Set description text
-        textDesc.setText("This is where you can create meme. You can upload it as a post or save it to your phone");
+        textDesc.setText("Create and share memes on anything you like. Upload them as a post or save them to your phone");
     }
 
     /**

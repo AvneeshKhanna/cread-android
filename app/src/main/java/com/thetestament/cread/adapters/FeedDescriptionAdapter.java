@@ -1520,8 +1520,8 @@ public class FeedDescriptionAdapter extends RecyclerView.Adapter {
         LinearLayout containerCollabCount;
         @BindView(R.id.textTitle)
         TextView textTitle;
-        @BindView(R.id.lineSeparatorTop)
-        View lineSeparatorTop;
+        /*@BindView(R.id.lineSeparatorTop)
+        View lineSeparatorTop;*/
         @BindView(R.id.image_hats_off)
         AppCompatImageView imageHatsOff;
         @BindView(R.id.text_hats_off)

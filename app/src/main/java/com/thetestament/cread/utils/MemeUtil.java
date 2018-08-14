@@ -28,12 +28,19 @@ public class MemeUtil {
      * @param textView
      */
     public static void showMemeInputDialog(final FragmentActivity context, final AppCompatTextView textView) {
+        String text;
+        if (textView.getText().toString().equals(context.getString(R.string.hint_text_meme))) {
+            text = "";
+        } else {
+            text = textView.getText().toString();
+        }
+
         new MaterialDialog.Builder(context)
-                .title("Enter here your text")
+                .title("Place your text here")
                 .autoDismiss(false)
                 /*.inputRange(1, 80, ContextCompat.getColor(getActivity(), R.color.red))*/
                 .inputType(InputType.TYPE_TEXT_FLAG_MULTI_LINE | InputType.TYPE_TEXT_FLAG_CAP_SENTENCES)
-                .input(null, textView.getText(), false, new MaterialDialog.InputCallback() {
+                .input(null, text, false, new MaterialDialog.InputCallback() {
                     @Override
                     public void onInput(@NonNull MaterialDialog dialog, CharSequence input) {
                         String s = String.valueOf(input).trim();

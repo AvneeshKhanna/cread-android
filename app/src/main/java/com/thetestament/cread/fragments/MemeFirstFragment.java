@@ -16,6 +16,7 @@ import android.support.v4.widget.NestedScrollView;
 import android.support.v7.widget.AppCompatTextView;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -224,7 +225,7 @@ public class MemeFirstFragment extends Fragment {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.action_next:
-                getWritePermissionForMemeGeneration();
+                validateMemeCreation();
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
@@ -692,6 +693,24 @@ public class MemeFirstFragment extends Fragment {
 
     }
 
+    /**
+     * Method to validate meme creation and then generate meme.
+     */
+    private void validateMemeCreation() {
+        //if text equal to hint text
+        if (tvTop.getText().toString().equals(getString(R.string.hint_text_meme))
+                || tvBottom.getText().toString().equals(getString(R.string.hint_text_meme))) {
+            ViewHelper.getToast(getContext(), "Text field can't be empty");
+        }
+        //If empty
+        else if (TextUtils.isEmpty(tvTop.getText().toString().trim())
+                || TextUtils.isEmpty(tvBottom.getText().toString().trim())) {
+            ViewHelper.getToast(getContext(), "Text field can't be empty");
+        } else {
+            getWritePermissionForMemeGeneration();
+        }
+
+    }
 
 //endregion
 }
