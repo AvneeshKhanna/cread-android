@@ -197,6 +197,29 @@ public class SharedPreferenceHelper {
                 .getBoolean(mContext.getString(R.string.key_short_intro), true);
     }
 
+
+    /**
+     * Method to update meme intro dialog status.
+     *
+     * @param status boolean value i.e true or false
+     */
+    public void updateMemeIntroStatus(boolean status) {
+        SharedPreferences.Editor editor = mSharedPreferences.edit();
+        editor.putBoolean(mContext.getString(R.string.key_meme_intro), status);
+        editor.apply();
+    }
+
+    /**
+     * Method to retrieve meme intro dialog first time run status.
+     *
+     * @return True by default
+     */
+    public boolean isMemeFirstTime() {
+        return mSharedPreferences
+                .getBoolean(mContext.getString(R.string.key_meme_intro), true);
+    }
+
+
     /**
      * Method to retrieve buy intro dialog first time run status.
      *

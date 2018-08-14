@@ -290,6 +290,11 @@ public class MemeThirdFragment extends Fragment {
 
         //Method called
         initMemeBottomSheetView();
+
+        //Load image if exist
+        MemeUtil.setImageIfExist(Environment.getExternalStorageDirectory().getPath() + "/Cread/Meme/meme_pic_one.jpg"
+                , getActivity()
+                , imgMeme);
     }
 
 

@@ -271,7 +271,7 @@ public class MemeSecondFragment extends Fragment {
      */
     @OnClick(R.id.tv_top)
     void onTvTopClick() {
-        MemeUtil.showMemeInputDialog(getActivity(),tvTop);
+        MemeUtil.showMemeInputDialog(getActivity(), tvTop);
     }
 
 
@@ -287,6 +287,10 @@ public class MemeSecondFragment extends Fragment {
         mHelper = new SharedPreferenceHelper(getActivity());
         //Method called
         initMemeBottomSheetView();
+        //Load image if exist
+        MemeUtil.setImageIfExist(Environment.getExternalStorageDirectory().getPath() + "/Cread/Meme/meme_pic_one.jpg"
+                , getActivity()
+                , imgMeme);
     }
 
 

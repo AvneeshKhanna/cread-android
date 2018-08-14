@@ -500,9 +500,15 @@ public class BottomNavigationActivity extends BaseActivity {
         btnMeme.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                IntentHelper.openMemeActivity(mContext);
+
+                if (mHelper.isMemeFirstTime()) {
+                    getMemeDialog();
+                } else {
+                    IntentHelper.openMemeActivity(mContext);
+                }
                 //Dismiss bottom sheet
                 bottomSheetDialog.dismiss();
+
             }
         });
 
@@ -711,6 +717,37 @@ public class BottomNavigationActivity extends BaseActivity {
         textTitle.setText("Write something awesome");
         //Set description text
         textDesc.setText("This is where you can share your words. You can upload it as a post or save it to your phone");
+    }
+
+    /**
+     * Method to show intro dialog when user land on this screen for the first time.
+     */
+    private void getMemeDialog() {
+        MaterialDialog dialog = new MaterialDialog.Builder(this)
+                .customView(R.layout.dialog_generic, false)
+                .positiveText(getString(R.string.text_ok))
+                .onPositive(new MaterialDialog.SingleButtonCallback() {
+                    @Override
+                    public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
+                        //Open ShortActivity
+                        IntentHelper.openMemeActivity(mContext);
+                        dialog.dismiss();
+                        //update status
+                        mHelper.updateMemeIntroStatus(false);
+                    }
+                })
+                .show();
+        //Obtain views reference
+        ImageView fillerImage = dialog.getCustomView().findViewById(R.id.viewFiller);
+        TextView textTitle = dialog.getCustomView().findViewById(R.id.textTitle);
+        TextView textDesc = dialog.getCustomView().findViewById(R.id.textDesc);
+        //fixme
+        //Set filler image
+        fillerImage.setImageDrawable(ContextCompat.getDrawable(this, R.drawable.img_short_intro));
+        //Set title text
+        textTitle.setText("Create awesome memes");
+        //Set description text
+        textDesc.setText("This is where you can create meme. You can upload it as a post or save it to your phone");
     }
 
     /**

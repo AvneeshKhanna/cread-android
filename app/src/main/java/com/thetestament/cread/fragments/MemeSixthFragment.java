@@ -26,6 +26,7 @@ import com.thetestament.cread.helpers.ImageHelper;
 import com.thetestament.cread.helpers.IntentHelper;
 import com.thetestament.cread.helpers.ViewHelper;
 import com.thetestament.cread.utils.Constant;
+import com.thetestament.cread.utils.MemeUtil;
 import com.thetestament.cread.widgets.SquareImageView;
 import com.yalantis.ucrop.UCrop;
 
@@ -83,6 +84,7 @@ public class MemeSixthFragment extends Fragment {
         return inflater.inflate(R.layout.fragment_meme_sixth
                 , container
                 , false);
+
     }
 
     @Override
@@ -90,6 +92,10 @@ public class MemeSixthFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
         //ButterKnife view binding
         mUnbinder = ButterKnife.bind(this, view);
+        //Load image if exist
+        MemeUtil.setImageIfExist(Environment.getExternalStorageDirectory().getPath() + "/Cread/Meme/meme_pic_one.jpg"
+                , getActivity()
+                , imgMeme);
     }
 
     @Override

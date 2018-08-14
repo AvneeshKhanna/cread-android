@@ -43,6 +43,7 @@
     <string name="key_explore_intro">exploreIntro</string>
     <string name="key_capture_intro">captureIntro</string>
     <string name="key_short_intro">shortIntro</string>
+    <string name="key_meme_intro">shortIntro</string>
     <string name="key_have_tooltip">haveButton</string>
     <string name="key_short_tooltip">shortTooltip</string>
     <string name="key_capture_water_mark_text">captureWaterMarkText</string>

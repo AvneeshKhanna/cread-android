@@ -26,7 +26,7 @@
             android:id="@+id/img_meme"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_below="@+id/bottom_divider_et_top"
+            android:layout_below="@+id/top_divider_et_top"
             android:clickable="true"
             android:background="@color/grey_dark"
             android:foreground="?android:selectableItemBackground"
@@ -40,7 +40,7 @@
             android:layout_height="0.3dp"
             android:layout_below="@+id/img_meme"
             android:alpha="0.5"
-            android:background="@color/grey_dark" />
+            android:background="@color/blue" />
 
     </RelativeLayout>
 
