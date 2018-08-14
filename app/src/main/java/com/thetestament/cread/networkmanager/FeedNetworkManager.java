@@ -166,6 +166,7 @@ public class FeedNetworkManager {
                 .addHeaders(header)
                 .addQueryParameter("lastindexkey", lastIndexKey)
                 .addQueryParameter("repostsupport", "yes")
+                .addQueryParameter("memesupport","yes")
                 .addQueryParameter(Constant.PLATFORM_KEY, Constant.PLATFORM_VALUE);
 
         if (getResponseFromNetwork) {
