@@ -683,7 +683,7 @@ public class ExploreFragment extends Fragment implements listener.OnCollaboratio
                 if (itemType == VIEW_TYPE_HEADER) {
                     CustomDialog.getGenericDialog(getActivity()
                             , getString(R.string.text_ok)
-                            , getString(R.string.text_title_dialog_featured_artist)
+                            , getString(R.string.text_title_dialog_featured)
                             , getString(R.string.text_desc_dialog_featured_artist)
                             , R.drawable.img_intro_feat_artist);
                 } else if (itemType == VIEW_TYPE_ITEM) {

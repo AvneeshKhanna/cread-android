@@ -91,7 +91,7 @@ public class AspectRatioUtils {
      * @param imgWidth  Width of image.
      * @param imageView ImageView where image to be displayed.
      */
-    public static void setImageAspectRatio(int imgWidth, int imgHeight, View imageView ,boolean isOverridden) {
+    public static void setImageAspectRatio(int imgWidth, int imgHeight, View imageView, boolean isOverridden) {
         float valueAspectRatio = (float) imgWidth / imgHeight;
         String formattedAspectRatio = String.format(Locale.ENGLISH, "%.2f", valueAspectRatio);
 
@@ -133,6 +133,9 @@ public class AspectRatioUtils {
                 break;
             //For original and other views
             default:
+                params = new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT
+                        , Math.round((AspectRatioUtils.getDeviceScreenWidth() / valueAspectRatio)));
+                imageView.setLayoutParams(params);
                 break;
         }
     }

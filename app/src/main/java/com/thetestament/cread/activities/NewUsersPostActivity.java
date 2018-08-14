@@ -27,7 +27,7 @@ import com.thetestament.cread.CreadApp;
 import com.thetestament.cread.Manifest;
 import com.thetestament.cread.R;
 import com.thetestament.cread.adapters.NewUsersPostAdapter;
-import com.thetestament.cread.helpers.DownVoteHelper;
+import com.thetestament.cread.helpers.DownvoteHelper;
 import com.thetestament.cread.helpers.FeedHelper;
 import com.thetestament.cread.helpers.HatsOffHelper;
 import com.thetestament.cread.helpers.ImageHelper;
@@ -596,7 +596,7 @@ public class NewUsersPostActivity extends BaseActivity implements listener.OnCol
             @Override
             public void onDownVoteClicked(FeedModel data, int position, ImageView imageDownVote) {
 
-                DownVoteHelper downVoteHelper = new DownVoteHelper();
+                DownvoteHelper downVoteHelper = new DownvoteHelper();
 
                 // if already downVoted
                 if (data.isDownvoteStatus()) {

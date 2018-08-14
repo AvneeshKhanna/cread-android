@@ -32,7 +32,7 @@ import static com.thetestament.cread.helpers.NetworkHelper.updateDownvoteStatusO
  * Helper class to provide utility methods related to downvote operation.
  */
 
-public class DownVoteHelper {
+public class DownvoteHelper {
 
     public void updateDownVoteStatus(final FragmentActivity context,
                                      CompositeDisposable compositeDisposable,

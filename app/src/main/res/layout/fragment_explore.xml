@@ -74,7 +74,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:background="@color/white"
-                    app:tabIndicatorColor="@color/colorPrimary"
+                    app:tabIndicatorColor="@color/white"
                     app:tabMode="fixed"
                     app:tabTextAppearance="@android:style/TextAppearance.Widget.TabWidget">
 

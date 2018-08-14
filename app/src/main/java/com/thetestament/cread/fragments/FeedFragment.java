@@ -43,7 +43,7 @@ import com.thetestament.cread.activities.RecommendedArtistsActivity;
 import com.thetestament.cread.activities.SearchActivity;
 import com.thetestament.cread.adapters.FeedAdapter;
 import com.thetestament.cread.adapters.SuggestedArtistsAdapter;
-import com.thetestament.cread.helpers.DownVoteHelper;
+import com.thetestament.cread.helpers.DownvoteHelper;
 import com.thetestament.cread.helpers.FeedHelper;
 import com.thetestament.cread.helpers.GifHelper;
 import com.thetestament.cread.helpers.HashTagOfTheDayHelper;
@@ -786,7 +786,7 @@ public class FeedFragment extends Fragment implements listener.OnCollaborationLi
             @Override
             public void onDownVoteClicked(FeedModel data, int position, ImageView imageDownVote) {
 
-                DownVoteHelper downVoteHelper = new DownVoteHelper();
+                DownvoteHelper downVoteHelper = new DownvoteHelper();
 
                 // if already downVoted
                 if (data.isDownvoteStatus()) {

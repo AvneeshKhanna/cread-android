@@ -938,7 +938,7 @@ public class FeedHelper {
                 separatorView.setVisibility(View.GONE);
             }
             //check down vote status
-            DownVoteHelper downVoteHelper = new DownVoteHelper();
+            DownvoteHelper downVoteHelper = new DownvoteHelper();
             downVoteHelper.updateDownvoteUI(imageDownvote, data.isDownvoteStatus(), context);
         } else {
             //Hide views

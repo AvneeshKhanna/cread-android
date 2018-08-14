@@ -194,7 +194,7 @@ public class MemeFifthFragment extends Fragment {
                     //Get cropped image Uri
                     Uri mCroppedImgUri = UCrop.getOutput(data);
 
-                    imgMeme.setScaleType(ImageView.ScaleType.FIT_XY);
+                    imgMeme.setScaleType(ImageView.ScaleType.CENTER_CROP);
                     Picasso.with(getActivity())
                             .load(mCroppedImgUri)
                             .error(R.drawable.image_placeholder)

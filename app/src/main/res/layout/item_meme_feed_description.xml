@@ -20,12 +20,12 @@
         <include layout="@layout/layout_meme_creator" />
 
         <!--Main content container-->
-        <!--<FrameLayout
+        <FrameLayout
             android:id="@+id/container_main_content"
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
 
-            &lt;!&ndash;Content image view&ndash;&gt;
+            <!--Content image view-->
             <com.facebook.drawee.view.SimpleDraweeView
                 android:id="@+id/content_image"
                 android:layout_width="match_parent"
@@ -35,14 +35,14 @@
                 app:failureImage="@drawable/image_placeholder"
                 app:failureImageScaleType="centerCrop" />
 
-            &lt;!&ndash;WatermarkView&ndash;&gt;
+            <!--WatermarkView-->
             <include
                 layout="@layout/layout_cread_watermark"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="right|bottom" />
 
-            &lt;!&ndash;View to be animated on double tap&ndash;&gt;
+            <!--View to be animated on double tap-->
             <android.support.v7.widget.AppCompatImageView
                 android:id="@+id/double_tap_hats_off_view"
                 android:layout_width="50dp"
@@ -51,7 +51,7 @@
                 android:alpha="0.7"
                 android:visibility="gone"
                 app:srcCompat="@drawable/ic_hats_off" />
-        </FrameLayout>-->
+        </FrameLayout>
 
 
         <RelativeLayout

@@ -133,11 +133,11 @@
 
         </RelativeLayout>
 
-        <!--<FrameLayout
+        <FrameLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
 
-            &lt;!&ndash;Main content container&ndash;&gt;
+            <!--Main content container-->
             <include layout="@layout/layout_main_content" />
 
             <FrameLayout
@@ -200,7 +200,7 @@
 
             </FrameLayout>
 
-        </FrameLayout>-->
+        </FrameLayout>
 
 
         <RelativeLayout

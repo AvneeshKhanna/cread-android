@@ -29,7 +29,7 @@ import com.thetestament.cread.Manifest;
 import com.thetestament.cread.R;
 import com.thetestament.cread.adapters.FeedDescriptionAdapter;
 import com.thetestament.cread.dialog.CustomDialog;
-import com.thetestament.cread.helpers.DownVoteHelper;
+import com.thetestament.cread.helpers.DownvoteHelper;
 import com.thetestament.cread.helpers.FeedHelper;
 import com.thetestament.cread.helpers.FollowHelper;
 import com.thetestament.cread.helpers.GifHelper;
@@ -467,7 +467,7 @@ public class FeedDescriptionActivity extends BaseActivity implements listener.On
             @Override
             public void onDownVoteClicked(FeedModel data, int position, ImageView imageDownVote) {
 
-                DownVoteHelper downVoteHelper = new DownVoteHelper();
+                DownvoteHelper downVoteHelper = new DownvoteHelper();
 
                 if (position == 0) {
                     // if already downvoted

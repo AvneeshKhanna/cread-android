@@ -70,7 +70,7 @@ public class MemeUtil {
 
         if (file.exists()) {
             //Set scale type
-            imageView.setScaleType(ImageView.ScaleType.FIT_XY);
+            imageView.setScaleType(ImageView.ScaleType.CENTER_CROP);
             //Load image here
             Picasso.with(context)
                     .load(file)
