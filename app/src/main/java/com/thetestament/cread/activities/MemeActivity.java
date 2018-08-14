@@ -12,10 +12,12 @@ import android.widget.LinearLayout;
 
 import com.thetestament.cread.R;
 import com.thetestament.cread.adapters.MemeLayoutAdapter;
+import com.thetestament.cread.fragments.MemeEighthFragment;
 import com.thetestament.cread.fragments.MemeFifthFragment;
 import com.thetestament.cread.fragments.MemeFirstFragment;
 import com.thetestament.cread.fragments.MemeFourthFragment;
 import com.thetestament.cread.fragments.MemeSecondFragment;
+import com.thetestament.cread.fragments.MemeSeventhFragment;
 import com.thetestament.cread.fragments.MemeSixthFragment;
 import com.thetestament.cread.fragments.MemeThirdFragment;
 import com.thetestament.cread.helpers.SharedPreferenceHelper;
@@ -159,8 +161,11 @@ public class MemeActivity extends BaseActivity {
         data.add(new MemeLayoutModel(R.drawable.img_meme_2, "2"));
         data.add(new MemeLayoutModel(R.drawable.img_meme_3, "3"));
         data.add(new MemeLayoutModel(R.drawable.img_meme_4, "4"));
-        data.add(new MemeLayoutModel(R.drawable.img_meme_5, "5"));
-        data.add(new MemeLayoutModel(R.drawable.img_meme_6, "6"));
+        data.add(new MemeLayoutModel(R.drawable.img_meme_8, "5"));
+        data.add(new MemeLayoutModel(R.drawable.img_meme_5, "6"));
+        data.add(new MemeLayoutModel(R.drawable.img_meme_6, "7"));
+        data.add(new MemeLayoutModel(R.drawable.img_meme_7, "8"));
+
         return data;
     }
 
@@ -176,15 +181,21 @@ public class MemeActivity extends BaseActivity {
         adapter.setListener(new listener.OnMemeLayoutClickListener() {
             @Override
             public void onMemeLayoutClick(MemeLayoutModel data, int itemPosition) {
-                //Method called
-                ViewHelper.scrollToNextItemPosition(layoutManager, recyclerViewMemeLayout
-                        , itemPosition
-                        , listData.size());
-                //Update flags
-                mLastSelectedLayout = itemPosition;
-                mSpHelper.setLastSelectedMemePosition(mLastSelectedLayout);
-                //Method called
-                replaceFragment(itemPosition);
+                //If lastSelected item and current selected item are not same
+                if (mLastSelectedLayout != itemPosition) {
+                    //Method called
+                    ViewHelper.scrollToNextItemPosition(layoutManager, recyclerViewMemeLayout
+                            , itemPosition
+                            , listData.size());
+                    //Update flags
+                    mLastSelectedLayout = itemPosition;
+                    mSpHelper.setLastSelectedMemePosition(mLastSelectedLayout);
+                    //Method called
+                    replaceFragment(itemPosition);
+                } else {
+                    //do nothing
+                }
+
             }
         });
     }
@@ -212,10 +223,16 @@ public class MemeActivity extends BaseActivity {
                 fragment = new MemeFourthFragment();
                 break;
             case 4:
-                fragment = new MemeFifthFragment();
+                fragment = new MemeEighthFragment();
                 break;
             case 5:
+                fragment = new MemeFifthFragment();
+                break;
+            case 6:
                 fragment = new MemeSixthFragment();
+                break;
+            case 7:
+                fragment = new MemeSeventhFragment();
                 break;
             default:
                 fragment = new MemeFirstFragment();

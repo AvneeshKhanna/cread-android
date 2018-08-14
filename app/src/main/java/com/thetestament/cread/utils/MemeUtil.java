@@ -11,7 +11,6 @@ import com.afollestad.materialdialogs.MaterialDialog;
 import com.squareup.picasso.MemoryPolicy;
 import com.squareup.picasso.Picasso;
 import com.thetestament.cread.R;
-import com.thetestament.cread.helpers.ViewHelper;
 
 import java.io.File;
 
@@ -39,19 +38,20 @@ public class MemeUtil {
                 .title("Place your text here")
                 .autoDismiss(false)
                 /*.inputRange(1, 80, ContextCompat.getColor(getActivity(), R.color.red))*/
-                .inputType(InputType.TYPE_TEXT_FLAG_MULTI_LINE | InputType.TYPE_TEXT_FLAG_CAP_SENTENCES)
-                .input(null, text, false, new MaterialDialog.InputCallback() {
+                .inputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_MULTI_LINE | InputType.TYPE_TEXT_FLAG_CAP_SENTENCES)
+                .input(null, text, true, new MaterialDialog.InputCallback() {
                     @Override
                     public void onInput(@NonNull MaterialDialog dialog, CharSequence input) {
                         String s = String.valueOf(input).trim();
                         if (s.length() < 1) {
-                            ViewHelper.getToast(context, "This field can't be empty");
+                            //Set text here
+                            textView.setText(R.string.hint_text_meme);
                         } else {
                             //Set text here
                             textView.setText(s);
-                            //Dismiss
-                            dialog.dismiss();
                         }
+                        //Dismiss
+                        dialog.dismiss();
                     }
                 })
                 .build()

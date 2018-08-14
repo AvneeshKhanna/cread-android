@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/root_view"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <!--Child container-->
+    <com.thetestament.cread.widgets.SquareView
+        android:id="@+id/container"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/white">
+
+        <!--Divider-->
+        <View
+            android:id="@+id/top_divider_tv"
+            android:layout_width="match_parent"
+            android:layout_height="0.3dp"
+            android:alpha="0.5"
+            android:background="@color/grey_dark" />
+
+
+        <!--TextView-->
+        <android.support.v7.widget.AppCompatTextView
+            android:id="@+id/tv"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center"
+            android:paddingLeft="8dp"
+            android:paddingRight="8dp"
+            android:text="@string/hint_text_meme"
+            app:autoSizeMaxTextSize="24sp"
+            app:autoSizeTextType="uniform" />
+
+        <!--Divider-->
+        <View
+            android:id="@+id/bottom_divider_tv"
+            android:layout_width="match_parent"
+            android:layout_height="0.3dp"
+            android:layout_below="@+id/tv"
+            android:alpha="0.5"
+            android:background="@color/blue" />
+
+    </com.thetestament.cread.widgets.SquareView>
+
+
+</android.support.design.widget.CoordinatorLayout>

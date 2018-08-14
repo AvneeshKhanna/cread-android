@@ -2,33 +2,27 @@ package com.thetestament.cread.fragments;
 
 import android.content.Intent;
 import android.graphics.Bitmap;
-import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.v4.app.Fragment;
+import android.support.v7.widget.AppCompatTextView;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
-import android.widget.RelativeLayout;
 
-import com.squareup.picasso.MemoryPolicy;
-import com.squareup.picasso.Picasso;
 import com.thetestament.cread.Manifest;
 import com.thetestament.cread.R;
-import com.thetestament.cread.helpers.ImageHelper;
 import com.thetestament.cread.helpers.IntentHelper;
 import com.thetestament.cread.helpers.ViewHelper;
-import com.thetestament.cread.utils.Constant;
 import com.thetestament.cread.utils.MemeUtil;
-import com.thetestament.cread.widgets.SquareImageView;
-import com.yalantis.ucrop.UCrop;
+import com.thetestament.cread.widgets.SquareView;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -41,23 +35,19 @@ import butterknife.Unbinder;
 import pl.tajchert.nammu.Nammu;
 import pl.tajchert.nammu.PermissionCallback;
 
-import static android.app.Activity.RESULT_OK;
-import static com.thetestament.cread.helpers.ImageHelper.getImageUri;
-import static com.thetestament.cread.utils.Constant.REQUEST_CODE_OPEN_GALLERY_FOR_MEME;
-
 /**
  * Fragment to create meme.
  */
 
-public class MemeSixthFragment extends Fragment {
+public class MemeSeventhFragment extends Fragment {
 
     //region :Views binding with butter knife
     @BindView(R.id.root_view)
     CoordinatorLayout rootView;
     @BindView(R.id.container)
-    RelativeLayout container;
-    @BindView(R.id.img_meme)
-    SquareImageView imgMeme;
+    SquareView container;
+    @BindView(R.id.tv)
+    AppCompatTextView textView;
     //endregion
 
     //region :Fields and constant
@@ -66,7 +56,7 @@ public class MemeSixthFragment extends Fragment {
     //endregion
 
     //region :Required constructor
-    public MemeSixthFragment() {
+    public MemeSeventhFragment() {
     }
     //endregion
 
@@ -77,7 +67,7 @@ public class MemeSixthFragment extends Fragment {
         // Its own option menu
         setHasOptionsMenu(true);
         //inflate this view
-        return inflater.inflate(R.layout.fragment_meme_sixth
+        return inflater.inflate(R.layout.fragment_meme_seventh
                 , container
                 , false);
 
@@ -88,10 +78,6 @@ public class MemeSixthFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
         //ButterKnife view binding
         mUnbinder = ButterKnife.bind(this, view);
-        //Load image if exist
-        MemeUtil.setImageIfExist(Environment.getExternalStorageDirectory().getPath() + "/Cread/Meme/meme_pic_one.jpg"
-                , getActivity()
-                , imgMeme);
     }
 
     @Override
@@ -119,34 +105,6 @@ public class MemeSixthFragment extends Fragment {
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         switch (requestCode) {
-            case REQUEST_CODE_OPEN_GALLERY_FOR_MEME:
-                if (resultCode == RESULT_OK) {
-                    // To crop the selected image
-                    ImageHelper.startImageCroppingWithSquare(getActivity()
-                            , MemeSixthFragment.this
-                            , data.getData()
-                            , getImageUri(Constant.IMAGE_TYPE_USER_MEME_ONE));
-                } else {
-                    ViewHelper.getSnackBar(rootView
-                            , getString(R.string.error_img_not_attached));
-                }
-                break;
-            //For more information please visit "https://github.com/Yalantis/uCrop"
-            case UCrop.REQUEST_CROP:
-                if (resultCode == RESULT_OK) {
-                    //Get cropped image Uri
-                    Uri mCroppedImgUri = UCrop.getOutput(data);
-
-                    imgMeme.setScaleType(ImageView.ScaleType.CENTER_CROP);
-                    Picasso.with(getActivity())
-                            .load(mCroppedImgUri)
-                            .error(R.drawable.image_placeholder)
-                            .memoryPolicy(MemoryPolicy.NO_CACHE)
-                            .into(imgMeme);
-                } else if (resultCode == UCrop.RESULT_ERROR) {
-                    ViewHelper.getSnackBar(rootView, getString(R.string.error_img_not_cropped));
-                }
-                break;
             default:
                 super.onActivityResult(requestCode, resultCode, data);
         }
@@ -167,7 +125,7 @@ public class MemeSixthFragment extends Fragment {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.action_next:
-                getWritePermissionForMemeGeneration();
+                validateMemeCreation();
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
@@ -180,63 +138,15 @@ public class MemeSixthFragment extends Fragment {
     //region :Click functionality
 
     /**
-     * Image click functionality.
+     * Click functionality for bottom textView.
      */
-    @OnClick(R.id.img_meme)
-    void imgOnClick() {
-        //Method called
-        getWritePermissionForGallery();
+    @OnClick(R.id.tv)
+    void onTvBottomClick() {
+        MemeUtil.showMemeInputDialog(getActivity(), textView);
     }
     //endregion
 
     //region :Private methods
-
-
-    /**
-     * Method to check storage runtime permission for opening the gallery.
-     */
-    private void getWritePermissionForGallery() {
-        //Check for Write permission
-        if (Nammu.checkPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
-            //We have permission do whatever you want to do
-            ImageHelper.chooseImageFromGallery(MemeSixthFragment.this
-                    , Constant.REQUEST_CODE_OPEN_GALLERY_FOR_MEME);
-        } else {
-            //We do not own this permission
-            if (Nammu.shouldShowRequestPermissionRationale(MemeSixthFragment.this
-                    , Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
-                //User already refused to give us this permission or removed it
-                ViewHelper.getToast(getActivity()
-                        , getString(R.string.error_msg_share_permission_denied));
-            } else {
-                //First time asking for permission
-                Nammu.askForPermission(MemeSixthFragment.this
-                        , Manifest.permission.WRITE_EXTERNAL_STORAGE
-                        , writeForGalleryPermission);
-            }
-        }
-    }
-
-
-    /**
-     * Used to handle result of askForPermission for storage.
-     */
-    PermissionCallback writeForGalleryPermission = new PermissionCallback() {
-        @Override
-        public void permissionGranted() {
-            //We have permission do whatever you want to do
-            ImageHelper.chooseImageFromGallery(MemeSixthFragment.this
-                    , Constant.REQUEST_CODE_OPEN_GALLERY_FOR_MEME);
-        }
-
-        @Override
-        public void permissionRefused() {
-            //Show error message
-            ViewHelper.getToast(getActivity()
-                    , getString(R.string.error_msg_share_permission_denied));
-        }
-    };
-
 
     /**
      * Method to check for write storage runtime permission and generate meme images.
@@ -248,14 +158,14 @@ public class MemeSixthFragment extends Fragment {
             generateMemeImage();
         } else {
             //We do not own this permission
-            if (Nammu.shouldShowRequestPermissionRationale(MemeSixthFragment.this
+            if (Nammu.shouldShowRequestPermissionRationale(MemeSeventhFragment.this
                     , Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
                 //User already refused to give us this permission or removed it
                 ViewHelper.getToast(getActivity()
                         , getString(R.string.error_msg_share_permission_denied));
             } else {
                 //First time asking for permission
-                Nammu.askForPermission(MemeSixthFragment.this
+                Nammu.askForPermission(MemeSeventhFragment.this
                         , Manifest.permission.WRITE_EXTERNAL_STORAGE
                         , writeForMemePermission);
             }
@@ -315,6 +225,23 @@ public class MemeSixthFragment extends Fragment {
         container.setDrawingCacheEnabled(false);
     }
 
+
+    /**
+     * Method to validate meme creation and then generate meme.
+     */
+    private void validateMemeCreation() {
+        //if text equal to hint text
+        if (textView.getText().toString().equals(getString(R.string.hint_text_meme))) {
+            ViewHelper.getToast(getContext(), "Text field can't be empty");
+        }
+        //If empty
+        else if (TextUtils.isEmpty(textView.getText().toString().trim())) {
+            ViewHelper.getToast(getContext(), "Text field can't be empty");
+        } else {
+            getWritePermissionForMemeGeneration();
+        }
+
+    }
 
 //endregion
 }

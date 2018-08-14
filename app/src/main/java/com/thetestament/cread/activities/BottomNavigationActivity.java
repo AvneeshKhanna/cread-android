@@ -716,7 +716,7 @@ public class BottomNavigationActivity extends BaseActivity {
         //Set title text
         textTitle.setText("Write something awesome");
         //Set description text
-        textDesc.setText("This is where you can share your words. You can upload it as a post or save it to your phone");
+        textDesc.setText("This is where you can share your words. You can upload it as a post or save it to your phone!");
     }
 
     /**
@@ -747,7 +747,7 @@ public class BottomNavigationActivity extends BaseActivity {
         //Set title text
         textTitle.setText("Create Awesome Memes");
         //Set description text
-        textDesc.setText("Create and share memes on anything you like. Upload them as a post or save them to your phone");
+        textDesc.setText("Create and share memes on anything you like. Upload them as a post or save them to your phone!");
     }
 
     /**

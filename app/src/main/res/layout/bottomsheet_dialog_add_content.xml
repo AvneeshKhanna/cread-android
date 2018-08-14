@@ -22,15 +22,15 @@
         <android.support.v7.widget.AppCompatImageView
             android:layout_width="24dp"
             android:layout_height="24dp"
-            app:srcCompat="@drawable/ic_meme_vector"
-            android:tint="@color/grey_custom" />
+            android:tint="@color/grey_custom"
+            app:srcCompat="@drawable/ic_meme_vector" />
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:layout_marginLeft="16dp"
-            android:text="Meme" />
+            android:text="Create a meme" />
     </LinearLayout>
     <!--Btn writing-->
     <LinearLayout

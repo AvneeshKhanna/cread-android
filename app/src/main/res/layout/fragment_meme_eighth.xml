@@ -25,28 +25,59 @@
                 android:alpha="0.5"
                 android:background="@color/grey_dark" />
 
-            <!--TextView top-->
-            <android.support.v7.widget.AppCompatTextView
-                android:id="@+id/tv_top"
+            <!--Text container-->
+            <LinearLayout
+                android:id="@+id/container_tv"
                 android:layout_width="match_parent"
-                android:layout_height="50dp"
+                android:layout_height="wrap_content"
                 android:layout_below="@+id/top_divider_et_top"
-                android:background="@null"
-                android:gravity="center"
-                android:layout_marginTop="5dp"
-                android:layout_marginBottom="5dp"
-                android:paddingLeft="8dp"
-                android:paddingRight="8dp"
-                android:text="@string/hint_text_meme"
-                app:autoSizeMaxTextSize="24sp"
-                app:autoSizeTextType="uniform" />
+                android:orientation="horizontal"
+                android:weightSum="10">
+
+                <!--TextView left-->
+                <android.support.v7.widget.AppCompatTextView
+                    android:id="@+id/tv_left"
+                    android:layout_width="0dp"
+                    android:layout_height="50dp"
+                    android:layout_marginBottom="5dp"
+                    android:layout_marginTop="5dp"
+                    android:layout_weight="5"
+                    android:gravity="center"
+                    android:paddingLeft="8dp"
+                    android:paddingRight="8dp"
+                    android:text="@string/hint_text_meme"
+                    app:autoSizeMaxTextSize="24sp"
+                    app:autoSizeTextType="uniform" />
+
+                <!--Divider-->
+                <View
+                    android:id="@+id/tv_divider"
+                    android:layout_width="0.3dp"
+                    android:layout_height="match_parent"
+                    android:alpha="0.5"
+                    android:background="@color/grey_dark" />
+                <!--TextView right-->
+                <android.support.v7.widget.AppCompatTextView
+                    android:id="@+id/tv_right"
+                    android:layout_width="0dp"
+                    android:layout_height="50dp"
+                    android:layout_marginBottom="5dp"
+                    android:layout_marginTop="5dp"
+                    android:layout_weight="5"
+                    android:gravity="center"
+                    android:paddingLeft="8dp"
+                    android:paddingRight="8dp"
+                    android:text="@string/hint_text_meme"
+                    app:autoSizeMaxTextSize="24sp"
+                    app:autoSizeTextType="uniform" />
+            </LinearLayout>
 
             <!--Divider-->
             <View
-                android:id="@+id/bottom_divider_et_top"
+                android:id="@+id/bottom_divider_tv"
                 android:layout_width="match_parent"
                 android:layout_height="0.3dp"
-                android:layout_below="@+id/tv_top"
+                android:layout_below="@+id/container_tv"
                 android:alpha="0.5"
                 android:background="@color/grey_dark" />
 
@@ -55,13 +86,13 @@
                 android:id="@+id/container_images"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:layout_below="@+id/bottom_divider_et_top"
+                android:layout_below="@+id/bottom_divider_tv"
                 android:orientation="horizontal"
                 android:weightSum="10">
 
                 <!--ImageView-->
                 <android.support.v7.widget.AppCompatImageView
-                    android:id="@+id/img_meme"
+                    android:id="@+id/img_meme_left"
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
                     android:layout_weight="5"
@@ -81,12 +112,12 @@
 
                 <!--ImageView-->
                 <android.support.v7.widget.AppCompatImageView
-                    android:id="@+id/img_meme_two"
+                    android:id="@+id/img_meme_right"
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
                     android:layout_weight="5"
-                    android:clickable="true"
                     android:background="@color/grey_dark"
+                    android:clickable="true"
                     android:foreground="?android:selectableItemBackground"
                     android:scaleType="centerInside"
                     app:srcCompat="@drawable/ic_nav_menu_add" />
