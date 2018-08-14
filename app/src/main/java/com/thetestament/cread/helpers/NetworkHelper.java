@@ -114,7 +114,7 @@ public class NetworkHelper {
         Rx2ANRequest.GetRequestBuilder requestBuilder = Rx2AndroidNetworking.get(serverURL)
                 .addHeaders(header)
                 .addQueryParameter("lastindexkey", lastIndexKey)
-                .addQueryParameter("repostsupport","yes")
+                .addQueryParameter("repostsupport", "yes")
                 .addQueryParameter(Constant.PLATFORM_KEY, Constant.PLATFORM_VALUE);
 
         if (getResponseFromNetwork) {
@@ -147,6 +147,7 @@ public class NetworkHelper {
                 .addQueryParameter(Constant.PLATFORM_KEY, Constant.PLATFORM_VALUE)
                 .addQueryParameter("entityid", entityID)
                 .addQueryParameter("creatoruuid", creatorUUID)
+                .addQueryParameter("memesupport", "yes")
                 .addQueryParameter("collaboratoruuid", collaboratorUUID);
 
         if (getResponseFromNetwork) {
@@ -377,6 +378,7 @@ public class NetworkHelper {
         return Rx2AndroidNetworking.get(BuildConfig.URL + "/hashtag/feed")
                 .addQueryParameter(queryParam)
                 .addHeaders(headers)
+                .addQueryParameter("memesupport", "yes")
                 .build()
                 .getJSONObjectObservable();
     }
@@ -809,6 +811,7 @@ public class NetworkHelper {
         Rx2ANRequest.GetRequestBuilder requestBuilder = Rx2AndroidNetworking.get(serverURL)
                 .addHeaders(header)
                 .addQueryParameter("lastindexkey", lastIndexKey)
+                .addQueryParameter("memesupport", "yes")
                 .addQueryParameter(Constant.PLATFORM_KEY, Constant.PLATFORM_VALUE);
 
 

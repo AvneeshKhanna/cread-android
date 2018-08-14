@@ -37,6 +37,7 @@ public class MeNetworkManager {
         Map<String, String> queryParams = new HashMap<>();
         queryParams.put("requesteduuid", requestedUUID);
         queryParams.put("lastindexkey", lastIndexKey);
+        queryParams.put("memesupport", "yes");
         queryParams.put(Constant.PLATFORM_KEY, Constant.PLATFORM_VALUE);
 
         Rx2ANRequest.GetRequestBuilder requestBuilder = Rx2AndroidNetworking.get(serverURL)
@@ -71,6 +72,7 @@ public class MeNetworkManager {
         Map<String, String> queryParams = new HashMap<>();
         queryParams.put("requesteduuid", requestedUUID);
         queryParams.put("lastindexkey", lastIndexKey);
+        queryParams.put("memesupport","yes");
         queryParams.put(Constant.PLATFORM_KEY, Constant.PLATFORM_VALUE);
 
         Rx2ANRequest.GetRequestBuilder requestBuilder = Rx2AndroidNetworking.get(serverURL)
@@ -105,6 +107,7 @@ public class MeNetworkManager {
         Map<String, String> queryParams = new HashMap<>();
         queryParams.put("requesteduuid", requestedUUID);
         queryParams.put("lastindexkey", lastIndexKey);
+        queryParams.put("memesupport","yes");
         queryParams.put(Constant.PLATFORM_KEY, Constant.PLATFORM_VALUE);
 
         Rx2ANRequest.GetRequestBuilder requestBuilder = Rx2AndroidNetworking.get(serverURL)
