@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <android.support.v7.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/rootView"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
@@ -17,7 +18,75 @@
         android:orientation="vertical">
 
         <!--Meme creator-->
-        <include layout="@layout/layout_meme_creator" />
+        <!--Container creator-->
+        <RelativeLayout
+            android:id="@+id/container_creator"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="8dp"
+            android:layout_marginTop="8dp">
+
+            <LinearLayout
+                android:id="@+id/container_creator_specific"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_alignParentLeft="true"
+                android:layout_toLeftOf="@+id/btn_menu">
+
+                <com.facebook.drawee.view.SimpleDraweeView
+                    android:id="@+id/img_creator"
+                    android:layout_width="35dp"
+                    android:layout_height="35dp"
+                    android:layout_marginLeft="8dp"
+                    app:failureImage="@drawable/ic_account_circle_100"
+                    app:failureImageScaleType="centerCrop"
+                    app:roundAsCircle="true" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+
+                    <android.support.v7.widget.AppCompatTextView
+                        android:id="@+id/text_creator_name"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:paddingLeft="8dp"
+                        android:paddingRight="8dp"
+                        android:textColor="@color/grey"
+                        android:textSize="14sp"
+                        tools:text="Cread is the best app" />
+
+                    <!--Time stamp-->
+                    <android.support.v7.widget.AppCompatTextView
+                        android:id="@+id/text_time_stamp"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="5dp"
+                        android:paddingLeft="8dp"
+                        android:text="08 March at 5:00"
+                        android:textColor="@color/grey_custom"
+                        android:textSize="12sp" />
+                </LinearLayout>
+
+
+            </LinearLayout>
+
+            <!--Menu button-->
+            <android.support.v7.widget.AppCompatImageView
+                android:id="@+id/btn_menu"
+                android:layout_width="18dp"
+                android:layout_height="18dp"
+                android:layout_alignParentRight="true"
+                android:layout_centerVertical="true"
+                android:layout_marginRight="8dp"
+                android:gravity="center"
+                android:textAppearance="?android:textAppearanceLarge"
+                android:visibility="visible"
+                app:srcCompat="@drawable/ic_content_options" />
+
+        </RelativeLayout>
+
 
         <!--Main content container-->
         <FrameLayout
