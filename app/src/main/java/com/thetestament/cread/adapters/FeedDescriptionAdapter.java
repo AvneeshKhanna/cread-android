@@ -94,10 +94,10 @@ import static com.thetestament.cread.utils.Constant.REQUEST_CODE_COMMENTS_ACTIVI
 
 public class FeedDescriptionAdapter extends RecyclerView.Adapter {
 
-    private final int VIEW_TYPE_ITEM = 0;
-    private final int VIEW_TYPE_MEME = 1;
-    private final int VIEW_TYPE_LOADING = 2;
-    private final int VIEW_TYPE_HEADER = 3;
+    public static final int VIEW_TYPE_ITEM = 0;
+    public static final int VIEW_TYPE_MEME = 1;
+    public static final int VIEW_TYPE_LOADING = 2;
+    public static final int VIEW_TYPE_HEADER = 3;
 
     private List<FeedModel> mFeedList;
     private List<CommentsModel> mCommentsList = new ArrayList<>();
@@ -335,7 +335,7 @@ public class FeedDescriptionAdapter extends RecyclerView.Adapter {
             // follow click
             followOnClick(position, data, itemViewHolder.buttonFollow);
             // check whether to show menu options
-            showMenuOptions(data, itemViewHolder, position);
+            showMenuOptions(data, itemViewHolder.buttonMenu, position);
 
             if (position == 0) {
                 showTooltip(itemViewHolder);
@@ -457,7 +457,8 @@ public class FeedDescriptionAdapter extends RecyclerView.Adapter {
                 // show dialog
                 getDownvoteDialog(itemViewHolder);
             }
-
+            // check whether to show menu options
+            showMenuOptions(data, itemViewHolder.btnMenu, position);
             // init post timestamp
             updatePostTimestamp(itemViewHolder.textTimeStamp, data);
             setDoubleTap(itemViewHolder, itemViewHolder.doubleTapHatsOffView, data);
@@ -1054,19 +1055,19 @@ public class FeedDescriptionAdapter extends RecyclerView.Adapter {
     /**
      * If user is creator then it shows menu options
      */
-    private void showMenuOptions(final FeedModel data, ItemViewHolder itemViewHolder, final int position) {
+    private void showMenuOptions(final FeedModel data, AppCompatImageView btnMenu, final int position) {
         if (mHelper.getUUID().equals(data.getUUID()) && position == 0) {
-            itemViewHolder.buttonMenu.setVisibility(View.VISIBLE);
+            btnMenu.setVisibility(View.VISIBLE);
 
             //open bottom sheet on clicking of 3 dots
-            itemViewHolder.buttonMenu.setOnClickListener(new View.OnClickListener() {
+            btnMenu.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     getMenuActionsBottomSheet(mContext, position, data, onContentDeleteListener);
                 }
             });
         } else {
-            itemViewHolder.buttonMenu.setVisibility(View.GONE);
+            btnMenu.setVisibility(View.GONE);
         }
     }
 
@@ -1412,7 +1413,7 @@ public class FeedDescriptionAdapter extends RecyclerView.Adapter {
         @BindView(R.id.buttonFollow)
         TextView buttonFollow;
         @BindView(R.id.buttonMenu)
-        ImageView buttonMenu;
+        AppCompatImageView buttonMenu;
         @BindView(R.id.imageDownvote)
         AppCompatImageView imageDownvote;
         @BindView(R.id.dotSeperatorRight)
@@ -1482,6 +1483,8 @@ public class FeedDescriptionAdapter extends RecyclerView.Adapter {
         AppCompatTextView textCreatorName;
         @BindView(R.id.text_time_stamp)
         AppCompatTextView textTimeStamp;
+        @BindView(R.id.btn_menu)
+        AppCompatImageView btnMenu;
         @BindView(R.id.container_creator_specific)
         LinearLayout containerCreatorSpecific;
         @BindView(R.id.container_creator)

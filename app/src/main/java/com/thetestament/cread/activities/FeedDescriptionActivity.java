@@ -285,7 +285,6 @@ public class FeedDescriptionActivity extends BaseActivity implements listener.On
         }
     }
 
-
     @Override
     public void collaborationOnGraphic() {
 
@@ -800,33 +799,55 @@ public class FeedDescriptionActivity extends BaseActivity implements listener.On
                             new Handler().post(new Runnable() {
                                                    @Override
                                                    public void run() {
+                                                       if (recyclerViewPosts.findViewHolderForAdapterPosition(0).getItemViewType() == FeedDescriptionAdapter.VIEW_TYPE_ITEM) {
+                                                           FeedDescriptionAdapter.ItemViewHolder itemViewHolder = (FeedDescriptionAdapter.ItemViewHolder) recyclerViewPosts.findViewHolderForAdapterPosition(0);
+                                                           if (itemViewHolder != null) {
+                                                               //No data
+                                                               if (mCommentsList.size() == 0) {
+                                                                   //Hide views
+                                                                   itemViewHolder.viewTopComments.setVisibility(View.GONE);
+                                                                   itemViewHolder.textShowComments.setVisibility(View.GONE);
+                                                               } else {
 
-                                                       FeedDescriptionAdapter.ItemViewHolder itemViewHolder = (FeedDescriptionAdapter.ItemViewHolder) recyclerViewPosts.findViewHolderForAdapterPosition(0);
-                                                       if (itemViewHolder != null) {
-                                                           //No data
-                                                           if (mCommentsList.size() == 0) {
-                                                               //Hide views
-                                                               itemViewHolder.viewTopComments.setVisibility(View.GONE);
-                                                               itemViewHolder.textShowComments.setVisibility(View.GONE);
-                                                           } else {
+                                                                   //Change visibility
+                                                                   itemViewHolder.viewTopComments.setVisibility(View.VISIBLE);
+                                                                   itemViewHolder.textShowComments.setVisibility(View.VISIBLE);
+                                                                   // update comments view and list
+                                                                   mAdapter.updateCommentsList(mCommentsList);
+                                                                   mAdapter.updateCommentsView(mCommentsList, itemViewHolder);
 
-
-                                                               //Change visibility
-                                                               itemViewHolder.viewTopComments.setVisibility(View.VISIBLE);
-                                                               itemViewHolder.textShowComments.setVisibility(View.VISIBLE);
-                                                               // update comments view and list
-                                                               mAdapter.updateCommentsList(mCommentsList);
-                                                               mAdapter.updateCommentsView(mCommentsList, itemViewHolder);
-
-                                                               // scroll to bottom if opened from updates comment mention
-                                                               if (shouldScroll) {
-                                                                   itemViewHolder.viewTopComments.requestFocus();
+                                                                   // scroll to bottom if opened from updates comment mention
+                                                                   if (shouldScroll) {
+                                                                       itemViewHolder.viewTopComments.requestFocus();
+                                                                   }
                                                                }
                                                            }
+                                                       } else if (recyclerViewPosts.findViewHolderForAdapterPosition(0).getItemViewType() == FeedDescriptionAdapter.VIEW_TYPE_MEME) {
+                                                           FeedDescriptionAdapter.MemeViewHolder itemViewHolder = (FeedDescriptionAdapter.MemeViewHolder) recyclerViewPosts.findViewHolderForAdapterPosition(0);
+                                                           if (itemViewHolder != null) {
+                                                               //No data
+                                                               if (mCommentsList.size() == 0) {
+                                                                   //Hide views
+                                                                   itemViewHolder.viewTopComments.setVisibility(View.GONE);
+                                                                   itemViewHolder.textShowComments.setVisibility(View.GONE);
+                                                               } else {
 
+                                                                   //Change visibility
+                                                                   itemViewHolder.viewTopComments.setVisibility(View.VISIBLE);
+                                                                   itemViewHolder.textShowComments.setVisibility(View.VISIBLE);
+                                                                   // update comments view and list
+                                                                   mAdapter.updateCommentsList(mCommentsList);
+                                                                   mAdapter.updateCommentsView(mCommentsList, itemViewHolder);
+
+                                                                   // scroll to bottom if opened from updates comment mention
+                                                                   if (shouldScroll) {
+                                                                       itemViewHolder.viewTopComments.requestFocus();
+                                                                   }
+                                                               }
+                                                           }
                                                        }
-                                                   }
 
+                                                   }
 
                                                }
                             );
@@ -1199,7 +1220,6 @@ public class FeedDescriptionActivity extends BaseActivity implements listener.On
                     , getString(R.string.error_msg_share_permission_denied));
         }
     };
-
 
     /**
      * Used to handle result of askForPermission for gif sharing

@@ -399,7 +399,7 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         // on HatsOff count click
         hatsOffCountOnClick(itemViewHolder, data);
         //Comment click functionality
-        SocialActionHelper.navigateToComment(itemViewHolder.containerComment, mContext, data.getEntityID());
+        SocialActionHelper.navigateToComment(itemViewHolder.containerCommentCount, mContext, data.getEntityID());
         // downVote click
         downVoteOnClick(itemViewHolder.imageDownVote, data, itemViewHolder.getAdapterPosition(), itemViewHolder);
         //check long form status
@@ -602,7 +602,7 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         hatsOffCountOnClick(itemViewHolder, data);
 
         //Comment click functionality
-        SocialActionHelper.navigateToComment(itemViewHolder.containerComment, mContext, data.getEntityID());
+        SocialActionHelper.navigateToComment(itemViewHolder.containerCommentsCount, mContext, data.getEntityID());
 
         //Initialize HatsOff and comment count
         initSocialActionsCount(mContext,
