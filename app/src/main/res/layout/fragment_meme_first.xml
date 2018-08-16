@@ -26,11 +26,11 @@
             android:layout_width="match_parent"
             android:layout_height="50dp"
             android:layout_below="@+id/top_divider_et_top"
+            android:layout_marginBottom="5dp"
+            android:layout_marginTop="5dp"
             android:background="@null"
             android:gravity="center"
             android:paddingLeft="8dp"
-            android:layout_marginTop="5dp"
-            android:layout_marginBottom="5dp"
             android:paddingRight="8dp"
             android:text="@string/hint_text_meme"
             app:autoSizeMaxTextSize="24sp"
@@ -45,24 +45,31 @@
             android:alpha="0.5"
             android:background="@color/grey_dark" />
 
-        <!--ImageView-->
-        <com.thetestament.cread.widgets.SquareImageView
-            android:id="@+id/img_meme"
+        <FrameLayout
+            android:id="@+id/container_img"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_below="@+id/bottom_divider_et_top"
-            android:clickable="true"
-            android:background="@color/grey_dark"
-            android:foreground="?android:selectableItemBackground"
-            android:scaleType="centerInside"
-            app:srcCompat="@drawable/ic_nav_menu_add" />
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/bottom_divider_et_top">
+
+            <!--ImageView-->
+            <android.support.v7.widget.AppCompatImageView
+                android:id="@+id/img_meme"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@color/grey_dark"
+                android:clickable="true"
+                android:foreground="?android:selectableItemBackground"
+                android:scaleType="centerInside"
+                app:srcCompat="@drawable/ic_nav_menu_add" />
+
+        </FrameLayout>
 
         <!--Divider-->
         <View
             android:id="@+id/top_divider_et_bottom"
             android:layout_width="match_parent"
             android:layout_height="0.3dp"
-            android:layout_below="@+id/img_meme"
+            android:layout_below="@+id/container_img"
             android:alpha="0.5"
             android:background="@color/grey_dark" />
 
@@ -72,10 +79,10 @@
             android:layout_width="match_parent"
             android:layout_height="50dp"
             android:layout_below="@+id/top_divider_et_bottom"
+            android:layout_marginBottom="5dp"
+            android:layout_marginTop="5dp"
             android:background="@null"
             android:gravity="center"
-            android:layout_marginTop="5dp"
-            android:layout_marginBottom="5dp"
             android:paddingLeft="8dp"
             android:paddingRight="8dp"
             android:text="@string/hint_text_meme"

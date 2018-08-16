@@ -290,7 +290,7 @@ public class ImageHelper {
     }
 
     /**
-     * Method to open image cropper screen with 1:1 aspect ration.
+     * Method to open image cropper screen with 9:18 aspect ration.
      *
      * @param sourceUri      Uri of image to be cropped.
      * @param destinationUri Where image will be saved.
@@ -308,6 +308,29 @@ public class ImageHelper {
         //Launch  image cropping activity
         UCrop.of(sourceUri, destinationUri)
                 .withAspectRatio(9, 18)
+                .withOptions(options)
+                .start(context, fragment);
+    }
+
+    /**
+     * Method to open image cropper screen with 4:3 aspect ration.
+     *
+     * @param sourceUri      Uri of image to be cropped.
+     * @param destinationUri Where image will be saved.
+     * @param context        Context of use usually activity or application.
+     */
+    public static void startImageCroppingWith43(Context context, Fragment fragment, Uri sourceUri, Uri destinationUri) {
+        //For more information please visit "https://github.com/Yalantis/uCrop"
+
+        UCrop.Options options = new UCrop.Options();
+        //Change toolbar color
+        options.setToolbarColor(ContextCompat.getColor(context, R.color.colorPrimary));
+        //Change status bar color
+        options.setStatusBarColor(ContextCompat.getColor(context, R.color.colorPrimaryDark));
+
+        //Launch  image cropping activity
+        UCrop.of(sourceUri, destinationUri)
+                .withAspectRatio(4, 3)
                 .withOptions(options)
                 .start(context, fragment);
     }

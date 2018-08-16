@@ -13,6 +13,7 @@ import android.support.design.widget.BottomSheetBehavior;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.NestedScrollView;
+import android.support.v7.widget.AppCompatImageView;
 import android.support.v7.widget.AppCompatTextView;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -40,9 +41,9 @@ import com.thetestament.cread.helpers.ViewHelper;
 import com.thetestament.cread.listeners.listener;
 import com.thetestament.cread.models.MemeImageModel;
 import com.thetestament.cread.networkmanager.MemeNetworkManager;
+import com.thetestament.cread.utils.AspectRatioUtils;
 import com.thetestament.cread.utils.Constant;
 import com.thetestament.cread.utils.MemeUtil;
-import com.thetestament.cread.widgets.SquareImageView;
 import com.yalantis.ucrop.UCrop;
 
 import org.json.JSONArray;
@@ -84,7 +85,7 @@ public class MemeFirstFragment extends Fragment {
     @BindView(R.id.tv_top)
     AppCompatTextView tvTop;
     @BindView(R.id.img_meme)
-    SquareImageView imgMeme;
+    AppCompatImageView imgMeme;
     @BindView(R.id.tv_bottom)
     AppCompatTextView tvBottom;
 
@@ -180,7 +181,7 @@ public class MemeFirstFragment extends Fragment {
             case REQUEST_CODE_OPEN_GALLERY_FOR_MEME:
                 if (resultCode == RESULT_OK) {
                     // To crop the selected image
-                    ImageHelper.startImageCroppingWithSquare(getActivity()
+                    ImageHelper.startImageCroppingWith43(getActivity()
                             , MemeFirstFragment.this
                             , data.getData()
                             , getImageUri(Constant.IMAGE_TYPE_USER_MEME_ONE));
@@ -297,6 +298,7 @@ public class MemeFirstFragment extends Fragment {
         mHelper = new SharedPreferenceHelper(getActivity());
         //Method called
         initMemeBottomSheetView();
+        AspectRatioUtils.setImageAspectRatio(4, 3, imgMeme, true);
         //Load image if exist
         MemeUtil.setImageIfExist(Environment.getExternalStorageDirectory().getPath() + "/Cread/Meme/meme_pic_one.jpg"
                 , getActivity()
@@ -682,7 +684,7 @@ public class MemeFirstFragment extends Fragment {
             bitmap.compress(Bitmap.CompressFormat.JPEG, 85, out);
             out.close();
             //Code to launch image cropper
-            ImageHelper.startImageCroppingWithSquare(getActivity()
+            ImageHelper.startImageCroppingWith43(getActivity()
                     , MemeFirstFragment.this
                     , ImageHelper.getImageUri(IMAGE_TYPE_USER_MEME_ONE)
                     , ImageHelper.getImageUri(IMAGE_TYPE_USER_MEME_ONE));
