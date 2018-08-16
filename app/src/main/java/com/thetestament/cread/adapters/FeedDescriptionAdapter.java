@@ -94,10 +94,10 @@ import static com.thetestament.cread.utils.Constant.REQUEST_CODE_COMMENTS_ACTIVI
 
 public class FeedDescriptionAdapter extends RecyclerView.Adapter {
 
-    private final int VIEW_TYPE_ITEM = 0;
-    private final int VIEW_TYPE_MEME = 1;
-    private final int VIEW_TYPE_LOADING = 2;
-    private final int VIEW_TYPE_HEADER = 3;
+    public static final int VIEW_TYPE_ITEM = 0;
+    public static final int VIEW_TYPE_MEME = 1;
+    public static final int VIEW_TYPE_LOADING = 2;
+    public static final int VIEW_TYPE_HEADER = 3;
 
     private List<FeedModel> mFeedList;
     private List<CommentsModel> mCommentsList = new ArrayList<>();
